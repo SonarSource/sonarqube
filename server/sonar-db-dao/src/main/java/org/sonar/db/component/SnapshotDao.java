@@ -34,7 +34,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -125,9 +124,7 @@ public class SnapshotDao implements Dao {
    */
   @CheckForNull
   public ViewsSnapshotDto selectSnapshotBefore(String componentUuid, long date, DbSession dbSession) {
-    return from(mapper(dbSession).selectSnapshotBefore(componentUuid, date))
-      .first()
-      .orNull();
+    return mapper(dbSession).selectSnapshotBefore(componentUuid, date).stream().findFirst().orElse(null);
   }
 
   private static SnapshotMapper mapper(DbSession session) {

@@ -25,6 +25,8 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mindrot:jbcrypt'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'org.xmlunit:xmlunit-core'
+  testCompile 'org.xmlunit:xmlunit-matchers'
   testCompile project(':sonar-scanner-protocol')
   testCompile project(':sonar-testing-harness')
   testCompile testFixtures(project(':server:sonar-db-core'))

@@ -149,7 +149,6 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
-
   public final ProjectDto insertPublicProjectDto(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     ComponentDto componentDto = insertPublicProject(organization, dtoPopulator);
     return getProjectDto(componentDto);
@@ -184,6 +183,11 @@ public class ComponentDbTester {
 
   public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, defaults(), dtoPopulator);
+  }
+
+
+  public final ComponentDto insertPrivateProjectWithCustomBranch(String branchKey) {
+    return insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b ->  b.setBranchType(BRANCH).setKey(branchKey), defaults());
   }
 
   public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator) {
@@ -279,13 +283,37 @@ public class ComponentDbTester {
   public final ComponentDto insertPrivateApplication() {
     return insertPrivateApplication(db.getDefaultOrganization());
   }
-  
-  public final ComponentDto insertPrivateApplication(OrganizationDto organization) {
-    return insertPrivateApplication(organization, defaults());
+
+  public final ProjectDto insertPrivateApplicationDto() {
+    return getProjectDto(insertPrivateApplication(db.getDefaultOrganization()));
+  }
+
+  public final ProjectDto insertPublicApplicationDto() {
+    return getProjectDto(insertPublicApplication(db.getDefaultOrganization()));
+  }
+
+  public final ProjectDto insertPrivateApplicationDto(Consumer<ComponentDto> dtoPopulator) {
+    return getProjectDto(insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, defaults()));
+  }
+
+  public final ProjectDto insertPrivateApplicationDto(Consumer<ComponentDto> dtoPopulator, Consumer<ProjectDto> appPopulator) {
+    return getProjectDto(insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, appPopulator));
+  }
+
+  public final ComponentDto insertPrivateApplication(Consumer<ComponentDto> dtoPopulator) {
+    return insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, defaults());
   }
 
   public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(true), true, defaults(), dtoPopulator);
+    return insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, defaults());
+  }
+
+  public final ComponentDto insertPrivateApplication(OrganizationDto organization) {
+    return insertPrivateApplication(organization, defaults(), defaults());
+  }
+
+  public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator, Consumer<ProjectDto> projectPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(true), true, defaults(), dtoPopulator, projectPopulator);
   }
 
   public final ComponentDto insertSubView(ComponentDto view) {
@@ -311,6 +339,27 @@ public class ComponentDbTester {
 
     db.commit();
     return component;
+  }
+
+  public void addApplicationProject(ComponentDto application, ComponentDto... projects) {
+    for(ComponentDto project : projects){
+      dbClient.applicationProjectsDao().addProject(dbSession, application.uuid(), project.uuid());
+    }
+    db.commit();
+  }
+
+  public void addApplicationProject(ProjectDto application, ProjectDto... projects) {
+    for(ProjectDto project : projects){
+      dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
+    }
+    db.commit();
+  }
+
+  public void addProjectBranchToApplicationBranch(BranchDto applicationBranch, BranchDto... projectBranches) {
+    for(BranchDto projectBranch : projectBranches){
+      dbClient.applicationProjectsDao().addProjectBranchToAppBranch(dbSession, applicationBranch, projectBranch);
+    }
+    db.commit();
   }
 
   private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator,
@@ -421,7 +470,7 @@ public class ComponentDbTester {
   }
 
   // TODO temporary constructor to quickly create project from previous project component.
-  private ProjectDto toProjectDto(ComponentDto componentDto, long createTime) {
+  public static ProjectDto toProjectDto(ComponentDto componentDto, long createTime) {
     return new ProjectDto()
       .setUuid(componentDto.uuid())
       .setKey(componentDto.getDbKey())

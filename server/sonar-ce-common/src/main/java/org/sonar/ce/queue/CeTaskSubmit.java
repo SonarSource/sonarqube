@@ -25,7 +25,9 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.emptyToNull;
@@ -126,6 +128,18 @@ public final class CeTaskSubmit {
     public static Component fromDto(ComponentDto dto) {
       String uuid = dto.uuid();
       return new Component(uuid, firstNonNull(dto.getMainBranchProjectUuid(), uuid));
+    }
+
+    public static Component fromDto(ProjectDto dto) {
+      return new Component(dto.getUuid(), dto.getUuid());
+    }
+
+    public static Component fromDto(BranchDto dto) {
+      return new Component(dto.getUuid(), dto.getProjectUuid());
+    }
+
+    public static Component fromProjectUuid(String projectUuid) {
+      return new Component(projectUuid, projectUuid);
     }
 
     public String getUuid() {

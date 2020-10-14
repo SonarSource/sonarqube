@@ -33,6 +33,7 @@ import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDao;
 import org.sonar.db.component.AnalysisPropertiesDao;
+import org.sonar.db.component.ApplicationProjectsDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -166,6 +167,7 @@ public class DbClient {
   private final SessionTokensDao sessionTokensDao;
   private final SamlMessageIdDao samlMessageIdDao;
   private final UserDismissedMessagesDao userDismissedMessagesDao;
+  private final ApplicationProjectsDao applicationProjectsDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -245,6 +247,7 @@ public class DbClient {
     sessionTokensDao = getDao(map, SessionTokensDao.class);
     samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
     userDismissedMessagesDao = getDao(map, UserDismissedMessagesDao.class);
+    applicationProjectsDao = getDao(map, ApplicationProjectsDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -265,6 +268,10 @@ public class DbClient {
 
   public AlmPatDao almPatDao() {
     return almPatDao;
+  }
+
+  public ApplicationProjectsDao applicationProjectsDao() {
+    return applicationProjectsDao;
   }
 
   public ProjectAlmSettingDao projectAlmSettingDao() {

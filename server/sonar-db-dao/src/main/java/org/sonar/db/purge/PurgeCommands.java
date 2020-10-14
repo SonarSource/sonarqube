@@ -49,7 +49,6 @@ class PurgeCommands {
     this.system2 = system2;
   }
 
-  @VisibleForTesting
   PurgeCommands(DbSession session, PurgeProfiler profiler, System2 system2) {
     this(session, session.getMapper(PurgeMapper.class), profiler, system2);
   }
@@ -406,6 +405,21 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteApplicationProjects(String applicationUuid) {
+    profiler.start("deleteApplicationProjects (app_projects)");
+    purgeMapper.deleteApplicationBranchProjectBranchesByApplicationUuid(applicationUuid);
+    purgeMapper.deleteApplicationProjectsByApplicationUuid(applicationUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void deleteApplicationBranchProjects(String applicationBranchUuid) {
+    profiler.start("deleteApplicationBranchProjects (app_branch_project_branch)");
+    purgeMapper.deleteApplicationBranchProjects(applicationBranchUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   public void deleteProjectAlmSettings(String rootUuid) {
     profiler.start("deleteProjectAlmSettings (project_alm_settings)");
     purgeMapper.deleteProjectAlmSettingsByProjectUuid(rootUuid);
@@ -415,6 +429,7 @@ class PurgeCommands {
 
   void deleteBranch(String rootUuid) {
     profiler.start("deleteBranch (project_branches)");
+    purgeMapper.deleteApplicationBranchProjectBranchesByProjectBranchUuid(rootUuid);
     purgeMapper.deleteBranchByUuid(rootUuid);
     session.commit();
     profiler.stop();

@@ -29,7 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
-import org.sonar.core.util.Uuids;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -57,16 +57,18 @@ public class ComponentUpdater {
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
   private final ProjectIndexers projectIndexers;
+  private final UuidFactory uuidFactory;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers) {
+    ProjectIndexers projectIndexers, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
     this.projectIndexers = projectIndexers;
+    this.uuidFactory = uuidFactory;
   }
 
   /**
@@ -105,7 +107,7 @@ public class ComponentUpdater {
       "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), newComponent.key());
 
     long now = system2.now();
-    String uuid = Uuids.create();
+    String uuid = uuidFactory.create();
     ComponentDto component = new ComponentDto()
       .setOrganizationUuid(newComponent.getOrganizationUuid())
       .setUuid(uuid)
@@ -116,6 +118,7 @@ public class ComponentUpdater {
       .setProjectUuid(uuid)
       .setDbKey(newComponent.key())
       .setName(newComponent.name())
+      .setDescription(newComponent.description())
       .setLongName(newComponent.name())
       .setScope(Scopes.PROJECT)
       .setQualifier(newComponent.qualifier())

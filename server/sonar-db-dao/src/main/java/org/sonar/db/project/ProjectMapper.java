@@ -57,4 +57,8 @@ public interface ProjectMapper {
   List<ProjectDto> selectProjectsByOrganizationUuid(String organizationUuid);
 
   void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate, @Param("updatedAt") long updatedAt);
+
+  List<ProjectDto> selectAllApplications();
+
+  List<ProjectDto> selectApplicationsByKeys(@Param("kees") Collection<String> kees);
 }

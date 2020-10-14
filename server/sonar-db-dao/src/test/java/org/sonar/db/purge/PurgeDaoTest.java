@@ -536,6 +536,84 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void delete_application() {
+    MetricDto metric = db.measures().insertMetric();
+    ComponentDto project = db.components().insertPrivateProject();
+    BranchDto projectBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
+    RuleDefinitionDto rule = db.rules().insert();
+
+    ComponentDto app = db.components().insertPrivateApplication();
+    ComponentDto appBranch = db.components().insertProjectBranch(app);
+    ComponentDto otherApp = db.components().insertPrivateApplication();
+    ComponentDto otherAppBranch = db.components().insertProjectBranch(otherApp);
+
+    SnapshotDto appAnalysis = db.components().insertSnapshot(app);
+    SnapshotDto appBranchAnalysis = db.components().insertSnapshot(appBranch);
+    SnapshotDto otherAppAnalysis = db.components().insertSnapshot(otherApp);
+    SnapshotDto otherAppBranchAnalysis = db.components().insertSnapshot(otherAppBranch);
+
+    MeasureDto appMeasure = db.measures().insertMeasure(app, appAnalysis, metric);
+    MeasureDto appBranchMeasure = db.measures().insertMeasure(appBranch, appBranchAnalysis, metric);
+    MeasureDto otherAppMeasure = db.measures().insertMeasure(otherApp, otherAppAnalysis, metric);
+    MeasureDto otherAppBranchMeasure = db.measures().insertMeasure(otherAppBranch, otherAppBranchAnalysis, metric);
+
+    db.components().addApplicationProject(app, project);
+    db.components().addApplicationProject(otherApp, project);
+    db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, appBranch.uuid()).get(), projectBranch);
+    db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, otherAppBranch.uuid()).get(), projectBranch);
+
+    underTest.deleteProject(dbSession, app.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("components")).containsOnly(project.uuid(), otherApp.uuid(), otherAppBranch.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), otherApp.uuid());
+    assertThat(uuidsIn("snapshots")).containsOnly(otherAppAnalysis.getUuid(), otherAppBranchAnalysis.getUuid());
+    assertThat(uuidsIn("project_branches")).containsOnly(project.uuid(), otherApp.uuid(), otherAppBranch.uuid());
+    assertThat(uuidsIn("project_measures")).containsOnly(otherAppMeasure.getUuid(), otherAppBranchMeasure.getUuid());
+    assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(otherApp.uuid());
+    assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.uuid());
+  }
+
+  @Test
+  public void delete_application_branch() {
+    MetricDto metric = db.measures().insertMetric();
+    ComponentDto project = db.components().insertPrivateProject();
+    BranchDto projectBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
+    RuleDefinitionDto rule = db.rules().insert();
+
+    ComponentDto app = db.components().insertPrivateApplication();
+    ComponentDto appBranch = db.components().insertProjectBranch(app);
+    ComponentDto otherApp = db.components().insertPrivateApplication();
+    ComponentDto otherAppBranch = db.components().insertProjectBranch(otherApp);
+
+    SnapshotDto appAnalysis = db.components().insertSnapshot(app);
+    SnapshotDto appBranchAnalysis = db.components().insertSnapshot(appBranch);
+    SnapshotDto otherAppAnalysis = db.components().insertSnapshot(otherApp);
+    SnapshotDto otherAppBranchAnalysis = db.components().insertSnapshot(otherAppBranch);
+
+    MeasureDto appMeasure = db.measures().insertMeasure(app, appAnalysis, metric);
+    MeasureDto appBranchMeasure = db.measures().insertMeasure(appBranch, appBranchAnalysis, metric);
+    MeasureDto otherAppMeasure = db.measures().insertMeasure(otherApp, otherAppAnalysis, metric);
+    MeasureDto otherAppBranchMeasure = db.measures().insertMeasure(otherAppBranch, otherAppBranchAnalysis, metric);
+
+    db.components().addApplicationProject(app, project);
+    db.components().addApplicationProject(otherApp, project);
+    db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, appBranch.uuid()).get(), projectBranch);
+    db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, otherAppBranch.uuid()).get(), projectBranch);
+
+    underTest.deleteBranch(dbSession, appBranch.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("components")).containsOnly(project.uuid(), app.uuid(), otherApp.uuid(), otherAppBranch.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), app.uuid(), otherApp.uuid());
+    assertThat(uuidsIn("snapshots")).containsOnly(otherAppAnalysis.getUuid(), appAnalysis.getUuid(), otherAppBranchAnalysis.getUuid());
+    assertThat(uuidsIn("project_branches")).containsOnly(project.uuid(), app.uuid(), otherApp.uuid(), otherAppBranch.uuid());
+    assertThat(uuidsIn("project_measures")).containsOnly(appMeasure.getUuid(), otherAppMeasure.getUuid(), otherAppBranchMeasure.getUuid());
+    assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(app.uuid(), otherApp.uuid());
+    assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.uuid());
+  }
+
+  @Test
   public void delete_webhooks_from_project() {
     OrganizationDto organization = db.organizations().insert();
     ProjectDto project1 = db.components().insertPrivateProjectDto(organization);

@@ -34,6 +34,7 @@ import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.i18n.I18n;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -92,7 +93,7 @@ public class ReportSubmitterTest {
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers);
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory());
   private BranchSupport ossEditionBranchSupport = new BranchSupport();
 
   private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport);

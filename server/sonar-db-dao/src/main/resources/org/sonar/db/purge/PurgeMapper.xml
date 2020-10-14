@@ -329,6 +329,33 @@
     </foreach>
   </delete>
 
+  <delete id="deleteApplicationProjectsByApplicationUuid" parameterType="map">
+    DELETE
+    FROM app_projects
+    where
+      application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteApplicationBranchProjectBranchesByApplicationUuid" parameterType="map">
+    DELETE
+    FROM app_branch_project_branch
+    where
+      application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteApplicationBranchProjects" parameterType="String">
+    DELETE
+    FROM app_branch_project_branch
+    where
+      application_branch_uuid=#{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteApplicationBranchProjectBranchesByProjectBranchUuid" parameterType="String">
+    DELETE
+    FROM app_branch_project_branch
+    where project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteIssueChangesFromIssueKeys" parameterType="map">
     DELETE FROM issue_changes
     WHERE issue_key IN

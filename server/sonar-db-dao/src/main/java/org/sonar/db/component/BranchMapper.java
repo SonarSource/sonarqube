@@ -68,4 +68,5 @@ public interface BranchMapper {
 
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
+  void deleteBranch(@Param("projectUuid") String projectUuid, @Param("branchKey") String branchKey);
 }

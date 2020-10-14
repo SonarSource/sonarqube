@@ -50,11 +50,22 @@ public class ProjectDao implements Dao {
     return Optional.ofNullable(mapper(session).selectProjectOrAppByKey(key));
   }
 
+  public List<ProjectDto> selectAllApplications(DbSession session){
+    return mapper(session).selectAllApplications();
+  }
+
   public List<ProjectDto> selectProjectsByKeys(DbSession session, Set<String> keys) {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
     return mapper(session).selectProjectsByKeys(keys);
+  }
+
+  public List<ProjectDto> selectApplicationsByKeys(DbSession session, Set<String> keys) {
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return mapper(session).selectApplicationsByKeys(keys);
   }
 
   public List<ProjectDto> selectProjects(DbSession session) {
@@ -99,4 +110,5 @@ public class ProjectDao implements Dao {
   private static ProjectMapper mapper(DbSession session) {
     return session.getMapper(ProjectMapper.class);
   }
+
 }

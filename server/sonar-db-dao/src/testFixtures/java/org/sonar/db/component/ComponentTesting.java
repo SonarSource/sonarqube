@@ -286,7 +286,7 @@ public class ComponentTesting {
       .setLongName(project.getName())
       .setDescription(project.getDescription())
       .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT)
+      .setQualifier(project.getQualifier())
       .setPath(null)
       .setLanguage(null)
       .setEnabled(true)

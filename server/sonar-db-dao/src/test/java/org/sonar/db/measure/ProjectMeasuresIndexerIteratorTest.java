@@ -86,9 +86,7 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_application_measure() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateApplication(organization,
-      c -> c.setDbKey("App-Key").setName("App Name"));
+    ComponentDto project = dbTester.components().insertPrivateApplication(c -> c.setDbKey("App-Key").setName("App Name"));
 
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));

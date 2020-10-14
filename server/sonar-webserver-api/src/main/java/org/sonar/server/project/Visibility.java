@@ -43,7 +43,7 @@ public enum Visibility {
     return label;
   }
 
-  boolean isPrivate() {
+  public boolean isPrivate() {
     return isPrivate;
   }
 

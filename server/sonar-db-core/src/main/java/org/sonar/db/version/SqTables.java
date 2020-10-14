@@ -39,6 +39,8 @@ public final class SqTables {
     "alm_settings",
     "alm_pats",
     "analysis_properties",
+    "app_branch_project_branch",
+    "app_projects",
     "ce_activity",
     "ce_queue",
     "ce_task_characteristics",

@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class BranchDao implements Dao {
@@ -68,7 +68,7 @@ public class BranchDao implements Dao {
 
   public List<BranchDto> selectByBranchKeys(DbSession dbSession, Map<String, String> branchKeyByProjectUuid) {
     if (branchKeyByProjectUuid.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return mapper(dbSession).selectByBranchKeys(branchKeyByProjectUuid);
   }
@@ -94,6 +94,9 @@ public class BranchDao implements Dao {
   }
 
   public List<BranchDto> selectByUuids(DbSession session, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
     return executeLargeInputs(uuids, mapper(session)::selectByUuids);
   }
 
@@ -103,7 +106,7 @@ public class BranchDao implements Dao {
 
   public List<String> selectProjectUuidsWithIssuesNeedSync(DbSession session, Collection<String> uuids) {
     if (uuids.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
 
     return executeLargeInputs(uuids, mapper(session)::selectProjectUuidsWithIssuesNeedSync);
@@ -144,6 +147,10 @@ public class BranchDao implements Dao {
   public long updateNeedIssueSync(DbSession dbSession, String branchUuid, boolean needIssueSync) {
     long now = system2.now();
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
+  }
+
+  public void deleteBranch(DbSession dbSession, String projectUuid, String branchKey) {
+    mapper(dbSession).deleteBranch(projectUuid, branchKey);
   }
 
   public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components) {

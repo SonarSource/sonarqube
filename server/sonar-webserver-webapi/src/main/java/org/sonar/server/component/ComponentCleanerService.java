@@ -61,7 +61,6 @@ public class ComponentCleanerService {
   }
 
   public void deleteBranch(DbSession dbSession, BranchDto branch) {
-    // TODO: detect if other branches depend on it?
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
     projectIndexers.commitAndIndexBranches(dbSession, singletonList(branch), PROJECT_DELETION);
   }
@@ -70,6 +69,12 @@ public class ComponentCleanerService {
     dbClient.purgeDao().deleteProject(dbSession, project.getUuid());
     dbClient.userDao().cleanHomepage(dbSession, project);
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_DELETION);
+  }
+
+  public void deleteApplication(DbSession dbSession, ProjectDto application) {
+    dbClient.purgeDao().deleteProject(dbSession, application.getUuid());
+    dbClient.userDao().cleanHomepage(dbSession, application);
+    projectIndexers.commitAndIndexProjects(dbSession, singletonList(application), PROJECT_DELETION);
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {

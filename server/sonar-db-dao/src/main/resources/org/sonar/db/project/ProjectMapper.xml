@@ -46,6 +46,18 @@
       </foreach>
   </select>
 
+    <select id="selectApplicationsByKeys" resultType="Project">
+    select
+      <include refid="projectColumns"/>
+    from projects p
+    where
+      p.qualifier='APP' and
+      p.kee in
+      <foreach collection="kees" open="(" close=")" item="k" separator=",">
+        #{k,jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
     <select id="selectProjects" resultType="Project">
     select
       <include refid="projectColumns"/>
@@ -62,13 +74,21 @@
       p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
-    <select id="selectProjectsByOrganizationUuid" parameterType="String" resultType="Project">
+  <select id="selectProjectsByOrganizationUuid" parameterType="String" resultType="Project">
     select
       <include refid="projectColumns"/>
     from projects p
     where
       p.qualifier='TRK' and
       p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllApplications" resultType="Project">
+    select
+      <include refid="projectColumns"/>
+    from projects p
+    where
+      p.qualifier='APP'
   </select>
 
   <select id="selectProjectByKey" parameterType="String" resultType="Project">

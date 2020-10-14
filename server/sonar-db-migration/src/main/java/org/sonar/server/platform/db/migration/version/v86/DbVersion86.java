@@ -43,6 +43,16 @@ public class DbVersion86 implements DbVersion {
       .add(4113, "Make 'name' column in 'groups' table unique", AddUniqueIndexOnNameColumnOfGroupsTable.class)
       .add(4114, "Move default permission templates to internal properties", MoveDefaultTemplatesToInternalProperties.class)
       .add(4115, "Set 'sonar.forceAuthentication' to false for upgraded instances", SetForceAuthenticationSettings.class)
+
+      .add(4116, "Create table 'app_projects'", CreateApplicationProjectsTable.class)
+      .add(4117, "Create primary key for 'app_projects'", AddPkToApplicationProjects.class)
+      .add(4118, "Create index for 'app_projects'", AddIndexToApplicationProjects.class)
+
+      .add(4119, "Create table 'app_branch_project_branch'", CreateApplicationBranchProjs.class)
+      .add(4120, "Create primary key for 'app_branch_project_branch'", AddPkToApplicationBranchProjs.class)
+      .add(4121, "Create index for 'app_branch_project_branch'", AddIndexToApplicationBranchProjs.class)
+
+      .add(4122, "Migrate view definitions from xml to db", MigrateApplicationDefinitionsFromXmlToDb.class)
     ;
   }
 }

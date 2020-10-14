@@ -35,6 +35,7 @@ import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDao;
 import org.sonar.db.component.AnalysisPropertiesDao;
+import org.sonar.db.component.ApplicationProjectsDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -101,6 +102,7 @@ public class DaoModule extends Module {
     ActiveRuleDao.class,
     AnalysisPropertiesDao.class,
     AuthorizationDao.class,
+    ApplicationProjectsDao.class,
     BranchDao.class,
     CeActivityDao.class,
     CeQueueDao.class,

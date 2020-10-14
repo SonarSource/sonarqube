@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.ApplicationProjectsMapper">
+
+  <sql id="appColumns">
+    app.uuid as uuid
+  </sql>
+
+  <sql id="branchColumns">
+    pb.uuid as uuid,
+    pb.project_uuid as projectUuid,
+    pb.kee as kee,
+    pb.branch_type as branchType,
+    pb.merge_branch_uuid as mergeBranchUuid,
+    pb.pull_request_binary as pullRequestBinary,
+    pb.exclude_from_purge as excludeFromPurge,
+    pb.need_issue_sync as needIssueSync
+  </sql>
+
+  <sql id="projectColumns">
+      p.uuid as uuid,
+      p.organization_uuid as organizationUuid,
+      p.kee as kee,
+      p.qualifier as qualifier,
+      p.name as name,
+      p.description as description,
+      p.tags as tagsString,
+      p.private as isPrivate,
+      p.created_at as createdAt,
+      p.updated_at as updatedAt
+    </sql>
+
+  <select id="selectProjects" parameterType="String" resultType="Project">
+    SELECT
+      <include refid="projectColumns"/>
+    FROM
+      app_projects appProj
+    INNER JOIN
+      projects p
+    on
+      p.uuid = appProj.project_uuid
+    WHERE
+      appProj.application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <update id="addProject" parameterType="map">
+    INSERT INTO app_projects (
+      uuid,
+      application_uuid,
+      project_uuid,
+      created_at
+    )
+    VALUES (
+      #{uuid,jdbcType=VARCHAR},
+      #{applicationUuid,jdbcType=VARCHAR},
+      #{projectUuid,jdbcType=VARCHAR},
+      #{now,jdbcType=BIGINT}
+    )
+  </update>
+
+  <delete id="removeApplicationBranchProjectBranchesByApplicationAndProject" parameterType="map">
+    DELETE FROM
+      app_branch_project_branch
+    WHERE
+      app_branch_project_branch.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
+    AND
+      app_branch_project_branch.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="removeApplicationProjectsByApplicationAndProject" parameterType="map">
+    DELETE FROM
+      app_projects
+    WHERE
+      application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+    AND
+      project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="removeApplicationBranchProjectBranchesByApplication" parameterType="String">
+    DELETE FROM
+     app_branch_project_branch
+    where
+     application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="removeApplicationProjectsByApplication" parameterType="String">
+    DELETE FROM
+      app_projects
+    WHERE
+      application_uuid=#{applicationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="addProjectBranchToAppBranch" parameterType="map">
+    INSERT INTO app_branch_project_branch (
+      uuid,
+      application_uuid,
+      application_branch_uuid,
+      project_uuid,
+      project_branch_uuid,
+      created_at
+    )
+    VALUES (
+      #{uuid,jdbcType=VARCHAR},
+      #{applicationUuid,jdbcType=VARCHAR},
+      #{applicationBranchUuid,jdbcType=VARCHAR},
+      #{projectUuid,jdbcType=VARCHAR},
+      #{projectBranchUuid,jdbcType=VARCHAR},
+      #{now,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="removeProjectBranchFromAppBranch" parameterType="map">
+    DELETE FROM
+      app_branch_project_branch
+    WHERE
+      app_branch_project_branch.application_branch_uuid = #{applicationBranchUuid,jdbcType=VARCHAR}
+    AND
+      app_branch_project_branch.project_branch_uuid = #{projectBranchUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectProjectBranchesFromAppBranch" parameterType="String" resultType="org.sonar.db.component.BranchDto">
+    SELECT
+      <include refid="branchColumns"/>
+    FROM
+      app_branch_project_branch
+    INNER JOIN
+      project_branches pb
+    ON
+      app_branch_project_branch.project_branch_uuid = pb.uuid
+    WHERE
+      app_branch_project_branch.application_branch_uuid = #{applicationBranchUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="countApplicationProjects" parameterType="String" resultType="int">
+    select
+      count(1)
+    FROM
+      app_projects ap
+    WHERE
+      ap.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
+  </select>
+
+  <update id="updateApplicationBranchName" parameterType="String">
+    UPDATE
+      project_branches
+    SET
+      kee = #{newName,jdbcType=VARCHAR}
+    WHERE
+      uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectApplicationsFromProjectBranch" parameterType="String" resultType="Project">
+    SELECT
+      <include refid="projectColumns"/>
+    FROM
+      projects p
+    WHERE p.uuid IN (
+      SELECT
+        abp.application_uuid
+      FROM
+        app_branch_project_branch abp
+      INNER JOIN
+        project_branches pb
+      ON
+        abp.project_branch_uuid = pb.uuid
+      WHERE
+        pb.kee = #{branchKey,jdbcType=VARCHAR}
+      AND
+        abp.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    )
+  </select>
+
+  <select id="selectApplicationsFromProjects" resultType="Project">
+    SELECT
+      <include refid="projectColumns"/>
+    FROM
+      app_projects ap
+    INNER JOIN
+      projects p
+    ON
+      ap.application_uuid = p.uuid
+    WHERE
+      ap.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <delete id="removeAllProjectBranchesOfAppBranch" parameterType="String">
+    DELETE FROM
+      app_branch_project_branch
+    WHERE
+      application_branch_uuid=#{applicationBranchUuid,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

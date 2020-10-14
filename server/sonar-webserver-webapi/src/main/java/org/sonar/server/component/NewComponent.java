@@ -19,6 +19,8 @@
  */
 package org.sonar.server.component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -33,6 +35,7 @@ public class NewComponent {
   private final String key;
   private final String qualifier;
   private final String name;
+  private final String description;
   private final boolean isPrivate;
 
   private NewComponent(NewComponent.Builder builder) {
@@ -41,6 +44,7 @@ public class NewComponent {
     this.qualifier = builder.qualifier;
     this.name = builder.name;
     this.isPrivate = builder.isPrivate;
+    this.description = builder.description;
   }
 
   public static Builder newComponentBuilder() {
@@ -67,7 +71,13 @@ public class NewComponent {
     return isPrivate;
   }
 
+  @CheckForNull
+  public String description() {
+    return description;
+  }
+
   public static class Builder {
+    private String description;
     private String organizationUuid;
     private String key;
     private String qualifier = PROJECT;
@@ -100,6 +110,11 @@ public class NewComponent {
 
     public Builder setPrivate(boolean isPrivate) {
       this.isPrivate = isPrivate;
+      return this;
+    }
+
+    public Builder setDescription(@Nullable String description) {
+      this.description = description;
       return this;
     }
 

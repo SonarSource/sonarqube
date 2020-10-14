@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<schema targetNamespace="http://sonarsource.com/schema/views"
+        elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://sonarsource.com/schema/views">
+  <element name="views">
+    <complexType>
+      <sequence>
+        <element name="vw" type="tns:vwType" maxOccurs="unbounded" minOccurs="0"/>
+      </sequence>
+    </complexType>
+  </element>
+  <complexType name="vwType">
+    <sequence>
+      <choice minOccurs="1" maxOccurs="unbounded">
+        <element name="name" maxOccurs="1" minOccurs="1" type="tns:nameType"/>
+        <element name="desc" maxOccurs="1" minOccurs="0" type="tns:descType"/>
+        <element name="regexp" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="language" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="tag_key" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="tag_value" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="p" maxOccurs="unbounded" minOccurs="0" type="tns:keyType"/>
+        <element name="remoteView" maxOccurs="unbounded" minOccurs="0" type="tns:remoteViewType"/>
+        <element name="vw-ref" maxOccurs="unbounded" minOccurs="0" type="tns:keyType"/>
+        <element name="qualifier" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="branch" maxOccurs="unbounded" minOccurs="0" type="tns:branchType"/>
+        <element name="tagsAssociation" maxOccurs="unbounded" minOccurs="0" type="tns:tagsAssociationType"/>
+      </choice>
+    </sequence>
+    <attribute name="key" use="required" type="tns:keyType"/>
+    <attribute name="def" type="boolean"/>
+    <attribute name="root" type="tns:keyType"/>
+    <attribute name="parent" type="tns:keyType"/>
+  </complexType>
+  <complexType name="tagsAssociationType">
+    <sequence>
+      <element name="tag" maxOccurs="unbounded" minOccurs="1" type="string"/>
+    </sequence>
+  </complexType>
+  <complexType name="branchType">
+    <sequence>
+      <choice minOccurs="1" maxOccurs="unbounded">
+        <element name="p" maxOccurs="unbounded" minOccurs="1" type="tns:branchProject"/>
+      </choice>
+    </sequence>
+    <attribute name="key" use="required" type="tns:branchKeyType"/>
+  </complexType>
+  <complexType name="branchProject">
+    <simpleContent>
+      <extension base="tns:keyType">
+        <attribute name="branch" type="tns:branchKeyType" />
+      </extension>
+    </simpleContent>
+  </complexType>
+  <complexType name="remoteViewType">
+    <sequence>
+      <choice minOccurs="1" maxOccurs="unbounded">
+        <element name="key" minOccurs="1" maxOccurs="1" type="tns:keyType"/>
+        <element name="remoteKey" minOccurs="1" maxOccurs="1" type="tns:keyType"/>
+        <element name="name" minOccurs="1" maxOccurs="1" type="tns:nameType"/>
+        <element name="desc" minOccurs="0" maxOccurs="1" type="tns:descType"/>
+        <element name="server" minOccurs="1" maxOccurs="1" type="string"/>
+      </choice>
+    </sequence>
+  </complexType>
+  <simpleType name="keyType">
+    <restriction base="string">
+      <maxLength value="400"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="nameType">
+    <restriction base="string">
+      <maxLength value="256"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="descType">
+    <restriction base="string">
+      <maxLength value="256"/>
+    </restriction>
+  </simpleType>
+  <simpleType name="branchKeyType">
+    <restriction base="string">
+      <maxLength value="255"/>
+    </restriction>
+  </simpleType>
+</schema>
