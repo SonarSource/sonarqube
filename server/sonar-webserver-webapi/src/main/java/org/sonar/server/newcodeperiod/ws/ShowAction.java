@@ -38,7 +38,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.NewCodePeriods;
 
 import static java.lang.String.format;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;

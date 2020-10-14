@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
@@ -81,7 +81,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     Permission.Builder permission = newBuilder();
 
     permissionService.getGlobalPermissions().stream()
-      .map(OrganizationPermission::getKey)
+      .map(GlobalPermission::getKey)
       .forEach(permissionKey -> {
         PermissionQuery query = permissionQuery(permissionKey);
         response.addPermissions(

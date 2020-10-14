@@ -27,7 +27,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -97,7 +97,7 @@ public class AppActionTest {
 
   @Test
   public void canWrite_is_true_if_user_is_profile_administrator() {
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
+    userSession.addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     String json = ws.newRequest().execute().getInput();
 
@@ -106,7 +106,7 @@ public class AppActionTest {
 
   @Test
   public void canWrite_is_false_if_user_is_not_profile_administrator() {
-    userSession.addPermission(OrganizationPermission.SCAN);
+    userSession.addPermission(GlobalPermission.SCAN);
     String json = ws.newRequest().execute().getInput();
 
     assertJson(json).isSimilarTo("{ \"canWrite\": false }");

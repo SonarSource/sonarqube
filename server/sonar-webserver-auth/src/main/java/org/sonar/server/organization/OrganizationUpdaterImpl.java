@@ -33,8 +33,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMemberDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
@@ -59,7 +59,7 @@ import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
@@ -224,7 +224,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     return group;
   }
 
-  private void addPermissionToGroup(DbSession dbSession, GroupDto group, OrganizationPermission permission) {
+  private void addPermissionToGroup(DbSession dbSession, GroupDto group, GlobalPermission permission) {
     dbClient.groupPermissionDao().insert(
       dbSession,
       new GroupPermissionDto()

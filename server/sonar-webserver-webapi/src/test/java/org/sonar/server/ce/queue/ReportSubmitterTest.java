@@ -40,7 +40,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
@@ -68,8 +68,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ReportSubmitterTest {
 
@@ -106,7 +106,7 @@ public class ReportSubmitterTest {
   @Test
   public void submit_with_characteristics_fails_with_ISE_when_no_branch_support_delegate() {
     userSession
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
@@ -125,7 +125,7 @@ public class ReportSubmitterTest {
   @Test
   public void submit_stores_report() {
     userSession
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
@@ -157,7 +157,7 @@ public class ReportSubmitterTest {
   public void provision_project_if_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
     userSession
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
@@ -178,7 +178,7 @@ public class ReportSubmitterTest {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .logIn(user)
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
@@ -193,7 +193,7 @@ public class ReportSubmitterTest {
   @Test
   public void do_no_add_favorite_when_no_project_creator_permission_on_permission_template() {
     userSession
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
@@ -213,7 +213,7 @@ public class ReportSubmitterTest {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .logIn(user)
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
@@ -228,7 +228,7 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_new_project_with_scan_permission_on_organization() {
     userSession
-      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(GlobalPermission.SCAN)
       .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))

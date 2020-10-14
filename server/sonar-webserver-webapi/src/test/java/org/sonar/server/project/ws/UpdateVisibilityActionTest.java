@@ -44,8 +44,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -84,8 +84,8 @@ public class UpdateVisibilityActionTest {
   private static final String PUBLIC = "public";
   private static final String PRIVATE = "private";
 
-  private static final Set<String> ORGANIZATION_PERMISSIONS_NAME_SET = stream(OrganizationPermission.values()).map(OrganizationPermission::getKey)
-    .collect(MoreCollectors.toSet(OrganizationPermission.values().length));
+  private static final Set<String> ORGANIZATION_PERMISSIONS_NAME_SET = stream(GlobalPermission.values()).map(GlobalPermission::getKey)
+    .collect(MoreCollectors.toSet(GlobalPermission.values().length));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -252,7 +252,7 @@ public class UpdateVisibilityActionTest {
     request.setParam(PARAM_PROJECT, project.getDbKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project);
-    Arrays.stream(OrganizationPermission.values())
+    Arrays.stream(GlobalPermission.values())
       .forEach(perm -> userSessionRule.addPermission(perm));
     request.setParam(PARAM_PROJECT, project.getDbKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
@@ -641,7 +641,7 @@ public class UpdateVisibilityActionTest {
   }
 
   private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group, OrganizationDto organization) {
-    Arrays.stream(OrganizationPermission.values())
+    Arrays.stream(GlobalPermission.values())
       .forEach(organizationPermission -> {
         dbTester.users().insertPermissionOnAnyone(organizationPermission);
         dbTester.users().insertPermissionOnGroup(group, organizationPermission);

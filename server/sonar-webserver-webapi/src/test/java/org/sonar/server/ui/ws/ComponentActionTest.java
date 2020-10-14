@@ -48,7 +48,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
@@ -84,8 +84,8 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ui.ws.ComponentAction.PARAM_COMPONENT;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -510,7 +510,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER);
+      .addPermission(GlobalPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"private\"}");
   }
 
@@ -523,7 +523,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER);
+      .addPermission(GlobalPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"public\"}");
   }
 
@@ -536,7 +536,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER);
+      .addPermission(GlobalPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
     userSession.logIn()

@@ -30,7 +30,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
 
 public class WebhookSupport {

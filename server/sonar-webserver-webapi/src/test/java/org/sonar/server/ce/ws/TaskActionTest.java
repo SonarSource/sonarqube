@@ -42,7 +42,7 @@ import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -57,7 +57,7 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class TaskActionTest {
 
@@ -469,7 +469,7 @@ public class TaskActionTest {
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_scan_on_organization() {
-    userSession.logIn().addPermission(OrganizationPermission.SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
 
     getWarningsImpl(createAndPersistArchivedTask(privateProject));
   }

@@ -33,7 +33,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -52,7 +52,7 @@ public class ServerUserSession extends AbstractUserSession {
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Collection<GroupDto> groups;
   private Boolean isSystemAdministrator;
-  private Set<OrganizationPermission> permissions;
+  private Set<GlobalPermission> permissions;
   private Map<String, Set<String>> permissionsByProjectUuid;
 
   ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
@@ -116,7 +116,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission) {
+  protected boolean hasPermissionImpl(GlobalPermission permission) {
     if (permissions == null) {
       permissions = loadGlobalPermissions();
     }
@@ -170,7 +170,7 @@ public class ServerUserSession extends AbstractUserSession {
     }
   }
 
-  private Set<OrganizationPermission> loadGlobalPermissions() {
+  private Set<GlobalPermission> loadGlobalPermissions() {
     Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (userDto != null && userDto.getUuid() != null) {
@@ -180,7 +180,7 @@ public class ServerUserSession extends AbstractUserSession {
       }
     }
     return permissionKeys.stream()
-      .map(OrganizationPermission::fromKey)
+      .map(GlobalPermission::fromKey)
       .collect(MoreCollectors.toSet(permissionKeys.size()));
   }
 
@@ -217,6 +217,6 @@ public class ServerUserSession extends AbstractUserSession {
     if (isRoot()) {
       return true;
     }
-    return hasPermission(OrganizationPermission.ADMINISTER);
+    return hasPermission(GlobalPermission.ADMINISTER);
   }
 }

@@ -56,8 +56,8 @@ import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.organization.OrganizationDto.Subscription.SONARQUBE;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class OrganizationActionTest {

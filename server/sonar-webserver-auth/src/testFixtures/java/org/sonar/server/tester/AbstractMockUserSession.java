@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.AbstractUserSession;
 
@@ -40,7 +40,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   private final Class<T> clazz;
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
-  private final Set<OrganizationPermission> permissions = new HashSet<>();
+  private final Set<GlobalPermission> permissions = new HashSet<>();
   private Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Set<String> projectPermissions = new HashSet<>();
   private boolean systemAdministrator = false;
@@ -49,13 +49,13 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     this.clazz = clazz;
   }
 
-  public T addPermission(OrganizationPermission permission) {
+  public T addPermission(GlobalPermission permission) {
     permissions.add(permission);
     return clazz.cast(this);
   }
 
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission) {
+  protected boolean hasPermissionImpl(GlobalPermission permission) {
     return permissions.contains(permission);
   }
 

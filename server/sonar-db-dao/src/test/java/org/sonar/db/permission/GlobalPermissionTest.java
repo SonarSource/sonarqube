@@ -23,12 +23,12 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OrganizationPermissionTest {
+public class GlobalPermissionTest {
 
   @Test
   public void fromKey_returns_enum_with_specified_key() {
-    for (OrganizationPermission p : OrganizationPermission.values()) {
-      assertThat(OrganizationPermission.fromKey(p.getKey())).isEqualTo(p);
+    for (GlobalPermission p : GlobalPermission.values()) {
+      assertThat(GlobalPermission.fromKey(p.getKey())).isEqualTo(p);
     }
   }
 }

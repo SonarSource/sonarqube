@@ -47,7 +47,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -158,7 +158,7 @@ public class ValuesAction implements SettingsWsAction {
     ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
     if (!userSession.hasComponentPermission(USER, component) &&
       !userSession.hasComponentPermission(UserRole.SCAN, component) &&
-      !userSession.hasPermission(OrganizationPermission.SCAN)) {
+      !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
     return Optional.of(component);

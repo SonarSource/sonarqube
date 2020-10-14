@@ -32,7 +32,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;

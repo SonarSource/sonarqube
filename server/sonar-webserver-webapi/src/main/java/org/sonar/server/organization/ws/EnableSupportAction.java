@@ -23,7 +23,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganisationSupport;
 import org.sonar.server.user.UserSession;
@@ -65,7 +65,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
   }
 
   private void verifySystemAdministrator() {
-    userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER);
+    userSession.checkLoggedIn().checkPermission(GlobalPermission.ADMINISTER);
   }
 
 }

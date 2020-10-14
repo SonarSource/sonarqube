@@ -22,11 +22,12 @@ package org.sonar.core.permission;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.sonar.db.permission.GlobalPermission;
 
 /**
  * Holds the constants representing the various global permissions that can be assigned to users & groups
  *
- * @deprecated replaced by enum {@link org.sonar.db.permission.OrganizationPermission}
+ * @deprecated replaced by enum {@link GlobalPermission}
  */
 @Deprecated
 public final class GlobalPermissions {

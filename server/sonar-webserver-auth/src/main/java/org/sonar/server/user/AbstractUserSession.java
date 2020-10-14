@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -76,11 +76,11 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final boolean hasPermission(OrganizationPermission permission) {
+  public final boolean hasPermission(GlobalPermission permission) {
     return isRoot() || hasPermissionImpl(permission);
   }
 
-  protected abstract boolean hasPermissionImpl(OrganizationPermission permission);
+  protected abstract boolean hasPermissionImpl(GlobalPermission permission);
 
   @Override
   public final boolean hasComponentPermission(String permission, ComponentDto component) {
@@ -167,7 +167,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public final UserSession checkPermission(OrganizationPermission permission) {
+  public final UserSession checkPermission(GlobalPermission permission) {
     if (!hasPermission(permission)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }

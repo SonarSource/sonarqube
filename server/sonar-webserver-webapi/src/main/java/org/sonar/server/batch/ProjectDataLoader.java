@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
@@ -62,7 +62,7 @@ public class ProjectDataLoader {
       ComponentDto project = componentFinder.getByKey(session, projectKey);
       checkRequest(project.isRootProject(), "Key '%s' belongs to a component which is not a Project", projectKey);
       boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) ||
-        userSession.hasPermission(OrganizationPermission.SCAN);
+        userSession.hasPermission(GlobalPermission.SCAN);
       checkPermission(hasScanPerm);
       ComponentDto branchOrMainModule = (branch == null && pullRequest == null) ? project
         : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, projectKey, branch, pullRequest);

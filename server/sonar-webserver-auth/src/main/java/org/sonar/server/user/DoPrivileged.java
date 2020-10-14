@@ -22,11 +22,11 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 
 /**
- * Allow code to be executed with the highest privileges possible, as if executed by a {@link OrganizationPermission#ADMINISTER} account.
+ * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermission#ADMINISTER} account.
  * @since 4.3
  */
 public final class DoPrivileged {
@@ -107,7 +107,7 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected boolean hasPermissionImpl(OrganizationPermission permission) {
+      protected boolean hasPermissionImpl(GlobalPermission permission) {
         return true;
       }
 

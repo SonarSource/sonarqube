@@ -35,15 +35,15 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class UserDbTester {
@@ -205,7 +205,7 @@ public class UserDbTester {
     return dto;
   }
 
-  public GroupPermissionDto insertPermissionOnAnyone(OrganizationPermission permission) {
+  public GroupPermissionDto insertPermissionOnAnyone(GlobalPermission permission) {
     return insertPermissionOnAnyone(permission.getKey());
   }
 
@@ -219,7 +219,7 @@ public class UserDbTester {
     return dto;
   }
 
-  public GroupPermissionDto insertPermissionOnGroup(GroupDto group, OrganizationPermission permission) {
+  public GroupPermissionDto insertPermissionOnGroup(GroupDto group, GlobalPermission permission) {
     return insertPermissionOnGroup(group, permission.getKey());
   }
 
@@ -281,13 +281,13 @@ public class UserDbTester {
   /**
    * Grant permission
    */
-  public UserPermissionDto insertPermissionOnUser(UserDto user, OrganizationPermission permission) {
+  public UserPermissionDto insertPermissionOnUser(UserDto user, GlobalPermission permission) {
     return insertPermissionOnUser(user, permission.getKey());
   }
 
   /**
    * Grant global permission
-   * @deprecated use {@link #insertPermissionOnUser(UserDto, OrganizationPermission)}
+   * @deprecated use {@link #insertPermissionOnUser(UserDto, GlobalPermission)}
    */
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(UserDto user, String permission) {
@@ -297,7 +297,7 @@ public class UserDbTester {
     return dto;
   }
 
-  public void deletePermissionFromUser(UserDto user, OrganizationPermission permission) {
+  public void deletePermissionFromUser(UserDto user, GlobalPermission permission) {
     db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user.getUuid(), permission.getKey());
     db.commit();
   }
@@ -320,7 +320,7 @@ public class UserDbTester {
     return dto;
   }
 
-  public List<OrganizationPermission> selectPermissionsOfUser(UserDto user) {
+  public List<GlobalPermission> selectPermissionsOfUser(UserDto user) {
     return toListOfOrganizationPermissions(db.getDbClient().userPermissionDao()
       .selectGlobalPermissionsOfUser(db.getSession(), user.getUuid()));
   }
@@ -329,10 +329,10 @@ public class UserDbTester {
     return db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getUuid(), project.uuid());
   }
 
-  private static List<OrganizationPermission> toListOfOrganizationPermissions(List<String> keys) {
+  private static List<GlobalPermission> toListOfOrganizationPermissions(List<String> keys) {
     return keys
       .stream()
-      .map(OrganizationPermission::fromKey)
+      .map(GlobalPermission::fromKey)
       .collect(MoreCollectors.toList());
   }
 

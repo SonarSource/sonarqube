@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
@@ -79,7 +79,7 @@ public class CreateAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organizationDto = wsSupport.getOrganization(dbSession, request);
 
-      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES);
+      userSession.checkPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
       String name = request.mandatoryParam(PARAM_NAME);
 

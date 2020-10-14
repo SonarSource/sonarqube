@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
@@ -96,7 +96,7 @@ public class GroupsAction implements UsersWsAction {
   private GroupsWsResponse doHandle(GroupsRequest request) {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(OrganizationPermission.ADMINISTER);
+      userSession.checkPermission(GlobalPermission.ADMINISTER);
 
       String login = request.getLogin();
       GroupMembershipQuery query = GroupMembershipQuery.builder()

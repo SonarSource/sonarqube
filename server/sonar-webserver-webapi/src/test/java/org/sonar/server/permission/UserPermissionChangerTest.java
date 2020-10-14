@@ -31,7 +31,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -44,9 +44,9 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
@@ -88,11 +88,11 @@ public class UserPermissionChangerTest {
   @Test
   public void apply_removes_any_organization_permission_to_user() {
     // give ADMIN perm to user2 so that user1 is not the only one with this permission and it can be removed from user1
-    db.users().insertPermissionOnUser(user2, OrganizationPermission.ADMINISTER);
+    db.users().insertPermissionOnUser(user2, GlobalPermission.ADMINISTER);
     permissionService.getGlobalPermissions().stream()
       .forEach(perm -> db.users().insertPermissionOnUser(user1, perm));
     assertThat(db.users().selectPermissionsOfUser(user1))
-      .containsOnly(permissionService.getGlobalPermissions().toArray(new OrganizationPermission[0]));
+      .containsOnly(permissionService.getGlobalPermissions().toArray(new GlobalPermission[0]));
 
     permissionService.getGlobalPermissions().stream()
       .forEach(perm -> {

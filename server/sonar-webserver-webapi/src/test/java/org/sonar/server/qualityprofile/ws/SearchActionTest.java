@@ -33,7 +33,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
@@ -274,7 +274,7 @@ public class SearchActionTest {
     QProfileDto defaultProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(defaultProfile);
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
+    userSession.logIn(user).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     SearchWsResponse result = call(ws.newRequest());
 

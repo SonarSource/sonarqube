@@ -36,7 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -140,7 +140,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, searchRequest.getOrganization());
-      userSession.checkPermission(OrganizationPermission.ADMINISTER);
+      userSession.checkPermission(GlobalPermission.ADMINISTER);
       checkAtLeastOneParameterIsPresent(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);

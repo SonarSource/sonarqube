@@ -25,7 +25,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
@@ -103,14 +103,14 @@ public class QProfileWsSupport {
   }
 
   public void checkPermission(DbSession dbSession) {
-    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
+    userSession.checkPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
   }
 
   boolean canEdit(DbSession dbSession, QProfileDto profile) {
     if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
       return false;
     }
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES)) {
+    if (userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES)) {
       return true;
     }
 

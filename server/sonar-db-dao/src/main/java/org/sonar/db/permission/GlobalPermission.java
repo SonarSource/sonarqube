@@ -19,7 +19,7 @@
  */
 package org.sonar.db.permission;
 
-public enum OrganizationPermission {
+public enum GlobalPermission {
 
   ADMINISTER("admin"),
   ADMINISTER_QUALITY_GATES("gateadmin"),
@@ -35,7 +35,7 @@ public enum OrganizationPermission {
 
   private final String key;
 
-  OrganizationPermission(String key) {
+  GlobalPermission(String key) {
     this.key = key;
   }
 
@@ -48,8 +48,8 @@ public enum OrganizationPermission {
     return key;
   }
 
-  public static OrganizationPermission fromKey(String key) {
-    for (OrganizationPermission p : values()) {
+  public static GlobalPermission fromKey(String key) {
+    for (GlobalPermission p : values()) {
       if (p.getKey().equals(key)) {
         return p;
       }

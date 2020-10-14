@@ -35,7 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_AVATAR_URL;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_DESCRIPTION;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;

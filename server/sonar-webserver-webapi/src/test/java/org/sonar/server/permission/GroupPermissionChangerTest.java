@@ -34,17 +34,17 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class GroupPermissionChangerTest {
 
@@ -316,7 +316,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
     permissionService.getGlobalPermissions().stream()
-      .map(OrganizationPermission::getKey)
+      .map(GlobalPermission::getKey)
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {
         try {
@@ -334,7 +334,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
     permissionService.getGlobalPermissions().stream()
-      .map(OrganizationPermission::getKey)
+      .map(GlobalPermission::getKey)
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {
         try {
@@ -353,7 +353,7 @@ public class GroupPermissionChangerTest {
 
     permissionService.getAllProjectPermissions()
       .stream()
-      .filter(perm -> !GlobalPermissions.SCAN_EXECUTION.equals(perm) && !OrganizationPermission.ADMINISTER.getKey().equals(perm))
+      .filter(perm -> !GlobalPermissions.SCAN_EXECUTION.equals(perm) && !GlobalPermission.ADMINISTER.getKey().equals(perm))
       .forEach(permission -> {
         try {
           apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, null, groupUuid, permissionService));

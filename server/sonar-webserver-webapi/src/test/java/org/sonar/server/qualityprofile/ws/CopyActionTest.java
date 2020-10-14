@@ -32,8 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -52,7 +51,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CopyActionTest {
@@ -219,7 +218,7 @@ public class CopyActionTest {
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator_of_organization() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
-    userSession.logIn().addPermission(OrganizationPermission.SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -234,7 +233,7 @@ public class CopyActionTest {
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
-    userSession.logIn().addPermission(OrganizationPermission.SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

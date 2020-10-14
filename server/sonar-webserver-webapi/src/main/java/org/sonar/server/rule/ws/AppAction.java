@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.user.UserSession;
 
 public class AppAction implements RulesWsAction {
@@ -65,7 +65,7 @@ public class AppAction implements RulesWsAction {
   }
 
   private void addPermissions(JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
+    boolean canWrite = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     json.prop("canWrite", canWrite);
   }
 

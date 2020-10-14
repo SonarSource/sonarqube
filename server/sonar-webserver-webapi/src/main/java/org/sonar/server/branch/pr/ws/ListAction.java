@@ -36,7 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.component.ComponentFinder;
@@ -127,7 +127,7 @@ public class ListAction implements PullRequestWsAction {
   private void checkPermission(ProjectDto project) {
     if (userSession.hasProjectPermission(USER, project) ||
       userSession.hasProjectPermission(UserRole.SCAN, project) ||
-      userSession.hasPermission(OrganizationPermission.SCAN)) {
+      userSession.hasPermission(GlobalPermission.SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();

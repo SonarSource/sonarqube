@@ -29,7 +29,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -197,7 +197,7 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule addPermission(OrganizationPermission permission) {
+  public UserSessionRule addPermission(GlobalPermission permission) {
     ensureAbstractMockUserSession().addPermission(permission);
     return this;
   }
@@ -310,12 +310,12 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasPermission(OrganizationPermission permission) {
+  public boolean hasPermission(GlobalPermission permission) {
     return currentUserSession.hasPermission(permission);
   }
 
   @Override
-  public UserSession checkPermission(OrganizationPermission permission) {
+  public UserSession checkPermission(GlobalPermission permission) {
     currentUserSession.checkPermission(permission);
     return this;
   }

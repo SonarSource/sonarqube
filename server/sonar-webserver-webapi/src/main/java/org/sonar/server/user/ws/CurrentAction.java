@@ -33,7 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
@@ -135,7 +135,7 @@ public class CurrentAction implements UsersWsAction {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     return permissionService.getGlobalPermissions().stream()
       .filter(permission -> userSession.hasPermission(permission))
-      .map(OrganizationPermission::getKey)
+      .map(GlobalPermission::getKey)
       .collect(toList());
   }
 

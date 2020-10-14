@@ -27,7 +27,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
@@ -169,13 +169,13 @@ public interface UserSession {
    * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
    * organization does not exist.
    */
-  boolean hasPermission(OrganizationPermission permission);
+  boolean hasPermission(GlobalPermission permission);
 
   /**
-   * Ensures that {@link #hasPermission(OrganizationPermission)} is {@code true},
+   * Ensures that {@link #hasPermission(GlobalPermission)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkPermission(OrganizationPermission permission);
+  UserSession checkPermission(GlobalPermission permission);
 
   /**
    * Returns {@code true} if the permission is granted to user on the component,

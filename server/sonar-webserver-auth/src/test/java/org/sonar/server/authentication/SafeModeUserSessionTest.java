@@ -21,7 +21,7 @@ package org.sonar.server.authentication;
 
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +42,7 @@ public class SafeModeUserSessionTest {
   public void session_has_no_permissions() {
     assertThat(underTest.isRoot()).isFalse();
     assertThat(underTest.isSystemAdministrator()).isFalse();
-    assertThat(underTest.hasPermissionImpl(OrganizationPermission.ADMINISTER)).isFalse();
+    assertThat(underTest.hasPermissionImpl(GlobalPermission.ADMINISTER)).isFalse();
     assertThat(underTest.hasProjectUuidPermission(UserRole.USER, "foo")).isFalse();
   }
 }

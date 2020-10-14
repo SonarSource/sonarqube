@@ -22,7 +22,7 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -102,7 +102,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    protected boolean hasPermissionImpl(OrganizationPermission permission) {
+    protected boolean hasPermissionImpl(GlobalPermission permission) {
       throw notImplemented();
     }
 

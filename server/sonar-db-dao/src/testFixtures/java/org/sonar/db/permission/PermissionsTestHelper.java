@@ -27,7 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 public class PermissionsTestHelper {
 
   public static final Set<String> ALL_PERMISSIONS = ImmutableSet.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
-    GlobalPermissions.SCAN_EXECUTION, UserRole.USER, OrganizationPermission.APPLICATION_CREATOR.getKey(), OrganizationPermission.PORTFOLIO_CREATOR.getKey());
+    GlobalPermissions.SCAN_EXECUTION, UserRole.USER, GlobalPermission.APPLICATION_CREATOR.getKey(), GlobalPermission.PORTFOLIO_CREATOR.getKey());
 
   private PermissionsTestHelper() {
   }

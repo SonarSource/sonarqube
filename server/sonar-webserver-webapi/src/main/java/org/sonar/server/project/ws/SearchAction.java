@@ -37,7 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchWsResponse;
@@ -156,7 +156,7 @@ public class SearchAction implements ProjectsWsAction {
   private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      userSession.checkPermission(OrganizationPermission.ADMINISTER);
+      userSession.checkPermission(GlobalPermission.ADMINISTER);
 
       ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);

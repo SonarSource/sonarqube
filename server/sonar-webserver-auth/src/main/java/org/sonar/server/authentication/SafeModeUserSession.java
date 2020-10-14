@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.AbstractUserSession;
 
@@ -32,7 +32,7 @@ import org.sonar.server.user.AbstractUserSession;
 public class SafeModeUserSession extends AbstractUserSession {
 
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission) {
+  protected boolean hasPermissionImpl(GlobalPermission permission) {
     return false;
   }
 

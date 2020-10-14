@@ -50,10 +50,10 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 
 public class UserPermissionDaoTest {
@@ -654,9 +654,9 @@ public class UserPermissionDaoTest {
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isEqualTo(0);
   }
 
-  private void assertGlobalPermissionsOfUser(UserDto user, OrganizationPermission... permissions) {
+  private void assertGlobalPermissionsOfUser(UserDto user, GlobalPermission... permissions) {
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid()).stream()
-      .map(OrganizationPermission::fromKey))
+      .map(GlobalPermission::fromKey))
       .containsOnly(permissions);
   }
 

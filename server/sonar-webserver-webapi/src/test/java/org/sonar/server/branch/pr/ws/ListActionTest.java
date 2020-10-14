@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -387,7 +387,7 @@ public class ListActionTest {
   @Test
   public void does_not_fail_when_only_scan_permission_on_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().addPermission(OrganizationPermission.SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
     ComponentDto project = db.components().insertPublicProject(organization);
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")

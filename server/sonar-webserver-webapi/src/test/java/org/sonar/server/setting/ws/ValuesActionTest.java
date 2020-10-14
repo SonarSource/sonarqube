@@ -42,7 +42,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.TestComponentFinder;
@@ -68,7 +68,7 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
@@ -803,13 +803,13 @@ public class ValuesActionTest {
 
     // organization administrator but not system administrator
     userSession.logIn()
-      .addPermission(OrganizationPermission.SCAN);
+      .addPermission(GlobalPermission.SCAN);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 
     // organization administrator
     userSession.logIn()
-      .addPermission(OrganizationPermission.ADMINISTER);
+      .addPermission(GlobalPermission.ADMINISTER);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 
