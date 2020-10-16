@@ -160,6 +160,33 @@ qa_task:
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
+qa_bitbucket_task:
+  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  maven_cache:
+    folder: ~/.m2
+  env:
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
+    QA_CATEGORY: BITBUCKET
+  matrix:
+    - name: qa_bitbucket_5.16.11
+      bitbucket_background_script: ./private/cirrus/cirrus-start-bitbucket.sh 5.16.11
+    - name: qa_bitbucket_latest
+      bitbucket_background_script: ./private/cirrus/cirrus-start-bitbucket.sh LATEST
+  wait_for_bitbucket_to_boot_script: secs=3600; endTime=$(( $(date +%s) + secs )); while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:7990/bitbucket/status)" != "200" ]] || [ $(date +%s) -gt $endTime ]; do sleep 5; done
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres106
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+
 qa_ha_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
