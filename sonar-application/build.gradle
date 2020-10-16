@@ -53,7 +53,6 @@ dependencies {
 
   jdbc_h2 'com.h2database:h2'
   jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
-  jdbc_mysql 'mysql:mysql-connector-java'
   jdbc_postgresql 'org.postgresql:postgresql'
 
   bundledPlugin 'org.sonarsource.auth.github:sonar-auth-github-plugin:1.5.0.870@jar'
