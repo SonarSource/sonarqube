@@ -430,6 +430,9 @@ subprojects {
       ignore 'sq-version.txt'
     }
   }
+
+
+  ext.failedTests = []
   test {
     jvmArgs '-Dfile.encoding=UTF8'
     maxHeapSize = '1G'
@@ -448,6 +451,23 @@ subprojects {
     if (project.hasProperty('parallelTests')) {
       // See https://guides.gradle.org/performance/#parallel_test_execution
       maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    }
+
+     afterTest { descriptor, result ->
+        if (result.resultType == TestResult.ResultType.FAILURE) {
+            String failedTest = "  ${descriptor.className} > ${descriptor.name}"
+            failedTests << failedTest
+        }
+    }
+  }
+
+  gradle.buildFinished {
+    if (!failedTests.empty) {
+      println "\nFailed tests:"
+      failedTests.each { failedTest ->
+        println failedTest
+      }
+      println ""
     }
   }
 
