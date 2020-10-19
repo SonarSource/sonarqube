@@ -248,7 +248,6 @@ export class Sidebar extends React.PureComponent<Props> {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.assignees}
-            organization={organizationKey}
             query={query}
             referencedUsers={this.props.referencedUsers}
             stats={facets.assignees}

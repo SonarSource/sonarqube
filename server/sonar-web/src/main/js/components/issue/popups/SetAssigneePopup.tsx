@@ -22,9 +22,7 @@ import * as React from 'react';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { searchMembers } from '../../../api/organizations';
 import { searchUsers } from '../../../api/users';
-import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
@@ -63,14 +61,6 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
     };
   }
 
-  searchMembers = (query: string) => {
-    searchMembers({
-      organization: this.props.issue.projectOrganization,
-      q: query,
-      ps: LIST_SIZE
-    }).then(this.handleSearchResult, () => {});
-  };
-
   searchUsers = (query: string) => {
     searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
   };
@@ -92,11 +82,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
       });
     } else {
       this.setState({ query });
-      if (isSonarCloud()) {
-        this.searchMembers(query);
-      } else {
-        this.searchUsers(query);
-      }
+      this.searchUsers(query);
     }
   };
 

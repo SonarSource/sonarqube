@@ -34,7 +34,6 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: string | undefined;
   query: Query;
   stats: T.Dict<number> | undefined;
   referencedUsers: T.Dict<T.UserBase>;
@@ -42,7 +41,7 @@ interface Props {
 
 export default class AssigneeFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page?: number) => {
-    return searchAssignees(query, this.props.organization, page);
+    return searchAssignees(query, page);
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {

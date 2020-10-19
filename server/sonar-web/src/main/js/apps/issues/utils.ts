@@ -31,7 +31,6 @@ import {
 } from 'sonar-ui-common/helpers/query';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
 import { SecurityStandard, StandardType } from '../../types/security';
 
@@ -212,15 +211,12 @@ export interface ReferencedRule {
 
 export const searchAssignees = (
   query: string,
-  organization: string | undefined,
   page = 1
 ): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
-  return organization
-    ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
-        paging,
-        results: users
-      }))
-    : searchUsers({ p: page, q: query }).then(({ paging, users }) => ({ paging, results: users }));
+  return searchUsers({ p: page, q: query }).then(({ paging, users }) => ({
+    paging,
+    results: users
+  }));
 };
 
 const LOCALSTORAGE_MY = 'my';

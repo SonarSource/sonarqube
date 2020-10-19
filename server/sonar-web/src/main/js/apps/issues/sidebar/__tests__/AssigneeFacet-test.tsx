@@ -92,7 +92,6 @@ function shallowRender(props?: Partial<AssigneeFacet['props']>) {
       onChange={jest.fn()}
       onToggle={jest.fn()}
       open={true}
-      organization={undefined}
       query={{} as Query}
       referencedUsers={{ foo: { avatar: 'avatart-foo', login: 'name-foo', name: 'Name Foo' } }}
       stats={{ '': 5, foo: 13, bar: 7, baz: 6 }}

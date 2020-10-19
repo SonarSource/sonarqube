@@ -160,7 +160,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   handleAssigneeSearch = (query: string) => {
-    return searchAssignees(query, this.state.organization).then(({ results }) =>
+    return searchAssignees(query).then(({ results }) =>
       results.map(r => {
         const userInfo = r.name || r.login;
 
