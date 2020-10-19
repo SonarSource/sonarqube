@@ -198,10 +198,9 @@ public class UpdateAction implements RulesWsAction {
   private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key) {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
-    RuleUpdate ruleUpdate = ofNullable(rule.getTemplateUuid())
+    return ofNullable(rule.getTemplateUuid())
       .map(x -> RuleUpdate.createForCustomRule(key))
       .orElseGet(() -> RuleUpdate.createForPluginRule(key));
-    return ruleUpdate;
   }
 
   private static void readTags(Request request, RuleUpdate update) {

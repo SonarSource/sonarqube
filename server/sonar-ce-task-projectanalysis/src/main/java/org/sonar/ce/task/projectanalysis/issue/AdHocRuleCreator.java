@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;

@@ -42,8 +42,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -79,10 +77,8 @@ public class SearchActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   private QualityProfileDbTester qualityProfileDb = db.qualityProfiles();
   private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
-  private SearchAction underTest = new SearchAction(userSession, LANGUAGES, dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
+  private SearchAction underTest = new SearchAction(userSession, LANGUAGES, dbClient, new ComponentFinder(dbClient, null));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -94,7 +90,7 @@ public class SearchActionTest {
 
   @Test
   public void empty_when_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert();
 
     SearchWsResponse result = call(ws.newRequest());
@@ -253,7 +249,7 @@ public class SearchActionTest {
 
   @Test
   public void empty_when_filtering_on_project_and_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert();
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
@@ -429,7 +425,7 @@ public class SearchActionTest {
     db.qualityProfiles().addUserPermission(myBuProfile, user);
     userSession.logIn(user);
 
-    underTest = new SearchAction(userSession, new Languages(cs, java, python), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
+    underTest = new SearchAction(userSession, new Languages(cs, java, python), dbClient, new ComponentFinder(dbClient, null));
     ws = new WsActionTester(underTest);
     String result = ws.newRequest().execute().getInput();
     assertJson(result).ignoreFields("ruleUpdatedAt", "lastUsed", "userUpdatedAt")

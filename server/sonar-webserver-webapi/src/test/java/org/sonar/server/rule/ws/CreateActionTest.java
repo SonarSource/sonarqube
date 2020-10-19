@@ -35,8 +35,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -74,13 +72,12 @@ public class CreateActionTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory),
     new RuleMapper(new Languages(), createMacroInterpreter()),
-    new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+    new RuleWsSupport(db.getDbClient(), userSession)));
 
   @Test
   public void check_definition() {

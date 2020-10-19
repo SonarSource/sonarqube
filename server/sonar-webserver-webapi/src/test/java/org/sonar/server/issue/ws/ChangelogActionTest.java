@@ -75,7 +75,7 @@ public class ChangelogActionTest {
   private ComponentDto file;
   private IssueFinder issueFinder = new IssueFinder(db.getDbClient(), userSession);
   private IssueChangeWSSupport issueChangeSupport = new IssueChangeWSSupport(db.getDbClient(), new AvatarResolverImpl(), userSession);
-  private ChangelogAction underTest = new ChangelogAction(db.getDbClient(), issueFinder, userSession, issueChangeSupport);
+  private ChangelogAction underTest = new ChangelogAction(db.getDbClient(), issueFinder, issueChangeSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before

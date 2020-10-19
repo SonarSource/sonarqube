@@ -36,13 +36,11 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Optional.empty;

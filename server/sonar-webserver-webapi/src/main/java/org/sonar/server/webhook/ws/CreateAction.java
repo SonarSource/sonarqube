@@ -37,6 +37,7 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMUM_LENGTH;
@@ -52,7 +53,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Webhooks.CreateWsResponse.Webhook;
@@ -150,7 +150,7 @@ public class CreateAction implements WebhooksWsAction {
         webhookSupport.checkThatProjectBelongsToOrganization(projectDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
         webhookSupport.checkPermission(projectDto);
       } else {
-        webhookSupport.checkPermission(organizationDto);
+        webhookSupport.checkPermission();
       }
 
       webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);

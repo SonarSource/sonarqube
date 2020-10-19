@@ -36,8 +36,6 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -80,7 +78,7 @@ public class UpdateActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+
   private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();
 
@@ -88,7 +86,7 @@ public class UpdateActionTest {
   private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
-  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
+  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, new RuleWsSupport(db.getDbClient(), userSession));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

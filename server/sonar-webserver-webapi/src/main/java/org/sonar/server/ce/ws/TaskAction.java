@@ -125,7 +125,6 @@ public class TaskAction implements CeWsAction {
 
   private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
-      String orgUuid = component.get().getOrganizationUuid();
       if (!userSession.hasPermission(GlobalPermission.ADMINISTER) &&
         !userSession.hasPermission(GlobalPermission.SCAN) &&
         !userSession.hasComponentPermission(UserRole.SCAN, component.get())) {

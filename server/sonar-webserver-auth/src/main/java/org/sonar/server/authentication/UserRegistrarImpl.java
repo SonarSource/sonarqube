@@ -97,9 +97,9 @@ public class UserRegistrarImpl implements UserRegistrar {
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
-      return userUpdater.createAndCommit(dbSession, newUser, beforeCommit(dbSession, true, authenticatorParameters), toArray(otherUserToIndex));
+      return userUpdater.createAndCommit(dbSession, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     }
-    return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, beforeCommit(dbSession, true, authenticatorParameters), toArray(otherUserToIndex));
+    return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
   }
 
   private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
@@ -111,14 +111,12 @@ public class UserRegistrarImpl implements UserRegistrar {
         authenticatorParameters.getUserIdentity().getProviderLogin(),
         authenticatorParameters.getUserIdentity().getProviderId()));
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
-    userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, false, authenticatorParameters), toArray(otherUserToIndex));
+    userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
   }
 
-  private Consumer<UserDto> beforeCommit(DbSession dbSession, boolean isNewUser, UserRegistration authenticatorParameters) {
-    return user -> {
-      syncGroups(dbSession, authenticatorParameters.getUserIdentity(), user);
-    };
+  private Consumer<UserDto> beforeCommit(DbSession dbSession, UserRegistration authenticatorParameters) {
+    return user -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), user);
   }
 
   private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserRegistration authenticatorParameters) {

@@ -57,7 +57,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION)
+    context.createAction(ACTION)
       .setDescription("List global permissions. <br />" +
         "Requires the following permission: 'Administer System'")
       .setResponseExample(getClass().getResource("search_global_permissions-example.json"))

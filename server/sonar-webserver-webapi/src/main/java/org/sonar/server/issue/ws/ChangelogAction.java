@@ -30,7 +30,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 
 import static java.util.Collections.singleton;
@@ -43,13 +42,11 @@ public class ChangelogAction implements IssuesWsAction {
 
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
-  private final UserSession userSession;
   private final IssueChangeWSSupport issueChangeSupport;
 
-  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, UserSession userSession, IssueChangeWSSupport issueChangeSupport) {
+  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
-    this.userSession = userSession;
     this.issueChangeSupport = issueChangeSupport;
   }
 

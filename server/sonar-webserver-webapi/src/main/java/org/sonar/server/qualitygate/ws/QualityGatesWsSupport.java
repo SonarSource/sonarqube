@@ -77,7 +77,7 @@ public class QualityGatesWsSupport {
     return checkFound(dbClient.gateConditionDao().selectByUuid(uuid, dbSession), "No quality gate condition with uuid '%s'", uuid);
   }
 
-  boolean isQualityGateAdmin(OrganizationDto organization) {
+  boolean isQualityGateAdmin() {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES);
   }
 
@@ -91,10 +91,10 @@ public class QualityGatesWsSupport {
       .setExampleValue("my-org");
   }
 
-  Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
+  Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
     boolean isDefault = defaultQualityGate != null && Objects.equals(defaultQualityGate.getUuid(), qualityGate.getUuid());
     boolean isBuiltIn = qualityGate.isBuiltIn();
-    boolean isQualityGateAdmin = isQualityGateAdmin(organization);
+    boolean isQualityGateAdmin = isQualityGateAdmin();
     return Qualitygates.Actions.newBuilder()
       .setCopy(isQualityGateAdmin)
       .setRename(!isBuiltIn && isQualityGateAdmin)

@@ -77,14 +77,12 @@ public class SearchAction implements QProfileWsAction {
   private final UserSession userSession;
   private final Languages languages;
   private final DbClient dbClient;
-  private final QProfileWsSupport wsSupport;
   private final ComponentFinder componentFinder;
 
-  public SearchAction(UserSession userSession, Languages languages, DbClient dbClient, QProfileWsSupport wsSupport, ComponentFinder componentFinder) {
+  public SearchAction(UserSession userSession, Languages languages, DbClient dbClient, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.languages = languages;
     this.dbClient = dbClient;
-    this.wsSupport = wsSupport;
     this.componentFinder = componentFinder;
   }
 

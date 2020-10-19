@@ -25,7 +25,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -36,11 +35,9 @@ import static org.sonar.api.web.UserRole.ADMIN;
 public class SettingsWsSupport {
   public static final String DOT_SECURED = ".secured";
 
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
 
-  public SettingsWsSupport(DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+  public SettingsWsSupport(UserSession userSession) {
     this.userSession = userSession;
   }
 

@@ -103,7 +103,6 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     private String projectId;
     private String projectKey;
     private String templateId;
-    private String organization;
     private String templateName;
 
     @CheckForNull

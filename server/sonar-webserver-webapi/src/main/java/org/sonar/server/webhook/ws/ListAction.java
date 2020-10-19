@@ -61,7 +61,7 @@ public class ListAction implements WebhooksWsAction {
   private final ComponentFinder componentFinder;
 
   public ListAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
-    WebhookSupport webhookSupport,  ComponentFinder componentFinder) {
+    WebhookSupport webhookSupport, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -127,7 +127,7 @@ public class ListAction implements WebhooksWsAction {
       return dbClient.webhookDao().selectByProject(dbSession, projectDto);
 
     } else {
-      webhookSupport.checkPermission(organizationDto);
+      webhookSupport.checkPermission();
       return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
     }
   }

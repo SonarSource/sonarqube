@@ -34,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.security.SecurityStandards;
@@ -75,12 +74,10 @@ public class RuleWsSupport {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RuleWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RuleWsSupport(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public void checkQProfileAdminPermissionOnDefaultOrganization() {

@@ -37,8 +37,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.WsActionTester;
@@ -73,7 +71,6 @@ public class ShowActionTest {
   public DbTester db = DbTester.create();
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private Languages languages = new Languages(newLanguage("xoo", "Xoo"));
@@ -81,7 +78,7 @@ public class ShowActionTest {
   private WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new RuleMapper(languages, macroInterpreter),
       new ActiveRuleCompleter(db.getDbClient(), languages),
-      new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+      new RuleWsSupport(db.getDbClient(), userSession)));
 
   @Before
   public void before() {

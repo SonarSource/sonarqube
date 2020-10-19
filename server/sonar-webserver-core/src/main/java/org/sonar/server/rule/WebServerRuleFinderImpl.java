@@ -28,7 +28,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.DbClient;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   private final DbClient dbClient;

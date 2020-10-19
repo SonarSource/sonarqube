@@ -102,10 +102,6 @@ public class QProfileWsSupport {
     return group.get();
   }
 
-  public void checkPermission(DbSession dbSession) {
-    userSession.checkPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
-  }
-
   boolean canEdit(DbSession dbSession, QProfileDto profile) {
     if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
       return false;

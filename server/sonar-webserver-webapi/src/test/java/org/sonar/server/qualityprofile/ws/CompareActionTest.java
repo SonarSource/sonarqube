@@ -41,9 +41,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -66,8 +64,7 @@ public class CompareActionTest {
   private DbSession session = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
-    new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo")),
-      new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db))));
+    new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo"))));
 
   @Test
   public void compare_nominal() {

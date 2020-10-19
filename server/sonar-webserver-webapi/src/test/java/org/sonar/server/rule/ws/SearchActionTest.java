@@ -47,8 +47,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
@@ -104,7 +102,6 @@ public class SearchActionTest {
   @org.junit.Rule
   public EsTester es = EsTester.create();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
@@ -114,7 +111,7 @@ public class SearchActionTest {
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
   private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
-    new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider));
+    new RuleWsSupport(db.getDbClient(), userSession));
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
   private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);

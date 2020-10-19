@@ -256,7 +256,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     final Table<String, String, Integer> userCountByRootComponentUuidAndPermission = TreeBasedTable.create();
 
     dbClient.groupPermissionDao().groupsCountByComponentUuidAndPermission(dbSession, rootComponentUuids, context -> {
-      CountPerProjectPermission row = (CountPerProjectPermission) context.getResultObject();
+      CountPerProjectPermission row = context.getResultObject();
       userCountByRootComponentUuidAndPermission.put(row.getComponentUuid(), row.getPermission(), row.getCount());
     });
 

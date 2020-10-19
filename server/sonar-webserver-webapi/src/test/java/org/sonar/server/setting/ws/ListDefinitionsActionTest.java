@@ -40,8 +40,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -86,8 +84,7 @@ public class ListDefinitionsActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private ComponentDto project;
   private PropertyDefinitions propertyDefinitions = new PropertyDefinitions(System2.INSTANCE);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
+  private SettingsWsSupport support = new SettingsWsSupport(userSession);
   private WsActionTester ws = new WsActionTester(
     new ListDefinitionsAction(dbClient, TestComponentFinder.from(db), userSession, propertyDefinitions, support));
 

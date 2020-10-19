@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +31,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -53,11 +51,6 @@ public class QProfileFactoryImpl implements QProfileFactory {
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
     this.activeRuleIndexer = activeRuleIndexer;
-  }
-
-  private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
-    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
-    return organization;
   }
 
   @Override

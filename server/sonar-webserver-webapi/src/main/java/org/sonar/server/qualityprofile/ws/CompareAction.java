@@ -71,13 +71,11 @@ public class CompareAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileComparison comparator;
   private final Languages languages;
-  private final QProfileWsSupport wsSupport;
 
-  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages, QProfileWsSupport wsSupport) {
+  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages) {
     this.dbClient = dbClient;
     this.comparator = comparator;
     this.languages = languages;
-    this.wsSupport = wsSupport;
   }
 
   @Override

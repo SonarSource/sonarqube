@@ -140,9 +140,7 @@ public class RuleIndexer implements ResilientIndexer {
       });
 
     // the remaining items reference rows that don't exist in db. They must be deleted from index.
-    ruleUuids.forEach(ruleUuid -> {
-      bulkIndexer.addDeletion(TYPE_RULE, ruleUuid, ruleUuid);
-    });
+    ruleUuids.forEach(ruleUuid -> bulkIndexer.addDeletion(TYPE_RULE, ruleUuid, ruleUuid));
 
     return Optional.of(bulkIndexer.stop());
   }
