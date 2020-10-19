@@ -69,7 +69,7 @@ the web server is executed in a dedicated Java process. By default, heap size is
 | is not enabled by default on your environment. See [here](http://docs.oracle.com/javase/8/docs/technotes/guides/vm/server-class.html).
 |
 | Startup can be long if the entropy source is short of entropy. Adding
-| -Djava.security.egd=file:/dev/./urandom is an option to resolve the problem. [See](https://wiki.apache.org/tomcat/HowTo/FasterStartUp#Entropy_Source)
+| -Djava.security.egd=file:/dev/./urandom is an option to resolve the problem. See [Here](https://cwiki.apache.org/confluence/display/TOMCAT/HowTo+FasterStartUp#HowToFasterStartUp-EntropySource)
 
 **`SONAR_WEB_JAVAADDITIONALOPTS=`**  
 Same as previous property, but allows to not repeat all other settings like -Xmx
