@@ -43,9 +43,4 @@ public class ColumnDefTest {
     assertThat(underTest.isInSonarQubeTable()).isTrue();
   }
 
-  @Test
-  public void isInSonarQubeTable_returns_true_if_table_existed_in_previous_versions_of_sonarqube() {
-    ColumnDef underTest = new ColumnDef("activities", "kee", "charset", "collation", "NVARCHAR", 100L, false);
-    assertThat(underTest.isInSonarQubeTable()).isTrue();
-  }
 }
