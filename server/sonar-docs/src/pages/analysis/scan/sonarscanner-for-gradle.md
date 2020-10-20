@@ -122,8 +122,8 @@ Property|Gradle default
 `sonar.sourceEncoding`|`${project.compileJava.options.encoding}`
 `sonar.java.source`|`${project.sourceCompatibility}`
 `sonar.java.target`|`${project.targetCompatibility}`
-`sonar.sources`|`${sourceSets.main.allSource.srcDirs}` (filtered to only include existing directories)
-`sonar.tests`|`${sourceSets.test.allSource.srcDirs}` (filtered to only include existing directories)
+`sonar.sources`|`${sourceSets.main.allJava.srcDirs}` (filtered to only include existing directories)
+`sonar.tests`|`${sourceSets.test.allJava.srcDirs}` (filtered to only include existing directories)
 `sonar.java.binaries`|`${sourceSets.main.output.classesDir}`
 `sonar.java.libraries`|`${sourceSets.main.compileClasspath}` (filtering to only include files; rt.jar and jfxrt.jar added if necessary)
 `sonar.java.test.binaries`|`${sourceSets.test.output.classesDir}`
