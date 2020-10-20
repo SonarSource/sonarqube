@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from 'sonar-ui-common/helpers/request';
+import { get, getJSON, HttpStatus, parseError, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import {
   AlmSettingsBindingDefinitions,
@@ -45,6 +45,20 @@ export function getAlmSettings(project?: string): Promise<AlmSettingsInstance[]>
   return getJSON('/api/alm_settings/list', { project })
     .then(({ almSettings }) => almSettings)
     .catch(throwGlobalError);
+}
+
+export function validateAlmSettings(key: string): Promise<string> {
+  return get('/api/alm_settings/validate', { key })
+    .then(() => {
+      return '';
+    })
+    .catch((response: Response) => {
+      if (response.status === HttpStatus.BadRequest) {
+        return parseError(response);
+      } else {
+        return throwGlobalError(response);
+      }
+    });
 }
 
 export function createGithubConfiguration(data: GithubBindingDefinition) {

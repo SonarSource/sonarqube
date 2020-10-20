@@ -19,6 +19,7 @@
  */
 import {
   AlmKeys,
+  AlmSettingsBindingStatus,
   AlmSettingsInstance,
   AzureBindingDefinition,
   BitbucketBindingDefinition,
@@ -126,6 +127,17 @@ export function mockProjectGitLabBindingResponse(
     key: 'foo',
     repository: 'PROJECT_KEY',
     url: 'https://gitlab.com/api/v4',
+    ...overrides
+  };
+}
+
+export function mockAlmSettingsBindingStatus(
+  overrides: Partial<AlmSettingsBindingStatus>
+): AlmSettingsBindingStatus {
+  return {
+    alert: false,
+    errorMessage: '',
+    validating: true,
     ...overrides
   };
 }

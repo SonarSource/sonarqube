@@ -9,8 +9,10 @@ exports[`should render correctly 1`] = `
     Object {
       "key": "",
       "personalAccessToken": "",
+      "url": undefined,
     }
   }
+  definitionStatus={Object {}}
   definitions={
     Array [
       Object {
@@ -24,6 +26,7 @@ exports[`should render correctly 1`] = `
   loadingProjectCount={false}
   multipleAlmEnabled={true}
   onCancel={[Function]}
+  onCheck={[MockFunction]}
   onCreate={[Function]}
   onDelete={[MockFunction]}
   onEdit={[Function]}

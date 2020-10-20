@@ -75,10 +75,12 @@ exports[`should render correctly: azure 1`] = `
     }
   />
   <AzureTab
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />
@@ -160,10 +162,12 @@ exports[`should render correctly: bitbucket 1`] = `
     }
   />
   <BitbucketTab
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />
@@ -246,10 +250,12 @@ exports[`should render correctly: default 1`] = `
   />
   <GithubTab
     branchesEnabled={true}
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />
@@ -332,10 +338,12 @@ exports[`should render correctly: delete modal 1`] = `
   />
   <GithubTab
     branchesEnabled={true}
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />
@@ -423,10 +431,12 @@ exports[`should render correctly: gitlab 1`] = `
   />
   <GitlabTab
     branchesEnabled={true}
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />
@@ -509,10 +519,12 @@ exports[`should render correctly: loading 1`] = `
   />
   <GithubTab
     branchesEnabled={true}
+    definitionStatus={Object {}}
     definitions={Array []}
     loadingAlmDefinitions={true}
     loadingProjectCount={true}
     multipleAlmEnabled={false}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
   />

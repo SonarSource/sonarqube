@@ -22,7 +22,11 @@ import { FormattedMessage } from 'react-intl';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { createGitlabConfiguration, updateGitlabConfiguration } from '../../../../api/alm-settings';
-import { AlmKeys, GitlabBindingDefinition } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsBindingStatus,
+  GitlabBindingDefinition
+} from '../../../../types/alm-settings';
 import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmTab from './AlmTab';
@@ -32,9 +36,11 @@ export interface GitlabTabProps {
   branchesEnabled: boolean;
   component?: T.Component;
   definitions: GitlabBindingDefinition[];
+  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
+  onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
@@ -45,6 +51,7 @@ export default function GitlabTab(props: GitlabTabProps) {
     component,
     multipleAlmEnabled,
     definitions,
+    definitionStatus,
     loadingAlmDefinitions,
     loadingProjectCount
   } = props;
@@ -79,6 +86,7 @@ export default function GitlabTab(props: GitlabTabProps) {
             createConfiguration={createGitlabConfiguration}
             defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
             definitions={definitions}
+            definitionStatus={definitionStatus}
             features={[
               {
                 name: translate('settings.almintegration.feature.mr_decoration.title'),
@@ -107,6 +115,7 @@ export default function GitlabTab(props: GitlabTabProps) {
             loadingAlmDefinitions={loadingAlmDefinitions}
             loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}
+            onCheck={props.onCheck}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
             updateConfiguration={updateGitlabConfiguration}

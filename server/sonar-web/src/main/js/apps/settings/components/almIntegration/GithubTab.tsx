@@ -23,7 +23,11 @@ import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/alm-settings';
-import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsBindingStatus,
+  GithubBindingDefinition
+} from '../../../../types/alm-settings';
 import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmTab from './AlmTab';
@@ -33,9 +37,11 @@ export interface GithubTabProps {
   branchesEnabled: boolean;
   component?: T.Component;
   definitions: GithubBindingDefinition[];
+  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
+  onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
@@ -46,6 +52,7 @@ export default function GithubTab(props: GithubTabProps) {
     component,
     multipleAlmEnabled,
     definitions,
+    definitionStatus,
     loadingAlmDefinitions,
     loadingProjectCount
   } = props;
@@ -86,6 +93,7 @@ export default function GithubTab(props: GithubTabProps) {
               privateKey: ''
             }}
             definitions={definitions}
+            definitionStatus={definitionStatus}
             features={[
               {
                 name: translate('settings.almintegration.feature.pr_decoration.title'),
@@ -129,6 +137,7 @@ export default function GithubTab(props: GithubTabProps) {
             loadingAlmDefinitions={loadingAlmDefinitions}
             loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}
+            onCheck={props.onCheck}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
             updateConfiguration={updateGithubConfiguration}

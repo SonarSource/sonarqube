@@ -26,7 +26,8 @@ import AlmTab from '../AlmTab';
 
 const DEFAULT_BINDING = {
   key: '',
-  personalAccessToken: ''
+  personalAccessToken: '',
+  url: undefined
 };
 
 it('should render correctly', () => {
@@ -97,10 +98,12 @@ function shallowRender(props: Partial<AlmTab<AzureBindingDefinition>['props']> =
       createConfiguration={jest.fn()}
       defaultBinding={DEFAULT_BINDING}
       definitions={[mockAzureBindingDefinition()]}
+      definitionStatus={{}}
       form={jest.fn()}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={true}
+      onCheck={jest.fn()}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}
       updateConfiguration={jest.fn()}

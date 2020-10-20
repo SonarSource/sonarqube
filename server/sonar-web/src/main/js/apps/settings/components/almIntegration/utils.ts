@@ -17,27 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import AzureTab, { AzureTabProps } from '../AzureTab';
+import { AlmKeys } from '../../../../types/alm-settings';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<AzureTabProps> = {}) {
-  return shallow(
-    <AzureTab
-      definitions={[mockAzureBindingDefinition()]}
-      definitionStatus={{}}
-      loadingAlmDefinitions={false}
-      loadingProjectCount={false}
-      multipleAlmEnabled={true}
-      onCheck={jest.fn()}
-      onDelete={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
-      {...props}
-    />
-  );
-}
+export const VALIDATED_ALMS = [AlmKeys.GitHub];

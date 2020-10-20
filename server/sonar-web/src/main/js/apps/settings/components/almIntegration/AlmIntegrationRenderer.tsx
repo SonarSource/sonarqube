@@ -21,7 +21,11 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { AlmKeys, AlmSettingsBindingDefinitions } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsBindingDefinitions,
+  AlmSettingsBindingStatus
+} from '../../../../types/alm-settings';
 import AzureTab from './AzureTab';
 import BitbucketTab from './BitbucketTab';
 import DeleteModal from './DeleteModal';
@@ -34,10 +38,12 @@ export interface AlmIntegrationRendererProps {
   currentAlm: AlmKeys;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
+  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onCancel: () => void;
+  onCheck: (definitionKey: string) => void;
   onConfirmDelete: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onSelectAlm: (alm: AlmKeys) => void;
@@ -111,6 +117,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     component,
     definitionKeyForDeletion,
     definitions,
+    definitionStatus,
     currentAlm,
     loadingAlmDefinitions,
     loadingProjectCount,
@@ -137,9 +144,11 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       {currentAlm === AlmKeys.Azure && (
         <AzureTab
           definitions={definitions.azure}
+          definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
           loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
+          onCheck={props.onCheck}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
         />
@@ -147,9 +156,11 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       {currentAlm === AlmKeys.Bitbucket && (
         <BitbucketTab
           definitions={definitions.bitbucket}
+          definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
           loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
+          onCheck={props.onCheck}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
         />
@@ -159,9 +170,11 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
           branchesEnabled={branchesEnabled}
           component={component}
           definitions={definitions.github}
+          definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
           loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
+          onCheck={props.onCheck}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
         />
@@ -170,9 +183,11 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         <GitlabTab
           branchesEnabled={branchesEnabled}
           definitions={definitions.gitlab}
+          definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
           loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
+          onCheck={props.onCheck}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
         />

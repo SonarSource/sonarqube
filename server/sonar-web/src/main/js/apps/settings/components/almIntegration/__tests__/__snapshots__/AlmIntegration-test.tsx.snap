@@ -4,6 +4,7 @@ exports[`should render correctly 1`] = `
 <AlmIntegrationRenderer
   branchesEnabled={true}
   currentAlm="github"
+  definitionStatus={Object {}}
   definitions={
     Object {
       "azure": Array [],
@@ -16,6 +17,7 @@ exports[`should render correctly 1`] = `
   loadingProjectCount={false}
   multipleAlmEnabled={false}
   onCancel={[Function]}
+  onCheck={[Function]}
   onConfirmDelete={[Function]}
   onDelete={[Function]}
   onSelectAlm={[Function]}

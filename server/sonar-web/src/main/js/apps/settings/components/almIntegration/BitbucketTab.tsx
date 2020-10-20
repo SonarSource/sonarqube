@@ -26,21 +26,33 @@ import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
 } from '../../../../api/alm-settings';
-import { AlmKeys, BitbucketBindingDefinition } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsBindingStatus,
+  BitbucketBindingDefinition
+} from '../../../../types/alm-settings';
 import AlmTab from './AlmTab';
 import BitbucketForm from './BitbucketForm';
 
 export interface BitbucketTabProps {
   definitions: BitbucketBindingDefinition[];
+  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
+  onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 export default function BitbucketTab(props: BitbucketTabProps) {
-  const { multipleAlmEnabled, definitions, loadingAlmDefinitions, loadingProjectCount } = props;
+  const {
+    multipleAlmEnabled,
+    definitions,
+    definitionStatus,
+    loadingAlmDefinitions,
+    loadingProjectCount
+  } = props;
 
   return (
     <div className="bordered">
@@ -66,6 +78,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
         createConfiguration={createBitbucketConfiguration}
         defaultBinding={{ key: '', url: '', personalAccessToken: '' }}
         definitions={definitions}
+        definitionStatus={definitionStatus}
         features={[
           {
             name: translate('settings.almintegration.feature.pr_decoration.title'),
@@ -107,6 +120,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
         loadingAlmDefinitions={loadingAlmDefinitions}
         loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}
+        onCheck={props.onCheck}
         onDelete={props.onDelete}
         onUpdateDefinitions={props.onUpdateDefinitions}
         updateConfiguration={updateBitbucketConfiguration}

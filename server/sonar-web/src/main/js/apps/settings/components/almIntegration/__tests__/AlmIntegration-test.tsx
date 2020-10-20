@@ -23,7 +23,8 @@ import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   countBindedProjects,
   deleteConfiguration,
-  getAlmDefinitions
+  getAlmDefinitions,
+  validateAlmSettings
 } from '../../../../../api/alm-settings';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
@@ -31,7 +32,8 @@ import { AlmIntegration } from '../AlmIntegration';
 jest.mock('../../../../../api/alm-settings', () => ({
   countBindedProjects: jest.fn().mockResolvedValue(0),
   deleteConfiguration: jest.fn().mockResolvedValue(undefined),
-  getAlmDefinitions: jest.fn().mockResolvedValue({ github: [] })
+  getAlmDefinitions: jest.fn().mockResolvedValue({ github: [] }),
+  validateAlmSettings: jest.fn().mockResolvedValue('')
 }));
 
 beforeEach(() => {
@@ -40,6 +42,23 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should validate existing configurations', async () => {
+  (getAlmDefinitions as jest.Mock).mockResolvedValueOnce({
+    [AlmKeys.Azure]: [{ key: 'a1' }],
+    [AlmKeys.Bitbucket]: [{ key: 'b1' }],
+    [AlmKeys.GitHub]: [{ key: 'gh1' }, { key: 'gh2' }],
+    [AlmKeys.GitLab]: [{ key: 'gl1' }]
+  });
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(validateAlmSettings).toBeCalledTimes(2);
+  expect(validateAlmSettings).toBeCalledWith('gh1');
+  expect(validateAlmSettings).toBeCalledWith('gh2');
 });
 
 it('should handle alm selection', async () => {
@@ -76,17 +95,51 @@ it('should delete configuration', async () => {
   expect(wrapper.state().definitionKeyForDeletion).toBeUndefined();
 });
 
+it('should validate a configuration', async () => {
+  const definitionKey = 'validated-key';
+  const errorMessage = 'an error occured';
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  (validateAlmSettings as jest.Mock)
+    .mockResolvedValueOnce(undefined)
+    .mockResolvedValueOnce(errorMessage)
+    .mockResolvedValueOnce('');
+
+  await wrapper.instance().handleCheck(definitionKey);
+
+  expect(wrapper.state().definitionStatus[definitionKey]).toEqual(
+    expect.objectContaining({
+      validating: true
+    })
+  );
+
+  await wrapper.instance().handleCheck(definitionKey);
+
+  expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
+    alert: true,
+    errorMessage,
+    validating: false
+  });
+
+  await wrapper.instance().handleCheck(definitionKey);
+
+  expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
+    alert: true,
+    errorMessage: '',
+    validating: false
+  });
+});
+
 it('should fetch settings', async () => {
   const wrapper = shallowRender();
 
-  await wrapper
-    .instance()
-    .fetchPullRequestDecorationSetting()
-    .then(() => {
-      expect(getAlmDefinitions).toBeCalled();
-      expect(wrapper.state().definitions).toEqual({ github: [] });
-      expect(wrapper.state().loadingAlmDefinitions).toBe(false);
-    });
+  await wrapper.instance().fetchPullRequestDecorationSetting();
+
+  expect(getAlmDefinitions).toBeCalled();
+  expect(wrapper.state().definitions).toEqual({ github: [] });
+  expect(wrapper.state().loadingAlmDefinitions).toBe(false);
 });
 
 function shallowRender() {

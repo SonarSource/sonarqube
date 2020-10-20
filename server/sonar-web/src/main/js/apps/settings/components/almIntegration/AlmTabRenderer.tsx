@@ -20,9 +20,15 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmBindingDefinition, AlmKeys } from '../../../../types/alm-settings';
+import {
+  AlmBindingDefinition,
+  AlmKeys,
+  AlmSettingsBindingStatus
+} from '../../../../types/alm-settings';
+import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm, {
   AlmBindingDefinitionFormChildrenProps
 } from './AlmBindingDefinitionForm';
@@ -30,12 +36,14 @@ import AlmBindingDefinitionsTable from './AlmBindingDefinitionsTable';
 import AlmIntegrationFeatureBox, {
   AlmIntegrationFeatureBoxProps
 } from './AlmIntegrationFeatureBox';
+import { VALIDATED_ALMS } from './utils';
 
 export interface AlmTabRendererProps<B> {
   additionalColumnsHeaders: string[];
   additionalColumnsKeys: Array<keyof B>;
   additionalTableInfo?: React.ReactNode;
   alm: AlmKeys;
+  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   editedDefinition?: B;
   defaultBinding: B;
   definitions: B[];
@@ -46,6 +54,7 @@ export interface AlmTabRendererProps<B> {
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onCancel: () => void;
+  onCheck: (definitionKey: string) => void;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
@@ -55,13 +64,69 @@ export interface AlmTabRendererProps<B> {
   success: boolean;
 }
 
-export default function AlmTabRenderer<B extends AlmBindingDefinition>(
-  props: AlmTabRendererProps<B>
-) {
+function renderListOfDefinitions<B extends AlmBindingDefinition>(props: AlmTabRendererProps<B>) {
   const {
     additionalColumnsHeaders,
     additionalColumnsKeys,
     additionalTableInfo,
+    alm,
+    definitions,
+    definitionStatus,
+    loadingProjectCount
+  } = props;
+
+  if (VALIDATED_ALMS.includes(alm)) {
+    return (
+      <>
+        <div className="spacer-bottom text-right">
+          <Button
+            data-test="settings__alm-create"
+            disabled={loadingProjectCount}
+            onClick={props.onCreate}>
+            {translate('settings.almintegration.table.create')}
+          </Button>
+        </div>
+        {definitions.map(def => (
+          <AlmBindingDefinitionBox
+            definition={def}
+            key={def.key}
+            multipleDefinitions={definitions.length > 1}
+            onCheck={props.onCheck}
+            onDelete={props.onDelete}
+            onEdit={props.onEdit}
+            status={definitionStatus[def.key]}
+          />
+        ))}
+      </>
+    );
+  }
+
+  const mappedDefinitions = definitions.map(({ key, ...properties }) => {
+    const additionalColumns = additionalColumnsKeys.map(k => (properties as any)[k]);
+    return {
+      key,
+      additionalColumns
+    };
+  });
+
+  return (
+    <AlmBindingDefinitionsTable
+      additionalColumnsHeaders={additionalColumnsHeaders}
+      additionalTableInfo={additionalTableInfo}
+      alm={alm}
+      definitions={mappedDefinitions}
+      loading={loadingProjectCount}
+      onCreate={props.onCreate}
+      onDelete={props.onDelete}
+      onEdit={props.onEdit}
+    />
+  );
+}
+
+export default function AlmTabRenderer<B extends AlmBindingDefinition>(
+  props: AlmTabRendererProps<B>
+) {
+  const {
     alm,
     defaultBinding,
     definitions,
@@ -90,7 +155,6 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
   } = props;
 
   let definition: B | undefined;
-  let mappedDefinitions: Array<{ key: string; additionalColumns: string[] }> = [];
   let showEdit: boolean | undefined;
 
   if (!multipleAlmEnabled) {
@@ -99,30 +163,13 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
       definition = definitions[0];
     }
     showEdit = definition && editedDefinition === undefined;
-  } else {
-    mappedDefinitions = definitions.map(({ key, ...properties }) => {
-      const additionalColumns = additionalColumnsKeys.map(k => (properties as any)[k]);
-      return {
-        key,
-        additionalColumns
-      };
-    });
   }
 
   return (
     <div className="big-padded">
       {multipleAlmEnabled ? (
         <DeferredSpinner loading={loadingAlmDefinitions}>
-          <AlmBindingDefinitionsTable
-            additionalColumnsHeaders={additionalColumnsHeaders}
-            additionalTableInfo={additionalTableInfo}
-            alm={alm}
-            definitions={mappedDefinitions}
-            loading={loadingProjectCount}
-            onCreate={props.onCreate}
-            onDelete={props.onDelete}
-            onEdit={props.onEdit}
-          />
+          {renderListOfDefinitions(props)}
 
           {editedDefinition && (
             <AlmBindingDefinitionForm
@@ -153,7 +200,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
         </AlmBindingDefinitionForm>
       )}
 
-      {features.length > 0 && (
+      {!VALIDATED_ALMS.includes(alm) && features.length > 0 && (
         <div className="big-spacer-top big-padded-top bordered-top">
           <h3 className="big-spacer-bottom">{translate('settings.almintegration.features')}</h3>
 

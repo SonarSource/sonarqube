@@ -13,6 +13,7 @@ exports[`should render correctly 1`] = `
         "personalAccessToken": "",
       }
     }
+    definitionStatus={Object {}}
     definitions={
       Array [
         Object {
@@ -35,6 +36,7 @@ exports[`should render correctly 1`] = `
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}
+    onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
     updateConfiguration={[Function]}
