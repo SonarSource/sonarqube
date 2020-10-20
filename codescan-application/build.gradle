@@ -1,0 +1,216 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Application"
+  }
+}
+
+configurations {
+  zip
+  jsw
+  scanner
+  web
+  shutdowner
+  jdbc_mssql {
+    transitive = false
+  }
+  jdbc_postgresql {
+    transitive = false
+  }
+  jdbc_h2 {
+    transitive = false
+  }
+  bundledPlugin {
+    transitive = false
+  }
+}
+
+dependencies {
+  // please keep list ordered
+  compile 'org.slf4j:slf4j-api'
+
+  compile 'org.elasticsearch.client:transport'
+  compile project(':server:sonar-ce')
+  compile project(':server:sonar-main')
+  compile project(':server:sonar-process')
+  compile project(':server:sonar-webserver')
+  compile project(':sonar-core')
+  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  compile project(':sonar-plugin-api-impl')
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  jsw 'tanukisoft:wrapper:3.2.3'
+  scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
+  web project(':server:sonar-web')
+  shutdowner project(':sonar-shutdowner')
+
+  jdbc_h2 'com.h2database:h2'
+  jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
+  jdbc_postgresql 'org.postgresql:postgresql'
+}
+
+// declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
+apply from: 'bundled_plugins.gradle'
+
+jar {
+  manifest {
+    attributes(
+            'Class-Path': configurations.compile.resolvedConfiguration.files.collect { "common/${it.getName()}" }.join(' '),
+            'Main-Class': 'org.sonar.application.App'
+    )
+  }
+}
+
+task zip(type: Zip, dependsOn: [configurations.compile]) {
+  duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  def archiveDir = "sonarqube-$version"
+
+  into("${archiveDir}/") {
+    from file('src/main/assembly')
+    exclude 'conf/sonar.properties'
+    exclude 'elasticsearch-patch'
+    // elasticsearch script will be replaced by patched version below
+    exclude 'elasticsearch/bin/elasticsearch'
+    exclude 'elasticsearch/bin/elasticsearch.bat'
+    exclude 'elasticsearch/bin/elasticsearch-env.bat'
+    exclude 'elasticsearch/bin/elasticsearch-service.bat'
+    exclude 'elasticsearch/bin/elasticsearch-service-*.exe'
+    exclude 'elasticsearch/bin/elasticsearch-certgen*'
+    exclude 'elasticsearch/bin/elasticsearch-certutil*'
+    exclude 'elasticsearch/bin/elasticsearch-cli*'
+    exclude 'elasticsearch/bin/elasticsearch-croneval*'
+    exclude 'elasticsearch/bin/elasticsearch-keystore*'
+    exclude 'elasticsearch/bin/elasticsearch-migrate*'
+    exclude 'elasticsearch/bin/elasticsearch-plugin*'
+    exclude 'elasticsearch/bin/elasticsearch-saml-metadata*'
+    exclude 'elasticsearch/bin/elasticsearch-setup-passwords*'
+    exclude 'elasticsearch/bin/elasticsearch-shard*'
+    exclude 'elasticsearch/bin/elasticsearch-sql-cli*'
+    exclude 'elasticsearch/bin/elasticsearch-syskeygen*'
+    exclude 'elasticsearch/bin/elasticsearch-translog*'
+    exclude 'elasticsearch/bin/elasticsearch-users*'
+    exclude 'elasticsearch/bin/x-pack/**'
+    exclude 'elasticsearch/bin/x-pack*'
+    exclude 'elasticsearch/lib/tools/**'
+    exclude 'elasticsearch/modules/aggs-matrix-stats/**'
+    exclude 'elasticsearch/modules/ingest-common/**'
+    exclude 'elasticsearch/modules/ingest-geoip/**'
+    exclude 'elasticsearch/modules/ingest-user-agent/**'
+    exclude 'elasticsearch/modules/lang-expression/**'
+    exclude 'elasticsearch/modules/lang-groovy/**'
+    exclude 'elasticsearch/modules/lang-mustache/**'
+    exclude 'elasticsearch/modules/rank-eval/**'
+    exclude 'elasticsearch/modules/reindex/**'
+    exclude 'elasticsearch/modules/tribe/**'
+    exclude 'elasticsearch/modules/x-pack-*/**'
+  }
+
+  into("${archiveDir}/conf/") {
+    from file('src/main/assembly/conf/sonar.properties')
+    filter(ReplaceTokens, tokens: [
+            'searchDefaultHeapSize': '512MB',
+            'searchJavaOpts'       : '-Xmx512m -Xms512m -XX:+HeapDumpOnOutOfMemoryError',
+            'ceDefaultHeapSize'    : '512MB',
+            'ceJavaOpts'           : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError',
+            'webDefaultHeapSize'   : '512MB',
+            'webJavaOpts'          : '-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError'
+    ])
+  }
+
+
+  into("${archiveDir}/elasticsearch/") {
+    from file('src/main/assembly/elasticsearch-patch')
+    include 'bin/elasticsearch'
+  }
+  // Create the empty dir (plugins) required by elasticsearch
+  into("${archiveDir}/elasticsearch/") {
+    from "$buildDir/elasticsearch"
+  }
+  into("${archiveDir}/lib/") {
+    from jar
+  }
+  into("${archiveDir}/lib/extensions/") {
+    from configurations.bundledPlugin
+  }
+  into("${archiveDir}/lib/jsw/") {
+    from configurations.jsw
+  }
+  into("${archiveDir}/lib/scanner/") {
+    from configurations.scanner
+  }
+  into("${archiveDir}/lib/common/") {
+    from configurations.compile
+  }
+  into("${archiveDir}/web/") {
+    duplicatesStrategy DuplicatesStrategy.FAIL
+    // FIXME use configurations.web with correct artifacts
+    from(tasks.getByPath(':server:sonar-web:yarn_run').outputs) { a ->
+      if (official) {
+        project(':private:branding').fileTree('src').visit { b ->
+          if (!b.isDirectory()) {
+            a.exclude b.relativePath.toString()
+          }
+        }
+      }
+    }
+    if (official) {
+      from project(':private:branding').file('src')
+    }
+  }
+  into("${archiveDir}/lib/jdbc/mssql/") {
+    from configurations.jdbc_mssql
+  }
+  into("${archiveDir}/lib/jdbc/postgresql/") {
+    from configurations.jdbc_postgresql
+  }
+  into("${archiveDir}/lib/jdbc/h2/") {
+    from configurations.jdbc_h2
+  }
+  into("${archiveDir}/lib/") {
+    from configurations.shutdowner
+  }
+}
+// Create the empty dir required by elasticsearch
+zip.doFirst {
+  new File(buildDir, 'elasticsearch/plugins').mkdirs()
+}
+// Check the size of the archive
+zip.doLast {
+  def minLength = 210000000
+  def maxLength = 240000000
+
+  def length = archiveFile.get().asFile.length()
+  if (length < minLength)
+    throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
+  if (length > maxLength)
+    throw new GradleException("$distsDir/$archiveName size ($length) too large. Max is $maxLength")
+}
+assemble.dependsOn zip
+
+// the script start.sh unpacks OSS distribution into $buildDir/distributions/sonarqube-oss.
+// This directory should be deleted when the zip is changed.
+task cleanLocalUnzippedDir(dependsOn: zip) {
+  def unzippedDir = file("$buildDir/distributions/sonarqube-$version")
+  inputs.files(file("$buildDir/distributions/sonar-application-${version}.zip"))
+  outputs.upToDateWhen { true }
+
+  doLast {
+    println("delete directory ${unzippedDir}")
+    project.delete(unzippedDir)
+  }
+}
+assemble.dependsOn cleanLocalUnzippedDir
+
+artifacts { zip zip }
+
+artifactoryPublish.skip = false
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact zip
+    }
+  }
+}

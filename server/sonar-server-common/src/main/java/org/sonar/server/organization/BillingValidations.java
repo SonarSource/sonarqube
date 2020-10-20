@@ -35,6 +35,11 @@ import static java.util.Objects.requireNonNull;
 public interface BillingValidations {
 
   /**
+   * @throws BillingValidationsException when add member to organization is not allowed
+   */
+  void checkBeforeAddMember(Organization organization, User user);
+
+  /**
    * @throws BillingValidationsException when projects analysis on organization is not allowed
    */
   void checkBeforeProjectAnalysis(Organization organization);
@@ -75,6 +80,30 @@ public interface BillingValidations {
 
     public String getName() {
       return name;
+    }
+  }
+
+  class User {
+    private final String uuid;
+    private final String login;
+    private final String email;
+
+    public User(String uuid, String login, String email) {
+      this.uuid = requireNonNull(uuid, "User uuid cannot be null");
+      this.login = requireNonNull(login, "User login cannot be null");
+      this.email = email;
+    }
+
+    public String getUuid() {
+      return uuid;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public String getEmail() {
+      return email;
     }
   }
 

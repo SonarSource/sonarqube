@@ -12,6 +12,7 @@ configurations {
 dependencies {
   // please keep list ordered
 
+  compile 'javax.annotation:javax.annotation-api:1.3.2'
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'com.google.code.gson:gson'

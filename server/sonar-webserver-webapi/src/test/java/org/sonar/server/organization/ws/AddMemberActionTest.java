@@ -33,6 +33,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.process.System2;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -45,6 +46,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
+import org.sonar.server.organization.BillingValidationsProxy;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
@@ -54,6 +56,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.mockito.Mockito.mock;
 
 public class AddMemberActionTest {
   @Rule
@@ -62,6 +65,7 @@ public class AddMemberActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public EsTester es = EsTester.create();
+  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   @Rule
   public DbTester db = DbTester.create();
 
@@ -70,7 +74,7 @@ public class AddMemberActionTest {
   private OrganizationsWsSupport wsSupport = new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient);
   private WsActionTester ws = new WsActionTester(
     new AddMemberAction(dbClient, userSession, new AvatarResolverImpl(), wsSupport,
-      new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), new UserIndexer(dbClient, es.client()))));
+      new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), new UserIndexer(dbClient, es.client()), mock(BillingValidationsProxy.class))));
 
   @Test
   public void add_member() {

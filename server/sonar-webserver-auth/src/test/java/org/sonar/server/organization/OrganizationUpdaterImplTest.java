@@ -111,6 +111,38 @@ public class OrganizationUpdaterImplTest {
 
   private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, userIndexer,
     builtInQProfileRepositoryRule, defaultGroupCreator, permissionService);
+  @Test
+  public void visibility_public_if_not_set() throws OrganizationUpdater.KeyConflictException {
+	builtInQProfileRepositoryRule.initialize();
+	UserDto user = db.users().insertUser();
+	db.qualityGates().insertBuiltInQualityGate();
+	OrganizationDto organization = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
+
+    assertThat(db.organizations().getNewProjectPrivate(organization)).isFalse();
+  }
+
+  @Test
+  public void visibility_public_if_true() throws OrganizationUpdater.KeyConflictException {
+	builtInQProfileRepositoryRule.initialize();
+	UserDto user = db.users().insertUser();
+	db.qualityGates().insertBuiltInQualityGate();
+	settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY, true);
+	OrganizationDto organization = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
+
+    assertThat(db.organizations().getNewProjectPrivate(organization)).isFalse();
+  }
+  
+  @Test
+  public void visibility_public_if_false() throws OrganizationUpdater.KeyConflictException {
+	builtInQProfileRepositoryRule.initialize();
+	UserDto user = db.users().insertUser();
+	db.qualityGates().insertBuiltInQualityGate();
+	settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY, false);
+	OrganizationDto organization = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
+	
+    assertThat(db.organizations().getNewProjectPrivate(organization)).isTrue();
+  }
+
 
   @Test
   public void create_creates_organization_with_properties_from_NewOrganization_arg() throws OrganizationUpdater.KeyConflictException {

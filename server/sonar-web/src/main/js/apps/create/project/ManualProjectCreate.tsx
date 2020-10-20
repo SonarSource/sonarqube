@@ -47,8 +47,6 @@ interface State {
   validating: boolean;
 }
 
-type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
-
 export default class ManualProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -190,40 +188,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         <div className="create-project-manual">
           <div className="flex-1 huge-spacer-right">
             <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-              <ProjectKeyInput
-                error={projectKeyError}
-                help={translate('onboarding.create_project.project_key.help')}
-                label={translate('onboarding.create_project.project_key')}
-                onProjectKeyChange={this.handleProjectKeyChange}
-                projectKey={projectKey}
-                touched={touched}
-                validating={validating}
-              />
-
-              <ValidationInput
-                className="form-field"
-                description={translate('onboarding.create_project.display_name.description')}
-                error={projectNameError}
-                help={translate('onboarding.create_project.display_name.help')}
-                id="project-name"
-                isInvalid={projectNameIsInvalid}
-                isValid={projectNameIsValid}
-                label={translate('onboarding.create_project.display_name')}
-                required={true}>
-                <input
-                  className={classNames('input-super-large', {
-                    'is-invalid': projectNameIsInvalid,
-                    'is-valid': projectNameIsValid
-                  })}
-                  id="project-name"
-                  maxLength={PROJECT_NAME_MAX_LEN}
-                  minLength={1}
-                  onChange={this.handleProjectNameChange}
-                  type="text"
-                  value={projectName}
-                />
-              </ValidationInput>
-
               <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
                 {translate('set_up')}
               </SubmitButton>

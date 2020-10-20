@@ -42,7 +42,7 @@ export default function GlobalFooter({
   sonarqubeVersion
 }: Props) {
   if (isSonarCloud()) {
-    return <GlobalFooterSonarCloud />;
+    return <GlobalFooterSonarCloud sonarqubeVersion={sonarqubeVersion}/>;
   }
 
   const currentEdition = sonarqubeEdition && getEdition(sonarqubeEdition);

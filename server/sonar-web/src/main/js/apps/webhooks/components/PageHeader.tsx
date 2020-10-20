@@ -41,7 +41,7 @@ export default function PageHeader({ children, loading }: Props) {
           id="webhooks.description"
           values={{
             url: (
-              <Link to="/documentation/project-administration/webhooks/">
+              <Link target="_blank" to="https://docs.codescan.io/hc/en-us/articles/360028388831-Webhooks">
                 {translate('webhooks.documentation_link')}
               </Link>
             )

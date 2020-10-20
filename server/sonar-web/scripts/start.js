@@ -113,6 +113,7 @@ function runDevServer(compiler, host, port, protocol) {
     },
     proxy: {
       '/api': { target: proxy, changeOrigin: true },
+      '/_codescan': { target: proxy, changeOrigin: true },
       '/static': { target: proxy, changeOrigin: true },
       '/integration': { target: proxy, changeOrigin: true },
       '/sessions/init': { target: proxy, changeOrigin: true },

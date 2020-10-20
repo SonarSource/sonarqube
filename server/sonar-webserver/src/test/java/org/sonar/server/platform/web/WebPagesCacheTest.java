@@ -122,7 +122,7 @@ public class WebPagesCacheTest {
     doInit();
 
     assertThat(underTest.getContent("/foo"))
-      .contains("SonarCloud");
+      .contains("CodeScanCloud");
   }
 
   @Test

@@ -24,9 +24,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -67,18 +70,20 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final OrganizationValidation organizationValidation;
+  private final Configuration config;
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
   private final PermissionService permissionService;
 
   public OrganizationUpdaterImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
-    OrganizationValidation organizationValidation, UserIndexer userIndexer,
+    OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
     BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.organizationValidation = organizationValidation;
+    this.config = config;
     this.userIndexer = userIndexer;
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.defaultGroupCreator = defaultGroupCreator;
@@ -150,6 +155,11 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       .setSubscription(FREE);
     Arrays.stream(extendCreation).forEach(c -> c.accept(res));
     dbClient.organizationDao().insert(dbSession, res, false);
+    
+    Optional<Boolean> publicVisibility = config.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY);
+    if ( publicVisibility.isPresent() && publicVisibility.get() == false ) {
+    	dbClient.organizationDao().setNewProjectPrivate(dbSession, res, true);
+    }
     return res;
   }
 

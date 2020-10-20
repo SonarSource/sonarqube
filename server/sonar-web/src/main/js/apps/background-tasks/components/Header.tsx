@@ -40,7 +40,7 @@ export default function Header(props: Props) {
         <Link
           className="spacer-left"
           target="_blank"
-          to={{ pathname: '/documentation/analysis/background-tasks/' }}>
+          to={{ pathname: 'https://docs.codescan.io/hc/en-us/articles/360028098052-Background-Tasks' }}>
           {translate('learn_more')}
         </Link>
       </p>

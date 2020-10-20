@@ -22,6 +22,10 @@ package org.sonar.scanner.bootstrap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import com.villagechief.sonarqube.codescanhosted.scanner.CodeScanBranchConfigurationLoader;
+import com.villagechief.sonarqube.codescanhosted.scanner.CodeScanBranchParamsValidator;
+import com.villagechief.sonarqube.codescanhosted.scanner.ProjectBranchesLoaderImpl;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
@@ -37,6 +41,12 @@ public class BatchComponents {
 
   public static Collection<Object> all() {
     List<Object> components = new ArrayList<>();
+
+    //branch
+    components.add(ProjectBranchesLoaderImpl.class);
+    components.add(CodeScanBranchParamsValidator.class);
+    components.add(CodeScanBranchConfigurationLoader.class);
+
     components.add(DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     components.add(ZeroCoverageSensor.class);

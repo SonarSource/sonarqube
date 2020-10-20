@@ -75,7 +75,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li className="divider" />
         <li>
           <a
-            href="https://community.sonarsource.com/c/help/sc"
+            href="https://www.codescan.io/cloud/contact/"
             rel="noopener noreferrer"
             target="_blank">
             {translate('embed_docs.get_help')}
@@ -85,14 +85,14 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
           {this.renderIconLink(
-            'https://twitter.com/sonarcloud',
+            'https://twitter.com/CodeScanforSFDC',
             'embed-doc/twitter-icon.svg',
             'Twitter'
           )}
         </li>
         <li>
           {this.renderIconLink(
-            'https://blog.sonarsource.com/product/SonarCloud',
+            'https://www.codescan.io/blog/',
             'sonarcloud-square-logo.svg',
             translate('embed_docs.blog')
           )}
@@ -139,7 +139,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu abs-width-240">
           <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
           <li>
-            <Link onClick={this.props.onClose} target="_blank" to="/documentation">
+            <Link onClick={this.props.onClose} target="_blank" to="http://docs.codescan.io">
               {translate('embed_docs.documentation')}
             </Link>
           </li>

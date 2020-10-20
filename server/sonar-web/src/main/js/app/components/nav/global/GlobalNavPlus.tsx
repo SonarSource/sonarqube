@@ -31,6 +31,7 @@ import { hasGlobalPermission } from '../../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../types/component';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
+import { getBaseUrl } from '../../../../helpers/urls';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled' | 'qualifiers'>;

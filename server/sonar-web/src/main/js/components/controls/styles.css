@@ -80,3 +80,29 @@
 .date-input-calender-month-select {
   width: 70px;
 }
+
+.onboarding-choices {
+  display: flex;
+  justify-content: space-around;
+  padding: 44px 170px;
+  background-color: var(--barBackgroundColor);
+  margin-top: var(--pagePadding);
+}
+
+.onboarding-choice {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(2 * var(--gridSize));
+  width: 190px;
+  height: 190px;
+  background-color: #fff;
+  border: solid 1px #fff;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 1px 1px var(--barBorderColor);
+}
+
+.onboarding-choice svg {
+  color: var(--gray40);
+}
