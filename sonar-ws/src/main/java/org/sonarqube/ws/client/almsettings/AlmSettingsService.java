@@ -163,6 +163,17 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/validate">Further information about this action online (including a response example)</a>
+   * @since 8.6
+   */
+  public void validate(ValidateRequest request) {
+    call(
+      new GetRequest(path("validate"))
+        .setParam("key", request.getKey()));
+  }
+
+  /**
    *
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/list_definitions">Further information about this action online (including a response example)</a>
