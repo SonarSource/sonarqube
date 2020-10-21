@@ -26,6 +26,23 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
 public final class SqTables {
+  /**
+   * These tables are still involved in DB migrations, so potentially
+   * incorrect collation must be fixed so that joins with other
+   * tables are possible.
+   */
+  public static final Set<String> OLD_DROPPED_TABLES = unmodifiableSet(new HashSet<>(asList(
+    "active_dashboards",
+    "activities",
+    "dashboards",
+    "issue_filters",
+    "issue_filter_favourites",
+    "loaded_templates",
+    "measure_filters",
+    "measure_filter_favourites",
+    "resource_index",
+    "widgets",
+    "widget_properties")));
 
   /**
    * List of all the tables.

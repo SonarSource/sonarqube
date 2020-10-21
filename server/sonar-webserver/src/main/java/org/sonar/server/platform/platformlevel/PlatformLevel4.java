@@ -119,6 +119,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
+import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
@@ -255,6 +256,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultResourceTypes.get(),
       SettingsChangeNotifier.class,
       ServerWs.class,
+      BackendCleanup.class,
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,
 
