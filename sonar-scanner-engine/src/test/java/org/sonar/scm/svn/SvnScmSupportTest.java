@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.scm.svn.SvnScmSupport.newSvnClientManager;
 
 public class SvnScmSupportTest {
+  private SvnConfiguration config = mock(SvnConfiguration.class);
+
   @Test
   public void getExtensions() {
     assertThat(SvnScmSupport.getObjects()).isNotEmpty();
@@ -34,7 +36,6 @@ public class SvnScmSupportTest {
 
   @Test
   public void newSvnClientManager_with_auth() {
-    SvnConfiguration config = mock(SvnConfiguration.class);
     when(config.password()).thenReturn("password");
     when(config.passPhrase()).thenReturn("passPhrase");
     assertThat(newSvnClientManager(config)).isNotNull();
@@ -42,7 +43,6 @@ public class SvnScmSupportTest {
 
   @Test
   public void newSvnClientManager_without_auth() {
-    SvnConfiguration config = mock(SvnConfiguration.class);
     assertThat(config.password()).isNull();
     assertThat(config.passPhrase()).isNull();
     assertThat(newSvnClientManager(config)).isNotNull();

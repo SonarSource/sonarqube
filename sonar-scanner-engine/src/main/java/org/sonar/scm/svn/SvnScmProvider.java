@@ -69,6 +69,7 @@ public class SvnScmProvider extends ScmProvider {
 
   @Override
   public boolean supports(File baseDir) {
+
     File folder = baseDir;
     while (folder != null) {
       if (new File(folder, ".svn").exists()) {

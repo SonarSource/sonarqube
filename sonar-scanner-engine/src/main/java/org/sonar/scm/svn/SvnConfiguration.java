@@ -20,70 +20,21 @@
 package org.sonar.scm.svn;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.MessageException;
 
-@ScannerSide
-public class SvnConfiguration {
+import static org.sonar.core.config.SvnProperties.PASSPHRASE_PROP_KEY;
+import static org.sonar.core.config.SvnProperties.PASSWORD_PROP_KEY;
+import static org.sonar.core.config.SvnProperties.PRIVATE_KEY_PATH_PROP_KEY;
+import static org.sonar.core.config.SvnProperties.USER_PROP_KEY;
 
-  private static final String CATEGORY_SVN = "SVN";
-  public static final String USER_PROP_KEY = "sonar.svn.username";
-  public static final String PRIVATE_KEY_PATH_PROP_KEY = "sonar.svn.privateKeyPath";
-  public static final String PASSWORD_PROP_KEY = "sonar.svn.password.secured";
-  public static final String PASSPHRASE_PROP_KEY = "sonar.svn.passphrase.secured";
+public class SvnConfiguration {
   private final Configuration config;
 
   public SvnConfiguration(Configuration config) {
     this.config = config;
-  }
-
-  public static List<PropertyDefinition> getProperties() {
-    return Arrays.asList(
-      PropertyDefinition.builder(USER_PROP_KEY)
-        .name("Username")
-        .description("Username to be used for SVN server or SVN+SSH authentication")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(0)
-        .build(),
-      PropertyDefinition.builder(PASSWORD_PROP_KEY)
-        .name("Password")
-        .description("Password to be used for SVN server or SVN+SSH authentication")
-        .type(PropertyType.PASSWORD)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(1)
-        .build(),
-      PropertyDefinition.builder(PRIVATE_KEY_PATH_PROP_KEY)
-        .name("Path to private key file")
-        .description("Can be used instead of password for SVN+SSH authentication")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(2)
-        .build(),
-      PropertyDefinition.builder(PASSPHRASE_PROP_KEY)
-        .name("Passphrase")
-        .description("Optional passphrase of your private key file")
-        .type(PropertyType.PASSWORD)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(3)
-        .build());
   }
 
   @CheckForNull
@@ -113,5 +64,4 @@ public class SvnConfiguration {
   public String passPhrase() {
     return config.get(PASSPHRASE_PROP_KEY).orElse(null);
   }
-
 }

@@ -19,26 +19,13 @@
  */
 package org.sonar.core.config;
 
-import java.util.List;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CorePropertyDefinitionsTest {
-
+public class SvnPropertiesTest {
   @Test
-  public void all() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(56);
-  }
-
-  @Test
-  public void all_includes_scanner_properties() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    assertThat(defs.stream()
-      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
-      .findFirst()).isPresent();
+  public void creates_properties() {
+    assertThat(SvnProperties.all()).isNotEmpty();
   }
 }
