@@ -32,7 +32,7 @@ import { AlmIntegration } from '../AlmIntegration';
 jest.mock('../../../../../api/alm-settings', () => ({
   countBindedProjects: jest.fn().mockResolvedValue(0),
   deleteConfiguration: jest.fn().mockResolvedValue(undefined),
-  getAlmDefinitions: jest.fn().mockResolvedValue({ github: [] }),
+  getAlmDefinitions: jest.fn().mockResolvedValue({ github: [], gitlab: [] }),
   validateAlmSettings: jest.fn().mockResolvedValue('')
 }));
 
@@ -56,9 +56,9 @@ it('should validate existing configurations', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(validateAlmSettings).toBeCalledTimes(2);
   expect(validateAlmSettings).toBeCalledWith('gh1');
   expect(validateAlmSettings).toBeCalledWith('gh2');
+  expect(validateAlmSettings).toBeCalledWith('gl1');
 });
 
 it('should handle alm selection', async () => {
@@ -133,12 +133,22 @@ it('should validate a configuration', async () => {
 });
 
 it('should fetch settings', async () => {
+  const definitions = {
+    [AlmKeys.Azure]: [{ key: 'a1' }],
+    [AlmKeys.Bitbucket]: [{ key: 'b1' }],
+    [AlmKeys.GitHub]: [{ key: 'gh1' }],
+    [AlmKeys.GitLab]: [{ key: 'gl1' }]
+  };
+
   const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  (getAlmDefinitions as jest.Mock).mockResolvedValueOnce(definitions);
 
   await wrapper.instance().fetchPullRequestDecorationSetting();
 
   expect(getAlmDefinitions).toBeCalled();
-  expect(wrapper.state().definitions).toEqual({ github: [] });
+  expect(wrapper.state().definitions).toEqual(definitions);
   expect(wrapper.state().loadingAlmDefinitions).toBe(false);
 });
 
