@@ -53,6 +53,7 @@ public class CorePropertyDefinitions {
     defs.addAll(PurgeProperties.all());
     defs.addAll(EmailSettings.definitions());
     defs.addAll(ScannerProperties.all());
+    defs.addAll(SvnProperties.all());
 
     defs.addAll(asList(
       PropertyDefinition.builder(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS)

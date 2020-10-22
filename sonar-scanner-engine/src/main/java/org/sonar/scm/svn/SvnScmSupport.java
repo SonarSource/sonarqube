@@ -56,7 +56,7 @@ public class SvnScmSupport {
     return Arrays.asList(SvnScmProvider.class,
       SvnBlameCommand.class,
       SvnConfiguration.class,
-      FindFork.class,
-      SvnConfiguration.getProperties());
+      FindFork.class
+    );
   }
 }

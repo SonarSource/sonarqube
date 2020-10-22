@@ -26,38 +26,38 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.SvnProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class SvnConfigurationTest {
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void sanityCheck() throws Exception {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SvnConfiguration.getProperties()));
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SvnProperties.all()));
     SvnConfiguration config = new SvnConfiguration(settings.asConfig());
 
     assertThat(config.username()).isNull();
     assertThat(config.password()).isNull();
 
-    settings.setProperty(SvnConfiguration.USER_PROP_KEY, "foo");
+    settings.setProperty(SvnProperties.USER_PROP_KEY, "foo");
     assertThat(config.username()).isEqualTo("foo");
 
-    settings.setProperty(SvnConfiguration.PASSWORD_PROP_KEY, "pwd");
+    settings.setProperty(SvnProperties.PASSWORD_PROP_KEY, "pwd");
     assertThat(config.password()).isEqualTo("pwd");
 
-    settings.setProperty(SvnConfiguration.PASSPHRASE_PROP_KEY, "pass");
+    settings.setProperty(SvnProperties.PASSPHRASE_PROP_KEY, "pass");
     assertThat(config.passPhrase()).isEqualTo("pass");
 
     assertThat(config.privateKey()).isNull();
     File fakeKey = temp.newFile();
-    settings.setProperty(SvnConfiguration.PRIVATE_KEY_PATH_PROP_KEY, fakeKey.getAbsolutePath());
+    settings.setProperty(SvnProperties.PRIVATE_KEY_PATH_PROP_KEY, fakeKey.getAbsolutePath());
     assertThat(config.privateKey()).isEqualTo(fakeKey);
 
-    settings.setProperty(SvnConfiguration.PRIVATE_KEY_PATH_PROP_KEY, "/not/exists");
+    settings.setProperty(SvnProperties.PRIVATE_KEY_PATH_PROP_KEY, "/not/exists");
     try {
       config.privateKey();
       fail("Expected exception");
