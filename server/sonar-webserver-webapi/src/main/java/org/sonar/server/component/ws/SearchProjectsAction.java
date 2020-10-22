@@ -205,10 +205,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
         HTML_UL_END_TAG +
         "Use the WS api/languages/list to find the key of a language.<br> " +
-        "To filter on tags use the 'tag' keyword:" +
+        "To filter on tags use the 'tags' keyword:" +
         HTML_UL_START_TAG +
-        " <li>to filter on one tag you can use <code>tag = finance</code></li>" +
-        " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
+        " <li>to filter on one tag you can use <code>tags = finance</code></li>" +
+        " <li>to filter on several tags you must use <code>tags in (offshore, java)</code></li>" +
         HTML_UL_END_TAG +
         "To filter on a qualifier use key 'qualifier'. Only the '=' operator can be used.<br>" +
         HTML_POSSIBLE_VALUES_TEXT +
