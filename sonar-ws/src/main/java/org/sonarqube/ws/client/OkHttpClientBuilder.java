@@ -69,6 +69,7 @@ public class OkHttpClientBuilder {
   private String proxyPassword;
   private long connectTimeoutMs = -1;
   private long readTimeoutMs = -1;
+  private long writeTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
   private X509TrustManager sslTrustManager = null;
 
@@ -159,6 +160,18 @@ public class OkHttpClientBuilder {
     return this;
   }
 
+  /**
+   * Sets the default write timeout for new connections. A value of 0 means no timeout.
+   * Default is defined by OkHttp (10 seconds in OkHttp 3.3).
+   */
+  public OkHttpClientBuilder setWriteTimeoutMs(long l) {
+    if (l < 0) {
+      throw new IllegalArgumentException("Write timeout must be positive. Got " + l);
+    }
+    this.writeTimeoutMs = l;
+    return this;
+  }
+
   public OkHttpClient build() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
     builder.proxy(proxy);
@@ -167,6 +180,9 @@ public class OkHttpClientBuilder {
     }
     if (readTimeoutMs >= 0) {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
+    }
+    if (writeTimeoutMs >= 0) {
+      builder.writeTimeout(writeTimeoutMs, TimeUnit.MILLISECONDS);
     }
     builder.addNetworkInterceptor(this::addHeaders);
     if (proxyLogin != null) {

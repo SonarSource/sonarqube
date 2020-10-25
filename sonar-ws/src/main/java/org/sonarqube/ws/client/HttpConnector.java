@@ -55,6 +55,7 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
+  public static final int DEFAULT_WRITE_TIMEOUT_MILLISECONDS = 240_000;
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
@@ -83,6 +84,7 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setProxyPassword(builder.proxyPassword);
     okHttpClientBuilder.setConnectTimeoutMs(builder.connectTimeoutMs);
     okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
+    okHttpClientBuilder.setWriteTimeoutMs(builder.writeTimeoutMs);
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
     this.okHttpClient = okHttpClientBuilder.build();
@@ -165,13 +167,28 @@ public class HttpConnector implements WsConnector {
   }
 
   private static OkHttpClient prepareOkHttpClient(OkHttpClient okHttpClient, WsRequest wsRequest) {
-    if (!wsRequest.getTimeOutInMs().isPresent()) {
+    if ((!wsRequest.getTimeOutInMs().isPresent()) && (!wsRequest.getWriteTimeOutInMs().isPresent())) {
       return okHttpClient;
     }
+    OkHttpClient.Builder builder = okHttpClient.newBuilder();
+    if ((wsRequest.getTimeOutInMs().isPresent()) && (!wsRequest.getWriteTimeOutInMs().isPresent())) {
+      return builder
+        .readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS)
+        .build();
+    }
+    if ((!wsRequest.getTimeOutInMs().isPresent()) && (wsRequest.getWriteTimeOutInMs().isPresent())) {
+      return builder
+        .writeTimeout(wsRequest.getWriteTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS) 
+        .build();
+    }
+	if ((wsRequest.getTimeOutInMs().isPresent()) && (wsRequest.getWriteTimeOutInMs().isPresent())) {
+      return builder
+        .readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS)
+        .writeTimeout(wsRequest.getWriteTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS) 
+        .build();
+    }
 
-    return okHttpClient.newBuilder()
-      .readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS)
-      .build();
+    return okHttpClient;
   }
 
   private static void completeUrlQueryParameters(BaseRequest<?> request, HttpUrl.Builder urlBuilder) {
@@ -197,7 +214,7 @@ public class HttpConnector implements WsConnector {
     try {
       return call.execute();
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to request " + okRequest.url(), e);
+      throw new IllegalStateException("Fail to request url: " + okRequest.url(), e);
     }
   }
 
@@ -254,6 +271,7 @@ public class HttpConnector implements WsConnector {
     private String systemPassCode;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+    private int writeTimeoutMs = DEFAULT_WRITE_TIMEOUT_MILLISECONDS;
     private SSLSocketFactory sslSocketFactory = null;
     private X509TrustManager sslTrustManager = null;
 
@@ -332,6 +350,15 @@ public class HttpConnector implements WsConnector {
      */
     public Builder readTimeoutMilliseconds(int i) {
       this.readTimeoutMs = i;
+      return this;
+    }
+
+    /**
+     * Sets the write timeout to a specified timeout, in milliseconds.
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link #DEFAULT_WRITE_TIMEOUT_MILLISECONDS}
+     */
+    public Builder writeTimeoutMilliseconds(int i) {
+      this.writeTimeoutMs = i;
       return this;
     }
 
