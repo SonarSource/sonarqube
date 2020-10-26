@@ -6,14 +6,16 @@ SonarQube's integration with Azure DevOps Server allows you to maintain code qua
 
 Once you've set up your integration, you'll be able to:
 
-- **Import your Azure DevOps repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your Azure DevOps Projects into SonarQube to easily set up SonarQube projects.  
+- **Import your Azure DevOps repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your Azure DevOps repositories into SonarQube to easily set up SonarQube projects.  
 - **Add pull request decoration** - (starting in Developer Edition) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
 
 ## Prerequisites
 - See the **Compatibility** section of the [SonarScanner for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/) page for version requirements. 
 
 ## Importing your Azure DevOps repositories into SonarQube
-To import your Azure DevOps projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Azure DevOps** tab, and specify the following settings:
+Setting up repository import with Azure DevOps Server allows you to easily create SonarQube projects from your Azure DevOps Server repositories. This is also the first step in adding pull request decoration.
+
+To import your Azure DevOps repositories into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Azure DevOps** tab, and specify the following settings:
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Azure DevOps configuration at the project level. Use something succinct and easily recognizable.
 - **Personal Access Token** – An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [personal access token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
@@ -38,4 +40,14 @@ From here, set your:
 
 ### Advanced pull request decoration configuration
 
-@include pages/includes/advanced-pr
+[[collapse]]
+| ## **Configuring multiple ALM instances**
+|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|
+|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+
+[[collapse]]
+| ## **Linking issues**
+| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.

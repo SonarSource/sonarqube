@@ -20,7 +20,7 @@ You can also add pull request decoration that shows the Pull Request analysis an
 - [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
 - [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
 - [Bitbucket Server](/analysis/bitbucket-integration/)
-- [Azure DevOps Server](/analysis/azuredevops-integration)
+- [Azure DevOps Server](/analysis/azuredevops-integration/)
 
 ## Pull request Quality Gate
 

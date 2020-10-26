@@ -59,7 +59,7 @@ The code coverage for .NET projects now takes into account the branch/condition 
 
 **Analysis summary for GitHub Pull Requests**
 * Pull Request analysis can be shown under the Conversation tab in GitHub. You can enable or disable it at **Project Settings > General Settings > Pull Request Decoration**. 
-* If you already have Pull Request analysis under the GitHub Checks tab, you'll need to update your GitHub App to give Pull Requests read & write access. For more information see [Decorating Pull Requests](/analysis/pr-decoration/). ([MMF-1892](https://jira.sonarsource.com/browse/MMF-1892)).
+* If you already have Pull Request analysis under the GitHub Checks tab, you'll need to update your GitHub App to give Pull Requests read & write access. For more information see [Pull Requests](/analysis/pull-request/). ([MMF-1892](https://jira.sonarsource.com/browse/MMF-1892)).
 
 **Applications on the Projects page**  
 [Applications](/user-guide/applications/) are now found on the Projects page. You can filter, favorite, and tag applications like you can with projects. ([MMF-1382](https://jira.sonarsource.com/browse/MMF-1382)).

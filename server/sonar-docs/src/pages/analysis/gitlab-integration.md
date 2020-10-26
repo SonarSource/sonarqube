@@ -7,11 +7,7 @@ SonarQube's integration with GitLab Self-Managed and GitLab.com allows you to ma
 
 Once you've set up your integration, you'll be able to:
 
-<<<<<<< HEAD
 - **Authenticate with GitLab** - (starting in Community Edition) Sign in to SonarQube with your GitLab credentials.
-=======
-- **Authenticate with GitLab** - (starting in Community Edition) Sign into SonarQube with your GitLab credentials.
->>>>>>> 486f9f9de58... SONAR-14016 Create GitLab ALM integration page
 - **Import your GitLab projects** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitLab Projects into SonarQube to easily set up SonarQube projects.  
 - **Add merge request decoration** - (starting in Developer Edition) See your Quality Gate and code metric results right in GitLab so you know if it's safe to merge your changes.
 - **Analyze projects with GitLab CI/CD** - SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner.
@@ -42,11 +38,7 @@ On the login form, the new "Log in with GitLab" button allows users to connect w
 ### GitLab group synchronization
 Enable **Synchronize user groups** at **Administration > Configuration > General Settings > ALM Integrations > GitLab** to associate GitLab groups with existing SonarQube groups of the same name. GitLab users inherit membership to subgroups from parent groups. 
 
-<<<<<<< HEAD
 To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the GitLab group or subgroup URL. 
-=======
-To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the of the GitLab group or subgroup URL. 
->>>>>>> 486f9f9de58... SONAR-14016 Create GitLab ALM integration page
 
 For example, with the following GitLab group setup:
 
@@ -57,11 +49,9 @@ For example, with the following GitLab group setup:
 You should name your SonarQube group `my-group` to synchronize it with your GitLab group and `my-group/my-subgroup` to synchronize it with your GitLab subgroup.
 
 ## Importing your GitLab projects into SonarQube
-<<<<<<< HEAD
+Setting up project import with GitLab allows you to easily create SonarQube projects from your GitLab projects. This is also the first step in adding merge request decoration.
+
 To import your GitLab projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **GitLab** tab, and specify the following settings:
-=======
-To import your GitLab projects into SonarQube, first you need to set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **GitLab** tab, and specify the following settings:
->>>>>>> 486f9f9de58... SONAR-14016 Create GitLab ALM integration page
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
@@ -91,11 +81,17 @@ From here, set your:
 
 ### Advanced merge request decoration configuration
 
-<<<<<<< HEAD
-@include pages/includes/advanced-pr
-=======
-@include pages/includes/advanced-pr-decor-section
->>>>>>> 486f9f9de58... SONAR-14016 Create GitLab ALM integration page
+[[collapse]]
+| ## **Configuring multiple ALM instances**
+|You can decorate merge requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|
+|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+
+[[collapse]]
+| ## **Linking issues**
+| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## Analyzing projects with GitLab CI/CD
 SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner.

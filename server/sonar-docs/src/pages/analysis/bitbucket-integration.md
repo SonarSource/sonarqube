@@ -6,18 +6,16 @@ SonarQube's integration with Bitbucket Server allows you to maintain code qualit
 
 Once you've set up your integration, you'll be able to:
 
-- **Import your BitBucket repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your Bitbucket Projects into SonarQube to easily set up SonarQube projects.  
+- **Import your BitBucket repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your Bitbucket repositories into SonarQube to easily set up SonarQube projects.  
 - **Add pull request decoration** - (starting in Developer Edition) See your Quality Gate and code metric results right in Bitbucket so you know if it's safe to merge your changes.
 
 ## Prerequisites
 - Integration with Bitbucket Server requires at least Bitbucket Server version 5.15.
 
-## Importing your Bitbucket repositories into SonarQube
-<<<<<<< HEAD
+## Importing your Bitbucket Server repositories into SonarQube
+Setting up repository import with Bitbucket Server allows you to easily create SonarQube projects from your Bitbucket Server repositories. This is also the first step in adding pull request decoration.
+
 To import your Bitbucket Server projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Bitbucket** tab, and specify the following settings:
-=======
-To import your Bitbucket Server projects into SonarQube, first you need to set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Bitbucket** tab, and specify the following settings:
->>>>>>> cefea0d718f... SONAR-14018 Create Bitbucket ALM integration page
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Server configuration at the project level. Use something succinct and easily recognizable.
 - **Bitbucket Server URL** – your instances URL. For example, `https://bitbucket-server.your-company.com`.
@@ -47,8 +45,14 @@ From here, set your:
 
 ### Advanced pull request decoration configuration
 
-<<<<<<< HEAD
-@include pages/includes/advanced-pr
-=======
-@include pages/includes/advanced-pr-decor-section
->>>>>>> cefea0d718f... SONAR-14018 Create Bitbucket ALM integration page
+[[collapse]]
+| ## **Configuring multiple ALM instances**
+|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|
+|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+
+[[collapse]]
+| ## **Linking issues**
+| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.

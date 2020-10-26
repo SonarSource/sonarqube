@@ -91,15 +91,33 @@ From here, set your:
 | ## **Showing the analysis summary under the GitHub Conversation tab**
 | By default, **Enable analysis summary under the GitHub Conversation tab** is on and your pull request analysis will be shown under both the **Conversation** and **Checks** tabs in GitHub. When off, your pull request analysis summary is only shown under the **Checks** tab.
 
-@include pages/includes/advanced-pr
+[[collapse]]
+| ## **Configuring multiple ALM instances**
+|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|
+|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+
+[[collapse]]
+| ## **Linking issues**
+| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## Setting up GitHub authentication
-To allow for login with GitHub credentials, use the GitHub App that you created above (see the **Importing your GitHub repositories using a GitHub App** section for more information) and update your global SonarQube settings.
+To allow users to log in with GitHub credentials, use the GitHub App that you created above (see the **Importing your GitHub repositories using a GitHub App** section for more information) and update your global SonarQube settings.
 
 [[info]]
 | If you're using Community Edition or you want to use a dedicated app for GitHub authentication, see the **Creating a dedicated app for authentication** section below.
 
-@include pages/includes/authentication-steps
+To update your global SonarQube settings:
+
+Navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub > GitHub Authentication** and update the following:
+
+1. **Enabled** – set the switch to `true`.
+1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
+1. **Client Secret** – the Client secret is found below the Client ID on your GitHub App's page.
+  
+Now, from the login page, your users can connect their GitHub accounts with the new "Log in with GitHub" button.
 
 ### Creating a dedicated app for authentication
 If you're using Community Edition or you want to use a dedicated app for GitHub authentication, you can create a GitHub OAuth app. You'll find general instructions for creating a GitHub OAuth App [here](https://docs.github.com/en/free-pro-team@latest/developers/apps/creating-an-oauth-app). Specify the following settings in your OAuth App:
@@ -107,6 +125,12 @@ If you're using Community Edition or you want to use a dedicated app for GitHub 
 - **Homepage URL** – the public URL of your SonarQube server. For example, `https://sonarqube.mycompany.com`. For security reasons, HTTP is not supported, and you must use HTTPS. The public URL is configured in SonarQube at **[Administration > General > Server base URL](/#sonarqube-admin#/admin/settings)**.
 - **Authorization callback URL** – your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
 
-After creating your app, update your SonarQube global settings. 
+After creating your app, update your global SonarQube settings: 
 
-@include pages/includes/authentication-steps
+Navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub > GitHub Authentication** and update the following:
+
+1. **Enabled** – set the switch to `true`.
+1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
+1. **Client Secret** – the Client secret is found below the Client ID on your GitHub App's page.
+  
+Now, from the login page, your users can connect their GitHub accounts with the new "Log in with GitHub" button.

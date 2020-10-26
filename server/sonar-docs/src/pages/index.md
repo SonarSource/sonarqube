@@ -41,7 +41,7 @@ Starting in [Developer Edition](https://redirect.sonarsource.com/editions/develo
 
 ### Analyzing pull requests
 
-Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can integrate SonarQube to be part of your pull or merge request process. Issuing a pull request can trigger a branch analysis and add pull request decoration to see your branch analysis directly in your ALM's interface in addition to the SonarQube interface. For more information, see the [Pull Request Analysis Overview](/analysis/pull-request/) and [Decorating Pull Requests](/analysis/pr-decoration/).
+Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can integrate SonarQube to be part of your pull or merge request process. Issuing a pull request can trigger a branch analysis and add pull request decoration to see your branch analysis directly in your ALM's interface in addition to the SonarQube interface. For more information, see the [Pull Request Analysis Overview](/analysis/pull-request/).
 
 ## Writing Clean and Safe Code
 
