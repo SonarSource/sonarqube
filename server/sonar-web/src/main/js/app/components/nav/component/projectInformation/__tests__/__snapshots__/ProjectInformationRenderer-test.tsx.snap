@@ -983,7 +983,7 @@ exports[`should render correctly: with notifications 1`] = `
 </Fragment>
 `;
 
-exports[`should render without description 1`] = `
+exports[`should render with description 1`] = `
 <Fragment>
   <div>
     <h2
@@ -1007,11 +1007,16 @@ exports[`should render without description 1`] = `
           project.info.description
         </h3>
       </div>
+      <p
+        className="it__project-description"
+      >
+        Lorem ipsum
+      </p>
       <MetaTags
         component={
           Object {
             "breadcrumbs": Array [],
-            "description": undefined,
+            "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
             "organization": "foo",
@@ -1042,7 +1047,7 @@ exports[`should render without description 1`] = `
         component={
           Object {
             "breadcrumbs": Array [],
-            "description": undefined,
+            "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
             "organization": "foo",
@@ -1096,7 +1101,7 @@ exports[`should render without description 1`] = `
       component={
         Object {
           "breadcrumbs": Array [],
-          "description": undefined,
+          "description": "Lorem ipsum",
           "key": "my-project",
           "name": "MyProject",
           "organization": "foo",

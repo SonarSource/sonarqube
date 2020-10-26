@@ -64,7 +64,9 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
             )}
           </div>
 
-          {component.description && <p>{component.description}</p>}
+          {component.description && (
+            <p className="it__project-description">{component.description}</p>
+          )}
 
           <MetaTags component={component} onComponentChange={props.onComponentChange} />
         </div>
