@@ -27,18 +27,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.Props;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.reset;
@@ -47,20 +47,19 @@ import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 
 @RunWith(DataProviderRunner.class)
 public class ClusterSettingsTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private NetworkUtils network = Mockito.mock(NetworkUtils.class);
+  private final NetworkUtils network = Mockito.mock(NetworkUtils.class);
 
   @Test
   @UseDataProvider("validIPv4andIPv6Addresses")
@@ -97,11 +96,12 @@ public class ClusterSettingsTest {
   public void accept_throws_MessageException_if_no_node_type_is_configured() {
     TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED.getKey(), "true");
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Property sonar.cluster.node.type is mandatory");
-
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Property sonar.cluster.node.type is mandatory");
   }
 
   @Test
@@ -109,11 +109,12 @@ public class ClusterSettingsTest {
     TestAppSettings settings = new TestAppSettings();
     settings.set(CLUSTER_ENABLED.getKey(), "true");
     settings.set(CLUSTER_NODE_TYPE.getKey(), "bla");
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Invalid value for property sonar.cluster.node.type: [bla], only [application, search] are allowed");
-
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Invalid value for property sonar.cluster.node.type: [bla], only [application, search] are allowed");
   }
 
   @Test
@@ -121,11 +122,12 @@ public class ClusterSettingsTest {
   public void accept_throws_MessageException_if_internal_property_for_startup_leader_is_configured(String host) {
     TestAppSettings settings = newSettingsForAppNode(host);
     settings.set("sonar.cluster.web.startupLeader", "true");
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Property [sonar.cluster.web.startupLeader] is forbidden");
-
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Property [sonar.cluster.web.startupLeader] is forbidden");
   }
 
   @Test
@@ -143,11 +145,12 @@ public class ClusterSettingsTest {
   public void accept_throws_MessageException_if_h2_on_application_node(String host) {
     TestAppSettings settings = newSettingsForAppNode(host);
     settings.set("sonar.jdbc.url", "jdbc:h2:mem");
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Embedded database is not supported in cluster mode");
-
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Embedded database is not supported in cluster mode");
   }
 
   @Test
@@ -167,11 +170,12 @@ public class ClusterSettingsTest {
   public void accept_throws_MessageException_on_application_node_if_default_jdbc_url(String host) {
     TestAppSettings settings = newSettingsForAppNode(host);
     settings.clearProperty(JDBC_URL.getKey());
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Embedded database is not supported in cluster mode");
-
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Embedded database is not supported in cluster mode");
   }
 
   @Test
@@ -226,18 +230,54 @@ public class ClusterSettingsTest {
 
   @Test
   @UseDataProvider("validIPv4andIPv6Addresses")
-  public void accept_throws_MessageException_if_searchHost_is_missing(String host) {
+  public void accept_throws_MessageException_if_clusterNodeEsHost_is_missing(String host) {
     TestAppSettings settings = newSettingsForSearchNode(host);
-    settings.clearProperty(SEARCH_HOST.getKey());
-    assertThatPropertyIsMandatory(settings, SEARCH_HOST.getKey());
+    String searchHost = "search_host";
+    mockValidHost(searchHost);
+    mockLocalNonLoopback(searchHost);
+    settings.set(CLUSTER_NODE_SEARCH_HOST.getKey(), searchHost);
+
+    settings.clearProperty(CLUSTER_NODE_ES_HOST.getKey());
+    assertThatPropertyIsMandatory(settings, CLUSTER_NODE_ES_HOST.getKey());
   }
 
   @Test
   @UseDataProvider("validIPv4andIPv6Addresses")
-  public void accept_throws_MessageException_if_searchHost_is_empty(String host) {
+  public void accept_throws_MessageException_if_clusterNodeSearchHost_is_missing(String host) {
     TestAppSettings settings = newSettingsForSearchNode(host);
-    settings.set(SEARCH_HOST.getKey(), "");
-    assertThatPropertyIsMandatory(settings, SEARCH_HOST.getKey());
+    String esHost = "es_host";
+    mockValidHost(esHost);
+    mockLocalNonLoopback(esHost);
+    settings.set(CLUSTER_NODE_ES_HOST.getKey(), esHost);
+
+    settings.clearProperty(CLUSTER_NODE_SEARCH_HOST.getKey());
+    assertThatPropertyIsMandatory(settings, CLUSTER_NODE_SEARCH_HOST.getKey());
+  }
+
+  @Test
+  @UseDataProvider("validIPv4andIPv6Addresses")
+  public void accept_throws_MessageException_if_sonarClusterNodeSearchHost_is_empty(String host) {
+    TestAppSettings settings = newSettingsForSearchNode(host);
+    settings.set(CLUSTER_NODE_SEARCH_HOST.getKey(), "");
+    String esHost = "es_host";
+    mockValidHost(esHost);
+    mockLocalNonLoopback(esHost);
+    settings.set(CLUSTER_NODE_ES_HOST.getKey(), esHost);
+
+    assertThatPropertyIsMandatory(settings, CLUSTER_NODE_SEARCH_HOST.getKey());
+  }
+
+  @Test
+  @UseDataProvider("validIPv4andIPv6Addresses")
+  public void accept_throws_MessageException_if_sonarClusterNodeEsHost_is_empty(String host) {
+    TestAppSettings settings = newSettingsForSearchNode(host);
+    settings.set(CLUSTER_NODE_ES_HOST.getKey(), "");
+    String searchHost = "search_host";
+    mockValidHost(searchHost);
+    mockLocalNonLoopback(searchHost);
+    settings.set(CLUSTER_NODE_SEARCH_HOST.getKey(), searchHost);
+
+    assertThatPropertyIsMandatory(settings, CLUSTER_NODE_ES_HOST.getKey());
   }
 
   @Test
@@ -250,22 +290,22 @@ public class ClusterSettingsTest {
 
   @Test
   @UseDataProvider("validIPv4andIPv6Addresses")
-  public void accept_throws_MessageException_if_clusterSearchHosts_is_missing(String host) {
+  public void accept_throws_MessageException_if_clusterEsHosts_is_missing(String host) {
     mockValidHost(host);
     mockLocalNonLoopback(host);
     TestAppSettings settings = newSettingsForSearchNode(host);
-    settings.clearProperty(CLUSTER_SEARCH_HOSTS.getKey());
-    assertThatPropertyIsMandatory(settings, CLUSTER_SEARCH_HOSTS.getKey());
+    settings.clearProperty(CLUSTER_ES_HOSTS.getKey());
+    assertThatPropertyIsMandatory(settings, CLUSTER_ES_HOSTS.getKey());
   }
 
   @Test
   @UseDataProvider("validIPv4andIPv6Addresses")
-  public void accept_throws_MessageException_if_clusterSearchHosts_is_empty(String host) {
+  public void accept_throws_MessageException_if_clusterEsHosts_is_empty(String host) {
     mockValidHost(host);
     mockLocalNonLoopback(host);
     TestAppSettings settings = newSettingsForSearchNode(host);
-    settings.set(CLUSTER_SEARCH_HOSTS.getKey(), "");
-    assertThatPropertyIsMandatory(settings, CLUSTER_SEARCH_HOSTS.getKey());
+    settings.set(CLUSTER_ES_HOSTS.getKey(), "");
+    assertThatPropertyIsMandatory(settings, CLUSTER_ES_HOSTS.getKey());
   }
 
   @Test
@@ -323,21 +363,22 @@ public class ClusterSettingsTest {
     TestAppSettings settings = new TestAppSettings()
       .set(CLUSTER_ENABLED.getKey(), "true")
       .set(CLUSTER_NODE_TYPE.getKey(), "search")
-      .set(CLUSTER_NODE_HOST.getKey(), "hz_host")
-      .set(CLUSTER_SEARCH_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
-      .set(SEARCH_HOST.getKey(), "search_host");
+      .set(CLUSTER_ES_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "search_host");
 
-    verifyHostIsChecked(settings, of("hz_host"), "Address in property sonar.cluster.node.host is not a valid address: hz_host");
-    verifyHostIsChecked(settings, of("remote_search_host_1"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_1");
-    verifyHostIsChecked(settings, of("remote_search_host_2"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_2");
-    verifyHostIsChecked(settings, of("search_host"), "Address in property sonar.search.host is not a valid address: search_host");
+    verifyHostIsChecked(settings, of("remote_search_host_1"), "Address in property sonar.cluster.es.hosts is not a valid address: remote_search_host_1");
+    verifyHostIsChecked(settings, of("remote_search_host_2"), "Address in property sonar.cluster.es.hosts is not a valid address: remote_search_host_2");
+    verifyHostIsChecked(settings, of("search_host"), "Address in property sonar.cluster.node.search.host is not a valid address: search_host");
   }
 
   private void verifyHostIsChecked(TestAppSettings settings, Collection<String> invalidHosts, String expectedMessage) {
     reset(network);
     mockAllHostsValidBut(invalidHosts);
     mockLocalNonLoopback("hz_host", "search_host");
-    assertThatThrownBy(() -> new ClusterSettings(network).accept(settings.getProps()))
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+    assertThatThrownBy(() -> clusterSettings.accept(props))
       .isInstanceOf(MessageException.class)
       .hasMessage(expectedMessage);
   }
@@ -371,26 +412,28 @@ public class ClusterSettingsTest {
     TestAppSettings settings = new TestAppSettings()
       .set(CLUSTER_ENABLED.getKey(), "true")
       .set(CLUSTER_NODE_TYPE.getKey(), "search")
-      .set(CLUSTER_NODE_HOST.getKey(), "hz_host")
-      .set(CLUSTER_SEARCH_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
-      .set(SEARCH_HOST.getKey(), "search_host");
+      .set(CLUSTER_ES_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "transport_host");
 
-    verifyLoopbackChecked(settings, of("hz_host"), "Property sonar.cluster.node.host must be a local non-loopback address: hz_host");
-    verifyLoopbackChecked(settings, of("search_host"), "Property sonar.search.host must be a local non-loopback address: search_host");
-    verifyLoopbackChecked(settings, of("remote_search_host_1"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_1");
-    verifyLoopbackChecked(settings, of("remote_search_host_2"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_2");
+    verifyLoopbackChecked(settings, of("search_host"), "Property sonar.cluster.node.search.host must be a local non-loopback address: search_host");
+    verifyLoopbackChecked(settings, of("transport_host"), "Property sonar.cluster.node.es.host must be a local non-loopback address: transport_host");
+    verifyLoopbackChecked(settings, of("remote_search_host_1"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_1");
+    verifyLoopbackChecked(settings, of("remote_search_host_2"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_2");
     verifyLoopbackChecked(settings,
       of("remote_search_host_1", "remote_search_host_2"),
-      "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_1, remote_search_host_2");
+      "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_1, remote_search_host_2");
   }
 
   private void verifyLoopbackChecked(TestAppSettings settings, Collection<String> hosts, String expectedMessage) {
     reset(network);
     mockAllHostsValid();
-    mockLocalNonLoopback("hz_host", "search_host");
+    mockLocalNonLoopback("hz_host", "search_host", "transport_host");
     // will overwrite above move if necessary
     hosts.forEach(this::mockLoopback);
-    assertThatThrownBy(() -> new ClusterSettings(network).accept(settings.getProps()))
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+    assertThatThrownBy(() -> clusterSettings.accept(props))
       .isInstanceOf(MessageException.class)
       .hasMessage(expectedMessage);
   }
@@ -414,12 +457,11 @@ public class ClusterSettingsTest {
     TestAppSettings settings = new TestAppSettings()
       .set(CLUSTER_ENABLED.getKey(), "true")
       .set(CLUSTER_NODE_TYPE.getKey(), "search")
-      .set(CLUSTER_NODE_HOST.getKey(), "hz_host")
-      .set(CLUSTER_SEARCH_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
-      .set(SEARCH_HOST.getKey(), "search_host");
+      .set(CLUSTER_ES_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "search_host");
 
-    verifyLocalChecked(settings, "hz_host", "Property sonar.cluster.node.host must be a local non-loopback address: hz_host");
-    verifyLocalChecked(settings, "search_host", "Property sonar.search.host must be a local non-loopback address: search_host");
+    verifyLocalChecked(settings, "search_host", "Property sonar.cluster.node.search.host must be a local non-loopback address: search_host");
   }
 
   private void verifyLocalChecked(TestAppSettings settings, String host, String expectedMessage) {
@@ -429,9 +471,85 @@ public class ClusterSettingsTest {
     // will overwrite above move if necessary
     mockAllNonLoopback();
     mockNonLocal(host);
-    assertThatThrownBy(() -> new ClusterSettings(network).accept(settings.getProps()))
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+
+    assertThatThrownBy(() -> clusterSettings.accept(props))
       .isInstanceOf(MessageException.class)
       .hasMessage(expectedMessage);
+  }
+
+  @Test
+  public void accept_hosts_only_or_hosts_and_ports_only_in_property_SONAR_CLUSTER_ES_HOSTS_of_search_node() {
+    mockAllHostsValid();
+    mockLocalNonLoopback("search_host", "transport_host");
+
+    verifyAllHostsWithPortsOrAllHostsWithoutPortsIsValid(CLUSTER_ES_HOSTS.getKey(), "remote_search_host_1, remote_search_host_2");
+    verifyAllHostsWithPortsOrAllHostsWithoutPortsIsValid(CLUSTER_ES_HOSTS.getKey(), "remote_search_host_1:9001, remote_search_host_2:9001");
+  }
+
+  private void verifyAllHostsWithPortsOrAllHostsWithoutPortsIsValid(String propertyKey, String searchPropertyValue) {
+    TestAppSettings settings = new TestAppSettings()
+      .set(CLUSTER_ENABLED.getKey(), "true")
+      .set(CLUSTER_NODE_TYPE.getKey(), "search")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "transport_host")
+      .set(propertyKey, searchPropertyValue);
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+
+    assertThatCode(() -> clusterSettings.accept(props))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  public void accept_any_properties_configuration_in_SONAR_CLUSTER_SEARCH_HOSTS_of_search_node() {
+    mockAllHostsValid();
+    mockLocalNonLoopback("search_host", "transport_host");
+
+    verifyAnyHostsConfigurationIsValid("remote_search_host_1, remote_search_host_2");
+    verifyAnyHostsConfigurationIsValid("remote_search_host_1:9001, remote_search_host_2:9001");
+    verifyAnyHostsConfigurationIsValid("remote_search_host_1, remote_search_host_2:9001");
+    verifyAnyHostsConfigurationIsValid("remote_search_host_1, remote_search_host_2");
+  }
+
+  private void verifyAnyHostsConfigurationIsValid(String searchPropertyValue) {
+    TestAppSettings settings = new TestAppSettings()
+      .set(CLUSTER_ENABLED.getKey(), "true")
+      .set(CLUSTER_NODE_TYPE.getKey(), "search")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_ES_HOSTS.getKey(), "transport_host,transport_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "transport_host")
+      .set(CLUSTER_SEARCH_HOSTS.getKey(), searchPropertyValue);
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+
+    assertThatCode(() -> clusterSettings.accept(props))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  public void ensure_no_mixed_settings_in_ES_HOSTS_in_properties_of_SEARCH_node() {
+    mockAllHostsValid();
+    mockLocalNonLoopback("hz_host", "search_host", "transport_host");
+
+    verifyPortsAreCheckedOnEsNode("remote_search_host_1,remote_search_host_2:9001");
+    verifyPortsAreCheckedOnEsNode("remote_search_host_1:9002, remote_search_host_2");
+  }
+
+  private void verifyPortsAreCheckedOnEsNode(String searchPropertyValue) {
+    TestAppSettings settings = new TestAppSettings()
+      .set(CLUSTER_ENABLED.getKey(), "true")
+      .set(CLUSTER_NODE_TYPE.getKey(), "search")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
+      .set(CLUSTER_NODE_ES_HOST.getKey(), "transport_host")
+      .set(CLUSTER_ES_HOSTS.getKey(), searchPropertyValue);
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Entries in property sonar.cluster.es.hosts must not mix 'host:port' and 'host'. Provide hosts without port only or hosts with port only.");
   }
 
   private void mockAllNonLoopback() {
@@ -485,10 +603,11 @@ public class ClusterSettingsTest {
   }
 
   private void assertThatPropertyIsMandatory(TestAppSettings settings, String key) {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(format("Property %s is mandatory", key));
-
-    new ClusterSettings(network).accept(settings.getProps());
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+    assertThatThrownBy(() -> clusterSettings.accept(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage(format("Property %s is mandatory", key));
   }
 
   private TestAppSettings newSettingsForAppNode(String host) {
@@ -508,8 +627,9 @@ public class ClusterSettingsTest {
       .set(CLUSTER_NODE_TYPE.getKey(), "search")
       .set(CLUSTER_NODE_HOST.getKey(), host)
       .set(CLUSTER_HZ_HOSTS.getKey(), host)
-      .set(CLUSTER_SEARCH_HOSTS.getKey(), host + ":9001")
-      .set(SEARCH_HOST.getKey(), host);
+      .set(CLUSTER_ES_HOSTS.getKey(), host + ":9001")
+      .set(CLUSTER_NODE_SEARCH_HOST.getKey(), host)
+      .set(CLUSTER_NODE_ES_HOST.getKey(), host);
   }
 
 }

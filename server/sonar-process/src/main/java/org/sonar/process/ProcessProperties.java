@@ -120,6 +120,13 @@ public class ProcessProperties {
     CLUSTER_NAME("sonar.cluster.name", "sonarqube"),
     CLUSTER_WEB_STARTUP_LEADER("sonar.cluster.web.startupLeader"),
 
+    // search node only settings
+    CLUSTER_ES_HOSTS("sonar.cluster.es.hosts"),
+    CLUSTER_NODE_SEARCH_HOST("sonar.cluster.node.search.host"),
+    CLUSTER_NODE_SEARCH_PORT("sonar.cluster.node.search.port"),
+    CLUSTER_NODE_ES_HOST("sonar.cluster.node.es.host"),
+    CLUSTER_NODE_ES_PORT("sonar.cluster.node.es.port"),
+
     AUTH_JWT_SECRET("sonar.auth.jwtBase64Hs256Secret"),
     SONAR_WEB_SSO_ENABLE("sonar.web.sso.enable", "false"),
     SONAR_WEB_SSO_LOGIN_HEADER("sonar.web.sso.loginHeader", "X-Forwarded-Login"),
