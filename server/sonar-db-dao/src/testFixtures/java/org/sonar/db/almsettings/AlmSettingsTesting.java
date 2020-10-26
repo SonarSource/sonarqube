@@ -25,6 +25,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 
 public class AlmSettingsTesting {
 
@@ -32,7 +33,7 @@ public class AlmSettingsTesting {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))
       .setUrl(randomAlphanumeric(2000))
-      .setAppId(randomAlphanumeric(80))
+      .setAppId(randomNumeric(8))
       .setPrivateKey(randomAlphanumeric(2000))
       .setAlm(ALM.GITHUB);
   }
