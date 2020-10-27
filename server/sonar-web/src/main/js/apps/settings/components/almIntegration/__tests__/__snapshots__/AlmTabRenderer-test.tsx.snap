@@ -48,6 +48,7 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
           }
         />
       }
+      isSecondInstance={true}
       onCancel={[MockFunction]}
       onSubmit={[MockFunction]}
       showInModal={true}
@@ -382,6 +383,139 @@ exports[`should render correctly with validation 1`] = `
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly with validation: create a first 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Button
+        data-test="settings__alm-create"
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.almintegration.table.create
+      </Button>
+    </div>
+    <AlmBindingDefinitionForm
+      bindingDefinition={
+        Object {
+          "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        }
+      }
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.github.info"
+          id="settings.almintegration.github.info"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/analysis/pr-decoration/"
+              >
+                learn_more
+              </Link>,
+            }
+          }
+        />
+      }
+      isSecondInstance={false}
+      onCancel={[MockFunction]}
+      onSubmit={[MockFunction]}
+      showInModal={true}
+    >
+      <Component />
+    </AlmBindingDefinitionForm>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly with validation: create a second 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Button
+        data-test="settings__alm-create"
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.almintegration.table.create
+      </Button>
+    </div>
+    <AlmBindingDefinitionBox
+      definition={
+        Object {
+          "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+    <AlmBindingDefinitionForm
+      bindingDefinition={
+        Object {
+          "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        }
+      }
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.github.info"
+          id="settings.almintegration.github.info"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/analysis/pr-decoration/"
+              >
+                learn_more
+              </Link>,
+            }
+          }
+        />
+      }
+      isSecondInstance={true}
+      onCancel={[MockFunction]}
+      onSubmit={[MockFunction]}
+      showInModal={true}
+    >
+      <Component />
+    </AlmBindingDefinitionForm>
   </DeferredSpinner>
 </div>
 `;

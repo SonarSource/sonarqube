@@ -175,6 +175,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
             <AlmBindingDefinitionForm
               bindingDefinition={editedDefinition}
               help={help}
+              isSecondInstance={definitions.length === 1}
               onCancel={props.onCancel}
               onSubmit={props.onSubmit}
               optionalFields={optionalFields}

@@ -1,11 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <AlmBindingDefinitionFormRenderer
   canSubmit={[Function]}
   loading={false}
   onCancel={[Function]}
   onSubmit={[Function]}
   success={false}
+/>
+`;
+
+exports[`should render correctly: modal 1`] = `
+<AlmBindingDefinitionFormModalRenderer
+  action="create"
+  canSubmit={[Function]}
+  isSecondInstance={false}
+  onCancel={[Function]}
+  onSubmit={[Function]}
+/>
+`;
+
+exports[`should render correctly: modal edit 1`] = `
+<AlmBindingDefinitionFormModalRenderer
+  action="edit"
+  canSubmit={[Function]}
+  isSecondInstance={false}
+  onCancel={[Function]}
+  onSubmit={[Function]}
 />
 `;

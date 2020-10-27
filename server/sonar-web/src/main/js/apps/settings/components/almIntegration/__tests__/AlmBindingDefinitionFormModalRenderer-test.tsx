@@ -25,7 +25,8 @@ import AlmBindingDefinitionFormModalRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender().dive()).toMatchSnapshot();
-  expect(shallowRender({ help: <span>Help me</span> }).dive()).toMatchSnapshot();
+  expect(shallowRender({ help: <span>Help me</span> }).dive()).toMatchSnapshot('with help');
+  expect(shallowRender({ isSecondInstance: true }).dive()).toMatchSnapshot('second instance');
 });
 
 function shallowRender(props: Partial<AlmBindingDefinitionFormModalProps> = {}) {
@@ -33,6 +34,7 @@ function shallowRender(props: Partial<AlmBindingDefinitionFormModalProps> = {}) 
     <AlmBindingDefinitionFormModalRenderer
       action="create"
       canSubmit={jest.fn()}
+      isSecondInstance={false}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}
       {...props}>

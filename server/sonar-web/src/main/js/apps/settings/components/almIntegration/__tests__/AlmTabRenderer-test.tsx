@@ -78,6 +78,21 @@ it('should render correctly with validation', () => {
   };
   expect(shallowRender(githubProps)).toMatchSnapshot();
   expect(shallowRender({ ...githubProps, definitions: [] })).toMatchSnapshot('empty');
+
+  expect(
+    shallowRender({
+      ...githubProps,
+      editedDefinition: mockGithubBindingDefinition()
+    })
+  ).toMatchSnapshot('create a second');
+
+  expect(
+    shallowRender({
+      ...githubProps,
+      definitions: [],
+      editedDefinition: mockGithubBindingDefinition()
+    })
+  ).toMatchSnapshot('create a first');
 });
 
 function shallowRenderAzure(props: Partial<AlmTabRendererProps<AzureBindingDefinition>> = {}) {

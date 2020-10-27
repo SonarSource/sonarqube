@@ -35,6 +35,7 @@ interface Props<B> {
   children: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help?: React.ReactNode;
   hideKeyField?: boolean;
+  isSecondInstance?: boolean;
   loading?: boolean;
   onCancel?: () => void;
   onDelete?: (definitionKey: string) => void;
@@ -122,6 +123,7 @@ export default class AlmBindingDefinitionForm<
       children,
       help,
       hideKeyField,
+      isSecondInstance,
       showInModal,
       loading = false,
       readOnly = false,
@@ -129,39 +131,46 @@ export default class AlmBindingDefinitionForm<
     } = this.props;
     const { formData, touched } = this.state;
 
-    const showEdit = this.props.onEdit !== undefined;
-    const showCancel = touched || !showEdit;
-    const showDelete = showEdit && this.props.onDelete !== undefined;
+    if (showInModal) {
+      const action = bindingDefinition.key ? 'edit' : 'create';
 
-    return showInModal ? (
-      <AlmBindingDefinitionFormModalRenderer
-        action={bindingDefinition.key ? 'edit' : 'create'}
-        canSubmit={this.canSubmit}
-        help={help}
-        onCancel={this.handleCancel}
-        onSubmit={this.handleFormSubmit}>
-        {children({
-          formData,
-          onFieldChange: this.handleFieldChange
-        })}
-      </AlmBindingDefinitionFormModalRenderer>
-    ) : (
-      <AlmBindingDefinitionFormRenderer
-        canSubmit={this.canSubmit}
-        help={help}
-        loading={loading}
-        onCancel={showCancel ? this.handleCancel : undefined}
-        onDelete={showDelete ? this.handleDelete : undefined}
-        onEdit={showEdit ? this.handleEdit : undefined}
-        onSubmit={this.handleFormSubmit}
-        success={success}>
-        {children({
-          formData,
-          hideKeyField,
-          onFieldChange: this.handleFieldChange,
-          readOnly
-        })}
-      </AlmBindingDefinitionFormRenderer>
-    );
+      return (
+        <AlmBindingDefinitionFormModalRenderer
+          action={action}
+          canSubmit={this.canSubmit}
+          help={help}
+          isSecondInstance={Boolean(isSecondInstance)}
+          onCancel={this.handleCancel}
+          onSubmit={this.handleFormSubmit}>
+          {children({
+            formData,
+            onFieldChange: this.handleFieldChange
+          })}
+        </AlmBindingDefinitionFormModalRenderer>
+      );
+    } else {
+      const showEdit = this.props.onEdit !== undefined;
+      const showCancel = touched || !showEdit;
+      const showDelete = showEdit && this.props.onDelete !== undefined;
+
+      return (
+        <AlmBindingDefinitionFormRenderer
+          canSubmit={this.canSubmit}
+          help={help}
+          loading={loading}
+          onCancel={showCancel ? this.handleCancel : undefined}
+          onDelete={showDelete ? this.handleDelete : undefined}
+          onEdit={showEdit ? this.handleEdit : undefined}
+          onSubmit={this.handleFormSubmit}
+          success={success}>
+          {children({
+            formData,
+            hideKeyField,
+            onFieldChange: this.handleFieldChange,
+            readOnly
+          })}
+        </AlmBindingDefinitionFormRenderer>
+      );
+    }
   }
 }

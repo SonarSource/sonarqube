@@ -52,7 +52,65 @@ exports[`should render correctly 1`] = `
 </Modal>
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: second instance 1`] = `
+<Modal
+  contentLabel="settings.almintegration.form.header.create"
+  onRequestClose={[MockFunction]}
+  size="medium"
+>
+  <form
+    className="views-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        settings.almintegration.form.header.create
+      </h2>
+    </div>
+    <div
+      className="modal-body modal-container"
+    >
+      <Alert
+        className="big-spacer-bottom"
+        variant="warning"
+      >
+        settings.almintegration.form.second_instance_warning
+      </Alert>
+      <div
+        className="display-flex-start"
+      >
+        <div
+          className="flex-1"
+        >
+          <Component />
+        </div>
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        settings.almintegration.form.save
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[Function]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;
+
+exports[`should render correctly: with help 1`] = `
 <Modal
   contentLabel="settings.almintegration.form.header.create"
   onRequestClose={[MockFunction]}
