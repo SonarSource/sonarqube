@@ -19,6 +19,7 @@
  */
 package org.sonar.application.cluster;
 
+import com.google.common.collect.ImmutableMap;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.Member;
@@ -48,7 +49,6 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 
@@ -56,8 +56,8 @@ public class AppNodesClusterHostsConsistencyTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestAppSettings settings = new TestAppSettings();
-  private Consumer<String> logger = mock(Consumer.class);
+  @SuppressWarnings("unchecked")
+  private final Consumer<String> logger = mock(Consumer.class);
 
   @Before
   @After
@@ -75,7 +75,7 @@ public class AppNodesClusterHostsConsistencyTest {
     hostsPerMember.put(m2, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000"));
     hostsPerMember.put(m3, Arrays.asList("1.1.1.1:1000", "1.1.1.2:1000"));
 
-    settings.set(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000");
+    TestAppSettings settings = new TestAppSettings(ImmutableMap.of(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000"));
 
     TestHazelcastMember member = new TestHazelcastMember(hostsPerMember, m1);
     AppNodesClusterHostsConsistency underTest = AppNodesClusterHostsConsistency.setInstance(member, settings, logger);
@@ -99,19 +99,19 @@ public class AppNodesClusterHostsConsistencyTest {
     hostsPerMember.put(m2, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
     hostsPerMember.put(m3, Arrays.asList("1.1.1.1:1000", "1.1.1.1:2000", "1.1.1.2:1000"));
 
-    settings.set(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000");
+    TestAppSettings settings = new TestAppSettings(ImmutableMap.of(CLUSTER_HZ_HOSTS.getKey(), "1.1.1.1:1000,1.1.1.1:2000,1.1.1.2:1000"));
 
     TestHazelcastMember member = new TestHazelcastMember(hostsPerMember, m1);
     AppNodesClusterHostsConsistency underTest = AppNodesClusterHostsConsistency.setInstance(member, settings, logger);
     underTest.check();
 
-    verifyZeroInteractions(logger);
+    verifyNoMoreInteractions(logger);
   }
 
   @Test
   public void setInstance_fails_with_ISE_when_called_twice_with_same_arguments() throws UnknownHostException {
     TestHazelcastMember member = new TestHazelcastMember(Collections.emptyMap(), newLocalHostMember(1, true));
-
+    TestAppSettings settings = new TestAppSettings();
     AppNodesClusterHostsConsistency.setInstance(member, settings);
 
     expectedException.expect(IllegalStateException.class);

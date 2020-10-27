@@ -35,6 +35,9 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 /**
  * Constants shared by search, web server and app processes.
@@ -72,8 +75,8 @@ public class ProcessProperties {
     LOG_MAX_FILES("sonar.log.maxFiles"),
     LOG_CONSOLE("sonar.log.console"),
 
-    SEARCH_HOST("sonar.search.host", InetAddress.getLoopbackAddress().getHostAddress()),
-    SEARCH_PORT("sonar.search.port", "9001"),
+    SEARCH_HOST("sonar.search.host"),
+    SEARCH_PORT("sonar.search.port"),
     // FIXME default is 0 until we move out of usage of TransportClient and we can put the expected default: 9002
     SEARCH_TRANSPORT_PORT("sonar.search.transportPort", "0"),
     SEARCH_JAVA_OPTS("sonar.search.javaOpts", "-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m -XX:+HeapDumpOnOutOfMemoryError"),
@@ -231,9 +234,14 @@ public class ProcessProperties {
       props.setDefault(entry.getKey().toString(), entry.getValue().toString());
     }
 
-    fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_PORT.getKey());
-    // FIXME remove when transport is not used anymore in non-DCE editions: sonar.search.transportPort must not support port 0
-    fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_TRANSPORT_PORT.getKey());
+    boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(), false);
+    if (!clusterEnabled) {
+      props.setDefault(SEARCH_HOST.getKey(), InetAddress.getLoopbackAddress().getHostAddress());
+      props.setDefault(SEARCH_PORT.getKey(), "9001");
+      fixPortIfZero(props, Property.SEARCH_HOST.getKey(), SEARCH_PORT.getKey());
+      // FIXME remove when transport is not used anymore in non-DCE editions: sonar.search.transportPort must not support port 0
+      fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_TRANSPORT_PORT.getKey());
+    }
   }
 
   private Properties defaults() {

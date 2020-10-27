@@ -21,6 +21,7 @@ package org.sonar.application.config;
 
 import com.google.common.net.HostAndPort;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -54,8 +55,11 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class ClusterSettings implements Consumer<Props> {
+  private static final Set<Property> FORBIDDEN_SEARCH_NODE_SETTINGS = EnumSet.of(SEARCH_HOST, SEARCH_PORT);
 
   private final NetworkUtils network;
 
@@ -87,6 +91,7 @@ public class ClusterSettings implements Consumer<Props> {
         checkClusterSearchHosts(props);
         break;
       case SEARCH:
+        ensureNoSearchNodeForbiddenSettings(props);
         AddressAndPort searchHost = parseAndCheckHost(CLUSTER_NODE_SEARCH_HOST, requireValue(props, CLUSTER_NODE_SEARCH_HOST));
         ensureLocalButNotLoopbackAddress(CLUSTER_NODE_SEARCH_HOST, searchHost);
         AddressAndPort esHost = parseAndCheckHost(CLUSTER_NODE_ES_HOST, requireValue(props, CLUSTER_NODE_ES_HOST));
@@ -164,6 +169,17 @@ public class ClusterSettings implements Consumer<Props> {
       throw new MessageException(format("Property %s is mandatory", key));
     }
     return trimmedValue;
+  }
+
+  private static void ensureNoSearchNodeForbiddenSettings(Props props) {
+    List<String> violations = FORBIDDEN_SEARCH_NODE_SETTINGS.stream()
+      .filter(setting -> props.value(setting.getKey()) != null)
+      .map(Property::getKey)
+      .collect(toList());
+
+    if (!violations.isEmpty()) {
+      throw new MessageException(format("Properties [%s] are not allowed when running SonarQube in cluster mode.", String.join(", ", violations)));
+    }
   }
 
   private static void ensureNotH2(Props props) {

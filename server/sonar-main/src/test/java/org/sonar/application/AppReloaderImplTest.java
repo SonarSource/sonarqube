@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,18 +46,16 @@ public class AppReloaderImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AppSettingsLoader settingsLoader = mock(AppSettingsLoader.class);
-  private FileSystem fs = mock(FileSystem.class);
-  private AppState state = mock(AppState.class);
-  private AppLogging logging = mock(AppLogging.class);
-  private AppReloaderImpl underTest = new AppReloaderImpl(settingsLoader, fs, state, logging);
+  private final AppSettingsLoader settingsLoader = mock(AppSettingsLoader.class);
+  private final FileSystem fs = mock(FileSystem.class);
+  private final AppState state = mock(AppState.class);
+  private final AppLogging logging = mock(AppLogging.class);
+  private final AppReloaderImpl underTest = new AppReloaderImpl(settingsLoader, fs, state, logging);
 
   @Test
   public void reload_configuration_then_reset_all() throws IOException {
-    AppSettings settings = new TestAppSettings().set("foo", "bar");
-    AppSettings newSettings = new TestAppSettings()
-      .set("foo", "newBar")
-      .set("newProp", "newVal");
+    AppSettings settings = new TestAppSettings(ImmutableMap.of("foo", "bar"));
+    AppSettings newSettings = new TestAppSettings(ImmutableMap.of("foo", "newBar", "newProp", "newVal"));
     when(settingsLoader.load()).thenReturn(newSettings);
 
     underTest.reload(settings);
@@ -71,7 +70,7 @@ public class AppReloaderImplTest {
 
   @Test
   public void throw_ISE_if_cluster_is_enabled() throws IOException {
-    AppSettings settings = new TestAppSettings().set(CLUSTER_ENABLED.getKey(), "true");
+    AppSettings settings = new TestAppSettings(ImmutableMap.of(CLUSTER_ENABLED.getKey(), "true"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Restart is not possible with cluster mode");
@@ -97,9 +96,8 @@ public class AppReloaderImplTest {
   }
 
   private void verifyFailureIfPropertyValueChanged(String propertyKey) throws IOException {
-    AppSettings settings = new TestAppSettings().set(propertyKey, "val1");
-    AppSettings newSettings = new TestAppSettings()
-      .set(propertyKey, "val2");
+    AppSettings settings = new TestAppSettings(ImmutableMap.of(propertyKey, "val1"));
+    AppSettings newSettings = new TestAppSettings(ImmutableMap.of(propertyKey, "val2"));
     when(settingsLoader.load()).thenReturn(newSettings);
 
     expectedException.expect(MessageException.class);

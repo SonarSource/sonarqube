@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import com.google.common.collect.ImmutableMap;
 import java.net.InetAddress;
 import java.util.Optional;
 import org.hamcrest.CoreMatchers;
@@ -38,20 +39,19 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 
 public class AppStateFactoryTest {
 
-  private TestAppSettings settings = new TestAppSettings();
-  private AppStateFactory underTest = new AppStateFactory(settings);
-
   @Test
   public void create_cluster_implementation_if_cluster_is_enabled() {
     Optional<InetAddress> ip = NetworkUtilsImpl.INSTANCE.getLocalNonLoopbackIpv4Address();
     assumeThat(ip.isPresent(), CoreMatchers.is(true));
-
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
-    settings.set(CLUSTER_NODE_HOST.getKey(), ip.get().getHostAddress());
-    settings.set(CLUSTER_HZ_HOSTS.getKey(), ip.get().getHostAddress());
-    settings.set(CLUSTER_NAME.getKey(), "foo");
-    settings.set(CLUSTER_SEARCH_HOSTS.getKey(), "localhost:9002");
+    TestAppSettings settings = new TestAppSettings(ImmutableMap.<String, String>builder()
+      .put(CLUSTER_ENABLED.getKey(), "true")
+      .put(CLUSTER_NODE_TYPE.getKey(), "application")
+      .put(CLUSTER_NODE_HOST.getKey(), ip.get().getHostAddress())
+      .put(CLUSTER_HZ_HOSTS.getKey(), ip.get().getHostAddress())
+      .put(CLUSTER_NAME.getKey(), "foo")
+      .put(CLUSTER_SEARCH_HOSTS.getKey(), "localhost:9002")
+      .build());
+    AppStateFactory underTest = new AppStateFactory(settings);
 
     AppState appState = underTest.create();
     assertThat(appState).isInstanceOf(ClusterAppStateImpl.class);
@@ -60,6 +60,9 @@ public class AppStateFactoryTest {
 
   @Test
   public void cluster_implementation_is_disabled_by_default() {
+    TestAppSettings settings = new TestAppSettings();
+    AppStateFactory underTest = new AppStateFactory(settings);
+
     assertThat(underTest.create()).isInstanceOf(AppStateImpl.class);
   }
 }

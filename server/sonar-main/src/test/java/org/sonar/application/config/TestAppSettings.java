@@ -19,7 +19,9 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import org.sonar.core.extension.ServiceLoaderWrapper;
@@ -38,15 +40,16 @@ public class TestAppSettings implements AppSettings {
   private Props props;
 
   public TestAppSettings() {
-    this.props = new Props(new Properties());
+    this(ImmutableMap.of());
+  }
+
+  public TestAppSettings(Map<String, String> initialSettings) {
+    Properties properties = new Properties();
+    properties.putAll(initialSettings);
+    this.props = new Props(properties);
     ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
     when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
     new ProcessProperties(serviceLoaderWrapper).completeDefaults(this.props);
-  }
-
-  public TestAppSettings set(String key, String value) {
-    this.props.set(key, value);
-    return this;
   }
 
   @Override

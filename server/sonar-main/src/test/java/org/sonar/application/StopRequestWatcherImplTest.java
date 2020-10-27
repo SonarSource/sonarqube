@@ -29,6 +29,7 @@ import org.junit.rules.Timeout;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
+import static com.google.common.collect.ImmutableMap.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
@@ -45,12 +46,12 @@ public class StopRequestWatcherImplTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
-  private TestAppSettings appSettings = new TestAppSettings();
-  private ProcessCommands commands = mock(ProcessCommands.class);
-  private Scheduler scheduler = mock(Scheduler.class);
+  private final ProcessCommands commands = mock(ProcessCommands.class);
+  private final Scheduler scheduler = mock(Scheduler.class);
 
   @Test
   public void startWatching_does_not_start_thread_if_stop_command_is_disabled() {
+    TestAppSettings appSettings = new TestAppSettings();
     StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
 
     underTest.startWatching();
@@ -59,7 +60,7 @@ public class StopRequestWatcherImplTest {
 
   @Test
   public void watch_stop_command_if_stop_command_is_enabled() {
-    appSettings.set(ENABLE_STOP_COMMAND.getKey(), "true");
+    TestAppSettings appSettings = new TestAppSettings(of(ENABLE_STOP_COMMAND.getKey(), "true"));
     StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
 
     underTest.startWatching();
@@ -77,6 +78,7 @@ public class StopRequestWatcherImplTest {
 
   @Test
   public void create_instance_with_default_delay() throws IOException {
+    TestAppSettings appSettings = new TestAppSettings();
     FileSystem fs = mock(FileSystem.class);
     when(fs.getTempDir()).thenReturn(temp.newFolder());
 
@@ -87,6 +89,7 @@ public class StopRequestWatcherImplTest {
 
   @Test
   public void stop_watching_commands_if_thread_is_interrupted() {
+    TestAppSettings appSettings = new TestAppSettings();
     StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
 
     underTest.startWatching();

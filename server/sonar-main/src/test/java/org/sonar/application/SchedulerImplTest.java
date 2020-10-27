@@ -21,12 +21,14 @@ package org.sonar.application;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +47,13 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
+import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.application.process.ManagedProcess;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
+import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Collections.synchronizedList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,14 +84,14 @@ public class SchedulerImplTest {
   private JavaCommand webFollowerCommand;
   private JavaCommand ceCommand;
 
-  private AppReloader appReloader = mock(AppReloader.class);
-  private TestAppSettings settings = new TestAppSettings();
-  private TestCommandFactory javaCommandFactory = new TestCommandFactory();
-  private TestProcessLauncher processLauncher = new TestProcessLauncher();
-  private TestAppState appState = new TestAppState();
-  private HazelcastMember hazelcastMember = mock(HazelcastMember.class);
-  private TestClusterAppState clusterAppState = new TestClusterAppState(hazelcastMember);
-  private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
+  private final AppReloader appReloader = mock(AppReloader.class);
+  // private TestAppSettings settings = new TestAppSettings();
+  private final TestCommandFactory javaCommandFactory = new TestCommandFactory();
+  private final TestProcessLauncher processLauncher = new TestProcessLauncher();
+  private final TestAppState appState = new TestAppState();
+  private final HazelcastMember hazelcastMember = mock(HazelcastMember.class);
+  private final TestClusterAppState clusterAppState = new TestClusterAppState(hazelcastMember);
+  private final List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
 
   @Before
   public void setUp() throws Exception {
@@ -110,7 +114,8 @@ public class SchedulerImplTest {
 
   @Test
   public void start_and_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
-    SchedulerImpl underTest = newScheduler(false);
+    TestAppSettings settings = new TestAppSettings();
+    SchedulerImpl underTest = newScheduler(settings, false);
     underTest.schedule();
 
     // elasticsearch does not have preconditions to start
@@ -127,7 +132,8 @@ public class SchedulerImplTest {
 
   @Test
   public void start_and_hard_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
-    SchedulerImpl underTest = newScheduler(false);
+    TestAppSettings settings = new TestAppSettings();
+    SchedulerImpl underTest = newScheduler(settings, false);
     underTest.schedule();
 
     playAndVerifyStartupSequence();
@@ -143,7 +149,8 @@ public class SchedulerImplTest {
 
   @Test
   public void all_processes_are_stopped_if_one_process_goes_down() throws Exception {
-    Scheduler underTest = startAll();
+    TestAppSettings settings = new TestAppSettings();
+    Scheduler underTest = startAll(settings);
 
     processLauncher.waitForProcess(WEB_SERVER).destroyForcibly();
 
@@ -158,7 +165,8 @@ public class SchedulerImplTest {
 
   @Test
   public void all_processes_are_stopped_if_one_process_fails_to_start() throws Exception {
-    SchedulerImpl underTest = newScheduler(false);
+    TestAppSettings settings = new TestAppSettings();
+    SchedulerImpl underTest = newScheduler(settings, false);
     processLauncher.makeStartupFail = COMPUTE_ENGINE;
 
     underTest.schedule();
@@ -173,7 +181,8 @@ public class SchedulerImplTest {
 
   @Test
   public void terminate_can_be_called_multiple_times() throws Exception {
-    Scheduler underTest = startAll();
+    TestAppSettings settings = new TestAppSettings();
+    Scheduler underTest = startAll(settings);
 
     underTest.hardStop();
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
@@ -184,9 +193,10 @@ public class SchedulerImplTest {
 
   @Test
   public void awaitTermination_blocks_until_all_processes_are_stopped() throws Exception {
-    Scheduler underTest = startAll();
+    TestAppSettings settings = new TestAppSettings();
+    Scheduler underTest = startAll(settings);
 
-    Thread awaitingTermination = new Thread(() -> underTest.awaitTermination());
+    Thread awaitingTermination = new Thread(underTest::awaitTermination);
     awaitingTermination.start();
     assertThat(awaitingTermination.isAlive()).isTrue();
 
@@ -198,14 +208,16 @@ public class SchedulerImplTest {
 
   @Test
   public void restart_stops_all_and_restarts_all_processes() throws InterruptedException, IOException {
+    TestAppSettings settings = new TestAppSettings();
     CountDownLatch restarting = new CountDownLatch(1);
-    Scheduler underTest = startAll();
+    Scheduler underTest = startAll(settings);
     Mockito.doAnswer(t -> {
       orderedStops.clear();
       appState.reset();
       processLauncher.reset();
       restarting.countDown();
-    return null;})
+      return null;
+    })
       .when(appReloader).reload(settings);
 
     processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
@@ -224,7 +236,8 @@ public class SchedulerImplTest {
 
   @Test
   public void restart_stops_all_if_new_settings_are_not_allowed() throws Exception {
-    Scheduler underTest = startAll();
+    AppSettings settings = new TestAppSettings();
+    Scheduler underTest = startAll(settings);
     doThrow(new IllegalStateException("reload error")).when(appReloader).reload(settings);
 
     processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
@@ -240,10 +253,12 @@ public class SchedulerImplTest {
 
   @Test
   public void search_node_starts_only_elasticsearch() throws Exception {
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "search");
-    addRequiredNodeProperties();
-    SchedulerImpl underTest = newScheduler(true);
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "search")).build());
+
+    SchedulerImpl underTest = newScheduler(settings, true);
     underTest.schedule();
 
     processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
@@ -254,13 +269,13 @@ public class SchedulerImplTest {
 
   @Test
   public void application_node_starts_only_web_and_ce() throws Exception {
+    AppSettings settings = new TestAppSettings(of(CLUSTER_ENABLED.getKey(), "true", CLUSTER_NODE_TYPE.getKey(), "application"));
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
-    SchedulerImpl underTest = newScheduler(true);
+
+    SchedulerImpl underTest = newScheduler(settings, true);
     underTest.schedule();
 
-    TestManagedProcess web = processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     assertThat(processLauncher.processes).hasSize(2);
 
@@ -269,14 +284,17 @@ public class SchedulerImplTest {
 
   @Test
   public void search_node_starts_even_if_web_leader_is_not_yet_operational() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "search")).build());
+
     // leader takes the lock, so underTest won't get it
     assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
 
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "search");
-    addRequiredNodeProperties();
-    SchedulerImpl underTest = newScheduler(true);
+
+    SchedulerImpl underTest = newScheduler(settings, true);
     underTest.schedule();
 
     processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
@@ -287,16 +305,19 @@ public class SchedulerImplTest {
 
   @Test
   public void web_follower_starts_only_when_web_leader_is_operational() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+
     // leader takes the lock, so underTest won't get it
     assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
     clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
 
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
-    SchedulerImpl underTest = newScheduler(true);
+    SchedulerImpl underTest = newScheduler(settings, true);
     underTest.schedule();
 
-    assertThat(processLauncher.processes).hasSize(0);
+    assertThat(processLauncher.processes).isEmpty();
 
     // leader becomes operational -> follower can start
     clusterAppState.setOperational(WEB_SERVER);
@@ -309,9 +330,11 @@ public class SchedulerImplTest {
 
   @Test
   public void web_server_waits_for_remote_elasticsearch_to_be_started_if_local_es_is_disabled() throws Exception {
-    settings.set(CLUSTER_ENABLED.getKey(), "true");
-    settings.set(CLUSTER_NODE_TYPE.getKey(), "application");
-    SchedulerImpl underTest = newScheduler(true);
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+    SchedulerImpl underTest = newScheduler(settings, true);
     underTest.schedule();
 
     // WEB and CE wait for ES to be up
@@ -352,13 +375,13 @@ public class SchedulerImplTest {
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
   }
 
-  private SchedulerImpl newScheduler(boolean clustered) {
+  private SchedulerImpl newScheduler(AppSettings settings, boolean clustered) {
     return new SchedulerImpl(settings, appReloader, javaCommandFactory, processLauncher, clustered ? clusterAppState : appState)
       .setProcessWatcherDelayMs(1L);
   }
 
-  private Scheduler startAll() throws InterruptedException {
-    SchedulerImpl scheduler = newScheduler(false);
+  private Scheduler startAll(AppSettings settings) throws InterruptedException {
+    SchedulerImpl scheduler = newScheduler(settings, false);
     scheduler.schedule();
     processLauncher.waitForProcess(ELASTICSEARCH).signalAsOperational();
     processLauncher.waitForProcess(WEB_SERVER).signalAsOperational();
@@ -375,10 +398,11 @@ public class SchedulerImplTest {
     }
   }
 
-  private void addRequiredNodeProperties() {
-    settings.set(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(4));
-    settings.set(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(4));
-    settings.set(CLUSTER_NODE_HZ_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
+  private ImmutableMap.Builder<String, String> addRequiredNodeProperties(ImmutableMap.Builder<String, String> builder) {
+    builder.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(4));
+    builder.put(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(4));
+    builder.put(CLUSTER_NODE_HZ_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
+    return builder;
   }
 
   private class TestCommandFactory implements CommandFactory {

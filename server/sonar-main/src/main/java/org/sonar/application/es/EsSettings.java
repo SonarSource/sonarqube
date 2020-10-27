@@ -51,6 +51,7 @@ public class EsSettings {
   private static final String ES_HTTP_PORT_KEY = "http.port";
   private static final String ES_TRANSPORT_HOST_KEY = "transport.host";
   private static final String ES_TRANSPORT_PORT_KEY = "transport.port";
+  private static final String ES_NETWORK_HOST_KEY = "network.host";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
   private static final String STANDALONE_NODE_NAME = "sonarqube";
@@ -100,23 +101,25 @@ public class EsSettings {
   }
 
   private void configureNetwork(Map<String, String> builder) {
-    InetAddress searchHost = resolveAddress(SEARCH_HOST);
-    int searchPort = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
+    if (!clusterEnabled) {
+      InetAddress searchHost = resolveAddress(SEARCH_HOST);
+      int searchPort = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
+      builder.put(ES_HTTP_HOST_KEY, searchHost.getHostAddress());
+      builder.put(ES_HTTP_PORT_KEY, valueOf(searchPort));
+      builder.put(ES_NETWORK_HOST_KEY, valueOf(searchHost.getHostAddress()));
+
+      // FIXME remove definition of transport properties when Web and CE have moved to ES Rest client
+      int transportPort = props.valueAsInt(SEARCH_TRANSPORT_PORT.getKey(), 9002);
+      builder.put(ES_TRANSPORT_HOST_KEY, searchHost.getHostAddress());
+      builder.put(ES_TRANSPORT_PORT_KEY, valueOf(transportPort));
+    }
 
     // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
     builder.put("http.cors.enabled", valueOf(true));
     builder.put("http.cors.allow-origin", "*");
-    builder.put(ES_HTTP_HOST_KEY, searchHost.getHostAddress());
-    builder.put(ES_HTTP_PORT_KEY, valueOf(searchPort));
 
-    builder.put("network.host", valueOf(searchHost.getHostAddress()));
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", valueOf(true));
-
-    // FIXME remove definition of transport properties when Web and CE have moved to ES Rest client
-    int transportPort = props.valueAsInt(SEARCH_TRANSPORT_PORT.getKey(), 9002);
-    builder.put(ES_TRANSPORT_HOST_KEY, searchHost.getHostAddress());
-    builder.put(ES_TRANSPORT_PORT_KEY, valueOf(transportPort));
   }
 
   private InetAddress resolveAddress(ProcessProperties.Property prop) {
@@ -158,7 +161,7 @@ public class EsSettings {
       int nodeTransportPort = props.valueAsInt(CLUSTER_NODE_ES_PORT.getKey(), 9002);
       builder.put(ES_TRANSPORT_HOST_KEY, nodeTransportHost);
       builder.put(ES_TRANSPORT_PORT_KEY, valueOf(nodeTransportPort));
-      builder.put("network.host", nodeTransportHost);
+      builder.put(ES_NETWORK_HOST_KEY, nodeTransportHost);
 
       String hosts = props.value(CLUSTER_ES_HOSTS.getKey(), loopbackAddress.getHostAddress());
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
