@@ -32,7 +32,7 @@ import { AlmIntegration } from '../AlmIntegration';
 jest.mock('../../../../../api/alm-settings', () => ({
   countBindedProjects: jest.fn().mockResolvedValue(0),
   deleteConfiguration: jest.fn().mockResolvedValue(undefined),
-  getAlmDefinitions: jest.fn().mockResolvedValue({ github: [], gitlab: [] }),
+  getAlmDefinitions: jest.fn().mockResolvedValue({ bitbucket: [], github: [], gitlab: [] }),
   validateAlmSettings: jest.fn().mockResolvedValue('')
 }));
 
@@ -56,6 +56,8 @@ it('should validate existing configurations', async () => {
 
   await waitAndUpdate(wrapper);
 
+  expect(validateAlmSettings).toBeCalledTimes(4);
+  expect(validateAlmSettings).toBeCalledWith('b1');
   expect(validateAlmSettings).toBeCalledWith('gh1');
   expect(validateAlmSettings).toBeCalledWith('gh2');
   expect(validateAlmSettings).toBeCalledWith('gl1');

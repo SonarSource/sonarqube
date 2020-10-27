@@ -19,4 +19,4 @@
  */
 import { AlmKeys } from '../../../../types/alm-settings';
 
-export const VALIDATED_ALMS = [AlmKeys.GitHub, AlmKeys.GitLab];
+export const VALIDATED_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
