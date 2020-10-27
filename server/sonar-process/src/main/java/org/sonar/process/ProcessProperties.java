@@ -36,6 +36,7 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
@@ -77,8 +78,7 @@ public class ProcessProperties {
 
     SEARCH_HOST("sonar.search.host"),
     SEARCH_PORT("sonar.search.port"),
-    // FIXME default is 0 until we move out of usage of TransportClient and we can put the expected default: 9002
-    SEARCH_TRANSPORT_PORT("sonar.search.transportPort", "0"),
+    ES_PORT("sonar.es.port"),
     SEARCH_JAVA_OPTS("sonar.search.javaOpts", "-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m -XX:+HeapDumpOnOutOfMemoryError"),
     SEARCH_JAVA_ADDITIONAL_OPTS("sonar.search.javaAdditionalOpts", ""),
     SEARCH_REPLICAS("sonar.search.replicas"),
@@ -239,8 +239,7 @@ public class ProcessProperties {
       props.setDefault(SEARCH_HOST.getKey(), InetAddress.getLoopbackAddress().getHostAddress());
       props.setDefault(SEARCH_PORT.getKey(), "9001");
       fixPortIfZero(props, Property.SEARCH_HOST.getKey(), SEARCH_PORT.getKey());
-      // FIXME remove when transport is not used anymore in non-DCE editions: sonar.search.transportPort must not support port 0
-      fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_TRANSPORT_PORT.getKey());
+      fixEsTransportPortIfNull(props);
     }
   }
 
@@ -275,6 +274,15 @@ public class ProcessProperties {
       int allocatedPort = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(address)
         .orElseThrow(() -> new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]"));
       props.set(portPropertyKey, String.valueOf(allocatedPort));
+    }
+  }
+
+  private static void fixEsTransportPortIfNull(Props props) {
+    String port = props.value(ES_PORT.getKey());
+    if (port == null) {
+      int allocatedPort = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress().getHostAddress())
+        .orElseThrow(() -> new IllegalStateException("Cannot resolve address for Elasticsearch TCP transport port"));
+      props.set(ES_PORT.getKey(), String.valueOf(allocatedPort));
     }
   }
 

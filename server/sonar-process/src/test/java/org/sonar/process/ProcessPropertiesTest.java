@@ -25,9 +25,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
@@ -38,8 +36,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class ProcessPropertiesTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private final ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
@@ -52,8 +48,8 @@ public class ProcessPropertiesTest {
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(60);
-    assertThat(props.valueAsBoolean("sonar.sonarcloud.enabled")).isEqualTo(false);
-    assertThat(props.valueAsBoolean("sonar.updatecenter.activate")).isEqualTo(true);
+    assertThat(props.valueAsBoolean("sonar.sonarcloud.enabled")).isFalse();
+    assertThat(props.valueAsBoolean("sonar.updatecenter.activate")).isTrue();
   }
 
   @Test
@@ -68,7 +64,7 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void completeDefaults_sets_default_values_for_sonar_search_host_and_sonar_search_port_in_non_cluster_mode() throws Exception {
+  public void completeDefaults_sets_default_values_for_sonar_search_host_and_sonar_search_port_and_random_port_for_sonar_es_port_in_non_cluster_mode() throws Exception {
     Properties p = new Properties();
     p.setProperty("sonar.cluster.enabled", "false");
     Props props = new Props(p);
@@ -79,10 +75,11 @@ public class ProcessPropertiesTest {
     assertThat(address).isNotEmpty();
     assertThat(InetAddress.getByName(address).isLoopbackAddress()).isTrue();
     assertThat(props.valueAsInt("sonar.search.port")).isEqualTo(9001);
+    assertThat(props.valueAsInt("sonar.es.port")).isPositive();
   }
 
   @Test
-  public void completeDefaults_does_not_set_default_values_for_sonar_search_host_and_sonar_search_port_in_cluster_mode() {
+  public void completeDefaults_does_not_set_default_values_for_sonar_search_host_and_sonar_search_port_and_sonar_es_port_in_cluster_mode() {
     Properties p = new Properties();
     p.setProperty("sonar.cluster.enabled", "true");
     Props props = new Props(p);
@@ -91,10 +88,11 @@ public class ProcessPropertiesTest {
 
     assertThat(props.contains("sonar.search.port")).isFalse();
     assertThat(props.contains("sonar.search.port")).isFalse();
+    assertThat(props.contains("sonar.es.port")).isFalse();
   }
 
   @Test
-  public void completeDefaults_sets_the_transport_port_of_elasticsearch_if_value_is_zero_in_cluster_mode() {
+  public void completeDefaults_sets_the_http_port_of_elasticsearch_if_value_is_zero_in_standalone_mode() {
     Properties p = new Properties();
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
@@ -105,14 +103,38 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void completeDefaults_sets_the_search_port_of_elasticsearch_if_value_is_zero_in_search_node_in_cluster() {
+  public void completeDefaults_does_not_fall_back_to_default_if_transport_port_of_elasticsearch_set_in_standalone_mode() {
     Properties p = new Properties();
+    p.setProperty("sonar.es.port", "9002");
+    Props props = new Props(p);
+
+    processProperties.completeDefaults(props);
+
+    assertThat(props.valueAsInt("sonar.es.port")).isEqualTo(9002);
+  }
+
+  @Test
+  public void completeDefaults_does_not_set_the_http_port_of_elasticsearch_if_value_is_zero_in_search_node_in_cluster() {
+    Properties p = new Properties();
+    p.setProperty("sonar.cluster.enabled", "true");
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
 
     processProperties.completeDefaults(props);
 
-    assertThat(props.valueAsInt("sonar.search.port")).isPositive();
+    assertThat(props.valueAsInt("sonar.search.port")).isZero();
+  }
+
+  @Test
+  public void completeDefaults_does_not_set_the_transport_port_of_elasticsearch_if_value_is_zero_in_search_node_in_cluster() {
+    Properties p = new Properties();
+    p.setProperty("sonar.cluster.enabled", "true");
+    p.setProperty("sonar.es.port", "0");
+    Props props = new Props(p);
+
+    processProperties.completeDefaults(props);
+
+    assertThat(props.valueAsInt("sonar.es.port")).isZero();
   }
 
   @Test
@@ -202,9 +224,8 @@ public class ProcessPropertiesTest {
 
   @Test
   public void parseTimeoutMs_throws_NumberFormat_exception_if_value_is_not_long() {
-    expectedException.expect(NumberFormatException.class);
-
-    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, "tru");
+    assertThatThrownBy(() -> parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, "tru"))
+      .isInstanceOf(NumberFormatException.class);
   }
 
   @Test
@@ -218,17 +239,16 @@ public class ProcessPropertiesTest {
 
   @Test
   public void parseTimeoutMs_throws_ISE_if_value_is_0() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
-
-    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, 0 + "");
+    assertThatThrownBy(() -> parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, 0 + ""))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
   }
 
   @Test
   public void parseTimeoutMs_throws_ISE_if_value_is_less_than_0() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
-
-    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, -(1 + new Random().nextInt(5_999_663)) + "");
+    int timeoutValue = -(1 + new Random().nextInt(5_999_663));
+    assertThatThrownBy(() -> parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, timeoutValue + ""))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
   }
 }

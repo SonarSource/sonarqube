@@ -56,6 +56,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -131,6 +132,7 @@ public class EsSettingsTest {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
     props.set(SEARCH_PORT.getKey(), "1234");
+    props.set(ES_PORT.getKey(), "5678");
     props.set(SEARCH_HOST.getKey(), "127.0.0.1");
     props.set(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
@@ -142,16 +144,13 @@ public class EsSettingsTest {
 
     Map<String, String> generated = esSettings.build();
 
-    // FIXME transport.port and transport.host should not be set in standalone
-    assertThat(generated.get("transport.port")).isEqualTo("9002");
-    assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
-
-    assertThat(generated.get("http.port")).isEqualTo("1234");
-    assertThat(generated.get("http.host")).isEqualTo("127.0.0.1");
-
-    // no cluster, but cluster and node names are set though
-    assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
-    assertThat(generated.get("node.name")).isEqualTo("sonarqube");
+    assertThat(generated).containsEntry("transport.port", "5678")
+      .containsEntry("transport.host", "127.0.0.1")
+      .containsEntry("http.port", "1234")
+      .containsEntry("http.host", "127.0.0.1")
+      // no cluster, but cluster and node names are set though
+      .containsEntry("cluster.name", "sonarqube")
+      .containsEntry("node.name", "sonarqube");
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
@@ -159,9 +158,9 @@ public class EsSettingsTest {
     assertThat(generated.get("path.conf")).isNull();
 
     assertThat(generated.get("discovery.seed_hosts")).isNull();
-    assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
-
-    assertThat(generated.get("action.auto_create_index")).isEqualTo("false");
+    assertThat(generated)
+      .containsEntry("discovery.initial_state_timeout", "30s")
+      .containsEntry("action.auto_create_index", "false");
   }
 
   @Test
@@ -214,6 +213,7 @@ public class EsSettingsTest {
     props.set(CLUSTER_NAME.getKey(), "sonarqube");
     props.set(Property.CLUSTER_ENABLED.getKey(), "false");
     props.set(SEARCH_PORT.getKey(), "1234");
+    props.set(ES_PORT.getKey(), "5678");
     props.set(SEARCH_HOST.getKey(), "127.0.0.1");
     props.set(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());

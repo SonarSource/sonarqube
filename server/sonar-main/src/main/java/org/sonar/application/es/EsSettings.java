@@ -41,10 +41,10 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_TRANSPORT_PORT;
 
 public class EsSettings {
   private static final String ES_HTTP_HOST_KEY = "http.host";
@@ -91,7 +91,9 @@ public class EsSettings {
     configureNetwork(builder);
     configureCluster(builder);
     configureOthers(builder);
-    LOGGER.info("Elasticsearch listening on {}:{}", builder.get(ES_HTTP_HOST_KEY), builder.get(ES_HTTP_PORT_KEY));
+    LOGGER.info("Elasticsearch listening on [HTTP: {}:{}, TCP: {}:{}]",
+      builder.get(ES_HTTP_HOST_KEY), builder.get(ES_HTTP_PORT_KEY),
+      builder.get(ES_TRANSPORT_HOST_KEY), builder.get(ES_TRANSPORT_PORT_KEY));
     return builder;
   }
 
@@ -108,9 +110,10 @@ public class EsSettings {
       builder.put(ES_HTTP_PORT_KEY, valueOf(searchPort));
       builder.put(ES_NETWORK_HOST_KEY, valueOf(searchHost.getHostAddress()));
 
-      // FIXME remove definition of transport properties when Web and CE have moved to ES Rest client
-      int transportPort = props.valueAsInt(SEARCH_TRANSPORT_PORT.getKey(), 9002);
-      builder.put(ES_TRANSPORT_HOST_KEY, searchHost.getHostAddress());
+      int transportPort = Integer.parseInt(props.nonNullValue(ES_PORT.getKey()));
+
+      //we have no use of transport port in non-DCE editions
+      builder.put(ES_TRANSPORT_HOST_KEY, this.loopbackAddress.getHostAddress());
       builder.put(ES_TRANSPORT_PORT_KEY, valueOf(transportPort));
     }
 

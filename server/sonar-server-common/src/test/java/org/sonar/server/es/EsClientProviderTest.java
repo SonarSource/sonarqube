@@ -37,9 +37,9 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_TRANSPORT_PORT;
 
 public class EsClientProviderTest {
 
@@ -66,7 +66,7 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), false);
     settings.setProperty(SEARCH_HOST.getKey(), localhostHostname);
     settings.setProperty(SEARCH_PORT.getKey(), 9000);
-    settings.setProperty(SEARCH_TRANSPORT_PORT.getKey(), 8080);
+    settings.setProperty(ES_PORT.getKey(), 8080);
 
     EsClient client = underTest.provide(settings.asConfig());
     RestHighLevelClient nativeClient = client.nativeClient();
