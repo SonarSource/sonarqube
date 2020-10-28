@@ -74,4 +74,4 @@ To import .NET reports, the report generation process must be executed after the
 1. Run your test tool, instructing it to produce a report at the same location specified earlier to the MSBuild SonarQube Runner ([How to generate reports with different tools](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871)) 
 1. Run the SonarScanner.MSBuild.exe `end` command
 
-For more information, see the (Generate Reports for C#, VB.net Community Post)[https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871].
+For more information, see the [Generate Reports for C#, VB.net Community Post](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871).
