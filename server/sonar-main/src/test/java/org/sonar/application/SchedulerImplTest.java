@@ -85,7 +85,6 @@ public class SchedulerImplTest {
   private JavaCommand ceCommand;
 
   private final AppReloader appReloader = mock(AppReloader.class);
-  // private TestAppSettings settings = new TestAppSettings();
   private final TestCommandFactory javaCommandFactory = new TestCommandFactory();
   private final TestProcessLauncher processLauncher = new TestProcessLauncher();
   private final TestAppState appState = new TestAppState();
