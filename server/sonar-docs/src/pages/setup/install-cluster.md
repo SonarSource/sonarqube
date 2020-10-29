@@ -77,7 +77,7 @@ echo -n "your_secret" | openssl dgst -sha256 -hmac "your_key" -binary | base64
 
 ### Sample Configuration
 
-The following example represents the minimal parameters required to configure a SonarQube cluster.  The example assumes:
+The following example represents a sample configuration of a SonarQube cluster.  The example assumes:
 
 - The VMs having IP addresses ip1 and ip2 (server1, server2) are application nodes
 - The VMs having IP addresses ip3, ip4, and ip5 (server3, server4 and server5) are search nodes
@@ -91,6 +91,8 @@ The configuration to be added to sonar.properties for each node is the following
 ...
 sonar.cluster.enabled=true
 sonar.cluster.node.type=application
+sonar.cluster.node.host=ip1
+sonar.cluster.node.port=9003
 sonar.cluster.hosts=ip1,ip2
 sonar.cluster.search.hosts=ip3:9001,ip4:9001,ip5:9001
 sonar.auth.jwtBase64Hs256Secret=YOURGENERATEDSECRET
@@ -102,6 +104,8 @@ sonar.auth.jwtBase64Hs256Secret=YOURGENERATEDSECRET
 ...
 sonar.cluster.enabled=true
 sonar.cluster.node.type=application
+sonar.cluster.node.host=ip2
+sonar.cluster.node.port=9003
 sonar.cluster.hosts=ip1,ip2
 sonar.cluster.search.hosts=ip3:9001,ip4:9001,ip5:9001
 sonar.auth.jwtBase64Hs256Secret=YOURGENERATEDSECRET
@@ -115,11 +119,11 @@ sonar.auth.jwtBase64Hs256Secret=YOURGENERATEDSECRET
 ...
 sonar.cluster.enabled=true
 sonar.cluster.node.type=search
-sonar.cluster.node.host=ip3
-sonar.search.host=ip3
-sonar.search.port=9001
-sonar.search.transportPort=9002
-sonar.cluster.search.hosts=ip3:9002,ip4:9002,ip5:9002
+sonar.cluster.node.search.host=ip3
+sonar.cluster.node.search.port=9001
+sonar.cluster.node.es.host=ip3
+sonar.cluster.node.es.port=9002
+sonar.cluster.es.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 ```
 
@@ -128,11 +132,11 @@ sonar.cluster.search.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 sonar.cluster.enabled=true
 sonar.cluster.node.type=search
-sonar.cluster.node.host=ip4
-sonar.search.host=ip4
-sonar.search.port=9001
-sonar.search.transportPort=9002
-sonar.cluster.search.hosts=ip3:9002,ip4:9002,ip5:9002
+sonar.cluster.node.search.host=ip4
+sonar.cluster.node.search.port=9001
+sonar.cluster.node.es.host=ip4
+sonar.cluster.node.es.port=9002
+sonar.cluster.es.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 ```
 
@@ -141,11 +145,11 @@ sonar.cluster.search.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 sonar.cluster.enabled=true
 sonar.cluster.node.type=search
-sonar.cluster.node.host=ip5
-sonar.search.host=ip5
-sonar.search.port=9001
-sonar.search.transportPort=9002
-sonar.cluster.search.hosts=ip3:9002,ip4:9002,ip5:9002
+sonar.cluster.node.search.host=ip5
+sonar.cluster.node.search.port=9001
+sonar.cluster.node.es.host=ip5
+sonar.cluster.node.es.port=9002
+sonar.cluster.es.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 ```
 

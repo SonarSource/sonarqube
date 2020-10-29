@@ -93,9 +93,9 @@ When the [Project Move](/instance-administration/project-move/) feature is used 
 ## Configuration details
 There are three TCP networks to configure: 
 
-- the network of application nodes: relying on Hazelcast, configured with the `sonar.cluster.node.host` and `sonar.cluster.node.port` properties
-- the network of search nodes: used by Elasticsearch, configured with the `sonar.cluster.node.search.host` and `sonar.cluster.node.search.port` properties
-- the network between application nodes and search nodes, configured with the `sonar.cluster.node.es.host` and `sonar.cluster.node.es.port` properties
+- the network of application nodes that relies on Hazelcast.
+- the network used for Elasticsearch internal communication between search nodes (`es` properties).
+- the network between application nodes and search nodes (`search` properties).
 
 [Hazelcast](https://hazelcast.org/) is used to manage the communication between the cluster's application nodes. You don't need to install it yourself, it's provided out of the box.
 
@@ -115,18 +115,18 @@ Property | Description | Default | Required |
 ### Application nodes
 Property  | Description | Required 
 ---|---|---|---
-`sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `s
-onar.cluster.node.host:sonar.cluster.node.port`.|yes
+`sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `sonar.cluster.node.host:sonar.cluster.node.port`.|yes
 `sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no|
-`sonar.cluster.node.web.port`|Hazelcast port for communication with the WebServer process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
-`sonar.cluster.node.ce.port`|Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
+`sonar.cluster.node.web.port`|The Hazelcast port for communication with the WebServer process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
+`sonar.cluster.node.ce.port`|The Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
+`sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port, but not both. The item format is `sonar.cluster.node.search.host` for host only or`sonar.cluster.node.search.host:sonar.cluster.node.search.port` for host and port.| yes
 `sonar.auth.jwtBase64Hs256Secret`|Required for authentication with multiple web servers. It is used to keep user sessions opened when they are redirected from one web server to another by the load balancer. See _$SONARQUBE-HOME/conf/sonar.properties_) for details about how to generate this secret key.| yes
 
 ### Search nodes
 Property  | Description | Default | Required 
 ---|---|---|---
-`sonar.cluster.node.search.host`|Listening IP. IP must be accessible to all application nodes.|`127.0.0.1`|yes
-`sonar.cluster.node.search.port`|Listening port. Port must be accessible to all application nodes. This port is used for HTTP communication between search and application nodes|`9001`|yes
+`sonar.cluster.node.search.host`|Elasticsearch host of the current node used for HTTP communication between search and application nodes. IP must be accessible to all application nodes.|`127.0.0.1`|yes
+`sonar.cluster.node.search.port`|Elasticsearch port of the current node used for HTTP communication between search and application nodes. Port must be accessible to all application nodes.|`9001`|yes
 `sonar.cluster.es.hosts`|Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port but not both. The item format is `sonar.cluster.node.es.host` for host only or`sonar.cluster.node.es.host:sonar.cluster.node.es.port` for host and port.| |yes
 `sonar.cluster.node.es.host`|Elasticsearch host of the current node used by Elasticsearch internal communication to form a cluster (TCP transport).|localhost|yes
 `sonar.cluster.node.es.port`|Elasticsearch port of the current node used by Elasticsearch internal communication to form a cluster (TCP transport). Port must be accessible to all other search nodes|9002| yes
