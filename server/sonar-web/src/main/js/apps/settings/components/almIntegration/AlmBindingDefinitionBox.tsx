@@ -20,16 +20,23 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import DeleteIcon from 'sonar-ui-common/components/icons/DeleteIcon';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmBindingDefinition, AlmSettingsBindingStatus } from '../../../../types/alm-settings';
+import {
+  AlmBindingDefinition,
+  AlmKeys,
+  AlmSettingsBindingStatus,
+  AlmSettingsBindingStatusType
+} from '../../../../types/alm-settings';
+import { VALIDATED_ALMS } from './utils';
 
 export interface AlmBindingDefinitionBoxProps {
+  alm: AlmKeys;
   definition: AlmBindingDefinition;
   multipleDefinitions: boolean;
   onCheck: (definitionKey: string) => void;
@@ -38,9 +45,21 @@ export interface AlmBindingDefinitionBoxProps {
   status?: AlmSettingsBindingStatus;
 }
 
-const DEFAULT_STATUS = { alert: false, errorMessage: '', validating: true };
+const DEFAULT_STATUS: AlmSettingsBindingStatus = {
+  alertSuccess: false,
+  failureMessage: '',
+  type: AlmSettingsBindingStatusType.Validating
+};
 
-function getImportFeatureStatus(multipleDefinitions: boolean, error: boolean) {
+const STATUS_ICON = {
+  [AlmSettingsBindingStatusType.Failure]: <AlertErrorIcon className="spacer-left" />,
+  [AlmSettingsBindingStatusType.Success]: <AlertSuccessIcon className="spacer-left" />
+};
+
+function getImportFeatureStatus(
+  multipleDefinitions: boolean,
+  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
+) {
   if (multipleDefinitions) {
     return (
       <div className="display-inline-flex-center">
@@ -54,16 +73,22 @@ function getImportFeatureStatus(multipleDefinitions: boolean, error: boolean) {
       </div>
     );
   } else {
-    return error ? (
-      <AlertErrorIcon className="spacer-left" />
-    ) : (
-      <AlertSuccessIcon className="spacer-left" />
-    );
+    return STATUS_ICON[type];
   }
 }
 
 export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxProps) {
-  const { definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
+  const { alm, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
+
+  const importFeatureTitle =
+    alm === AlmKeys.GitLab
+      ? translate('settings.almintegration.feature.mr_decoration.title')
+      : translate('settings.almintegration.feature.pr_decoration.title');
+
+  const importFeatureDescription =
+    alm === AlmKeys.GitLab
+      ? translate('settings.almintegration.feature.mr_decoration.description')
+      : translate('settings.almintegration.feature.pr_decoration.description');
 
   return (
     <div className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition">
@@ -83,41 +108,74 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
         {definition.url && <span>{definition.url}</span>}
       </div>
 
-      <DeferredSpinner
-        customSpinner={
-          <div>
-            <i className="deferred-spinner spacer-right" />
-            {translate('settings.almintegration.checking_configuration')}
+      {!VALIDATED_ALMS.includes(alm) && (
+        <>
+          <div className="display-flex-row spacer-bottom">
+            <Tooltip overlay={importFeatureDescription}>
+              <span>{importFeatureTitle}</span>
+            </Tooltip>
+            <AlertSuccessIcon className="spacer-left" />
           </div>
-        }
-        loading={status.validating}>
-        <div className="display-flex-row spacer-bottom">
-          <div className="huge-spacer-right">
-            {translate('settings.almintegration.feature.pr_decoration.title')}
-            {status.errorMessage ? (
-              <AlertErrorIcon className="spacer-left" />
-            ) : (
-              <AlertSuccessIcon className="spacer-left" />
-            )}
-          </div>
-          <div>
-            {translate('settings.almintegration.feature.alm_repo_import.title')}
-            {getImportFeatureStatus(multipleDefinitions, Boolean(status.errorMessage))}
-          </div>
-        </div>
 
-        {status.alert && (
           <div className="width-50">
-            <Alert variant={status.errorMessage ? 'error' : 'success'}>
-              {status.errorMessage || translate('settings.almintegration.configuration_valid')}
-            </Alert>
+            <Alert variant="info">{translate('settings.almintegration.no_validation')}</Alert>
           </div>
-        )}
+        </>
+      )}
 
-        <Button className="big-spacer-top" onClick={() => props.onCheck(definition.key)}>
-          {translate('settings.almintegration.check_configuration')}
-        </Button>
-      </DeferredSpinner>
+      {VALIDATED_ALMS.includes(alm) &&
+        (status.type === AlmSettingsBindingStatusType.Validating ? (
+          <>
+            <i className="spinner spacer-right" />
+            {translate('settings.almintegration.checking_configuration')}
+          </>
+        ) : (
+          <>
+            {status.type !== AlmSettingsBindingStatusType.Warning && (
+              <div className="display-flex-row spacer-bottom">
+                <Tooltip overlay={importFeatureDescription}>
+                  <div className="huge-spacer-right">
+                    {importFeatureTitle}
+                    {STATUS_ICON[status.type]}
+                  </div>
+                </Tooltip>
+                <div>
+                  <Tooltip
+                    overlay={translate(
+                      'settings.almintegration.feature.alm_repo_import.description'
+                    )}>
+                    <span>
+                      {translate('settings.almintegration.feature.alm_repo_import.title')}
+                    </span>
+                  </Tooltip>
+                  {getImportFeatureStatus(multipleDefinitions, status.type)}
+                </div>
+              </div>
+            )}
+
+            <div className="width-50">
+              {status.type === AlmSettingsBindingStatusType.Warning && (
+                <Alert variant="warning">
+                  {translate('settings.almintegration.could_not_validate')}
+                </Alert>
+              )}
+
+              {status.type === AlmSettingsBindingStatusType.Failure && (
+                <Alert variant="error">{status.failureMessage}</Alert>
+              )}
+
+              {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
+                <Alert variant="success">
+                  {translate('settings.almintegration.configuration_valid')}
+                </Alert>
+              )}
+            </div>
+
+            <Button className="big-spacer-top" onClick={() => props.onCheck(definition.key)}>
+              {translate('settings.almintegration.check_configuration')}
+            </Button>
+          </>
+        ))}
     </div>
   );
 }

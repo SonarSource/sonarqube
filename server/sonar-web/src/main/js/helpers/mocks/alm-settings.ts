@@ -20,6 +20,7 @@
 import {
   AlmKeys,
   AlmSettingsBindingStatus,
+  AlmSettingsBindingStatusType,
   AlmSettingsInstance,
   AzureBindingDefinition,
   BitbucketBindingDefinition,
@@ -135,9 +136,9 @@ export function mockAlmSettingsBindingStatus(
   overrides: Partial<AlmSettingsBindingStatus>
 ): AlmSettingsBindingStatus {
   return {
-    alert: false,
-    errorMessage: '',
-    validating: true,
+    alertSuccess: false,
+    failureMessage: '',
+    type: AlmSettingsBindingStatusType.Validating,
     ...overrides
   };
 }

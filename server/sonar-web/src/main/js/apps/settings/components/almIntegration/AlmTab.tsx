@@ -24,19 +24,15 @@ import {
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormChildrenProps } from './AlmBindingDefinitionForm';
-import { AlmIntegrationFeatureBoxProps } from './AlmIntegrationFeatureBox';
 import AlmTabRenderer from './AlmTabRenderer';
+import { VALIDATED_ALMS } from './utils';
 
 interface Props<B> {
   alm: AlmKeys;
-  additionalColumnsHeaders?: string[];
-  additionalColumnsKeys?: Array<keyof B>;
-  additionalTableInfo?: React.ReactNode;
   createConfiguration: (data: B) => Promise<void>;
   defaultBinding: B;
   definitions: B[];
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
-  features?: AlmIntegrationFeatureBoxProps[];
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help?: React.ReactNode;
   loadingAlmDefinitions: boolean;
@@ -101,7 +97,11 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
         }
       })
       .then(this.props.onUpdateDefinitions)
-      .then(() => this.props.onCheck(config.key))
+      .then(() => {
+        if (VALIDATED_ALMS.includes(this.props.alm)) {
+          this.props.onCheck(config.key);
+        }
+      })
       .catch(() => {
         if (this.mounted) {
           this.setState({ submitting: false, success: false });
@@ -111,14 +111,10 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
 
   render() {
     const {
-      additionalColumnsHeaders = [],
-      additionalColumnsKeys = [],
-      additionalTableInfo,
       alm,
       defaultBinding,
       definitions,
       definitionStatus,
-      features,
       form,
       help,
       loadingAlmDefinitions,
@@ -130,15 +126,11 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
 
     return (
       <AlmTabRenderer
-        additionalColumnsHeaders={additionalColumnsHeaders}
-        additionalColumnsKeys={additionalColumnsKeys}
-        additionalTableInfo={additionalTableInfo}
         alm={alm}
         defaultBinding={defaultBinding}
         definitions={definitions}
         definitionStatus={definitionStatus}
         editedDefinition={editedDefinition}
-        features={features}
         form={form}
         help={help}
         loadingAlmDefinitions={loadingAlmDefinitions}

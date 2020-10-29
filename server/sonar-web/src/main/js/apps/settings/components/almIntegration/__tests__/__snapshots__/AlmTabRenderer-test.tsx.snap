@@ -7,19 +7,33 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
   <DeferredSpinner
     loading={false}
   >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
       alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
       }
-      loading={false}
-      onCreate={[MockFunction]}
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
@@ -51,7 +65,6 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
       isSecondInstance={true}
       onCancel={[MockFunction]}
       onSubmit={[MockFunction]}
-      showInModal={true}
     >
       <Component />
     </AlmBindingDefinitionForm>
@@ -66,19 +79,33 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
   <DeferredSpinner
     loading={false}
   >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
       alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
       }
-      loading={false}
-      onCreate={[MockFunction]}
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
@@ -93,19 +120,33 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
   <DeferredSpinner
     loading={true}
   >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
       alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
       }
-      loading={false}
-      onCreate={[MockFunction]}
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
@@ -120,19 +161,50 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
   <DeferredSpinner
     loading={false}
   >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.almintegration.create.tooltip"
+            id="settings.almintegration.create.tooltip"
+            values={
+              Object {
+                "alm": "alm.azure",
+                "link": <a
+                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  settings.almintegration.create.tooltip.link
+                </a>,
+              }
+            }
+          />
+        }
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
       alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
       }
-      loading={true}
-      onCreate={[MockFunction]}
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
     />
@@ -147,75 +219,37 @@ exports[`should render correctly for multi-ALM binding: submitting 1`] = `
   <DeferredSpinner
     loading={false}
   >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
-      alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
-      }
-      loading={false}
-      onCreate={[MockFunction]}
-      onDelete={[MockFunction]}
-      onEdit={[MockFunction]}
-    />
-  </DeferredSpinner>
-</div>
-`;
-
-exports[`should render correctly for multi-ALM binding: with features 1`] = `
-<div
-  className="big-padded"
->
-  <DeferredSpinner
-    loading={false}
-  >
-    <AlmBindingDefinitionsTable
-      additionalColumnsHeaders={Array []}
-      alm="azure"
-      definitions={
-        Array [
-          Object {
-            "additionalColumns": Array [],
-            "key": "key",
-          },
-        ]
-      }
-      loading={false}
-      onCreate={[MockFunction]}
-      onDelete={[MockFunction]}
-      onEdit={[MockFunction]}
-    />
-  </DeferredSpinner>
-  <div
-    className="big-spacer-top big-padded-top bordered-top"
-  >
-    <h3
-      className="big-spacer-bottom"
-    >
-      settings.almintegration.features
-    </h3>
     <div
-      className="display-flex-wrap"
+      className="spacer-bottom text-right"
     >
-      <AlmIntegrationFeatureBox
-        active={true}
-        description="Bar"
-        key="0"
-        name="Foo"
-      />
-      <AlmIntegrationFeatureBox
-        active={false}
-        description="Bim"
-        key="1"
-        name="Baz"
-      />
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
     </div>
-  </div>
+    <AlmBindingDefinitionBox
+      alm="azure"
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
 </div>
 `;
 
@@ -223,42 +257,57 @@ exports[`should render correctly for single-ALM binding 1`] = `
 <div
   className="big-padded"
 >
-  <AlmBindingDefinitionForm
-    bindingDefinition={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-      }
-    }
-    help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.azure.info"
-        id="settings.almintegration.azure.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to="/documentation/analysis/pr-decoration/"
-            >
-              learn_more
-            </Link>,
-          }
-        }
-      />
-    }
-    hideKeyField={true}
+  <DeferredSpinner
     loading={true}
-    onCancel={[MockFunction]}
-    onDelete={[MockFunction]}
-    onEdit={[MockFunction]}
-    onSubmit={[MockFunction]}
-    readOnly={true}
-    success={false}
   >
-    <Component />
-  </AlmBindingDefinitionForm>
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.almintegration.create.tooltip"
+            id="settings.almintegration.create.tooltip"
+            values={
+              Object {
+                "alm": "alm.azure",
+                "link": <a
+                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  settings.almintegration.create.tooltip.link
+                </a>,
+              }
+            }
+          />
+        }
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
+      alm="azure"
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
 </div>
 `;
 
@@ -266,42 +315,57 @@ exports[`should render correctly for single-ALM binding 2`] = `
 <div
   className="big-padded"
 >
-  <AlmBindingDefinitionForm
-    bindingDefinition={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-      }
-    }
-    help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.azure.info"
-        id="settings.almintegration.azure.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to="/documentation/analysis/pr-decoration/"
-            >
-              learn_more
-            </Link>,
-          }
-        }
-      />
-    }
-    hideKeyField={true}
-    loading={true}
-    onCancel={[MockFunction]}
-    onDelete={[MockFunction]}
-    onEdit={[MockFunction]}
-    onSubmit={[MockFunction]}
-    readOnly={true}
-    success={false}
+  <DeferredSpinner
+    loading={false}
   >
-    <Component />
-  </AlmBindingDefinitionForm>
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.almintegration.create.tooltip"
+            id="settings.almintegration.create.tooltip"
+            values={
+              Object {
+                "alm": "alm.azure",
+                "link": <a
+                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  settings.almintegration.create.tooltip.link
+                </a>,
+              }
+            }
+          />
+        }
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
+      alm="azure"
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
 </div>
 `;
 
@@ -309,42 +373,57 @@ exports[`should render correctly for single-ALM binding 3`] = `
 <div
   className="big-padded"
 >
-  <AlmBindingDefinitionForm
-    bindingDefinition={
-      Object {
-        "key": "key",
-        "personalAccessToken": "asdf1234",
-      }
-    }
-    help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.azure.info"
-        id="settings.almintegration.azure.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to="/documentation/analysis/pr-decoration/"
-            >
-              learn_more
-            </Link>,
-          }
-        }
-      />
-    }
-    hideKeyField={true}
-    loading={true}
-    onCancel={[MockFunction]}
-    onDelete={[MockFunction]}
-    onEdit={[MockFunction]}
-    onSubmit={[MockFunction]}
-    readOnly={true}
-    success={false}
+  <DeferredSpinner
+    loading={false}
   >
-    <Component />
-  </AlmBindingDefinitionForm>
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.almintegration.create.tooltip"
+            id="settings.almintegration.create.tooltip"
+            values={
+              Object {
+                "alm": "alm.azure",
+                "link": <a
+                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  settings.almintegration.create.tooltip.link
+                </a>,
+              }
+            }
+          />
+        }
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
+    </div>
+    <AlmBindingDefinitionBox
+      alm="azure"
+      definition={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
 </div>
 `;
 
@@ -358,15 +437,21 @@ exports[`should render correctly with validation 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Button
-        data-test="settings__alm-create"
-        disabled={false}
-        onClick={[MockFunction]}
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
       >
-        settings.almintegration.table.create
-      </Button>
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
     </div>
     <AlmBindingDefinitionBox
+      alm="github"
       definition={
         Object {
           "appId": "123456",
@@ -394,16 +479,26 @@ exports[`should render correctly with validation: create a first 1`] = `
   <DeferredSpinner
     loading={false}
   >
-    <div
-      className="spacer-bottom text-right"
+    <p
+      className="spacer-top"
     >
-      <Button
-        data-test="settings__alm-create"
-        disabled={false}
-        onClick={[MockFunction]}
+      settings.almintegration.empty.github
+    </p>
+    <div
+      className="big-spacer-top"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
       >
-        settings.almintegration.table.create
-      </Button>
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
     </div>
     <AlmBindingDefinitionForm
       bindingDefinition={
@@ -437,7 +532,6 @@ exports[`should render correctly with validation: create a first 1`] = `
       isSecondInstance={false}
       onCancel={[MockFunction]}
       onSubmit={[MockFunction]}
-      showInModal={true}
     >
       <Component />
     </AlmBindingDefinitionForm>
@@ -455,15 +549,21 @@ exports[`should render correctly with validation: create a second 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Button
-        data-test="settings__alm-create"
-        disabled={false}
-        onClick={[MockFunction]}
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
       >
-        settings.almintegration.table.create
-      </Button>
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
     </div>
     <AlmBindingDefinitionBox
+      alm="github"
       definition={
         Object {
           "appId": "123456",
@@ -512,7 +612,6 @@ exports[`should render correctly with validation: create a second 1`] = `
       isSecondInstance={true}
       onCancel={[MockFunction]}
       onSubmit={[MockFunction]}
-      showInModal={true}
     >
       <Component />
     </AlmBindingDefinitionForm>
@@ -527,16 +626,26 @@ exports[`should render correctly with validation: empty 1`] = `
   <DeferredSpinner
     loading={false}
   >
-    <div
-      className="spacer-bottom text-right"
+    <p
+      className="spacer-top"
     >
-      <Button
-        data-test="settings__alm-create"
-        disabled={false}
-        onClick={[MockFunction]}
+      settings.almintegration.empty.github
+    </p>
+    <div
+      className="big-spacer-top"
+    >
+      <Tooltip
+        mouseLeaveDelay={0.25}
+        overlay={null}
       >
-        settings.almintegration.table.create
-      </Button>
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Tooltip>
     </div>
   </DeferredSpinner>
 </div>

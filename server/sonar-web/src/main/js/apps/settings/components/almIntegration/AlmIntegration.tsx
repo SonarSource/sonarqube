@@ -29,7 +29,8 @@ import {
   AlmBindingDefinition,
   AlmKeys,
   AlmSettingsBindingDefinitions,
-  AlmSettingsBindingStatus
+  AlmSettingsBindingStatus,
+  AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 import { VALIDATED_ALMS } from './utils';
@@ -151,20 +152,30 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     this.setState(({ definitionStatus }) => {
       definitionStatus[definitionKey] = {
         ...definitionStatus[definitionKey],
-        validating: true
+        type: AlmSettingsBindingStatusType.Validating
       };
 
       return { definitionStatus: { ...definitionStatus } };
     });
 
-    const errorMessage = await validateAlmSettings(definitionKey).catch(() => undefined);
+    let type: AlmSettingsBindingStatusType;
+    let failureMessage = '';
 
-    if (this.mounted && errorMessage !== undefined) {
+    try {
+      failureMessage = await validateAlmSettings(definitionKey);
+      type = failureMessage
+        ? AlmSettingsBindingStatusType.Failure
+        : AlmSettingsBindingStatusType.Success;
+    } catch (_) {
+      type = AlmSettingsBindingStatusType.Warning;
+    }
+
+    if (this.mounted) {
       this.setState(({ definitionStatus }) => {
         definitionStatus[definitionKey] = {
-          alert: alertSuccess || Boolean(errorMessage),
-          errorMessage,
-          validating: false
+          alertSuccess,
+          failureMessage,
+          type
         };
 
         return { definitionStatus: { ...definitionStatus } };

@@ -22,16 +22,6 @@ exports[`should render correctly 1`] = `
         },
       ]
     }
-    features={
-      Array [
-        Object {
-          "active": true,
-          "description": "settings.almintegration.feature.pr_decoration.description",
-          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
-          "name": "settings.almintegration.feature.pr_decoration.title",
-        },
-      ]
-    }
     form={[Function]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}

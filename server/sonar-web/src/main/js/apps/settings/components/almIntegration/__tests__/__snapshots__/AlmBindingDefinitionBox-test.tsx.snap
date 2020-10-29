@@ -1,5 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly: Azure DevOps 1`] = `
+<div
+  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
+>
+  <div
+    className="actions pull-right"
+  >
+    <Button
+      onClick={[Function]}
+    >
+      <EditIcon
+        className="spacer-right"
+      />
+      edit
+    </Button>
+    <Button
+      className="button-red spacer-left"
+      onClick={[Function]}
+    >
+      <DeleteIcon
+        className="spacer-right"
+      />
+      delete
+    </Button>
+  </div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <h3>
+      key
+    </h3>
+  </div>
+  <div
+    className="display-flex-row spacer-bottom"
+  >
+    <Tooltip
+      overlay="settings.almintegration.feature.pr_decoration.description"
+    >
+      <span>
+        settings.almintegration.feature.pr_decoration.title
+      </span>
+    </Tooltip>
+    <AlertSuccessIcon
+      className="spacer-left"
+    />
+  </div>
+  <div
+    className="width-50"
+  >
+    <Alert
+      variant="info"
+    >
+      settings.almintegration.no_validation
+    </Alert>
+  </div>
+</div>
+`;
+
 exports[`should render correctly: default 1`] = `
 <div
   className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
@@ -35,42 +93,10 @@ exports[`should render correctly: default 1`] = `
       http://github.enterprise.com
     </span>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={true}
-  >
-    <div
-      className="display-flex-row spacer-bottom"
-    >
-      <div
-        className="huge-spacer-right"
-      >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
-    </div>
-    <Button
-      className="big-spacer-top"
-      onClick={[Function]}
-    >
-      settings.almintegration.check_configuration
-    </Button>
-  </DeferredSpinner>
+  <i
+    className="spinner spacer-right"
+  />
+  settings.almintegration.checking_configuration
 </div>
 `;
 
@@ -109,19 +135,11 @@ exports[`should render correctly: error 1`] = `
       http://github.enterprise.com
     </span>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={false}
+  <div
+    className="display-flex-row spacer-bottom"
   >
-    <div
-      className="display-flex-row spacer-bottom"
+    <Tooltip
+      overlay="settings.almintegration.feature.pr_decoration.description"
     >
       <div
         className="huge-spacer-right"
@@ -131,103 +149,35 @@ exports[`should render correctly: error 1`] = `
           className="spacer-left"
         />
       </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <AlertErrorIcon
-          className="spacer-left"
-        />
-      </div>
+    </Tooltip>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <AlertErrorIcon
+        className="spacer-left"
+      />
     </div>
-    <Button
-      className="big-spacer-top"
-      onClick={[Function]}
-    >
-      settings.almintegration.check_configuration
-    </Button>
-  </DeferredSpinner>
-</div>
-`;
-
-exports[`should render correctly: error with alert 1`] = `
-<div
-  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
->
-  <div
-    className="actions pull-right"
-  >
-    <Button
-      onClick={[Function]}
-    >
-      <EditIcon
-        className="spacer-right"
-      />
-      edit
-    </Button>
-    <Button
-      className="button-red spacer-left"
-      onClick={[Function]}
-    >
-      <DeleteIcon
-        className="spacer-right"
-      />
-      delete
-    </Button>
   </div>
   <div
-    className="big-spacer-bottom"
+    className="width-50"
   >
-    <h3>
-      key
-    </h3>
-    <span>
-      http://github.enterprise.com
-    </span>
+    <Alert
+      variant="error"
+    >
+      Oops, something went wrong
+    </Alert>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={false}
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
   >
-    <div
-      className="display-flex-row spacer-bottom"
-    >
-      <div
-        className="huge-spacer-right"
-      >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertErrorIcon
-          className="spacer-left"
-        />
-      </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <AlertErrorIcon
-          className="spacer-left"
-        />
-      </div>
-    </div>
-    <div
-      className="width-50"
-    >
-      <Alert
-        variant="error"
-      >
-        Oops, something went wrong
-      </Alert>
-    </div>
-    <Button
-      className="big-spacer-top"
-      onClick={[Function]}
-    >
-      settings.almintegration.check_configuration
-    </Button>
-  </DeferredSpinner>
+    settings.almintegration.check_configuration
+  </Button>
 </div>
 `;
 
@@ -266,52 +216,10 @@ exports[`should render correctly: multiple definitions 1`] = `
       http://github.enterprise.com
     </span>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={true}
-  >
-    <div
-      className="display-flex-row spacer-bottom"
-    >
-      <div
-        className="huge-spacer-right"
-      >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <div
-          className="display-inline-flex-center"
-        >
-          <strong
-            className="spacer-left"
-          >
-            settings.almintegration.feature.alm_repo_import.disabled
-          </strong>
-          <HelpTooltip
-            className="little-spacer-left"
-            overlay="settings.almintegration.feature.alm_repo_import.help"
-          />
-        </div>
-      </div>
-    </div>
-    <Button
-      className="big-spacer-top"
-      onClick={[Function]}
-    >
-      settings.almintegration.check_configuration
-    </Button>
-  </DeferredSpinner>
+  <i
+    className="spinner spacer-right"
+  />
+  settings.almintegration.checking_configuration
 </div>
 `;
 
@@ -350,19 +258,11 @@ exports[`should render correctly: success 1`] = `
       http://github.enterprise.com
     </span>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={false}
+  <div
+    className="display-flex-row spacer-bottom"
   >
-    <div
-      className="display-flex-row spacer-bottom"
+    <Tooltip
+      overlay="settings.almintegration.feature.pr_decoration.description"
     >
       <div
         className="huge-spacer-right"
@@ -372,20 +272,29 @@ exports[`should render correctly: success 1`] = `
           className="spacer-left"
         />
       </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
+    </Tooltip>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
     </div>
-    <Button
-      className="big-spacer-top"
-      onClick={[Function]}
-    >
-      settings.almintegration.check_configuration
-    </Button>
-  </DeferredSpinner>
+  </div>
+  <div
+    className="width-50"
+  />
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
 </div>
 `;
 
@@ -424,19 +333,11 @@ exports[`should render correctly: success with alert 1`] = `
       http://github.enterprise.com
     </span>
   </div>
-  <DeferredSpinner
-    customSpinner={
-      <div>
-        <i
-          className="deferred-spinner spacer-right"
-        />
-        settings.almintegration.checking_configuration
-      </div>
-    }
-    loading={false}
+  <div
+    className="display-flex-row spacer-bottom"
   >
-    <div
-      className="display-flex-row spacer-bottom"
+    <Tooltip
+      overlay="settings.almintegration.feature.pr_decoration.description"
     >
       <div
         className="huge-spacer-right"
@@ -446,28 +347,87 @@ exports[`should render correctly: success with alert 1`] = `
           className="spacer-left"
         />
       </div>
-      <div>
-        settings.almintegration.feature.alm_repo_import.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
-    </div>
-    <div
-      className="width-50"
-    >
-      <Alert
-        variant="success"
+    </Tooltip>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
       >
-        settings.almintegration.configuration_valid
-      </Alert>
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
     </div>
+  </div>
+  <div
+    className="width-50"
+  >
+    <Alert
+      variant="success"
+    >
+      settings.almintegration.configuration_valid
+    </Alert>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: warning 1`] = `
+<div
+  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
+>
+  <div
+    className="actions pull-right"
+  >
     <Button
-      className="big-spacer-top"
       onClick={[Function]}
     >
-      settings.almintegration.check_configuration
+      <EditIcon
+        className="spacer-right"
+      />
+      edit
     </Button>
-  </DeferredSpinner>
+    <Button
+      className="button-red spacer-left"
+      onClick={[Function]}
+    >
+      <DeleteIcon
+        className="spacer-right"
+      />
+      delete
+    </Button>
+  </div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <h3>
+      key
+    </h3>
+    <span>
+      http://github.enterprise.com
+    </span>
+  </div>
+  <div
+    className="width-50"
+  >
+    <Alert
+      variant="warning"
+    >
+      settings.almintegration.could_not_validate
+    </Alert>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
 </div>
 `;

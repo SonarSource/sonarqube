@@ -2,8 +2,6 @@
 
 exports[`should render correctly 1`] = `
 <AlmTabRenderer
-  additionalColumnsHeaders={Array []}
-  additionalColumnsKeys={Array []}
   alm="azure"
   defaultBinding={
     Object {

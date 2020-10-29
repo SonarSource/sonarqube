@@ -42,22 +42,6 @@ it('should render correctly for multi-ALM binding', () => {
   expect(shallowRenderAzure({ editedDefinition: mockAzureBindingDefinition() })).toMatchSnapshot(
     'editing a definition'
   );
-  expect(
-    shallowRenderAzure({
-      features: [
-        {
-          active: true,
-          name: 'Foo',
-          description: 'Bar'
-        },
-        {
-          active: false,
-          name: 'Baz',
-          description: 'Bim'
-        }
-      ]
-    })
-  ).toMatchSnapshot('with features');
 });
 
 it('should render correctly for single-ALM binding', () => {
@@ -108,8 +92,6 @@ function shallowRender<B extends AlmBindingDefinition>(
 ) {
   return shallow(
     <AlmTabRenderer
-      additionalColumnsHeaders={[]}
-      additionalColumnsKeys={[]}
       alm={AlmKeys.Azure}
       defaultBinding={{} as any}
       definitions={[]}

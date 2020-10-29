@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
@@ -57,45 +55,11 @@ export default function BitbucketTab(props: BitbucketTabProps) {
   return (
     <div className="bordered">
       <AlmTab
-        additionalColumnsHeaders={[translate('settings.almintegration.table.column.bitbucket.url')]}
-        additionalColumnsKeys={['url']}
-        additionalTableInfo={
-          <Alert className="big-spacer-bottom width-50" variant="info">
-            <FormattedMessage
-              defaultMessage={translate(
-                'settings.almintegration.feature.alm_repo_import.disabled_if_multiple_bbs_instances'
-              )}
-              id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_bbs_instances"
-              values={{
-                feature: (
-                  <em>{translate('settings.almintegration.feature.alm_repo_import.title')}</em>
-                )
-              }}
-            />
-          </Alert>
-        }
         alm={AlmKeys.Bitbucket}
         createConfiguration={createBitbucketConfiguration}
         defaultBinding={{ key: '', url: '', personalAccessToken: '' }}
         definitions={definitions}
         definitionStatus={definitionStatus}
-        features={[
-          {
-            name: translate('settings.almintegration.feature.pr_decoration.title'),
-            active: definitions.length > 0,
-            description: translate('settings.almintegration.feature.pr_decoration.description'),
-            inactiveReason: translate('settings.almintegration.feature.need_at_least_1_binding')
-          },
-          {
-            name: translate('settings.almintegration.feature.alm_repo_import.title'),
-            active: definitions.length === 1,
-            description: translate('settings.almintegration.feature.alm_repo_import.description'),
-            inactiveReason: translateWithParameters(
-              'settings.almintegration.feature.alm_repo_import.bitbucket.wrong_count_x',
-              definitions.length
-            )
-          }
-        ]}
         form={childProps => <BitbucketForm {...childProps} />}
         help={
           <>

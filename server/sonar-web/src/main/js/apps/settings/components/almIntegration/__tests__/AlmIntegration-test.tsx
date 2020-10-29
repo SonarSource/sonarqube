@@ -26,7 +26,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../../api/alm-settings';
-import { AlmKeys } from '../../../../../types/alm-settings';
+import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
 
 jest.mock('../../../../../api/alm-settings', () => ({
@@ -99,38 +99,38 @@ it('should delete configuration', async () => {
 
 it('should validate a configuration', async () => {
   const definitionKey = 'validated-key';
-  const errorMessage = 'an error occured';
+  const failureMessage = 'an error occured';
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
   (validateAlmSettings as jest.Mock)
-    .mockResolvedValueOnce(undefined)
-    .mockResolvedValueOnce(errorMessage)
+    .mockRejectedValueOnce(undefined)
+    .mockResolvedValueOnce(failureMessage)
     .mockResolvedValueOnce('');
 
   await wrapper.instance().handleCheck(definitionKey);
 
-  expect(wrapper.state().definitionStatus[definitionKey]).toEqual(
-    expect.objectContaining({
-      validating: true
-    })
-  );
-
-  await wrapper.instance().handleCheck(definitionKey);
-
   expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
-    alert: true,
-    errorMessage,
-    validating: false
+    alertSuccess: true,
+    failureMessage: '',
+    type: AlmSettingsBindingStatusType.Warning
   });
 
   await wrapper.instance().handleCheck(definitionKey);
 
   expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
-    alert: true,
-    errorMessage: '',
-    validating: false
+    alertSuccess: true,
+    failureMessage,
+    type: AlmSettingsBindingStatusType.Failure
+  });
+
+  await wrapper.instance().handleCheck(definitionKey);
+
+  expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
+    alertSuccess: true,
+    failureMessage: '',
+    type: AlmSettingsBindingStatusType.Success
   });
 });
 

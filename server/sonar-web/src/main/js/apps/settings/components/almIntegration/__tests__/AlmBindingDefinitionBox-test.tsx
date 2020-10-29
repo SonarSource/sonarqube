@@ -21,44 +21,57 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsBindingStatus,
+  mockAzureBindingDefinition,
   mockGithubBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
+import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionBox, { AlmBindingDefinitionBoxProps } from '../AlmBindingDefinitionBox';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ multipleDefinitions: true })).toMatchSnapshot('multiple definitions');
   expect(
-    shallowRender({ status: mockAlmSettingsBindingStatus({ errorMessage: '', validating: false }) })
+    shallowRender({
+      status: mockAlmSettingsBindingStatus({
+        type: AlmSettingsBindingStatusType.Success
+      })
+    })
   ).toMatchSnapshot('success');
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        errorMessage: 'Oops, something went wrong',
-        validating: false
+        failureMessage: 'Oops, something went wrong',
+        type: AlmSettingsBindingStatusType.Failure
       })
     })
   ).toMatchSnapshot('error');
 
   expect(
     shallowRender({
-      status: mockAlmSettingsBindingStatus({ alert: true, errorMessage: '', validating: false })
+      status: mockAlmSettingsBindingStatus({
+        alertSuccess: true,
+        type: AlmSettingsBindingStatusType.Success
+      })
     })
   ).toMatchSnapshot('success with alert');
+
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        alert: true,
-        errorMessage: 'Oops, something went wrong',
-        validating: false
+        type: AlmSettingsBindingStatusType.Warning
       })
     })
-  ).toMatchSnapshot('error with alert');
+  ).toMatchSnapshot('warning');
+
+  expect(
+    shallowRender({ alm: AlmKeys.Azure, definition: mockAzureBindingDefinition() })
+  ).toMatchSnapshot('Azure DevOps');
 });
 
 function shallowRender(props: Partial<AlmBindingDefinitionBoxProps> = {}) {
   return shallow(
     <AlmBindingDefinitionBox
+      alm={AlmKeys.GitHub}
       definition={mockGithubBindingDefinition()}
       multipleDefinitions={false}
       onCheck={jest.fn()}

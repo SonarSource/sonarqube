@@ -111,7 +111,14 @@ export interface AlmSettingsBindingDefinitions {
 }
 
 export interface AlmSettingsBindingStatus {
-  alert: boolean;
-  errorMessage: string;
-  validating: boolean;
+  alertSuccess: boolean;
+  failureMessage: string;
+  type: AlmSettingsBindingStatusType;
+}
+
+export enum AlmSettingsBindingStatusType {
+  Validating,
+  Success,
+  Failure,
+  Warning
 }

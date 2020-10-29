@@ -18,9 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { createGitlabConfiguration, updateGitlabConfiguration } from '../../../../api/alm-settings';
 import {
   AlmKeys,
@@ -56,61 +53,16 @@ export default function GitlabTab(props: GitlabTabProps) {
     loadingProjectCount
   } = props;
 
-  const importFeatureEnabled = Boolean(definitions.length === 1 && definitions[0].url);
-
   return (
     <div className="bordered">
       {branchesEnabled && (
         <>
           <AlmTab
-            additionalColumnsHeaders={[
-              translate('settings.almintegration.table.column.gitlab.url')
-            ]}
-            additionalColumnsKeys={['url']}
-            additionalTableInfo={
-              <Alert className="big-spacer-bottom width-50" variant="info">
-                <FormattedMessage
-                  defaultMessage={translate(
-                    'settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances'
-                  )}
-                  id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
-                  values={{
-                    feature: (
-                      <em>{translate('settings.almintegration.feature.alm_repo_import.title')}</em>
-                    )
-                  }}
-                />
-              </Alert>
-            }
             alm={AlmKeys.GitLab}
             createConfiguration={createGitlabConfiguration}
             defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
             definitions={definitions}
             definitionStatus={definitionStatus}
-            features={[
-              {
-                name: translate('settings.almintegration.feature.mr_decoration.title'),
-                active: definitions.length > 0,
-                description: translate('settings.almintegration.feature.mr_decoration.description'),
-                inactiveReason: translate('settings.almintegration.feature.need_at_least_1_binding')
-              },
-              {
-                name: translate('settings.almintegration.feature.alm_repo_import.title'),
-                active: importFeatureEnabled,
-                description: translate(
-                  'settings.almintegration.feature.alm_repo_import.description'
-                ),
-                inactiveReason:
-                  definitions.length === 1
-                    ? translate(
-                        'settings.almintegration.feature.alm_repo_import.gitlab.requires_fields'
-                      )
-                    : translateWithParameters(
-                        'settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x',
-                        definitions.length
-                      )
-              }
-            ]}
             form={childProps => <GitlabForm {...childProps} />}
             loadingAlmDefinitions={loadingAlmDefinitions}
             loadingProjectCount={loadingProjectCount}
