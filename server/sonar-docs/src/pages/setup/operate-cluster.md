@@ -49,10 +49,11 @@ To add an Application Node:
 	```
 	...
 	sonar.cluster.enabled=true
-	sonar.cluster.hosts=ip1,ip2,ip6
-	sonar.cluster.search.hosts=ip3,ip4,ip5
-	sonar.cluster.node.host=ip6
 	sonar.cluster.node.type=application
+	sonar.cluster.node.host=ip6 
+	sonar.cluster.node.port=9003
+	sonar.cluster.hosts=ip1,ip2,ip6
+	sonar.cluster.search.hosts=ip3:9001,ip4:9001,ip5:9001
 	sonar.auth.jwtBase64Hs256Secret=YOURGENERATEDSECRET
 	...
 	```
@@ -91,7 +92,6 @@ When the [Project Move](/instance-administration/project-move/) feature is used 
 
 ## Configuration details
 There are three TCP networks to configure: 
->>>>>>> c612aa18893... SONAR-13974 Add upgrade notes for new ES configuration
 
 - the network of application nodes: relying on Hazelcast, configured with the `sonar.cluster.node.host` and `sonar.cluster.node.port` properties
 - the network of search nodes: used by Elasticsearch, configured with the `sonar.cluster.node.search.host` and `sonar.cluster.node.search.port` properties
