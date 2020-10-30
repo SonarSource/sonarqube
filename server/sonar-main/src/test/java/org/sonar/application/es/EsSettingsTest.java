@@ -150,14 +150,15 @@ public class EsSettingsTest {
       .containsEntry("http.host", "127.0.0.1")
       // no cluster, but cluster and node names are set though
       .containsEntry("cluster.name", "sonarqube")
-      .containsEntry("node.name", "sonarqube");
+      .containsEntry("node.name", "sonarqube")
+      .containsEntry("discovery.seed_hosts", "127.0.0.1")
+      .containsEntry("cluster.initial_master_nodes", "127.0.0.1");
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
     assertThat(generated.get("path.home")).isNull();
     assertThat(generated.get("path.conf")).isNull();
 
-    assertThat(generated.get("discovery.seed_hosts")).isNull();
     assertThat(generated)
       .containsEntry("discovery.initial_state_timeout", "30s")
       .containsEntry("action.auto_create_index", "false");
