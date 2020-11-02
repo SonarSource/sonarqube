@@ -73,7 +73,7 @@ dependencyCheck {
   format = 'ALL'
   junitFailOnCVSS = 0
   failBuildOnCVSS = 0
-  suppressionFiles = ["${project.rootDir}/owasp-suppressions.xml", "${project.rootDir}/owasp-vulnerabilities.xml"]
+  suppressionFiles = ["${project.rootDir}/private/owasp/suppressions.xml", "${project.rootDir}/private/owasp/vulnerabilities.xml"]
   skipProjects = project.subprojects
       .findAll {it.name.contains('testing') ||
           it.name.startsWith('it-') ||
