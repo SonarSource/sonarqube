@@ -152,6 +152,10 @@ sonarqube {
     }
 }
 
+tasks.named('wrapper') {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 subprojects {
   apply plugin: 'com.github.hierynomus.license'
   apply plugin: 'io.spring.dependency-management'
