@@ -124,6 +124,8 @@ sudo service sonar start
 
 This section helps you configure the SonarQube Server if you want to run it behind a proxy. This can be done for security concerns or to consolidate multiple disparate applications. To run the SonarQube server over HTTPS, see the HTTPS Configuration section below.
 
+[[warning]]
+|For security reasons, we recommend only giving external access to the main port.
 
 ### Using an Apache Proxy
 
