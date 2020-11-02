@@ -4,7 +4,7 @@ plugins {
   id 'com.github.hierynomus.license' version '0.15.0'
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
-  id 'com.jfrog.artifactory' version '4.15.1'
+  id 'com.jfrog.artifactory' version '4.18.0'
   id 'com.github.node-gradle.node' version '1.5.3' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
