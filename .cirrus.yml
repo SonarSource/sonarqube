@@ -420,7 +420,8 @@ upgd_oracle12_task:
 owasp_check_task:
   only_if: >-
            $CIRRUS_CRON == "nightly" ||
-           $CIRRUS_CRON == "weekly-lts"
+           $CIRRUS_CRON == "weekly-lts" ||
+           changesInclude('private/owasp/*.xml')
   timeout_in: 30m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
