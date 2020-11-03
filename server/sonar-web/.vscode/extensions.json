@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "mgmcdermott.vscode-language-babel",
+    "sonarsource.sonarlint-vscode",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens"
+  ]
+}
