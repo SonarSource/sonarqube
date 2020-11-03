@@ -81,7 +81,7 @@ public class ColumnDef {
 
   public boolean isInSonarQubeTable() {
     String tableName = table.toLowerCase(Locale.ENGLISH);
-    return SqTables.TABLES.contains(tableName) || SqTables.OLD_DROPPED_TABLES.contains(tableName);
+    return SqTables.TABLES.contains(tableName);
   }
 
   public enum ColumnDefRowConverter implements SqlExecutor.RowConverter<ColumnDef> {
