@@ -148,7 +148,7 @@ public class RuleIndexer implements ResilientIndexer {
   private static RuleDoc ruleDocOf(RuleForIndexingDto dto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(dto.getSecurityStandards());
     if (!securityStandards.getIgnoredSQCategories().isEmpty()) {
-      LOG.warn(
+      LOG.debug(
         "Rule {} with CWEs '{}' maps to multiple SQ Security Categories: {}",
         dto.getRuleKey(),
         String.join(", ", securityStandards.getCwe()),
@@ -160,7 +160,7 @@ public class RuleIndexer implements ResilientIndexer {
     if (dto.getTypeAsRuleType() == RuleType.SECURITY_HOTSPOT) {
       HotspotRuleDescription ruleDescription = HotspotRuleDescription.from(dto);
       if (!ruleDescription.isComplete()) {
-        LOG.warn(
+        LOG.debug(
           "Description of Security Hotspot Rule {} can't be fully parsed: What is the risk?={}, Are you vulnerable?={}, How to fix it={}",
           dto.getRuleKey(),
           toOkMissing(ruleDescription.getRisk()), toOkMissing(ruleDescription.getVulnerable()),

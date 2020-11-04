@@ -136,7 +136,7 @@ public class RuleIndexerTest {
 
   @Test
   @UseDataProvider("twoDifferentCategoriesButOTHERS")
-  public void log_a_warning_if_hotspot_rule_maps_to_multiple_SQCategories(SQCategory sqCategory1, SQCategory sqCategory2) {
+  public void log_debug_if_hotspot_rule_maps_to_multiple_SQCategories(SQCategory sqCategory1, SQCategory sqCategory2) {
     Set<String> standards = Stream.of(sqCategory1, sqCategory2)
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
@@ -149,7 +149,7 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Rule %s with CWEs '%s' maps to multiple SQ Security Categories: %s",
         rule.getKey(),
@@ -177,7 +177,7 @@ public class RuleIndexerTest {
 
   @Test
   @UseDataProvider("nullEmptyOrNoTitleDescription")
-  public void log_a_warning_when_hotspot_rule_description_is_null_or_empty(@Nullable String description) {
+  public void log_debug_when_hotspot_rule_description_is_null_or_empty(@Nullable String description) {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(description));
@@ -185,7 +185,7 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=missing, How to fix it=missing",
         rule.getKey()));
@@ -200,7 +200,7 @@ public class RuleIndexerTest {
   }
 
   @Test
-  public void log_a_warning_when_hotspot_rule_description_has_none_of_the_key_titles() {
+  public void log_debug_when_hotspot_rule_description_has_none_of_the_key_titles() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(randomAlphabetic(30)));
@@ -208,14 +208,14 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=missing",
         rule.getKey()));
   }
 
   @Test
-  public void log_a_warning_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
+  public void log_debug_when_hotspot_rule_description_is_missing_fixIt_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription("bar\n" +
@@ -225,14 +225,14 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=ok, How to fix it=missing",
         rule.getKey()));
   }
 
   @Test
-  public void log_a_warning_when_hotspot_rule_description_is_missing_risk_tab_content() {
+  public void log_debug_when_hotspot_rule_description_is_missing_risk_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription("<h2>Ask Yourself Whether</h2>\n" +
@@ -243,14 +243,14 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=missing, Are you vulnerable?=ok, How to fix it=ok",
         rule.getKey()));
   }
 
   @Test
-  public void log_a_warning_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
+  public void log_debug_when_hotspot_rule_description_is_missing_vulnerable_tab_content() {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription("bar\n" +
@@ -260,7 +260,7 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
       .isEqualTo(format(
         "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=ok",
         rule.getKey()));
