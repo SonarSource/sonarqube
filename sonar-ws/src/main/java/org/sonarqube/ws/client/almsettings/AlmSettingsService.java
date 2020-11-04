@@ -255,6 +255,7 @@ public class AlmSettingsService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("newKey", request.getNewKey())
         .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setParam("url", request.getUrl())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
