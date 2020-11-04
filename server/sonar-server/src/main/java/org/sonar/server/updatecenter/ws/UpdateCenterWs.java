@@ -21,6 +21,7 @@ package org.sonar.server.updatecenter.ws;
 
 import java.util.Arrays;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 public class UpdateCenterWs implements WebService {
 
@@ -35,6 +36,11 @@ public class UpdateCenterWs implements WebService {
     NewController controller = context.createController("api/updatecenter")
       .setDescription("Get list of installed plugins")
       .setSince("2.10");
+    controller.createAction("upload")
+      .setDescription("This web service is removed")
+      .setSince("6.0")
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
     Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }

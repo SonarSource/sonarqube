@@ -22,11 +22,9 @@ package org.sonar.server.updatecenter.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class UpdateCenterWsTest {
 
@@ -34,7 +32,7 @@ public class UpdateCenterWsTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new UpdateCenterWs(new UploadAction(null, mock(ServerFileSystem.class))));
+    tester = new WsTester(new UpdateCenterWs(new InstalledPluginsAction(null)));
   }
 
   @Test
@@ -43,18 +41,18 @@ public class UpdateCenterWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
-  public void define_upload_action() {
+  public void define_installed_plugins_action() {
     WebService.Controller controller = tester.controller("api/updatecenter");
 
-    WebService.Action action = controller.action("upload");
+    WebService.Action action = controller.action("installed_plugins");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isNotNull();
     assertThat(action.isInternal()).isTrue();
-    assertThat(action.isPost()).isTrue();
+    assertThat(action.isPost()).isFalse();
     assertThat(action.params()).hasSize(1);
   }
 }

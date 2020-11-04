@@ -24,7 +24,6 @@ import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.updatecenter.ws.InstalledPluginsAction;
 import org.sonar.server.updatecenter.ws.UpdateCenterWs;
-import org.sonar.server.updatecenter.ws.UploadAction;
 
 public class UpdateCenterModule extends Module {
   @Override
@@ -32,7 +31,6 @@ public class UpdateCenterModule extends Module {
     add(
       UpdateCenterClient.class,
       UpdateCenterMatrixFactory.class,
-      UploadAction.class,
       InstalledPluginsAction.class,
       UpdateCenterWs.class);
   }
