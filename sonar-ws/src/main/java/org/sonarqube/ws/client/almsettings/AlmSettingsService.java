@@ -61,6 +61,7 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("create_azure"))
         .setParam("key", request.getKey())
         .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setParam("url", request.getUrl())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

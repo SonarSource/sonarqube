@@ -31,6 +31,7 @@ public class CreateAzureRequest {
 
   private String key;
   private String personalAccessToken;
+  private String url;
 
   /**
    * This is a mandatory parameter.
@@ -54,6 +55,18 @@ public class CreateAzureRequest {
 
   public String getPersonalAccessToken() {
     return personalAccessToken;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public CreateAzureRequest setUrl(String url) {
+    this.url = url;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
   }
 
 }
