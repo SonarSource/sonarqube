@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: create 1`] = `
 <Fragment>
   <AlmBindingDefinitionFormField
     autoFocus={true}
@@ -8,6 +8,22 @@ exports[`should render correctly 1`] = `
     id="name.azure"
     onFieldChange={[MockFunction]}
     propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.azure.help
+        <br />
+        <em>
+          https://ado.your-company.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.azure"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
     value=""
   />
   <AlmBindingDefinitionFormField
@@ -21,7 +37,7 @@ exports[`should render correctly 1`] = `
 </Fragment>
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: edit 1`] = `
 <Fragment>
   <AlmBindingDefinitionFormField
     autoFocus={true}
@@ -30,6 +46,22 @@ exports[`should render correctly 2`] = `
     onFieldChange={[MockFunction]}
     propKey="key"
     value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.azure.help
+        <br />
+        <em>
+          https://ado.your-company.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.azure"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
   />
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.personal_access_token.azure.help"

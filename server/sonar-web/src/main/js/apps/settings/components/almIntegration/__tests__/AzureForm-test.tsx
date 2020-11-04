@@ -23,8 +23,8 @@ import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-set
 import AzureForm, { AzureFormProps } from '../AzureForm';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockAzureBindingDefinition() })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('create');
+  expect(shallowRender({ formData: mockAzureBindingDefinition() })).toMatchSnapshot('edit');
 });
 
 function shallowRender(props: Partial<AzureFormProps> = {}) {

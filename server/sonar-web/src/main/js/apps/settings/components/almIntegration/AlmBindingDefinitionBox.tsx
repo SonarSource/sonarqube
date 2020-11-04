@@ -57,6 +57,7 @@ const STATUS_ICON = {
 };
 
 function getImportFeatureStatus(
+  definition: AlmBindingDefinition,
   multipleDefinitions: boolean,
   type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
 ) {
@@ -68,7 +69,19 @@ function getImportFeatureStatus(
         </strong>
         <HelpTooltip
           className="little-spacer-left"
-          overlay={translate('settings.almintegration.feature.alm_repo_import.help')}
+          overlay={translate('settings.almintegration.feature.alm_repo_import.disabled.multiple')}
+        />
+      </div>
+    );
+  } else if (!definition.url) {
+    return (
+      <div className="display-inline-flex-center">
+        <strong className="spacer-left">
+          {translate('settings.almintegration.feature.alm_repo_import.disabled')}
+        </strong>
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay={translate('settings.almintegration.feature.alm_repo_import.disabled.no_url')}
         />
       </div>
     );
@@ -111,10 +124,23 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
       {!VALIDATED_ALMS.includes(alm) && (
         <>
           <div className="display-flex-row spacer-bottom">
-            <Tooltip overlay={importFeatureDescription}>
-              <span>{importFeatureTitle}</span>
-            </Tooltip>
-            <AlertSuccessIcon className="spacer-left" />
+            <div className="huge-spacer-right">
+              <Tooltip overlay={importFeatureDescription}>
+                <span>{importFeatureTitle}</span>
+              </Tooltip>
+              <AlertSuccessIcon className="spacer-left" />
+            </div>
+            <div>
+              <Tooltip
+                overlay={translate('settings.almintegration.feature.alm_repo_import.description')}>
+                <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
+              </Tooltip>
+              {getImportFeatureStatus(
+                definition,
+                multipleDefinitions,
+                AlmSettingsBindingStatusType.Success
+              )}
+            </div>
           </div>
 
           <div className="width-50">
@@ -148,7 +174,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                       {translate('settings.almintegration.feature.alm_repo_import.title')}
                     </span>
                   </Tooltip>
-                  {getImportFeatureStatus(multipleDefinitions, status.type)}
+                  {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
                 </div>
               </div>
             )}

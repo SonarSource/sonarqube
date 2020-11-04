@@ -52,7 +52,7 @@ export default function AzureTab(props: AzureTabProps) {
       <AlmTab
         alm={AlmKeys.Azure}
         createConfiguration={createAzureConfiguration}
-        defaultBinding={{ key: '', personalAccessToken: '' }}
+        defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
         definitions={definitions}
         definitionStatus={definitionStatus}
         form={childProps => <AzureForm {...childProps} />}

@@ -31,6 +31,7 @@ export interface AlmBindingDefinition {
 
 export interface AzureBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
+  url?: string;
 }
 
 export interface BitbucketBindingDefinition extends AlmBindingDefinition {

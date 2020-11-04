@@ -46,6 +46,21 @@ export default function AzureForm(props: AzureFormProps) {
         />
       )}
       <AlmBindingDefinitionFormField
+        help={
+          <>
+            {translate('settings.almintegration.form.url.azure.help')}
+            <br />
+            <em>https://ado.your-company.com/DefaultCollection</em>
+          </>
+        }
+        id="url.azure"
+        maxLength={2000}
+        onFieldChange={onFieldChange}
+        propKey="url"
+        readOnly={readOnly}
+        value={formData.url || ''}
+      />
+      <AlmBindingDefinitionFormField
         help={translate('settings.almintegration.form.personal_access_token.azure.help')}
         id="personal_access_token"
         isTextArea={true}

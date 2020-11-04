@@ -35,16 +35,42 @@ exports[`should render correctly: Azure DevOps 1`] = `
   <div
     className="display-flex-row spacer-bottom"
   >
-    <Tooltip
-      overlay="settings.almintegration.feature.pr_decoration.description"
+    <div
+      className="huge-spacer-right"
     >
-      <span>
-        settings.almintegration.feature.pr_decoration.title
-      </span>
-    </Tooltip>
-    <AlertSuccessIcon
-      className="spacer-left"
-    />
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
+      >
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <div
+        className="display-inline-flex-center"
+      >
+        <strong
+          className="spacer-left"
+        >
+          settings.almintegration.feature.alm_repo_import.disabled
+        </strong>
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="settings.almintegration.feature.alm_repo_import.disabled.no_url"
+        />
+      </div>
+    </div>
   </div>
   <div
     className="width-50"
