@@ -32,6 +32,7 @@ import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';
+import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
@@ -80,11 +81,19 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             <strong className="big big-spacer-right">{hotspot.message}</strong>
             <div className="display-flex-row flex-0">
               {isLoggedIn(currentUser) && (
-                <div className="dropdown spacer-right flex-1-0-auto">
-                  <Button onClick={props.onOpenComment}>
-                    {translate('hotspots.comment.open')}
-                  </Button>
-                </div>
+                <>
+                  <div className="dropdown spacer-right flex-1-0-auto">
+                    <Button onClick={props.onOpenComment}>
+                      {translate('hotspots.comment.open')}
+                    </Button>
+                  </div>
+                  <div className="dropdown spacer-right flex-1-0-auto">
+                    <HotspotOpenInIdeButton
+                      hotspotKey={hotspot.key}
+                      projectKey={hotspot.project.key}
+                    />
+                  </div>
+                </>
               )}
               <ClipboardButton className="flex-1-0-auto" copyValue={permalink}>
                 <LinkIcon className="spacer-right" />

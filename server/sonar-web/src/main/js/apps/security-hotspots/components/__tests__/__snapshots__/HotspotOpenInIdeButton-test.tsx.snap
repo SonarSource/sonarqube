@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Button
+  onClick={[Function]}
+>
+  hotspots.open_in_ide.open
+  <DeferredSpinner
+    className="spacer-left"
+    loading={false}
+  />
+</Button>
+`;
