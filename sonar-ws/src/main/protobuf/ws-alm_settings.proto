@@ -44,6 +44,7 @@ message AlmSettingGithub {
 message AlmSettingAzure {
   optional string key = 1;
   optional string personalAccessToken = 2;
+  optional string url = 3;
 }
 
 message AlmSettingBitbucket {
