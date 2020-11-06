@@ -32,6 +32,7 @@ public class UpdateGitlabRequest {
   private String key;
   private String newKey;
   private String personalAccessToken;
+  private String url;
 
   public String getKey() {
     return key;
@@ -65,6 +66,18 @@ public class UpdateGitlabRequest {
    */
   public UpdateGitlabRequest setPersonalAccessToken(String personalAccessToken) {
     this.personalAccessToken = personalAccessToken;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public UpdateGitlabRequest setUrl(String url) {
+    this.url = url;
     return this;
   }
 
