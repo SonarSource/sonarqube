@@ -50,6 +50,14 @@ it('should render correctly if the manual method is selected', () => {
   ).toMatchSnapshot();
 });
 
+it('should render correctly if the Azure method is selected', () => {
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { mode: CreateProjectModes.AzureDevOps } })
+    })
+  ).toMatchSnapshot();
+});
+
 it('should render correctly if the BBS method is selected', () => {
   expect(
     shallowRender({

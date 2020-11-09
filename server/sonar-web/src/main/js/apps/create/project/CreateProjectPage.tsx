@@ -27,6 +27,7 @@ import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
 import GitHubProjectCreate from './GitHubProjectCreate';
@@ -41,6 +42,7 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
 }
 
 interface State {
+  azureSettings: AlmSettingsInstance[];
   bitbucketSettings: AlmSettingsInstance[];
   githubSettings: AlmSettingsInstance[];
   gitlabSettings: AlmSettingsInstance[];
@@ -49,7 +51,13 @@ interface State {
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { bitbucketSettings: [], githubSettings: [], gitlabSettings: [], loading: true };
+  state: State = {
+    azureSettings: [],
+    bitbucketSettings: [],
+    githubSettings: [],
+    gitlabSettings: [],
+    loading: true
+  };
 
   componentDidMount() {
     const {
@@ -71,6 +79,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       .then(almSettings => {
         if (this.mounted) {
           this.setState({
+            azureSettings: almSettings.filter(s => s.alm === AlmKeys.Azure),
             bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.Bitbucket),
             githubSettings: almSettings.filter(s => s.alm === AlmKeys.GitHub),
             gitlabSettings: almSettings.filter(s => s.alm === AlmKeys.GitLab),
@@ -105,9 +114,26 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       location,
       router
     } = this.props;
-    const { bitbucketSettings, githubSettings, gitlabSettings, loading } = this.state;
+    const {
+      azureSettings,
+      bitbucketSettings,
+      githubSettings,
+      gitlabSettings,
+      loading
+    } = this.state;
 
     switch (mode) {
+      case CreateProjectModes.AzureDevOps: {
+        return (
+          <AzureProjectCreate
+            canAdmin={!!canAdmin}
+            loadingBindings={loading}
+            location={location}
+            onProjectCreate={this.handleProjectCreate}
+            settings={azureSettings}
+          />
+        );
+      }
       case CreateProjectModes.BitbucketServer: {
         return (
           <BitbucketProjectCreate
@@ -148,7 +174,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       }
       default: {
         const almCounts = {
-          [AlmKeys.Azure]: 0,
+          [AlmKeys.Azure]: azureSettings.length,
           [AlmKeys.Bitbucket]: bitbucketSettings.length,
           [AlmKeys.GitHub]: githubSettings.length,
           [AlmKeys.GitLab]: gitlabSettings.length

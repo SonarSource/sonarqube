@@ -112,6 +112,7 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
           </div>
         </button>
 
+        {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
         {renderAlmOption(props, AlmKeys.Bitbucket, CreateProjectModes.BitbucketServer)}
         {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
         {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}

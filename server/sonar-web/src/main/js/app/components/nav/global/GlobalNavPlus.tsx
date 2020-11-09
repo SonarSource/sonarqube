@@ -48,10 +48,10 @@ interface State {
 /*
  * ALMs for which the import feature has been implemented
  */
-const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
+const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Azure, AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
 
 const almSettingsValidators = {
-  [AlmKeys.Azure]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
   [AlmKeys.Bitbucket]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url
@@ -73,7 +73,9 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
             this.setState({ governanceReady: true });
           }
         },
-        () => {}
+        () => {
+          /* error handled globally */
+        }
       );
     }
   }

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<AzureProjectCreateRenderer
+  canAdmin={true}
+  loading={true}
+  onPersonalAccessTokenCreate={[Function]}
+  settings={
+    Object {
+      "alm": "azure",
+      "key": "foo",
+    }
+  }
+  showPersonalAccessTokenForm={true}
+  tokenValidationFailed={false}
+/>
+`;

@@ -39,14 +39,27 @@ it('should correctly pass the selected mode up', () => {
   const onSelectMode = jest.fn();
   const wrapper = shallowRender({ onSelectMode });
 
+  const almButton = 'button.create-project-mode-type-alm';
+
   click(wrapper.find('button.create-project-mode-type-manual'));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.Manual);
+  onSelectMode.mockClear();
 
-  click(wrapper.find('button.create-project-mode-type-alm').at(0));
+  click(wrapper.find(almButton).at(0));
+  expect(onSelectMode).toBeCalledWith(CreateProjectModes.AzureDevOps);
+  onSelectMode.mockClear();
+
+  click(wrapper.find(almButton).at(1));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketServer);
+  onSelectMode.mockClear();
 
-  click(wrapper.find('button.create-project-mode-type-alm').at(1));
+  click(wrapper.find(almButton).at(2));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitHub);
+  onSelectMode.mockClear();
+
+  click(wrapper.find(almButton).at(3));
+  expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitLab);
+  onSelectMode.mockClear();
 });
 
 function shallowRender(
