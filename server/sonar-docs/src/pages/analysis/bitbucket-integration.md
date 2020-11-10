@@ -13,7 +13,11 @@ Once you've set up your integration, you'll be able to:
 - Integration with Bitbucket Server requires at least Bitbucket Server version 5.15.
 
 ## Importing your Bitbucket repositories into SonarQube
+<<<<<<< HEAD
 To import your Bitbucket Server projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Bitbucket** tab, and specify the following settings:
+=======
+To import your Bitbucket Server projects into SonarQube, first you need to set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Bitbucket** tab, and specify the following settings:
+>>>>>>> cefea0d718f... SONAR-14018 Create Bitbucket ALM integration page
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Server configuration at the project level. Use something succinct and easily recognizable.
 - **Bitbucket Server URL** – your instances URL. For example, `https://bitbucket-server.your-company.com`.
@@ -43,4 +47,8 @@ From here, set your:
 
 ### Advanced pull request decoration configuration
 
+<<<<<<< HEAD
 @include pages/includes/advanced-pr
+=======
+@include pages/includes/advanced-pr-decor-section
+>>>>>>> cefea0d718f... SONAR-14018 Create Bitbucket ALM integration page
