@@ -161,7 +161,7 @@ SonarQube can analyze the code of the new features and annotate your pull reques
 
 Pull request analysis is supported for any type of Git repositories. To activate it:
 
-1. Follow the instructions for activating [Pull Request Decoration for Azure DevOps](/analysis/pr-decoration/) on your SonarQube server and project
+1. Follow the instructions on the [Azure DevOps integration](/analysis/azuredevops-integration/) page for pull request decoration.
 1. In the **Branch policies** page of your main development branches (e.g. "master"), add a build policy that runs your build definition
 
 Next time some code is pushed in the branch of a pull request, the build definition will execute a scan on the code and publish the results in SonarQube which will decorate the pull request in Azure DevOps.

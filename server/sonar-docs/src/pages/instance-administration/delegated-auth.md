@@ -33,47 +33,10 @@ All the parameters required to activate and configure this feature are available
 
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
 
-## GitHub Authentication
-You can delegate authentication to GitHub Enterprise and GitHub.com using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
-
-### Dedicated GitHub OAuth application
-1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
-   1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration > General > Server base URL](/#sonarqube-admin#/admin/settings)**
-   1. For **GitHub Enterprise** "Authorization callback URL" and for **GitHub.com** "User authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
-1. In SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub**:
-   1. Set **Enabled** to `true`
-   1. Set the **Client ID** to the value provided by the GitHub developer application
-   1. Set the **Client Secret** to the value provided by the GitHub developer application
-  
-On the login form, the new "Log in with GitHub" button allows users to connect with their GitHub Enterprise accounts. 
-
-### Re-use GitHub PR decoration application
-1. In the GitHub app, in **Permission & events > User permissions**: Add **Read-only** access in **Emails**.
-1. In SonarQube settings, update the **Client ID** and **Client Secret** and use values defined in the GitHub app.
-
-If you previously used a dedicated GitHub OAuth application for authentication, it can be removed.
-
-## GitLab Authentication  
-You can delegate authentication to GitLab using a dedicated GitLab OAuth application.
-
-Create a GitLab OAuth application from your GitLab account. Click [here](https://docs.gitlab.com/ee/integration/oauth_provider.html) for general instructions.
-
-   1. In the **Name** text box, name your app SonarQube.
-   1. In the **Redirect URI** text box, enter your SonarQube URL with the path `/oauth2/callback/gitlab`. For example, `https://sonarqube.mycompany.com/oauth2/callback/gitlab`.
-   1. Under **Scopes**, select **api** if you plan to enable group synchronization. You can instead select **read_user** if you only plan to delegate authentication.
-
-After saving your application, GitLab gives you your **Application ID** and **Secret**. Keep these at hand, open your SonarQube instance, and navigate to **Administration > Configuration > General Settings > ALM Integrations > GitLab** to finish setting up GitLab authentication:
-
-1. Set **Enabled** to `true`.
-1. Enter the Application ID provided by GitLab in the **Application ID** text box.
-1. Enter the Secret provided by GitLab in the **Secret** text box.
-
-On the login form, the new "Log in with GitLab" button allows users to connect with their GitLab accounts.
-
-### GitLab group synchronization
-Setting **Synchronize user groups** to `true` at **Administration > Configuration > General Settings > ALM Integrations > GitLab** associates GitLab groups with SonarQube groups of the same name (if they exist). GitLab users inherit membership to subgroups from parent groups so a user that is a member of a group will also be a member of the group's subgroups. 
-
-To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the of the GitLab group or subgroup URL. For example, say you have a GitLab group named "My Group" with a subgroup named "My Subgroup" and the subgroup URL is `https://YourGitLabURL.com/my-group/my-subgroup`. You would name your SonarQube group `my-group/my-subgroup` to synchronize it with your GitLab subgroup.
+## GitHub and GitLab Authentication
+You can delegate authentication to GitHub Enterprise and GitHub.com or GitLab Self-Managed and GitLab.com. See the corresponding ALM integration page for more information:
+- [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
+- [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
 
 ## SAML Authentication  
 You can delegate authentication to a SAML 2.0 Identity Provider using SAML Authentication.

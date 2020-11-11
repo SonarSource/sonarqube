@@ -84,13 +84,7 @@
       },
       "/analysis/background-tasks/",
       "/analysis/generic-test/",
-	  {
-        "title": "Pull Request Analysis",
-        "children": [
-		  "/analysis/pull-request/",
-		  "/analysis/pr-decoration/"
-		]
-      },
+	  "/analysis/pull-request/",
       {
         "title": "Branches",
         "children": [
@@ -102,13 +96,21 @@
         "title": "CI Integration",
         "children": [
           "/analysis/branch-pr-analysis-overview/",
-		  "/analysis/gitlab-cicd/",
-          "/analysis/jenkins/"
+		  "/analysis/jenkins/"
         ]
 	  },
       "/analysis/scm-integration/",
       "/analysis/security_configuration/"
     ]
+  },
+  {
+    "title": "ALM Integration",
+    "children": [
+      "/analysis/github-integration/",
+	  "/analysis/gitlab-integration/",
+	  "/analysis/bitbucket-integration/",
+	  "/analysis/azuredevops-integration/"
+	 ]
   },
   {
     "title": "User Guide",
