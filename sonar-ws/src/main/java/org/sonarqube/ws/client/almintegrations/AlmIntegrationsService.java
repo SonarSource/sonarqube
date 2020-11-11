@@ -105,6 +105,21 @@ public class AlmIntegrationsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_azure_projects">Further information about this action online (including a response example)</a>
+   * @since 8.2
+   */
+  public AlmIntegrations.ListAzureProjectsWsResponse listAzureProjects(ListAzureProjectsRequest request) {
+    return call(
+      new GetRequest(path("list_azure_projects"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setMediaType(MediaTypes.JSON),
+      AlmIntegrations.ListAzureProjectsWsResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bitbucketserver_projects">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
