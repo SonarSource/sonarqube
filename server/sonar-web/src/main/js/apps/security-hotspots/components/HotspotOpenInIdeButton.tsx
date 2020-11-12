@@ -20,11 +20,15 @@
 
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
+import { Ide } from '../../../types/sonarlint';
+import { HotspotOpenInIdeOverlay } from './HotspotOpenInIdeOverlay';
 
 interface Props {
   projectKey: string;
@@ -32,43 +36,75 @@ interface Props {
 }
 
 interface State {
-  inDiscovery: boolean;
+  loading: boolean;
+  ides: Array<Ide>;
 }
 
 export default class HotspotOpenInIdeButton extends React.PureComponent<Props, State> {
+  mounted = false;
+
   state = {
-    inDiscovery: false
+    loading: false,
+    ides: []
   };
 
-  handleOnClick = () => {
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  handleOnClick = async () => {
+    this.setState({ loading: true, ides: [] });
+    const ides = await probeSonarLintServers();
+    if (ides.length === 0) {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+      this.showError();
+    } else if (ides.length === 1) {
+      this.openHotspot(ides[0]);
+    } else if (this.mounted) {
+      this.setState({ loading: false, ides });
+    }
+  };
+
+  openHotspot = (ide: Ide) => {
+    this.setState({ loading: true, ides: [] });
     const { projectKey, hotspotKey } = this.props;
-    this.setState({ inDiscovery: true });
-    return probeSonarLintServers()
-      .then(ides => {
-        if (ides.length > 0) {
-          const calledPort = ides[0].port;
-          return openHotspot(calledPort, projectKey, hotspotKey);
-        } else {
-          return Promise.reject();
-        }
-      })
-      .then(() => {
-        addGlobalSuccessMessage(translate('hotspots.open_in_ide.success'));
-      })
-      .catch(() => {
-        addGlobalErrorMessage(translate('hotspots.open_in_ide.failure'));
-      })
-      .finally(() => {
-        this.setState({ inDiscovery: false });
-      });
+    return openHotspot(ide.port, projectKey, hotspotKey)
+      .then(this.showSuccess)
+      .catch(this.showError)
+      .finally(this.cleanState);
+  };
+
+  showError = () => addGlobalErrorMessage(translate('hotspots.open_in_ide.failure'));
+
+  showSuccess = () => addGlobalSuccessMessage(translate('hotspots.open_in_ide.success'));
+
+  cleanState = () => {
+    if (this.mounted) {
+      this.setState({ loading: false, ides: [] });
+    }
   };
 
   render() {
     return (
-      <Button onClick={this.handleOnClick}>
-        {translate('hotspots.open_in_ide.open')}
-        <DeferredSpinner loading={this.state.inDiscovery} className="spacer-left" />
-      </Button>
+      <Toggler
+        open={this.state.ides.length > 1}
+        onRequestClose={this.cleanState}
+        overlay={
+          <DropdownOverlay>
+            <HotspotOpenInIdeOverlay ides={this.state.ides} onIdeSelected={this.openHotspot} />
+          </DropdownOverlay>
+        }>
+        <Button onClick={this.handleOnClick}>
+          {translate('hotspots.open_in_ide.open')}
+          <DeferredSpinner loading={this.state.loading} className="spacer-left" />
+        </Button>
+      </Toggler>
     );
   }
 }

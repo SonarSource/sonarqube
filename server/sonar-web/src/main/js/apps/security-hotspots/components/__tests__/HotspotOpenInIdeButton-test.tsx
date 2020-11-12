@@ -25,21 +25,58 @@ import HotspotOpenInIdeButton from '../HotspotOpenInIdeButton';
 
 jest.mock('../../../../helpers/sonarlint');
 
-it('should render correctly', async () => {
-  const projectKey = 'my-project:key';
-  const hotspotKey = 'AXWsgE9RpggAQesHYfwm';
+describe('HotspotOpenInIdeButton', () => {
+  beforeEach(jest.resetAllMocks);
 
-  const wrapper = shallow(
-    <HotspotOpenInIdeButton projectKey={projectKey} hotspotKey={hotspotKey} />
-  );
-  expect(wrapper).toMatchSnapshot();
+  it('should render correctly', async () => {
+    const projectKey = 'my-project:key';
+    const hotspotKey = 'AXWsgE9RpggAQesHYfwm';
+    const port = 42001;
 
-  (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([
-    { port: 42001, ideName: 'BlueJ IDE', description: 'Hello World' }
-  ]);
+    const wrapper = shallow(
+      <HotspotOpenInIdeButton projectKey={projectKey} hotspotKey={hotspotKey} />
+    );
+    expect(wrapper).toMatchSnapshot();
 
-  wrapper.find(Button).simulate('click');
+    (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([
+      { port, ideName: 'BlueJ IDE', description: 'Hello World' }
+    ]);
+    (sonarlint.openHotspot as jest.Mock).mockResolvedValue(null);
 
-  await new Promise(setImmediate);
-  expect(sonarlint.openHotspot).toBeCalledWith(42001, projectKey, hotspotKey);
+    wrapper.find(Button).simulate('click');
+
+    await new Promise(setImmediate);
+    expect(sonarlint.openHotspot).toBeCalledWith(port, projectKey, hotspotKey);
+  });
+
+  it('should gracefully handle zero IDE detected', async () => {
+    const wrapper = shallow(<HotspotOpenInIdeButton projectKey="polop" hotspotKey="palap" />);
+    (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([]);
+    wrapper.find(Button).simulate('click');
+
+    await new Promise(setImmediate);
+    expect(sonarlint.openHotspot).not.toHaveBeenCalled();
+  });
+
+  it('should handle several IDE', async () => {
+    const projectKey = 'my-project:key';
+    const hotspotKey = 'AXWsgE9RpggAQesHYfwm';
+    const port1 = 42000;
+    const port2 = 42001;
+
+    const wrapper = shallow(
+      <HotspotOpenInIdeButton projectKey={projectKey} hotspotKey={hotspotKey} />
+    );
+    expect(wrapper).toMatchSnapshot();
+
+    (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([
+      { port: port1, ideName: 'BlueJ IDE', description: 'Hello World' },
+      { port: port2, ideName: 'Arduino IDE', description: 'Blink' }
+    ]);
+
+    wrapper.find(Button).simulate('click');
+
+    await new Promise(setImmediate);
+    expect(wrapper).toMatchSnapshot('dropdown open');
+  });
 });
