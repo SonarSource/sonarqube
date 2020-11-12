@@ -47,7 +47,7 @@ interface State {
   selectedProjects: string[];
 }
 
-export default class ApplicationDetailsProjects extends React.PureComponent<Props, State> {
+export default class ApplicationProjects extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {

@@ -24,7 +24,6 @@ import * as React from 'react';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockApplication } from '../../../helpers/mocks/application';
-import { Application } from '../../../types/application';
 import EditForm from '../EditForm';
 
 it('should render correctly', () => {
@@ -36,27 +35,24 @@ it('should render correctly', () => {
 });
 
 it('should correctly submit the new info', async () => {
-  const onChange = jest.fn().mockResolvedValue({});
   const onClose = jest.fn();
   const onEdit = jest.fn();
-  const wrapper = shallowRender({ onChange, onClose, onEdit });
+  const wrapper = shallowRender({ onClose, onEdit });
   const modal = wrapper.find(SimpleModal).dive();
 
   change(modal.find('#view-edit-name'), 'New name');
   change(modal.find('#view-edit-description'), 'New description');
 
   wrapper.instance().handleFormSubmit();
-  expect(onChange).toBeCalledWith('foo', 'New name', 'New description');
   await waitAndUpdate(wrapper);
-  expect(onEdit).toBeCalledWith('foo', 'New name', 'New description');
+  expect(onEdit).toBeCalledWith('New name', 'New description');
   expect(onClose).toBeCalled();
 });
 
-function shallowRender(props: Partial<EditForm<Application>['props']> = {}) {
-  return shallow<EditForm<Application>>(
+function shallowRender(props: Partial<EditForm['props']> = {}) {
+  return shallow<EditForm>(
     <EditForm
       header="Edit"
-      onChange={jest.fn()}
       onClose={jest.fn()}
       onEdit={jest.fn()}
       application={mockApplication()}

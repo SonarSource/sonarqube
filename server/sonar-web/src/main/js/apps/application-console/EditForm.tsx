@@ -23,20 +23,13 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Application } from '../../types/application';
 
-interface Commons {
-  desc?: string;
-  description?: string;
-  key: string;
-  name: string;
-}
-
-interface Props<T extends Commons> {
+interface Props {
   header: string;
-  onChange: (key: string, name: string, description: string) => Promise<void>;
   onClose: () => void;
-  onEdit: (key: string, name: string, description: string) => void;
-  application: T;
+  onEdit: (name: string, description: string) => Promise<void>;
+  application: Application;
 }
 
 interface State {
@@ -44,11 +37,11 @@ interface State {
   name: string;
 }
 
-export default class EditForm<T extends Commons> extends React.PureComponent<Props<T>, State> {
-  constructor(props: Props<T>) {
+export default class EditForm extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      description: props.application.desc || props.application.description || '',
+      description: props.application.description || '',
       name: props.application.name
     };
   }
@@ -61,13 +54,9 @@ export default class EditForm<T extends Commons> extends React.PureComponent<Pro
     this.setState({ description: event.currentTarget.value });
   };
 
-  handleFormSubmit = () => {
-    return this.props
-      .onChange(this.props.application.key, this.state.name, this.state.description)
-      .then(() => {
-        this.props.onEdit(this.props.application.key, this.state.name, this.state.description);
-        this.props.onClose();
-      });
+  handleFormSubmit = async () => {
+    await this.props.onEdit(this.state.name, this.state.description);
+    this.props.onClose();
   };
 
   render() {

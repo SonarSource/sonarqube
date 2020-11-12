@@ -20,18 +20,12 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { deleteApplication, refreshApplication } from '../../../api/application';
-import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockApplication } from '../../../helpers/mocks/application';
-import ApplicationDetails from '../ApplicationDetails';
+import ApplicationConsoleAppRenderer, {
+  ApplicationConsoleAppRendererProps
+} from '../ApplicationConsoleAppRenderer';
 import EditForm from '../EditForm';
-
-jest.mock('../../../api/application', () => ({
-  deleteApplication: jest.fn().mockResolvedValue({}),
-  editApplication: jest.fn(),
-  refreshApplication: jest.fn().mockResolvedValue({})
-}));
 
 jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({
   default: jest.fn()
@@ -41,11 +35,10 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(
     shallowRender({
-      application: mockApplication({ description: 'Foo bar', key: 'foo' }),
-      canRecompute: true,
-      single: false
+      application: mockApplication({ description: 'Foo bar', key: 'foo' })
     })
   ).toMatchSnapshot('can delete and recompute');
+  expect(shallowRender({ loading: true })).toMatchSnapshot('is loading');
 });
 
 it('should handle editing', () => {
@@ -54,37 +47,17 @@ it('should handle editing', () => {
   expect(wrapper.find(EditForm)).toMatchSnapshot('edit form');
 });
 
-it('should handle deleting', async () => {
-  const onDelete = jest.fn();
-  const wrapper = shallowRender({ onDelete, single: false });
-
-  wrapper.instance().handleDelete();
-  expect(deleteApplication).toBeCalledWith('foo');
-  await waitAndUpdate(wrapper);
-  expect(onDelete).toBeCalledWith('foo');
-});
-
-it('should handle refreshing', async () => {
-  const wrapper = shallowRender({ single: false });
-
-  wrapper.instance().handleRefreshClick();
-  expect(refreshApplication).toBeCalledWith('foo');
-  await waitAndUpdate(wrapper);
-  expect(addGlobalSuccessMessage).toBeCalled();
-});
-
-function shallowRender(props: Partial<ApplicationDetails['props']> = {}) {
-  return shallow<ApplicationDetails>(
-    <ApplicationDetails
+function shallowRender(props: Partial<ApplicationConsoleAppRendererProps> = {}) {
+  return shallow(
+    <ApplicationConsoleAppRenderer
       application={mockApplication({ key: 'foo' })}
-      canRecompute={false}
+      loading={false}
       onAddProject={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
+      onRefresh={jest.fn()}
       onRemoveProject={jest.fn()}
       onUpdateBranches={jest.fn()}
-      pathname="path/name"
-      single={true}
       {...props}
     />
   );

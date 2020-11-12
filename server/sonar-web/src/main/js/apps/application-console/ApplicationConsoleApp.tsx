@@ -18,21 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Location } from 'history';
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
-import { getApplicationDetails } from '../../api/application';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import {
+  deleteApplication,
+  editApplication,
+  getApplicationDetails,
+  refreshApplication
+} from '../../api/application';
+import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Application, ApplicationProject } from '../../types/application';
-import ApplicationDetails from './ApplicationDetails';
+import ApplicationConsoleAppRenderer from './ApplicationConsoleAppRenderer';
 import { ApplicationBranch } from './utils';
 
 interface Props {
-  applicationKey: string;
-  canRecompute?: boolean;
-  onDelete: (key: string) => void;
-  onEdit: (key: string, name: string) => void;
-  pathname: string;
+  component: { key: string };
+  location: Location;
   router: Pick<InjectedRouter, 'replace'>;
-  single?: boolean;
 }
 
 interface State {
@@ -44,7 +48,7 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
   mounted = false;
 
   state: State = {
-    loading: true
+    loading: false
   };
 
   componentDidMount() {
@@ -53,7 +57,7 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.applicationKey !== this.props.applicationKey) {
+    if (prevProps.component.key !== this.props.component.key) {
       this.fetchDetails();
     }
   }
@@ -62,9 +66,19 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  updateApplicationState = (buildNewFields: (prevApp: Application) => Partial<Application>) => {
+    this.setState(state => {
+      if (state.application) {
+        return { application: { ...state.application, ...buildNewFields(state.application) } };
+      } else {
+        return null;
+      }
+    });
+  };
+
   fetchDetails = async () => {
     try {
-      const application = await getApplicationDetails(this.props.applicationKey);
+      const application = await getApplicationDetails(this.props.component.key);
       if (this.mounted) {
         this.setState({ application, loading: false });
       }
@@ -75,94 +89,63 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
     }
   };
 
-  handleDelete = (key: string) => {
-    if (this.mounted) {
-      this.props.onDelete(key);
-      this.props.router.replace(this.props.pathname);
+  handleRefreshClick = async () => {
+    if (this.state.application) {
+      await refreshApplication(this.state.application.key);
+      addGlobalSuccessMessage(translate('application_console.refresh_started'));
     }
   };
 
-  handleEdit = (key: string, name: string, description: string) => {
+  handleDelete = async () => {
     if (this.mounted) {
-      this.props.onEdit(key, name);
-      this.setState(state => {
-        if (state.application) {
-          return {
-            application: {
-              ...state.application,
-              name,
-              description
-            }
-          };
-        } else {
-          return null;
-        }
-      });
+      if (this.state.application) {
+        await deleteApplication(this.state.application.key);
+      }
+      this.props.router.replace('/');
+    }
+  };
+
+  handleEdit = async (name: string, description: string) => {
+    if (this.state.application) {
+      await editApplication(this.state.application.key, name, description);
+    }
+
+    if (this.mounted) {
+      this.updateApplicationState(() => ({ name, description }));
     }
   };
 
   handleAddProject = (project: ApplicationProject) => {
-    this.setState(state => {
-      if (state.application) {
-        return {
-          application: {
-            ...state.application,
-            projects: [...state.application.projects, project]
-          }
-        };
-      } else {
-        return null;
-      }
-    });
+    this.updateApplicationState(prevApp => ({ projects: [...prevApp.projects, project] }));
   };
 
   handleRemoveProject = (projectKey: string) => {
-    this.setState(state => {
-      if (state.application) {
-        return {
-          application: {
-            ...state.application,
-            projects: state.application.projects.filter(p => p.key !== projectKey)
-          }
-        };
-      } else {
-        return null;
-      }
-    });
+    this.updateApplicationState(prevApp => ({
+      projects: prevApp.projects.filter(p => p.key !== projectKey)
+    }));
   };
 
   handleUpdateBranches = (branches: ApplicationBranch[]) => {
-    this.setState(state => {
-      if (state.application) {
-        return { application: { ...state.application, branches } };
-      } else {
-        return null;
-      }
-    });
+    this.updateApplicationState(() => ({ branches }));
   };
 
   render() {
-    if (this.state.loading) {
-      return <i className="spinner spacer" />;
-    }
-
-    const { application } = this.state;
+    const { application, loading } = this.state;
     if (!application) {
       // when application is not found
       return null;
     }
 
     return (
-      <ApplicationDetails
+      <ApplicationConsoleAppRenderer
+        loading={loading}
         application={application}
-        canRecompute={this.props.canRecompute}
         onAddProject={this.handleAddProject}
         onDelete={this.handleDelete}
         onEdit={this.handleEdit}
+        onRefresh={this.handleRefreshClick}
         onRemoveProject={this.handleRemoveProject}
         onUpdateBranches={this.handleUpdateBranches}
-        pathname={this.props.pathname}
-        single={this.props.single}
       />
     );
   }

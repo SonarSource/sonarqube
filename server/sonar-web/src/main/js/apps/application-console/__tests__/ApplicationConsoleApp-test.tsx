@@ -20,18 +20,51 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getApplicationDetails } from '../../../api/application';
+import {
+  deleteApplication,
+  editApplication,
+  getApplicationDetails,
+  refreshApplication
+} from '../../../api/application';
+import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import { mockApplication, mockApplicationProject } from '../../../helpers/mocks/application';
-import { mockRouter } from '../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { Application } from '../../../types/application';
-import ApplicationView from '../ApplicationView';
+import ApplicationConsoleApp from '../ApplicationConsoleApp';
 
 jest.mock('../../../api/application', () => ({
-  getApplicationDetails: jest.fn().mockResolvedValue({})
+  getApplicationDetails: jest.fn().mockResolvedValue({}),
+  refreshApplication: jest.fn().mockResolvedValue({}),
+  deleteApplication: jest.fn(),
+  editApplication: jest.fn().mockResolvedValue({})
 }));
 
-it('Should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({ default: jest.fn() }));
+
+it('Should render correctly', async () => {
+  expect(shallowRender()).toMatchSnapshot('Empty app');
+  const app = mockApplication();
+  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('With app');
+});
+
+it('Should edit application correctly', async () => {
+  const app = mockApplication();
+
+  (getApplicationDetails as jest.Mock<Promise<Application>>).mockRejectedValueOnce(app);
+  let wrapper = shallowRender({});
+  wrapper.instance().handleEdit('NEW_NAME', 'NEW_DESC');
+  expect(wrapper.state().application).toBeUndefined();
+
+  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
+  wrapper = shallowRender({});
+  await waitAndUpdate(wrapper);
+  await wrapper.instance().handleEdit('NEW_NAME', 'NEW_DESC');
+  expect(editApplication).toBeCalledWith(app.key, 'NEW_NAME', 'NEW_DESC');
+  expect(wrapper.state().application?.name).toBe('NEW_NAME');
+  expect(wrapper.state().application?.description).toBe('NEW_DESC');
 });
 
 it('Should add project to application', async () => {
@@ -65,22 +98,6 @@ it('Should remove project from application', async () => {
   expect(wrapper.state().application?.projects.length).toBe(0);
 });
 
-it('Should edit application correctly', async () => {
-  const app = mockApplication();
-
-  (getApplicationDetails as jest.Mock<Promise<Application>>).mockRejectedValueOnce(app);
-  let wrapper = shallowRender({});
-  wrapper.instance().handleEdit(app.key, 'NEW_NAME', 'NEW_DESC');
-  expect(wrapper.state().application).toBeUndefined();
-
-  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
-  wrapper = shallowRender({});
-  await waitAndUpdate(wrapper);
-  wrapper.instance().handleEdit(app.key, 'NEW_NAME', 'NEW_DESC');
-  expect(wrapper.state().application?.name).toBe('NEW_NAME');
-  expect(wrapper.state().application?.description).toBe('NEW_DESC');
-});
-
 it('Should update branch correctly', async () => {
   const app = mockApplication();
 
@@ -96,13 +113,32 @@ it('Should update branch correctly', async () => {
   expect(wrapper.state().application?.branches.length).toBe(0);
 });
 
-function shallowRender(props: Partial<ApplicationView['props']> = {}) {
-  return shallow<ApplicationView>(
-    <ApplicationView
-      applicationKey={'1'}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      pathname={'test'}
+it('should handle refreshing', async () => {
+  const app = mockApplication();
+  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  wrapper.instance().handleRefreshClick();
+  await waitAndUpdate(wrapper);
+  expect(refreshApplication).toBeCalledWith('foo');
+  expect(addGlobalSuccessMessage).toBeCalled();
+});
+it('should handle deleting', async () => {
+  const app = mockApplication();
+
+  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
+  const wrapper = shallowRender({});
+  await waitAndUpdate(wrapper);
+  wrapper.instance().handleDelete();
+  await waitAndUpdate(wrapper);
+  expect(deleteApplication).toBeCalledWith(app.key);
+});
+
+function shallowRender(props: Partial<ApplicationConsoleApp['props']> = {}) {
+  return shallow<ApplicationConsoleApp>(
+    <ApplicationConsoleApp
+      component={{ key: '1' }}
+      location={mockLocation()}
       router={mockRouter()}
       {...props}
     />

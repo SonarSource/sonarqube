@@ -28,7 +28,7 @@ import {
   removeProjectFromApplication
 } from '../../../api/application';
 import { mockApplication } from '../../../helpers/mocks/application';
-import ApplicationDetailsProjects from '../ApplicationDetailsProjects';
+import ApplicationProjects from '../ApplicationProjects';
 
 jest.mock('../../../api/application', () => ({
   getApplicationProjects: jest.fn().mockResolvedValue({
@@ -91,8 +91,8 @@ it('should refresh properly if props changes', () => {
   expect(spy).toHaveBeenCalled();
 });
 
-function shallowRender(props: Partial<ApplicationDetailsProjects['props']> = {}) {
-  return shallow<ApplicationDetailsProjects>(
-    <ApplicationDetailsProjects application={mockApplication()} {...props} />
+function shallowRender(props: Partial<ApplicationProjects['props']> = {}) {
+  return shallow<ApplicationProjects>(
+    <ApplicationProjects application={mockApplication()} {...props} />
   );
 }

@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should render correctly: Empty app 1`] = `""`;
+
+exports[`Should render correctly: With app 1`] = `
+<ApplicationConsoleAppRenderer
+  application={
+    Object {
+      "branches": Array [
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        },
+      ],
+      "key": "foo",
+      "name": "Foo",
+      "projects": Array [
+        Object {
+          "branch": "master",
+          "isMain": true,
+          "key": "bar",
+          "name": "Bar",
+        },
+      ],
+      "visibility": "private",
+    }
+  }
+  loading={false}
+  onAddProject={[Function]}
+  onEdit={[Function]}
+  onRefresh={[Function]}
+  onRemoveProject={[Function]}
+  onUpdateBranches={[Function]}
+/>
+`;
