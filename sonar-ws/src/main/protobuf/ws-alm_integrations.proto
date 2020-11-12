@@ -32,6 +32,11 @@ message SearchBitbucketserverReposWsResponse {
   repeated BBSRepo repositories = 2;
 }
 
+// WS api/alm_integrations/search_azure_repos
+message SearchAzureReposWsResponse {
+  repeated AzureRepo repositories = 2;
+}
+
 // WS api/alm_integrations/list_bibucketserver_projects
 message ListBitbucketserverProjectsWsResponse {
   repeated AlmProject projects = 1;
@@ -48,6 +53,13 @@ message BBSRepo {
   optional string name = 3;
   optional string sqProjectKey = 4;
   optional string projectKey = 5;
+}
+
+message AzureRepo {
+  optional string name = 1;
+  optional string projectName = 2;
+  optional string sqProjectKey = 3;
+  optional string projectKey = 4;
 }
 
 message AlmProject {
