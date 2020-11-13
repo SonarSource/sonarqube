@@ -196,6 +196,8 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("set_azure_binding"))
         .setParam("almSetting", request.getAlmSetting())
         .setParam("project", request.getProject())
+        .setParam("projectName", request.getProjectName())
+        .setParam("repositoryName", request.getRepositoryName())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

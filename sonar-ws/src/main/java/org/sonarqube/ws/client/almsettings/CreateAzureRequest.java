@@ -33,11 +33,18 @@ public class CreateAzureRequest {
   private String personalAccessToken;
   private String url;
 
-  /**
-   * This is a mandatory parameter.
-   */
   public CreateAzureRequest setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  public CreateAzureRequest setPersonalAccessToken(String personalAccessToken) {
+    this.personalAccessToken = personalAccessToken;
+    return this;
+  }
+
+  public CreateAzureRequest setUrl(String url) {
+    this.url = url;
     return this;
   }
 
@@ -45,24 +52,8 @@ public class CreateAzureRequest {
     return key;
   }
 
-  /**
-   * This is a mandatory parameter.
-   */
-  public CreateAzureRequest setPersonalAccessToken(String personalAccessToken) {
-    this.personalAccessToken = personalAccessToken;
-    return this;
-  }
-
   public String getPersonalAccessToken() {
     return personalAccessToken;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   */
-  public CreateAzureRequest setUrl(String url) {
-    this.url = url;
-    return this;
   }
 
   public String getUrl() {

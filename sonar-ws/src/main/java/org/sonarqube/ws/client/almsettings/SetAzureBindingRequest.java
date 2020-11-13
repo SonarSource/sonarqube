@@ -31,6 +31,8 @@ public class SetAzureBindingRequest {
 
   private String almSetting;
   private String project;
+  private String repositoryName;
+  private String projectName;
 
   /**
    * This is a mandatory parameter.
@@ -56,4 +58,29 @@ public class SetAzureBindingRequest {
     return project;
   }
 
+  public String getRepositoryName() {
+    return repositoryName;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   * @return
+   */
+  public SetAzureBindingRequest setRepositoryName(String repositoryName) {
+    this.repositoryName = repositoryName;
+    return this;
+  }
+
+  public String getProjectName() {
+    return projectName;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   * @return
+   */
+  public SetAzureBindingRequest setProjectName(String projectName) {
+    this.projectName = projectName;
+    return this;
+  }
 }

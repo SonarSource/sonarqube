@@ -29,17 +29,14 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeleteRequest {
 
-  private String key;
+  private static String key;
+
+  public DeleteRequest(String key) {
+    this.key = key;
+  }
 
   public String getKey() {
     return key;
   }
 
-  /**
-   * This is a mandatory parameter.
-   */
-  public DeleteRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
 }
