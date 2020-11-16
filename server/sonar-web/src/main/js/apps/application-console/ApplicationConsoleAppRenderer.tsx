@@ -20,8 +20,7 @@
 
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Application, ApplicationProject } from '../../types/application';
 import { Branch } from '../../types/branch-like';
 import ApplicationBranches from './ApplicationBranches';
@@ -32,7 +31,6 @@ export interface ApplicationConsoleAppRendererProps {
   loading: boolean;
   application: Application;
   onAddProject: (project: ApplicationProject) => void;
-  onDelete: () => void;
   onRefresh: () => void;
   onEdit: (name: string, description: string) => Promise<void>;
   onRemoveProject: (projectKey: string) => void;
@@ -61,22 +59,6 @@ export default function ApplicationConsoleAppRenderer(props: ApplicationConsoleA
           <Button className="little-spacer-right" onClick={props.onRefresh}>
             {translate('application_console.recompute')}
           </Button>
-
-          <ConfirmButton
-            confirmButtonText={translate('delete')}
-            isDestructive={true}
-            modalBody={translateWithParameters(
-              'application_console.do_you_want_to_delete',
-              application.name
-            )}
-            modalHeader={translate('application_console.delete_application')}
-            onConfirm={props.onDelete}>
-            {({ onClick }) => (
-              <Button className="button-red" id="view-details-delete" onClick={onClick}>
-                {translate('delete')}
-              </Button>
-            )}
-          </ConfirmButton>
         </div>
 
         <header className="boxed-group-header" id="view-details-header">

@@ -37,7 +37,7 @@ it('should render correctly', () => {
     shallowRender({
       application: mockApplication({ description: 'Foo bar', key: 'foo' })
     })
-  ).toMatchSnapshot('can delete and recompute');
+  ).toMatchSnapshot('can recompute');
   expect(shallowRender({ loading: true })).toMatchSnapshot('is loading');
 });
 
@@ -53,7 +53,6 @@ function shallowRender(props: Partial<ApplicationConsoleAppRendererProps> = {}) 
       application={mockApplication({ key: 'foo' })}
       loading={false}
       onAddProject={jest.fn()}
-      onDelete={jest.fn()}
       onEdit={jest.fn()}
       onRefresh={jest.fn()}
       onRemoveProject={jest.fn()}

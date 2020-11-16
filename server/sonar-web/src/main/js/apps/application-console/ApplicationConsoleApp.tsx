@@ -22,12 +22,7 @@ import { Location } from 'history';
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  deleteApplication,
-  editApplication,
-  getApplicationDetails,
-  refreshApplication
-} from '../../api/application';
+import { editApplication, getApplicationDetails, refreshApplication } from '../../api/application';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Application, ApplicationProject } from '../../types/application';
 import ApplicationConsoleAppRenderer from './ApplicationConsoleAppRenderer';
@@ -96,20 +91,10 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
     }
   };
 
-  handleDelete = async () => {
-    if (this.mounted) {
-      if (this.state.application) {
-        await deleteApplication(this.state.application.key);
-      }
-      this.props.router.replace('/');
-    }
-  };
-
   handleEdit = async (name: string, description: string) => {
     if (this.state.application) {
       await editApplication(this.state.application.key, name, description);
     }
-
     if (this.mounted) {
       this.updateApplicationState(() => ({ name, description }));
     }
@@ -141,7 +126,6 @@ export default class ApplicationView extends React.PureComponent<Props, State> {
         loading={loading}
         application={application}
         onAddProject={this.handleAddProject}
-        onDelete={this.handleDelete}
         onEdit={this.handleEdit}
         onRefresh={this.handleRefreshClick}
         onRemoveProject={this.handleRemoveProject}

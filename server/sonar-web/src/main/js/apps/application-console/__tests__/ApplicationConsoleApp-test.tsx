@@ -21,7 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
-  deleteApplication,
   editApplication,
   getApplicationDetails,
   refreshApplication
@@ -35,7 +34,6 @@ import ApplicationConsoleApp from '../ApplicationConsoleApp';
 jest.mock('../../../api/application', () => ({
   getApplicationDetails: jest.fn().mockResolvedValue({}),
   refreshApplication: jest.fn().mockResolvedValue({}),
-  deleteApplication: jest.fn(),
   editApplication: jest.fn().mockResolvedValue({})
 }));
 
@@ -122,16 +120,6 @@ it('should handle refreshing', async () => {
   await waitAndUpdate(wrapper);
   expect(refreshApplication).toBeCalledWith('foo');
   expect(addGlobalSuccessMessage).toBeCalled();
-});
-it('should handle deleting', async () => {
-  const app = mockApplication();
-
-  (getApplicationDetails as jest.Mock<Promise<Application>>).mockResolvedValueOnce(app);
-  const wrapper = shallowRender({});
-  await waitAndUpdate(wrapper);
-  wrapper.instance().handleDelete();
-  await waitAndUpdate(wrapper);
-  expect(deleteApplication).toBeCalledWith(app.key);
 });
 
 function shallowRender(props: Partial<ApplicationConsoleApp['props']> = {}) {

@@ -31,7 +31,7 @@ exports[`should handle editing: edit form 1`] = `
 />
 `;
 
-exports[`should render correctly: can delete and recompute 1`] = `
+exports[`should render correctly: can recompute 1`] = `
 <div
   className="page page-limited"
 >
@@ -55,15 +55,6 @@ exports[`should render correctly: can delete and recompute 1`] = `
       >
         application_console.recompute
       </Button>
-      <ConfirmButton
-        confirmButtonText="delete"
-        isDestructive={true}
-        modalBody="application_console.do_you_want_to_delete.Foo"
-        modalHeader="application_console.delete_application"
-        onConfirm={[MockFunction]}
-      >
-        <Component />
-      </ConfirmButton>
     </div>
     <header
       className="boxed-group-header"
@@ -180,15 +171,6 @@ exports[`should render correctly: default 1`] = `
       >
         application_console.recompute
       </Button>
-      <ConfirmButton
-        confirmButtonText="delete"
-        isDestructive={true}
-        modalBody="application_console.do_you_want_to_delete.Foo"
-        modalHeader="application_console.delete_application"
-        onConfirm={[MockFunction]}
-      >
-        <Component />
-      </ConfirmButton>
     </div>
     <header
       className="boxed-group-header"
