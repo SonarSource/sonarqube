@@ -79,7 +79,9 @@ public class AlmSettingsTesting {
   static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(azureAlmSetting.getUuid())
-      .setProjectUuid(project.getUuid());
+      .setProjectUuid(project.getUuid())
+      .setAlmSlug(randomAlphanumeric(256))
+      .setAlmRepo(randomAlphanumeric(256));
   }
 
   public static ProjectAlmSettingDto newBitbucketProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
