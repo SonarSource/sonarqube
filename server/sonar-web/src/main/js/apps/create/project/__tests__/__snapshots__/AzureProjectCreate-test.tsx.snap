@@ -4,7 +4,10 @@ exports[`should render correctly 1`] = `
 <AzureProjectCreateRenderer
   canAdmin={true}
   loading={true}
+  loadingRepositories={Object {}}
+  onOpenProject={[Function]}
   onPersonalAccessTokenCreate={[Function]}
+  repositories={Object {}}
   settings={
     Object {
       "alm": "azure",

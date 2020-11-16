@@ -20,6 +20,8 @@
 import { get, getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import {
+  AzureProject,
+  AzureRepository,
   BitbucketProject,
   BitbucketRepository,
   GithubOrganization,
@@ -42,6 +44,21 @@ export function checkPersonalAccessTokenIsValid(almSetting: string): Promise<boo
         return throwGlobalError(response);
       }
     });
+}
+
+export function getAzureProjects(almSetting: string): Promise<{ projects: AzureProject[] }> {
+  return getJSON('/api/alm_integrations/list_azure_projects', { almSetting }).catch(
+    throwGlobalError
+  );
+}
+
+export function getAzureRepositories(
+  almSetting: string,
+  projectName: string
+): Promise<{ repositories: AzureRepository[] }> {
+  return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, projectName }).catch(
+    throwGlobalError
+  );
 }
 
 export function getBitbucketServerProjects(

@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div>
+  <AzureProjectAccordion
+    key="azure-project-1"
+    loading={false}
+    onOpen={[MockFunction]}
+    project={
+      Object {
+        "key": "azure-project-1",
+        "name": "Azure Project",
+      }
+    }
+    repositories={Array []}
+    startsOpen={true}
+  />
+  <ListFooter
+    count={1}
+    loadMore={[Function]}
+    total={1}
+  />
+</div>
+`;
+
+exports[`should render correctly: empty 1`] = `
+<Alert
+  className="spacer-top"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.azure.no_projects"
+    id="onboarding.create_project.azure.no_projects"
+    values={
+      Object {
+        "link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/projects/create",
+              "query": Object {
+                "mode": "azure",
+                "resetPat": 1,
+              },
+            }
+          }
+        >
+          onboarding.create_project.update_your_token
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;

@@ -16,7 +16,7 @@ exports[`should render correctly: create 1`] = `
         settings.almintegration.form.url.azure.help
         <br />
         <em>
-          https://ado.your-company.com/
+          https://ado.your-company.com/DefaultCollection
         </em>
       </React.Fragment>
     }
@@ -53,7 +53,7 @@ exports[`should render correctly: edit 1`] = `
         settings.almintegration.form.url.azure.help
         <br />
         <em>
-          https://ado.your-company.com/
+          https://ado.your-company.com/DefaultCollection
         </em>
       </React.Fragment>
     }

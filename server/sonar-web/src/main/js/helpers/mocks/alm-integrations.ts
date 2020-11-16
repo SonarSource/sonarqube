@@ -18,11 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  AzureProject,
+  AzureRepository,
   BitbucketProject,
   BitbucketRepository,
   GithubRepository,
   GitlabProject
 } from '../../types/alm-integration';
+
+export function mockAzureProject(overrides: Partial<AzureProject> = {}): AzureProject {
+  return {
+    key: 'azure-project-1',
+    name: 'Azure Project',
+    ...overrides
+  };
+}
+
+export function mockAzureRepository(overrides: Partial<AzureRepository> = {}): AzureRepository {
+  return {
+    name: 'Azure repo 1',
+    projectName: 'Azure Project',
+    ...overrides
+  };
+}
 
 export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}): BitbucketProject {
   return {

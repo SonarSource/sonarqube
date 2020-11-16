@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: closed 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom"
+  onClick={[Function]}
+  open={false}
+  title={
+    <h3>
+      Azure Project
+    </h3>
+  }
+/>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom open"
+  onClick={[Function]}
+  open={true}
+  title={
+    <h3>
+      Azure Project
+    </h3>
+  }
+>
+  <DeferredSpinner
+    loading={true}
+  >
+    <div
+      className="display-flex-wrap"
+    />
+    <ListFooter
+      count={0}
+      loadMore={[Function]}
+      total={0}
+    />
+  </DeferredSpinner>
+</BoxedGroupAccordion>
+`;
+
+exports[`should render correctly: with a repository 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom open"
+  onClick={[Function]}
+  open={true}
+  title={
+    <h3>
+      Azure Project
+    </h3>
+  }
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="display-flex-wrap"
+    >
+      <div
+        className="abs-width-400 overflow-hidden spacer-top spacer-bottom"
+        key="Azure repo 1"
+      >
+        <strong
+          className="text-ellipsis"
+          title="Azure repo 1"
+        >
+          Azure repo 1
+        </strong>
+      </div>
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </DeferredSpinner>
+</BoxedGroupAccordion>
+`;

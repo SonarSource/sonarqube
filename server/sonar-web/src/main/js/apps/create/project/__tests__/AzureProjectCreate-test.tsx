@@ -23,17 +23,22 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   checkPersonalAccessTokenIsValid,
+  getAzureProjects,
+  getAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
+import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { mockLocation } from '../../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzureProjectCreate from '../AzureProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => {
   return {
     checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
-    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null)
+    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
+    getAzureProjects: jest.fn().mockResolvedValue({ projects: [] }),
+    getAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] })
   };
 });
 
@@ -66,7 +71,8 @@ it('should correctly handle an invalid PAT', async () => {
 });
 
 it('should correctly handle setting a new PAT', async () => {
-  const wrapper = shallowRender();
+  const router = mockRouter();
+  const wrapper = shallowRender({ router });
   wrapper.instance().handlePersonalAccessTokenCreate('token');
   expect(setAlmPersonalAccessToken).toBeCalledWith('foo', 'token');
   expect(wrapper.state().submittingToken).toBe(true);
@@ -76,6 +82,59 @@ it('should correctly handle setting a new PAT', async () => {
   expect(checkPersonalAccessTokenIsValid).toBeCalled();
   expect(wrapper.state().submittingToken).toBe(false);
   expect(wrapper.state().tokenValidationFailed).toBe(true);
+
+  // Try again, this time with a correct token:
+
+  wrapper.instance().handlePersonalAccessTokenCreate('correct token');
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().tokenValidationFailed).toBe(false);
+  expect(router.replace).toBeCalled();
+});
+
+it('should correctly fetch projects and repositories on mount', async () => {
+  const project = mockAzureProject();
+  (getAzureProjects as jest.Mock).mockResolvedValueOnce({ projects: [project] });
+  (getAzureRepositories as jest.Mock).mockResolvedValueOnce({
+    repositories: [mockAzureRepository()]
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(getAzureProjects).toBeCalled();
+  expect(getAzureRepositories).toBeCalledTimes(1);
+  expect(getAzureRepositories).toBeCalledWith('foo', project.key);
+});
+
+it('should handle opening a project', async () => {
+  const projects = [
+    mockAzureProject(),
+    mockAzureProject({ key: 'project2', name: 'Project to open' })
+  ];
+
+  const firstProjectRepos = [mockAzureRepository()];
+  const secondProjectRepos = [mockAzureRepository({ projectName: projects[1].name })];
+
+  (getAzureProjects as jest.Mock).mockResolvedValueOnce({ projects });
+  (getAzureRepositories as jest.Mock)
+    .mockResolvedValueOnce({
+      repositories: firstProjectRepos
+    })
+    .mockResolvedValueOnce({
+      repositories: secondProjectRepos
+    });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleOpenProject(projects[1].key);
+  await waitAndUpdate(wrapper);
+
+  expect(getAzureRepositories).toBeCalledWith('foo', projects[1].key);
+
+  expect(wrapper.state().repositories).toEqual({
+    [projects[0].key]: firstProjectRepos,
+    [projects[1].key]: secondProjectRepos
+  });
 });
 
 function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {
@@ -85,6 +144,7 @@ function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {
       loadingBindings={false}
       location={mockLocation()}
       onProjectCreate={jest.fn()}
+      router={mockRouter()}
       settings={[mockAlmSettingsInstance({ alm: AlmKeys.Azure, key: 'foo' })]}
       {...overrides}
     />

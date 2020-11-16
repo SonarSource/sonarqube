@@ -64,7 +64,28 @@ exports[`should render correctly: project list 1`] = `
       </span>
     }
   />
-  <AzureProjectsList />
+  <AzureProjectsList
+    loadingRepositories={Object {}}
+    onOpenProject={[MockFunction]}
+    projects={
+      Array [
+        Object {
+          "key": "azure-project-1",
+          "name": "Azure Project",
+        },
+      ]
+    }
+    repositories={
+      Object {
+        "azure-project-1": Array [
+          Object {
+            "name": "Azure repo 1",
+            "projectName": "Azure Project",
+          },
+        ],
+      }
+    }
+  />
 </Fragment>
 `;
 

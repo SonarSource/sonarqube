@@ -130,6 +130,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             loadingBindings={loading}
             location={location}
             onProjectCreate={this.handleProjectCreate}
+            router={router}
             settings={azureSettings}
           />
         );

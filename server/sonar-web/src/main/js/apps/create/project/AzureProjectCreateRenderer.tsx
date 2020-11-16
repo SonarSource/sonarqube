@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
@@ -29,7 +30,11 @@ import WrongBindingCountAlert from './WrongBindingCountAlert';
 export interface AzureProjectCreateRendererProps {
   canAdmin?: boolean;
   loading: boolean;
+  loadingRepositories: T.Dict<boolean>;
+  onOpenProject: (key: string) => void;
   onPersonalAccessTokenCreate: (token: string) => void;
+  projects?: AzureProject[];
+  repositories: T.Dict<AzureRepository[]>;
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
@@ -40,6 +45,9 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
   const {
     canAdmin,
     loading,
+    loadingRepositories,
+    projects,
+    repositories,
     showPersonalAccessTokenForm,
     settings,
     submittingToken,
@@ -80,7 +88,12 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             />
           </div>
         ) : (
-          <AzureProjectsList />
+          <AzureProjectsList
+            loadingRepositories={loadingRepositories}
+            onOpenProject={props.onOpenProject}
+            projects={projects}
+            repositories={repositories}
+          />
         ))}
     </>
   );

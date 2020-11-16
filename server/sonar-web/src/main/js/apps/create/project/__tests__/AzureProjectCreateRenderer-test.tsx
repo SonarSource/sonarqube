@@ -20,6 +20,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzureProjectCreateRenderer, {
@@ -34,11 +35,17 @@ it('should render correctly', () => {
 });
 
 function shallowRender(overrides: Partial<AzureProjectCreateRendererProps>) {
+  const project = mockAzureProject();
+
   return shallow(
     <AzureProjectCreateRenderer
       canAdmin={true}
       loading={false}
+      loadingRepositories={{}}
+      onOpenProject={jest.fn()}
       onPersonalAccessTokenCreate={jest.fn()}
+      projects={[project]}
+      repositories={{ [project.key]: [mockAzureRepository()] }}
       tokenValidationFailed={false}
       settings={mockAlmSettingsInstance({ alm: AlmKeys.Azure })}
       showPersonalAccessTokenForm={false}

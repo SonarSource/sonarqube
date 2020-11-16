@@ -21,12 +21,15 @@ import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
+  getAzureProjects,
+  getAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
+import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
-interface Props extends Pick<WithRouterProps, 'location'> {
+interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKeys: string[]) => void;
@@ -35,7 +38,10 @@ interface Props extends Pick<WithRouterProps, 'location'> {
 
 interface State {
   loading: boolean;
+  loadingRepositories: T.Dict<boolean>;
   patIsValid?: boolean;
+  projects?: AzureProject[];
+  repositories: T.Dict<AzureRepository[]>;
   settings?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
@@ -51,6 +57,8 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       // one from the list.
       settings: props.settings[0],
       loading: false,
+      loadingRepositories: {},
+      repositories: {},
       tokenValidationFailed: false
     };
   }
@@ -78,12 +86,82 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
     const patIsValid = await this.checkPersonalAccessToken().catch(() => false);
 
+    let projects: AzureProject[] | undefined;
+    if (patIsValid) {
+      projects = await this.fetchAzureProjects();
+    }
+
+    const { repositories } = this.state;
+
+    let firstProjectKey: string;
+
+    if (projects && projects.length > 0) {
+      firstProjectKey = projects[0].key;
+
+      this.setState(({ loadingRepositories }) => ({
+        loadingRepositories: { ...loadingRepositories, [firstProjectKey]: true }
+      }));
+
+      const repos = await this.fetchAzureRepositories(firstProjectKey);
+      repositories[firstProjectKey] = repos;
+    }
+
     if (this.mounted) {
-      this.setState({
-        patIsValid,
-        loading: false
+      this.setState(({ loadingRepositories }) => {
+        if (firstProjectKey) {
+          loadingRepositories[firstProjectKey] = false;
+        }
+
+        return {
+          patIsValid,
+          loading: false,
+          loadingRepositories: { ...loadingRepositories },
+          projects,
+          repositories
+        };
       });
     }
+  };
+
+  fetchAzureProjects = (): Promise<AzureProject[] | undefined> => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return Promise.resolve(undefined);
+    }
+
+    return getAzureProjects(settings.key).then(({ projects }) => projects);
+  };
+
+  fetchAzureRepositories = (projectKey: string): Promise<AzureRepository[]> => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return Promise.resolve([]);
+    }
+
+    return getAzureRepositories(settings.key, projectKey)
+      .then(({ repositories }) => repositories)
+      .catch(() => []);
+  };
+
+  cleanUrl = () => {
+    const { location, router } = this.props;
+    delete location.query.resetPat;
+    router.replace(location);
+  };
+
+  handleOpenProject = async (projectKey: string) => {
+    this.setState(({ loadingRepositories }) => ({
+      loadingRepositories: { ...loadingRepositories, [projectKey]: true }
+    }));
+
+    const projectRepos = await this.fetchAzureRepositories(projectKey);
+
+    this.setState(({ loadingRepositories, repositories }) => ({
+      loadingRepositories: { ...loadingRepositories, [projectKey]: false },
+      repositories: { ...repositories, [projectKey]: projectRepos }
+    }));
   };
 
   checkPersonalAccessToken = () => {
@@ -114,7 +192,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
         if (patIsValid) {
           this.cleanUrl();
-          await this.fetchInitialData();
+          this.fetchInitialData();
         }
       }
     } catch (e) {
@@ -126,13 +204,26 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
-    const { loading, patIsValid, settings, submittingToken, tokenValidationFailed } = this.state;
+    const {
+      loading,
+      loadingRepositories,
+      patIsValid,
+      projects,
+      repositories,
+      settings,
+      submittingToken,
+      tokenValidationFailed
+    } = this.state;
 
     return (
       <AzureCreateProjectRenderer
         canAdmin={canAdmin}
         loading={loading || loadingBindings}
+        loadingRepositories={loadingRepositories}
+        onOpenProject={this.handleOpenProject}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
+        projects={projects}
+        repositories={repositories}
         settings={settings}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}

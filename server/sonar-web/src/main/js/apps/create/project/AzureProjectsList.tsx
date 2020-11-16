@@ -18,14 +18,71 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AzureProject, AzureRepository } from '../../../types/alm-integration';
+import AzureProjectAccordion from './AzureProjectAccordion';
+import { CreateProjectModes } from './types';
 
-export interface AzureProjectsListProps {}
+export interface AzureProjectsListProps {
+  loadingRepositories: T.Dict<boolean>;
+  onOpenProject: (key: string) => void;
+  projects?: AzureProject[];
+  repositories: T.Dict<AzureRepository[]>;
+}
 
-export default function AzureProjectsList(_props: AzureProjectsListProps) {
+const PAGE_SIZE = 10;
+
+export default function AzureProjectsList(props: AzureProjectsListProps) {
+  const { loadingRepositories, projects = [], repositories } = props;
+
+  const [page, setPage] = React.useState(1);
+
+  if (projects.length === 0) {
+    return (
+      <Alert className="spacer-top" variant="warning">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.create_project.azure.no_projects')}
+          id="onboarding.create_project.azure.no_projects"
+          values={{
+            link: (
+              <Link
+                to={{
+                  pathname: '/projects/create',
+                  query: { mode: CreateProjectModes.AzureDevOps, resetPat: 1 }
+                }}>
+                {translate('onboarding.create_project.update_your_token')}
+              </Link>
+            )
+          }}
+        />
+      </Alert>
+    );
+  }
+
+  const filteredProjects = projects.slice(0, page * PAGE_SIZE);
+
   return (
     <div>
-      <Alert variant="warning">Coming soon!</Alert>
+      {filteredProjects.map((p, i) => (
+        <AzureProjectAccordion
+          key={p.key}
+          loading={Boolean(loadingRepositories[p.key])}
+          onOpen={props.onOpenProject}
+          project={p}
+          repositories={repositories[p.key]}
+          startsOpen={i === 0}
+        />
+      ))}
+
+      <ListFooter
+        count={filteredProjects.length}
+        loadMore={() => setPage(p => p + 1)}
+        total={projects.length}
+      />
     </div>
   );
 }
