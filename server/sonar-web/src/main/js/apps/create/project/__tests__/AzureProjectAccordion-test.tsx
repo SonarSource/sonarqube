@@ -30,6 +30,9 @@ it('should render correctly', () => {
   expect(shallowRender({ repositories: [mockAzureRepository()] })).toMatchSnapshot(
     'with a repository'
   );
+  expect(shallowRender({ importing: true, repositories: [mockAzureRepository()] })).toMatchSnapshot(
+    'importing'
+  );
 });
 
 it('should open when clicked', () => {
@@ -95,7 +98,9 @@ it('should close when clicked', () => {
 function shallowRender(overrides: Partial<AzureProjectAccordionProps> = {}) {
   return shallow(
     <AzureProjectAccordion
+      importing={false}
       loading={false}
+      onSelectRepository={jest.fn()}
       onOpen={jest.fn()}
       project={mockAzureProject()}
       startsOpen={true}

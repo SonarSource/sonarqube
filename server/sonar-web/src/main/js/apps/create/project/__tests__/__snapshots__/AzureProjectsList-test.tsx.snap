@@ -3,9 +3,11 @@
 exports[`should render correctly: default 1`] = `
 <div>
   <AzureProjectAccordion
+    importing={false}
     key="azure-project-1"
     loading={false}
     onOpen={[MockFunction]}
+    onSelectRepository={[MockFunction]}
     project={
       Object {
         "key": "azure-project-1",
@@ -57,9 +59,11 @@ exports[`should render correctly: empty 1`] = `
 exports[`should render search results correctly: default 1`] = `
 <div>
   <AzureProjectAccordion
+    importing={false}
     key="p2 - result"
     loading={false}
     onOpen={[MockFunction]}
+    onSelectRepository={[MockFunction]}
     project={
       Object {
         "key": "p2",

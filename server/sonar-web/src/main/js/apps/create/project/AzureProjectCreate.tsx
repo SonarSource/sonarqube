@@ -24,6 +24,7 @@ import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
+  importAzureRepository,
   searchAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
@@ -39,6 +40,7 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
 }
 
 interface State {
+  importing: boolean;
   loading: boolean;
   loadingRepositories: T.Dict<boolean>;
   patIsValid?: boolean;
@@ -46,6 +48,7 @@ interface State {
   repositories: T.Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: T.Dict<AzureRepository[]>;
+  selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
@@ -60,6 +63,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       // For now, we only handle a single instance. So we always use the first
       // one from the list.
       settings: props.settings[0],
+      importing: false,
       loading: false,
       loadingRepositories: {},
       repositories: {},
@@ -195,6 +199,35 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
+  handleImportRepository = async () => {
+    const { selectedRepository, settings } = this.state;
+
+    if (!settings || !selectedRepository) {
+      return;
+    }
+
+    this.setState({ importing: true });
+
+    const createdProject = await importAzureRepository(
+      settings.key,
+      selectedRepository.projectName,
+      selectedRepository.name
+    )
+      .then(({ project }) => project)
+      .catch(() => undefined);
+
+    if (this.mounted) {
+      this.setState({ importing: false });
+      if (createdProject) {
+        this.props.onProjectCreate([createdProject.key]);
+      }
+    }
+  };
+
+  handleSelectRepository = (selectedRepository: AzureRepository) => {
+    this.setState({ selectedRepository });
+  };
+
   checkPersonalAccessToken = () => {
     const { settings } = this.state;
 
@@ -236,6 +269,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
     const {
+      importing,
       loading,
       loadingRepositories,
       patIsValid,
@@ -243,6 +277,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       repositories,
       searching,
       searchResults,
+      selectedRepository,
       settings,
       submittingToken,
       tokenValidationFailed
@@ -251,15 +286,19 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     return (
       <AzureCreateProjectRenderer
         canAdmin={canAdmin}
+        importing={importing}
         loading={loading || loadingBindings}
         loadingRepositories={loadingRepositories}
+        onImportRepository={this.handleImportRepository}
         onOpenProject={this.handleOpenProject}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
         onSearch={this.handleSearchRepositories}
+        onSelectRepository={this.handleSelectRepository}
         projects={projects}
         repositories={repositories}
         searching={searching}
         searchResults={searchResults}
+        selectedRepository={selectedRepository}
         settings={settings}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}

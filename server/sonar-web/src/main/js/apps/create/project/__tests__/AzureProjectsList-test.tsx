@@ -62,8 +62,10 @@ function shallowRender(overrides: Partial<AzureProjectsListProps> = {}) {
 
   return shallow(
     <AzureProjectsList
+      importing={false}
       loadingRepositories={{}}
       onOpenProject={jest.fn()}
+      onSelectRepository={jest.fn()}
       projects={[project]}
       repositories={{ [project.key]: [] }}
       {...overrides}

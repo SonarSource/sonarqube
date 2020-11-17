@@ -28,17 +28,27 @@ import AzureProjectAccordion from './AzureProjectAccordion';
 import { CreateProjectModes } from './types';
 
 export interface AzureProjectsListProps {
+  importing: boolean;
   loadingRepositories: T.Dict<boolean>;
   onOpenProject: (key: string) => void;
+  onSelectRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
   searchResults?: T.Dict<AzureRepository[]>;
+  selectedRepository?: AzureRepository;
 }
 
 const PAGE_SIZE = 10;
 
 export default function AzureProjectsList(props: AzureProjectsListProps) {
-  const { loadingRepositories, projects = [], repositories, searchResults } = props;
+  const {
+    importing,
+    loadingRepositories,
+    projects = [],
+    repositories,
+    searchResults,
+    selectedRepository
+  } = props;
 
   const [page, setPage] = React.useState(1);
 
@@ -83,10 +93,13 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
       {displayedProjects.map((p, i) => (
         <AzureProjectAccordion
           key={`${p.key}${keySuffix}`}
+          importing={importing}
           loading={Boolean(loadingRepositories[p.key])}
           onOpen={props.onOpenProject}
+          onSelectRepository={props.onSelectRepository}
           project={p}
           repositories={searchResults ? searchResults[p.key] : repositories[p.key]}
+          selectedRepository={selectedRepository}
           startsOpen={searchResults !== undefined || i === 0}
         />
       ))}

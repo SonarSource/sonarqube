@@ -40,11 +40,14 @@ function shallowRender(overrides: Partial<AzureProjectCreateRendererProps>) {
   return shallow(
     <AzureProjectCreateRenderer
       canAdmin={true}
+      importing={false}
       loading={false}
       loadingRepositories={{}}
+      onImportRepository={jest.fn()}
       onOpenProject={jest.fn()}
       onPersonalAccessTokenCreate={jest.fn()}
       onSearch={jest.fn()}
+      onSelectRepository={jest.fn()}
       projects={[project]}
       repositories={{ [project.key]: [mockAzureRepository()] }}
       tokenValidationFailed={false}

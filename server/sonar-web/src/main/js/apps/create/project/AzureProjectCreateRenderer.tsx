@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -31,15 +32,19 @@ import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface AzureProjectCreateRendererProps {
   canAdmin?: boolean;
+  importing: boolean;
   loading: boolean;
   loadingRepositories: T.Dict<boolean>;
+  onImportRepository: () => void;
   onOpenProject: (key: string) => void;
   onPersonalAccessTokenCreate: (token: string) => void;
   onSearch: (query: string) => void;
+  onSelectRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: T.Dict<AzureRepository[]>;
+  selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
@@ -49,14 +54,16 @@ export interface AzureProjectCreateRendererProps {
 export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
   const {
     canAdmin,
+    importing,
     loading,
     loadingRepositories,
     projects,
     repositories,
     searching,
     searchResults,
-    showPersonalAccessTokenForm,
+    selectedRepository,
     settings,
+    showPersonalAccessTokenForm,
     submittingToken,
     tokenValidationFailed
   } = props;
@@ -64,6 +71,19 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
   return (
     <>
       <CreateProjectPageHeader
+        additionalActions={
+          !showPersonalAccessTokenForm && (
+            <div className="display-flex-center pull-right">
+              <DeferredSpinner className="spacer-right" loading={importing} />
+              <Button
+                className="button-large button-primary"
+                disabled={!selectedRepository || importing}
+                onClick={props.onImportRepository}>
+                {translate('onboarding.create_project.import_selected_repo')}
+              </Button>
+            </div>
+          )
+        }
         title={
           <span className="text-middle">
             <img
@@ -104,11 +124,14 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             </div>
             <DeferredSpinner loading={Boolean(searching)}>
               <AzureProjectsList
+                importing={importing}
                 loadingRepositories={loadingRepositories}
                 onOpenProject={props.onOpenProject}
+                onSelectRepository={props.onSelectRepository}
                 projects={projects}
                 repositories={repositories}
                 searchResults={searchResults}
+                selectedRepository={selectedRepository}
               />
             </DeferredSpinner>
           </>

@@ -23,6 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -30,17 +31,20 @@ import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 
 export interface AzureProjectAccordionProps {
+  importing: boolean;
   loading: boolean;
   onOpen: (key: string) => void;
-  startsOpen: boolean;
+  onSelectRepository: (repository: AzureRepository) => void;
   project: AzureProject;
   repositories?: AzureRepository[];
+  selectedRepository?: AzureRepository;
+  startsOpen: boolean;
 }
 
 const PAGE_SIZE = 30;
 
 export default function AzureProjectAccordion(props: AzureProjectAccordionProps) {
-  const { loading, startsOpen, project, repositories = [] } = props;
+  const { importing, loading, startsOpen, project, repositories = [], selectedRepository } = props;
 
   const [open, setOpen] = React.useState(startsOpen);
   const handleClick = () => {
@@ -86,13 +90,19 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
             <>
               <div className="display-flex-wrap">
                 {limitedRepositories.map(repo => (
-                  <div
-                    className="abs-width-400 overflow-hidden spacer-top spacer-bottom"
-                    key={repo.name}>
+                  <Radio
+                    checked={selectedRepository?.name === repo.name}
+                    className={classNames(
+                      'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
+                      importing && ['disabled', 'text-muted', 'link-no-underline']
+                    )}
+                    key={repo.name}
+                    onCheck={() => !importing && props.onSelectRepository(repo)}
+                    value={repo.name}>
                     <strong className="text-ellipsis" title={repo.name}>
                       {repo.name}
                     </strong>
-                  </div>
+                  </Radio>
                 ))}
               </div>
               <ListFooter

@@ -13,6 +13,47 @@ exports[`should render correctly: closed 1`] = `
 />
 `;
 
+exports[`should render correctly: importing 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom open"
+  onClick={[Function]}
+  open={true}
+  title={
+    <h3>
+      Azure Project
+    </h3>
+  }
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="display-flex-wrap"
+    >
+      <Radio
+        checked={false}
+        className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden disabled text-muted link-no-underline"
+        key="Azure repo 1"
+        onCheck={[Function]}
+        value="Azure repo 1"
+      >
+        <strong
+          className="text-ellipsis"
+          title="Azure repo 1"
+        >
+          Azure repo 1
+        </strong>
+      </Radio>
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </DeferredSpinner>
+</BoxedGroupAccordion>
+`;
+
 exports[`should render correctly: loading 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
@@ -56,9 +97,12 @@ exports[`should render correctly: with a repository 1`] = `
     <div
       className="display-flex-wrap"
     >
-      <div
-        className="abs-width-400 overflow-hidden spacer-top spacer-bottom"
+      <Radio
+        checked={false}
+        className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
         key="Azure repo 1"
+        onCheck={[Function]}
+        value="Azure repo 1"
       >
         <strong
           className="text-ellipsis"
@@ -66,7 +110,7 @@ exports[`should render correctly: with a repository 1`] = `
         >
           Azure repo 1
         </strong>
-      </div>
+      </Radio>
     </div>
     <ListFooter
       count={1}

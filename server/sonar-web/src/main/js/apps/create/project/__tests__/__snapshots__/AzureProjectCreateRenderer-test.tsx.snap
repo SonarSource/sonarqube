@@ -3,6 +3,23 @@
 exports[`should render correctly: loading 1`] = `
 <Fragment>
   <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
     title={
       <span
         className="text-middle"
@@ -26,6 +43,23 @@ exports[`should render correctly: loading 1`] = `
 exports[`should render correctly: no settings 1`] = `
 <Fragment>
   <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
     title={
       <span
         className="text-middle"
@@ -50,6 +84,23 @@ exports[`should render correctly: no settings 1`] = `
 exports[`should render correctly: project list 1`] = `
 <Fragment>
   <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
     title={
       <span
         className="text-middle"
@@ -76,8 +127,10 @@ exports[`should render correctly: project list 1`] = `
     loading={false}
   >
     <AzureProjectsList
+      importing={false}
       loadingRepositories={Object {}}
       onOpenProject={[MockFunction]}
+      onSelectRepository={[MockFunction]}
       projects={
         Array [
           Object {
@@ -104,6 +157,7 @@ exports[`should render correctly: project list 1`] = `
 exports[`should render correctly: token form 1`] = `
 <Fragment>
   <CreateProjectPageHeader
+    additionalActions={false}
     title={
       <span
         className="text-middle"

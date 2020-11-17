@@ -25,6 +25,7 @@ import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
+  importAzureRepository,
   searchAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
@@ -40,7 +41,8 @@ jest.mock('../../../../api/alm-integrations', () => {
     setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
     getAzureProjects: jest.fn().mockResolvedValue({ projects: [] }),
     getAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] }),
-    searchAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] })
+    searchAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] }),
+    importAzureRepository: jest.fn().mockResolvedValue({ project: { key: 'baz' } })
   };
 });
 
@@ -167,6 +169,43 @@ it('should handle searching for repositories', async () => {
   wrapper.instance().handleSearchRepositories('');
   expect(searchAzureRepositories).not.toBeCalled();
   expect(wrapper.state().searchResults).toBeUndefined();
+});
+
+it('should select and import a repository', async () => {
+  const onProjectCreate = jest.fn();
+  const repository = mockAzureRepository();
+  const wrapper = shallowRender({ onProjectCreate });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().selectedRepository).toBeUndefined();
+  wrapper.instance().handleSelectRepository(repository);
+  expect(wrapper.state().selectedRepository).toBe(repository);
+
+  wrapper.instance().handleImportRepository();
+  expect(wrapper.state().importing).toBe(true);
+  expect(importAzureRepository).toBeCalledWith('foo', repository.projectName, repository.name);
+  await waitAndUpdate(wrapper);
+
+  expect(onProjectCreate).toBeCalledWith(['baz']);
+  expect(wrapper.state().importing).toBe(false);
+});
+
+it('should handle no settings', () => {
+  const wrapper = shallowRender({ settings: [] });
+
+  wrapper.instance().fetchAzureProjects();
+  wrapper.instance().fetchAzureRepositories('whatever');
+  wrapper.instance().handleSearchRepositories('query');
+  wrapper.instance().handleImportRepository();
+  wrapper.instance().checkPersonalAccessToken();
+  wrapper.instance().handlePersonalAccessTokenCreate('');
+
+  expect(getAzureProjects).not.toBeCalled();
+  expect(getAzureRepositories).not.toBeCalled();
+  expect(searchAzureRepositories).not.toBeCalled();
+  expect(importAzureRepository).not.toBeCalled();
+  expect(checkPersonalAccessTokenIsValid).not.toBeCalled();
+  expect(setAlmPersonalAccessToken).not.toBeCalled();
 });
 
 function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {
