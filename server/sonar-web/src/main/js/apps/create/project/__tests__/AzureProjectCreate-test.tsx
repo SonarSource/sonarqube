@@ -25,6 +25,7 @@ import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
+  searchAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
@@ -38,7 +39,8 @@ jest.mock('../../../../api/alm-integrations', () => {
     checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
     setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
     getAzureProjects: jest.fn().mockResolvedValue({ projects: [] }),
-    getAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] })
+    getAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] }),
+    searchAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] })
   };
 });
 
@@ -135,6 +137,36 @@ it('should handle opening a project', async () => {
     [projects[0].key]: firstProjectRepos,
     [projects[1].key]: secondProjectRepos
   });
+});
+
+it('should handle searching for repositories', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  const query = 'repo';
+  const repositories = [mockAzureRepository({ projectName: 'p2' })];
+  (searchAzureRepositories as jest.Mock).mockResolvedValueOnce({
+    repositories
+  });
+  wrapper.instance().handleSearchRepositories(query);
+  expect(wrapper.state().searching).toBe(true);
+
+  expect(searchAzureRepositories).toBeCalledWith('foo', query);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().searching).toBe(false);
+  expect(wrapper.state().searchResults).toEqual({ [repositories[0].projectName]: repositories });
+
+  // Ignore opening a project when search results are displayed
+  (getAzureRepositories as jest.Mock).mockClear();
+  wrapper.instance().handleOpenProject('whatever');
+  expect(getAzureRepositories).not.toHaveBeenCalled();
+
+  // and reset the search field
+  (searchAzureRepositories as jest.Mock).mockClear();
+
+  wrapper.instance().handleSearchRepositories('');
+  expect(searchAzureRepositories).not.toBeCalled();
+  expect(wrapper.state().searchResults).toBeUndefined();
 });
 
 function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {

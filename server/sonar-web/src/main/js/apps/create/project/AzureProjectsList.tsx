@@ -32,56 +32,69 @@ export interface AzureProjectsListProps {
   onOpenProject: (key: string) => void;
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
+  searchResults?: T.Dict<AzureRepository[]>;
 }
 
 const PAGE_SIZE = 10;
 
 export default function AzureProjectsList(props: AzureProjectsListProps) {
-  const { loadingRepositories, projects = [], repositories } = props;
+  const { loadingRepositories, projects = [], repositories, searchResults } = props;
 
   const [page, setPage] = React.useState(1);
 
-  if (projects.length === 0) {
+  const filteredProjects = searchResults
+    ? projects.filter(p => searchResults[p.key] !== undefined)
+    : projects;
+
+  if (filteredProjects.length === 0) {
     return (
       <Alert className="spacer-top" variant="warning">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.azure.no_projects')}
-          id="onboarding.create_project.azure.no_projects"
-          values={{
-            link: (
-              <Link
-                to={{
-                  pathname: '/projects/create',
-                  query: { mode: CreateProjectModes.AzureDevOps, resetPat: 1 }
-                }}>
-                {translate('onboarding.create_project.update_your_token')}
-              </Link>
-            )
-          }}
-        />
+        {searchResults ? (
+          translate('onboarding.create_project.azure.no_results')
+        ) : (
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.azure.no_projects')}
+            id="onboarding.create_project.azure.no_projects"
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/projects/create',
+                    query: { mode: CreateProjectModes.AzureDevOps, resetPat: 1 }
+                  }}>
+                  {translate('onboarding.create_project.update_your_token')}
+                </Link>
+              )
+            }}
+          />
+        )}
       </Alert>
     );
   }
 
-  const filteredProjects = projects.slice(0, page * PAGE_SIZE);
+  const displayedProjects = filteredProjects.slice(0, page * PAGE_SIZE);
+
+  // Add a suffix to the key to force react to not reuse AzureProjectAccordions between
+  // search results and project exploration
+  const keySuffix = searchResults ? ' - result' : '';
 
   return (
     <div>
-      {filteredProjects.map((p, i) => (
+      {displayedProjects.map((p, i) => (
         <AzureProjectAccordion
-          key={p.key}
+          key={`${p.key}${keySuffix}`}
           loading={Boolean(loadingRepositories[p.key])}
           onOpen={props.onOpenProject}
           project={p}
-          repositories={repositories[p.key]}
-          startsOpen={i === 0}
+          repositories={searchResults ? searchResults[p.key] : repositories[p.key]}
+          startsOpen={searchResults !== undefined || i === 0}
         />
       ))}
 
       <ListFooter
-        count={filteredProjects.length}
+        count={displayedProjects.length}
         loadMore={() => setPage(p => p + 1)}
-        total={projects.length}
+        total={filteredProjects.length}
       />
     </div>
   );

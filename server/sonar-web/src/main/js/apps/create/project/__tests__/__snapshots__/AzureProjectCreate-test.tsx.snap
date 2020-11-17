@@ -7,6 +7,7 @@ exports[`should render correctly 1`] = `
   loadingRepositories={Object {}}
   onOpenProject={[Function]}
   onPersonalAccessTokenCreate={[Function]}
+  onSearch={[Function]}
   repositories={Object {}}
   settings={
     Object {

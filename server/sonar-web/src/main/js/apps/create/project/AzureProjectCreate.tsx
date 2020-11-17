@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { groupBy } from 'lodash';
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
+  searchAzureRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
@@ -42,6 +44,8 @@ interface State {
   patIsValid?: boolean;
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
+  searching?: boolean;
+  searchResults?: T.Dict<AzureRepository[]>;
   settings?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
@@ -152,6 +156,10 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   handleOpenProject = async (projectKey: string) => {
+    if (this.state.searchResults) {
+      return;
+    }
+
     this.setState(({ loadingRepositories }) => ({
       loadingRepositories: { ...loadingRepositories, [projectKey]: true }
     }));
@@ -162,6 +170,29 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       loadingRepositories: { ...loadingRepositories, [projectKey]: false },
       repositories: { ...repositories, [projectKey]: projectRepos }
     }));
+  };
+
+  handleSearchRepositories = async (searchQuery: string) => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return;
+    }
+
+    if (searchQuery.length === 0) {
+      this.setState({ searchResults: undefined });
+      return;
+    }
+
+    this.setState({ searching: true });
+
+    const results: AzureRepository[] = await searchAzureRepositories(settings.key, searchQuery)
+      .then(({ repositories }) => repositories)
+      .catch(() => []);
+
+    if (this.mounted) {
+      this.setState({ searching: false, searchResults: groupBy(results, 'projectName') });
+    }
   };
 
   checkPersonalAccessToken = () => {
@@ -210,6 +241,8 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       patIsValid,
       projects,
       repositories,
+      searching,
+      searchResults,
       settings,
       submittingToken,
       tokenValidationFailed
@@ -222,8 +255,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         loadingRepositories={loadingRepositories}
         onOpenProject={this.handleOpenProject}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
+        onSearch={this.handleSearchRepositories}
         projects={projects}
         repositories={repositories}
+        searching={searching}
+        searchResults={searchResults}
         settings={settings}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}

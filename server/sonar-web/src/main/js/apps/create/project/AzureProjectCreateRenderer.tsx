@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
@@ -33,8 +35,11 @@ export interface AzureProjectCreateRendererProps {
   loadingRepositories: T.Dict<boolean>;
   onOpenProject: (key: string) => void;
   onPersonalAccessTokenCreate: (token: string) => void;
+  onSearch: (query: string) => void;
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
+  searching?: boolean;
+  searchResults?: T.Dict<AzureRepository[]>;
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
@@ -48,6 +53,8 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     loadingRepositories,
     projects,
     repositories,
+    searching,
+    searchResults,
     showPersonalAccessTokenForm,
     settings,
     submittingToken,
@@ -88,12 +95,23 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             />
           </div>
         ) : (
-          <AzureProjectsList
-            loadingRepositories={loadingRepositories}
-            onOpenProject={props.onOpenProject}
-            projects={projects}
-            repositories={repositories}
-          />
+          <>
+            <div className="huge-spacer-bottom">
+              <SearchBox
+                onChange={props.onSearch}
+                placeholder={translate('onboarding.create_project.search_repositories_by_name')}
+              />
+            </div>
+            <DeferredSpinner loading={Boolean(searching)}>
+              <AzureProjectsList
+                loadingRepositories={loadingRepositories}
+                onOpenProject={props.onOpenProject}
+                projects={projects}
+                repositories={repositories}
+                searchResults={searchResults}
+              />
+            </DeferredSpinner>
+          </>
         ))}
     </>
   );

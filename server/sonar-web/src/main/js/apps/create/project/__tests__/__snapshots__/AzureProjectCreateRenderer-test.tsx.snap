@@ -64,28 +64,40 @@ exports[`should render correctly: project list 1`] = `
       </span>
     }
   />
-  <AzureProjectsList
-    loadingRepositories={Object {}}
-    onOpenProject={[MockFunction]}
-    projects={
-      Array [
-        Object {
-          "key": "azure-project-1",
-          "name": "Azure Project",
-        },
-      ]
-    }
-    repositories={
-      Object {
-        "azure-project-1": Array [
+  <div
+    className="huge-spacer-bottom"
+  >
+    <SearchBox
+      onChange={[MockFunction]}
+      placeholder="onboarding.create_project.search_repositories_by_name"
+    />
+  </div>
+  <DeferredSpinner
+    loading={false}
+  >
+    <AzureProjectsList
+      loadingRepositories={Object {}}
+      onOpenProject={[MockFunction]}
+      projects={
+        Array [
           Object {
-            "name": "Azure repo 1",
-            "projectName": "Azure Project",
+            "key": "azure-project-1",
+            "name": "Azure Project",
           },
-        ],
+        ]
       }
-    }
-  />
+      repositories={
+        Object {
+          "azure-project-1": Array [
+            Object {
+              "name": "Azure repo 1",
+              "projectName": "Azure Project",
+            },
+          ],
+        }
+      }
+    />
+  </DeferredSpinner>
 </Fragment>
 `;
 

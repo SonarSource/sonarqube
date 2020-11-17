@@ -61,6 +61,15 @@ export function getAzureRepositories(
   );
 }
 
+export function searchAzureRepositories(
+  almSetting: string,
+  repositoryName: string
+): Promise<{ repositories: AzureRepository[] }> {
+  return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, repositoryName }).catch(
+    throwGlobalError
+  );
+}
+
 export function getBitbucketServerProjects(
   almSetting: string
 ): Promise<{ projects: BitbucketProject[] }> {

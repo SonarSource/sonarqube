@@ -21,13 +21,26 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import { mockAzureProject } from '../../../../helpers/mocks/alm-integrations';
+import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import AzureProjectAccordion from '../AzureProjectAccordion';
 import AzureProjectsList, { AzureProjectsListProps } from '../AzureProjectsList';
 
 it('should render correctly', () => {
   expect(shallowRender({})).toMatchSnapshot('default');
   expect(shallowRender({ projects: [] })).toMatchSnapshot('empty');
+});
+
+it('should render search results correctly', () => {
+  const projects = [
+    mockAzureProject({ key: 'p1', name: 'p1' }),
+    mockAzureProject({ key: 'p2', name: 'p2' }),
+    mockAzureProject({ key: 'p3', name: 'p3' })
+  ];
+  const searchResults = {
+    p2: [mockAzureRepository({ projectName: 'p2' })]
+  };
+  expect(shallowRender({ searchResults, projects })).toMatchSnapshot('default');
+  expect(shallowRender({ searchResults: {}, projects })).toMatchSnapshot('empty');
 });
 
 it('should handle pagination', () => {

@@ -53,3 +53,42 @@ exports[`should render correctly: empty 1`] = `
   />
 </Alert>
 `;
+
+exports[`should render search results correctly: default 1`] = `
+<div>
+  <AzureProjectAccordion
+    key="p2 - result"
+    loading={false}
+    onOpen={[MockFunction]}
+    project={
+      Object {
+        "key": "p2",
+        "name": "p2",
+      }
+    }
+    repositories={
+      Array [
+        Object {
+          "name": "Azure repo 1",
+          "projectName": "p2",
+        },
+      ]
+    }
+    startsOpen={true}
+  />
+  <ListFooter
+    count={1}
+    loadMore={[Function]}
+    total={1}
+  />
+</div>
+`;
+
+exports[`should render search results correctly: empty 1`] = `
+<Alert
+  className="spacer-top"
+  variant="warning"
+>
+  onboarding.create_project.azure.no_results
+</Alert>
+`;
