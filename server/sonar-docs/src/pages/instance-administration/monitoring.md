@@ -13,11 +13,11 @@ As a start, you can use this Web API to get an overview of the health of your So
 
 The SonarQube application server consists of three main Java processes:
 
-* Web (including embedded web server)
-* ElasticSearch
 * Compute Engine
+* Elasticsearch
+* Web (including embedded web server)
 
-Each of these Java processes has its own memory settings that can be configured in the _$SONARQUBE-HOME/conf/sonar.properties_ file. The default memory settings that ship with SonarQube are fine for most instances. If you are supporting a large SonarQube instance (more than 100 users or more than 5,000,000 lines of code) or an instance that is part of your Continuous Integration pipeline, you should monitor the memory and CPU usage of all three key Java processes on your instance, along with overall disk space. Monitoring will allow you to see if any of the processes is running short of resources and take action ahead of resource shortages. There are a large number of monitoring tools available, both open source and commercial, to help you with this task. SonarSource does not recommend or endorse any particular tool.
+Each of these Java processes has its own memory settings that can be configured in the _$SONARQUBE-HOME/conf/sonar.properties_ file. The default memory settings that ship with SonarQube are fine for most instances. If you are supporting a large SonarQube instance (more than 100 users or more than 5,000,000 lines of code) or an instance that is part of your Continuous Integration pipeline, you should monitor the memory and CPU usage of all three key Java processes on your instance, along with overall disk space. Monitoring will allow you to see if any of the processes is running short of resources and take action ahead of resource shortages. There are numerous monitoring tools available, both open source and commercial, to help you with this task. SonarSource does not recommend or endorse any particular tool.
 
 ## Memory settings
 
@@ -26,31 +26,29 @@ You may need to increase your memory settings if you see the following symptoms:
 * Your monitoring tools show one or more of the SonarQube processes is reaching its memory limit
 * Any of the SonarQube processes crashes and/or generates an out-of-memory error in the sonar.log file
 * A SonarQube background task fails with an out-of-memory error in the background task log
-* The size of the Issues index of your ElasticSearch instance (visible in the System Info) is greater than or equal to the memory allocated to the ElasticSearch Java process
+* The store size of the Issues index of your Elasticsearch instance (visible in the System Info) is greater than or equal to the memory allocated to the Elasticsearch Java process
 
 You can increase the maximum memory allocated to the appropriate process by increasing the  -Xmx memory setting for the corresponding Java process in your _$SONARQUBE-HOME/conf/sonar.properties_ file:
 
-* For Web: sonar.web.javaOpts
-* For ElasticSearch: sonar.search.javaOpts (It is recommended to set the min and max memory to the same value to prevent the heap from resizing at runtime, a very costly process)
-* For Compute Engine: sonar.ce.javaOpts
+Java Process | SonarQube Property | Notes
+--- | --- | ---
+Compute Engine | sonar.ce.javaOpts
+Elasticsearch | sonar.search.javaOpts | It is recommended to set the min and max memory to the same value to prevent the heap from resizing at runtime, which diverts JVM resources and can greatly increase response times of in-flight requests.
+Web | sonar.web.javaOpts
 
-The -Xmx parameter accepts numbers in both megabytes (e.g. -Xmx2048m) and gigabytes (e.g. -Xmx2G)
-
-For detailed information on JMX Beans exposed by SonarQube and more ElasticSearch monitoring options, please visit our Monitoring Details page.
+The -Xmx parameter accepts numbers in both megabytes (e.g. -Xmx2048m) and gigabytes (e.g. -Xmx2G). The metric suffix is case-insensitive.
 
 ## Exposed JMX MBeans
 
 The SonarQube Server offers visibility about what happens internally through the exposure of JMX MBeans.
 
-In addition to the classical Java MBeans providing information about the ClassLoader, OS, Memory and Threads you have access to four more MBeans in the SonarQube Server:
+In addition to the classical Java MBeans providing information about the ClassLoader, OS, Memory, and Threads you have access to three more MBeans in the SonarQube Server:
 
 * ComputeEngine
 * Database
 * SonarQube
 
 All these MBeans are read-only. It's not possible to modify or reset their values in real time.
-
-## ComputeEngineTasks MBean
 
 [[collapse]]
 | ## ComputeEngineTasks MBean
@@ -66,7 +64,7 @@ All these MBeans are read-only. It's not possible to modify or reset their value
 |
 | Note:
 | * the total number of Background Tasks handled since the last restart of SonarQube is equal to SuccessCount + ErrorCount
-| * these values are reset to their default values by restarting SonarQube
+| * all values reset to their default values after restarting SonarQube
 
 [[collapse]]
 | ## Database MBean
@@ -101,15 +99,15 @@ There is nothing to activate to view SonarQube MBeans if your tool is running on
 
 Here are examples of configuration to activate remote access to JMX MBeans.
 
-For the WebServer:
+* For the WebServer:
 ```
 # JMX WEB - 10443/10444
 sonar.web.javaAdditionalOpts=-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.port=10443 -Dcom.sun.management.jmxremote.rmi.port=10444 -Dcom.sun.management.jmxremote.password.file=/opt/sonarsource/sonar/conf/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/opt/sonarsource/sonar/conf/jmxremote.access
 ```
 
-For the ComputeEngine:
+* For the ComputeEngine:
 
-There is no specific javaAdditionalOpts entry, simply amend the sonar.ce.javaOpts one.
+There is no specific javaAdditionalOpts entry, simply amend sonar.ce.javaOpts.
 
 Example of `jmxremote.access`:
 
@@ -134,4 +132,3 @@ admin  adminpassword
 ```
 
 Note: on `jmxremote.password`, you should apply `chmod 600` or `400` for security reasons.
-
