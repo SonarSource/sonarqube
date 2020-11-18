@@ -44,7 +44,7 @@ message ListBitbucketserverProjectsWsResponse {
 
 // WS api/alm_integrations/list_azure_projects
 message ListAzureProjectsWsResponse {
-  repeated AlmProject projects = 1;
+  repeated AzureProject projects = 1;
 }
 
 message BBSRepo {
@@ -65,6 +65,11 @@ message AzureRepo {
 message AlmProject {
   optional string key = 1;
   optional string name = 2;
+}
+
+message AzureProject {
+  optional string name = 1;
+  optional string description = 2;
 }
 
 // WS api/alm_integrations/get_github_client_id
