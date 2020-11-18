@@ -126,6 +126,17 @@ public class ValidateActionTest {
   }
 
   @Test
+  public void return_false_when_no_jwt_nor_basic_auth_and_force_authentication_fallback_to_default() throws Exception {
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).setContentType(MediaTypes.JSON);
+    JsonAssert.assertJson(stringWriter.toString()).isSimilarTo("{\"valid\":false}");
+  }
+
+  @Test
   public void return_false_when_jwt_throws_unauthorized_exception() throws Exception {
     doThrow(AuthenticationException.class).when(jwtHttpHandler).validateToken(request, response);
     when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());

@@ -36,6 +36,7 @@ import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
@@ -104,7 +105,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   }
 
   private boolean getForceAuthentication() {
-    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
+    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
   }
 
   @Override

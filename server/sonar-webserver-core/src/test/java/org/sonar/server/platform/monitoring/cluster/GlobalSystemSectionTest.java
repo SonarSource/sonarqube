@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -116,6 +117,19 @@ public class GlobalSystemSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "External identity providers whose users are allowed to sign themselves up", "GitHub");
+  }
+
+  @Test
+  public void get_force_authentication_defaults_to_true() {
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Force authentication", true);
+  }
+
+  @Test
+  public void get_force_authentication() {
+    settings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Force authentication", false);
   }
 
   @Test

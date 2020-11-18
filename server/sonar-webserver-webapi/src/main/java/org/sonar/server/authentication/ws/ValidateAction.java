@@ -39,6 +39,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonarqube.ws.MediaTypes;
 
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 
@@ -96,7 +97,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
       if (user.isPresent()) {
         return true;
       }
-      return !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
+      return !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
     } catch (AuthenticationException e) {
       return false;
     }

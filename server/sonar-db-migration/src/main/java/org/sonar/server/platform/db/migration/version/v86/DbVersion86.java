@@ -42,6 +42,7 @@ public class DbVersion86 implements DbVersion {
       .add(4112, "Make 'name' column in 'groups' table not nullable", MakeNameColumnInGroupsTableNotNullable.class)
       .add(4113, "Make 'name' column in 'groups' table unique", AddUniqueIndexOnNameColumnOfGroupsTable.class)
       .add(4114, "Move default permission templates to internal properties", MoveDefaultTemplatesToInternalProperties.class)
+      .add(4115, "Set 'sonar.forceAuthentication' to false for upgraded instances", SetForceAuthenticationSettings.class)
     ;
   }
 }

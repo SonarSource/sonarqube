@@ -158,6 +158,7 @@ public class SQDatabase extends DefaultDatabase {
     parentContainer.add(SonarRuntimeImpl.forSonarQube(Version.create(8, 0), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
     parentContainer.add(UuidFactoryFast.getInstance());
     parentContainer.add(System2.INSTANCE);
+    parentContainer.add(MapSettings.class);
 
     parentContainer.startComponents();
 

@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
@@ -44,9 +43,6 @@ import static org.mockito.Mockito.when;
 public class PopulateInitialSchemaTest {
 
   private static final long NOW = 1_500L;
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private final Version version = Version.create(1 + random.nextInt(10), 1 + random.nextInt(10), random.nextInt(10));
@@ -77,6 +73,7 @@ public class PopulateInitialSchemaTest {
     String orgUuid = verifyDefaultOrganization(userGroupId, qgUuid);
     verifyOrgQualityGate(orgUuid, qgUuid);
     verifyInternalProperties(orgUuid);
+    verifyProperties();
     verifyRolesOfAdminsGroup();
     verifyRolesOfUsersGroup();
     verifyRolesOfAnyone();
@@ -100,20 +97,23 @@ public class PopulateInitialSchemaTest {
       "created_at as \"CREATED_AT\", " +
       "updated_at as \"UPDATED_AT\" " +
       "from users where login='admin'");
-    assertThat(cols.get("LOGIN")).isEqualTo("admin");
-    assertThat(cols.get("NAME")).isEqualTo("Administrator");
+
+    assertThat(cols)
+      .containsEntry("LOGIN", "admin")
+      .containsEntry("NAME", "Administrator")
+      .containsEntry("EXTERNAL_ID", "admin")
+      .containsEntry("EXTERNAL_LOGIN", "admin")
+      .containsEntry("EXT_IDENT_PROVIDER", "sonarqube")
+      .containsEntry("USER_LOCAL", true)
+      .containsEntry("CRYPTED_PASSWORD", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi")
+      .containsEntry("HASH_METHOD", "BCRYPT")
+      .containsEntry("IS_ROOT", false)
+      .containsEntry("ONBOARDED", true)
+      .containsEntry("CREATED_AT", NOW)
+      .containsEntry("UPDATED_AT", NOW);
+
     assertThat(cols.get("EMAIL")).isNull();
-    assertThat(cols.get("EXTERNAL_ID")).isEqualTo("admin");
-    assertThat(cols.get("EXTERNAL_LOGIN")).isEqualTo("admin");
-    assertThat(cols.get("EXT_IDENT_PROVIDER")).isEqualTo("sonarqube");
-    assertThat(cols.get("USER_LOCAL")).isEqualTo(true);
-    assertThat(cols.get("CRYPTED_PASSWORD")).isEqualTo("$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi");
     assertThat(cols.get("SALT")).isNull();
-    assertThat(cols.get("HASH_METHOD")).isEqualTo("BCRYPT");
-    assertThat(cols.get("IS_ROOT")).isEqualTo(false);
-    assertThat(cols.get("ONBOARDED")).isEqualTo(true);
-    assertThat(cols.get("CREATED_AT")).isEqualTo(NOW);
-    assertThat(cols.get("UPDATED_AT")).isEqualTo(NOW);
   }
 
   private long verifyGroup(String expectedName, String expectedDescription) {
@@ -169,15 +169,17 @@ public class PopulateInitialSchemaTest {
     assertThat(rows).hasSize(1);
 
     Map<String, Object> row = rows.get(0);
-    assertThat(row.get("KEE")).isEqualTo("default-organization");
-    assertThat(row.get("NAME")).isEqualTo("Default Organization");
-    assertThat(row.get("GUARDED")).isEqualTo(true);
-    assertThat(row.get("PRIVATE")).isEqualTo(false);
-    assertThat(row.get("GROUP_ID")).isEqualTo(userGroupId);
-    assertThat(row.get("QG_UUID")).isEqualTo(defaultQQUuid);
-    assertThat(row.get("SUBSCRIPTION")).isEqualTo("SONARQUBE");
-    assertThat(row.get("CREATED_AT")).isEqualTo(NOW);
-    assertThat(row.get("UPDATED_AT")).isEqualTo(NOW);
+
+    assertThat(row)
+      .containsEntry("KEE", "default-organization")
+      .containsEntry("NAME", "Default Organization")
+      .containsEntry("GUARDED", true)
+      .containsEntry("PRIVATE", false)
+      .containsEntry("GROUP_ID", userGroupId)
+      .containsEntry("QG_UUID", defaultQQUuid)
+      .containsEntry("SUBSCRIPTION", "SONARQUBE")
+      .containsEntry("CREATED_AT", NOW)
+      .containsEntry("UPDATED_AT", NOW);
     return (String) row.get("UUID");
   }
 
@@ -191,8 +193,9 @@ public class PopulateInitialSchemaTest {
 
     Map<String, Object> row = rows.get(0);
     assertThat(row.get("UUID")).isNotNull();
-    assertThat(row.get("ORG")).isEqualTo(orgUuid);
-    assertThat(row.get("QG")).isEqualTo(qgUuid);
+    assertThat(row)
+      .containsEntry("ORG", orgUuid)
+      .containsEntry("QG", qgUuid);
   }
 
   private void verifyInternalProperties(String orgUuid) {
@@ -212,10 +215,33 @@ public class PopulateInitialSchemaTest {
 
   private static void verifyInternalProperty(Map<String, Map<String, Object>> rowsByKey, String key, String val) {
     Map<String, Object> row = rowsByKey.get(key);
-    assertThat(row.get("KEE")).isEqualTo(key);
-    assertThat(row.get("EMPTY")).isEqualTo(false);
-    assertThat(row.get("VAL")).isEqualTo(val);
-    assertThat(row.get("CREATED_AT")).isEqualTo(NOW);
+    assertThat(row)
+      .containsEntry("KEE", key)
+      .containsEntry("EMPTY", false)
+      .containsEntry("VAL", val)
+      .containsEntry("CREATED_AT", NOW);
+  }
+
+  private void verifyProperties() {
+    List<Map<String, Object>> rows = db.select("select " +
+      "prop_key as \"PROP_KEY\", " +
+      "is_empty as \"EMPTY\", " +
+      "text_value as \"VAL\"," +
+      "created_at as \"CREATED_AT\" " +
+      " from properties");
+    assertThat(rows).hasSize(1);
+
+    Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(MoreCollectors.uniqueIndex(t -> (String) t.get("PROP_KEY")));
+    verifyProperty(rowsByKey, "sonar.forceAuthentication", "true");
+  }
+
+  private static void verifyProperty(Map<String, Map<String, Object>> rowsByKey, String key, String val) {
+    Map<String, Object> row = rowsByKey.get(key);
+    assertThat(row)
+      .containsEntry("PROP_KEY", key)
+      .containsEntry("EMPTY", false)
+      .containsEntry("VAL", val)
+      .containsEntry("CREATED_AT", NOW);
   }
 
   private void verifyRolesOfAdminsGroup() {

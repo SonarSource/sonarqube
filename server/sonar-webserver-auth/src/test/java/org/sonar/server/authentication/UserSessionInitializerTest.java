@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import org.sonar.server.authentication.event.AuthenticationEvent.Provider;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
@@ -41,11 +42,12 @@ import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class UserSessionInitializerTest {
@@ -111,18 +113,28 @@ public class UserSessionInitializerTest {
     ArgumentCaptor<AuthenticationException> exceptionArgumentCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
     when(threadLocalSession.isLoggedIn()).thenReturn(false);
     when(authenticator.authenticate(request, response)).thenReturn(new AnonymousMockUserSession());
-    settings.setProperty("sonar.forceAuthentication", true);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verifyZeroInteractions(response);
+    verifyNoMoreInteractions(response);
     verify(authenticationEvent).loginFailure(eq(request), exceptionArgumentCaptor.capture());
-    verifyZeroInteractions(threadLocalSession);
+    verifyNoMoreInteractions(threadLocalSession);
     AuthenticationException authenticationException = exceptionArgumentCaptor.getValue();
     assertThat(authenticationException.getSource()).isEqualTo(Source.local(Method.BASIC));
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getMessage()).isEqualTo("User must be authenticated");
     assertThat(authenticationException.getPublicMessage()).isNull();
+  }
+
+  @Test
+  public void does_not_return_code_401_when_not_authenticated_and_with_force_authentication_off() {
+    when(threadLocalSession.isLoggedIn()).thenReturn(false);
+    when(authenticator.authenticate(request, response)).thenReturn(new AnonymousMockUserSession());
+    settings.setProperty("sonar.forceAuthentication", false);
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verifyNoMoreInteractions(response);
   }
 
   @Test
@@ -135,7 +147,7 @@ public class UserSessionInitializerTest {
 
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(request, authenticationException);
-    verifyZeroInteractions(threadLocalSession);
+    verifyNoMoreInteractions(threadLocalSession);
   }
 
   @Test
@@ -147,7 +159,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
-    verifyZeroInteractions(threadLocalSession);
+    verifyNoMoreInteractions(threadLocalSession);
   }
 
   @Test
@@ -184,7 +196,7 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verifyZeroInteractions(threadLocalSession, authenticator);
+    verifyNoMoreInteractions(threadLocalSession, authenticator);
     reset(threadLocalSession, authenticator);
   }
 

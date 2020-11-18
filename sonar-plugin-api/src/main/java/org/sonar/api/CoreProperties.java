@@ -197,7 +197,7 @@ public interface CoreProperties {
   /* Sonar Core */
 
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
-  boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
+  boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = true;
 
   /**
    * @deprecated since 2.14. See http://jira.sonarsource.com/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.

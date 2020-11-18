@@ -37,6 +37,7 @@ import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
@@ -91,7 +92,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   }
 
   private boolean getForceAuthentication() {
-    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
+    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
   }
 
   private static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {

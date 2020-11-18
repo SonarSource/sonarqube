@@ -64,6 +64,7 @@ public class PopulateInitialSchema extends DataChange {
     insertOrganization(context, organizationUuid, groups, defaultQGUuid);
     insertOrgQualityGate(context, organizationUuid, defaultQGUuid);
     insertInternalProperty(context, organizationUuid);
+    insertPropertyToEnableForceAuthentication(context);
     insertGroupRoles(context, organizationUuid, groups);
     insertGroupUsers(context, adminUserId, groups);
     insertOrganizationMember(context, adminUserId, organizationUuid);
@@ -148,6 +149,22 @@ public class PopulateInitialSchema extends DataChange {
       .setString(3, sonarRuntime.getApiVersion().toString())
       .setLong(4, now)
       .addBatch();
+    upsert
+      .execute()
+      .commit();
+  }
+
+  private void insertPropertyToEnableForceAuthentication(Context context) throws SQLException {
+    String tableName = "properties";
+    truncateTable(context, tableName);
+
+    long now = system2.now();
+    Upsert upsert = context.prepareUpsert(createInsertStatement(tableName, "prop_key", "is_empty", "text_value", "created_at"));
+    upsert
+      .setString(1, "sonar.forceAuthentication")
+      .setBoolean(2, false)
+      .setString(3, "true")
+      .setLong(4, now);
     upsert
       .execute()
       .commit();

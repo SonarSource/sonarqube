@@ -39,7 +39,8 @@ class SecurityProperties {
         .name("Force user authentication")
         .description(
           "Forcing user authentication prevents anonymous users from accessing the SonarQube UI, or project data via the Web API. "
-            + "Some specific read-only Web APIs, including those required to prompt authentication, are still available anonymously.")
+            + "Some specific read-only Web APIs, including those required to prompt authentication, are still available anonymously."
+            + "<br><strong>Disabling this setting can expose the instance to security risks.</strong>")
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build());
