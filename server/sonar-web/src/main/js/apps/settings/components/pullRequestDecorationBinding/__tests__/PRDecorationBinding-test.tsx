@@ -120,13 +120,20 @@ describe('handleSubmit', () => {
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
     const azureKey = 'azure';
-    wrapper.setState({ formData: { key: azureKey }, instances });
+    const repository = 'az-rep';
+    const slug = 'az-project';
+    wrapper.setState({
+      formData: { key: azureKey, repository, slug },
+      instances
+    });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
     expect(setProjectAzureBinding).toBeCalledWith({
       almSetting: azureKey,
-      project: PROJECT_KEY
+      project: PROJECT_KEY,
+      projectName: slug,
+      repositoryName: repository
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -212,6 +219,33 @@ it('should handle field changes', async () => {
   });
 });
 
+it('should reject submitted azure settings', async () => {
+  const wrapper = shallowRender();
+
+  expect.assertions(2);
+  await expect(
+    wrapper.instance().submitProjectAlmBinding(AlmKeys.Azure, 'azure-binding', { slug: 'project' })
+  ).rejects.toBeUndefined();
+  await expect(
+    wrapper
+      .instance()
+      .submitProjectAlmBinding(AlmKeys.Azure, 'azure-binding', { repository: 'repo' })
+  ).rejects.toBeUndefined();
+});
+
+it('should accept submit azure settings', async () => {
+  const wrapper = shallowRender();
+  await wrapper
+    .instance()
+    .submitProjectAlmBinding(AlmKeys.Azure, 'azure', { repository: 'az-repo', slug: 'az-project' });
+  expect(setProjectAzureBinding).toHaveBeenCalledWith({
+    almSetting: 'azure',
+    project: PROJECT_KEY,
+    repositoryName: 'az-repo',
+    projectName: 'az-project'
+  });
+});
+
 it('should reject submit github settings', async () => {
   const wrapper = shallowRender();
 
@@ -262,7 +296,11 @@ it('should validate form', async () => {
     ]
   });
 
-  expect(wrapper.instance().validateForm({ key: 'azure' })).toBe(true);
+  expect(wrapper.instance().validateForm({ key: 'azure', repository: 'rep' })).toBe(false);
+  expect(wrapper.instance().validateForm({ key: 'azure', slug: 'project' })).toBe(false);
+  expect(
+    wrapper.instance().validateForm({ key: 'azure', repository: 'repo', slug: 'project' })
+  ).toBe(true);
 
   expect(wrapper.instance().validateForm({ key: 'github', repository: '' })).toBe(false);
   expect(wrapper.instance().validateForm({ key: 'github', repository: 'asdf' })).toBe(true);

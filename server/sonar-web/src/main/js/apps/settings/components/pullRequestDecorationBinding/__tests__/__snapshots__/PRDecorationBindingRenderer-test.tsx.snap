@@ -411,72 +411,16 @@ exports[`should render multiple instances correctly 2`] = `
         valueRenderer={[Function]}
       />
     </div>
-    <div
-      className="form-field"
-    >
-      <label
-        className="display-flex-center"
-        htmlFor="github.repository"
-      >
-        settings.pr_decoration.binding.form.github.repository
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <FormattedMessage
-              defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
-              id="settings.pr_decoration.binding.form.github.repository.help"
-              values={
-                Object {
-                  "example": "SonarSource/sonarqube",
-                }
-              }
-            />
-          }
-          placement="right"
-        />
-      </label>
-      <input
-        className="input-super-large"
-        id="github.repository"
-        maxLength={256}
-        name="github.repository"
-        onChange={[Function]}
-        type="text"
-        value="account/repo"
-      />
-    </div>
-    <div
-      className="form-field"
-    >
-      <label
-        className="display-flex-center"
-        htmlFor="github.summary_comment_setting"
-      >
-        settings.pr_decoration.binding.form.github.summary_comment_setting
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <FormattedMessage
-              defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-              id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-              values={Object {}}
-            />
-          }
-          placement="right"
-        />
-      </label>
-      <InputForBoolean
-        isDefault={true}
-        name="github.summary_comment_setting"
-        onChange={[Function]}
-        value={true}
-      />
-    </div>
+    <AlmSpecificForm
+      alm="github"
+      formData={
+        Object {
+          "key": "i1",
+          "repository": "account/repo",
+        }
+      }
+      onFieldChange={[MockFunction]}
+    />
     <div
       className="display-flex-center"
     >
@@ -497,26 +441,6 @@ exports[`should render multiple instances correctly 2`] = `
     </div>
   </form>
 </div>
-`;
-
-exports[`should render optional fields correctly 1`] = `
-<label
-  className="display-flex-center"
-  htmlFor="github.summary_comment_setting"
->
-  settings.pr_decoration.binding.form.github.summary_comment_setting
-  <HelpTooltip
-    className="spacer-left"
-    overlay={
-      <FormattedMessage
-        defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-        id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-        values={Object {}}
-      />
-    }
-    placement="right"
-  />
-</label>
 `;
 
 exports[`should render select options correctly 1`] = `

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { HttpStatus } from 'sonar-ui-common/helpers/request';
 import {
   deleteProjectAlmBinding,
   getAlmSettings,
@@ -56,7 +57,7 @@ interface State {
 const REQUIRED_FIELDS_BY_ALM: {
   [almKey in AlmKeys]: Array<keyof T.Omit<FormData, 'key'>>;
 } = {
-  [AlmKeys.Azure]: [],
+  [AlmKeys.Azure]: ['repository', 'slug'],
   [AlmKeys.Bitbucket]: ['repository', 'slug'],
   [AlmKeys.GitHub]: ['repository'],
   [AlmKeys.GitLab]: ['repository']
@@ -112,7 +113,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
 
   getProjectBinding(project: string): Promise<ProjectAlmBindingResponse | undefined> {
     return getProjectAlmBinding(project).catch((response: Response) => {
-      if (response && response.status === 404) {
+      if (response && response.status === HttpStatus.NotFound) {
         return undefined;
       }
       return throwGlobalError(response);
@@ -156,11 +157,19 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     const project = this.props.component.key;
 
     switch (alm) {
-      case AlmKeys.Azure:
+      case AlmKeys.Azure: {
+        const projectName = almSpecificFields?.slug;
+        const repositoryName = almSpecificFields?.repository;
+        if (!projectName || !repositoryName) {
+          return Promise.reject();
+        }
         return setProjectAzureBinding({
           almSetting,
-          project
+          project,
+          projectName,
+          repositoryName
         });
+      }
       case AlmKeys.Bitbucket: {
         if (!almSpecificFields) {
           return Promise.reject();

@@ -1,0 +1,269 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it should render correctly for azure 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="azure.project"
+    >
+      settings.pr_decoration.binding.form.azure.project
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
+            id="settings.pr_decoration.binding.form.azure.project.help"
+            values={Object {}}
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="azure.project"
+      maxLength={256}
+      name="azure.project"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="azure.repository"
+    >
+      settings.pr_decoration.binding.form.azure.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
+            id="settings.pr_decoration.binding.form.azure.repository.help"
+            values={Object {}}
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="azure.repository"
+      maxLength={256}
+      name="azure.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for bitbucket 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="bitbucket.repository"
+    >
+      settings.pr_decoration.binding.form.bitbucket.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
+            id="settings.pr_decoration.binding.form.bitbucket.repository.help"
+            values={
+              Object {
+                "example": <React.Fragment>
+                  .../projects/
+                  <strong>
+                    {KEY}
+                  </strong>
+                  /repos/{SLUG}/browse
+                </React.Fragment>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="bitbucket.repository"
+      maxLength={256}
+      name="bitbucket.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="bitbucket.slug"
+    >
+      settings.pr_decoration.binding.form.bitbucket.slug
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
+            id="settings.pr_decoration.binding.form.bitbucket.slug.help"
+            values={
+              Object {
+                "example": <React.Fragment>
+                  .../projects/{KEY}/repos/
+                  <strong>
+                    {SLUG}
+                  </strong>
+                  /browse
+                </React.Fragment>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="bitbucket.slug"
+      maxLength={256}
+      name="bitbucket.slug"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for github 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="github.repository"
+    >
+      settings.pr_decoration.binding.form.github.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+            id="settings.pr_decoration.binding.form.github.repository.help"
+            values={
+              Object {
+                "example": "SonarSource/sonarqube",
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="github.repository"
+      maxLength={256}
+      name="github.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="github.summary_comment_setting"
+    >
+      settings.pr_decoration.binding.form.github.summary_comment_setting
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+            id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+            values={Object {}}
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <InputForBoolean
+      isDefault={true}
+      name="github.summary_comment_setting"
+      onChange={[Function]}
+      value={true}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for gitlab 1`] = `
+<div
+  className="form-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="gitlab.repository"
+  >
+    settings.pr_decoration.binding.form.gitlab.repository
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <input
+    className="input-super-large"
+    id="gitlab.repository"
+    maxLength={256}
+    name="gitlab.repository"
+    onChange={[Function]}
+    type="text"
+    value=""
+  />
+</div>
+`;

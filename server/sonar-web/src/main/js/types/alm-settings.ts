@@ -82,7 +82,10 @@ export interface ProjectAlmBindingParams {
   project: string;
 }
 
-export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {}
+export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {
+  projectName: string;
+  repositoryName: string;
+}
 
 export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
