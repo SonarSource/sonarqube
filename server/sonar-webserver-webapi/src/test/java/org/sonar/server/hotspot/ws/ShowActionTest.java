@@ -130,8 +130,8 @@ public class ShowActionTest {
   }
 
   @Test
-  public void ws_is_internal() {
-    assertThat(actionTester.getDef().isInternal()).isTrue();
+  public void ws_is_public() {
+    assertThat(actionTester.getDef().isInternal()).isFalse();
   }
 
   @Test
@@ -911,6 +911,7 @@ public class ShowActionTest {
       .setAuthorLogin("joe")
       .setMessage("message")
       .setLine(10)
+      .setChecksum("a227e508d6646b55a086ee11d63b21e9")
       .setIssueCreationTime(time)
       .setIssueUpdateTime(time)
       .setAuthorLogin(author.getLogin())

@@ -53,6 +53,7 @@ import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
@@ -91,8 +92,7 @@ public class ShowAction implements HotspotsWsAction {
       .createAction("show")
       .setHandler(this)
       .setDescription("Provides the details of a Security Hotspot.")
-      .setSince("8.1")
-      .setInternal(true);
+      .setSince("8.1");
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
@@ -144,6 +144,7 @@ public class ShowAction implements HotspotsWsAction {
     ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
     ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
     ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
+    ofNullable(emptyToNull(hotspot.getChecksum())).ifPresent(builder::setHash);
     builder.setMessage(nullToEmpty(hotspot.getMessage()));
     builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));

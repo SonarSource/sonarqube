@@ -58,6 +58,7 @@ message ShowWsResponse {
   optional string status = 5;
   optional string resolution = 6;
   optional int32 line = 7;
+  optional string hash = 18;
   optional string message = 8;
   optional string assignee = 9;
   optional string author = 10;
