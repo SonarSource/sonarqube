@@ -22,6 +22,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmBindingDefinition, AlmKeys, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import GitLabCITutorial from './gitlabci/GitLabCITutorial';
 import JenkinsTutorial from './jenkins/JenkinsTutorial';
 import ManualTutorial from './manual/ManualTutorial';
@@ -74,6 +75,22 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               </button>
             )}
 
+            {projectBinding?.alm === AlmKeys.Azure && (
+              <button
+                className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+                onClick={() => props.onSelectTutorial(TutorialModes.AzurePipelines)}
+                type="button">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  height={80}
+                  src={`${getBaseUrl()}/images/alm/azure.svg`}
+                />
+                <div className="medium big-spacer-top">
+                  {translate('onboarding.tutorial.choose_method.azure_pipelines')}
+                </div>
+              </button>
+            )}
+
             {jenkinsAvailable && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
@@ -121,6 +138,14 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial === TutorialModes.GitLabCI && projectBinding !== undefined && (
         <GitLabCITutorial
+          component={component}
+          currentUser={currentUser}
+          projectBinding={projectBinding}
+        />
+      )}
+
+      {selectedTutorial === TutorialModes.AzurePipelines && projectBinding !== undefined && (
+        <AzurePipelinesTutorial
           component={component}
           currentUser={currentUser}
           projectBinding={projectBinding}

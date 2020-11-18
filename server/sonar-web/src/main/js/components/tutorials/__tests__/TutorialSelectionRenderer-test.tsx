@@ -23,6 +23,7 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockBitbucketBindingDefinition,
+  mockProjectAzureBindingResponse,
   mockProjectBitbucketBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
@@ -53,6 +54,12 @@ it('should render correctly', () => {
       projectBinding: mockProjectGitLabBindingResponse()
     })
   ).toMatchSnapshot('gitlab tutorial');
+  expect(
+    shallowRender({
+      selectedTutorial: TutorialModes.AzurePipelines,
+      projectBinding: mockProjectAzureBindingResponse()
+    })
+  ).toMatchSnapshot('azure pipelines tutorial');
 });
 
 it('should allow mode selection', () => {
@@ -78,6 +85,17 @@ it('should allow gitlab selection', () => {
 
   click(wrapper.find('button.tutorial-mode-gitlab'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitLabCI);
+});
+
+it('should allow azure pipelines selection', () => {
+  const onSelectTutorial = jest.fn();
+  const wrapper = shallowRender({
+    onSelectTutorial,
+    projectBinding: mockProjectAzureBindingResponse()
+  });
+
+  click(wrapper.find('button.azure-pipelines'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.AzurePipelines);
 });
 
 function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {

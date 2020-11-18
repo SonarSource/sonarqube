@@ -27,6 +27,7 @@ import {
   GithubBindingDefinition,
   GitlabBindingDefinition,
   ProjectAlmBindingResponse,
+  ProjectAzureBindingResponse,
   ProjectBitbucketBindingResponse,
   ProjectGitHubBindingResponse,
   ProjectGitLabBindingResponse
@@ -128,6 +129,19 @@ export function mockProjectGitLabBindingResponse(
     key: 'foo',
     repository: 'PROJECT_KEY',
     url: 'https://gitlab.com/api/v4',
+    ...overrides
+  };
+}
+
+export function mockProjectAzureBindingResponse(
+  overrides: Partial<ProjectAzureBindingResponse> = {}
+): ProjectAzureBindingResponse {
+  return {
+    alm: AlmKeys.Azure,
+    key: 'foo',
+    slug: 'PROJECT_NAME',
+    repository: 'REPOSITORY_NAME',
+    url: 'https://ado.my_company.com/mycollection',
     ...overrides
   };
 }

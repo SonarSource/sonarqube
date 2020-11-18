@@ -22,12 +22,10 @@ import { FormattedMessage } from 'react-intl';
 import { Button, ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  isBitbucketBindingDefinition,
-  isGithubBindingDefinition
-} from '../../../helpers/alm-settings';
-import {
   AlmBindingDefinition,
   AlmKeys,
+  isBitbucketBindingDefinition,
+  isGithubBindingDefinition,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import Step from '../components/Step';

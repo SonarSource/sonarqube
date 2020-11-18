@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span>
+  <FormattedMessage
+    defaultMessage="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence"
+    id="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence"
+    values={
+      Object {
+        "button": <strong>
+          onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button
+        </strong>,
+        "link": <a
+          href="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link
+        </a>,
+      }
+    }
+  />
+</span>
+`;

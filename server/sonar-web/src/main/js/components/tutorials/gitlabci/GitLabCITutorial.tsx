@@ -20,8 +20,10 @@
 import * as React from 'react';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isProjectGitLabBindingResponse } from '../../../helpers/alm-settings';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import {
+  isProjectGitLabBindingResponse,
+  ProjectAlmBindingResponse
+} from '../../../types/alm-settings';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import ProjectKeyStep from './ProjectKeyStep';
 import { BuildTools } from './types';

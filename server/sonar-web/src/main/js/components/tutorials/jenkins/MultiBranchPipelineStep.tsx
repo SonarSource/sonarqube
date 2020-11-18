@@ -21,12 +21,10 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
+  AlmBindingDefinition,
   isGithubBindingDefinition,
   isProjectBitbucketBindingResponse,
-  isProjectGitHubBindingResponse
-} from '../../../helpers/alm-settings';
-import {
-  AlmBindingDefinition,
+  isProjectGitHubBindingResponse,
   ProjectBitbucketBindingResponse,
   ProjectGitHubBindingResponse
 } from '../../../types/alm-settings';

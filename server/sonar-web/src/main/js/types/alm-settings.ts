@@ -60,6 +60,13 @@ export interface ProjectAlmBindingResponse {
   summaryCommentEnabled?: boolean;
 }
 
+export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
+  alm: AlmKeys.Azure;
+  repository: string;
+  slug: string;
+  url: string;
+}
+
 export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.Bitbucket;
   repository: string;
@@ -125,4 +132,47 @@ export enum AlmSettingsBindingStatusType {
   Success,
   Failure,
   Warning
+}
+
+export function isProjectBitbucketBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectBitbucketBindingResponse {
+  return binding.alm === AlmKeys.Bitbucket;
+}
+
+export function isProjectGitHubBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectGitHubBindingResponse {
+  return binding.alm === AlmKeys.GitHub;
+}
+
+export function isProjectGitLabBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectGitLabBindingResponse {
+  return binding.alm === AlmKeys.GitLab;
+}
+
+export function isProjectAzureBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectAzureBindingResponse {
+  return binding.alm === AlmKeys.Azure;
+}
+
+export function isBitbucketBindingDefinition(
+  binding?: AlmBindingDefinition & { url?: string; personalAccessToken?: string }
+): binding is BitbucketBindingDefinition {
+  return (
+    binding !== undefined && binding.url !== undefined && binding.personalAccessToken !== undefined
+  );
+}
+
+export function isGithubBindingDefinition(
+  binding?: AlmBindingDefinition & { appId?: string; privateKey?: string; url?: string }
+): binding is GithubBindingDefinition {
+  return (
+    binding !== undefined &&
+    binding.appId !== undefined &&
+    binding.privateKey !== undefined &&
+    binding.url !== undefined
+  );
 }

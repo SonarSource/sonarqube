@@ -17,26 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci',
-  AzurePipelines = 'azure-pipelines'
-}
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import SaveAndRunStepContent from '../SaveAndRunStepContent';
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
-}
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
 
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other; os?: OSs };
+function shallowRender() {
+  return shallow(<SaveAndRunStepContent />);
+}

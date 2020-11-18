@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <div
+    className="page-header big-spacer-bottom"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.tutorial.with.azure_pipelines.title
+    </h1>
+  </div>
+  <Step
+    finished={false}
+    key="0"
+    onOpen={[Function]}
+    open={true}
+    renderForm={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title"
+  />
+  <Step
+    finished={false}
+    key="1"
+    onOpen={[Function]}
+    open={false}
+    renderForm={[Function]}
+    stepNumber={2}
+    stepTitle="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title"
+  />
+  <Step
+    finished={false}
+    key="2"
+    onOpen={[Function]}
+    open={false}
+    renderForm={[Function]}
+    stepNumber={3}
+    stepTitle="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title"
+  />
+  <Step
+    finished={false}
+    key="3"
+    onOpen={[Function]}
+    open={false}
+    renderForm={[Function]}
+    stepNumber={4}
+    stepTitle="onboarding.tutorial.with.azure_pipelines.SaveAndRun.title"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: first-step-wrapper 1`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    1
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title
+    </h2>
+  </div>
+  <div
+    className=""
+  >
+    <div
+      className="boxed-group-inner"
+    >
+      <div>
+        <ExtensionInstallationStepContent />
+      </div>
+      <Button
+        className="big-spacer-top spacer-bottom"
+        onClick={[Function]}
+      >
+        continue
+      </Button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: last-step-wrapper 1`] = `
+<div
+  className="boxed-group onboarding-step"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    4
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.tutorial.with.azure_pipelines.SaveAndRun.title
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  />
+  <div
+    className="hidden"
+  >
+    <div
+      className="boxed-group-inner"
+    >
+      <div>
+        <SaveAndRunStepContent />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: wrong alm 1`] = `
+<Alert
+  variant="error"
+>
+  onboarding.tutorial.with.azure_pipelines.unsupported
+</Alert>
+`;

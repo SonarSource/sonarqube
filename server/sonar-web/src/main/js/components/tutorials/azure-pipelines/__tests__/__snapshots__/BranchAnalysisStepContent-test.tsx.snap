@@ -1,0 +1,613 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: dotnet 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    checked="dotnet"
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "pipeline",
+            "task",
+            "before",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+      />
+    </li>
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "endpoint",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          values={
+            Object {
+              "run_analysis_value": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values.dotnet
+              </strong>,
+              "section": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
+          values={
+            Object {
+              "button": <ClipboardIconButton
+                copyValue="my-project"
+              />,
+              "key": <code
+                className="rule"
+              >
+                my-project
+              </code>,
+            }
+          }
+        />
+      </li>
+    </ul>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+            "after",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg"
+      />
+      <Alert
+        className="spacer-top"
+        variant="info"
+      >
+        onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1
+      </Alert>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+            "continuous_integration",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration"
+      />
+    </li>
+    <hr />
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link
+          </Link>,
+        }
+      }
+    />
+  </ol>
+</Fragment>
+`;
+
+exports[`should render correctly: gradle 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    checked="gradle"
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "pipeline",
+            "task",
+            "before",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+      />
+    </li>
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "endpoint",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          values={
+            Object {
+              "run_analysis_value": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values.gradle
+              </strong>,
+              "section": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "section",
+              "properties",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.advanced_properties"
+        />
+        :
+        <CodeSnippet
+          snippet="# Additional properties that will be passed to the scanner,
+# Put one key=value per line, example:
+# sonar.exclusions=**/*.bin
+sonar.projectKey=my-project"
+        />
+      </li>
+    </ul>
+    <li>
+      onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.onboarding.build.gradle
+    </li>
+    <ul
+      className="list-styled big-spacer-bottom"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "section",
+              "option",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
+        />
+      </li>
+    </ul>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg"
+      />
+      <Alert
+        className="spacer-top"
+        variant="info"
+      >
+        onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1
+      </Alert>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+            "continuous_integration",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration"
+      />
+    </li>
+    <hr />
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link
+          </Link>,
+        }
+      }
+    />
+  </ol>
+</Fragment>
+`;
+
+exports[`should render correctly: maven 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    checked="maven"
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "pipeline",
+            "task",
+            "before",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+      />
+    </li>
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "endpoint",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          values={
+            Object {
+              "run_analysis_value": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values.maven
+              </strong>,
+              "section": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "section",
+              "properties",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.advanced_properties"
+        />
+        :
+        <CodeSnippet
+          snippet="# Additional properties that will be passed to the scanner,
+# Put one key=value per line, example:
+# sonar.exclusions=**/*.bin
+sonar.projectKey=my-project"
+        />
+      </li>
+    </ul>
+    <li>
+      onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.onboarding.build.maven
+    </li>
+    <ul
+      className="list-styled big-spacer-bottom"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "section",
+              "option",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
+        />
+      </li>
+    </ul>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg"
+      />
+      <Alert
+        className="spacer-top"
+        variant="info"
+      >
+        onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1
+      </Alert>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+            "continuous_integration",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration"
+      />
+    </li>
+    <hr />
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link
+          </Link>,
+        }
+      }
+    />
+  </ol>
+</Fragment>
+`;
+
+exports[`should render correctly: other 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    checked="other"
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "pipeline",
+            "task",
+            "before",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
+      />
+    </li>
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "endpoint",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
+          values={
+            Object {
+              "run_analysis_value": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values.other
+              </strong>,
+              "section": <strong>
+                onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "mode",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.manual"
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
+          id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
+          values={
+            Object {
+              "button": <ClipboardIconButton
+                copyValue="my-project"
+              />,
+              "key": <code
+                className="rule"
+              >
+                my-project
+              </code>,
+            }
+          }
+        />
+      </li>
+    </ul>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+            "after",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "task",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg"
+      />
+      <Alert
+        className="spacer-top"
+        variant="info"
+      >
+        onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1
+      </Alert>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+            "continuous_integration",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration"
+      />
+    </li>
+    <hr />
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link
+          </Link>,
+        }
+      }
+    />
+  </ol>
+</Fragment>
+`;

@@ -21,13 +21,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  isProjectBitbucketBindingResponse,
-  isProjectGitHubBindingResponse
-} from '../../../helpers/alm-settings';
 import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
-import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import {
+  AlmBindingDefinition,
+  isProjectBitbucketBindingResponse,
+  isProjectGitHubBindingResponse,
+  ProjectAlmBindingResponse
+} from '../../../types/alm-settings';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
