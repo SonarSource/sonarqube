@@ -24,9 +24,12 @@ import { Link } from 'react-router';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Radio from 'sonar-ui-common/components/controls/Radio';
+import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { colors } from '../../../app/theme';
+import { getProjectUrl } from '../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 
@@ -56,6 +59,9 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
 
   const [page, setPage] = React.useState(1);
   const limitedRepositories = repositories.slice(0, page * PAGE_SIZE);
+
+  const isSelected = (repo: AzureRepository) =>
+    selectedRepository?.projectName === project.key && selectedRepository.name === repo.name;
 
   return (
     <BoxedGroupAccordion
@@ -90,19 +96,36 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
             <>
               <div className="display-flex-wrap">
                 {limitedRepositories.map(repo => (
-                  <Radio
-                    checked={selectedRepository?.name === repo.name}
-                    className={classNames(
-                      'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
-                      importing && ['disabled', 'text-muted', 'link-no-underline']
+                  <div
+                    className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+                    key={repo.name}>
+                    {repo.sqProjectKey ? (
+                      <>
+                        <CheckIcon className="spacer-right" fill={colors.green} size={14} />
+                        <div className="overflow-hidden">
+                          <div className="little-spacer-bottom text-ellipsis">
+                            <strong title={repo.sqProjectName}>
+                              <Link to={getProjectUrl(repo.sqProjectKey)}>
+                                {repo.sqProjectName}
+                              </Link>
+                            </strong>
+                          </div>
+                          <em>{translate('onboarding.create_project.repository_imported')}</em>
+                        </div>
+                      </>
+                    ) : (
+                      <Radio
+                        checked={isSelected(repo)}
+                        className="overflow-hidden"
+                        disabled={importing}
+                        onCheck={() => props.onSelectRepository(repo)}
+                        value={repo.name}>
+                        <strong className="text-ellipsis" title={repo.name}>
+                          {repo.name}
+                        </strong>
+                      </Radio>
                     )}
-                    key={repo.name}
-                    onCheck={() => !importing && props.onSelectRepository(repo)}
-                    value={repo.name}>
-                    <strong className="text-ellipsis" title={repo.name}>
-                      {repo.name}
-                    </strong>
-                  </Radio>
+                  </div>
                 ))}
               </div>
               <ListFooter

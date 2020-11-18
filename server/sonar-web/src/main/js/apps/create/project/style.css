@@ -34,6 +34,11 @@
   justify-content: space-between;
 }
 
+.create-project-azdo-repo {
+  width: 250px;
+  min-height: 40px;
+}
+
 .create-project-import-bbs .open .boxed-group-header {
   border-bottom: 1px solid var(--barBorderColor);
 }

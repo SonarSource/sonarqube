@@ -30,20 +30,25 @@ exports[`should render correctly: importing 1`] = `
     <div
       className="display-flex-wrap"
     >
-      <Radio
-        checked={false}
-        className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden disabled text-muted link-no-underline"
+      <div
+        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
         key="Azure repo 1"
-        onCheck={[Function]}
-        value="Azure repo 1"
       >
-        <strong
-          className="text-ellipsis"
-          title="Azure repo 1"
+        <Radio
+          checked={false}
+          className="overflow-hidden"
+          disabled={true}
+          onCheck={[Function]}
+          value="Azure repo 1"
         >
-          Azure repo 1
-        </strong>
-      </Radio>
+          <strong
+            className="text-ellipsis"
+            title="Azure repo 1"
+          >
+            Azure repo 1
+          </strong>
+        </Radio>
+      </div>
     </div>
     <ListFooter
       count={1}
@@ -80,7 +85,7 @@ exports[`should render correctly: loading 1`] = `
 </BoxedGroupAccordion>
 `;
 
-exports[`should render correctly: with a repository 1`] = `
+exports[`should render correctly: with repositories 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
   onClick={[Function]}
@@ -97,25 +102,70 @@ exports[`should render correctly: with a repository 1`] = `
     <div
       className="display-flex-wrap"
     >
-      <Radio
-        checked={false}
-        className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
+      <div
+        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
         key="Azure repo 1"
-        onCheck={[Function]}
-        value="Azure repo 1"
       >
-        <strong
-          className="text-ellipsis"
-          title="Azure repo 1"
+        <Radio
+          checked={false}
+          className="overflow-hidden"
+          disabled={false}
+          onCheck={[Function]}
+          value="Azure repo 1"
         >
-          Azure repo 1
-        </strong>
-      </Radio>
+          <strong
+            className="text-ellipsis"
+            title="Azure repo 1"
+          >
+            Azure repo 1
+          </strong>
+        </Radio>
+      </div>
+      <div
+        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+        key="Azure repo 1"
+      >
+        <CheckIcon
+          className="spacer-right"
+          fill="#00aa00"
+          size={14}
+        />
+        <div
+          className="overflow-hidden"
+        >
+          <div
+            className="little-spacer-bottom text-ellipsis"
+          >
+            <strong
+              title="SQ Name"
+            >
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "sq-key",
+                    },
+                  }
+                }
+              >
+                SQ Name
+              </Link>
+            </strong>
+          </div>
+          <em>
+            onboarding.create_project.repository_imported
+          </em>
+        </div>
+      </div>
     </div>
     <ListFooter
-      count={1}
+      count={2}
       loadMore={[Function]}
-      total={1}
+      total={2}
     />
   </DeferredSpinner>
 </BoxedGroupAccordion>

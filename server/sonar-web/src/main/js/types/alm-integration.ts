@@ -26,6 +26,8 @@ export interface AzureProject {
 export interface AzureRepository {
   name: string;
   projectName: string;
+  sqProjectKey?: string;
+  sqProjectName?: string;
 }
 
 export interface BitbucketProject {

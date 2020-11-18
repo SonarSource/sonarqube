@@ -21,15 +21,22 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
+import { mockEvent } from '../../../../helpers/testMocks';
 import AzureProjectAccordion, { AzureProjectAccordionProps } from '../AzureProjectAccordion';
 
 it('should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
   expect(shallowRender({ startsOpen: false })).toMatchSnapshot('closed');
-  expect(shallowRender({ repositories: [mockAzureRepository()] })).toMatchSnapshot(
-    'with a repository'
-  );
+  expect(
+    shallowRender({
+      repositories: [
+        mockAzureRepository(),
+        mockAzureRepository({ sqProjectKey: 'sq-key', sqProjectName: 'SQ Name' })
+      ]
+    })
+  ).toMatchSnapshot('with repositories');
   expect(shallowRender({ importing: true, repositories: [mockAzureRepository()] })).toMatchSnapshot(
     'importing'
   );
@@ -93,6 +100,19 @@ it('should close when clicked', () => {
       .children()
       .exists()
   ).toBe(false);
+});
+
+it('should trigger selection when repo is clicked', () => {
+  const onSelectRepository = jest.fn();
+  const repo = mockAzureRepository();
+  const wrapper = shallowRender({ onSelectRepository, repositories: [repo] });
+
+  wrapper
+    .find(Radio)
+    .props()
+    .onCheck(mockEvent());
+
+  expect(onSelectRepository).toBeCalledWith(repo);
 });
 
 function shallowRender(overrides: Partial<AzureProjectAccordionProps> = {}) {
