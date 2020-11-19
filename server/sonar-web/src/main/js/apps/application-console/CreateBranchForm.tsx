@@ -38,8 +38,8 @@ interface Props {
   branch?: ApplicationBranch;
   enabledProjectsKey: string[];
   onClose: () => void;
-  onCreate: (branch: ApplicationBranch) => void;
-  onUpdate: (name: string) => void;
+  onCreate?: (branch: ApplicationBranch) => void;
+  onUpdate?: (name: string) => void;
 }
 
 interface BranchesList {
@@ -54,6 +54,8 @@ interface State {
   selectedBranches: BranchesList;
 }
 
+const MAX_PROJECTS_HEIGHT = 220;
+const PROJECT_HEIGHT = 22;
 export default class CreateBranchForm extends React.PureComponent<Props, State> {
   mounted = false;
   node?: HTMLElement | null = null;
@@ -73,14 +75,14 @@ export default class CreateBranchForm extends React.PureComponent<Props, State> 
     const branch = this.props.branch ? this.props.branch.name : undefined;
     this.setState({ loading: true });
     getApplicationDetails(application.key, branch).then(
-      application => {
+      ({ projects }) => {
         if (this.mounted) {
-          const projects = application.projects.filter(p =>
+          const enabledProjects = projects.filter(p =>
             this.props.enabledProjectsKey.includes(p.key)
           );
-          const selected = projects.filter(p => p.selected).map(p => p.key);
+          const selected = enabledProjects.filter(p => p.selected).map(p => p.key);
           const selectedBranches: BranchesList = {};
-          projects.forEach(p => {
+          enabledProjects.forEach(p => {
             if (!p.enabled) {
               selectedBranches[p.key] = null;
             } else {
@@ -95,7 +97,7 @@ export default class CreateBranchForm extends React.PureComponent<Props, State> 
             name: branch || '',
             selected,
             loading: false,
-            projects,
+            projects: enabledProjects,
             selectedBranches
           });
         }
@@ -148,7 +150,9 @@ export default class CreateBranchForm extends React.PureComponent<Props, State> 
         project: projectKeys,
         projectBranch: projectBranches
       });
-      this.props.onUpdate(this.state.name);
+      if (this.props.onUpdate) {
+        this.props.onUpdate(this.state.name);
+      }
     } else {
       await addApplicationBranch({
         application: this.props.application.key,
@@ -156,7 +160,9 @@ export default class CreateBranchForm extends React.PureComponent<Props, State> 
         project: projectKeys,
         projectBranch: projectBranches
       });
-      this.props.onCreate({ name: this.state.name, isMain: false });
+      if (this.props.onCreate) {
+        this.props.onCreate({ name: this.state.name, isMain: false });
+      }
     }
     this.props.onClose();
   };
@@ -183,7 +189,7 @@ export default class CreateBranchForm extends React.PureComponent<Props, State> 
     if (this.node) {
       const modalTop = this.node.getBoundingClientRect().top;
       const modalHeight = this.node.offsetHeight;
-      const maxSelectHeight = Math.min(220, elementCount * 22 + 22);
+      const maxSelectHeight = Math.min(MAX_PROJECTS_HEIGHT, (elementCount + 1) * PROJECT_HEIGHT);
       const selectBottom = selectNode.getBoundingClientRect().top + maxSelectHeight;
       if (selectBottom > modalTop + modalHeight) {
         this.node.classList.add('inverted-direction');

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { orderBy } from 'lodash';
 import * as React from 'react';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import Select from 'sonar-ui-common/components/controls/Select';
@@ -58,11 +59,9 @@ export default class ProjectBranchRow extends React.PureComponent<Props, State> 
   }
 
   parseBranches = (branches: Array<ApplicationBranch>) => {
-    return branches
-      .sort((a, b) => (a.name < b.name ? -1 : 1))
-      .map(branch => {
-        return { value: branch.name, label: branch.name, isMain: branch.isMain };
-      });
+    return orderBy(branches, [b => b.isMain, b => b.name]).map(branch => {
+      return { value: branch.name, label: branch.name, isMain: branch.isMain };
+    });
   };
 
   setCurrentTarget = (event: React.FocusEvent<HTMLInputElement>) => {

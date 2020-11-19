@@ -111,7 +111,6 @@ export default class ApplicationBranches extends React.PureComponent<Props, Stat
             enabledProjectsKey={application.projects.map(p => p.key)}
             onClose={this.handleCreateFormClose}
             onCreate={this.handleCreate}
-            onUpdate={() => {}}
           />
         )}
       </div>

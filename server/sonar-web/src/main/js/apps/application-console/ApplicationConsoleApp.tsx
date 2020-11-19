@@ -39,7 +39,7 @@ interface State {
   loading: boolean;
 }
 
-export default class ApplicationView extends React.PureComponent<Props, State> {
+export default class ApplicationConsoleApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   state: State = {

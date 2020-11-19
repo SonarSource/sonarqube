@@ -135,7 +135,6 @@ exports[`should render correctly: creating branch 1`] = `
     }
     onClose={[Function]}
     onCreate={[Function]}
-    onUpdate={[Function]}
   />
 </div>
 `;

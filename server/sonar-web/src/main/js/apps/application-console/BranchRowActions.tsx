@@ -101,7 +101,6 @@ export default class BranchRowActions extends React.PureComponent<Props, State> 
               .filter(p => p.enabled)
               .map(p => p.key)}
             onClose={this.handleCloseForm}
-            onCreate={() => {}}
             onUpdate={this.handleUpdate}
           />
         )}
