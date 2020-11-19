@@ -51,8 +51,8 @@ To run SonarScanner from the zip file, follow these steps:
    ```
 If you need more debug information, you can add one of the following to your command line: `-X`, `--verbose`, or `-Dsonar.verbose=true`.
 
-1. Run the following command from the project base directory to launch the analysis:  
-`sonar-scanner`
+1. Run the following command from the project base directory to launch analysis and pass your [authentication token](/user-guide/user-token/):  
+`sonar-scanner -Dsonar.login=myAuthenticationToken`
 
 ## Running SonarScanner from the Docker image
 To scan using the SonarScanner Docker image, use the following command:
@@ -61,6 +61,7 @@ To scan using the SonarScanner Docker image, use the following command:
 docker run \
     --rm \
     -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
+    -e SONAR_LOGIN="myAuthenticationToken" \
     -v "${YOUR_REPO}:/usr/src" \
     sonarsource/sonar-scanner-cli
 ```
@@ -110,7 +111,7 @@ The following sections offer advanced configuration options when running the Son
 |     sonarsource/sonar-scanner-cli
 | ```
 | [[warning]]
-| |When running the container as a non-root user you have to make sure the user has read and write access to the directories you are mounting (like your source code or scanner cache directory), otherwise you may encounter permission related problems.  
+| |When running the container as a non-root user you have to make sure the user has read and write access to the directories you are mounting (like your source code or scanner cache directory), otherwise you may encounter permission-related problems.  
 
 [[collapse]]
 | ## Caching scanner files
@@ -168,7 +169,7 @@ Increase the memory via the `SONAR_SCANNER_OPTS` environment variable when runni
 ```
 export SONAR_SCANNER_OPTS="-Xmx512m"
 ```
-On Windows environments, avoid the double-quotes, since they get misinterpreted and combine the two parameters into a single one.
+In Windows environments, avoid the double-quotes, since they get misinterpreted and combine the two parameters into a single one.
 ```
 set SONAR_SCANNER_OPTS=-Xmx512m
 ```

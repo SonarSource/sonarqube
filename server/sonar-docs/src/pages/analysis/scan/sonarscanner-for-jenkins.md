@@ -21,11 +21,11 @@ Once the job is complete, the plugin will detect that a SonarQube analysis was m
 1. Configure your SonarQube server(s):
    1. Log into Jenkins as an administrator and go to **Manage Jenkins > Configure System**.
    1. Scroll down to the SonarQube configuration section, click **Add SonarQube**, and add the values you're prompted for.
-   1. The server authentication token should be created as a 'Secret Text' credential.
+   1. The server [authentication token](/user-guide/user-token/) should be created as a 'Secret Text' credential.
 
 ## Analyzing a .NET solution
 **Global Configuration**  
-This step is mandatory if you want to trigger any of your analyses with the SonarScanner for MSBuild. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose with which launcher to use to run the SonarQube analysis.
+This step is mandatory if you want to trigger any of your analyses with the SonarScanner for MSBuild. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose which launcher to use to run the SonarQube analysis.
 1. Log into Jenkins as an administrator and go to **Manage Jenkins > Global Tool Configuration**
 1. Click on **Add SonarScanner for MSBuild**
 1. Add an installation of the latest available version. Check **Install automatically** to have the SonarScanner for MSBuild automatically provisioned on your Jenkins executors
@@ -35,7 +35,7 @@ If you do not see any available version under Install from GitHub, first go to M
 **Job Configuration**  
 1. Configure the project, and go to the **Build** section.
 1. Add the SonarQube for MSBuild - Begin Analysis to your build
-1. Configure the SonarQube Project Key, Name and Version in the SonarScanner for MSBuild - Begin Analysis build step
+1. Configure the SonarQube Project Key, Name, and Version in the SonarScanner for MSBuild - Begin Analysis build step
 1. Add the MSBuild build step or the Execute Windows batch command to execute the build with MSBuild 14 (see compatibility) to your build.
 1. Add the SonarQube for MSBuild - End Analysis build steps to your build
 
@@ -63,12 +63,12 @@ In both cases, launching your analysis may require authentication. In that case,
 ## Analyzing other project types
 
 **Global Configuration**  
-This step is mandatory if you want to trigger any of your SonarQube analyses with the SonarScanner. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose with which launcher to use to run the SonarQube analysis.
+This step is mandatory if you want to trigger any of your SonarQube analyses with the SonarScanner. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose which launcher to use to run the SonarQube analysis.
 
 1. Log into Jenkins as an administrator and go to **Manage Jenkins > Global Tool Configuration**
 1. Scroll down to the SonarScanner configuration section and click on Add SonarScanner. It is based on the typical Jenkins tool auto-installation. You can either choose to point to an already installed version of SonarScanner (uncheck 'Install automatically') or tell Jenkins to grab the installer from a remote location (check 'Install automatically')
 
-If you don't see a drop down list with all available SonarScanner versions but instead see an empty text field then this is because Jenkins still hasn't downloaded the required update center file (default period is 1 day). You may force this refresh by clicking 'Check Now' button in Manage Plugins > Advanced tab.
+If you don't see a drop-down list with all available SonarScanner versions but instead see an empty text field then this is because Jenkins still hasn't downloaded the required update center file (default period is 1 day). You may force this refresh by clicking the 'Check Now' button in Manage Plugins > Advanced tab.
 
 **Job Configuration**  
 1. **Configure** the project, and go to the **Build** section. 
@@ -90,7 +90,7 @@ withSonarQubeEnv('My SonarQube Server', envOnly: true) {
 }
 ```
 
-Here are a some examples for every scanner, assuming you run on Unix slaves and you have configured a server named "My SonarQube Server" as well as required tools. If you run on Windows slaves, just replace `sh` with `bat`.
+Here are some examples for every scanner, assuming you run on Unix slaves and you have configured a server named "My SonarQube Server" as well as required tools. If you run on Windows slaves, just replace `sh` with `bat`.
 
 SonarScanner:
 ```
@@ -149,8 +149,8 @@ node {
 }
 ```
 
-## Pause pipeline until quality gate is computed
-The `waitForQualityGate` step will pause the pipeline until SonarQube analysis is completed and returns quality gate status.
+## Pause pipeline until the Quality Gate is computed
+The `waitForQualityGate` step will pause the pipeline until SonarQube analysis is completed and returns Quality Gate status.
 
 ### Pre-requisites:
 * Configure a webhook in your SonarQube server pointing to `<your Jenkins instance>/sonarqube-webhook/` 

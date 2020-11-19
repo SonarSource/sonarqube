@@ -27,8 +27,6 @@ You can evaluate SonarQube using a traditional installation with the [zip file](
 |    ```
 |
 |   ![](/images/info.svg) If your instance fails to start, check your [logs](/setup/troubleshooting/) to find the cause.
-|
-| 4. Log in to [http://localhost:9000](http://localhost:9000) using System Administrator credentials (login=admin, password=admin).
 
 [[collapse]]
 | ## From the Docker image
@@ -39,15 +37,15 @@ You can evaluate SonarQube using a traditional installation with the [zip file](
 | ```console
 | $ docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 | ```
-|
-| 2. Log in to [http://localhost:9000](http://localhost:9000) with System Administrator credentials (login=admin, password=admin).
+
+Once your instance is up and running, Log in to [http://localhost:9000](http://localhost:9000) using System Administrator credentials:
+- login: admin 
+- password: admin
 
 ## Analyzing a Project
 Now that you're logged in to your local SonarQube instance, let's analyze a project: 
 
 1. Click the **Create new project** button.
-
-1. When asked **How do you want to create your project**, select **Manually**.
 
 1. Give your project a **Project key** and a **Display name** and click the **Set Up** button.
 

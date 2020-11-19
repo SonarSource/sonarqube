@@ -7,10 +7,10 @@ url: /analysis/scan/sonarscanner-for-ant/
 
 The SonarScanner for Ant provides a `task` to allow integration of SonarQube analysis into an Apache Ant build script.
 
-The SonarScanner for Ant is an Ant Task that is wrapper of [SonarScanner](/analysis/scan/sonarscanner/), which works by invoking SonarScanner and passing to it all [properties](/analysis/analysis-parameters/) named following a `sonar.*` convention. This has the downside of not being very Ant-y, but the upside of providing instant availability of any new analysis parameter introduced by a new version of SonarQube. Therefore, successful use of the SonarScanner for Ant requires strict adherence to the property names shown below.
+The SonarScanner for Ant is an Ant Task that is a wrapper of [SonarScanner](/analysis/scan/sonarscanner/), which works by invoking SonarScanner and passing to it all [properties](/analysis/analysis-parameters/) named following a `sonar.*` convention. This has the downside of not being very Ant-y, but the upside of providing instant availability of any new analysis parameter introduced by a new version of SonarQube. Therefore, successful use of the SonarScanner for Ant requires strict adherence to the property names shown below.
 
 
-## Use
+## Using the SonarScanner for Ant
 Define a new sonar Ant target in your Ant build script:
 ```
 <!-- build.xml -->
@@ -42,11 +42,11 @@ Define a new sonar Ant target in your Ant build script:
     <sonar:sonar />
 </target>
 ```
-Run the following command from the project base directory to launch the analysis:
-```
-ant sonar
-```
 
+Run the following command from the project base directory to launch the analysis. You need to pass an [authentication token](/user-guide/user-token/) using the `sonar.login` property in your command line:
+```
+ant sonar -Dsonar.login=yourAuthenticationToken
+```
 
 ## Sample Project
 To help you get started, a simple project sample is available here: https://github.com/SonarSource/sonar-scanning-examples/tree/master/sonarqube-scanner-ant

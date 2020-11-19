@@ -16,14 +16,11 @@ The ability to execute the SonarQube analysis via a regular Gradle task makes it
 Bytecode created by javac compilation is required for Java analysis, including Android projects.
 
 ## Configure the Scanner
-Installation is automatic, but certain global properties should still be configured. A good place to configure global properties is `~/.gradle/gradle.properties`. Be aware that the scanner uses system properties so all properties should be prefixed by `systemProp`.
+Installation is automatic, but certain global properties should still be configured. A good place to configure global properties is `~/.gradle/gradle.properties`. Be aware that the scanner uses system properties so all properties should be prefixed by `systemProp`. 
 
 ```
 # gradle.properties
 systemProp.sonar.host.url=http://localhost:9000
- 
-#----- Token generated from an account with 'publish analysis' permission
-systemProp.sonar.login=<token>
 ```
 
 ## Analyzing
@@ -39,7 +36,7 @@ More details on https://plugins.gradle.org/plugin/org.sonarqube
 
 Assuming a local SonarQube server with out-of-the-box settings is up and running, no further configuration is required.
 
-Execute `gradle sonarqube` and wait until the build has completed, then open the web page indicated at the bottom of the console output. You should now be able to browse the analysis results.
+You need to pass an [authentication token](/user-guide/user-token/) using the `sonar.login` property in your command line or you configure it as part of your `gradle.properties` file. Execute `gradle sonarqube -Dsonar.login=yourAuthenticationToken` and wait until the build has completed, then open the web page indicated at the bottom of the console output. You should now be able to browse the analysis results. 
 
 ## Analyzing Multi-Project Builds
 To analyze a project hierarchy, apply the SonarQube plugin to the root project of the hierarchy. Typically (but not necessarily) this will be the root project of the Gradle build. Information pertaining to the analysis as a whole has to be configured in the sonarqube block of this project. Any properties set on the command line also apply to this project.

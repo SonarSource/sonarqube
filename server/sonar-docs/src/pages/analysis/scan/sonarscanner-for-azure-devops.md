@@ -27,7 +27,7 @@ The first thing to do is to declare your SonarQube server as a service endpoint 
 
 1. Open the Connections page in your Azure DevOps Server project: **Project Settings > Pipelines > Service Connections**.
 1. Click **New service connection** and choose **SonarQube**.
-1. Specify a **Connection name**, the **Server URL** of your SonarQube Server (including the port if required), and the [Authentication Token](/user-guide/user-token/) to use
+1. Specify a **Connection name**, the **Server URL** of your SonarQube Server (including the port if required), and the [authentication token](/user-guide/user-token/) to use.
 
 Each extension provides three tasks you will use in your build definitions to analyze your projects:
 
@@ -53,7 +53,7 @@ When creating a build definition you can filter the list of available tasks by t
 |    * **Publish Quality Gate Result** task after the **Run Code Analysis** task
 |1. Click on the **Prepare Analysis Configuration** build step to configure it:
 |   * You must specify the service connection (i.e. SonarQube) to use. You can:
-|      * select an existing endpoint from the drop down list
+|      * select an existing endpoint from the drop-down list
 |      * add a new endpoint
 |      * manage existing endpoints
 |   * Keep **Integrate with MSBuild** checked and specify at least the project key
@@ -86,7 +86,7 @@ When creating a build definition you can filter the list of available tasks by t
 |   Download and unzip **Build Wrapper** on the build agent (see *Prerequisites* section of *C/C++/Objective-C* page). The archive to download and decompress depends on the platform of the host.\
 |   Please, note that:
 |   * For the Microsoft-hosted build agent you will need to do it every time (as part of build pipeline), e.g. you can add **PowerShell script** task doing that. This can be done by inserting a **Command Line** task.\
-|     Example of PowerShell commands on a windows host:
+|     Example of PowerShell commands on a Windows host:
 |     ```
 |     Invoke-WebRequest -Uri '<sonarqube_url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
 |     Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'
@@ -101,17 +101,17 @@ When creating a build definition you can filter the list of available tasks by t
 |     curl '<sonarqube_url>/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
 |     unzip build-wrapper.zip
 |     ```  
-|   * For the self-hosted build agent you can either download it everytime (using the same scripts) or only once (as part of manual setup of build agent).
+|   * For the self-hosted build agent you can either download it every time (using the same scripts) or only once (as part of the manual setup of build agent).
 |2. Add a **Prepare analysis Configuration** task and configure it as follow:\
 |   Click on the **Prepare analysis on SonarQube** task to configure it:
 |   * Select the **SonarQube Server**
 |   * In *Choose the way to run the analysis*, select *standalone scanner* (even if you build with *Visual Studio*/*MSBuild*) 
 |   * In *Additional Properties* in the *Advanced* section, add the property `sonar.cfamily.build-wrapper-output` with, as its value, the output directory to which the Build Wrapper should write its results: `sonar.cfamily.build-wrapper-output=<output directory>`
 |3. Add a **Command Line** task to run your build.\
-|   For the analysis to happen, your build has to be run through a command line so that it can be wrapped-up by the build-wrapper.
+|   For the analysis to happen, your build has to be run through a command line so that it can be wrapped up by the build-wrapper.
 |   To do so, 
 |   * Run **Build Wrapper** executable. Pass in as the arguments (1) the output directory configured in the previous task and (2) the command that runs a clean build of your project (not an incremental build).\
-|   Example of PowerShell commands on a windows host with an *MSBuild* build:
+|   Example of PowerShell commands on a Windows host with an *MSBuild* build:
 |      ```
 |     build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
 |      ```
@@ -134,7 +134,7 @@ When creating a build definition you can filter the list of available tasks by t
 |
 |1. In your build definition, add:
 |   * At least **Prepare Analysis Configuration** task and **Run Code Analysis** task
-|   * Optionaly **Publish Quality Gate Result** task
+|   * Optionally **Publish Quality Gate Result** task
 |1. Reorder the tasks to respect the following order:
 |   1. **Prepare Analysis Configuration**
 |   2. **Run Code Analysis**
@@ -170,7 +170,7 @@ Pull request analysis is supported for any type of Git repositories. To activate
 
 Next time some code is pushed in the branch of a pull request, the build definition will execute a scan on the code and publish the results in SonarQube which will decorate the pull request in Azure DevOps.
 
-_Note : The number of comments posted in a PR is limited to 50. If this limit has been reached, a message will be displayed as a comment, with a link to the rest of the issues on SonarQube. Please note also that this comment will not disappear upon resolution of an issue, but only upon a new build, with less than 50 issues remaining._
+_Note: The number of comments posted in a PR is limited to 50. If this limit has been reached, a message will be displayed as a comment, with a link to the rest of the issues on SonarQube. Please note also that this comment will not disappear upon resolution of an issue, but only upon a new build, with less than 50 issues remaining._
 
 ## FAQ
 

@@ -39,13 +39,14 @@ Key | Description | Default
 `sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided"
 
 ### Authentication
-If the "Anyone" pseudo-group does not have permission to perform analyses, you'll need to supply the credentials of a user with Execute Analysis permission for the analysis to run under.
+By default, user authentication is required to prevent anonymous users from browsing and analyzing projects on your instance, and you need to pass these parameters when running analyses. Authentication is enforced in the global Security(/instance-administration/security/) settings.
 
+When authentication is required or the "Anyone" pseudo-group does not have permission to perform analyses, you'll need to supply the credentials of a user with Execute Analysis permissions for the analysis to run under.
 
 Key | Description | Default
 ---|----|---
-`sonar.login` | The login or authentication token of a SonarQube user with Execute Analysis permission on the project. |
-`sonar.password` | The password that goes with the `sonar.login` username. This should be left blank if an authentication token is being used. |
+`sonar.login` | The [authentication token](/user-guide/user-token/) or login of a SonarQube user with Execute Analysis permission on the project. |
+`sonar.password` | If you're using an authentication token, leave this blank. If you're using a login, this is the password that goes with your `sonar.login` username. |
 
 ### Web Services
 Key | Description | Default
