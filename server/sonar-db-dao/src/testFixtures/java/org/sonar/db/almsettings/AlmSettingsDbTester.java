@@ -77,6 +77,11 @@ public class AlmSettingsDbTester {
   }
 
   @SafeVarargs
+  public final ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
+    return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project), populators);
+  }
+
+  @SafeVarargs
   public final ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), populators);
   }

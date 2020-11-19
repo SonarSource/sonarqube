@@ -59,7 +59,7 @@ message AzureRepo {
   optional string name = 1;
   optional string projectName = 2;
   optional string sqProjectKey = 3;
-  optional string projectKey = 4;
+  optional string sqProjectName = 4;
 }
 
 message AlmProject {
