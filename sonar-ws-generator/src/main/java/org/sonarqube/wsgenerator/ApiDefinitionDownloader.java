@@ -35,7 +35,8 @@ public class ApiDefinitionDownloader {
   }
 
   public static String downloadApiDefinition() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv();
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .defaultForceAuthentication();
     builder.setEdition(COMMUNITY);
     builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
       .setOrchestratorProperty("orchestrator.workspaceDir", "build");
