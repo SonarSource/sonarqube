@@ -35,6 +35,7 @@ export interface AzureProjectsListProps {
   projects?: AzureProject[];
   repositories: T.Dict<AzureRepository[]>;
   searchResults?: T.Dict<AzureRepository[]>;
+  searchQuery?: string;
   selectedRepository?: AzureRepository;
 }
 
@@ -47,6 +48,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
     projects = [],
     repositories,
     searchResults,
+    searchQuery,
     selectedRepository
   } = props;
 
@@ -100,6 +102,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
           project={p}
           repositories={searchResults ? searchResults[p.name] : repositories[p.name]}
           selectedRepository={selectedRepository}
+          searchQuery={searchQuery}
           startsOpen={searchResults !== undefined || i === 0}
         />
       ))}

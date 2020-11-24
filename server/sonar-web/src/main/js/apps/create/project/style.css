@@ -35,8 +35,10 @@
 }
 
 .create-project-azdo-repo {
-  width: 250px;
+  width: 410px;
   min-height: 40px;
+  box-sizing: border-box;
+  margin-right: auto;
 }
 
 .create-project-import-bbs .open .boxed-group-header {

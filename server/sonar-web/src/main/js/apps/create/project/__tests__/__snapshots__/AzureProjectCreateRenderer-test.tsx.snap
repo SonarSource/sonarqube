@@ -115,12 +115,16 @@ exports[`should render correctly: project list 1`] = `
       </span>
     }
   />
+  <WrongBindingCountAlert
+    alm="azure"
+    canAdmin={true}
+  />
   <div
     className="huge-spacer-bottom"
   >
     <SearchBox
       onChange={[MockFunction]}
-      placeholder="onboarding.create_project.search_repositories_by_name"
+      placeholder="onboarding.create_project.search_projects_repositories"
     />
   </div>
   <DeferredSpinner
@@ -171,6 +175,10 @@ exports[`should render correctly: token form 1`] = `
         onboarding.create_project.azure.title
       </span>
     }
+  />
+  <WrongBindingCountAlert
+    alm="azure"
+    canAdmin={true}
   />
   <div
     className="display-flex-justify-center"

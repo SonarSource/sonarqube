@@ -44,6 +44,7 @@ export interface AzureProjectCreateRendererProps {
   repositories: T.Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: T.Dict<AzureRepository[]>;
+  searchQuery?: string;
   selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
@@ -61,6 +62,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     repositories,
     searching,
     searchResults,
+    searchQuery,
     selectedRepository,
     settings,
     showPersonalAccessTokenForm,
@@ -99,7 +101,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
 
       {loading && <i className="spinner" />}
 
-      {!loading && !settings && (
+      {!loading && !(settings && settings.url) && (
         <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />
       )}
 
@@ -119,7 +121,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             <div className="huge-spacer-bottom">
               <SearchBox
                 onChange={props.onSearch}
-                placeholder={translate('onboarding.create_project.search_repositories_by_name')}
+                placeholder={translate('onboarding.create_project.search_projects_repositories')}
               />
             </div>
             <DeferredSpinner loading={Boolean(searching)}>
@@ -131,6 +133,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
                 projects={projects}
                 repositories={repositories}
                 searchResults={searchResults}
+                searchQuery={searchQuery}
                 selectedRepository={selectedRepository}
               />
             </DeferredSpinner>

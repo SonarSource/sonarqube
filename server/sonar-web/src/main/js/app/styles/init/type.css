@@ -140,6 +140,10 @@ strong {
   font-weight: 600;
 }
 
+.underline {
+  text-decoration: underline;
+}
+
 mark {
   background: none;
   color: var(--baseFontColor);

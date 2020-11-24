@@ -157,6 +157,7 @@ it('should handle searching for repositories', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().searching).toBe(false);
   expect(wrapper.state().searchResults).toEqual({ [repositories[0].projectName]: repositories });
+  expect(wrapper.state().searchQuery).toBe(query);
 
   // Ignore opening a project when search results are displayed
   (getAzureRepositories as jest.Mock).mockClear();
@@ -169,6 +170,7 @@ it('should handle searching for repositories', async () => {
   wrapper.instance().handleSearchRepositories('');
   expect(searchAzureRepositories).not.toBeCalled();
   expect(wrapper.state().searchResults).toBeUndefined();
+  expect(wrapper.state().searchQuery).toBeUndefined();
 });
 
 it('should select and import a repository', async () => {

@@ -35,7 +35,7 @@ exports[`should render correctly: importing 1`] = `
       className="display-flex-wrap"
     >
       <div
-        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+        className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
         key="Azure repo 1"
       >
         <Radio
@@ -45,12 +45,12 @@ exports[`should render correctly: importing 1`] = `
           onCheck={[Function]}
           value="Azure repo 1"
         >
-          <strong
+          <span
             className="text-ellipsis"
             title="Azure repo 1"
           >
             Azure repo 1
-          </strong>
+          </span>
         </Radio>
       </div>
     </div>
@@ -91,6 +91,97 @@ exports[`should render correctly: loading 1`] = `
 </BoxedGroupAccordion>
 `;
 
+exports[`should render correctly: search results 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom open"
+  onClick={[Function]}
+  open={true}
+  title={
+    <h3
+      title="Azure Project"
+    >
+      azure-project-1
+    </h3>
+  }
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="display-flex-wrap"
+    >
+      <div
+        className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
+        key="this repo is the best"
+      >
+        <Radio
+          checked={false}
+          className="overflow-hidden"
+          disabled={false}
+          onCheck={[Function]}
+          value="this repo is the best"
+        >
+          <span
+            className="text-ellipsis"
+            title="this repo is the best"
+          >
+            this 
+            <strong
+              className=""
+            >
+              repo
+            </strong>
+             is the best
+          </span>
+        </Radio>
+      </div>
+      <div
+        className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
+        key="This is a repo with class"
+      >
+        <CheckIcon
+          className="spacer-right"
+          fill="#00aa00"
+          size={14}
+        />
+        <div
+          className="overflow-hidden"
+        >
+          <div
+            className="little-spacer-bottom text-ellipsis"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              title="SQ Name"
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "sq-key",
+                  },
+                }
+              }
+            >
+              SQ Name
+            </Link>
+          </div>
+          <em>
+            onboarding.create_project.repository_imported
+          </em>
+        </div>
+      </div>
+    </div>
+    <ListFooter
+      count={2}
+      loadMore={[Function]}
+      total={2}
+    />
+  </DeferredSpinner>
+</BoxedGroupAccordion>
+`;
+
 exports[`should render correctly: with repositories 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
@@ -111,7 +202,7 @@ exports[`should render correctly: with repositories 1`] = `
       className="display-flex-wrap"
     >
       <div
-        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+        className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
         key="Azure repo 1"
       >
         <Radio
@@ -121,16 +212,16 @@ exports[`should render correctly: with repositories 1`] = `
           onCheck={[Function]}
           value="Azure repo 1"
         >
-          <strong
+          <span
             className="text-ellipsis"
             title="Azure repo 1"
           >
             Azure repo 1
-          </strong>
+          </span>
         </Radio>
       </div>
       <div
-        className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+        className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
         key="Azure repo 1"
       >
         <CheckIcon
@@ -144,25 +235,22 @@ exports[`should render correctly: with repositories 1`] = `
           <div
             className="little-spacer-bottom text-ellipsis"
           >
-            <strong
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
               title="SQ Name"
-            >
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "sq-key",
-                    },
-                  }
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "sq-key",
+                  },
                 }
-              >
-                SQ Name
-              </Link>
-            </strong>
+              }
+            >
+              SQ Name
+            </Link>
           </div>
           <em>
             onboarding.create_project.repository_imported

@@ -40,6 +40,19 @@ it('should render correctly', () => {
   expect(shallowRender({ importing: true, repositories: [mockAzureRepository()] })).toMatchSnapshot(
     'importing'
   );
+  expect(
+    shallowRender({
+      repositories: [
+        mockAzureRepository({ name: 'this repo is the best' }),
+        mockAzureRepository({
+          name: 'This is a repo with class',
+          sqProjectKey: 'sq-key',
+          sqProjectName: 'SQ Name'
+        })
+      ],
+      searchQuery: 'repo'
+    })
+  ).toMatchSnapshot('search results');
 });
 
 it('should open when clicked', () => {

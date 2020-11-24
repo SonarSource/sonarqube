@@ -48,6 +48,7 @@ interface State {
   repositories: T.Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: T.Dict<AzureRepository[]>;
+  searchQuery?: string;
   selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;
   submittingToken?: boolean;
@@ -184,7 +185,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
 
     if (searchQuery.length === 0) {
-      this.setState({ searchResults: undefined });
+      this.setState({ searchResults: undefined, searchQuery: undefined });
       return;
     }
 
@@ -195,7 +196,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       .catch(() => []);
 
     if (this.mounted) {
-      this.setState({ searching: false, searchResults: groupBy(results, 'projectName') });
+      this.setState({
+        searching: false,
+        searchResults: groupBy(results, 'projectName'),
+        searchQuery
+      });
     }
   };
 
@@ -277,6 +282,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       repositories,
       searching,
       searchResults,
+      searchQuery,
       selectedRepository,
       settings,
       submittingToken,
@@ -298,6 +304,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         repositories={repositories}
         searching={searching}
         searchResults={searchResults}
+        searchQuery={searchQuery}
         selectedRepository={selectedRepository}
         settings={settings}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}

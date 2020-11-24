@@ -40,14 +40,40 @@ export interface AzureProjectAccordionProps {
   onSelectRepository: (repository: AzureRepository) => void;
   project: AzureProject;
   repositories?: AzureRepository[];
+  searchQuery?: string;
   selectedRepository?: AzureRepository;
   startsOpen: boolean;
 }
 
 const PAGE_SIZE = 30;
 
+function highlight(text: string, term?: string, underline = false) {
+  if (!term || !text.toLowerCase().includes(term.toLowerCase())) {
+    return text;
+  }
+
+  // Capture only the first occurence by using a capturing group to get
+  // everything after the first occurence
+  const [pre, found, post] = text.split(new RegExp(`(${term})(.*)`, 'i'));
+  return (
+    <>
+      {pre}
+      <strong className={classNames({ underline })}>{found}</strong>
+      {post}
+    </>
+  );
+}
+
 export default function AzureProjectAccordion(props: AzureProjectAccordionProps) {
-  const { importing, loading, startsOpen, project, repositories = [], selectedRepository } = props;
+  const {
+    importing,
+    loading,
+    startsOpen,
+    project,
+    repositories = [],
+    searchQuery,
+    selectedRepository
+  } = props;
 
   const [open, setOpen] = React.useState(startsOpen);
   const handleClick = () => {
@@ -70,7 +96,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
       })}
       onClick={handleClick}
       open={open}
-      title={<h3 title={project.description}>{project.name}</h3>}>
+      title={<h3 title={project.description}>{highlight(project.name, searchQuery, true)}</h3>}>
       {open && (
         <DeferredSpinner loading={loading}>
           {/* The extra loading guard is to prevent the flash of the Alert */}
@@ -97,18 +123,16 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
               <div className="display-flex-wrap">
                 {limitedRepositories.map(repo => (
                   <div
-                    className="display-flex-start spacer-right spacer-bottom create-project-azdo-repo"
+                    className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
                     key={repo.name}>
                     {repo.sqProjectKey ? (
                       <>
                         <CheckIcon className="spacer-right" fill={colors.green} size={14} />
                         <div className="overflow-hidden">
                           <div className="little-spacer-bottom text-ellipsis">
-                            <strong title={repo.sqProjectName}>
-                              <Link to={getProjectUrl(repo.sqProjectKey)}>
-                                {repo.sqProjectName}
-                              </Link>
-                            </strong>
+                            <Link to={getProjectUrl(repo.sqProjectKey)} title={repo.sqProjectName}>
+                              {highlight(repo.sqProjectName || repo.name, searchQuery)}
+                            </Link>
                           </div>
                           <em>{translate('onboarding.create_project.repository_imported')}</em>
                         </div>
@@ -120,9 +144,9 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                         disabled={importing}
                         onCheck={() => props.onSelectRepository(repo)}
                         value={repo.name}>
-                        <strong className="text-ellipsis" title={repo.name}>
-                          {repo.name}
-                        </strong>
+                        <span className="text-ellipsis" title={repo.name}>
+                          {highlight(repo.name, searchQuery)}
+                        </span>
                       </Radio>
                     )}
                   </div>
