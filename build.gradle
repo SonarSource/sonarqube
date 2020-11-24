@@ -100,6 +100,7 @@ allprojects {
         // Workaround for artifactory
         // https://www.jfrog.com/jira/browse/RTFACT-13797
         repository = 'public'
+        mavenCentral()
       }
       url "https://repox.jfrog.io/repox/${repository}"
     }
