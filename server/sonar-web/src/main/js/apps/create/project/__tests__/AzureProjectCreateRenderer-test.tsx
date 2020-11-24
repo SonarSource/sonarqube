@@ -49,7 +49,7 @@ function shallowRender(overrides: Partial<AzureProjectCreateRendererProps>) {
       onSearch={jest.fn()}
       onSelectRepository={jest.fn()}
       projects={[project]}
-      repositories={{ [project.key]: [mockAzureRepository()] }}
+      repositories={{ [project.name]: [mockAzureRepository()] }}
       tokenValidationFailed={false}
       settings={mockAlmSettingsInstance({ alm: AlmKeys.Azure })}
       showPersonalAccessTokenForm={false}

@@ -52,7 +52,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
   const [open, setOpen] = React.useState(startsOpen);
   const handleClick = () => {
     if (!open) {
-      props.onOpen(project.key);
+      props.onOpen(project.name);
     }
     setOpen(!open);
   };
@@ -61,7 +61,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
   const limitedRepositories = repositories.slice(0, page * PAGE_SIZE);
 
   const isSelected = (repo: AzureRepository) =>
-    selectedRepository?.projectName === project.key && selectedRepository.name === repo.name;
+    selectedRepository?.projectName === project.name && selectedRepository.name === repo.name;
 
   return (
     <BoxedGroupAccordion
@@ -70,7 +70,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
       })}
       onClick={handleClick}
       open={open}
-      title={<h3>{project.name}</h3>}>
+      title={<h3 title={project.description}>{project.name}</h3>}>
       {open && (
         <DeferredSpinner loading={loading}>
           {/* The extra loading guard is to prevent the flash of the Alert */}

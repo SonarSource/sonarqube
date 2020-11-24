@@ -28,8 +28,8 @@ import {
 
 export function mockAzureProject(overrides: Partial<AzureProject> = {}): AzureProject {
   return {
-    key: 'azure-project-1',
-    name: 'Azure Project',
+    name: 'azure-project-1',
+    description: 'Azure Project',
     ...overrides
   };
 }

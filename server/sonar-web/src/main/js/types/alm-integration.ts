@@ -19,8 +19,8 @@
  */
 
 export interface AzureProject {
-  key: string;
   name: string;
+  description: string;
 }
 
 export interface AzureRepository {

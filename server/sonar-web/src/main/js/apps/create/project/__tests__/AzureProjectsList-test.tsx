@@ -32,9 +32,9 @@ it('should render correctly', () => {
 
 it('should render search results correctly', () => {
   const projects = [
-    mockAzureProject({ key: 'p1', name: 'p1' }),
-    mockAzureProject({ key: 'p2', name: 'p2' }),
-    mockAzureProject({ key: 'p3', name: 'p3' })
+    mockAzureProject({ name: 'p1', description: 'p1' }),
+    mockAzureProject({ name: 'p2', description: 'p2' }),
+    mockAzureProject({ name: 'p3', description: 'p3' })
   ];
   const searchResults = {
     p2: [mockAzureRepository({ projectName: 'p2' })]
@@ -46,7 +46,7 @@ it('should render search results correctly', () => {
 it('should handle pagination', () => {
   const projects = new Array(21)
     .fill(1)
-    .map((_, i) => mockAzureProject({ key: `project-${i}`, name: `Project #${i}` }));
+    .map((_, i) => mockAzureProject({ name: `project-${i}`, description: `Project #${i}` }));
 
   const wrapper = shallowRender({ projects });
 
@@ -67,7 +67,7 @@ function shallowRender(overrides: Partial<AzureProjectsListProps> = {}) {
       onOpenProject={jest.fn()}
       onSelectRepository={jest.fn()}
       projects={[project]}
-      repositories={{ [project.key]: [] }}
+      repositories={{ [project.name]: [] }}
       {...overrides}
     />
   );

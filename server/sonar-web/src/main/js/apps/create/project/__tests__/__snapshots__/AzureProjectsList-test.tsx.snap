@@ -10,8 +10,8 @@ exports[`should render correctly: default 1`] = `
     onSelectRepository={[MockFunction]}
     project={
       Object {
-        "key": "azure-project-1",
-        "name": "Azure Project",
+        "description": "Azure Project",
+        "name": "azure-project-1",
       }
     }
     repositories={Array []}
@@ -66,7 +66,7 @@ exports[`should render search results correctly: default 1`] = `
     onSelectRepository={[MockFunction]}
     project={
       Object {
-        "key": "p2",
+        "description": "p2",
         "name": "p2",
       }
     }

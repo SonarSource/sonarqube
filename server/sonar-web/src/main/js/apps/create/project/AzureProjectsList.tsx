@@ -53,7 +53,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
   const [page, setPage] = React.useState(1);
 
   const filteredProjects = searchResults
-    ? projects.filter(p => searchResults[p.key] !== undefined)
+    ? projects.filter(p => searchResults[p.name] !== undefined)
     : projects;
 
   if (filteredProjects.length === 0) {
@@ -92,13 +92,13 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
     <div>
       {displayedProjects.map((p, i) => (
         <AzureProjectAccordion
-          key={`${p.key}${keySuffix}`}
+          key={`${p.name}${keySuffix}`}
           importing={importing}
-          loading={Boolean(loadingRepositories[p.key])}
+          loading={Boolean(loadingRepositories[p.name])}
           onOpen={props.onOpenProject}
           onSelectRepository={props.onSelectRepository}
           project={p}
-          repositories={searchResults ? searchResults[p.key] : repositories[p.key]}
+          repositories={searchResults ? searchResults[p.name] : repositories[p.name]}
           selectedRepository={selectedRepository}
           startsOpen={searchResults !== undefined || i === 0}
         />

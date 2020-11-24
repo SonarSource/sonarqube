@@ -134,8 +134,8 @@ exports[`should render correctly: project list 1`] = `
       projects={
         Array [
           Object {
-            "key": "azure-project-1",
-            "name": "Azure Project",
+            "description": "Azure Project",
+            "name": "azure-project-1",
           },
         ]
       }

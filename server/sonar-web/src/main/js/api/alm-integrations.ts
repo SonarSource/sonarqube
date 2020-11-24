@@ -63,9 +63,9 @@ export function getAzureRepositories(
 
 export function searchAzureRepositories(
   almSetting: string,
-  repositoryName: string
+  searchQuery: string
 ): Promise<{ repositories: AzureRepository[] }> {
-  return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, repositoryName }).catch(
+  return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, searchQuery }).catch(
     throwGlobalError
   );
 }

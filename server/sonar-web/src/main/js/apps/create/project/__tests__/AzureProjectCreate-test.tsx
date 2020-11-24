@@ -106,13 +106,13 @@ it('should correctly fetch projects and repositories on mount', async () => {
   await waitAndUpdate(wrapper);
   expect(getAzureProjects).toBeCalled();
   expect(getAzureRepositories).toBeCalledTimes(1);
-  expect(getAzureRepositories).toBeCalledWith('foo', project.key);
+  expect(getAzureRepositories).toBeCalledWith('foo', project.name);
 });
 
 it('should handle opening a project', async () => {
   const projects = [
     mockAzureProject(),
-    mockAzureProject({ key: 'project2', name: 'Project to open' })
+    mockAzureProject({ name: 'project2', description: 'Project to open' })
   ];
 
   const firstProjectRepos = [mockAzureRepository()];
@@ -130,14 +130,14 @@ it('should handle opening a project', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  wrapper.instance().handleOpenProject(projects[1].key);
+  wrapper.instance().handleOpenProject(projects[1].name);
   await waitAndUpdate(wrapper);
 
-  expect(getAzureRepositories).toBeCalledWith('foo', projects[1].key);
+  expect(getAzureRepositories).toBeCalledWith('foo', projects[1].name);
 
   expect(wrapper.state().repositories).toEqual({
-    [projects[0].key]: firstProjectRepos,
-    [projects[1].key]: secondProjectRepos
+    [projects[0].name]: firstProjectRepos,
+    [projects[1].name]: secondProjectRepos
   });
 });
 

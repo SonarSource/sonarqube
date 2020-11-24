@@ -101,23 +101,23 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
     const { repositories } = this.state;
 
-    let firstProjectKey: string;
+    let firstProjectName: string;
 
     if (projects && projects.length > 0) {
-      firstProjectKey = projects[0].key;
+      firstProjectName = projects[0].name;
 
       this.setState(({ loadingRepositories }) => ({
-        loadingRepositories: { ...loadingRepositories, [firstProjectKey]: true }
+        loadingRepositories: { ...loadingRepositories, [firstProjectName]: true }
       }));
 
-      const repos = await this.fetchAzureRepositories(firstProjectKey);
-      repositories[firstProjectKey] = repos;
+      const repos = await this.fetchAzureRepositories(firstProjectName);
+      repositories[firstProjectName] = repos;
     }
 
     if (this.mounted) {
       this.setState(({ loadingRepositories }) => {
-        if (firstProjectKey) {
-          loadingRepositories[firstProjectKey] = false;
+        if (firstProjectName) {
+          loadingRepositories[firstProjectName] = false;
         }
 
         return {
@@ -141,14 +141,14 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     return getAzureProjects(settings.key).then(({ projects }) => projects);
   };
 
-  fetchAzureRepositories = (projectKey: string): Promise<AzureRepository[]> => {
+  fetchAzureRepositories = (projectName: string): Promise<AzureRepository[]> => {
     const { settings } = this.state;
 
     if (!settings) {
       return Promise.resolve([]);
     }
 
-    return getAzureRepositories(settings.key, projectKey)
+    return getAzureRepositories(settings.key, projectName)
       .then(({ repositories }) => repositories)
       .catch(() => []);
   };

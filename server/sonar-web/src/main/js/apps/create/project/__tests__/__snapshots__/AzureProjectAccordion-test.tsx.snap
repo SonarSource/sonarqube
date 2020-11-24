@@ -6,8 +6,10 @@ exports[`should render correctly: closed 1`] = `
   onClick={[Function]}
   open={false}
   title={
-    <h3>
-      Azure Project
+    <h3
+      title="Azure Project"
+    >
+      azure-project-1
     </h3>
   }
 />
@@ -19,8 +21,10 @@ exports[`should render correctly: importing 1`] = `
   onClick={[Function]}
   open={true}
   title={
-    <h3>
-      Azure Project
+    <h3
+      title="Azure Project"
+    >
+      azure-project-1
     </h3>
   }
 >
@@ -65,8 +69,10 @@ exports[`should render correctly: loading 1`] = `
   onClick={[Function]}
   open={true}
   title={
-    <h3>
-      Azure Project
+    <h3
+      title="Azure Project"
+    >
+      azure-project-1
     </h3>
   }
 >
@@ -91,8 +97,10 @@ exports[`should render correctly: with repositories 1`] = `
   onClick={[Function]}
   open={true}
   title={
-    <h3>
-      Azure Project
+    <h3
+      title="Azure Project"
+    >
+      azure-project-1
     </h3>
   }
 >
