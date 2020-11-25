@@ -54,6 +54,7 @@ public class UserDto {
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
+  private boolean resetPassword = false;
 
   /**
    * Date of the last time the user has accessed to the server.
@@ -258,6 +259,15 @@ public class UserDto {
 
   public UserDto setOnboarded(boolean onboarded) {
     this.onboarded = onboarded;
+    return this;
+  }
+
+  public boolean isResetPassword() {
+    return resetPassword;
+  }
+
+  public UserDto setResetPassword(boolean resetPassword) {
+    this.resetPassword = resetPassword;
     return this;
   }
 

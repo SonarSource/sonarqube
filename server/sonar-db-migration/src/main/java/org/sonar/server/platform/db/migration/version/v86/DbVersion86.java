@@ -53,6 +53,9 @@ public class DbVersion86 implements DbVersion {
       .add(4121, "Create index for 'app_branch_project_branch'", AddIndexToApplicationBranchProjs.class)
 
       .add(4122, "Migrate view definitions from xml to db", MigrateApplicationDefinitionsFromXmlToDb.class)
-    ;
+
+      .add(4123, "Add 'reset_password' column to 'users' table", AddResetPasswordColumnToUsers.class)
+      .add(4124, "Populate 'reset_password' column with default value", PopulateResetPasswordDefaultValue.class)
+      .add(4125, "Make 'reset_password' column in 'users' table not nullable", MakeResetPasswordColumnNotNull.class);
   }
 }

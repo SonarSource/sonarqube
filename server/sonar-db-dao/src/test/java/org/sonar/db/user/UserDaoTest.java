@@ -308,6 +308,35 @@ public class UserDaoTest {
   }
 
   @Test
+  public void insert_user_with_default_values() {
+    UserDto userDto = new UserDto()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("jo@hn.com")
+      .setExternalLogin("john-1")
+      .setExternalIdentityProvider("sonarqube")
+      .setExternalId("EXT_ID");
+    underTest.insert(db.getSession(), userDto);
+    db.getSession().commit();
+
+    UserDto user = underTest.selectActiveUserByLogin(session, "john");
+    assertThat(user).isNotNull();
+    assertThat(user.getUuid()).isNotNull();
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.isOnboarded()).isFalse();
+    assertThat(user.isResetPassword()).isFalse();
+    assertThat(user.isLocal()).isTrue();
+    assertThat(user.isRoot()).isFalse();
+
+    assertThat(user.getScmAccountsAsList()).isEmpty();
+    assertThat(user.getScmAccounts()).isNull();
+    assertThat(user.getHashMethod()).isNull();
+    assertThat(user.getLastConnectionDate()).isNull();
+    assertThat(user.getHomepageType()).isNull();
+    assertThat(user.getHomepageParameter()).isNull();
+  }
+
+  @Test
   public void insert_user() {
     long date = DateUtils.parseDate("2014-06-20").getTime();
 
@@ -318,6 +347,7 @@ public class UserDaoTest {
       .setScmAccounts(",jo.hn,john2,")
       .setActive(true)
       .setOnboarded(true)
+      .setResetPassword(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
       .setHashMethod("SHA1")
@@ -340,6 +370,7 @@ public class UserDaoTest {
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
     assertThat(user.isActive()).isTrue();
     assertThat(user.isOnboarded()).isTrue();
+    assertThat(user.isResetPassword()).isTrue();
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
@@ -372,7 +403,8 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setActive(true)
       .setLocal(true)
-      .setOnboarded(false));
+      .setOnboarded(false)
+      .setResetPassword(false));
 
     underTest.update(db.getSession(), newUserDto()
       .setUuid(user.getUuid())
@@ -382,6 +414,7 @@ public class UserDaoTest {
       .setScmAccounts(",jo.hn,john2,johndoo,")
       .setActive(false)
       .setOnboarded(true)
+      .setResetPassword(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
       .setHashMethod("BCRYPT")
@@ -401,6 +434,7 @@ public class UserDaoTest {
     assertThat(reloaded.getEmail()).isEqualTo("jodoo@hn.com");
     assertThat(reloaded.isActive()).isFalse();
     assertThat(reloaded.isOnboarded()).isTrue();
+    assertThat(reloaded.isResetPassword()).isTrue();
     assertThat(reloaded.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(reloaded.getSalt()).isEqualTo("12345");
     assertThat(reloaded.getCryptedPassword()).isEqualTo("abcde");
