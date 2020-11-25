@@ -18,6 +18,10 @@ The SonarScanner for Azure DevOps is compatible with:
 
 2. If you are self-hosting the build agents, make sure you have at least the minimum SonarQube-supported version of Java installed.
 
+[[info]]
+| The extension embeds its own version of the SonarScanner for .NET. 
+| Please check its [compatibility matrix](/analysis/scan/sonarscanner-for-msbuild/) to ensure you use the right version of SonarQube along with the version of the Scanner.
+
 ## Configure
 The first thing to do is to declare your SonarQube server as a service endpoint in your Azure DevOps project settings. 
 
