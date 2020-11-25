@@ -21,10 +21,11 @@ import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { changePassword } from '../../../api/users';
+import { changePassword } from '../../api/users';
 
 interface Props {
   user: T.LoggedInUser;
+  onPasswordChange?: () => void;
 }
 
 interface State {
@@ -32,19 +33,25 @@ interface State {
   success: boolean;
 }
 
-export default class Password extends React.Component<Props, State> {
-  oldPassword!: HTMLInputElement;
-  password!: HTMLInputElement;
-  passwordConfirmation!: HTMLInputElement;
+export default class ResetPassword extends React.Component<Props, State> {
+  oldPassword: HTMLInputElement | null = null;
+  password: HTMLInputElement | null = null;
+  passwordConfirmation: HTMLInputElement | null = null;
   state: State = {
     success: false
   };
 
   handleSuccessfulChange = () => {
+    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
+      return;
+    }
     this.oldPassword.value = '';
     this.password.value = '';
     this.passwordConfirmation.value = '';
     this.setState({ success: true, errors: undefined });
+    if (this.props.onPasswordChange) {
+      this.props.onPasswordChange();
+    }
   };
 
   setErrors = (errors: string[]) => {
@@ -53,7 +60,9 @@ export default class Password extends React.Component<Props, State> {
 
   handleChangePassword = (event: React.FormEvent) => {
     event.preventDefault();
-
+    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
+      return;
+    }
     const { user } = this.props;
     const previousPassword = this.oldPassword.value;
     const password = this.password.value;
@@ -65,7 +74,9 @@ export default class Password extends React.Component<Props, State> {
     } else {
       changePassword({ login: user.login, password, previousPassword }).then(
         this.handleSuccessfulChange,
-        () => {}
+        () => {
+          // error already reported.
+        }
       );
     }
   };
@@ -82,6 +93,7 @@ export default class Password extends React.Component<Props, State> {
 
           {errors &&
             errors.map((e, i) => (
+              /* eslint-disable-next-line react/no-array-index-key */
               <Alert key={i} variant="error">
                 {e}
               </Alert>
@@ -96,7 +108,7 @@ export default class Password extends React.Component<Props, State> {
               autoComplete="off"
               id="old_password"
               name="old_password"
-              ref={elem => (this.oldPassword = elem!)}
+              ref={elem => (this.oldPassword = elem)}
               required={true}
               type="password"
             />
@@ -110,7 +122,7 @@ export default class Password extends React.Component<Props, State> {
               autoComplete="off"
               id="password"
               name="password"
-              ref={elem => (this.password = elem!)}
+              ref={elem => (this.password = elem)}
               required={true}
               type="password"
             />
@@ -124,15 +136,13 @@ export default class Password extends React.Component<Props, State> {
               autoComplete="off"
               id="password_confirmation"
               name="password_confirmation"
-              ref={elem => (this.passwordConfirmation = elem!)}
+              ref={elem => (this.passwordConfirmation = elem)}
               required={true}
               type="password"
             />
           </div>
           <div className="form-field">
-            <SubmitButton id="change-password">
-              {translate('my_profile.password.submit')}
-            </SubmitButton>
+            <SubmitButton id="change-password">{translate('update_verb')}</SubmitButton>
           </div>
         </form>
       </section>

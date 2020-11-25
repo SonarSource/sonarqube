@@ -12,7 +12,7 @@ exports[`should render correctly: local user 1`] = `
   <Tokens
     login="luke"
   />
-  <Password
+  <ResetPassword
     user={
       Object {
         "groups": Array [],

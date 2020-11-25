@@ -316,6 +316,12 @@ export default function startReactApp(
                     {renderAdminRoutes()}
                   </Route>
                   <Route
+                    // We don't want this route to have any menu.
+                    // That is why we can not have it under the accountRoutes
+                    path="account/reset_password"
+                    component={lazyLoadComponent(() => import('../components/ResetPassword'))}
+                  />
+                  <Route
                     path="not_found"
                     component={lazyLoadComponent(() => import('../components/NotFound'))}
                   />

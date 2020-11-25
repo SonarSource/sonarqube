@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import ResetPassword from '../../../components/common/ResetPassword';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import Tokens from './Tokens';
+import { mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
+import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
 
-export interface SecurityProps {
-  user: T.LoggedInUser;
-}
-
-export function Security({ user }: SecurityProps) {
-  return (
-    <div className="account-body account-container">
-      <Helmet defer={false} title={translate('my_account.security')} />
-      <Tokens login={user.login} />
-      {user.local && <ResetPassword user={user} />}
-    </div>
-  );
-}
-
-const mapStateToProps = (state: Store) => ({
-  user: getCurrentUser(state) as T.LoggedInUser
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-export default connect(mapStateToProps)(Security);
+function shallowRender(props: Partial<ResetPasswordProps> = {}) {
+  return shallow(
+    <ResetPassword currentUser={mockLoggedInUser()} router={mockRouter()} {...props} />
+  );
+}
