@@ -37,7 +37,7 @@ public abstract class MakeUuidColumnNotNullable extends DdlChange {
 
   private String tableName;
 
-  public MakeUuidColumnNotNullable(Database db, String tableName) {
+  protected MakeUuidColumnNotNullable(Database db, String tableName) {
     super(db);
     this.tableName = tableName;
   }

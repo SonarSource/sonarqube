@@ -389,7 +389,7 @@ public class CeQueueImplTest {
     underTest.cancel(db.getSession(), queueDto);
 
     Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(activity.isPresent()).isTrue();
+    assertThat(activity).isPresent();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
@@ -420,7 +420,7 @@ public class CeQueueImplTest {
     Optional<CeActivityDto> ceActivityPending1 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
     assertThat(ceActivityPending1.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     Optional<CeActivityDto> ceActivityPending2 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
-    assertThat(ceActivityPending2.isPresent()).isFalse();
+    assertThat(ceActivityPending2).isNotPresent();
   }
 
   @Test
@@ -485,7 +485,7 @@ public class CeQueueImplTest {
     underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
 
     Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(activity.isPresent()).isTrue();
+    assertThat(activity).isPresent();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.FAILED);
     assertThat(activity.get().getErrorType()).isEqualTo("TIMEOUT");
     assertThat(activity.get().getErrorMessage()).isEqualTo("Failed on timeout");
@@ -550,7 +550,7 @@ public class CeQueueImplTest {
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
     Optional<CeQueueDto> queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), taskSubmit.getUuid());
-    assertThat(queueDto.isPresent()).isTrue();
+    assertThat(queueDto).isPresent();
     assertThat(queueDto.get().getTaskType()).isEqualTo(taskSubmit.getType());
     Optional<Component> component = taskSubmit.getComponent();
     if (component.isPresent()) {

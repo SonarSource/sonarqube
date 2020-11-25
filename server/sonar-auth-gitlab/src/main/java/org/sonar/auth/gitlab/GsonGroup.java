@@ -20,6 +20,7 @@
 package org.sonar.auth.gitlab;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -30,19 +31,20 @@ import java.util.List;
  */
 public class GsonGroup {
 
-  private String full_path;
+  @SerializedName("full_path")
+  private String fullPath;
 
   public GsonGroup() {
     // http://stackoverflow.com/a/18645370/229031
     this("");
   }
 
-  GsonGroup(String full_path) {
-    this.full_path = full_path;
+  GsonGroup(String fullPath) {
+    this.fullPath = fullPath;
   }
 
   String getFullPath() {
-    return full_path;
+    return fullPath;
   }
 
   static List<GsonGroup> parse(String json) {

@@ -120,7 +120,8 @@ public class GitLabSettings {
       PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
         .deprecatedKey("sonar.auth.gitlab.sync_user_groups")
         .name("Synchronize user groups")
-        .description("For each GitLab group he belongs to, the user will be associated to a group with the same name (if it exists) in SonarQube. If enabled, the GitLab Oauth2 application will need to provide the api scope")
+        .description("For each GitLab group he belongs to, the user will be associated to a group with the same name (if it exists) in SonarQube." +
+          " If enabled, the GitLab Oauth2 application will need to provide the api scope")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)

@@ -28,7 +28,7 @@ public abstract class DropIdColumn extends DdlChange {
   private Database db;
   private String tableName;
 
-  public DropIdColumn(Database db, String tableName) {
+  protected DropIdColumn(Database db, String tableName) {
     super(db);
     this.db = db;
     this.tableName = tableName;

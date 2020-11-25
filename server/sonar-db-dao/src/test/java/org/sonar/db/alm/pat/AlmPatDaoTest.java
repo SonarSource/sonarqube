@@ -121,7 +121,7 @@ public class AlmPatDaoTest {
 
     underTest.delete(dbSession, almPat);
 
-    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid())).isNotPresent();
   }
 
   @Test
@@ -134,7 +134,7 @@ public class AlmPatDaoTest {
 
     underTest.deleteByUser(dbSession, userDto);
 
-    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid())).isNotPresent();
   }
 
   @Test
@@ -147,7 +147,7 @@ public class AlmPatDaoTest {
 
     underTest.deleteByAlmSetting(dbSession, almSettingDto);
 
-    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid())).isNotPresent();
   }
 
 }

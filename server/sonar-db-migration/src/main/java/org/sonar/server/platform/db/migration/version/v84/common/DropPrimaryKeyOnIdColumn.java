@@ -28,7 +28,7 @@ public abstract class DropPrimaryKeyOnIdColumn extends DdlChange {
   private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
   private String tableName;
 
-  public DropPrimaryKeyOnIdColumn(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator, String tableName) {
+  protected DropPrimaryKeyOnIdColumn(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator, String tableName) {
     super(db);
     this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
     this.tableName = tableName;
