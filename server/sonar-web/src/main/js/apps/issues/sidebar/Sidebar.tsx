@@ -42,6 +42,7 @@ import TypeFacet from './TypeFacet';
 export interface Props {
   branchLike?: BranchLike;
   component: T.Component | undefined;
+  createdAfterIncludesTime: boolean;
   facets: T.Dict<Facet | undefined>;
   hideAuthorFacet?: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
@@ -98,7 +99,14 @@ export class Sidebar extends React.PureComponent<Props> {
   }
 
   render() {
-    const { component, facets, hideAuthorFacet, openFacets, query } = this.props;
+    const {
+      component,
+      createdAfterIncludesTime,
+      facets,
+      hideAuthorFacet,
+      openFacets,
+      query
+    } = this.props;
 
     const displayProjectsFacet =
       !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
@@ -177,6 +185,7 @@ export class Sidebar extends React.PureComponent<Props> {
         <CreationDateFacet
           component={component}
           createdAfter={query.createdAfter}
+          createdAfterIncludesTime={createdAfterIncludesTime}
           createdAt={query.createdAt}
           createdBefore={query.createdBefore}
           createdInLast={query.createdInLast}

@@ -365,6 +365,27 @@ it('should refresh branch status if issues are updated', async () => {
   expect(fetchBranchStatus).toBeCalled();
 });
 
+it('should handle createAfter query param with time', async () => {
+  const fetchIssues = fetchIssuesMockFactory();
+  const wrapper = shallowRender({
+    fetchIssues,
+    location: mockLocation({ query: { createdAfter: '2020-10-21' } })
+  });
+  expect(wrapper.instance().createdAfterIncludesTime()).toBe(false);
+  await waitAndUpdate(wrapper);
+
+  wrapper.setProps({ location: mockLocation({ query: { createdAfter: '2020-10-21T17:21:00Z' } }) });
+  expect(wrapper.instance().createdAfterIncludesTime()).toBe(true);
+
+  fetchIssues.mockClear();
+
+  wrapper.instance().fetchIssues({});
+  expect(fetchIssues).toBeCalledWith(
+    expect.objectContaining({ createdAfter: '2020-10-21T17:21:00+0000' }),
+    false
+  );
+});
+
 function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
   return jest.fn().mockImplementation(({ p }: any) =>
     Promise.resolve({

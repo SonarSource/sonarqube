@@ -77,6 +77,7 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
       shallow<Sidebar>(
         <Sidebar
           component={undefined}
+          createdAfterIncludesTime={false}
           facets={{}}
           loadSearchResultCount={jest.fn()}
           loadingFacets={{}}

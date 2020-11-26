@@ -35,6 +35,7 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from 'sonar-ui-common/helpers/pages';
+import { serializeDate } from 'sonar-ui-common/helpers/query';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import EmptySearch from '../../../components/common/EmptySearch';
@@ -409,6 +410,8 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
+  createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
+
   fetchIssues = (additional: T.RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
@@ -425,7 +428,7 @@ export default class App extends React.PureComponent<Props, State> {
       (component && component.organization) ||
       (this.props.organization && this.props.organization.key);
 
-    const parameters = {
+    const parameters: T.Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
@@ -435,6 +438,10 @@ export default class App extends React.PureComponent<Props, State> {
       facets,
       ...additional
     };
+
+    if (query.createdAfter !== undefined && this.createdAfterIncludesTime()) {
+      parameters.createdAfter = serializeDate(query.createdAfter);
+    }
 
     // only sorting by CREATION_DATE is allowed, so let's sort DESC
     if (query.sort) {
@@ -944,6 +951,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Sidebar
           branchLike={branchLike}
           component={component}
+          createdAfterIncludesTime={this.createdAfterIncludesTime()}
           facets={this.state.facets}
           hideAuthorFacet={hideAuthorFacet}
           loadSearchResultCount={this.loadSearchResultCount}
