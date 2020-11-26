@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 
 import static java.lang.String.format;
+import static org.sonarqube.ws.WsUtils.checkArgument;
 
 public class ChangePasswordAction implements UsersWsAction {
 
@@ -61,7 +63,8 @@ public class ChangePasswordAction implements UsersWsAction {
         "Administer System permission is required to change another user's password.")
       .setSince("5.2")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("8.6", "It's no more possible for the password to be the same as the previous one"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
@@ -85,15 +88,15 @@ public class ChangePasswordAction implements UsersWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       String login = request.mandatoryParam(PARAM_LOGIN);
+      String password = request.mandatoryParam(PARAM_PASSWORD);
       UserDto user = getUser(dbSession, login);
       if (login.equals(userSession.getLogin())) {
         String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
-        checkCurrentPassword(dbSession, user, previousPassword);
+        checkPreviousPassword(dbSession, user, previousPassword);
+        checkArgument(!previousPassword.equals(password), "Password must be different from old password");
       } else {
         userSession.checkIsSystemAdministrator();
       }
-
-      String password = request.mandatoryParam(PARAM_PASSWORD);
       UpdateUser updateUser = new UpdateUser().setPassword(password);
       userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
       });
@@ -109,7 +112,7 @@ public class ChangePasswordAction implements UsersWsAction {
     return user;
   }
 
-  private void checkCurrentPassword(DbSession dbSession, UserDto user, String password) {
+  private void checkPreviousPassword(DbSession dbSession, UserDto user, String password) {
     try {
       localAuthentication.authenticate(dbSession, user, password, AuthenticationEvent.Method.BASIC);
     } catch (AuthenticationException ex) {
