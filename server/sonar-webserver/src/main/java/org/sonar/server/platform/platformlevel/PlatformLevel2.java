@@ -43,7 +43,6 @@ import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginCompressor;
 import org.sonar.server.plugins.PluginJarLoader;
-import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginManager;
 import org.sonar.server.plugins.ServerPluginRepository;

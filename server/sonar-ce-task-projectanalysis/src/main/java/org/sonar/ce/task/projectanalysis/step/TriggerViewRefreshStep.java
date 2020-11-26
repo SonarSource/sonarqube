@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.OptionalInt;
-import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
 import org.sonar.ce.task.step.ComputationStep;

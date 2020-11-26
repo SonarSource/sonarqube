@@ -20,7 +20,6 @@
 package org.sonar.db.alm.setting;
 
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
