@@ -21,9 +21,9 @@ package org.sonar.server.user;
 
 import java.util.Arrays;
 import javax.annotation.Nullable;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
@@ -48,8 +49,6 @@ public class ServerUserSessionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private DbClient dbClient = db.getDbClient();
 
   @Test
@@ -59,6 +58,23 @@ public class ServerUserSessionTest {
     assertThat(session.getLogin()).isNull();
     assertThat(session.getUuid()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
+  }
+
+  @Test
+  public void shouldResetPassword_is_false_on_anonymous() {
+    assertThat(newAnonymousSession().shouldResetPassword()).isFalse();
+  }
+
+  @Test
+  public void shouldResetPassword_is_false_if_set_on_UserDto() {
+    UserDto user = db.users().insertUser(userDto -> userDto.setResetPassword(false));
+    assertThat(newUserSession(user).shouldResetPassword()).isFalse();
+  }
+
+  @Test
+  public void shouldResetPassword_is_true_if_set_on_UserDto() {
+    UserDto user = db.users().insertUser(userDto -> userDto.setResetPassword(true));
+    assertThat(newUserSession(user).shouldResetPassword()).isTrue();
   }
 
   @Test
@@ -113,9 +129,7 @@ public class ServerUserSessionTest {
     UserDto user = db.users().insertUser();
     UserSession underTest = newUserSession(user);
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    underTest.checkIsRoot();
+    assertThatForbiddenExceptionIsThrown(underTest::checkIsRoot);
   }
 
   @Test
@@ -163,18 +177,14 @@ public class ServerUserSessionTest {
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
     UserSession session = newUserSession(user);
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    session.checkComponentUuidPermission(UserRole.USER, "another-uuid");
+    assertThatForbiddenExceptionIsThrown(() -> session.checkComponentUuidPermission(UserRole.USER, "another-uuid"));
   }
 
   @Test
   public void checkPermission_throws_ForbiddenException_when_user_doesnt_have_the_specified_permission() {
     UserDto user = db.users().insertUser();
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    newUserSession(user).checkPermission(PROVISION_PROJECTS);
+    assertThatForbiddenExceptionIsThrown(() -> newUserSession(user).checkPermission(PROVISION_PROJECTS));
   }
 
   @Test
@@ -565,10 +575,9 @@ public class ServerUserSessionTest {
 
     UserSession session = newUserSession(user);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    session.checkIsSystemAdministrator();
+    assertThatThrownBy(session::checkIsSystemAdministrator)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -596,9 +605,10 @@ public class ServerUserSessionTest {
     return newUserSession(null);
   }
 
-  private void expectInsufficientPrivilegesForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void assertThatForbiddenExceptionIsThrown(ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
 }

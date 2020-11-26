@@ -62,6 +62,8 @@ public interface UserSession {
    */
   Collection<GroupDto> getGroups();
 
+  boolean shouldResetPassword();
+
   /**
    * This enum supports by name only the few providers for which specific code exists.
    */

@@ -284,6 +284,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean shouldResetPassword() {
+    return currentUserSession.shouldResetPassword();
+  }
+
+  @Override
   public Optional<IdentityProvider> getIdentityProvider() {
     return currentUserSession.getIdentityProvider();
   }

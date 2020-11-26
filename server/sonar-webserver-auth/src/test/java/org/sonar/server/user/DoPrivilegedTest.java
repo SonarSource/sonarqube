@@ -49,6 +49,7 @@ public class DoPrivilegedTest {
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
     assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
     assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
+    assertThat(catcher.userSession.shouldResetPassword()).isFalse();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);

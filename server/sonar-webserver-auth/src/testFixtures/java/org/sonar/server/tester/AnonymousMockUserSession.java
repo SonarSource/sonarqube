@@ -40,7 +40,8 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
     return null;
   }
 
-  @Override public String getUuid() {
+  @Override
+  public String getUuid() {
     return null;
   }
 

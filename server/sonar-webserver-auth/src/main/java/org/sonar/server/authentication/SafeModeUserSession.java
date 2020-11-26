@@ -70,6 +70,11 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
+  public boolean shouldResetPassword() {
+    return false;
+  }
+
+  @Override
   public Optional<IdentityProvider> getIdentityProvider() {
     return Optional.empty();
   }

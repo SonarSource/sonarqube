@@ -44,6 +44,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Set<String> projectPermissions = new HashSet<>();
   private boolean systemAdministrator = false;
+  private boolean resetPassword = false;
 
   protected AbstractMockUserSession(Class<T> clazz) {
     this.clazz = clazz;
@@ -137,4 +138,13 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return isRoot() || systemAdministrator;
   }
 
+  public T setResetPassword(boolean b) {
+    this.resetPassword = b;
+    return clazz.cast(this);
+  }
+
+  @Override
+  public boolean shouldResetPassword() {
+    return resetPassword;
+  }
 }

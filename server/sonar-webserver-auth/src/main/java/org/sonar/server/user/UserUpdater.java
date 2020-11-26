@@ -253,6 +253,7 @@ public class UserUpdater {
     String password = updateUser.password();
     if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
       localAuthentication.storeHashPassword(userDto, password);
+      userDto.setResetPassword(false);
       return true;
     }
     return false;

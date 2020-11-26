@@ -21,10 +21,10 @@ package org.sonar.server.user;
 
 import com.google.common.collect.Multimap;
 import java.util.List;
+import java.util.function.Consumer;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
@@ -48,6 +48,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
@@ -59,11 +60,11 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 public class UserUpdaterUpdateTest {
 
   private static final String DEFAULT_LOGIN = "marius";
+  private static final Consumer<UserDto> EMPTY_USER_CONSUMER = userDto -> {
+  };
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -372,6 +373,30 @@ public class UserUpdaterUpdateTest {
   }
 
   @Test
+  public void update_user_password_set_reset_password_flag_to_false() {
+    UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
+      .setScmAccounts(asList("ma", "marius33"))
+      .setSalt("salt")
+      .setResetPassword(true)
+      .setCryptedPassword("crypted password"));
+    createDefaultGroup();
+
+    underTest.updateAndCommit(session, user, new UpdateUser()
+      .setPassword("password2"), u -> {
+      });
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.getSalt()).isNotEqualTo("salt");
+    assertThat(dto.getCryptedPassword()).isNotEqualTo("crypted password");
+    assertThat(dto.isResetPassword()).isFalse();
+
+    // Following fields has not changed
+    assertThat(dto.getName()).isEqualTo("Marius");
+    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
+  }
+
+  @Test
   public void update_only_external_id() {
     UserDto user = db.users().insertUser(newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setExternalId("1234")
@@ -474,11 +499,11 @@ public class UserUpdaterUpdateTest {
   public void fail_to_set_null_password_when_local_user() {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Password can't be empty");
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setPassword(null), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setPassword(null);
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Password can't be empty");
   }
 
   @Test
@@ -487,11 +512,11 @@ public class UserUpdaterUpdateTest {
       .setLogin(DEFAULT_LOGIN)
       .setLocal(false));
     createDefaultGroup();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Password cannot be changed when external authentication is used");
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setPassword("password2"), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setPassword("password2");
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Password cannot be changed when external authentication is used");
   }
 
   @Test
@@ -539,50 +564,52 @@ public class UserUpdaterUpdateTest {
     db.users().insertUser(newLocalUser("john", "John", "john@email.com").setScmAccounts(singletonList("jo")));
     createDefaultGroup();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
-
-    underTest.updateAndCommit(session, user, new UpdateUser()
+    UpdateUser updateUser = new UpdateUser()
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(asList("jo")), u -> {
-      });
+      .setScmAccounts(asList("jo"));
+
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
   }
 
   @Test
   public void fail_to_update_user_when_scm_account_is_user_login() {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr"));
     createDefaultGroup();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setScmAccounts(asList(DEFAULT_LOGIN)), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setScmAccounts(asList(DEFAULT_LOGIN));
+
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
   public void fail_to_update_user_when_scm_account_is_existing_user_email() {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr"));
     createDefaultGroup();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setScmAccounts(asList("marius@lesbronzes.fr")), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setScmAccounts(asList("marius@lesbronzes.fr"));
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
   public void fail_to_update_user_when_scm_account_is_new_user_email() {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr"));
     createDefaultGroup();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.updateAndCommit(session, user, new UpdateUser()
+    UpdateUser updateUser = new UpdateUser()
       .setEmail("marius@newmail.com")
-      .setScmAccounts(asList("marius@newmail.com")), u -> {
-      });
+      .setScmAccounts(singletonList("marius@newmail.com"));
+
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
@@ -590,11 +617,11 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser();
     createDefaultGroup();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
+    UpdateUser updateUser = new UpdateUser().setLogin("With space");
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setLogin("With space"), u -> {
-    });
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Use only letters, numbers, and .-_@ please.");
   }
 
   @Test
@@ -603,11 +630,10 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     UserDto existingUser = db.users().insertUser(u -> u.setLogin("existing_login"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with login 'existing_login' already exists");
-
-    underTest.updateAndCommit(session, user, new UpdateUser().setLogin(existingUser.getLogin()), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setLogin(existingUser.getLogin());
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with login 'existing_login' already exists");
   }
 
   @Test
@@ -616,12 +642,16 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider("existing_external_provider"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
+    UpdateUser updateUser = new UpdateUser()
+      .setExternalIdentity(
+        new ExternalIdentity(
+          existingUser.getExternalIdentityProvider(),
+          existingUser.getExternalLogin(),
+          existingUser.getExternalId()));
 
-    underTest.updateAndCommit(session, user, new UpdateUser()
-      .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId())), u -> {
-      });
+    assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
   }
 
   private GroupDto createDefaultGroup() {

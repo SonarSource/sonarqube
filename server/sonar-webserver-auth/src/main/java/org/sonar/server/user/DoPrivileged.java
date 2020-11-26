@@ -87,6 +87,11 @@ public final class DoPrivileged {
       }
 
       @Override
+      public boolean shouldResetPassword() {
+        return false;
+      }
+
+      @Override
       public boolean isLoggedIn() {
         return false;
       }

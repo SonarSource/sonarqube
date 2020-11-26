@@ -34,12 +34,14 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.getLogin()).isNull();
     assertThat(underTest.getUuid()).isNull();
     assertThat(underTest.isLoggedIn()).isFalse();
+    assertThat(underTest.shouldResetPassword()).isFalse();
     assertThat(underTest.getName()).isNull();
     assertThat(underTest.getGroups()).isEmpty();
   }
 
   @Test
   public void session_has_no_permissions() {
+    assertThat(underTest.shouldResetPassword()).isFalse();
     assertThat(underTest.isRoot()).isFalse();
     assertThat(underTest.isSystemAdministrator()).isFalse();
     assertThat(underTest.hasPermissionImpl(GlobalPermission.ADMINISTER)).isFalse();

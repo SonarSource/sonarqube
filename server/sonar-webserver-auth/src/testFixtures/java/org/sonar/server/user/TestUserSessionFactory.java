@@ -82,6 +82,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
+    public boolean shouldResetPassword() {
+      return user != null && user.isResetPassword();
+    }
+
+    @Override
     public Optional<IdentityProvider> getIdentityProvider() {
       throw notImplemented();
     }

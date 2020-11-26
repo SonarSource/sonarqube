@@ -96,6 +96,11 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
+  public boolean shouldResetPassword() {
+    return userDto != null && userDto.isResetPassword();
+  }
+
+  @Override
   public boolean isLoggedIn() {
     return userDto != null;
   }

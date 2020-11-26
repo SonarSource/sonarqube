@@ -111,6 +111,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean shouldResetPassword() {
+    return get().shouldResetPassword();
+  }
+
+  @Override
   public boolean hasPermission(GlobalPermission permission) {
     return get().hasPermission(permission);
   }

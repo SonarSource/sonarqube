@@ -46,7 +46,8 @@ public class UserSessionFilter implements Filter {
     this.platform = PlatformImpl.getInstance();
   }
 
-  @VisibleForTesting UserSessionFilter(Platform platform) {
+  @VisibleForTesting
+  UserSessionFilter(Platform platform) {
     this.platform = platform;
   }
 

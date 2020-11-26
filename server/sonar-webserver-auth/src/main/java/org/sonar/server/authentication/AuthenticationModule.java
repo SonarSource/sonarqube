@@ -45,6 +45,7 @@ public class AuthenticationModule extends Module {
       OAuth2ContextFactory.class,
       OAuthCsrfVerifier.class,
       RequestAuthenticatorImpl.class,
+      ResetPasswordFilter.class,
       ExpiredSessionsCleaner.class,
       ExpiredSessionsCleanerExecutorServiceImpl.class,
       UserLastConnectionDatesUpdaterImpl.class,
