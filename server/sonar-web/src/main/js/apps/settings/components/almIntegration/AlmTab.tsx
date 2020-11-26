@@ -25,7 +25,6 @@ import {
 } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormChildrenProps } from './AlmBindingDefinitionForm';
 import AlmTabRenderer from './AlmTabRenderer';
-import { VALIDATED_ALMS } from './utils';
 
 interface Props<B> {
   alm: AlmKeys;
@@ -98,9 +97,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
       })
       .then(this.props.onUpdateDefinitions)
       .then(() => {
-        if (VALIDATED_ALMS.includes(this.props.alm)) {
-          this.props.onCheck(config.key);
-        }
+        this.props.onCheck(config.key);
       })
       .catch(() => {
         if (this.mounted) {

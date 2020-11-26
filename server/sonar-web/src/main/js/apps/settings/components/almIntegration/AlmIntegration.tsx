@@ -33,7 +33,7 @@ import {
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
-import { VALIDATED_ALMS } from './utils';
+import { ALM_KEY_LIST } from './utils';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
@@ -70,7 +70,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     return this.fetchPullRequestDecorationSetting().then(definitions => {
       if (definitions) {
         // Validate all alms on load:
-        VALIDATED_ALMS.forEach(alm => {
+        ALM_KEY_LIST.forEach(alm => {
           this.state.definitions[alm].forEach((def: AlmBindingDefinition) =>
             this.handleCheck(def.key, false)
           );

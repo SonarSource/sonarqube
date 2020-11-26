@@ -33,7 +33,6 @@ import {
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
-import { VALIDATED_ALMS } from './utils';
 
 export interface AlmBindingDefinitionBoxProps {
   alm: AlmKeys;
@@ -121,87 +120,56 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
         {definition.url && <span>{definition.url}</span>}
       </div>
 
-      {!VALIDATED_ALMS.includes(alm) && (
+      {status.type === AlmSettingsBindingStatusType.Validating ? (
         <>
-          <div className="display-flex-row spacer-bottom">
-            <div className="huge-spacer-right">
+          <i className="spinner spacer-right" />
+          {translate('settings.almintegration.checking_configuration')}
+        </>
+      ) : (
+        <>
+          {status.type !== AlmSettingsBindingStatusType.Warning && (
+            <div className="display-flex-row spacer-bottom">
               <Tooltip overlay={importFeatureDescription}>
-                <span>{importFeatureTitle}</span>
+                <div className="huge-spacer-right">
+                  {importFeatureTitle}
+                  {STATUS_ICON[status.type]}
+                </div>
               </Tooltip>
-              <AlertSuccessIcon className="spacer-left" />
+              <div>
+                <Tooltip
+                  overlay={translate(
+                    'settings.almintegration.feature.alm_repo_import.description'
+                  )}>
+                  <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
+                </Tooltip>
+                {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
+              </div>
             </div>
-            <div>
-              <Tooltip
-                overlay={translate('settings.almintegration.feature.alm_repo_import.description')}>
-                <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
-              </Tooltip>
-              {getImportFeatureStatus(
-                definition,
-                multipleDefinitions,
-                AlmSettingsBindingStatusType.Success
-              )}
-            </div>
-          </div>
+          )}
 
           <div className="width-50">
-            <Alert variant="info">{translate('settings.almintegration.no_validation')}</Alert>
-          </div>
-        </>
-      )}
-
-      {VALIDATED_ALMS.includes(alm) &&
-        (status.type === AlmSettingsBindingStatusType.Validating ? (
-          <>
-            <i className="spinner spacer-right" />
-            {translate('settings.almintegration.checking_configuration')}
-          </>
-        ) : (
-          <>
-            {status.type !== AlmSettingsBindingStatusType.Warning && (
-              <div className="display-flex-row spacer-bottom">
-                <Tooltip overlay={importFeatureDescription}>
-                  <div className="huge-spacer-right">
-                    {importFeatureTitle}
-                    {STATUS_ICON[status.type]}
-                  </div>
-                </Tooltip>
-                <div>
-                  <Tooltip
-                    overlay={translate(
-                      'settings.almintegration.feature.alm_repo_import.description'
-                    )}>
-                    <span>
-                      {translate('settings.almintegration.feature.alm_repo_import.title')}
-                    </span>
-                  </Tooltip>
-                  {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
-                </div>
-              </div>
+            {status.type === AlmSettingsBindingStatusType.Warning && (
+              <Alert variant="warning">
+                {translate('settings.almintegration.could_not_validate')}
+              </Alert>
             )}
 
-            <div className="width-50">
-              {status.type === AlmSettingsBindingStatusType.Warning && (
-                <Alert variant="warning">
-                  {translate('settings.almintegration.could_not_validate')}
-                </Alert>
-              )}
+            {status.type === AlmSettingsBindingStatusType.Failure && (
+              <Alert variant="error">{status.failureMessage}</Alert>
+            )}
 
-              {status.type === AlmSettingsBindingStatusType.Failure && (
-                <Alert variant="error">{status.failureMessage}</Alert>
-              )}
+            {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
+              <Alert variant="success">
+                {translate('settings.almintegration.configuration_valid')}
+              </Alert>
+            )}
+          </div>
 
-              {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
-                <Alert variant="success">
-                  {translate('settings.almintegration.configuration_valid')}
-                </Alert>
-              )}
-            </div>
-
-            <Button className="big-spacer-top" onClick={() => props.onCheck(definition.key)}>
-              {translate('settings.almintegration.check_configuration')}
-            </Button>
-          </>
-        ))}
+          <Button className="big-spacer-top" onClick={() => props.onCheck(definition.key)}>
+            {translate('settings.almintegration.check_configuration')}
+          </Button>
+        </>
+      )}
     </div>
   );
 }
