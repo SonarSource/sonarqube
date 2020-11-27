@@ -29,11 +29,13 @@ import BitbucketSearchResults, { BitbucketSearchResultsProps } from '../Bitbucke
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(
-    shallowRender({ searching: true, projects: undefined, searchResults: undefined })
+    shallowRender({ searching: true, projects: [], searchResults: undefined })
   ).toMatchSnapshot('searching');
   expect(shallowRender({ searchResults: undefined })).toMatchSnapshot('no results');
   expect(
-    shallowRender({ searchResults: [mockBitbucketRepository({ projectKey: 'unknown' })] })
+    shallowRender({
+      searchResults: [mockBitbucketRepository(), mockBitbucketRepository({ projectKey: 'unknown' })]
+    })
   ).toMatchSnapshot('unknown project in search results');
 });
 

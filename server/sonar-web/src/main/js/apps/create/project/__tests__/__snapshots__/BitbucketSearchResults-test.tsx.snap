@@ -77,6 +77,30 @@ exports[`should render correctly: unknown project in search results 1`] = `
       }
       showingAllRepositories={true}
     />
+    <BitbucketProjectAccordion
+      disableRepositories={false}
+      key="project"
+      onSelectRepository={[MockFunction]}
+      open={true}
+      project={
+        Object {
+          "id": 1,
+          "key": "project",
+          "name": "Project",
+        }
+      }
+      repositories={
+        Array [
+          Object {
+            "id": 1,
+            "name": "Repo",
+            "projectKey": "project",
+            "slug": "project__repo",
+          },
+        ]
+      }
+      showingAllRepositories={true}
+    />
   </DeferredSpinner>
 </div>
 `;

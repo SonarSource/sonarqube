@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { uniq } from 'lodash';
 import * as React from 'react';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isDefined } from 'sonar-ui-common/helpers/types';
 import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
@@ -52,19 +50,21 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
     );
   }
 
-  const filteredProjects = uniq(
-    searchResults.map(r => projects.find(p => p.key === r.projectKey)).filter(isDefined)
+  const filteredProjects = projects.filter(p => searchResults.some(r => r.projectKey === p.key));
+  const filteredProjectKeys = filteredProjects.map(p => p.key);
+  const filteredSearchResults = searchResults.filter(
+    r => !filteredProjectKeys.includes(r.projectKey)
   );
 
   return (
     <div className="big-spacer-top">
       <DeferredSpinner loading={searching}>
-        {filteredProjects.length === 0 && searchResults.length > 0 && (
+        {filteredSearchResults.length > 0 && (
           <BitbucketProjectAccordion
             disableRepositories={disableRepositories}
             onSelectRepository={props.onSelectRepository}
             open={true}
-            repositories={searchResults}
+            repositories={filteredSearchResults}
             selectedRepository={selectedRepository}
             showingAllRepositories={true}
           />
