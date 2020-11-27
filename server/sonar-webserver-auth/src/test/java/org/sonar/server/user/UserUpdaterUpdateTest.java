@@ -84,7 +84,7 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2")
@@ -216,7 +216,7 @@ public class UserUpdaterUpdateTest {
   public void update_index_when_updating_user_login() {
     UserDto oldUser = db.users().insertUser();
     createDefaultGroup();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {
@@ -240,7 +240,7 @@ public class UserUpdaterUpdateTest {
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {

@@ -51,7 +51,7 @@ public class ScmAccountToUserLoaderTest {
   @Test
   public void load_login_for_scm_account() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("charlie", "jesuis@charlie.com")));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
@@ -64,7 +64,7 @@ public class ScmAccountToUserLoaderTest {
   public void warn_if_multiple_users_share_the_same_scm_account() {
     db.users().insertUser(u -> u.setLogin("charlie").setScmAccounts(asList("charlie", "jesuis@charlie.com")));
     db.users().insertUser(u -> u.setLogin("another.charlie").setScmAccounts(asList("charlie")));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);

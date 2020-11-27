@@ -921,11 +921,11 @@ public class SearchActionTest {
   }
 
   private void indexRules() {
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
   }
 
   private void indexActiveRules() {
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
   }
 
   private String[] get101Tags() {

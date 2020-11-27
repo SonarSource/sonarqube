@@ -73,6 +73,10 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     doIndex(Size.LARGE, null);
   }
 
+  public void indexAll() {
+    doIndex(Size.REGULAR, null);
+  }
+
   @Override
   public AuthorizationScope getAuthorizationScope() {
     return AUTHORIZATION_SCOPE;

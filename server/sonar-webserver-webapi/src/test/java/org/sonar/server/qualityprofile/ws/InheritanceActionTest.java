@@ -106,7 +106,7 @@ public class InheritanceActionTest {
     createActiveRule(rule2, sonarway);
 
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     QProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
     setParent(sonarway, companyWide);
@@ -119,7 +119,7 @@ public class InheritanceActionTest {
     setParent(buWide, forProject1);
     createActiveRule(rule3, forProject1);
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     QProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
     setParent(buWide, forProject2);
@@ -150,7 +150,7 @@ public class InheritanceActionTest {
     db.qualityProfiles().activateRule(child, rule3);
     long childRules = 1;
 
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     InputStream response = ws.newRequest()
       .setMediaType(PROTOBUF)
@@ -177,7 +177,7 @@ public class InheritanceActionTest {
     db.qualityProfiles().activateRule(profile, rule);
     long activeRules = 0;
 
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     InputStream response = ws.newRequest()
       .setMediaType(PROTOBUF)

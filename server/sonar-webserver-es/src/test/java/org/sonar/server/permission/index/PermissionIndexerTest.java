@@ -77,6 +77,19 @@ public class PermissionIndexerTest {
   }
 
   @Test
+  public void indexAll_grants_access_to_any_user_and_to_group_Anyone_on_public_projects() {
+    ComponentDto project = createAndIndexPublicProject();
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+
+    underTest.indexAll(underTest.getIndexTypes());
+
+    verifyAnyoneAuthorized(project);
+    verifyAuthorized(project, user1);
+    verifyAuthorized(project, user2);
+  }
+
+  @Test
   public void deletion_resilience_will_deindex_projects() {
     ComponentDto project1 = createUnindexedPublicProject();
     ComponentDto project2 = createUnindexedPublicProject();

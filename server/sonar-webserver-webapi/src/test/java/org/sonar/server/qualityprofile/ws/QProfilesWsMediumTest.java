@@ -109,7 +109,7 @@ public class QProfilesWsMediumTest {
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
     ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(1);
@@ -137,7 +137,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule3, profile);
     createActiveRule(rule1, profile);
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(4);
@@ -163,7 +163,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, php);
     createActiveRule(rule1, php);
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
@@ -187,7 +187,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
@@ -421,7 +421,7 @@ public class QProfilesWsMediumTest {
     dbClient.activeRuleDao().insert(dbSession, active2);
 
     dbSession.commit();
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    activeRuleIndexer.indexAll();
 
     // 0. assert rule child rule is minor
     Optional<ActiveRuleDto> activeRuleDto = dbClient.activeRuleDao().selectByKey(dbSession, active2.getKey());

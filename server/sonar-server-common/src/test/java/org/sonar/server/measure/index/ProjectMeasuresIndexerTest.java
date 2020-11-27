@@ -109,6 +109,19 @@ public class ProjectMeasuresIndexerTest {
     assertThatQualifierIs("TRK", project1, project2, project3);
   }
 
+  @Test
+  public void indexAll_indexes_all_projects() {
+    OrganizationDto organization = db.organizations().insert();
+    SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+    SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+    SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+
+    underTest.indexAll();
+
+    assertThatIndexContainsOnly(project1, project2, project3);
+    assertThatQualifierIs("TRK", project1, project2, project3);
+  }
+
   /**
    * Provisioned projects don't have analysis yet
    */

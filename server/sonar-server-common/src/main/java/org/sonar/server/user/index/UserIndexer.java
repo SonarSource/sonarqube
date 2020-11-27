@@ -63,11 +63,19 @@ public class UserIndexer implements ResilientIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    indexAll(Size.LARGE);
+  }
+
+  public void indexAll() {
+    indexAll(Size.REGULAR);
+  }
+
+  private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
       dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByUserUuid::put);
 
-      BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
+      BulkIndexer bulkIndexer = newBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.

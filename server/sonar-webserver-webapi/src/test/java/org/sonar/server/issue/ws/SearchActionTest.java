@@ -141,7 +141,7 @@ public class SearchActionTest {
   private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
   private WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
-  private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Before
   public void setUp() {
@@ -1368,7 +1368,7 @@ public class SearchActionTest {
   }
 
   private void indexPermissions() {
-    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
+    permissionIndexer.indexAll(permissionIndexer.getIndexTypes());
   }
 
   private void indexIssues() {

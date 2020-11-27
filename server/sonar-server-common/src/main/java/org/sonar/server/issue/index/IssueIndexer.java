@@ -103,10 +103,9 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     asyncIssueIndexing.triggerOnIndexCreation();
   }
 
-  @VisibleForTesting
   public void indexAllIssues() {
     try (IssueIterator issues = issueIteratorFactory.createForAll()) {
-      doIndex(issues, Size.LARGE, IndexingListener.FAIL_ON_ERROR);
+      doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
     }
   }
 
@@ -249,7 +248,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   @VisibleForTesting
   protected void index(Iterator<IssueDoc> issues) {
-    doIndex(issues, Size.LARGE, IndexingListener.FAIL_ON_ERROR);
+    doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
   }
 
   private void doIndex(Iterator<IssueDoc> issues, Size size, IndexingListener listener) {

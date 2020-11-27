@@ -90,6 +90,18 @@ public class ActiveRuleIndexerTest {
   }
 
   @Test
+  public void indexAll_indexes_all_data() {
+    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile1, rule1);
+
+    underTest.indexAll();
+
+    List<ActiveRuleDoc> docs = es.getDocuments(TYPE_ACTIVE_RULE, ActiveRuleDoc.class);
+    assertThat(docs).hasSize(1);
+    verify(docs.get(0), profile1, activeRule);
+    assertThatEsQueueTableIsEmpty();
+  }
+
+  @Test
   public void test_commitAndIndex() {
     ActiveRuleDto ar1 = db.qualityProfiles().activateRule(profile1, rule1);
     ActiveRuleDto ar2 = db.qualityProfiles().activateRule(profile2, rule1);

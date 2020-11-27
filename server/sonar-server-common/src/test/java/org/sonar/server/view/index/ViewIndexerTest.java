@@ -167,6 +167,21 @@ public class ViewIndexerTest {
   }
 
   @Test
+  public void index_application_with_indexAll() {
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newProjectCopy("PC1", project, application));
+
+    underTest.indexAll();
+    List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
+
+    assertThat(result).hasSize(1);
+    ViewDoc resultApp = result.get(0);
+    assertThat(resultApp.uuid()).isEqualTo(application.uuid());
+    assertThat(resultApp.projects()).containsExactlyInAnyOrder(project.uuid());
+  }
+
+  @Test
   public void index_application_branch() {
     ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setDbKey("app"));
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));

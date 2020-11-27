@@ -70,15 +70,20 @@ public class RuleIndexer implements ResilientIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    if (uninitializedIndexTypes.contains(TYPE_RULE)) {
+      indexAll(Size.LARGE);
+    }
+  }
+
+  public void indexAll() {
+    indexAll(Size.REGULAR);
+  }
+
+  private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      BulkIndexer bulk = createBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
+      BulkIndexer bulk = createBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulk.start();
-
-      // index all definitions
-      if (uninitializedIndexTypes.contains(TYPE_RULE)) {
-        dbClient.ruleDao().scrollIndexingRules(dbSession, dto -> bulk.add(ruleDocOf(dto).toIndexRequest()));
-      }
-
+      dbClient.ruleDao().scrollIndexingRules(dbSession, dto -> bulk.add(ruleDocOf(dto).toIndexRequest()));
       bulk.stop();
     }
   }

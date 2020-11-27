@@ -38,7 +38,6 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -134,7 +133,7 @@ public class ComponentIndexSearchTest {
     ComponentDto unauthorizedProject = db.components().insertPrivateProject();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
-    indexer.indexOnStartup(emptySet());
+    indexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
@@ -145,7 +144,7 @@ public class ComponentIndexSearchTest {
   }
 
   private void index(ComponentDto... components) {
-    indexer.indexOnStartup(emptySet());
+    indexer.indexAll();
     Arrays.stream(components).forEach(c -> authorizationIndexerTester.allowOnlyAnyone(c));
   }
 }

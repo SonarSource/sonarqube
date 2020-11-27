@@ -84,6 +84,16 @@ public class ComponentIndexerTest {
   }
 
   @Test
+  public void indexOAll_indexes_all_components() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    underTest.indexAll();
+
+    assertThatIndexContainsOnly(project1, project2);
+  }
+
+  @Test
   public void map_fields() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);

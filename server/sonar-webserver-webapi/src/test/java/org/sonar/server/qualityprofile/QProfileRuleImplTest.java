@@ -717,7 +717,7 @@ public class QProfileRuleImplTest {
       i -> rules.add(db.rules().insertRule(r -> r.setLanguage(language).setRepositoryKey(repositoryKey))));
 
     verifyNoActiveRules();
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
 
     RuleQuery ruleQuery = new RuleQuery()
       .setRepositories(singletonList(repositoryKey));
@@ -744,7 +744,7 @@ public class QProfileRuleImplTest {
       i -> rules.add(db.rules().insertRule(r -> r.setLanguage(language).setRepositoryKey(repositoryKey))));
 
     verifyNoActiveRules();
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
 
     RuleQuery ruleQuery = new RuleQuery()
       .setRepositories(singletonList(repositoryKey));
@@ -777,7 +777,7 @@ public class QProfileRuleImplTest {
     assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), INHERITED, emptyMap());
 
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
 
     RuleQuery ruleQuery = new RuleQuery()
       .setQProfile(childProfile);
@@ -801,7 +801,7 @@ public class QProfileRuleImplTest {
     activate(parentProfile, RuleActivation.create(rule1.getUuid()));
     activate(parentProfile, RuleActivation.create(rule2.getUuid()));
 
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
 
     RuleQuery query = new RuleQuery()
       .setRuleKey(rule1.getRuleKey())

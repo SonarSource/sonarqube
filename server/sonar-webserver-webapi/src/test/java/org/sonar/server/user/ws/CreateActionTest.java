@@ -19,9 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.HashSet;
 import java.util.Optional;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
 import org.junit.Rule;
@@ -225,7 +223,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false));
-    userIndexer.indexOnStartup(new HashSet<>());
+    userIndexer.indexAll();
 
     call(CreateRequest.builder()
       .setLogin("john")

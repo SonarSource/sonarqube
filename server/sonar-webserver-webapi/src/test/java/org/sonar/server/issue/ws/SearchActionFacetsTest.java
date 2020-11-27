@@ -39,7 +39,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
@@ -89,7 +88,7 @@ public class SearchActionFacetsTest {
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private StartupIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(), new TransitionService(userSession, null));
   private Languages languages = new Languages();
@@ -592,7 +591,7 @@ public class SearchActionFacetsTest {
   }
 
   private void indexPermissions() {
-    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
+    permissionIndexer.indexAll(permissionIndexer.getIndexTypes());
   }
 
   private void indexIssues() {

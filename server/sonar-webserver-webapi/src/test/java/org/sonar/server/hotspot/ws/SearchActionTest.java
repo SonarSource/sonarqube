@@ -1606,7 +1606,7 @@ public class SearchActionTest {
   }
 
   private void indexPermissions() {
-    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
+    permissionIndexer.indexAll(permissionIndexer.getIndexTypes());
   }
 
   private void indexIssues() {
@@ -1614,7 +1614,7 @@ public class SearchActionTest {
   }
 
   private void indexViews() {
-    viewIndexer.indexOnStartup(viewIndexer.getIndexTypes());
+    viewIndexer.indexAll();
   }
 
   private RuleDefinitionDto newRule(RuleType ruleType) {

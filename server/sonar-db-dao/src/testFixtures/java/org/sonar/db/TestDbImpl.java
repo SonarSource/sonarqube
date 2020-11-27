@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,7 +39,7 @@ import org.sonar.process.logging.LogbackHelper;
 class TestDbImpl extends CoreTestDb {
   private static TestDbImpl defaultSchemaBaseTestDb;
   // instantiating MyBatis objects is costly => we cache them for default schema
-  private static final Map<List<String>, TestDbImpl> defaultSchemaTestDbsWithExtensions = new HashMap<>();
+  private static final Map<Set<String>, TestDbImpl> defaultSchemaTestDbsWithExtensions = new HashMap<>();
 
   private boolean isDefault;
   private MyBatis myBatis;
@@ -94,11 +95,10 @@ class TestDbImpl extends CoreTestDb {
         defaultSchemaBaseTestDb = new TestDbImpl(null);
       }
       if (confExtensions.length > 0) {
-        List<String> key = Arrays.stream(confExtensions)
+        Set<String> key = Arrays.stream(confExtensions)
           .flatMap(MyBatisConfExtension::getMapperClasses)
           .map(Class::getName)
-          .sorted()
-          .collect(Collectors.toList());
+          .collect(Collectors.toSet());
         return defaultSchemaTestDbsWithExtensions.computeIfAbsent(
           key,
           k -> new TestDbImpl(defaultSchemaBaseTestDb, newMyBatis(defaultSchemaBaseTestDb.getDatabase(), confExtensions)));

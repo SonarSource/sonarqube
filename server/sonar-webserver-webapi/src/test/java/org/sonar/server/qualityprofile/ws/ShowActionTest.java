@@ -166,8 +166,8 @@ public class ShowActionTest {
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule1);
     db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule2);
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
+    activeRuleIndexer.indexAll();
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -186,8 +186,8 @@ public class ShowActionTest {
     RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
-    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
-    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+    ruleIndexer.indexAll();
+    activeRuleIndexer.indexAll();
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())

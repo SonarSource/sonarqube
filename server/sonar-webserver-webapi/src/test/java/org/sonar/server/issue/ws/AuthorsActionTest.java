@@ -48,7 +48,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.AuthorsResponse;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -200,7 +199,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
     userSession.logIn();
 
     assertThat(ws.newRequest()
@@ -220,7 +219,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
     userSession.logIn();
 
     assertThat(ws.newRequest()

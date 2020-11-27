@@ -49,7 +49,6 @@ import org.sonarqube.ws.Issues.TagsResponse;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -226,7 +225,7 @@ public class TagsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
 
     assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("cwe");
   }
@@ -243,7 +242,7 @@ public class TagsActionTest {
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("cwe")));
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("foo")));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
 
     assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("foo");
   }
@@ -258,7 +257,7 @@ public class TagsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
 
     assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }
@@ -275,7 +274,7 @@ public class TagsActionTest {
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("cwe")));
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("foo")));
     indexIssues();
-    viewIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexAll();
 
     assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }

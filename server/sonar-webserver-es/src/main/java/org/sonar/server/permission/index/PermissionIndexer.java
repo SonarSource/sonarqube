@@ -84,6 +84,13 @@ public class PermissionIndexer implements ProjectIndexer {
     index(authorizations, scopes, Size.LARGE);
   }
 
+  public void indexAll(Set<IndexType> uninitializedIndexTypes) {
+    // TODO do not load everything in memory. Db rows should be scrolled.
+    List<IndexPermissions> authorizations = getAllAuthorizations();
+    Stream<AuthorizationScope> scopes = getScopes(uninitializedIndexTypes);
+    index(authorizations, scopes, Size.REGULAR);
+  }
+
   @VisibleForTesting
   void index(List<IndexPermissions> authorizations) {
     index(authorizations, authorizationScopes.stream(), Size.REGULAR);

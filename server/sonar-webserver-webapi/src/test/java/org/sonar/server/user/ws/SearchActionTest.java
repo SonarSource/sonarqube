@@ -65,7 +65,7 @@ public class SearchActionTest {
   public void search_for_all_users() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -87,7 +87,7 @@ public class SearchActionTest {
       .setEmail("user@mail.com")
       .setLocal(true)
       .setScmAccounts(singletonList("user1")));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     assertThat(ws.newRequest()
       .setParam("q", "user-%_%-")
@@ -109,7 +109,7 @@ public class SearchActionTest {
   @Test
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("john@doe.com"));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -123,7 +123,7 @@ public class SearchActionTest {
   @Test
   public void return_scm_accounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -139,7 +139,7 @@ public class SearchActionTest {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
     db.users().insertToken(user);
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -157,7 +157,7 @@ public class SearchActionTest {
   @Test
   public void return_email_only_when_system_administer() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -175,7 +175,7 @@ public class SearchActionTest {
   @Test
   public void return_user_not_having_email() {
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -194,7 +194,7 @@ public class SearchActionTest {
     GroupDto group3 = db.users().insertGroup("group3");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -212,7 +212,7 @@ public class SearchActionTest {
   @Test
   public void return_external_information() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -226,7 +226,7 @@ public class SearchActionTest {
   @Test
   public void return_external_identity_only_when_system_administer() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -247,7 +247,7 @@ public class SearchActionTest {
     db.users().insertToken(user);
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.anonymous();
 
     SearchWsResponse response = ws.newRequest()
@@ -263,7 +263,7 @@ public class SearchActionTest {
     UserDto userWithLastConnectionDate = db.users().insertUser();
     db.users().updateLastConnectionDate(userWithLastConnectionDate, 10_000_000_000L);
     UserDto userWithoutLastConnectionDate = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -285,7 +285,7 @@ public class SearchActionTest {
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
     UserDto otherUser = db.users().insertUser();
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     userSession.logIn(user);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
@@ -308,7 +308,7 @@ public class SearchActionTest {
   public void search_with_paging() {
     userSession.logIn();
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(Param.PAGE_SIZE, "5")
@@ -364,7 +364,7 @@ public class SearchActionTest {
     db.users().insertToken(simon);
     db.users().insertToken(simon);
     db.users().insertToken(fmallet);
-    userIndexer.indexOnStartup(null);
+    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     String response = ws.newRequest().execute().getInput();

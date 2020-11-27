@@ -46,7 +46,6 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,7 +98,7 @@ public class TelemetryDataLoaderImplTest {
     int userCount = 3;
     IntStream.range(0, userCount).forEach(i -> db.users().insertUser());
     db.users().insertUser(u -> u.setActive(false));
-    userIndexer.indexOnStartup(emptySet());
+    userIndexer.indexAll();
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
@@ -118,7 +117,7 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(80d));
     db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=300;kotlin=2500"));
-    projectMeasuresIndexer.indexOnStartup(emptySet());
+    projectMeasuresIndexer.indexAll();
 
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
@@ -157,7 +156,7 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
     db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
     db.measures().insertLiveMeasure(pr, ncloc, m -> m.setValue(30d));
-    projectMeasuresIndexer.indexOnStartup(emptySet());
+    projectMeasuresIndexer.indexAll();
 
     TelemetryData data = communityUnderTest.load();
 

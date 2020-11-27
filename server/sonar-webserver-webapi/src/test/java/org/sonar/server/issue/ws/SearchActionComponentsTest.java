@@ -805,6 +805,6 @@ public class SearchActionComponentsTest {
 
   private void indexIssuesAndViews() {
     indexIssues();
-    viewIndexer.indexOnStartup(null);
+    viewIndexer.indexAll();
   }
 }

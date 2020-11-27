@@ -62,12 +62,20 @@ public class ViewIndexer implements ResilientIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    indexAll(Size.LARGE);
+  }
+
+  public void indexAll() {
+    indexAll(Size.REGULAR);
+  }
+
+  private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
       for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {
         viewAndProjectViewUuidMap.put(uuidWithProjectUuidDto.getUuid(), uuidWithProjectUuidDto.getProjectUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, false, Size.LARGE);
+      index(dbSession, viewAndProjectViewUuidMap, false, bulkSize);
     }
   }
 

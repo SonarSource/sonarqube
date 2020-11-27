@@ -141,7 +141,7 @@ public class SuggestionsActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("default-organization").setName("Default Organization"));
     ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setDbKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
     ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setDbKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project1);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
@@ -159,7 +159,7 @@ public class SuggestionsActionTest {
   public void suggestions_without_query_should_contain_recently_browsed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -184,7 +184,7 @@ public class SuggestionsActionTest {
   public void suggestions_without_query_should_contain_recently_browsed_public_project() {
     ComponentDto project = db.components().insertComponent(newPublicProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -208,7 +208,7 @@ public class SuggestionsActionTest {
   public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -225,7 +225,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -250,7 +250,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
@@ -266,7 +266,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     doReturn(singletonList(project)).when(favoriteFinder).list();
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -291,7 +291,7 @@ public class SuggestionsActionTest {
   public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -313,7 +313,7 @@ public class SuggestionsActionTest {
     ComponentDto project4 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Delta"));
     doReturn(asList(project4, project2)).when(favoriteFinder).list();
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     userSessionRule.addProjectPermission(USER, project1);
     userSessionRule.addProjectPermission(USER, project2);
     userSessionRule.addProjectPermission(USER, project3);
@@ -373,7 +373,7 @@ public class SuggestionsActionTest {
   public void exact_match_in_one_qualifier() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -398,7 +398,7 @@ public class SuggestionsActionTest {
   public void should_not_return_suggestion_on_non_existing_project() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
@@ -419,7 +419,7 @@ public class SuggestionsActionTest {
   public void must_not_search_if_no_valid_tokens_are_provided() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -445,7 +445,7 @@ public class SuggestionsActionTest {
   public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -593,7 +593,7 @@ public class SuggestionsActionTest {
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query));
     ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query).setQualifier(UNIT_TEST_FILE));
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
     authorizationIndexerTester.allowOnlyAnyone(view);
     authorizationIndexerTester.allowOnlyAnyone(app);
@@ -617,7 +617,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertPublicProject();
     authorizationIndexerTester.allowOnlyAnyone(project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -736,7 +736,7 @@ public class SuggestionsActionTest {
       .mapToObj(i -> db.components().insertComponent(newPublicProjectDto(organization).setName(namePrefix + i)))
       .collect(Collectors.toList());
 
-    componentIndexer.indexOnStartup(null);
+    componentIndexer.indexAll();
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
 
     TestRequest request = ws.newRequest()

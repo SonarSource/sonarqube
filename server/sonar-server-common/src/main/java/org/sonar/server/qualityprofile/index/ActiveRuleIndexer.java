@@ -73,8 +73,16 @@ public class ActiveRuleIndexer implements ResilientIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    indexAll(Size.LARGE);
+  }
+
+  public void indexAll() {
+    indexAll(Size.REGULAR);
+  }
+
+  private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      BulkIndexer bulkIndexer = createBulkIndexer(Size.LARGE, IndexingListener.FAIL_ON_ERROR);
+      BulkIndexer bulkIndexer = createBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
       dbClient.activeRuleDao().scrollAllForIndexing(dbSession, ar -> bulkIndexer.add(newIndexRequest(ar)));
       bulkIndexer.stop();

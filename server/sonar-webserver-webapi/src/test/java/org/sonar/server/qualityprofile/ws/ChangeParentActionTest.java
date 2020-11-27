@@ -63,7 +63,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -133,7 +132,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
@@ -164,7 +163,7 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
 
     // Set parent 1
     qProfileTree.setParentAndCommit(dbSession, child, parent1);
@@ -193,7 +192,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
 
     // Set parent
     qProfileTree.setParentAndCommit(dbSession, child, parent);
@@ -222,7 +221,7 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
@@ -275,7 +274,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
@@ -306,7 +305,7 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
-    activeRuleIndexer.indexOnStartup(emptySet());
+    activeRuleIndexer.indexAll();
     // Set parent 1
     qProfileTree.setParentAndCommit(dbSession, child, parent1);
     UserDto user = db.users().insertUser();

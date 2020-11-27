@@ -53,7 +53,6 @@ import org.sonarqube.ws.Components.SearchWsResponse;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -264,7 +263,7 @@ public class SearchActionTest {
   }
 
   private void index() {
-    indexer.indexOnStartup(emptySet());
+    indexer.indexAll();
   }
 
   private static Language[] javaLanguage() {

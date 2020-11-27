@@ -73,6 +73,24 @@ public class UserIndexerTest {
   }
 
   @Test
+  public void indexAll_adds_all_users_to_index() {
+    UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("user_1", "u1")));
+
+    underTest.indexAll();
+
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
+    assertThat(docs).hasSize(1);
+    UserDoc doc = docs.get(0);
+    assertThat(doc.uuid()).isEqualTo(user.getUuid());
+    assertThat(doc.login()).isEqualTo(user.getLogin());
+    assertThat(doc.name()).isEqualTo(user.getName());
+    assertThat(doc.email()).isEqualTo(user.getEmail());
+    assertThat(doc.active()).isEqualTo(user.isActive());
+    assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
+    assertThat(doc.organizationUuids()).isEmpty();
+  }
+
+  @Test
   public void indexOnStartup_adds_all_users_with_organizations() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();

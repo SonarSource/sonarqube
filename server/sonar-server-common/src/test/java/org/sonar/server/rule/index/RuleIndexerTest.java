@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +45,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -148,7 +145,6 @@ public class RuleIndexerTest {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setSecurityStandards(standards)
       .setDescription(VALID_HOTSPOT_RULE_DESCRIPTION));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -184,7 +180,6 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(description));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -207,7 +202,6 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(randomAlphabetic(30)));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -224,7 +218,6 @@ public class RuleIndexerTest {
       .setDescription("bar\n" +
         "<h2>Ask Yourself Whether</h2>\n" +
         "foo"));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
