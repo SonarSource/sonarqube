@@ -142,7 +142,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_alert_events_on_root() {
     when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
-    Event alert = Event.createAlert("Red (was Orange)", null, "Open issues > 0");
+    Event alert = Event.createAlert("Failed", null, "Open issues > 0");
     when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(alert));
 
     underTest.execute(new TestComputationStepContext());

@@ -110,33 +110,31 @@ public class QualityGateEventsStep implements ComputationStep {
 
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
-      String label = String.format("%s (was %s)", rawStatus.getStatus().getColorName(), baseStatus.getStatus().getColorName());
-      createEvent(project, label, rawStatus.getText());
+      createEvent(project, rawStatus.getStatus().getLabel(), rawStatus.getText());
       boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
-      notifyUsers(project, label, rawStatus, isNewKo);
+      notifyUsers(project, rawStatus, isNewKo);
     }
   }
 
   private void checkNewQualityGate(Component project, QualityGateStatus rawStatus) {
     if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
-      createEvent(project, rawStatus.getStatus().getColorName(), rawStatus.getText());
-      notifyUsers(project, rawStatus.getStatus().getColorName(), rawStatus, true);
+      createEvent(project, rawStatus.getStatus().getLabel(), rawStatus.getText());
+      notifyUsers(project, rawStatus, true);
     }
   }
 
   /**
-   * @param label "Red (was Green)"
    * @param rawStatus OK or ERROR + optional text
    */
-  private void notifyUsers(Component project, String label, QualityGateStatus rawStatus, boolean isNewAlert) {
+  private void notifyUsers(Component project, QualityGateStatus rawStatus, boolean isNewAlert) {
     QGChangeNotification notification = new QGChangeNotification();
     notification
-      .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
+      .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), rawStatus.getStatus().getLabel()))
       .setFieldValue("projectName", project.getName())
       .setFieldValue("projectKey", project.getKey())
       .setFieldValue("projectVersion", project.getProjectAttributes().getProjectVersion())
-      .setFieldValue("alertName", label)
+      .setFieldValue("alertName", rawStatus.getStatus().getLabel())
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));

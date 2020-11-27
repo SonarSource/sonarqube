@@ -51,7 +51,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatAlertWithSeveralMessages() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4, coverage < 75%", "ERROR", "false");
+    Notification notification = createNotification("Failed", "violations > 4, coverage < 75%", "ERROR", "false");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -59,7 +59,7 @@ public class QGChangeEmailTemplateTest {
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
       "  - violations > 4\n" +
@@ -70,7 +70,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatAlertWithSeveralMessagesOnBranch() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4, coverage < 75%", "ERROR", "false")
+    Notification notification = createNotification("Failed", "violations > 4, coverage < 75%", "ERROR", "false")
         .setFieldValue("branch", "feature");
 
     EmailMessage message = template.format(notification);
@@ -80,7 +80,7 @@ public class QGChangeEmailTemplateTest {
       "Project: Foo\n" +
       "Branch: feature\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
       "  - violations > 4\n" +
@@ -91,7 +91,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatNewAlertWithSeveralMessages() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4, coverage < 75%", "ERROR", "true");
+    Notification notification = createNotification("Failed", "violations > 4, coverage < 75%", "ERROR", "true");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -99,7 +99,7 @@ public class QGChangeEmailTemplateTest {
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate thresholds:\n" +
       "  - violations > 4\n" +
@@ -110,7 +110,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatNewAlertWithOneMessage() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4", "ERROR", "true");
+    Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -118,7 +118,7 @@ public class QGChangeEmailTemplateTest {
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate threshold: violations > 4\n" +
       "\n" +
@@ -127,7 +127,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatNewAlertWithoutVersion() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4", "ERROR", "true")
+    Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
         .setFieldValue("projectVersion", null);
 
     EmailMessage message = template.format(notification);
@@ -135,7 +135,7 @@ public class QGChangeEmailTemplateTest {
     assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo\""));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate threshold: violations > 4\n" +
       "\n" +
@@ -144,7 +144,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatNewAlertWithOneMessageOnBranch() {
-    Notification notification = createNotification("Red (was Green)", "violations > 4", "ERROR", "true")
+    Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
       .setFieldValue("branch", "feature");
 
     EmailMessage message = template.format(notification);
@@ -154,7 +154,7 @@ public class QGChangeEmailTemplateTest {
       "Project: Foo\n" +
       "Branch: feature\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Red (was Green)\n" +
+      "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate threshold: violations > 4\n" +
       "\n" +
@@ -163,7 +163,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatBackToGreenMessage() {
-    Notification notification = createNotification("Green (was Red)", "", "OK", "false");
+    Notification notification = createNotification("Passed", "", "OK", "false");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -171,7 +171,7 @@ public class QGChangeEmailTemplateTest {
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Green (was Red)\n" +
+      "Quality gate status: Passed\n" +
       "\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
@@ -179,7 +179,7 @@ public class QGChangeEmailTemplateTest {
 
   @Test
   public void shouldFormatBackToGreenMessageOnBranch() {
-    Notification notification = createNotification("Green (was Red)", "", "OK", "false")
+    Notification notification = createNotification("Passed", "", "OK", "false")
         .setFieldValue("branch", "feature");
 
     EmailMessage message = template.format(notification);
@@ -189,7 +189,7 @@ public class QGChangeEmailTemplateTest {
       "Project: Foo\n" +
       "Branch: feature\n" +
       "Version: V1-SNAP\n" +
-      "Quality gate status: Green (was Red)\n" +
+      "Quality gate status: Passed\n" +
       "\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));

@@ -152,12 +152,12 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void event_created_if_base_ALERT_STATUS_has_no_alertStatus_and_raw_is_ERROR() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Red");
+    verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Failed");
   }
 
   @Test
   public void event_created_if_base_ALERT_STATUS_has_invalid_alertStatus_and_raw_is_ERROR() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Red");
+    verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Failed");
   }
 
   private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedLabel) {
@@ -211,8 +211,8 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed() {
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(OK, ERROR_QUALITY_GATE_STATUS, "Red (was Green)");
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(ERROR, OK_QUALITY_GATE_STATUS, "Green (was Red)");
+    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(OK, ERROR_QUALITY_GATE_STATUS, "Failed");
+    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(ERROR, OK_QUALITY_GATE_STATUS, "Passed");
   }
 
   private void verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(Measure.Level previousAlertStatus,

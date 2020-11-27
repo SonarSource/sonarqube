@@ -38,8 +38,8 @@ public interface Measure {
   }
 
   enum Level {
-    OK("Green"),
-    ERROR("Red"),
+    OK("Passed"),
+    ERROR("Failed"),
 
     /**
      * @deprecated since 7.6, warning quality gates doesn't exist anymore on new analysis
@@ -47,14 +47,14 @@ public interface Measure {
     @Deprecated
     WARN("Orange");
 
-    private final String colorName;
+    private final String label;
 
-    Level(String colorName) {
-      this.colorName = colorName;
+    Level(String label) {
+      this.label = label;
     }
 
-    public String getColorName() {
-      return colorName;
+    public String getLabel() {
+      return label;
     }
 
     public static Optional<Level> toLevel(@Nullable String level) {
