@@ -37,14 +37,15 @@ import org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.WebServerRuleFinder;
+import org.sonar.server.startup.DetectActiveAdminAccountWithDefaultCredential;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RegisterPlugins;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
+import org.sonar.server.startup.UpgradeSuggestionsCleaner;
 import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
-import org.sonar.server.startup.UpgradeSuggestionsCleaner;
 
 public class PlatformLevelStartup extends PlatformLevel {
   public PlatformLevelStartup(PlatformLevel parent) {
@@ -72,7 +73,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
       CeQueueCleaner.class,
-      UpgradeSuggestionsCleaner.class);
+      UpgradeSuggestionsCleaner.class,
+      DetectActiveAdminAccountWithDefaultCredential.class);
 
     // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefor it
     // must be started after all the other startup tasks

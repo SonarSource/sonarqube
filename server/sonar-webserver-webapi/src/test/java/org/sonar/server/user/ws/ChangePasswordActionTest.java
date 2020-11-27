@@ -34,7 +34,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -226,8 +225,9 @@ public class ChangePasswordActionTest {
 
   private UserDto createLocalUser(String password) {
     UserDto user = createLocalUser();
-    userUpdater.updateAndCommit(db.getSession(), user, new UpdateUser().setLogin(user.getLogin()).setPassword(password), u -> {
-    });
+    localAuthentication.storeHashPassword(user, password);
+    db.getDbClient().userDao().update(db.getSession(), user);
+    db.commit();
     return user;
   }
 

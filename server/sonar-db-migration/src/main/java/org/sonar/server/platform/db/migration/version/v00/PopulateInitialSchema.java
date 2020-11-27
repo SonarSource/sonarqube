@@ -41,6 +41,7 @@ public class PopulateInitialSchema extends DataChange {
   private static final String ADMINS_GROUP = "sonar-administrators";
   private static final String USERS_GROUP = "sonar-users";
   private static final String ADMIN_USER = "admin";
+  private static final String ADMIN_CRYPTED_PASSWORD = "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi";
   private static final List<String> ADMIN_ROLES = Arrays.asList("admin", "profileadmin", "gateadmin", "provisioning", "applicationcreator", "portfoliocreator");
 
   private final System2 system2;
@@ -78,14 +79,15 @@ public class PopulateInitialSchema extends DataChange {
       "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, " +
       "created_at, updated_at)" +
       " values " +
-      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, '$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi', null, 'BCRYPT', ?, ?, ?, ?)")
+      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, ?, null, 'BCRYPT', ?, ?, ?, ?)")
       .setString(1, uuidFactory.create())
       .setString(2, ADMIN_USER)
       .setBoolean(3, true)
-      .setBoolean(4, false)
-      .setBoolean(5, true)
-      .setLong(6, now)
+      .setString(4, ADMIN_CRYPTED_PASSWORD)
+      .setBoolean(5, false)
+      .setBoolean(6, true)
       .setLong(7, now)
+      .setLong(8, now)
       .execute()
       .commit();
 
