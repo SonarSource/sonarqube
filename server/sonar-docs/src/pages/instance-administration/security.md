@@ -94,7 +94,7 @@ When installing SonarQube, a default user with Administer System permission is c
 ## Reinstating Admin Access
 If you changed and then lost the `admin` password, you can reset it using the following query:
 ```
-update users set crypted_password = '$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi', salt=null, hash_method='BCRYPT' where login = 'admin'
+update users set crypted_password = '$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi', salt=null, hash_method='BCRYPT', reset_password=true where login = 'admin'
 ```
 If you've deleted `admin` and subsequently locked out the other users with global administrative permissions, you'll need to re-grant `admin` to a user with the following query:
 ```
