@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -174,11 +173,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return this;
   }
 
-  public DbTester enableOrganizations() {
-    properties().insertInternal("organization.enabled", "true");
-    return this;
-  }
-
   @Override
   protected void before() {
     db.start();
@@ -197,10 +191,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
       dbSession.commit();
     }
-  }
-
-  public boolean hasDefaultOrganization() {
-    return defaultOrganization != null;
   }
 
   public OrganizationDto getDefaultOrganization() {
