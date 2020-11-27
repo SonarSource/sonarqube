@@ -51,12 +51,13 @@ export default class MetaLink extends React.PureComponent<Props, State> {
   render() {
     const { iconOnly, link } = this.props;
     const linkTitle = getLinkName(link);
+    const isValid = isValidUri(link.url);
     return (
       <li>
         <a
           className="link-with-icon"
-          href={link.url}
-          onClick={!isValidUri(link.url) ? this.handleClick : undefined}
+          href={isValid ? link.url : undefined}
+          onClick={isValid ? undefined : this.handleClick}
           rel="nofollow noreferrer noopener"
           target="_blank"
           title={linkTitle}>

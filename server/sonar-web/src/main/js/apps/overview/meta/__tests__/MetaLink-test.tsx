@@ -17,56 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import MetaLink from '../MetaLink';
+import * as React from 'react';
+import { ClearButton } from '../../../../components/ui/buttons';
 import { click } from '../../../../helpers/testUtils';
+import MetaLink from '../MetaLink';
+
+const DANGEROUS_LINK = {
+  id: '1',
+  name: 'Dangerous',
+  url: 'javascript:alert("hi")',
+  type: 'dangerous'
+};
 
 it('should match snapshot', () => {
-  const link = {
-    id: '1',
-    name: 'Foo',
-    url: 'http://example.com',
-    type: 'foo'
-  };
-
-  expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
-  expect(shallow(<MetaLink iconOnly={true} link={link} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ iconOnly: true })).toMatchSnapshot('icon only');
+  const wrapper = shallowRender({ link: DANGEROUS_LINK });
+  expect(wrapper).toMatchSnapshot('dangerous link, collapsed');
+  wrapper.setState({ expanded: true });
+  expect(wrapper).toMatchSnapshot('dangerous link, expanded');
 });
 
-it('should render dangerous links as plaintext', () => {
-  const link = {
-    id: '1',
-    name: 'Dangerous',
-    url: 'javascript:alert("hi")',
-    type: 'dangerous'
-  };
-
-  expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
-});
-
-it('should expand and collapse dangerous link', () => {
-  const link = {
-    id: '1',
-    name: 'Dangerous',
-    url: 'javascript:alert("hi")',
-    type: 'dangerous'
-  };
-
-  const wrapper = shallow(<MetaLink link={link} />);
-  expect(wrapper).toMatchSnapshot();
+it('should expand and collapse dangerous links', () => {
+  const wrapper = shallowRender({ link: DANGEROUS_LINK });
+  expect(wrapper.state().expanded).toBe(false);
 
   // expand
   click(wrapper.find('a'));
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.state().expanded).toBe(true);
 
   // collapse
   click(wrapper.find('a'));
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.state().expanded).toBe(false);
 
   // collapse with button
-  click(wrapper.find('a'));
-  expect(wrapper.state('expanded')).toBe(true);
-  click(wrapper.find('ClearButton'));
-  expect(wrapper.state('expanded')).toBe(false);
+  wrapper.setState({ expanded: true });
+  click(wrapper.find(ClearButton));
+  expect(wrapper.state().expanded).toBe(false);
 });
+
+function shallowRender(props: Partial<MetaLink['props']> = {}) {
+  return shallow<MetaLink>(
+    <MetaLink
+      link={{
+        id: '1',
+        name: 'Foo',
+        url: 'http://example.com',
+        type: 'foo'
+      }}
+      {...props}
+    />
+  );
+}
