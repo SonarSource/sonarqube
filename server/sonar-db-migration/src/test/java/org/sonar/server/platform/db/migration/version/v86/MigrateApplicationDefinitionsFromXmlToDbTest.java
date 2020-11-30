@@ -61,7 +61,7 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
   private static final String EMPTY_XML = "<views></views>";
 
   private static final String EMPTY_APP_XML = "<views>\n" +
-    "    <vw key=\"app1\" def=\"false\">\n" +
+    "    <vw key=\"app1-key\" def=\"false\">\n" +
     "        <name><![CDATA[app1]]></name>\n" +
     "        <desc><![CDATA[]]></desc>\n" +
     "        <qualifier><![CDATA[APP]]></qualifier>\n" +
@@ -454,15 +454,31 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
   }
 
   @Test
-  public void migrates_app_with_0_projects_in_views_definition() throws SQLException {
-    setupProjectsAndApps();
+  public void skips_apps_that_exist_in_the_definition_but_does_not_exist_in_db() throws SQLException {
+    setupFullProject1();
     insertViewsDefInternalProperty(EMPTY_APP_XML);
 
     underTest.execute();
 
     assertThat(db.select("select uuid from projects"))
       .extracting(r -> r.get("UUID"))
-      .containsExactlyInAnyOrder(PROJECT_1_UUID, PROJECT_2_UUID, APP_1_UUID, APP_2_UUID);
+      .containsExactlyInAnyOrder(PROJECT_1_UUID);
+    assertThat(db.countSql("select count(*) from app_projects")).isZero();
+    assertThat(db.countSql("select count(*) from app_branch_project_branch")).isZero();
+  }
+
+  @Test
+  public void migrates_app_with_0_projects_in_views_definition() throws SQLException {
+    setupFullProject1();
+    setupProject2();
+    setupApp1WithNoBranches();
+    insertViewsDefInternalProperty(EMPTY_APP_XML);
+
+    underTest.execute();
+
+    assertThat(db.select("select uuid from projects"))
+      .extracting(r -> r.get("UUID"))
+      .containsExactlyInAnyOrder(PROJECT_1_UUID, PROJECT_2_UUID, APP_1_UUID);
     assertThat(db.countSql("select count(*) from app_projects")).isZero();
     assertThat(db.countSql("select count(*) from app_branch_project_branch")).isZero();
   }

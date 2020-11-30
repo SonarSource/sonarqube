@@ -118,12 +118,15 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
       .setString(1, app.getKey())
       .get(r -> r.getString(1));
 
-    // ignore if application only exists in xml and not in the db. It will be removed from the xml at later stage of the migration.
-    if (applicationUuid == null) {
+    // skip migration if:
+    // - application only exists in xml and not in the db. It will be removed from the xml at later stage of the migration.
+    // - application contains no projects- it's already in a valid db state
+    List<String> projects = app.getProjects();
+    if (applicationUuid == null || projects.isEmpty()) {
       return;
     }
 
-    String queryParam = app.getProjects().stream().map(uuid -> "'" + uuid + "'").collect(Collectors.joining(","));
+    String queryParam = projects.stream().map(uuid -> "'" + uuid + "'").collect(Collectors.joining(","));
     Map<String, String> projectUuidsByKeys = context.prepareSelect(format(SELECT_PROJECTS_BY_KEYS, queryParam))
       .list(r -> new AbstractMap.SimpleEntry<>(r.getString(1), r.getString(2)))
       .stream()
