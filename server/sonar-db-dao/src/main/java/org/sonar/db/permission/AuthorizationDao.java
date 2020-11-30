@@ -148,9 +148,6 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
-  /**
-   * Used by license notifications
-   */
   public Set<EmailSubscriberDto> selectGlobalAdministerEmailSubscribers(DbSession dbSession) {
     return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER.getKey());
   }

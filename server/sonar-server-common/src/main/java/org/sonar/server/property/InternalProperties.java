@@ -60,6 +60,8 @@ public interface InternalProperties {
   String DEFAULT_PORTFOLIO_TEMPLATE = "defaultTemplate.port";
   String DEFAULT_APPLICATION_TEMPLATE = "defaultTemplate.app";
 
+  String DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL = "default.admin.cred";
+
   /**
    * Read the value of the specified property.
    *

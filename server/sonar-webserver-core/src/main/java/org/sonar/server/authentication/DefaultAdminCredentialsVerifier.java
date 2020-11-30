@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.startup;
+package org.sonar.server.authentication;
 
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
@@ -26,37 +26,42 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.notification.NotificationManager;
+
+import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL;
 
 /**
  * Detect usage of an active admin account with default credential in order to ask this account to reset its password during authentication.
  */
-public class DetectActiveAdminAccountWithDefaultCredential implements Startable {
+public class DefaultAdminCredentialsVerifier implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(DetectActiveAdminAccountWithDefaultCredential.class);
+  private static final Logger LOGGER = Loggers.get(DefaultAdminCredentialsVerifier.class);
 
   private final DbClient dbClient;
   private final CredentialsLocalAuthentication localAuthentication;
+  private final NotificationManager notificationManager;
 
-  public DetectActiveAdminAccountWithDefaultCredential(DbClient dbClient, CredentialsLocalAuthentication localAuthentication) {
+  public DefaultAdminCredentialsVerifier(DbClient dbClient, CredentialsLocalAuthentication localAuthentication, NotificationManager notificationManager) {
     this.dbClient = dbClient;
     this.localAuthentication = localAuthentication;
+    this.notificationManager = notificationManager;
   }
 
   @Override
   public void start() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto admin = dbClient.userDao().selectActiveUserByLogin(dbSession, "admin");
-      if (admin == null || !isDefaultCredentialUser(dbSession, admin)) {
+    try (DbSession session = dbClient.openSession(false)) {
+      UserDto admin = dbClient.userDao().selectActiveUserByLogin(session, "admin");
+      if (admin == null || !isDefaultCredentialUser(session, admin)) {
         return;
       }
       LOGGER.warn("*******************************************************************************************************************");
       LOGGER.warn("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
       LOGGER.warn("*******************************************************************************************************************");
-      dbClient.userDao().update(dbSession, admin.setResetPassword(true));
-      dbSession.commit();
+      dbClient.userDao().update(session, admin.setResetPassword(true));
+      sendEmailToAdmins(session);
+      session.commit();
     }
   }
 
@@ -67,6 +72,16 @@ public class DetectActiveAdminAccountWithDefaultCredential implements Startable 
     } catch (AuthenticationException ex) {
       return false;
     }
+  }
+
+  private void sendEmailToAdmins(DbSession session) {
+    if (dbClient.internalPropertiesDao().selectByKey(session, DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL)
+      .map(Boolean::parseBoolean)
+      .orElse(false)) {
+      return;
+    }
+    notificationManager.scheduleForSending(new DefaultAdminCredentialsVerifierNotification());
+    dbClient.internalPropertiesDao().save(session, DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL, Boolean.TRUE.toString());
   }
 
   @Override

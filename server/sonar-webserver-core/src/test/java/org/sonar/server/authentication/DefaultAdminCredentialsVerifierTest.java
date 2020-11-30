@@ -18,32 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.startup;
+package org.sonar.server.authentication;
 
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.CredentialsLocalAuthentication;
+import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL;
 
-public class DetectActiveAdminAccountWithDefaultCredentialTest {
+public class DefaultAdminCredentialsVerifierTest {
 
   private static final String ADMIN_LOGIN = "admin";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
   @Rule
   public LogTester logTester = new LogTester();
 
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final NotificationManager notificationManager = mock(NotificationManager.class);
 
-  private final DetectActiveAdminAccountWithDefaultCredential underTest = new DetectActiveAdminAccountWithDefaultCredential(db.getDbClient(), localAuthentication);
+  private final DefaultAdminCredentialsVerifier underTest = new DefaultAdminCredentialsVerifier(db.getDbClient(), localAuthentication, notificationManager);
 
   @After
   public void after() {
@@ -59,6 +65,20 @@ public class DetectActiveAdminAccountWithDefaultCredentialTest {
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isTrue();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
+    assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL).get()).isEqualTo("true");
+    verify(notificationManager).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
+  public void do_not_send_email_to_admins_when_already_sent() {
+    UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN));
+    changePassword(admin, "admin");
+    db.getDbClient().internalPropertiesDao().save(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL, "true");
+    db.commit();
+
+    underTest.start();
+
+    verifyNoMoreInteractions(notificationManager);
   }
 
   @Test
@@ -70,6 +90,7 @@ public class DetectActiveAdminAccountWithDefaultCredentialTest {
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();
+    verifyNoMoreInteractions(notificationManager);
   }
 
   @Test
@@ -81,6 +102,7 @@ public class DetectActiveAdminAccountWithDefaultCredentialTest {
 
     assertThat(db.users().selectUserByLogin(otherUser.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();
+    verifyNoMoreInteractions(notificationManager);
   }
 
   @Test
@@ -92,6 +114,7 @@ public class DetectActiveAdminAccountWithDefaultCredentialTest {
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();
+    verifyNoMoreInteractions(notificationManager);
   }
 
   private void changePassword(UserDto user, String password) {
