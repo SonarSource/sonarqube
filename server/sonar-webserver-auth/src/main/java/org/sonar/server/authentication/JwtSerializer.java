@@ -24,6 +24,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import java.util.Base64;
 import java.util.Collections;
@@ -95,17 +96,17 @@ public class JwtSerializer implements Startable {
     checkIsStarted();
     Claims claims = null;
     try {
-      claims = (Claims) Jwts.parserBuilder()
+      claims = Jwts.parserBuilder()
         .setSigningKey(secretKey)
         .build()
-        .parse(token)
+        .parseClaimsJws(token)
         .getBody();
       requireNonNull(claims.getId(), "Token id hasn't been found");
       requireNonNull(claims.getSubject(), "Token subject hasn't been found");
       requireNonNull(claims.getExpiration(), "Token expiration date hasn't been found");
       requireNonNull(claims.getIssuedAt(), "Token creation date hasn't been found");
       return Optional.of(claims);
-    } catch (ExpiredJwtException | SignatureException e) {
+    } catch (UnsupportedJwtException | ExpiredJwtException | SignatureException e) {
       return Optional.empty();
     } catch (Exception e) {
       throw AuthenticationException.newBuilder()
