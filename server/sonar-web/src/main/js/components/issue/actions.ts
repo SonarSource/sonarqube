@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { IssueResponse } from '../../api/issues';
+import throwGlobalError from '../../app/utils/throwGlobalError';
 import { parseIssueFromResponse } from '../../helpers/issues';
 
 export const updateIssue = (
@@ -43,10 +44,11 @@ export const updateIssue = (
         onChange(issue);
       }
     },
-    () => {
+    param => {
       if (optimisticUpdate) {
         onChange(oldIssue!);
       }
+      throwGlobalError(param);
     }
   );
 };
