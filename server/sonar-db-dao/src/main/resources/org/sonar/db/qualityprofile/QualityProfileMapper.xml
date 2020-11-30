@@ -246,11 +246,11 @@
 
   <select id="countProjectsByProfiles" resultType="KeyLongValue" parameterType="map">
     select pqp.profile_key as "key", count(pj.uuid) as "value"
-    from components pj
+    from projects pj
     inner join project_qprofiles pqp on pqp.project_uuid = pj.uuid
     inner join org_qprofiles oqp on oqp.uuid = pqp.profile_key
     where
-      pj.enabled = ${_true}
+      pj.qualifier = 'TRK'
       and <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
         oqp.uuid = #{profileUuid, jdbcType=VARCHAR}
       </foreach>
