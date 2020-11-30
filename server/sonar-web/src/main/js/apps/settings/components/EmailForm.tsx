@@ -35,7 +35,7 @@ interface State {
   subject: string;
   message: string;
   loading: boolean;
-  success: boolean;
+  success?: string;
   error?: string;
 }
 
@@ -48,8 +48,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
       recipient: this.props.currentUser.email || '',
       subject: translate('email_configuration.test.subject'),
       message: translate('email_configuration.test.message_text'),
-      loading: false,
-      success: false
+      loading: false
     };
   }
 
@@ -71,11 +70,11 @@ export class EmailForm extends React.PureComponent<Props, State> {
 
   handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    this.setState({ success: false, error: undefined, loading: true });
+    this.setState({ success: undefined, error: undefined, loading: true });
     const { recipient, subject, message } = this.state;
     sendTestEmail(recipient, subject, message).then(() => {
       if (this.mounted) {
-        this.setState({ success: true, loading: false });
+        this.setState({ success: recipient, loading: false });
       }
     }, this.handleError);
   };
@@ -93,6 +92,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { error, loading, message, recipient, subject, success } = this.state;
     return (
       <div className="settings-definition">
         <div className="settings-definition-left">
@@ -102,20 +102,17 @@ export class EmailForm extends React.PureComponent<Props, State> {
         </div>
 
         <form className="settings-definition-right" onSubmit={this.handleFormSubmit}>
-          {this.state.success && (
+          {success && (
             <div className="form-field">
               <Alert variant="success">
-                {translateWithParameters(
-                  'email_configuration.test.email_was_sent_to_x',
-                  this.state.recipient
-                )}
+                {translateWithParameters('email_configuration.test.email_was_sent_to_x', success)}
               </Alert>
             </div>
           )}
 
-          {this.state.error != null && (
+          {error !== undefined && (
             <div className="form-field">
-              <Alert variant="error">{this.state.error}</Alert>
+              <Alert variant="error">{error}</Alert>
             </div>
           )}
 
@@ -126,12 +123,12 @@ export class EmailForm extends React.PureComponent<Props, State> {
             </label>
             <input
               className="settings-large-input"
-              disabled={this.state.loading}
+              disabled={loading}
               id="test-email-to"
               onChange={this.onRecipientChange}
               required={true}
               type="email"
-              value={this.state.recipient}
+              value={recipient}
             />
           </div>
           <div className="form-field">
@@ -140,11 +137,11 @@ export class EmailForm extends React.PureComponent<Props, State> {
             </label>
             <input
               className="settings-large-input"
-              disabled={this.state.loading}
+              disabled={loading}
               id="test-email-subject"
               onChange={this.onSubjectChange}
               type="text"
-              value={this.state.subject}
+              value={subject}
             />
           </div>
           <div className="form-field">
@@ -154,19 +151,19 @@ export class EmailForm extends React.PureComponent<Props, State> {
             </label>
             <textarea
               className="settings-large-input"
-              disabled={this.state.loading}
+              disabled={loading}
               id="test-email-message"
               onChange={this.onMessageChange}
               required={true}
               rows={5}
-              value={this.state.message}
+              value={message}
             />
           </div>
 
-          <SubmitButton disabled={this.state.loading}>
+          <SubmitButton disabled={loading}>
             {translate('email_configuration.test.send')}
           </SubmitButton>
-          {this.state.loading && <DeferredSpinner className="spacer-left" />}
+          {loading && <DeferredSpinner className="spacer-left" />}
         </form>
       </div>
     );
