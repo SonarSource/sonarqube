@@ -30,6 +30,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.notification.NotificationManager;
 
+import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL;
 
 /**
@@ -37,7 +38,7 @@ import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENT
  */
 public class DefaultAdminCredentialsVerifier implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(DefaultAdminCredentialsVerifier.class);
+  private static final Logger LOGGER = Loggers.get(STARTUP_LOGGER_NAME);
 
   private final DbClient dbClient;
   private final CredentialsLocalAuthentication localAuthentication;
@@ -56,13 +57,20 @@ public class DefaultAdminCredentialsVerifier implements Startable {
       if (admin == null || !isDefaultCredentialUser(session, admin)) {
         return;
       }
-      LOGGER.warn("*******************************************************************************************************************");
-      LOGGER.warn("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
-      LOGGER.warn("*******************************************************************************************************************");
+      addWarningInSonarDotLog();
       dbClient.userDao().update(session, admin.setResetPassword(true));
       sendEmailToAdmins(session);
       session.commit();
     }
+  }
+
+  private static void addWarningInSonarDotLog() {
+    String highlighter = "####################################################################################################################";
+    String msg = "Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.";
+
+    LOGGER.warn(highlighter);
+    LOGGER.warn(msg);
+    LOGGER.warn(highlighter);
   }
 
   private boolean isDefaultCredentialUser(DbSession dbSession, UserDto user) {
