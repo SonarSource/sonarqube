@@ -190,7 +190,7 @@ function renderSecondLine(props: Props, isNewCode: boolean) {
 function renderMeasures(props: Props, isNewCode: boolean) {
   const {
     currentUser,
-    project: { measures, analysisDate, leakPeriodDate, qualifier, key }
+    project: { measures, needIssueSync, analysisDate, leakPeriodDate, qualifier, key }
   } = props;
 
   if (analysisDate && (!isNewCode || leakPeriodDate)) {
@@ -210,11 +210,14 @@ function renderMeasures(props: Props, isNewCode: boolean) {
             ? translate('projects.no_new_code_period', qualifier)
             : translate('projects.not_analyzed', qualifier)}
         </span>
-        {qualifier !== ComponentQualifier.Application && !analysisDate && isLoggedIn(currentUser) && (
-          <Link className="button spacer-left" to={getProjectUrl(key)}>
-            {translate('projects.configure_analysis')}
-          </Link>
-        )}
+        {qualifier !== ComponentQualifier.Application &&
+          !analysisDate &&
+          isLoggedIn(currentUser) &&
+          !needIssueSync && (
+            <Link className="button spacer-left" to={getProjectUrl(key)}>
+              {translate('projects.configure_analysis')}
+            </Link>
+          )}
       </div>
     );
   }

@@ -88,7 +88,12 @@ it('should display not analyzed yet', () => {
 });
 
 it('should display configure analysis button for logged in user', () => {
-  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot();
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot(
+    'default'
+  );
+  expect(
+    shallowRender({ ...PROJECT, analysisDate: undefined, needIssueSync: true }, USER_LOGGED_IN)
+  ).toMatchSnapshot('hidden if sync in place');
 });
 
 it('should display applications', () => {

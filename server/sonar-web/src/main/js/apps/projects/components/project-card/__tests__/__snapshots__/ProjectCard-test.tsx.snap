@@ -213,7 +213,7 @@ exports[`should display applications: with project count 1`] = `
 </div>
 `;
 
-exports[`should display configure analysis button for logged in user 1`] = `
+exports[`should display configure analysis button for logged in user: default 1`] = `
 <div
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
@@ -294,6 +294,66 @@ exports[`should display configure analysis button for logged in user 1`] = `
         >
           projects.configure_analysis
         </Link>
+      </div>
+    </div>
+    <div
+      className="project-card-meta display-flex-end big-padded-left big-padded-right big-padded-bottom"
+    />
+  </div>
+</div>
+`;
+
+exports[`should display configure analysis button for logged in user: hidden if sync in place 1`] = `
+<div
+  className="display-flex-column boxed-group it_project_card project-card-disabled"
+  data-key="foo"
+  style={
+    Object {
+      "height": 100,
+    }
+  }
+>
+  <div
+    className="display-flex-center"
+  >
+    <div
+      className="project-card-main big-padded padded-bottom display-flex-center"
+    >
+      <h2
+        className="project-card-name text-ellipsis"
+        title="Foo"
+      >
+        Foo
+      </h2>
+    </div>
+    <div
+      className="project-card-meta big-padded padded-bottom display-flex-center"
+    >
+      <div
+        className="display-flex-center overflow-hidden"
+      >
+        <PrivacyBadgeContainer
+          className="spacer-right"
+          qualifier="TRK"
+          visibility="public"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="display-flex-end flex-grow"
+  >
+    <div
+      className="project-card-main big-padded-left big-padded-right big-padded-bottom"
+    >
+      <div
+        className="spacer-top spacer-bottom"
+      >
+        <span
+          className="note"
+        >
+          projects.not_analyzed.TRK
+        </span>
       </div>
     </div>
     <div
