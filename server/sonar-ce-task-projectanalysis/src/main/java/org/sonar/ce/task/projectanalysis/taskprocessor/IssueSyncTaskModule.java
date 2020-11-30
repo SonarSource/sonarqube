@@ -26,6 +26,7 @@ public class IssueSyncTaskModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      IgnoreOrphanBranchStep.class,
       IssueSyncTaskProcessor.class);
   }
 }

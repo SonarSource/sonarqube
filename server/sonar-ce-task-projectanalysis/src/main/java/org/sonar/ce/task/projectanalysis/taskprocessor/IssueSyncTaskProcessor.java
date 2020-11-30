@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -64,6 +64,7 @@ public class IssueSyncTaskProcessor implements CeTaskProcessor {
   static ContainerPopulator<TaskContainer> newContainerPopulator(CeTask task) {
     return taskContainer -> {
       taskContainer.add(task);
+      taskContainer.add(IgnoreOrphanBranchStep.class);
       taskContainer.add(IndexIssuesStep.class);
       taskContainer.add(new SyncComputationSteps(taskContainer));
       taskContainer.add(ComputationStepExecutor.class);
@@ -78,7 +79,7 @@ public class IssueSyncTaskProcessor implements CeTaskProcessor {
 
     @Override
     public List<Class<? extends ComputationStep>> orderedStepClasses() {
-      return Collections.singletonList(IndexIssuesStep.class);
+      return Arrays.asList(IgnoreOrphanBranchStep.class, IndexIssuesStep.class);
     }
 
   }

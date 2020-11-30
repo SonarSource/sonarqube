@@ -660,6 +660,20 @@ public class CeQueueDaoTest {
   }
 
   @Test
+  public void excluding_view_pick_up_orphan_branches() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setMainComponentUuid("non-existing-uuid")
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
+      .setCreatedAt(100_000L));
+
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, true);
+    assertThat(peek).isPresent();
+    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
+  }
+
+  @Test
   public void hasAnyIssueSyncTaskPendingOrInProgress_PENDING() {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 

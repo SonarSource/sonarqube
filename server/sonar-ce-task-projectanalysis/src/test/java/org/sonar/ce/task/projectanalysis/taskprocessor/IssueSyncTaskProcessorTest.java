@@ -53,7 +53,7 @@ public class IssueSyncTaskProcessorTest {
       .build();
 
     IssueSyncTaskProcessor.newContainerPopulator(task).populateContainer(container);
-    Mockito.verify(container, Mockito.times(4)).add(any());
+    Mockito.verify(container, Mockito.times(5)).add(any());
   }
 
   @Test
@@ -62,7 +62,7 @@ public class IssueSyncTaskProcessorTest {
 
     List<Class<? extends ComputationStep>> steps = syncComputationSteps.orderedStepClasses();
 
-    Assertions.assertThat(steps).containsExactly(IndexIssuesStep.class);
+    Assertions.assertThat(steps).containsExactly(IgnoreOrphanBranchStep.class, IndexIssuesStep.class);
   }
 
 }

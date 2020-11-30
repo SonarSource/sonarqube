@@ -19,49 +19,43 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
+import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.db.component.ComponentDto;
 
-public final class IndexIssuesStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(IndexIssuesStep.class);
+public final class IgnoreOrphanBranchStep implements ComputationStep {
+  private static final Logger LOG = Loggers.get(IgnoreOrphanBranchStep.class);
   private final CeTask ceTask;
   private final DbClient dbClient;
-  private final IssueIndexer issueIndexer;
 
-  public IndexIssuesStep(CeTask ceTask, DbClient dbClient, IssueIndexer issueIndexer) {
+  public IgnoreOrphanBranchStep(CeTask ceTask, DbClient dbClient) {
     this.ceTask = ceTask;
     this.dbClient = dbClient;
-    this.issueIndexer = issueIndexer;
   }
 
   @Override
   public void execute(Context context) {
-    String branchUuid = ceTask.getComponent().orElseThrow(() -> new UnsupportedOperationException("component not found in task")).getUuid();
+    String mainComponentUuid = ceTask.getMainComponent().orElseThrow(() -> new UnsupportedOperationException("main component not found in task")).getUuid();
+    String componentUuid = ceTask.getComponent().orElseThrow(() -> new UnsupportedOperationException("component not found in task")).getUuid();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.branchDao().selectByUuid(dbSession, branchUuid)
-        .ifPresent(branchDto -> {
-
-          if (branchDto.isNeedIssueSync()) {
-            LOG.info("indexing issues of branch {}", branchUuid);
-            issueIndexer.indexOnAnalysis(branchUuid);
-            dbClient.branchDao().updateNeedIssueSync(dbSession, branchUuid, false);
-            dbSession.commit();
-          } else {
-            // branch has been analyzed since task was created, do not index issues twice
-            LOG.debug("issues of branch {} are already in sync", branchUuid);
-          }
-        });
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, mainComponentUuid);
+      if(!componentDto.isPresent()){
+        LOG.info("reindexation task has been trigger on an orphan branch. removing any exclude_from_purge flag, and skip the indexation");
+        dbClient.branchDao().updateExcludeFromPurge(dbSession, componentUuid, false);
+        dbClient.branchDao().updateNeedIssueSync(dbSession, componentUuid, false);
+        dbSession.commit();
+      }
     }
   }
 
   @Override
   public String getDescription() {
-    return "index issues";
+    return "Ignore orphan component";
   }
 }
