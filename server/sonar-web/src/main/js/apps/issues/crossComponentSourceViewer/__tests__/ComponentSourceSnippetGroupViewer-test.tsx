@@ -22,6 +22,7 @@ import { range, times } from 'lodash';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
+import Issue from '../../../../components/issue/Issue';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockFlowLocation,
@@ -103,6 +104,29 @@ it('should render correctly with flows', () => {
   expect(wrapper.state('snippets')).toHaveLength(2);
   expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 29, end: 39 });
   expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 69, end: 79 });
+});
+
+it('should render file-level issue correctly', () => {
+  // issue with secondary locations and no primary location
+  const issue = mockIssue(true, {
+    flows: [],
+    textRange: undefined
+  });
+
+  const wrapper = shallowRender({
+    issue,
+    snippetGroup: {
+      locations: [
+        mockFlowLocation({
+          component: issue.component,
+          textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+        })
+      ],
+      ...mockSnippetsByComponent(issue.component, range(29, 39))
+    }
+  });
+
+  expect(wrapper.find(Issue).exists()).toBe(true);
 });
 
 it('should expand block', async () => {

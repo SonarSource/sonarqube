@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import { getSources } from '../../../api/components';
+import Issue from '../../../components/issue/Issue';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
@@ -344,10 +346,19 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   }
 
   render() {
-    const { branchLike, issue, issuesByLine, lastSnippetGroup, snippetGroup } = this.props;
+    const {
+      branchLike,
+      issue,
+      issuesByLine,
+      issuePopup,
+      lastSnippetGroup,
+      snippetGroup
+    } = this.props;
     const { additionalLines, loading, snippets } = this.state;
     const locations =
-      issue.component === snippetGroup.component.key ? locationsByLine([issue]) : {};
+      issue.component === snippetGroup.component.key && issue.textRange !== undefined
+        ? locationsByLine([issue])
+        : {};
 
     const fullyShown =
       snippets.length === 1 &&
@@ -373,6 +384,18 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
         />
+        {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
+          <div className="padded-top padded-left padded-right">
+            <Issue
+              issue={issue}
+              onChange={this.props.onIssueChange}
+              onClick={noop}
+              onPopupToggle={this.props.onIssuePopupToggle}
+              openPopup={issuePopup && issuePopup.issue === issue.key ? issuePopup.name : undefined}
+              selected={true}
+            />
+          </div>
+        )}
         {snippetLines.map((snippet, index) => (
           <div id={`snippet-wrapper-${snippets[index].index}`} key={snippets[index].index}>
             {this.renderSnippet({

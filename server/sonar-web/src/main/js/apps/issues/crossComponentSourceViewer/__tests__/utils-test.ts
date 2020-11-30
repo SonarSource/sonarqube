@@ -176,7 +176,7 @@ describe('createSnippets', () => {
     expect(results[1]).toEqual({ index: 2, start: 37, end: 47 });
   });
 
-  it('should work for location with no textrange', () => {
+  it('should ignore location with no textrange', () => {
     const locations = [
       mockFlowLocation({
         textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
@@ -192,8 +192,8 @@ describe('createSnippets', () => {
       issue
     });
 
-    expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({ index: 0, start: 1, end: 9 });
+    expect(results).toHaveLength(1);
+    expect(results[0]).toEqual({ index: 0, start: 80, end: 94 });
   });
 });
 

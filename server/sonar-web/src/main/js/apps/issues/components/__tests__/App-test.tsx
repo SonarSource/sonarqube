@@ -353,7 +353,7 @@ it('should refresh branch status if issues are updated', async () => {
 
   const updatedIssue: T.Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
   instance.handleIssueChange(updatedIssue);
-  expect(wrapper.state('issues')).toEqual([updatedIssue, ISSUES[1], ISSUES[2], ISSUES[3]]);
+  expect(wrapper.state().issues).toEqual([updatedIssue, ISSUES[1], ISSUES[2], ISSUES[3]]);
   expect(fetchBranchStatus).toBeCalledWith(branchLike, component.key);
 
   fetchBranchStatus.mockClear();
@@ -363,6 +363,18 @@ it('should refresh branch status if issues are updated', async () => {
   fetchBranchStatus.mockClear();
   instance.handleReload();
   expect(fetchBranchStatus).toBeCalled();
+});
+
+it('should update the open issue when it is changed', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.setState({ openIssue: ISSUES[0] });
+
+  const updatedIssue: T.Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
+  wrapper.instance().handleIssueChange(updatedIssue);
+
+  expect(wrapper.state().openIssue).toBe(updatedIssue);
 });
 
 it('should handle createAfter query param with time', async () => {

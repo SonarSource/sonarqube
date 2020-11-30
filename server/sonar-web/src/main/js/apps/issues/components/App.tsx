@@ -797,7 +797,8 @@ export default class App extends React.PureComponent<Props, State> {
   handleIssueChange = (issue: T.Issue) => {
     this.refreshBranchStatus();
     this.setState(state => ({
-      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
+      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate)),
+      openIssue: state.openIssue && state.openIssue.key === issue.key ? issue : state.openIssue
     }));
   };
 

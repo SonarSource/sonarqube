@@ -73,7 +73,8 @@ export function createSnippets(params: {
   const { component, issue, locations } = params;
 
   const hasSecondaryLocations = issue.secondaryLocations.length > 0;
-  const addIssueLocation = hasSecondaryLocations && issue.component === component;
+  const addIssueLocation =
+    hasSecondaryLocations && issue.component === component && issue.textRange !== undefined;
 
   // For each location: compute its range, and then compare with other ranges
   // to merge snippets that collide.
@@ -144,25 +145,25 @@ export function groupLocationsByComponent(
   let currentGroup: T.SnippetGroup;
   const groups: T.SnippetGroup[] = [];
 
-  const addGroup = (loc: T.FlowLocation) => {
+  const addGroup = (componentKey: string) => {
     currentGroup = {
-      ...(components[loc.component] || unknownComponent(loc.component)),
+      ...(components[componentKey] || unknownComponent(componentKey)),
       locations: []
     };
     groups.push(currentGroup);
-    currentComponent = loc.component;
+    currentComponent = componentKey;
   };
 
   if (
     issue.secondaryLocations.length > 0 &&
     locations.every(loc => loc.component !== issue.component)
   ) {
-    addGroup(getPrimaryLocation(issue));
+    addGroup(issue.component);
   }
 
   locations.forEach((loc, index) => {
     if (loc.component !== currentComponent) {
-      addGroup(loc);
+      addGroup(loc.component);
     }
     loc.index = index;
     currentGroup.locations.push(loc);
