@@ -55,7 +55,7 @@ After following these steps, set the Security Hotspot to one of the following:
 
 * **Fixed** – if you have applied a fix to secure the code highlighted by the Hotspot.
 * **Safe** – if the code is already secure and doesn't need to be fixed. (for example, other more relevant protections are already in place).
-* **Needs additional review** – if you need another user's review.
+* **To review** – if you need another user's review.
 
 ### Review History
 
