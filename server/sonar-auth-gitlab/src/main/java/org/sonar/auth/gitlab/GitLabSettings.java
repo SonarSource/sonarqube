@@ -33,8 +33,8 @@ public class GitLabSettings {
 
   static final String GITLAB_AUTH_ENABLED = "sonar.auth.gitlab.enabled";
   static final String GITLAB_AUTH_URL = "sonar.auth.gitlab.url";
-  static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId";
-  static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret";
+  static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId.secured";
+  static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
 

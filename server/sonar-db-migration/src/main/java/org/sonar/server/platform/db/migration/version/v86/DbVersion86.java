@@ -56,6 +56,9 @@ public class DbVersion86 implements DbVersion {
 
       .add(4123, "Add 'reset_password' column to 'users' table", AddResetPasswordColumnToUsers.class)
       .add(4124, "Populate 'reset_password' column with default value", PopulateResetPasswordDefaultValue.class)
-      .add(4125, "Make 'reset_password' column in 'users' table not nullable", MakeResetPasswordColumnNotNull.class);
+      .add(4125, "Make 'reset_password' column in 'users' table not nullable", MakeResetPasswordColumnNotNull.class)
+
+      .add(4126, "Secure gitlab secret parameters", SecureGitlabSecretParameters.class)
+    ;
   }
 }
