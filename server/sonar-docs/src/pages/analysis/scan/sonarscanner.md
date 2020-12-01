@@ -178,5 +178,5 @@ set SONAR_SCANNER_OPTS=-Xmx512m
 Upgrade the version of Java being used for analysis or use one of the native package (that embed its own Java runtime).
 
 **Property missing: `sonar.cs.analyzer.projectOutPaths'. No protobuf files will be loaded for this project.**  
-Scanner CLI is not able to analyze .NET projects. Please, use the Scanner for MSBuild. If you are running Scanner for MSBuild, ensure that you are not hitting a known limitation.
+Scanner CLI is not able to analyze .NET projects. Please, use the SonarScanner for .NET. If you are running the SonarScanner for .NET, ensure that you are not hitting a known limitation.
 

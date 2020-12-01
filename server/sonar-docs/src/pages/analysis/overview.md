@@ -6,7 +6,7 @@ url: /analysis/overview/
 Once the SonarQube platform has been installed, you're ready to install a scanner and begin creating projects. To do that, you must install and configure the scanner that is most appropriate for your needs. Do you build with:
 
 * Gradle - [SonarScanner for Gradle](/analysis/scan/sonarscanner-for-gradle/)
-* MSBuild - [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/)
+* .NET - [SonarScanner for .NET](/analysis/scan/sonarscanner-for-msbuild/)
 * Maven - use the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/)
 * Jenkins - [SonarScanner for Jenkins](/analysis/scan/sonarscanner-for-jenkins/)
 * Azure DevOps - [SonarQube Extension for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)

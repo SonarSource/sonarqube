@@ -12,7 +12,7 @@ Then you can trigger SonarQube analysis from Jenkins using standard Jenkins Buil
 * [SonarScanner](/analysis/scan/sonarscanner/)
 * [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/)
 * [SonarScanner for Gradle](/analysis/scan/sonarscanner-for-gradle/)
-* [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/)
+* [SonarScanner for .NET](/analysis/scan/sonarscanner-for-msbuild/)
 
 Once the job is complete, the plugin will detect that a SonarQube analysis was made during the build and display a badge and a widget on the job page with a link to the SonarQube dashboard as well as quality gate status.
 
@@ -25,7 +25,7 @@ Once the job is complete, the plugin will detect that a SonarQube analysis was m
 
 ## Analyzing a .NET solution
 **Global Configuration**  
-This step is mandatory if you want to trigger any of your analyses with the SonarScanner for MSBuild. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose which launcher to use to run the SonarQube analysis.
+This step is mandatory if you want to trigger any of your analyses with the SonarScanner for .NET. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose which launcher to use to run the SonarQube analysis.
 1. Log into Jenkins as an administrator and go to **Manage Jenkins > Global Tool Configuration**
 1. Click on **Add SonarScanner for MSBuild**
 1. Add an installation of the latest available version. Check **Install automatically** to have the SonarScanner for MSBuild automatically provisioned on your Jenkins executors
@@ -132,7 +132,7 @@ node {
   }
 }
 ```
-SonarScanner for MSBuild:
+SonarScanner for .NET:
 ```
 node {
   stage('SCM') {
