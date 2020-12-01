@@ -47,6 +47,7 @@ exports[`should render correctly 2`] = `
   >
     <ComponentSourceSnippetGroupViewer
       duplicationsByLine={Object {}}
+      isLastOccurenceOfPrimaryComponent={true}
       issue={
         Object {
           "actions": Array [],

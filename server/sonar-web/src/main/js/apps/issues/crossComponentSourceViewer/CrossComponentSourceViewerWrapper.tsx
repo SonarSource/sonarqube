@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { findLastIndex } from 'lodash';
 import * as React from 'react';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
@@ -194,6 +195,11 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     const issuesByComponent = issuesByComponentAndLine(this.props.issues);
     const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
+    const lastOccurenceOfPrimaryComponent = findLastIndex(
+      locationsByComponent,
+      ({ component }) => component.key === issue.component
+    );
+
     return (
       <div>
         {locationsByComponent.map((snippetGroup, i) => {
@@ -210,6 +216,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
                 issue={issue}
                 issuePopup={this.state.issuePopup}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
+                isLastOccurenceOfPrimaryComponent={i === lastOccurenceOfPrimaryComponent}
                 lastSnippetGroup={i === locationsByComponent.length - 1}
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}

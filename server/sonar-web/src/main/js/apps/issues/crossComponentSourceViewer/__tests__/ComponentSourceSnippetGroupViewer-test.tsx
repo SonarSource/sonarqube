@@ -32,6 +32,7 @@ import {
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
+import SnippetViewer from '../SnippetViewer';
 
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
@@ -104,6 +105,24 @@ it('should render correctly with flows', () => {
   expect(wrapper.state('snippets')).toHaveLength(2);
   expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 29, end: 39 });
   expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 69, end: 79 });
+
+  // Check that locationsByLine is defined when isLastOccurenceOfPrimaryComponent
+  expect(
+    wrapper
+      .find(SnippetViewer)
+      .at(0)
+      .props().locationsByLine
+  ).not.toEqual({});
+
+  // If not, it should be an empty object:
+  const snippets = shallowRender({
+    isLastOccurenceOfPrimaryComponent: false,
+    issue,
+    snippetGroup
+  }).find(SnippetViewer);
+
+  expect(snippets.at(0).props().locationsByLine).toEqual({});
+  expect(snippets.at(1).props().locationsByLine).toEqual({});
 });
 
 it('should render file-level issue correctly', () => {
@@ -281,6 +300,7 @@ describe('getNodes', () => {
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       highlightedLocationMessage={{ index: 0, text: '' }}
+      isLastOccurenceOfPrimaryComponent={true}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}
@@ -335,6 +355,7 @@ describe('getHeight', () => {
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       highlightedLocationMessage={{ index: 0, text: '' }}
+      isLastOccurenceOfPrimaryComponent={true}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}
@@ -385,6 +406,7 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       highlightedLocationMessage={{ index: 0, text: '' }}
+      isLastOccurenceOfPrimaryComponent={true}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}

@@ -40,6 +40,7 @@ interface Props {
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
+  isLastOccurenceOfPrimaryComponent: boolean;
   issue: T.Issue;
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
@@ -348,6 +349,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   render() {
     const {
       branchLike,
+      isLastOccurenceOfPrimaryComponent,
       issue,
       issuesByLine,
       issuePopup,
@@ -372,8 +374,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     });
 
     const isFlow = issue.secondaryLocations.length === 0;
-    const includeIssueLocation = (snippetIndex: number) =>
-      isFlow ? lastSnippetGroup && snippetIndex === snippets.length - 1 : snippetIndex === 0;
+    const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
 
     return (
       <div className="component-source-container" ref={this.rootNodeRef}>
@@ -402,7 +403,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               snippet,
               index: snippets[index].index,
               issuesByLine,
-              locationsByLine: includeIssueLocation(index) ? locations : {},
+              locationsByLine: includeIssueLocation ? locations : {},
               lastSnippetOfLastGroup: lastSnippetGroup && index === snippets.length - 1
             })}
           </div>
