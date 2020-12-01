@@ -5,14 +5,14 @@ url: /analysis/github-integration/
 
 SonarQube's integration with GitHub Enterprise and GitHub.com allows you to maintain code quality and security in your GitHub repositories.
 
-Once you've set up your integration, you'll be able to:
+With this integration, you'll be able to:
 
 - **Import your GitHub repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitHub repositories into SonarQube to easily set up SonarQube projects.  
-- **Add pull request decoration** - (starting in Developer Edition) See your Quality Gate and code metric results right in GitHub so you know if it's safe to merge your changes.
-- **Authenticate with GitHub** - (starting in Community Edition) Sign in to SonarQube with your GitHub credentials.  
+- **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitHub so you know if it's safe to merge your changes.
+- **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.  
 
 ## Prerequisites
-- To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.15+.
+To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.15+.
 
 ## Importing your GitHub repositories to SonarQube
 You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. This is the first step in setting up pull request decoration and GitHub authentication. 
@@ -31,10 +31,10 @@ See GitHub's documentation on [creating a GitHub App](https://docs.github.com/ap
 
 Specify the following settings in your app:
 
-- **GitHub App Name** – your app's name.
-- **Homepage URL** – you can use any URL, such as `https://www.sonarqube.org/`.
-- **User authorization callback URL** – your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
-- **Webhook URL** – your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
+- **GitHub App Name** – Your app's name.
+- **Homepage URL** – You can use any URL, such as `https://www.sonarqube.org/`.
+- **User authorization callback URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
+- **Webhook URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
 - Grant access for the following **Repository permissions**:
 
 	| Permission          | Access       |
@@ -50,7 +50,7 @@ Specify the following settings in your app:
 | For security reasons, make sure you're using `HTTPS` protocol for your URLs in your app.
 
 ### Step 2: Installing your GitHub App in your organization
-You need to install your GitHub App in your organizations. See GitHub's documentation on [installing GitHub Apps](https://docs.github.com/en/free-pro-team@latest/developers/apps/installing-github-apps) for more information.
+Next, you need to install your GitHub App in your organizations. See GitHub's documentation on [installing GitHub Apps](https://docs.github.com/en/free-pro-team@latest/developers/apps/installing-github-apps) for more information.
 
 ### Step 3: Updating your SonarQube global settings with your GitHub App information
 After you've created and installed your GitHub App, update your global SonarQube settings to finish integration and allow for the import of GitHub projects.
@@ -60,8 +60,8 @@ Navigate to **Administration > Configuration > General Settings > ALM Integratio
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitHub configuration at the project level. Use something succinct and easily recognizable.
 - **GitHub URL** – For example, `https://github.company.com/api/v3` for GitHub Enterprise or `https://api.github.com/` for GitHub.com.
 - **GitHub App ID** – The App ID is found on your GitHub App's page on GitHub at **Settings > Developer Settings > GitHub Apps**. 
-- **Client ID** – the Client ID is found on your GitHub App's page.
-- **Client secret** – the Client secret is found on your GitHub App's page.
+- **Client ID** – The Client ID is found on your GitHub App's page.
+- **Client secret** – The Client secret is found on your GitHub App's page.
 - **Private Key** – Your GitHub App's private key. You can generate a `.pem` file from your GitHub App's page under **Private keys**. Copy and paste the contents of the file here.
 
 ## Adding pull request decoration to GitHub
@@ -72,11 +72,11 @@ After creating and installing your GitHub App above, you can add pull request de
 [[info]]
 | To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
-The simplest way to add pull request decoration is by creating a SonarQube project from your GitHub repository:
+The simplest way to add pull request decoration is by adding a project from GitHub by clicking the "+" in the upper-right corner and selecting **GitHub**.
 
 ![import a GitHub repository](/images/add-github-project.png)
 
-Follow the steps in the SonarQube UI to automatically set your project settings for pull request decoration.
+Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
 ### Adding pull request decoration to a manually created or existing project
 To add pull request decoration to a manually created or existing project, after you've created and installed your GitHub App and updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
