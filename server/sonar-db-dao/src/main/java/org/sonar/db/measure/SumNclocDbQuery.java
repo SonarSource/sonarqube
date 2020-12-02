@@ -27,22 +27,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SumNclocDbQuery {
 
   private final String projectUuidToExclude;
-  private final String organizationUuid;
   private final Boolean onlyPrivateProjects;
 
   public SumNclocDbQuery(Builder builder) {
     projectUuidToExclude = builder.projectUuidToExclude;
-    organizationUuid = builder.organizationUuid;
     onlyPrivateProjects = builder.onlyPrivateProjects;
   }
 
   @CheckForNull
   public String getProjectUuidToExclude() {
     return projectUuidToExclude;
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
   }
 
   public Boolean getOnlyPrivateProjects() {
@@ -55,7 +49,6 @@ public class SumNclocDbQuery {
 
   public static class Builder {
     private String projectUuidToExclude;
-    private String organizationUuid;
     private Boolean onlyPrivateProjects;
 
     private Builder() {
@@ -67,18 +60,12 @@ public class SumNclocDbQuery {
       return this;
     }
 
-    public Builder setOrganizationUuid(String organizationUuid) {
-      this.organizationUuid = organizationUuid;
-      return this;
-    }
-
     public Builder setOnlyPrivateProjects(Boolean onlyPrivateProjects) {
       this.onlyPrivateProjects = onlyPrivateProjects;
       return this;
     }
 
     public SumNclocDbQuery build() {
-      checkNotNull(organizationUuid);
       checkNotNull(onlyPrivateProjects);
       return new SumNclocDbQuery(this);
     }

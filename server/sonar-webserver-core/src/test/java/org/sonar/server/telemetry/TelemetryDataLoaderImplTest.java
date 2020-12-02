@@ -81,9 +81,9 @@ public class TelemetryDataLoaderImplTest {
   private final LicenseReader licenseReader = mock(LicenseReader.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, dockerSupport, null);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, dockerSupport, null);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), internalProperties, dockerSupport, licenseReader);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, dockerSupport, licenseReader);
 
   @Test
   public void send_telemetry_data() {

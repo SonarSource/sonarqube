@@ -16,7 +16,8 @@
   <select id="selectByComponentUuidsAndMetricUuids" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
     where
-    lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator="," close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
+    lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
+                               close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and lm.component_uuid in
     <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">
       #{componentUuid, jdbcType=VARCHAR}
@@ -55,19 +56,13 @@
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid
-      inner join components p on p.uuid = lm.component_uuid
-      inner join project_branches b on b.uuid = p.uuid
+      inner join project_branches b on b.uuid = lm.component_uuid and b.branch_type = #{branchType, jdbcType=VARCHAR}
+      inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
       <where>
         m.name = #{ncloc, jdbcType=VARCHAR}
         <if test="private">
           and p.private=${_true}
         </if>
-        and p.enabled = ${_true}
-        and p.scope = 'PRJ'
-        and p.qualifier = 'TRK'
-        and p.copy_component_uuid is null
-        and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-        and b.branch_type = #{branchType, jdbcType=VARCHAR}
         <if test="projectUuidToExclude != null">
           and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
         </if>
@@ -178,7 +173,7 @@
   </sql>
 
   <select id="scrollSelectByComponentUuidAndMetricKeys" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
-            resultSetType="FORWARD_ONLY">
+          resultSetType="FORWARD_ONLY">
      select <include refid="columns"/> from live_measures lm
      inner join metrics m on m.uuid = lm.metric_uuid
      where
@@ -186,7 +181,8 @@
      and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     select <include refid="columns"/> from live_measures lm
     inner join components p on p.uuid = lm.component_uuid
     <!-- TODO do we really need another join on components ? Using lm.project_uuid should be enough -->
@@ -194,7 +190,8 @@
     <where>
       <if test="query.getMetricUuids() != null">
         lm.metric_uuid in
-        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator="," close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
+        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator=","
+                 close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
       </if>
       and p.enabled = ${_true}
       <if test="query.qualifiers != null">
@@ -219,7 +216,8 @@
     <where>
       <if test="query.getMetricUuids() != null">
         lm.metric_uuid in
-        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator="," close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
+        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator=","
+                 close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
       </if>
       and p.enabled = ${_true}
       <if test="query.qualifiers != null">

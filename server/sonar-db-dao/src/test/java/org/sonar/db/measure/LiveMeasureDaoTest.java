@@ -321,7 +321,6 @@ public class LiveMeasureDaoTest {
 
     SumNclocDbQuery query = SumNclocDbQuery.builder()
       .setOnlyPrivateProjects(false)
-      .setOrganizationUuid(organization.getUuid())
       .build();
     long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
 
@@ -334,7 +333,6 @@ public class LiveMeasureDaoTest {
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
     SumNclocDbQuery query = SumNclocDbQuery.builder()
       .setOnlyPrivateProjects(false)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
     long result = underTest.sumNclocOfBiggestBranch(db.getSession(), query);
 
@@ -360,7 +358,6 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));
 
     SumNclocDbQuery query = SumNclocDbQuery.builder()
-      .setOrganizationUuid(organization.getUuid())
       .setProjectUuidToExclude(projectToExclude.uuid())
       .setOnlyPrivateProjects(false)
       .build();

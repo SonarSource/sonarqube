@@ -58,7 +58,7 @@ public class MarketplaceActionTest {
 
   private Server server = mock(Server.class);
   private DbClient dbClient = db.getDbClient();
-  private MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient, new DefaultOrganizationProviderImpl(dbClient));
+  private MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient);
 
   private WsActionTester ws = new WsActionTester(underTest);
 

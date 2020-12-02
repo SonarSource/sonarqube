@@ -58,19 +58,18 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final UserIndex userIndex;
   private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final InternalProperties internalProperties;
   private final DockerSupport dockerSupport;
   @CheckForNull
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties, DockerSupport dockerSupport) {
-    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, internalProperties, dockerSupport, null);
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties, DockerSupport dockerSupport) {
+    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, dockerSupport, null);
   }
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, InternalProperties internalProperties,
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties,
     DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
@@ -78,7 +77,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.userIndex = userIndex;
     this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.internalProperties = internalProperties;
     this.dockerSupport = dockerSupport;
     this.licenseReader = licenseReader;
@@ -115,7 +113,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
       SumNclocDbQuery query = SumNclocDbQuery.builder()
         .setOnlyPrivateProjects(false)
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .build();
       data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query));
       long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);

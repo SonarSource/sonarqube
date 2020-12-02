@@ -100,7 +100,7 @@ public class LiveMeasureDao implements Dao {
    */
   public long sumNclocOfBiggestBranch(DbSession dbSession, SumNclocDbQuery dbQuery) {
     Long ncloc = mapper(dbSession).sumNclocOfBiggestBranch(
-      NCLOC_KEY, BranchType.BRANCH, dbQuery.getOrganizationUuid(), dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
+      NCLOC_KEY, BranchType.BRANCH, dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
     return ncloc == null ? 0L : ncloc;
   }
 
