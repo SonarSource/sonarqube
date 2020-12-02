@@ -326,11 +326,6 @@ owasp_check_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     SLACK_WEBHOOK_SQ: ENCRYPTED[dec8e4350cbea3b94d63098558bcb3ae9e79b71c2b6286fcfb9eb80c0953b6448b10f7271b07b5e75e52f362c25d7a8f]
-  nvd_cache:
-    # The NVD repository of vulnerabilities is big and should be cached so
-    # that consecutive runs download only changes, but not the whole repository.
-    folder: ~/.gradle/dependency-check-data
-    reupload_on_changes: true
   script:
     - gradle dependencyCheckAggregate
   on_failure:
