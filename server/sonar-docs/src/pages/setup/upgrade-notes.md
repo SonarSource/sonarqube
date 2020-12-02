@@ -11,7 +11,8 @@ When running a cluster with Data Center Edition, the configuration of search nod
 We recommend only giving external access to the application nodes and to the main port. ([SONAR-12686](https://jira.sonarsource.com/browse/SONAR-12686)).
 
 **Default Authentication and Administrator credentials**  
-On a fresh install, to avoid mis-configuration and related security risks, you now have by default to authenticate and to update the password for the Administrator account. When upgrading, if your were still using default credentials, you'll be asked to change the password the next time you authenticate with the admin account. ([MMF-1352](https://jira.sonarsource.com/browse/MMF-2146), [MMF-1352](https://jira.sonarsource.com/browse/MMF-1352)).
+On a fresh install to avoid misconfiguration and related security risks, authentication is now required by default, and you need to change the default password for the administrator account. 
+When upgrading, if you were still using default credentials, you'll be asked to change the password the next time you authenticate with the admin account. ([MMF-1352](https://jira.sonarsource.com/browse/MMF-1352), [MMF-2146](https://jira.sonarsource.com/browse/MMF-2146)).
 
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16435)  
 
