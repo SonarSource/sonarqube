@@ -35,6 +35,11 @@ exports[`should handle the descending sort direction 1`] = `
         },
         Object {
           "class": undefined,
+          "label": "projects.sorting.security_review",
+          "value": "security_review",
+        },
+        Object {
+          "class": undefined,
           "label": "projects.sorting.maintainability",
           "value": "maintainability",
         },
@@ -109,6 +114,11 @@ exports[`should render correctly for leak view 1`] = `
         },
         Object {
           "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_security_review",
+          "value": "new_security_review",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_maintainability",
           "value": "new_maintainability",
         },
@@ -180,6 +190,11 @@ exports[`should render correctly for overall view 1`] = `
           "class": undefined,
           "label": "projects.sorting.security",
           "value": "security",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.security_review",
+          "value": "security_review",
         },
         Object {
           "class": undefined,
