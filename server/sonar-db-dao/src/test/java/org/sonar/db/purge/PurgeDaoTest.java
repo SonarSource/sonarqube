@@ -143,27 +143,36 @@ public class PurgeDaoTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto pr1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
     db.components().insertSnapshot(branch1);
     db.components().insertSnapshot(branch2);
+    db.components().insertSnapshot(pr1);
 
     // branch with other components and issues, last analysed 31 days ago
-    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
-
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch3));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
-    db.issues().insert(rule, branch3, file);
-    db.issues().insert(rule, branch3, subModule);
-    db.issues().insert(rule, branch3, module);
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setExcludeFromPurge(false));
+    addComponentsSnapshotsAndIssuesToBranch(branch3, rule, 31);
 
     // branch with no analysis
     ComponentDto branch4 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
 
+    // branch last analysed 31 days ago but protected from purge
+    ComponentDto branch5 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setExcludeFromPurge(true));
+    db.components().insertSnapshot(branch5, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+
+    // pull request last analysed 100 days ago
+    ComponentDto pr2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setExcludeFromPurge(false));
+    addComponentsSnapshotsAndIssuesToBranch(pr2, rule, 100);
+
+    // pull request last analysed 100 days ago but marked as "excluded from purge" which should not work for pull requests
+    ComponentDto pr3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setExcludeFromPurge(true));
+    addComponentsSnapshotsAndIssuesToBranch(pr3, rule, 100);
+
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    assertThat(uuidsIn("components")).containsOnly(project.uuid(), branch1.uuid(), branch2.uuid());
+    assertThat(uuidsIn("components")).containsOnly(
+      project.uuid(), branch1.uuid(), branch2.uuid(), branch5.uuid(), pr1.uuid());
     assertThat(uuidsIn("projects")).containsOnly(project.uuid());
   }
 
@@ -1771,6 +1780,16 @@ public class PurgeDaoTest {
     return db.select("select uuid as \"UUID\" from snapshots where component_uuid='" + rootComponent.uuid() + "'")
       .stream()
       .map(t -> (String) t.get("UUID"));
+  }
+
+  private void addComponentsSnapshotsAndIssuesToBranch(ComponentDto branch, RuleDefinitionDto rule, int branchAge) {
+    db.components().insertSnapshot(branch, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -branchAge).getTime()));
+    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
+    db.issues().insert(rule, branch, file);
+    db.issues().insert(rule, branch, subModule);
+    db.issues().insert(rule, branch, module);
   }
 
 }

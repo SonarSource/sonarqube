@@ -191,9 +191,12 @@ public class ReportComponent implements Component {
       '}';
   }
 
-  public static Builder builder(Type type, int ref) {
-    String key = "key_" + ref;
+  public static Builder builder(Type type, int ref, String key) {
     return new Builder(type, ref).setKey(key).setPublicKey(key).setUuid("uuid_" + ref).setName("name_" + ref);
+  }
+
+  public static Builder builder(Type type, int ref) {
+    return builder(type, ref, "key_" + ref);
   }
 
   public static final class Builder {

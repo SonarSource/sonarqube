@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +33,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -42,6 +44,7 @@ import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -52,8 +55,9 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 @RunWith(DataProviderRunner.class)
 public class BranchPersisterImplTest {
-  private final static Component MAIN = builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey("PROJECT_KEY").build();
-  private final static Component BRANCH1 = builder(PROJECT, 1).setUuid("BRANCH_UUID").setKey("BRANCH_KEY").build();
+  private final static Component MAIN = builder(PROJECT, 1, "PROJECT_KEY").setUuid("PROJECT_UUID").build();
+  private final static Component BRANCH1 = builder(PROJECT, 2, "BRANCH_KEY").setUuid("BRANCH_UUID").build();
+  private final static Component PR1 = builder(PROJECT, 3, "develop").setUuid("PR_UUID").build();
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
@@ -61,41 +65,35 @@ public class BranchPersisterImplTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
-  private Configuration configuration = mock(Configuration.class);
-
-  private BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder, configuration);
+  private final Configuration configuration = mock(Configuration.class);
+  private final BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder, configuration);
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_main_branches() {
     analysisMetadataHolder.setBranch(createBranch(BRANCH, true, "master"));
     treeRootHolder.setRoot(MAIN);
+    DbSession dbSession = dbTester.getSession();
 
-    expectMissingComponentISE();
-
-    underTest.persist(dbTester.getSession());
+    expectMissingComponentISE(() -> underTest.persist(dbSession));
   }
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_branches() {
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "foo"));
     treeRootHolder.setRoot(BRANCH1);
+    DbSession dbSession = dbTester.getSession();
 
-    expectMissingComponentISE();
-
-    underTest.persist(dbTester.getSession());
+    expectMissingComponentISE(() -> underTest.persist(dbSession));
   }
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_pull_request() {
     analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, "12"));
     treeRootHolder.setRoot(BRANCH1);
+    DbSession dbSession = dbTester.getSession();
 
-    expectMissingComponentISE();
-
-    underTest.persist(dbTester.getSession());
+    expectMissingComponentISE(() -> underTest.persist(dbSession));
   }
 
   @Test
@@ -137,6 +135,7 @@ public class BranchPersisterImplTest {
     underTest.persist(dbTester.getSession());
 
     Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), MAIN.getUuid());
+    assertThat(branchDto).isPresent();
     assertThat(branchDto.get().isExcludeFromPurge()).isTrue();
   }
 
@@ -154,7 +153,32 @@ public class BranchPersisterImplTest {
     underTest.persist(dbTester.getSession());
 
     Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH1.getUuid());
+    assertThat(branchDto).isPresent();
     assertThat(branchDto.get().isExcludeFromPurge()).isTrue();
+  }
+
+  @Test
+  public void pull_request_is_never_excluded_from_branch_purge_even_if_its_source_branch_name_matches_sonar_dbcleaner_keepFromPurge_property() {
+    when(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).thenReturn(new String[] {"develop"});
+
+    analysisMetadataHolder.setBranch(createPullRequest(PR1.getKey(), MAIN.getUuid()));
+    analysisMetadataHolder.setPullRequestKey(PR1.getKey());
+    treeRootHolder.setRoot(PR1);
+    ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setDbKey(MAIN.getDbKey()).setUuid(MAIN.getUuid()));
+    ComponentDto component = ComponentTesting.newBranchComponent(mainComponent, new BranchDto()
+      .setUuid(PR1.getUuid())
+      .setKey(PR1.getKey())
+      .setProjectUuid(MAIN.getUuid())
+      .setBranchType(PULL_REQUEST)
+      .setMergeBranchUuid(MAIN.getUuid()));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
+    dbTester.commit();
+
+    underTest.persist(dbTester.getSession());
+
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), PR1.getUuid());
+    assertThat(branchDto).isPresent();
+    assertThat(branchDto.get().isExcludeFromPurge()).isFalse();
   }
 
   @Test
@@ -171,6 +195,7 @@ public class BranchPersisterImplTest {
     underTest.persist(dbTester.getSession());
 
     Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH1.getUuid());
+    assertThat(branchDto).isPresent();
     assertThat(branchDto.get().isExcludeFromPurge()).isFalse();
   }
 
@@ -219,6 +244,12 @@ public class BranchPersisterImplTest {
     return createBranch(type, isMain, name, null);
   }
 
+  private static Branch createPullRequest(String key, String mergeBranchUuid) {
+    Branch branch = createBranch(PULL_REQUEST, false, key, mergeBranchUuid);
+    when(branch.getPullRequestKey()).thenReturn(key);
+    return branch;
+  }
+
   private static Branch createBranch(BranchType type, boolean isMain, String name, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(type);
@@ -229,8 +260,9 @@ public class BranchPersisterImplTest {
     return branch;
   }
 
-  private void expectMissingComponentISE() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Component has been deleted by end-user during analysis");
+  private void expectMissingComponentISE(ThrowableAssert.ThrowingCallable callable) {
+    assertThatThrownBy(callable)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Component has been deleted by end-user during analysis");
   }
 }

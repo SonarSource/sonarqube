@@ -70,6 +70,10 @@ public class BranchPersisterImpl implements BranchPersister {
       return true;
     }
 
+    if (BranchType.PULL_REQUEST.equals(analysisMetadataHolder.getBranch().getType())) {
+      return false;
+    }
+
     List<String> excludeFromPurgeEntries = asList(ofNullable(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).orElse(new String[0]));
     return excludeFromPurgeEntries.stream()
       .map(Pattern::compile)
