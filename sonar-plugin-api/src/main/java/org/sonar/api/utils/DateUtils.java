@@ -227,14 +227,25 @@ public final class DateUtils {
   }
 
   /**
-   * Warning: may rely on default timezone!
+   * Warning: rely on default timezone!
    *
-   * @return the datetime, {@code null} if stringDate is null
-   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @see #parseDateOrDateTime(String, ZoneId) 
    * @since 6.1
    */
   @CheckForNull
   public static Date parseDateOrDateTime(@Nullable String stringDate) {
+    return parseDateOrDateTime(stringDate, ZoneId.systemDefault());
+  }
+
+  /**
+   * Parse either a full date time (using RFC-822 TZ format), or a local date.
+   * For local dates, the returned {@link Date} will be set at the beginning of the day, in the provided timezone.
+   * @return the datetime, {@code null} if stringDate is null
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @since 8.6
+   */
+  @CheckForNull
+  public static Date parseDateOrDateTime(@Nullable String stringDate, ZoneId timeZone) {
     if (stringDate == null) {
       return null;
     }
@@ -247,11 +258,11 @@ public final class DateUtils {
     LocalDate ld = parseLocalDateQuietly(stringDate);
     checkArgument(ld != null, "Date '%s' cannot be parsed as either a date or date+time", stringDate);
 
-    return Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    return Date.from(ld.atStartOfDay(timeZone).toInstant());
   }
 
   /**
-   * Warning: may rely on default timezone!
+   * Warning: rely on default timezone for local dates!
    *
    * @see #parseDateOrDateTime(String)
    */
@@ -261,29 +272,46 @@ public final class DateUtils {
   }
 
   /**
-   * Return the datetime if @param stringDate is a datetime, date + 1 day if stringDate is a date.
-   * So '2016-09-01' would return a date equivalent to '2016-09-02T00:00:00+0000' in GMT (Warning: relies on default timezone!)
+   * @see #parseDateOrDateTime(String, ZoneId)
+   */
+  @CheckForNull
+  public static Date parseStartingDateOrDateTime(@Nullable String stringDate, ZoneId timeZone) {
+    return parseDateOrDateTime(stringDate, timeZone);
+  }
+
+  /**
+   * Warning: rely on default timezone for local dates!
    *
-   * @return the datetime, {@code null} if stringDate is null
-   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
-   * @see #parseDateOrDateTime(String)
+   * @see #parseEndingDateOrDateTime(String, ZoneId)
    * @since 6.1
    */
   @CheckForNull
   public static Date parseEndingDateOrDateTime(@Nullable String stringDate) {
+    return parseEndingDateOrDateTime(stringDate, ZoneId.systemDefault());
+  }
+  /**
+   * Return the datetime if @param stringDate is a datetime, local date + 1 day if stringDate is a local date.
+   * So '2016-09-01' would return a date equivalent to '2016-09-02T00:00:00' in the provided timezone
+   *
+   * @return the datetime, {@code null} if stringDate is null
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @since 8.6
+   */
+  @CheckForNull
+  public static Date parseEndingDateOrDateTime(@Nullable String stringDate, ZoneId timeZone) {
     if (stringDate == null) {
       return null;
     }
 
-    Date date = parseDateTimeQuietly(stringDate);
-    if (date != null) {
-      return date;
+    OffsetDateTime odt = parseOffsetDateTimeQuietly(stringDate);
+    if (odt != null) {
+      return Date.from(odt.toInstant());
     }
 
-    date = parseDateQuietly(stringDate);
-    checkArgument(date != null, "Date '%s' cannot be parsed as either a date or date+time", stringDate);
+    LocalDate ld = parseLocalDateQuietly(stringDate);
+    checkArgument(ld != null, "Date '%s' cannot be parsed as either a date or date+time", stringDate);
 
-    return addDays(date, 1);
+    return Date.from(ld.atStartOfDay(timeZone).plusDays(1).toInstant());
   }
 
   /**

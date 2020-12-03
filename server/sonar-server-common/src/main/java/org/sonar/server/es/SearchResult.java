@@ -19,9 +19,9 @@
  */
 package org.sonar.server.es;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.function.Function;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -32,7 +32,7 @@ public class SearchResult<DOC extends BaseDoc> {
   private final Facets facets;
   private final long total;
 
-  public SearchResult(SearchResponse response, Function<Map<String, Object>, DOC> converter, TimeZone timeZone) {
+  public SearchResult(SearchResponse response, Function<Map<String, Object>, DOC> converter, ZoneId timeZone) {
     this.facets = new Facets(response, timeZone);
     this.total = response.getHits().getTotalHits().value;
     this.docs = EsUtils.convertToDocs(response.getHits(), converter);

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -128,6 +129,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TIMEZONE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 public class SearchAction implements IssuesWsAction {
@@ -172,7 +174,7 @@ public class SearchAction implements IssuesWsAction {
   private final DbClient dbClient;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
+                      SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -192,8 +194,9 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("8.6", "Parameter 'timeZone' added"),
         new Change("8.5", "Facet 'fileUuids' is dropped in favour of the new facet 'files'" +
-            "Note that they are not strictly identical, the latter returns the file paths."),
+          "Note that they are not strictly identical, the latter returns the file paths."),
         new Change("8.5", "Internal parameter 'fileUuids' has been dropped"),
         new Change("8.4", "parameters 'componentUuids', 'projectKeys' has been dropped."),
         new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
@@ -303,12 +306,12 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("2017-10-19T13:00:00+0200");
     action.createParam(PARAM_CREATED_AFTER)
       .setDescription("To retrieve issues created after the given date (inclusive). <br>" +
-        "Either a date (server timezone) or datetime can be provided. <br>" +
+        "Either a date (use '" + PARAM_TIMEZONE + "' attribute or it will default to server timezone) or datetime can be provided. <br>" +
         "If this parameter is set, createdSince must not be set")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
     action.createParam(PARAM_CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). <br>" +
-        "Either a date (server timezone) or datetime can be provided.")
+        "Either a date (use '" + PARAM_TIMEZONE + "' attribute or it will default to server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
     action.createParam(PARAM_CREATED_IN_LAST)
       .setDescription("To retrieve issues created during a time span before the current time (exclusive). " +
@@ -320,6 +323,11 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
+    action.createParam(PARAM_TIMEZONE)
+      .setDescription("To resolve dates passed to '" + PARAM_CREATED_AFTER + "' or '" + PARAM_CREATED_BEFORE + "' (does not apply to datetime) and to compute creation date histogram")
+      .setRequired(false)
+      .setExampleValue("'Europe/Paris', 'Z' or '+02:00'")
+      .setSince("8.6");
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -400,7 +408,7 @@ public class SearchAction implements IssuesWsAction {
       .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
       .collect(toSet());
     checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-      (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
       String.join(",", facetsRequiringProjectOrOrganizationParameter));
 
     // execute request
@@ -413,7 +421,7 @@ public class SearchAction implements IssuesWsAction {
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(issueKeys);
     collectLoggedInUser(collector);
     collectRequestParams(collector, request);
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
+    Facets facets = new Facets(result, Optional.ofNullable(query.timeZone()).orElse(system2.getDefaultTimeZone().toZoneId()));
     if (!options.getFacets().isEmpty()) {
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
@@ -549,7 +557,8 @@ public class SearchAction implements IssuesWsAction {
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
-      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+      .setTimeZone(request.param(PARAM_TIMEZONE));
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {

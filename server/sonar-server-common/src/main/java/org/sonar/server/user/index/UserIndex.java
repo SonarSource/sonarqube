@@ -115,7 +115,7 @@ public class UserIndex {
 
     SearchRequest request = EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
       .source(searchSourceBuilder.query(boolQuery().must(esQuery).filter(filter)));
-    return new SearchResult<>(esClient.search(request), UserDoc::new, system2.getDefaultTimeZone());
+    return new SearchResult<>(esClient.search(request), UserDoc::new, system2.getDefaultTimeZone().toZoneId());
   }
 
 }

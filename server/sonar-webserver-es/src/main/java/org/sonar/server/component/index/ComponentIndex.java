@@ -104,7 +104,7 @@ public class ComponentIndex {
 
     SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
       .source(source);
-    return new SearchIdResult<>(client.search(request), id -> id, system2.getDefaultTimeZone());
+    return new SearchIdResult<>(client.search(request), id -> id, system2.getDefaultTimeZone().toZoneId());
   }
 
   public ComponentIndexResults searchSuggestions(SuggestionQuery query) {

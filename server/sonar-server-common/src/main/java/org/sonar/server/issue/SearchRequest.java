@@ -67,6 +67,7 @@ public class SearchRequest {
   private List<String> sansTop25;
   private List<String> sonarsourceSecurity;
   private List<String> cwe;
+  private String timeZone;
 
   public SearchRequest() {
     // nothing to do here
@@ -467,6 +468,16 @@ public class SearchRequest {
 
   public SearchRequest setPullRequest(@Nullable String pullRequest) {
     this.pullRequest = pullRequest;
+    return this;
+  }
+
+  @CheckForNull
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  public SearchRequest setTimeZone(@Nullable String timeZone) {
+    this.timeZone = timeZone;
     return this;
   }
 }

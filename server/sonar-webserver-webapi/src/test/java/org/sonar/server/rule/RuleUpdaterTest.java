@@ -22,12 +22,14 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -54,7 +56,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
@@ -64,7 +65,7 @@ public class RuleUpdaterTest {
 
   static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

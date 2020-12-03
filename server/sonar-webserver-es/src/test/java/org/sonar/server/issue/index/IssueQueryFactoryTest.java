@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.time.Clock;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -50,6 +50,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -123,9 +124,9 @@ public class IssueQueryFactoryTest {
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.directories()).containsOnly("aDirPath");
-    assertThat(query.createdAfter().date()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdAfter().inclusive()).isTrue();
-    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
+    assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
   }
@@ -154,25 +155,49 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void dates_are_inclusive() {
+    when(clock.getZone()).thenReturn(ZoneId.of("Europe/Paris"));
     SearchRequest request = new SearchRequest()
       .setCreatedAfter("2013-04-16")
       .setCreatedBefore("2013-04-17");
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAfter().date()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2013-04-16T00:00:00+0200"));
     assertThat(query.createdAfter().inclusive()).isTrue();
-    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDate("2013-04-18"));
+    assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-18T00:00:00+0200"));
   }
 
   @Test
   public void creation_date_support_localdate() {
+    when(clock.getZone()).thenReturn(ZoneId.of("Europe/Paris"));
     SearchRequest request = new SearchRequest()
       .setCreatedAt("2013-04-16");
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDate("2013-04-16"));
+    assertThat(query.createdAt()).isEqualTo(parseDateTime("2013-04-16T00:00:00+0200"));
+  }
+
+  @Test
+  public void use_provided_timezone_to_parse_createdAfter() {
+    SearchRequest request = new SearchRequest()
+      .setCreatedAfter("2020-04-16")
+      .setTimeZone("Europe/Volgograd");
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2020-04-16T00:00:00+0400"));
+  }
+
+  @Test
+  public void use_provided_timezone_to_parse_createdBefore() {
+    SearchRequest request = new SearchRequest()
+      .setCreatedBefore("2020-04-16")
+      .setTimeZone("Europe/Moscow");
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.createdBefore()).isEqualTo(parseDateTime("2020-04-17T00:00:00+0300"));
   }
 
   @Test
@@ -182,7 +207,7 @@ public class IssueQueryFactoryTest {
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAt()).isEqualTo(parseDateTime("2013-04-16T09:08:24+0200"));
   }
 
   @Test
@@ -220,6 +245,17 @@ public class IssueQueryFactoryTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys and componentUuids");
+
+    underTest.create(request);
+  }
+
+  @Test
+  public void fail_if_invalid_timezone() {
+    SearchRequest request = new SearchRequest()
+      .setTimeZone("Poitou-Charentes");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("TimeZone 'Poitou-Charentes' cannot be parsed as a valid zone ID");
 
     underTest.create(request);
   }
@@ -499,12 +535,12 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void set_created_after_from_created_since() {
-    Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+0100");
+    Date now = parseDateTime("2013-07-25T07:35:00+0100");
     when(clock.instant()).thenReturn(now.toInstant());
     when(clock.getZone()).thenReturn(ZoneOffset.UTC);
     SearchRequest request = new SearchRequest()
       .setCreatedInLast("1y2m3w4d");
-    assertThat(underTest.create(request).createdAfter().date()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    assertThat(underTest.create(request).createdAfter().date()).isEqualTo(parseDateTime("2012-04-30T07:35:00+0100"));
     assertThat(underTest.create(request).createdAfter().inclusive()).isTrue();
 
   }

@@ -19,13 +19,13 @@
  */
 package org.sonar.server.es;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -50,14 +50,14 @@ public class Facets {
   private static final java.lang.String NO_DATA_PREFIX = "no_data_";
 
   private final LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName;
-  private final TimeZone timeZone;
+  private final ZoneId timeZone;
 
-  public Facets(LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName, TimeZone timeZone) {
+  public Facets(LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName, ZoneId timeZone) {
     this.facetsByName = facetsByName;
     this.timeZone = timeZone;
   }
 
-  public Facets(SearchResponse response, TimeZone timeZone) {
+  public Facets(SearchResponse response, ZoneId timeZone) {
     this.facetsByName = new LinkedHashMap<>();
     this.timeZone = timeZone;
     Aggregations aggregations = response.getAggregations();
@@ -144,9 +144,9 @@ public class Facets {
     }
   }
 
-  private static String dateTimeToDate(String timestamp, TimeZone timeZone) {
+  private static String dateTimeToDate(String timestamp, ZoneId timeZone) {
     Date date = parseDateTime(timestamp);
-    return date.toInstant().atZone(timeZone.toZoneId()).toLocalDate().toString();
+    return date.toInstant().atZone(timeZone).toLocalDate().toString();
   }
 
   private void processSum(Sum aggregation) {

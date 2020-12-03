@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -29,6 +30,7 @@ import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -46,20 +48,18 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class RuleCreatorTest {
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

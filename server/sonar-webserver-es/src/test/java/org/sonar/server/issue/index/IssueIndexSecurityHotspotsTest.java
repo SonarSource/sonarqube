@@ -142,7 +142,7 @@ public class IssueIndexSecurityHotspotsTest {
   @SafeVarargs
   private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
+    Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsOnly(expectedEntries);
   }

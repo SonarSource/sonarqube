@@ -19,7 +19,10 @@
  */
 package org.sonar.server.issue.index;
 
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,7 +83,8 @@ public class IssueIndexFacetsTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = none();
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
+  private final TimeZone defaultTimezone = getTimeZone("GMT-01:00");
+  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(defaultTimezone);
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -431,7 +435,7 @@ public class IssueIndexFacetsTest {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_days() {
+  public void facet_on_created_at_with_less_than_20_days_use_system_timezone_by_default() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     IssueQuery query = IssueQuery.builder()
@@ -439,10 +443,57 @@ public class IssueIndexFacetsTest {
       .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
       .build();
     SearchResponse result = underTest.search(query, options);
-    Map<String, Long> buckets = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> buckets = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(buckets).containsOnly(
       entry("2014-08-31", 0L),
       entry("2014-09-01", 2L),
+      entry("2014-09-02", 1L),
+      entry("2014-09-03", 0L),
+      entry("2014-09-04", 0L),
+      entry("2014-09-05", 1L),
+      entry("2014-09-06", 0L),
+      entry("2014-09-07", 0L));
+  }
+
+  @Test
+  public void facet_on_created_at_with_less_than_20_days_use_user_timezone_if_provided() {
+    // Use timezones very far from each other in order to see some issues moving to a different calendar day
+    final ZoneId plus14 = ZoneId.of("Pacific/Kiritimati");
+    final ZoneId minus11 = ZoneId.of("Pacific/Pago_Pago");
+
+
+    SearchOptions options = fixtureForCreatedAtFacet();
+
+    final Date startDate = parseDateTime("2014-09-01T00:00:00+0000");
+    final Date endDate = parseDateTime("2014-09-08T00:00:00+0000");
+
+    IssueQuery queryPlus14 = IssueQuery.builder()
+      .createdAfter(startDate)
+      .createdBefore(endDate)
+      .timeZone(plus14)
+      .build();
+    SearchResponse resultPlus14 = underTest.search(queryPlus14, options);
+    Map<String, Long> bucketsPlus14 = new Facets(resultPlus14, plus14).get("createdAt");
+    assertThat(bucketsPlus14).containsOnly(
+      entry("2014-09-01", 0L),
+      entry("2014-09-02", 2L),
+      entry("2014-09-03", 1L),
+      entry("2014-09-04", 0L),
+      entry("2014-09-05", 0L),
+      entry("2014-09-06", 1L),
+      entry("2014-09-07", 0L),
+      entry("2014-09-08", 0L));
+
+    IssueQuery queryMinus11 = IssueQuery.builder()
+      .createdAfter(startDate)
+      .createdBefore(endDate)
+      .timeZone(minus11)
+      .build();
+    SearchResponse resultMinus11 = underTest.search(queryMinus11, options);
+    Map<String, Long> bucketsMinus11 = new Facets(resultMinus11, minus11).get("createdAt");
+    assertThat(bucketsMinus11).containsOnly(
+      entry("2014-08-31", 1L),
+      entry("2014-09-01", 1L),
       entry("2014-09-02", 1L),
       entry("2014-09-03", 0L),
       entry("2014-09-04", 0L),
@@ -459,7 +510,7 @@ public class IssueIndexFacetsTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-25", 0L),
       entry("2014-09-01", 4L),
@@ -475,7 +526,7 @@ public class IssueIndexFacetsTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-01", 0L),
       entry("2014-09-01", 5L),
@@ -493,7 +544,7 @@ public class IssueIndexFacetsTest {
       .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2010-01-01", 0L),
       entry("2011-01-01", 1L),
@@ -511,7 +562,7 @@ public class IssueIndexFacetsTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
       .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-09-01", 2L));
   }
@@ -524,7 +575,7 @@ public class IssueIndexFacetsTest {
       .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
       .build(), options);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2008-01-01", 0L),
       entry("2009-01-01", 0L),
@@ -543,7 +594,7 @@ public class IssueIndexFacetsTest {
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01", 1L),
       entry("2012-01-01", 0L),
@@ -557,7 +608,7 @@ public class IssueIndexFacetsTest {
     SearchOptions searchOptions = new SearchOptions().addFacets("createdAt");
 
     SearchResponse result = underTest.search(IssueQuery.builder().build(), searchOptions);
-    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).isNull();
   }
 
@@ -566,12 +617,12 @@ public class IssueIndexFacetsTest {
     ComponentDto file = newFileDto(project, null);
 
     IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
-    IssueDoc issue1 = newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-01T10:46:00-1200"));
-    IssueDoc issue3 = newDoc("I3", file).setFuncCreationDate(parseDateTime("2014-09-02T23:34:56+1200"));
-    IssueDoc issue4 = newDoc("I4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = newDoc("I5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = newDoc("I6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue1 = newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-01T10:34:56+0000"));
+    IssueDoc issue2 = newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-01T22:46:00+0000"));
+    IssueDoc issue3 = newDoc("I3", file).setFuncCreationDate(parseDateTime("2014-09-02T11:34:56+0000"));
+    IssueDoc issue4 = newDoc("I4", file).setFuncCreationDate(parseDateTime("2014-09-05T11:34:56+0000"));
+    IssueDoc issue5 = newDoc("I5", file).setFuncCreationDate(parseDateTime("2014-09-20T11:34:56+0000"));
+    IssueDoc issue6 = newDoc("I6", file).setFuncCreationDate(parseDateTime("2015-01-18T11:34:56+0000"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
@@ -586,7 +637,7 @@ public class IssueIndexFacetsTest {
   @SafeVarargs
   private final void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
+    Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsExactly(expectedEntries);
   }
@@ -594,14 +645,14 @@ public class IssueIndexFacetsTest {
   @SafeVarargs
   private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
+    Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsOnly(expectedEntries);
   }
 
   private void assertThatFacetHasSize(IssueQuery issueQuery, String facet, int expectedSize) {
     SearchResponse result = underTest.search(issueQuery, new SearchOptions().addFacets(singletonList(facet)));
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
+    Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.get(facet)).hasSize(expectedSize);
   }
 }

@@ -22,6 +22,9 @@ package org.sonar.api.utils;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,9 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
-import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 
@@ -139,8 +140,8 @@ public class DateUtilsTest {
   @DataProvider
   public static Object[][] date_times() {
     return new Object[][] {
-      {"2014-05-27", parseDate("2014-05-27")},
-      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
+      {"2014-05-27", Date.from(LocalDate.parse("2014-05-27").atStartOfDay(ZoneId.systemDefault()).toInstant())},
+      {"2014-05-27T15:50:45+0100", Date.from(OffsetDateTime.parse("2014-05-27T15:50:45+01:00").toInstant())},
       {null, null}
     };
   }
@@ -152,19 +153,26 @@ public class DateUtilsTest {
     assertThat(parseStartingDateOrDateTime(stringDate)).isEqualTo(expectedDate);
   }
 
-  @DataProvider
-  public static Object[][] ending_date_times() {
-    return new Object[][] {
-      {"2014-05-27", parseDate("2014-05-28")},
-      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
-      {null, null}
-    };
+  @Test
+  public void param_as__date_time_provided_timezone() {
+    final ZoneId zoneId = ZoneId.of("Europe/Moscow");
+    assertThat(parseDateOrDateTime("2020-05-27", zoneId)).isEqualTo(Date.from(OffsetDateTime.parse("2020-05-27T00:00:00+03:00").toInstant()));
+    assertThat(parseStartingDateOrDateTime("2020-05-27", zoneId)).isEqualTo(Date.from(OffsetDateTime.parse("2020-05-27T00:00:00+03:00").toInstant()));
   }
 
   @Test
-  @UseDataProvider("ending_date_times")
-  public void param_as_ending_date_time(String stringDate, Date expectedDate) {
-    assertThat(parseEndingDateOrDateTime(stringDate)).isEqualTo(expectedDate);
+  public void param_as_ending_date_time_default_timezone() {
+    assertThat(parseEndingDateOrDateTime("2014-05-27")).isEqualTo(Date.from(LocalDate.parse("2014-05-28").atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    assertThat(parseEndingDateOrDateTime("2014-05-27T15:50:45+0100")).isEqualTo(Date.from(OffsetDateTime.parse("2014-05-27T15:50:45+01:00").toInstant()));
+    assertThat(parseEndingDateOrDateTime(null)).isNull();
+  }
+
+  @Test
+  public void param_as_ending_date_time_provided_timezone() {
+    final ZoneId zoneId = ZoneId.of("Europe/Moscow");
+    assertThat(parseEndingDateOrDateTime("2020-05-27", zoneId)).isEqualTo(Date.from(OffsetDateTime.parse("2020-05-28T00:00:00+03:00").toInstant()));
+    assertThat(parseEndingDateOrDateTime("2014-05-27T15:50:45+0100", zoneId)).isEqualTo(Date.from(OffsetDateTime.parse("2014-05-27T15:50:45+01:00").toInstant()));
+    assertThat(parseEndingDateOrDateTime(null, zoneId)).isNull();
   }
 
   @Test

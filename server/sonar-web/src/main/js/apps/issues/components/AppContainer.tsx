@@ -64,7 +64,11 @@ const fetchIssues = (query: T.RawQuery, requestOrganizations = true) => (
   getState: () => Store
 ) => {
   const organizationsEnabled = areThereCustomOrganizations(getState());
-  return searchIssues({ ...query, additionalFields: '_all' })
+  return searchIssues({
+    ...query,
+    additionalFields: '_all',
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  })
     .then(response => {
       const parsedIssues = response.issues.map(issue =>
         parseIssueFromResponse(issue, response.components, response.users, response.rules)

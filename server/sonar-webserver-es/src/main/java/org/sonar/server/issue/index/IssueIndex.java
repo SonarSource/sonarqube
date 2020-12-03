@@ -809,7 +809,7 @@ public class IssueIndex {
           .dateHistogramInterval(bucketSize)
           .minDocCount(0L)
           .format(DateUtils.DATETIME_FORMAT)
-          .timeZone(system.getDefaultTimeZone().toZoneId())
+          .timeZone(Optional.ofNullable(query.timeZone()).orElse(system.getDefaultTimeZone().toZoneId()))
           // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
           .extendedBounds(new ExtendedBounds(startInclusive ? startTime : (startTime + 1), endTime - 1L));
         addEffortAggregationIfNeeded(query, dateHistogram);

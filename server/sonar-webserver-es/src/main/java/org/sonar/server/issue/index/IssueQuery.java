@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableSet;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -96,6 +97,7 @@ public class IssueQuery {
   private final String organizationUuid;
   private final String branchUuid;
   private final boolean mainBranch;
+  private final ZoneId timeZone;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -133,6 +135,7 @@ public class IssueQuery {
     this.organizationUuid = builder.organizationUuid;
     this.branchUuid = builder.branchUuid;
     this.mainBranch = builder.mainBranch;
+    this.timeZone = builder.timeZone;
   }
 
   public Collection<String> issueKeys() {
@@ -294,6 +297,11 @@ public class IssueQuery {
     return new Builder();
   }
 
+  @CheckForNull
+  public ZoneId timeZone() {
+    return timeZone;
+  }
+
   public static class Builder {
     private Collection<String> issueKeys;
     private Collection<String> severities;
@@ -330,6 +338,7 @@ public class IssueQuery {
     private String organizationUuid;
     private String branchUuid;
     private boolean mainBranch = true;
+    private ZoneId timeZone;
 
     private Builder() {
 
@@ -534,6 +543,11 @@ public class IssueQuery {
 
     public Builder mainBranch(boolean mainBranch) {
       this.mainBranch = mainBranch;
+      return this;
+    }
+
+    public Builder timeZone(ZoneId timeZone) {
+      this.timeZone = timeZone;
       return this;
     }
   }

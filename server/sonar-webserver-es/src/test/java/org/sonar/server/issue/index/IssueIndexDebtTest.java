@@ -197,7 +197,7 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I3", file).setAssigneeUuid("uuid-simon").setEffort(10L),
       IssueDocTesting.newDoc("I4", file).setAssigneeUuid(null).setEffort(10L));
 
-    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("assignees"))), system2.getDefaultTimeZone());
+    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("assignees"))), system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly("assignees", FACET_MODE_EFFORT);
     assertThat(facets.get("assignees")).containsOnly(entry("uuid-steph", 10L), entry("uuid-simon", 20L), entry("", 10L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
@@ -214,7 +214,7 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I3", file).setAuthorLogin("simon").setEffort(10L),
       IssueDocTesting.newDoc("I4", file).setAuthorLogin(null).setEffort(10L));
 
-    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("authors"))), system2.getDefaultTimeZone());
+    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("authors"))), system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly("authors", FACET_MODE_EFFORT);
     assertThat(facets.get("authors")).containsOnly(entry("steph", 10L), entry("simon", 20L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
@@ -225,7 +225,7 @@ public class IssueIndexDebtTest {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     Builder query = newQueryBuilder().createdBefore(parseDateTime("2016-01-01T00:00:00+0100"));
-    Map<String, Long> createdAt = new Facets(underTest.search(query.build(), searchOptions), system2.getDefaultTimeZone()).get("createdAt");
+    Map<String, Long> createdAt = new Facets(underTest.search(query.build(), searchOptions), system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01", 10L),
       entry("2012-01-01", 0L),
@@ -257,7 +257,7 @@ public class IssueIndexDebtTest {
   }
 
   private Facets search(String additionalFacet) {
-    return new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList(additionalFacet))), system2.getDefaultTimeZone());
+    return new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList(additionalFacet))), system2.getDefaultTimeZone().toZoneId());
   }
 
   private Builder newQueryBuilder() {

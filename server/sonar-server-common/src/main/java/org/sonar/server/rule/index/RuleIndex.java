@@ -172,7 +172,7 @@ public class RuleIndex {
     SearchRequest esSearch = EsClient.prepareSearch(TYPE_RULE)
       .source(sourceBuilder);
 
-    return new SearchIdResult<>(client.search(esSearch), input -> input, system2.getDefaultTimeZone());
+    return new SearchIdResult<>(client.search(esSearch), input -> input, system2.getDefaultTimeZone().toZoneId());
   }
 
   /**

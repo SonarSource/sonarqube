@@ -25,7 +25,7 @@ import org.sonar.api.utils.System2;
 public class TestSystem2 extends System2 {
 
   private long now = 0L;
-  private TimeZone defaultTimeZone = getDefaultTimeZone();
+  private TimeZone defaultTimeZone = TimeZone.getTimeZone("UTC");
 
   public TestSystem2 setNow(long l) {
     this.now = l;

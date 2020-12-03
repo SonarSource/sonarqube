@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -41,7 +42,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -103,7 +103,7 @@ public class RegisterRulesTest {
   private static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
   private static final RuleKey HOTSPOT_RULE_KEY = RuleKey.of("fake", "hotspot");
 
-  private System2 system = mock(System2.class);
+  private TestSystem2 system = new TestSystem2().setNow(DATE1.getTime());
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -125,7 +125,6 @@ public class RegisterRulesTest {
 
   @Before
   public void before() {
-    when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(es.client(), dbClient);
     ruleIndex = new RuleIndex(es.client(), system);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
@@ -327,7 +326,7 @@ public class RegisterRulesTest {
     dbClient.ruleDao().insertOrUpdate(db.getSession(), rule1.getMetadata());
     db.getSession().commit();
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     verifyIndicesNotMarkedAsInitialized();
@@ -429,7 +428,7 @@ public class RegisterRulesTest {
 
   @Test
   public void update_only_rule_name() {
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
@@ -438,7 +437,7 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
@@ -458,7 +457,7 @@ public class RegisterRulesTest {
 
   @Test
   public void update_template_rule_key_should_also_update_custom_rules() {
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("squid", "java");
       repo.createRule("rule")
@@ -501,7 +500,7 @@ public class RegisterRulesTest {
     String ruleKey2 = "rule2";
     String repository = "fake";
 
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey1)
@@ -515,7 +514,7 @@ public class RegisterRulesTest {
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey2)
@@ -543,7 +542,7 @@ public class RegisterRulesTest {
     String repository1 = "fake1";
     String repository2 = "fake2";
 
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey)
@@ -557,7 +556,7 @@ public class RegisterRulesTest {
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey)
@@ -584,7 +583,7 @@ public class RegisterRulesTest {
   public void update_if_only_renamed_and_deprecated_key_declared(String ruleKey1, String repo1, String ruleKey2, String repo2) {
     String name = "Name1";
     String description = "Description";
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repo1, "java");
       repo.createRule(ruleKey1)
@@ -597,7 +596,7 @@ public class RegisterRulesTest {
     assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
       .containsOnly(rule1.getUuid());
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repo2, "java");
       repo.createRule(ruleKey2)
@@ -633,7 +632,7 @@ public class RegisterRulesTest {
     String repository1 = "fake1";
     String repository2 = "fake2";
 
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey1)
@@ -646,7 +645,7 @@ public class RegisterRulesTest {
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getUuids())
       .containsOnly(rule1.getUuid());
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey2)
@@ -668,7 +667,7 @@ public class RegisterRulesTest {
 
   @Test
   public void update_only_rule_description() {
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
@@ -677,7 +676,7 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
@@ -698,7 +697,7 @@ public class RegisterRulesTest {
   @Test
   public void rule_previously_created_as_adhoc_becomes_none_adhoc() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRepositoryKey("external_fake").setIsExternal(true).setIsAdHoc(true));
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(context -> {
       NewRepository repo = context.createExternalRepository("fake", rule.getLanguage());
       repo.createRule(rule.getRuleKey())
@@ -740,11 +739,11 @@ public class RegisterRulesTest {
   @Test
   public void disable_then_enable_rule() {
     // Install rule
-    when(system.now()).thenReturn(DATE1.getTime());
+    system.setNow(DATE1.getTime());
     execute(new FakeRepositoryV1());
 
     // Uninstall rule
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute();
 
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
@@ -752,7 +751,7 @@ public class RegisterRulesTest {
     assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
 
     // Re-install rule
-    when(system.now()).thenReturn(DATE3.getTime());
+    system.setNow(DATE3.getTime());
     execute(new FakeRepositoryV1());
 
     rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
@@ -765,7 +764,7 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAllDefinitions(db.getSession())).hasSize(3);
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(new FakeRepositoryV1());
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
@@ -785,7 +784,7 @@ public class RegisterRulesTest {
 
     assertThat(rule2.getStatus()).isEqualTo(READY);
 
-    when(system.now()).thenReturn(DATE2.getTime());
+    system.setNow(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
@@ -799,7 +798,7 @@ public class RegisterRulesTest {
 
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
-    when(system.now()).thenReturn(DATE3.getTime());
+    system.setNow(DATE3.getTime());
     execute(new FakeRepositoryV2());
     db.getSession().commit();
 

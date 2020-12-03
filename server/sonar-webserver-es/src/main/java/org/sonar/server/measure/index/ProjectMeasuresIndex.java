@@ -226,7 +226,7 @@ public class ProjectMeasuresIndex {
     filtersComputer.getPostFilters().ifPresent(searchSourceBuilder::postFilter);
     SearchResponse response = client.search(EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .source(searchSourceBuilder));
-    return new SearchIdResult<>(response, id -> id, system2.getDefaultTimeZone());
+    return new SearchIdResult<>(response, id -> id, system2.getDefaultTimeZone().toZoneId());
   }
 
   private static RequestFiltersComputer createFiltersComputer(SearchOptions searchOptions, AllFilters allFilters) {

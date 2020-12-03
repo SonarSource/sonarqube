@@ -99,6 +99,7 @@ public class IssuesWsParameters {
   public static final String PARAM_PAGE_INDEX = "pageIndex";
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
+  public static final String PARAM_TIMEZONE = "timeZone";
 
   /**
    * @deprecated since 7.9
