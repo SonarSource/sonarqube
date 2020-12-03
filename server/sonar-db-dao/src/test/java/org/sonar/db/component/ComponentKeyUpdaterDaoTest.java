@@ -28,6 +28,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,6 +40,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -97,6 +100,48 @@ public class ComponentKeyUpdaterDaoTest {
       .hasSize(5)
       .extracting(ComponentDto::getDbKey)
       .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "your_project:inactive_directory", "your_project:inactive_directory/file");
+  }
+
+  @Test
+  public void update_application_branch_key() {
+    ComponentDto app = db.components().insertPublicProject();
+    ComponentDto appBranch = db.components().insertProjectBranch(app);
+    ComponentDto appBranchProj1 = appBranch.copy()
+      .setDbKey(appBranch.getDbKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj1:BRANCH:1").setUuid("appBranchProj1").setScope(Qualifiers.FILE);
+    ComponentDto appBranchProj2 = appBranch.copy()
+      .setDbKey(appBranch.getDbKey().replace(BRANCH_KEY_SEPARATOR, "") + "appBranchProj2:BRANCH:2").setUuid("appBranchProj2").setScope(Qualifiers.FILE);
+    db.components().insertComponent(appBranchProj1);
+    db.components().insertComponent(appBranchProj2);
+    int branchComponentCount = 3;
+
+    String oldBranchKey = appBranch.getDbKey();
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
+
+    String newBranchName = "newKey";
+    String newAppBranchKey = ComponentDto.generateBranchKey(app.getDbKey(), newBranchName);
+    String newAppBranchFragment = app.getDbKey() + newBranchName;
+    underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), newBranchName);
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
+
+    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newAppBranchKey)).hasSize(branchComponentCount);
+
+    List<Map<String, Object>> result = db.select(dbSession, String.format("select kee from components where root_uuid = '%s' and scope != 'PRJ'", appBranch.uuid()));
+
+    assertThat(result).hasSize(2);
+    result.forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newAppBranchFragment)));
+  }
+
+  @Test
+  public void update_application_branch_key_will_fail_if_newKey_exist(){
+    ComponentDto app = db.components().insertPublicProject();
+    ComponentDto appBranch = db.components().insertProjectBranch(app);
+    db.components().insertProjectBranch(app, b -> b.setKey("newName"));
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getDbKey(), "newName")));
+
+    underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName");
   }
 
   @Test

@@ -40,6 +40,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.core.component.ComponentKeys.checkProjectKey;
+import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
 /**
  * Class used to rename the key of a project and its resources.
@@ -50,9 +52,7 @@ public class ComponentKeyUpdaterDao implements Dao {
 
   public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
-    if (mapper.countResourceByKey(newKey) > 0) {
-      throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
-    }
+    checkExistentKey(mapper, newKey);
 
     // must SELECT first everything
     ResourceDto project = mapper.selectProjectByUuid(projectUuid);
@@ -71,6 +71,26 @@ public class ComponentKeyUpdaterDao implements Dao {
     // and then proceed with the batch UPDATE at once
     runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper, (resource, oldKey) -> {
     });
+  }
+
+  public void updateApplicationBranchKey(DbSession dbSession, String appBranchUuid, String appKey, String newBranchName) {
+    ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
+
+    String newAppBranchKey = generateBranchKey(appKey, newBranchName);
+    checkExistentKey(mapper, newAppBranchKey);
+
+    ResourceDto appBranch = mapper.selectProjectByUuid(appBranchUuid);
+    String appBranchOldKey = appBranch.getKey();
+    appBranch.setKey(newAppBranchKey);
+    mapper.updateComponent(appBranch);
+
+    String oldAppBranchFragment = appBranchOldKey.replace(BRANCH_KEY_SEPARATOR, "");
+    String newAppBranchFragment = appKey + newBranchName;
+    for (ResourceDto appBranchResource : mapper.selectProjectResources(appBranchUuid)) {
+      String newKey = computeNewKey(appBranchResource.getKey(), oldAppBranchFragment, newAppBranchFragment);
+      appBranchResource.setKey(newKey);
+      mapper.updateComponent(appBranchResource);
+    }
   }
 
   /**
@@ -227,13 +247,17 @@ public class ComponentKeyUpdaterDao implements Dao {
     for (ResourceDto module : modules) {
       String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
       checkProjectKey(newKey);
-      if (mapper.countResourceByKey(newKey) > 0) {
-        throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
-      }
+      checkExistentKey(mapper, newKey);
     }
   }
 
   private static ComponentKeyUpdaterMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(ComponentKeyUpdaterMapper.class);
+  }
+
+  public static void checkExistentKey(ComponentKeyUpdaterMapper mapper, String resourceKey) {
+    if (mapper.countResourceByKey(resourceKey) > 0) {
+      throw new IllegalArgumentException("Impossible to update key: a component with key \"" + resourceKey + "\" already exists.");
+    }
   }
 }
