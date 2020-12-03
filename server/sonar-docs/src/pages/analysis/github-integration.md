@@ -82,6 +82,7 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 To add pull request decoration to a manually created or existing project, after you've created and installed your GitHub App and updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
 
 From here, set your: 
+
 - **Configuration name** – The configuration name that corresponds to your GitHub instance. 
 - **Repository identifier** – The path of your repository URL.
 

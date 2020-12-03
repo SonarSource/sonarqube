@@ -16,6 +16,7 @@ With this integration, you'll be able to:
 Setting up the import of BitBucket Server repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Server repositories. This is also the first step in adding pull request decoration.
 
 To set up the import of BitBucket Server repositories:
+
 1. Set your global settings
 1. Add a personal access token for importing repositories
 
@@ -24,7 +25,7 @@ To import your Bitbucket Server projects into SonarQube, you need to first set y
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Server configuration at the project level. Use something succinct and easily recognizable.
 - **Bitbucket Server URL** – your instances URL. For example, `https://bitbucket-server.your-company.com`.
-- **Personal Access Token** – A Bitbucket Server user account is used to decorate Pull Requests. We recommend using a dedicated Bitbucket Server account with Administrator permissions. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed.
+- **Personal Access Token** – A Bitbucket Server user account is used to decorate Pull Requests. We recommend using a dedicated Bitbucket Server account with Administrator permissions. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed. This personal access token is used for pull request decoration, and you'll be asked for another personal access token for importing projects in the following section.
 
 ### Adding a personal access token for importing repositories
 After setting these global settings, you can add a project from Bitbucket Server by clicking the "+" in the upper-right corner and selecting **Bitbucket**:
@@ -51,6 +52,7 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 To add pull request decoration to a manually created or existing project, after you've created and installed your GitHub App and updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
 
 From here, set your: 
+
 - **Configuration name** – The configuration name that corresponds to your ALM instance.
 - **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
 - **Repo Slug** – Part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).

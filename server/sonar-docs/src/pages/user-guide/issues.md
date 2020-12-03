@@ -37,6 +37,8 @@ Sometimes, issues are self-evident once they're pointed out. For instance, if yo
 
 But there are times when a simple laundry list of contributing locations isn't enough to understand an issue. For instance, when a null pointer can be dereferenced on some paths through the code, what you really need are issue flows. Each flow is a _set_ of secondary locations ordered to show the exact path through the code on which a problem can happen. And because there can be multiple paths through the code on which, for instance a resource is not released, {instance} supports multiple flows.
 
+Check out this [![YouTube link](/images/youtube.png) video](https://youtu.be/17G-aZcuMKw) for more on issues with multiple locations.
+
 ## Issues lifecycle
 ### Statuses
 After creation, issues flow through a lifecycle, taking one of five possible statuses:

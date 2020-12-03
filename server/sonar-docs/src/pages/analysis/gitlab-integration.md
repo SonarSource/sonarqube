@@ -9,7 +9,7 @@ With this integration, you'll be able to:
 
 - **Authenticate with GitLab** - (starting in Community Edition) Sign in to SonarQube with your GitLab credentials.
 - **Import your GitLab projects** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitLab Projects into SonarQube to easily set up SonarQube projects.  
-- **Analyze projects with GitLab CI/CD** - SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner.
+- **Analyze projects with GitLab CI/CD** - Integrate analysis into your build pipeline. SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html).
 - **Add merge request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitLab so you know if it's safe to merge your changes.
 
 ## Prerequisites
@@ -52,6 +52,7 @@ You should name your SonarQube group `my-group` to synchronize it with your GitL
 Setting up the import of GitLab projects into SonarQube allows you to easily create SonarQube projects from your GitLab projects. This is also the first step in adding merge request decoration.
 
 To set up the import of GitLab projects:
+
 1. Set your global settings
 1. Add a personal access token for importing repositories
 
@@ -60,7 +61,7 @@ To import your GitLab projects into SonarQube, you need to first set your global
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
-- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This 
+- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used for pull request decoration. You'll be asked for another personal access token for importing projects in the following section. 
 
 ### Adding a personal access token for importing projects
 After setting these global settings, you can add a project from GitLab by clicking the "+" in the upper-right corner and selecting **GitLab**:
