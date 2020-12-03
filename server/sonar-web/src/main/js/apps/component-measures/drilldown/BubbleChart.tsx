@@ -44,7 +44,15 @@ interface Props {
   updateSelected: (component: string) => void;
 }
 
-export default class BubbleChart extends React.PureComponent<Props> {
+interface State {
+  ratingFilters: { [rating: number]: boolean };
+}
+
+export default class BubbleChart extends React.PureComponent<Props, State> {
+  state: State = {
+    ratingFilters: {}
+  };
+
   getMeasureVal = (component: T.ComponentMeasureEnhanced, metric: T.Metric) => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);
     if (!measure) {
@@ -86,6 +94,12 @@ export default class BubbleChart extends React.PureComponent<Props> {
     );
   }
 
+  handleRatingFilterClick = (selection: number) => {
+    this.setState(({ ratingFilters }) => {
+      return { ratingFilters: { ...ratingFilters, [selection]: !ratingFilters[selection] } };
+    });
+  };
+
   handleBubbleClick = (component: T.ComponentMeasureEnhanced) =>
     this.props.updateSelected(component.refKey || component.key);
 
@@ -99,6 +113,8 @@ export default class BubbleChart extends React.PureComponent<Props> {
   }
 
   renderBubbleChart(metrics: { x: T.Metric; y: T.Metric; size: T.Metric; colors?: T.Metric[] }) {
+    const { ratingFilters } = this.state;
+
     const items = this.props.components
       .map(component => {
         const x = this.getMeasureVal(component, metrics.x);
@@ -109,14 +125,19 @@ export default class BubbleChart extends React.PureComponent<Props> {
         if ((!x && x !== 0) || (!y && y !== 0) || (!size && size !== 0)) {
           return undefined;
         }
+
+        const colorRating = colors && Math.max(...colors.filter(isDefined));
+
+        // Filter out items that match ratingFilters
+        if (colorRating !== undefined && ratingFilters[colorRating]) {
+          return undefined;
+        }
+
         return {
           x,
           y,
           size,
-          color:
-            colors !== undefined
-              ? RATING_COLORS[Math.max(...colors.filter(isDefined)) - 1]
-              : undefined,
+          color: colorRating !== undefined ? RATING_COLORS[colorRating - 1] : undefined,
           data: component,
           tooltip: this.getTooltip(component.name, { x, y, size, colors }, metrics)
         };
@@ -140,6 +161,8 @@ export default class BubbleChart extends React.PureComponent<Props> {
   }
 
   renderChartHeader(domain: string, sizeMetric: T.Metric, colorsMetric?: T.Metric[]) {
+    const { ratingFilters } = this.state;
+
     const title = isProjectOverview(domain)
       ? translate('component_measures.overview', domain, 'title')
       : translateWithParameters(
@@ -172,7 +195,13 @@ export default class BubbleChart extends React.PureComponent<Props> {
               getLocalizedMetricName(sizeMetric)
             )}
           </span>
-          {colorsMetric && <ColorRatingsLegend className="spacer-top" />}
+          {colorsMetric && (
+            <ColorRatingsLegend
+              className="spacer-top"
+              filters={ratingFilters}
+              onRatingClick={this.handleRatingFilterClick}
+            />
+          )}
         </span>
       </div>
     );

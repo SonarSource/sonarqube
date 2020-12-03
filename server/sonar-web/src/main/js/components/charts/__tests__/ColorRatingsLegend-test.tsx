@@ -19,45 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockProject } from '../../../../helpers/mocks/projects';
-import Risk from '../Risk';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import ColorRatingsLegend, { ColorRatingsLegendProps } from '../ColorRatingsLegend';
 
-it('renders', () => {
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should handle filtering', () => {
-  const wrapper = shallowRender();
+it('should callback when a rating is clicked', () => {
+  const onRatingClick = jest.fn();
+  const wrapper = shallowRender({ onRatingClick });
 
-  wrapper.instance().handleRatingFilterClick(2);
+  wrapper
+    .find(ButtonLink)
+    .at(3)
+    .simulate('click');
 
-  expect(wrapper.state().ratingFilters).toEqual({ 2: true });
+  expect(onRatingClick).toBeCalledWith(4);
 });
 
-function shallowRender(overrides: Partial<Risk['props']> = {}) {
-  const project1 = mockProject({
-    key: 'foo',
-    measures: {
-      complexity: '17.2',
-      coverage: '53.5',
-      ncloc: '1734',
-      sqale_index: '1',
-      reliability_rating: '3',
-      security_rating: '2'
-    },
-    name: 'Foo'
-  });
-  const project2 = mockProject({
-    key: 'bar',
-    name: 'Bar',
-    measures: {}
-  });
-  return shallow<Risk>(
-    <Risk
-      displayOrganizations={false}
-      helpText="foobar"
-      projects={[project1, project2]}
-      {...overrides}
-    />
+function shallowRender(overrides: Partial<ColorRatingsLegendProps> = {}) {
+  return shallow(
+    <ColorRatingsLegend filters={{ 2: true }} onRatingClick={jest.fn()} {...overrides} />
   );
 }

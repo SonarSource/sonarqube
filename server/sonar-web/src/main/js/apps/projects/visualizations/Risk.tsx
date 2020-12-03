@@ -23,6 +23,7 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -45,7 +46,15 @@ interface Props {
   projects: Project[];
 }
 
-export default class Risk extends React.PureComponent<Props> {
+interface State {
+  ratingFilters: { [rating: number]: boolean };
+}
+
+export default class Risk extends React.PureComponent<Props, State> {
+  state: State = {
+    ratingFilters: {}
+  };
+
   getMetricTooltip(metric: { key: string; type: string }, value?: number) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
@@ -102,33 +111,51 @@ export default class Risk extends React.PureComponent<Props> {
     );
   }
 
-  render() {
-    const items = this.props.projects.map(project => {
-      const x = project.measures[X_METRIC] != null ? Number(project.measures[X_METRIC]) : undefined;
-      const y = project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : undefined;
-      const size =
-        project.measures[SIZE_METRIC] != null ? Number(project.measures[SIZE_METRIC]) : undefined;
-      const color1 =
-        project.measures[COLOR_METRIC_1] != null
-          ? Number(project.measures[COLOR_METRIC_1])
-          : undefined;
-      const color2 =
-        project.measures[COLOR_METRIC_2] != null
-          ? Number(project.measures[COLOR_METRIC_2])
-          : undefined;
-      return {
-        x: x || 0,
-        y: y || 0,
-        size: size || 0,
-        color:
-          color1 != null && color2 != null
-            ? RATING_COLORS[Math.max(color1, color2) - 1]
-            : undefined,
-        key: project.key,
-        tooltip: this.getTooltip(project, x, y, size, color1, color2),
-        link: getProjectUrl(project.key)
-      };
+  handleRatingFilterClick = (selection: number) => {
+    this.setState(({ ratingFilters }) => {
+      return { ratingFilters: { ...ratingFilters, [selection]: !ratingFilters[selection] } };
     });
+  };
+
+  render() {
+    const { ratingFilters } = this.state;
+
+    const items = this.props.projects
+      .map(project => {
+        const x =
+          project.measures[X_METRIC] != null ? Number(project.measures[X_METRIC]) : undefined;
+        const y =
+          project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : undefined;
+        const size =
+          project.measures[SIZE_METRIC] != null ? Number(project.measures[SIZE_METRIC]) : undefined;
+        const color1 =
+          project.measures[COLOR_METRIC_1] != null
+            ? Number(project.measures[COLOR_METRIC_1])
+            : undefined;
+        const color2 =
+          project.measures[COLOR_METRIC_2] != null
+            ? Number(project.measures[COLOR_METRIC_2])
+            : undefined;
+
+        const colorRating =
+          color1 !== undefined && color2 !== undefined ? Math.max(color1, color2) : undefined;
+
+        // Filter out items that match ratingFilters
+        if (colorRating !== undefined && ratingFilters[colorRating]) {
+          return undefined;
+        }
+
+        return {
+          x: x || 0,
+          y: y || 0,
+          size: size || 0,
+          color: colorRating !== undefined ? RATING_COLORS[colorRating - 1] : undefined,
+          key: project.key,
+          tooltip: this.getTooltip(project, x, y, size, color1, color2),
+          link: getProjectUrl(project.key)
+        };
+      })
+      .filter(isDefined);
 
     const formatXTick = (tick: number) => formatMeasure(tick, X_METRIC_TYPE);
     const formatYTick = (tick: number) => formatMeasure(tick, Y_METRIC_TYPE);
@@ -166,7 +193,11 @@ export default class Risk extends React.PureComponent<Props> {
               'component_measures.legend.size_x',
               translate('metric', SIZE_METRIC, 'name')
             )}
-            <ColorRatingsLegend className="big-spacer-top" />
+            <ColorRatingsLegend
+              className="big-spacer-top"
+              filters={ratingFilters}
+              onRatingClick={this.handleRatingFilterClick}
+            />
           </div>
         </div>
       </div>

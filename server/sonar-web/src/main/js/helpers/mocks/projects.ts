@@ -17,39 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.color-box-legend {
-  display: flex;
-  justify-content: center;
-}
+import { Project } from '../../apps/projects/types';
+import { ComponentQualifier } from '../../types/component';
 
-.color-box-legend > *:not(:first-child) {
-  margin-left: 24px;
-}
-
-.color-box-legend .color-box-legend-rect {
-  display: inline-block;
-  margin-top: 1px;
-  margin-right: 4px;
-  border: 1px solid;
-}
-
-.color-box-legend .color-box-legend-rect-inner {
-  display: block;
-  width: 8px;
-  height: 8px;
-  opacity: 0.2;
-}
-
-.color-box-legend.color-box-full .color-box-legend-rect-inner {
-  opacity: 1;
-}
-
-.color-box-legend button {
-  color: var(--baseFontColor);
-  border-bottom: none;
-  display: block;
-}
-
-.color-box-legend button.filtered {
-  opacity: 0.3;
+export function mockProject(overrides: Partial<Project> = {}): Project {
+  return {
+    key: 'foo',
+    name: 'Foo',
+    measures: {},
+    qualifier: ComponentQualifier.Project,
+    tags: [],
+    visibility: 'public',
+    ...overrides
+  };
 }

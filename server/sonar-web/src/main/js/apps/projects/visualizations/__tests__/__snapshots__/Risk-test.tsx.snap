@@ -13,7 +13,7 @@ exports[`renders 1`] = `
     items={
       Array [
         Object {
-          "color": undefined,
+          "color": "#eabe06",
           "key": "foo",
           "link": Object {
             "pathname": "/dashboard",
@@ -36,6 +36,56 @@ exports[`renders 1`] = `
             <div>
               metric.reliability_rating.name
               : 
+              C
+            </div>
+            <div>
+              metric.security_rating.name
+              : 
+              B
+            </div>
+            <div>
+              metric.coverage.name
+              : 
+              53.5%
+            </div>
+            <div>
+              metric.sqale_index.name
+              : 
+              work_duration.x_minutes.1
+            </div>
+            <div>
+              metric.ncloc.name
+              : 
+              1.7short_number_suffix.k
+            </div>
+          </div>,
+          "x": 1,
+          "y": 53.5,
+        },
+        Object {
+          "color": undefined,
+          "key": "bar",
+          "link": Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "branch": undefined,
+              "id": "bar",
+            },
+          },
+          "size": 0,
+          "tooltip": <div
+            className="text-left"
+          >
+            <div
+              className="little-spacer-bottom display-flex-center display-flex-space-between"
+            >
+              <strong>
+                Bar
+              </strong>
+            </div>
+            <div>
+              metric.reliability_rating.name
+              : 
               –
             </div>
             <div>
@@ -46,7 +96,7 @@ exports[`renders 1`] = `
             <div>
               metric.coverage.name
               : 
-              53.5%
+              –
             </div>
             <div>
               metric.sqale_index.name
@@ -56,11 +106,11 @@ exports[`renders 1`] = `
             <div>
               metric.ncloc.name
               : 
-              1.7short_number_suffix.k
+              –
             </div>
           </div>,
           "x": 0,
-          "y": 53.5,
+          "y": 0,
         },
       ]
     }
@@ -120,6 +170,8 @@ exports[`renders 1`] = `
       component_measures.legend.size_x.metric.ncloc.name
       <ColorRatingsLegend
         className="big-spacer-top"
+        filters={Object {}}
+        onRatingClick={[Function]}
       />
     </div>
   </div>

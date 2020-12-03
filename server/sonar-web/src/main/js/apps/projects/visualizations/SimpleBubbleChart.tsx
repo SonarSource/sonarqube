@@ -23,6 +23,7 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -46,7 +47,15 @@ interface Props {
   yMetric: Metric;
 }
 
-export default class SimpleBubbleChart extends React.PureComponent<Props> {
+interface State {
+  ratingFilters: { [rating: number]: boolean };
+}
+
+export default class SimpleBubbleChart extends React.PureComponent<Props, State> {
+  state: State = {
+    ratingFilters: {}
+  };
+
   getMetricTooltip(metric: Metric, value?: number) {
     const name = translate('metric', metric.key, 'name');
     const formattedValue = value != null ? formatMeasure(value, metric.type) : '–';
@@ -96,8 +105,15 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
     );
   }
 
+  handleRatingFilterClick = (selection: number) => {
+    this.setState(({ ratingFilters }) => {
+      return { ratingFilters: { ...ratingFilters, [selection]: !ratingFilters[selection] } };
+    });
+  };
+
   render() {
     const { xMetric, yMetric, sizeMetric, colorMetric } = this.props;
+    const { ratingFilters } = this.state;
 
     const items = this.props.projects
       .filter(project => colorMetric == null || project.measures[colorMetric] !== null)
@@ -111,6 +127,12 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
             ? Number(project.measures[sizeMetric.key])
             : undefined;
         const color = colorMetric ? Number(project.measures[colorMetric]) : undefined;
+
+        // Filter out items that match ratingFilters
+        if (color && ratingFilters[color]) {
+          return undefined;
+        }
+
         return {
           x: x || 0,
           y: y || 0,
@@ -120,7 +142,8 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
           tooltip: this.getTooltip(project, x, y, size, color),
           link: getProjectUrl(project.key)
         };
-      });
+      })
+      .filter(isDefined);
 
     const formatXTick = (tick: number) => formatMeasure(tick, xMetric.type);
     const formatYTick = (tick: number) => formatMeasure(tick, yMetric.type);
@@ -159,7 +182,13 @@ export default class SimpleBubbleChart extends React.PureComponent<Props> {
               'component_measures.legend.size_x',
               translate('metric', sizeMetric.key, 'name')
             )}
-            {colorMetric != null && <ColorRatingsLegend className="big-spacer-top" />}
+            {colorMetric != null && (
+              <ColorRatingsLegend
+                className="big-spacer-top"
+                filters={ratingFilters}
+                onRatingClick={this.handleRatingFilterClick}
+              />
+            )}
           </div>
         </div>
       </div>

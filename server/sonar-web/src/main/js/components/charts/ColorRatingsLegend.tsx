@@ -19,29 +19,44 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { RATING_COLORS } from '../../helpers/constants';
 import './ColorBoxLegend.css';
 
-interface Props {
+export interface ColorRatingsLegendProps {
   className?: string;
+  filters: { [rating: number]: boolean };
+  onRatingClick: (selection: number) => void;
 }
 
-export default function ColorRatingsLegend({ className }: Props) {
+const RATINGS = [1, 2, 3, 4, 5];
+
+export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
+  const { className, filters } = props;
   return (
     <div className={classNames('color-box-legend', className)}>
-      {[1, 2, 3, 4, 5].map(rating => (
-        <div key={rating}>
-          <span
-            className="color-box-legend-rect"
-            style={{ borderColor: RATING_COLORS[rating - 1] }}>
+      {RATINGS.map(rating => (
+        <Tooltip key={rating} overlay={translate('component_measures.legend.help')}>
+          <ButtonLink
+            className={classNames('little-padded-bottom', {
+              filtered: filters[rating]
+            })}
+            onClick={() => props.onRatingClick(rating)}
+            type="button">
             <span
-              className="color-box-legend-rect-inner"
-              style={{ backgroundColor: RATING_COLORS[rating - 1] }}
-            />
-          </span>
-          {formatMeasure(rating, 'RATING')}
-        </div>
+              className="color-box-legend-rect"
+              style={{ borderColor: RATING_COLORS[rating - 1] }}>
+              <span
+                className="color-box-legend-rect-inner"
+                style={{ backgroundColor: RATING_COLORS[rating - 1] }}
+              />
+            </span>
+            {formatMeasure(rating, 'RATING')}
+          </ButtonLink>
+        </Tooltip>
       ))}
     </div>
   );

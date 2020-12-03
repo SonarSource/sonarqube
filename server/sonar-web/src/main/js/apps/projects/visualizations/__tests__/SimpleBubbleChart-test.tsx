@@ -19,37 +19,42 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockProject } from '../../../../helpers/mocks/projects';
 import { ComponentQualifier } from '../../../../types/component';
-import { Project } from '../../types';
 import SimpleBubbleChart from '../SimpleBubbleChart';
 
 it('renders', () => {
-  const project1: Project = {
-    key: 'foo',
-    measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734', security_rating: '2' },
-    name: 'Foo',
-    qualifier: ComponentQualifier.Project,
-    tags: [],
-    visibility: 'public'
-  };
-  const app = {
-    ...project1,
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should handle filtering', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleRatingFilterClick(2);
+
+  expect(wrapper.state().ratingFilters).toEqual({ 2: true });
+});
+
+function shallowRender(overrides: Partial<SimpleBubbleChart['props']> = {}) {
+  const project1 = mockProject({
+    measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734', security_rating: '2' }
+  });
+  const app = mockProject({
     key: 'app',
     measures: { complexity: '23.1', coverage: '87.3', ncloc: '32478', security_rating: '1' },
     name: 'App',
     qualifier: ComponentQualifier.Application
-  };
-  expect(
-    shallow(
-      <SimpleBubbleChart
-        colorMetric="security_rating"
-        displayOrganizations={false}
-        helpText="foobar"
-        projects={[app, project1]}
-        sizeMetric={{ key: 'ncloc', type: 'INT' }}
-        xMetric={{ key: 'complexity', type: 'INT' }}
-        yMetric={{ key: 'coverage', type: 'PERCENT' }}
-      />
-    )
-  ).toMatchSnapshot();
-});
+  });
+  return shallow<SimpleBubbleChart>(
+    <SimpleBubbleChart
+      colorMetric="security_rating"
+      displayOrganizations={false}
+      helpText="foobar"
+      projects={[app, project1]}
+      sizeMetric={{ key: 'ncloc', type: 'INT' }}
+      xMetric={{ key: 'complexity', type: 'INT' }}
+      yMetric={{ key: 'coverage', type: 'PERCENT' }}
+      {...overrides}
+    />
+  );
+}
