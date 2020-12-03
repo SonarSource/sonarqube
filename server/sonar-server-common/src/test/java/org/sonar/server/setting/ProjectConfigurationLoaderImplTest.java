@@ -42,16 +42,16 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectConfigurationLoaderImplTest {
-  private DbClient dbClient = mock(DbClient.class);
-  private DbSession dbSession = mock(DbSession.class);
-  private PropertiesDao propertiesDao = mock(PropertiesDao.class);
-  private MapSettings globalSettings = new MapSettings();
-  private ProjectConfigurationLoaderImpl underTest = new ProjectConfigurationLoaderImpl(globalSettings, dbClient);
+  private final DbClient dbClient = mock(DbClient.class);
+  private final DbSession dbSession = mock(DbSession.class);
+  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  private final MapSettings globalSettings = new MapSettings();
+  private final ProjectConfigurationLoaderImpl underTest = new ProjectConfigurationLoaderImpl(globalSettings, dbClient);
 
   @Before
   public void setUp() {
@@ -65,7 +65,7 @@ public class ProjectConfigurationLoaderImplTest {
     assertThat(underTest.loadProjectConfigurations(dbSession, Collections.emptySet()))
       .isEmpty();
 
-    verifyZeroInteractions(propertiesDao);
+    verifyNoInteractions(propertiesDao);
   }
 
   @Test
@@ -84,6 +84,21 @@ public class ProjectConfigurationLoaderImplTest {
     assertThat(configurations)
       .containsOnlyKeys(componentUuid);
     assertThat(configurations.get(componentUuid).get(key)).contains(value);
+  }
+
+  @Test
+  public void returns_single_configuration_for_single_project_load() {
+    String key = randomAlphanumeric(3);
+    String value = randomAlphanumeric(4);
+    String componentDbKey = randomAlphanumeric(5);
+    String componentUuid = randomAlphanumeric(6);
+    globalSettings.setProperty(key, value);
+    when(propertiesDao.selectProjectProperties(dbSession, componentDbKey))
+      .thenReturn(emptyList());
+    ComponentDto component = newComponentDto(componentDbKey, componentUuid);
+
+    Configuration configuration = underTest.loadProjectConfiguration(dbSession, component);
+    assertThat(configuration.get(key)).hasValue(value);
   }
 
   @Test

@@ -32,7 +32,9 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbProjectBranches;
+import org.sonar.server.setting.ProjectConfigurationLoader;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
@@ -44,14 +46,14 @@ public class BranchPersisterImpl implements BranchPersister {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final Configuration configuration;
+  private final ProjectConfigurationLoader projectConfigurationLoader;
 
   public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    Configuration configuration) {
+    ProjectConfigurationLoader projectConfigurationLoader) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.configuration = configuration;
+    this.projectConfigurationLoader = projectConfigurationLoader;
   }
 
   public void persist(DbSession dbSession) {
@@ -62,10 +64,10 @@ public class BranchPersisterImpl implements BranchPersister {
       .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
-    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge()));
+    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge(dbSession)));
   }
 
-  private boolean checkIfExcludedFromPurge() {
+  private boolean checkIfExcludedFromPurge(DbSession dbSession) {
     if (analysisMetadataHolder.getBranch().isMain()) {
       return true;
     }
@@ -74,7 +76,11 @@ public class BranchPersisterImpl implements BranchPersister {
       return false;
     }
 
-    List<String> excludeFromPurgeEntries = asList(ofNullable(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).orElse(new String[0]));
+    ComponentDto projectDto = dbClient.componentDao().selectByUuid(dbSession, analysisMetadataHolder.getProject().getUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Component '%s' is missing.", analysisMetadataHolder.getProject().getKey())));
+    Configuration projectConfiguration = projectConfigurationLoader.loadProjectConfiguration(dbSession, projectDto);
+    String[] branchesToKeep = projectConfiguration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE);
+    List<String> excludeFromPurgeEntries = asList(ofNullable(branchesToKeep).orElse(new String[0]));
     return excludeFromPurgeEntries.stream()
       .map(Pattern::compile)
       .anyMatch(excludePattern -> excludePattern.matcher(analysisMetadataHolder.getBranch().getName()).matches());
