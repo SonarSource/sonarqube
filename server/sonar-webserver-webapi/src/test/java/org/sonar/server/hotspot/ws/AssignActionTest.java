@@ -178,9 +178,10 @@ public class AssignActionTest {
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
-    assertThatThrownBy(() -> executeRequest(hotspot, assignee.getLogin(), null))
+    String login = assignee.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin());
+      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", login);
   }
 
   @Test
@@ -195,9 +196,10 @@ public class AssignActionTest {
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
-    assertThatThrownBy(() -> executeRequest(hotspot, assignee.getLogin(), null))
+    String login = assignee.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin());
+      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", login);
   }
 
   @Test
@@ -282,7 +284,8 @@ public class AssignActionTest {
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
 
-    assertThatThrownBy(() -> executeRequest(hotspot, userSessionRule.getLogin(), null))
+    String login = userSessionRule.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Assignee can only be changed on Security Hotspots with status 'TO_REVIEW'");
   }
@@ -297,7 +300,8 @@ public class AssignActionTest {
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
 
-    assertThatThrownBy(() -> executeRequest(hotspot, userSessionRule.getLogin(), null))
+    String login = userSessionRule.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Assignee can only be changed on Security Hotspots with status 'TO_REVIEW'");
   }
@@ -321,7 +325,8 @@ public class AssignActionTest {
 
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
-    assertThatThrownBy(() -> executeRequest(hotspot, assignee.getLogin(), null))
+    String login = assignee.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -336,7 +341,8 @@ public class AssignActionTest {
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
-    assertThatThrownBy(() -> executeRequest(hotspot, me.getLogin(), null))
+    String login = me.getLogin();
+    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -349,7 +355,8 @@ public class AssignActionTest {
     userSessionRule.logIn().registerComponents(project);
 
     String notExistingHotspotKey = randomAlphanumeric(10);
-    assertThatThrownBy(() -> executeRequest(notExistingHotspotKey, me.getLogin(), null))
+    String login = me.getLogin();
+    assertThatThrownBy(() -> executeRequest(notExistingHotspotKey, login, null))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Hotspot '%s' does not exist", notExistingHotspotKey);
   }
@@ -367,7 +374,8 @@ public class AssignActionTest {
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
 
-    assertThatThrownBy(() -> executeRequest(issue, me.getLogin(), null))
+    String login = me.getLogin();
+    assertThatThrownBy(() -> executeRequest(issue, login, null))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Hotspot '%s' does not exist", issue.getKey());
   }
@@ -397,7 +405,8 @@ public class AssignActionTest {
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
 
-    assertThatThrownBy(() -> executeRequest(issue, me.getLogin(), null))
+    String login = me.getLogin();
+    assertThatThrownBy(() -> executeRequest(issue, login, null))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Hotspot '%s' does not exist", issue.getKey());
   }

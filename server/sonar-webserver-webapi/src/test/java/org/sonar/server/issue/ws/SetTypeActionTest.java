@@ -58,8 +58,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -153,7 +151,8 @@ public class SetTypeActionTest {
     IssueDto issueDto = newIssueWithProject(CODE_SMELL);
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    assertThatThrownBy(() -> call(issueDto.getKey(), "unknown"))
+    String issueDtoKey = issueDto.getKey();
+    assertThatThrownBy(() -> call(issueDtoKey, "unknown"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'type' (unknown) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
   }
@@ -163,7 +162,8 @@ public class SetTypeActionTest {
     IssueDto issueDto = newIssueWithProject(CODE_SMELL);
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    assertThatThrownBy(() -> call(issueDto.getKey(), "SECURITY_HOTSPOT"))
+    String issueDtoKey = issueDto.getKey();
+    assertThatThrownBy(() -> call(issueDtoKey, "SECURITY_HOTSPOT"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value of parameter 'type' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
   }
@@ -203,9 +203,11 @@ public class SetTypeActionTest {
     IssueDto hotspot = issueDbTester.insertHotspot();
     setUserWithBrowseAndAdministerIssuePermission(hotspot);
 
-    assertThatThrownBy(() -> call(hotspot.getKey(), type.name()))
+    String hotspotKey = hotspot.getKey();
+    String typeName = type.name();
+    assertThatThrownBy(() -> call(hotspotKey, typeName))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+      .hasMessage("Issue with key '%s' does not exist", hotspotKey);
   }
 
   @Test

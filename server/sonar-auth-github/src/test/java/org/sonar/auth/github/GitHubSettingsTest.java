@@ -139,7 +139,7 @@ public class GitHubSettingsTest {
     String[] setting = null;
     settings.setProperty("sonar.auth.github.organizations", setting);
     String[] actual = underTest.organizations();
-    assertThat(actual).hasSize(0);
+    assertThat(actual).isEmpty();
   }
 
   @Test

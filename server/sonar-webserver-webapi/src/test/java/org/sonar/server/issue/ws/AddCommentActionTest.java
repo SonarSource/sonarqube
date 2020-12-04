@@ -50,8 +50,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -140,9 +138,10 @@ public class AddCommentActionTest {
     IssueDto issueDto = issueDbTester.insertHotspot();
     loginWithBrowsePermission(issueDto, USER);
 
-    assertThatThrownBy(() -> call(issueDto.getKey(), "please fix it"))
+    String dtoKey = issueDto.getKey();
+    assertThatThrownBy(() -> call(dtoKey, "please fix it"))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Issue with key '%s' does not exist", issueDto.getKey());
+      .hasMessage("Issue with key '%s' does not exist", dtoKey);
   }
 
   @Test

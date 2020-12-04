@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -163,9 +162,10 @@ public class DeleteCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(hotspot, user, "please fix it");
     loginAndAddProjectPermission(user, hotspot, USER);
 
-    assertThatThrownBy(() -> call(commentDto.getKey()))
-    .isInstanceOf(NotFoundException.class)
-    .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+    String commentDtoKey = commentDto.getKey();
+    assertThatThrownBy(() -> call(commentDtoKey))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test

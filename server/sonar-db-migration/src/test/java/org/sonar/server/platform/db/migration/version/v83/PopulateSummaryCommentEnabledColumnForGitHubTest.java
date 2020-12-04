@@ -35,16 +35,16 @@ public class PopulateSummaryCommentEnabledColumnForGitHubTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateSummaryCommentEnabledColumnForGitHubTest.class, "schema.sql");
 
-  private System2 system = System2.INSTANCE;
+  private final System2 system = System2.INSTANCE;
 
-  private DataChange underTest = new PopulateSummaryCommentEnabledColumnForGitHub(db.database(), system);
+  private final DataChange underTest = new PopulateSummaryCommentEnabledColumnForGitHub(db.database(), system);
 
   @Test
   public void does_not_fail_if_alm_settings_are_empty() throws SQLException {
     underTest.execute();
 
     assertThat(db.countSql("select count(uuid) from project_alm_settings where summary_comment_enabled is null"))
-      .isEqualTo(0);
+      .isZero();
 
     // re-entrant migration
     underTest.execute();

@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -42,12 +41,10 @@ public class DropSecurityHotSpotsInReviewStatusTest {
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropSecurityHotSpotsInReviewStatusTest.class, "schema.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
-  private DataChange underTest = new DropSecurityHotSpotsInReviewStatus(db.database(), system2);
+  private final DataChange underTest = new DropSecurityHotSpotsInReviewStatus(db.database(), system2);
 
   @Test
   public void should_change_IN_REVIEW_statuses_only() throws SQLException {
@@ -75,22 +72,23 @@ public class DropSecurityHotSpotsInReviewStatusTest {
   @Test
   public void should_not_fail_if_no_issues() throws SQLException {
     underTest.execute();
-    assertThat(db.countRowsOfTable("issues")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issues")).isZero();
   }
 
   private void assertIssueChanged(int issueId) {
     List<Map<String, Object>> row = db.select(String.format("select status from issues where kee = '%s'", "issue-key-" + issueId));
     assertThat(row).hasSize(1);
-    assertThat(row.get(0).get("STATUS"))
-      .isEqualTo("TO_REVIEW");
+    assertThat(row.get(0))
+      .containsEntry("STATUS", "TO_REVIEW");
 
     List<Map<String, Object>> changelogRows = db.select(String.format("select change_type, change_data, created_at, updated_at, issue_change_creation_date" +
       " from issue_changes where issue_key = '%s'", "issue-key-" + issueId));
     assertThat(changelogRows).hasSize(1);
 
     Map<String, Object> changelogRow = changelogRows.get(0);
-    assertThat(changelogRow.get("CHANGE_TYPE")).isEqualTo("diff");
-    assertThat(changelogRow.get("CHANGE_DATA")).isEqualTo("status=IN_REVIEW|TO_REVIEW");
+    assertThat(changelogRow)
+      .containsEntry("CHANGE_TYPE", "diff")
+      .containsEntry("CHANGE_DATA", "status=IN_REVIEW|TO_REVIEW");
 
     assertThat(changelogRow.get("CREATED_AT")).isNotNull();
     assertThat(changelogRow.get("UPDATED_AT")).isNotNull();
@@ -100,8 +98,8 @@ public class DropSecurityHotSpotsInReviewStatusTest {
   private void assertIssueNotChanged(int issueId, String expectedStatus) {
     List<Map<String, Object>> row = db.select(String.format("select status from issues where kee = '%s'", "issue-key-" + issueId));
     assertThat(row).hasSize(1);
-    assertThat(row.get(0).get("STATUS"))
-      .isEqualTo(expectedStatus);
+    assertThat(row.get(0))
+      .containsEntry("STATUS", expectedStatus);
 
     List<Map<String, Object>> changelogRows = db.select(String.format("select change_type, change_data, created_at, updated_at, issue_change_creation_date" +
       " from issue_changes where issue_key = '%s'", "issue-key-" + issueId));

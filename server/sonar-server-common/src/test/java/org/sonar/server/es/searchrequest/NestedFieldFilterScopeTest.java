@@ -83,8 +83,7 @@ public class NestedFieldFilterScopeTest {
 
     assertThat(underTest)
       .isEqualTo(underTest)
-      .isEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName, value));
-    assertThat(underTest)
+      .isEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName, value))
       .isNotEqualTo(null)
       .isNotEqualTo(new Object())
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName2, nestedFieldName, value))

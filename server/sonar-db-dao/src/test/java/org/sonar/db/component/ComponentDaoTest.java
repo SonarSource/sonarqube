@@ -390,7 +390,8 @@ public class ComponentDaoTest {
 
   @Test
   public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() {
-    assertThatThrownBy(() -> underTest.selectComponentsByQualifiers(dbSession, Collections.emptySet()))
+    Set<String> set = emptySet();
+    assertThatThrownBy(() -> underTest.selectComponentsByQualifiers(dbSession, set))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Qualifiers cannot be empty");
   }
@@ -1190,7 +1191,8 @@ public class ComponentDaoTest {
   }
 
   private void assertThatCountByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
-    assertThatThrownBy(() -> underTest.countByQuery(dbSession, query.build()))
+    ComponentQuery componentQuery = query.build();
+    assertThatThrownBy(() -> underTest.countByQuery(dbSession, componentQuery))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(expectedMessage);
   }
@@ -1392,7 +1394,8 @@ public class ComponentDaoTest {
   }
 
   private void assertThatSelectByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
-    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, query.build(), 0, Integer.MAX_VALUE))
+    ComponentQuery componentQuery = query.build();
+    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(expectedMessage);
   }

@@ -99,7 +99,7 @@ public class RequestFiltersComputerTest {
     AllFilters allFilters = randomNonEmptyAllFilters();
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, Collections.emptySet());
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(allFilters.stream()));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(allFilters.stream()));
   }
 
   @Test
@@ -116,7 +116,7 @@ public class RequestFiltersComputerTest {
     Set<TopAggregationDefinition<?>> atLeastOneNonStickyTopAggs = randomNonEmptyTopAggregations(() -> false);
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, atLeastOneNonStickyTopAggs);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(allFilters.stream()));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(allFilters.stream()));
   }
 
   @Test
@@ -179,9 +179,9 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(filterField3, filterField4));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField3, filterField4));
     QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
@@ -215,9 +215,9 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(filterField2));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField2));
     QueryBuilder[] postFilters = {filterField1_1, filterField1_2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertThat(underTest.getTopAggregationFilter(stickyTopAggField1)).isEmpty();
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
@@ -269,9 +269,9 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(filterField3, filterField4));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField3, filterField4));
     QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
@@ -343,14 +343,14 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(queryFilter));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(queryFilter));
     QueryBuilder[] postFilters = {
       filterNestedField1_value1_1, filterNestedField1_value1_2,
       filterNestedField1_value2_1, filterNestedField1_value2_2,
       filterField1_1, filterField1_2,
       filterField2_1, filterField2_2,
       filterNestedField3_1, filterNestedField3_2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggNestedField1_value1,
       filterNestedField1_value2_1, filterNestedField1_value2_2,
       filterField1_1, filterField1_2,
@@ -408,9 +408,9 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters().get()).isEqualTo(toBoolQuery(filterField2));
+    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField2));
     QueryBuilder[] postFilters = {filterField1_1, filterField1_2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertThat(underTest.getTopAggregationFilter(stickyTopAggField1)).isEmpty();
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
@@ -442,7 +442,7 @@ public class RequestFiltersComputerTest {
 
     assertThat(underTest.getQueryFilters()).isEmpty();
     QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters().get()).isEqualTo(toBoolQuery(postFilters));
+    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
@@ -496,11 +496,11 @@ public class RequestFiltersComputerTest {
 
   private static void assertTopAggregationFilter(RequestFiltersComputer underTest,
     TopAggregationDefinition<?> topAggregation, QueryBuilder firstFilter, QueryBuilder... otherFilters) {
-    assertThat(underTest.getTopAggregationFilter(topAggregation).get()).isEqualTo(toBoolQuery(firstFilter, otherFilters));
+    assertThat(underTest.getTopAggregationFilter(topAggregation)).contains(toBoolQuery(firstFilter, otherFilters));
   }
 
   private static void assertTopAggregationFilter(RequestFiltersComputer underTest,
     TopAggregationDefinition<?> topAggregation, QueryBuilder[] filters) {
-    assertThat(underTest.getTopAggregationFilter(topAggregation).get()).isEqualTo(toBoolQuery(filters));
+    assertThat(underTest.getTopAggregationFilter(topAggregation)).contains(toBoolQuery(filters));
   }
 }

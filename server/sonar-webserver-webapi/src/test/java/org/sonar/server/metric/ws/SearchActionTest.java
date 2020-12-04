@@ -53,9 +53,9 @@ public class SearchActionTest {
     Action wsDef = ws.getDef();
 
     assertThat(wsDef.deprecatedSince()).isNull();
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(false);
+    assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
         tuple("8.4", "Field 'id' in the response is deprecated"),

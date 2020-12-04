@@ -61,9 +61,9 @@ public class DeleteActionTest {
     Action wsDef = ws.getDef();
 
     assertThat(wsDef.deprecatedSince()).isEqualTo("7.4");
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Param 'id' data type changes from integer to string."));
   }

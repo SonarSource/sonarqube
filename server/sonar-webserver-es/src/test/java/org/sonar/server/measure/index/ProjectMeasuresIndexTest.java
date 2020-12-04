@@ -1664,7 +1664,7 @@ public class ProjectMeasuresIndexTest {
 
     ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
 
-    assertThat(result.getProjectCount()).isEqualTo(0);
+    assertThat(result.getProjectCount()).isZero();
     assertThat(result.getProjectCountByLanguage()).isEmpty();
   }
 

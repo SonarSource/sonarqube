@@ -307,30 +307,30 @@ public class QProfileFactoryImplTest {
     assertThat(db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(dbSession))
       .extracting(RulesProfileDto::getUuid)
       .containsExactly(rulesProfile.getUuid());
-    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isGreaterThan(0);
-    assertThat(db.countRowsOfTable(dbSession, "active_rule_parameters")).isGreaterThan(0);
-    assertThat(db.countRowsOfTable(dbSession, "qprofile_changes")).isGreaterThan(0);
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isPositive();
+    assertThat(db.countRowsOfTable(dbSession, "active_rule_parameters")).isPositive();
+    assertThat(db.countRowsOfTable(dbSession, "qprofile_changes")).isPositive();
   }
 
   private void assertThatCustomProfileDoesNotExist(QProfileDto profile) {
-    assertThat(db.countSql(dbSession, "select count(*) from org_qprofiles where uuid = '" + profile.getKee() + "'")).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from project_qprofiles where profile_key = '" + profile.getKee() + "'")).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() + "'")).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(*) from org_qprofiles where uuid = '" + profile.getKee() + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(*) from project_qprofiles where profile_key = '" + profile.getKee() + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where uuid = '" + profile.getRulesProfileUuid() + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isZero();
+    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isZero();
     // TODO active_rule_parameters
   }
 
   private void assertThatCustomProfileExists(QProfileDto profile) {
-    assertThat(db.countSql(dbSession, "select count(*) from org_qprofiles where uuid = '" + profile.getKee() + "'")).isGreaterThan(0);
+    assertThat(db.countSql(dbSession, "select count(*) from org_qprofiles where uuid = '" + profile.getKee() + "'")).isPositive();
     // assertThat(db.countSql(dbSession, "select count(*) from project_qprofiles where profile_key = '" + profile.getKee() +
     // "'")).isGreaterThan(0);
     // assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() +
     // "'")).isGreaterThan(0);
     assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(1);
-    assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isGreaterThan(0);
-    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isGreaterThan(0);
+    assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isPositive();
+    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isPositive();
     // TODO active_rule_parameters
   }
 

@@ -22,13 +22,13 @@ package org.sonar.db.newcodeperiod;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,12 +37,9 @@ public class NewCodePeriodDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE, uuidFactory);
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE, uuidFactory);
 
   private static final String NEW_CODE_PERIOD_UUID = "ncp-uuid-1";
 
@@ -57,8 +54,8 @@ public class NewCodePeriodDaoTest {
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
 
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt).isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -66,8 +63,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
 
     db.commit();
     assertNewCodePeriodRowCount(1);
@@ -97,8 +94,8 @@ public class NewCodePeriodDaoTest {
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
 
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt).isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -106,8 +103,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.SPECIFIC_ANALYSIS);
     assertThat(result.getValue()).isEqualTo("analysis-uuid");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
 
     db.commit();
     assertNewCodePeriodRowCount(1);
@@ -126,8 +123,9 @@ public class NewCodePeriodDaoTest {
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
 
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt)
+      .isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -135,8 +133,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
 
     db.commit();
     assertNewCodePeriodRowCount(1);
@@ -161,8 +159,9 @@ public class NewCodePeriodDaoTest {
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
 
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt)
+      .isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -170,8 +169,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.SPECIFIC_ANALYSIS);
     assertThat(result.getValue()).isEqualTo("analysis-uuid");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
 
     db.commit();
     assertNewCodePeriodRowCount(1);
@@ -188,8 +187,9 @@ public class NewCodePeriodDaoTest {
       .setValue("5"));
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByBranch(dbSession, "proj-uuid", "branch-uuid");
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt)
+      .isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -197,8 +197,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
   }
 
   @Test
@@ -212,8 +212,9 @@ public class NewCodePeriodDaoTest {
       .setValue("5"));
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByProject(dbSession, "proj-uuid");
-    assertThat(resultOpt).isNotNull();
-    assertThat(resultOpt).isNotEmpty();
+    assertThat(resultOpt)
+      .isNotNull()
+      .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
@@ -221,8 +222,8 @@ public class NewCodePeriodDaoTest {
     assertThat(result.getBranchUuid()).isNull();
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
   }
 
   @Test
@@ -235,14 +236,17 @@ public class NewCodePeriodDaoTest {
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setValue("30"));
 
-    NewCodePeriodDto result = underTest.selectGlobal(dbSession).get();
+    Optional<NewCodePeriodDto> newCodePeriodDto = underTest.selectGlobal(dbSession);
+    assertThat(newCodePeriodDto).isNotEmpty();
+
+    NewCodePeriodDto result = newCodePeriodDto.get();
     assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
     assertThat(result.getProjectUuid()).isNull();
     assertThat(result.getBranchUuid()).isNull();
     assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("30");
-    assertThat(result.getCreatedAt()).isNotEqualTo(0);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(0);
+    assertThat(result.getCreatedAt()).isNotZero();
+    assertThat(result.getUpdatedAt()).isNotZero();
   }
 
   @Test
@@ -309,23 +313,23 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void fail_select_by_project_and_branch_uuids_if_project_uuid_not_provided() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Project uuid must be specified.");
-    underTest.selectByBranch(dbSession, null, "random-uuid");
+    assertThatThrownBy(() -> underTest.selectByBranch(dbSession, null, "random-uuid"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Project uuid must be specified.");
   }
 
   @Test
   public void fail_select_by_project_and_branch_uuids_if_branch_uuid_not_provided() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Branch uuid must be specified.");
-    underTest.selectByBranch(dbSession, "random-uuid", null);
+    assertThatThrownBy(() -> underTest.selectByBranch(dbSession, "random-uuid", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Branch uuid must be specified.");
   }
 
   @Test
   public void fail_select_by_project_uuid_if_project_uuid_not_provided() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Project uuid must be specified.");
-    underTest.selectByProject(dbSession, null);
+    assertThatThrownBy(() -> underTest.selectByProject(dbSession, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Project uuid must be specified.");
   }
 
   private void assertNewCodePeriodRowCount(int expected) {

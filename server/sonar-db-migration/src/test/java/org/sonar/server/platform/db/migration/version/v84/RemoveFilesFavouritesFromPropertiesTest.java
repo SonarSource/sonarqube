@@ -43,7 +43,7 @@ public class RemoveFilesFavouritesFromPropertiesTest {
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(RemoveFilesFavouritesFromPropertiesTest.class, "schema.sql");
 
-  private DataChange underTest = new RemoveFilesFavouritesFromProperties(dbTester.database());
+  private final DataChange underTest = new RemoveFilesFavouritesFromProperties(dbTester.database());
 
   private static final String APPLICATION_UUID_1 = Uuids.createFast();
   private static final String PROJECT_UUID_2 = Uuids.createFast();
@@ -89,7 +89,7 @@ public class RemoveFilesFavouritesFromPropertiesTest {
 
     underTest.execute();
 
-    assertThat(dbTester.countRowsOfTable(PROPERTIES_TABLE_NAME)).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable(PROPERTIES_TABLE_NAME)).isZero();
   }
 
   @Test

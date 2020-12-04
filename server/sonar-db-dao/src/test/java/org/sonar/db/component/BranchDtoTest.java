@@ -19,19 +19,14 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.protobuf.DbProjectBranches;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BranchDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private BranchDto underTest = new BranchDto();
+  private final BranchDto underTest = new BranchDto();
 
   @Test
   public void isMain_is_true_if_branch_uuid_equals_project_uuid() {
@@ -58,7 +53,7 @@ public class BranchDtoTest {
     underTest.setMergeBranchUuid("U3");
     underTest.setExcludeFromPurge(true);
 
-    assertThat(underTest.toString()).isEqualTo("BranchDto{uuid='U1', " +
+    assertThat(underTest).hasToString("BranchDto{uuid='U1', " +
       "projectUuid='U2', kee='K1', branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true, needIssueSync=false}");
   }
 

@@ -50,8 +50,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -144,9 +142,10 @@ public class SetSeverityActionTest {
     IssueDto hotspot = issueDbTester.insertHotspot(h -> h.setSeverity("CRITICAL"));
     setUserWithBrowseAndAdministerIssuePermission(hotspot);
 
-    assertThatThrownBy(() -> call(hotspot.getKey(), "MAJOR"))
+    String hotspotKey = hotspot.getKey();
+    assertThatThrownBy(() -> call(hotspotKey, "MAJOR"))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+      .hasMessage("Issue with key '%s' does not exist", hotspotKey);
   }
 
   @Test

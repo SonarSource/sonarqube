@@ -120,7 +120,8 @@ public class SetActionTest {
 
   @Test
   public void fail_if_tag_does_not_respect_format() {
-    assertThatThrownBy(() -> call(project.getKey(), "_finance_"))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(projectKey, "_finance_"))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Tag '_finance_' is invalid. Tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
   }
@@ -129,7 +130,8 @@ public class SetActionTest {
   public void fail_if_not_project_admin() {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    assertThatThrownBy(() -> call(project.getKey(), "platform"))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(projectKey, "platform"))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -141,7 +143,8 @@ public class SetActionTest {
 
   @Test
   public void fail_if_no_tags() {
-    assertThatThrownBy(() -> call(project.getKey(), null))
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(projectKey, null))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -149,7 +152,8 @@ public class SetActionTest {
   public void fail_if_component_is_a_view() {
     ComponentDto view = db.components().insertView(v -> v.setDbKey("VIEW_KEY"));
 
-    assertThatThrownBy(() -> call(view.getKey(), "point-of-view"))
+    String viewKey = view.getKey();
+    assertThatThrownBy(() -> call(viewKey, "point-of-view"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project 'VIEW_KEY' not found");
   }
@@ -159,7 +163,8 @@ public class SetActionTest {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
     ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setDbKey("MODULE_KEY"));
 
-    assertThatThrownBy(() -> call(module.getKey(), "modz"))
+    String moduleKey = module.getKey();
+    assertThatThrownBy(() -> call(moduleKey, "modz"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project 'MODULE_KEY' not found");
   }
@@ -169,7 +174,8 @@ public class SetActionTest {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
     ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setDbKey("FILE_KEY"));
 
-    assertThatThrownBy(() -> call(file.getKey(), "secret"))
+    String fileKey = file.getKey();
+    assertThatThrownBy(() -> call(fileKey, "secret"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project 'FILE_KEY' not found");
   }
@@ -181,9 +187,10 @@ public class SetActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThatThrownBy(() -> call(branch.getDbKey(), "secret"))
+    String branchDbKey = branch.getDbKey();
+    assertThatThrownBy(() -> call(branchDbKey, "secret"))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Project '%s' not found", branch.getDbKey()));
+      .hasMessage(format("Project '%s' not found", branchDbKey));
   }
 
   @Test

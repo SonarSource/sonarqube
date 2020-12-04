@@ -56,9 +56,9 @@ public class UpdateActionTest {
   public void verify_definition() {
     Action wsDef = ws.getDef();
 
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).isNotEmpty();
   }
 

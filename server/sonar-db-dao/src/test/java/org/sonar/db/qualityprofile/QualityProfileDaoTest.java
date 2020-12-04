@@ -56,13 +56,12 @@ import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfil
 
 public class QualityProfileDaoTest {
 
-  private System2 system = mock(System2.class);
-
+  private final System2 system = mock(System2.class);
   @Rule
   public DbTester db = DbTester.create(system);
 
-  private DbSession dbSession = db.getSession();
-  private QualityProfileDao underTest = db.getDbClient().qualityProfileDao();
+  private final DbSession dbSession = db.getSession();
+  private final QualityProfileDao underTest = db.getDbClient().qualityProfileDao();
 
   @Before
   public void before() {
@@ -90,6 +89,7 @@ public class QualityProfileDaoTest {
     underTest.insert(dbSession, dto);
 
     QProfileDto reloaded = underTest.selectByUuid(dbSession, dto.getKee());
+    assertThat(reloaded).isNotNull();
     assertThat(reloaded.getKee()).isEqualTo(dto.getKee());
     assertThat(reloaded.getRulesProfileUuid()).isEqualTo(dto.getRulesProfileUuid());
     assertThat(reloaded.getLanguage()).isEqualTo(dto.getLanguage());
@@ -127,6 +127,7 @@ public class QualityProfileDaoTest {
     underTest.update(dbSession, update);
 
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded).isNotNull();
     assertThat(reloaded.getKee()).isEqualTo(initial.getKee());
 
     // updated fields
@@ -148,6 +149,7 @@ public class QualityProfileDaoTest {
 
     assertThat(count).isEqualTo(1);
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded).isNotNull();
     assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
   }
 
@@ -161,6 +163,7 @@ public class QualityProfileDaoTest {
 
     assertThat(count).isEqualTo(1);
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded).isNotNull();
     assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
   }
 
@@ -174,6 +177,7 @@ public class QualityProfileDaoTest {
 
     assertThat(count).isZero();
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded).isNotNull();
     assertThat(reloaded.getLastUsed()).isEqualTo(10_000L);
   }
 
@@ -190,11 +194,11 @@ public class QualityProfileDaoTest {
     RulesProfileDto rp1 = insertRulesProfile();
     RulesProfileDto rp2 = insertRulesProfile();
 
-    underTest.deleteRulesProfilesByUuids(dbSession, asList(rp1.getUuid()));
+    underTest.deleteRulesProfilesByUuids(dbSession, singletonList(rp1.getUuid()));
 
     List<Map<String, Object>> uuids = db.select(dbSession, "select uuid as \"uuid\" from rules_profiles");
     assertThat(uuids).hasSize(1);
-    assertThat(uuids.get(0).get("uuid")).isEqualTo(rp2.getUuid());
+    assertThat(uuids.get(0)).containsEntry("uuid", rp2.getUuid());
   }
 
   @Test
@@ -210,7 +214,7 @@ public class QualityProfileDaoTest {
   public void deleteRulesProfilesByUuids_does_nothing_if_specified_uuid_does_not_exist() {
     insertRulesProfile();
 
-    underTest.deleteRulesProfilesByUuids(dbSession, asList("does_not_exist"));
+    underTest.deleteRulesProfilesByUuids(dbSession, singletonList("does_not_exist"));
 
     assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
   }
@@ -243,8 +247,8 @@ public class QualityProfileDaoTest {
 
     List<Map<String, Object>> rows = db.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
     assertThat(rows).hasSize(1);
-    assertThat(rows.get(0).get("projectUuid")).isEqualTo(project3.getUuid());
-    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKee());
+    assertThat(rows.get(0)).containsEntry("projectUuid", project3.getUuid());
+    assertThat(rows.get(0)).containsEntry("profileKey", profile2.getKee());
   }
 
   @Test
@@ -356,6 +360,7 @@ public class QualityProfileDaoTest {
     List<QProfileDto> sharedData = createSharedData();
 
     QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, "Sonar Way", "java");
+    assertThat(dto).isNotNull();
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
@@ -591,14 +596,14 @@ public class QualityProfileDaoTest {
 
     // descendants of a single base profile
     verifyDescendants(singleton(base1), asList(child1OfBase1, child2OfBase1, grandChildOfBase1));
-    verifyDescendants(singleton(child1OfBase1), asList(grandChildOfBase1));
+    verifyDescendants(singleton(child1OfBase1), singletonList(grandChildOfBase1));
     verifyDescendants(singleton(child2OfBase1), emptyList());
     verifyDescendants(singleton(grandChildOfBase1), emptyList());
 
     // descendants of a multiple base profiles
     verifyDescendants(asList(base1, base2), asList(child1OfBase1, child2OfBase1, grandChildOfBase1, childOfBase2, grandChildOfBase2));
     verifyDescendants(asList(base1, childOfBase2), asList(child1OfBase1, child2OfBase1, grandChildOfBase1, grandChildOfBase2));
-    verifyDescendants(asList(child1OfBase1, grandChildOfBase2), asList(grandChildOfBase1));
+    verifyDescendants(asList(child1OfBase1, grandChildOfBase2), singletonList(grandChildOfBase1));
     verifyDescendants(asList(other, base2), asList(childOfBase2, grandChildOfBase2));
 
   }
@@ -795,7 +800,7 @@ public class QualityProfileDaoTest {
     QProfileDto fooInOrg1 = db.qualityProfiles().insert(p -> p.setName("foo"));
     QProfileDto bar = db.qualityProfiles().insert(p -> p.setName("bar"));
 
-    underTest.renameRulesProfilesAndCommit(dbSession, asList(fooInOrg1.getRulesProfileUuid()), "foo (copy)");
+    underTest.renameRulesProfilesAndCommit(dbSession, singletonList(fooInOrg1.getRulesProfileUuid()), "foo (copy)");
 
     assertThat(underTest.selectOrFailByUuid(dbSession, fooInOrg1.getKee()).getName()).isEqualTo("foo (copy)");
     assertThat(underTest.selectOrFailByUuid(dbSession, bar.getKee()).getName()).isEqualTo("bar");

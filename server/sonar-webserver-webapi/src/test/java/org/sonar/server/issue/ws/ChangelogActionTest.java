@@ -302,9 +302,10 @@ public class ChangelogActionTest {
     IssueDto issueDto = db.issues().insertHotspot();
     userSession.logIn("john").addProjectPermission(USER, project, file);
 
-    assertThatThrownBy(() -> call(issueDto.getKey()))
+    String issueDtoKey = issueDto.getKey();
+    assertThatThrownBy(() -> call(issueDtoKey))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Issue with key '%s' does not exist", issueDto.getKey());
+      .hasMessage("Issue with key '%s' does not exist", issueDtoKey);
   }
 
   @Test

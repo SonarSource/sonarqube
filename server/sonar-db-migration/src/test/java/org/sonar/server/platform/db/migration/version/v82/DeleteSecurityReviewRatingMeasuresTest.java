@@ -49,7 +49,7 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteSecurityReviewRatingMeasuresTest.class, "schema.sql");
 
-  private DataChange underTest = new DeleteSecurityReviewRatingMeasures(db.database());
+  private final DataChange underTest = new DeleteSecurityReviewRatingMeasures(db.database());
 
   @Before
   public void before() {
@@ -228,8 +228,8 @@ public class DeleteSecurityReviewRatingMeasuresTest {
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(0);
-    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(0);
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isZero();
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isZero();
   }
 
   private void generateOtherMetricsLiveMeasures(String componentUuid) {
@@ -248,12 +248,12 @@ public class DeleteSecurityReviewRatingMeasuresTest {
 
   private void assertSecurityReviewRatingLiveMeasuresDeleted() {
     assertThat(db.countSql("select count(uuid) from LIVE_MEASURES where metric_id = " + SECURITY_REVIEW_RATING_METRIC_ID))
-      .isEqualTo(0);
+      .isZero();
   }
 
   private void assertSecurityReviewRatingMeasuresDeleted() {
     assertThat(db.countSql("select count(id) from project_measures where metric_id = " + SECURITY_REVIEW_RATING_METRIC_ID))
-      .isEqualTo(0);
+      .isZero();
   }
 
   private void insertMeasure(int id, int metricId, String componentUuid) {

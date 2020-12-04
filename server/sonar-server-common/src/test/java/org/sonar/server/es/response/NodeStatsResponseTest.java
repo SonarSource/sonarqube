@@ -123,9 +123,9 @@ public class NodeStatsResponseTest {
     assertThat(indicesStats).isNotNull();
     assertThat(indicesStats.getStoreSizeInBytes()).isEqualTo(8670970);
     assertThat(indicesStats.getTranslogSizeInBytes()).isEqualTo(8274137);
-    assertThat(indicesStats.getRequestCacheMemorySizeInBytes()).isEqualTo(0);
+    assertThat(indicesStats.getRequestCacheMemorySizeInBytes()).isZero();
     assertThat(indicesStats.getFieldDataMemorySizeInBytes()).isEqualTo(4880);
-    assertThat(indicesStats.getQueryCacheMemorySizeInBytes()).isEqualTo(0);
+    assertThat(indicesStats.getQueryCacheMemorySizeInBytes()).isZero();
 
   }
 

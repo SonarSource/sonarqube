@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
@@ -32,15 +31,15 @@ import org.sonar.db.DbTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PermissionTemplateCharacteristicDaoTest {
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  private DbSession dbSession = db.getSession();
-  private PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao();
+  private final DbSession dbSession = db.getSession();
+  private final PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao();
 
   @Test
   public void selectByTemplateId_filter_by_template_uuid() {
@@ -162,38 +161,39 @@ public class PermissionTemplateCharacteristicDaoTest {
 
   @Test
   public void fail_insert_if_created_at_is_equal_to_0() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
+    PermissionTemplateCharacteristicDto characteristicDto = new PermissionTemplateCharacteristicDto()
       .setUuid("uuid")
       .setPermission(UserRole.USER)
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
-      .setUpdatedAt(2_000_000_000L));
+      .setUpdatedAt(2_000_000_000L);
+    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_insert_if_updated_at_is_equal_to_0() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
+    PermissionTemplateCharacteristicDto characteristicDto = new PermissionTemplateCharacteristicDto()
       .setUuid("uuid")
       .setPermission(UserRole.USER)
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
-      .setCreatedAt(2_000_000_000L));
+      .setCreatedAt(2_000_000_000L);
+    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto))
+      .isInstanceOf(IllegalArgumentException.class);
+
   }
 
   @Test
   public void fail_update_if_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.update(dbSession, new PermissionTemplateCharacteristicDto()
+    PermissionTemplateCharacteristicDto characteristicDto = new PermissionTemplateCharacteristicDto()
       .setPermission(UserRole.USER)
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
       .setCreatedAt(123_456_789L)
-      .setUpdatedAt(2_000_000_000L));
+      .setUpdatedAt(2_000_000_000L);
+    assertThatThrownBy(() -> underTest.update(dbSession, characteristicDto))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -213,12 +213,12 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setCreatedAt(123_456_789L)
       .setUpdatedAt(2_000_000_000L));
 
-    assertThat(underTest.selectByTemplateUuids(dbSession, asList("1"))).hasSize(1);
+    assertThat(underTest.selectByTemplateUuids(dbSession, singletonList("1"))).hasSize(1);
     assertThat(underTest.selectByTemplateUuids(dbSession, asList("1", "2"))).hasSize(2);
 
     dbSession.getMapper(PermissionTemplateCharacteristicMapper.class).deleteByTemplateUuid("1");
 
-    assertThat(underTest.selectByTemplateUuids(dbSession, asList("1"))).hasSize(0);
+    assertThat(underTest.selectByTemplateUuids(dbSession, singletonList("1"))).isEmpty();
     assertThat(underTest.selectByTemplateUuids(dbSession, asList("1", "2"))).hasSize(1);
   }
 }

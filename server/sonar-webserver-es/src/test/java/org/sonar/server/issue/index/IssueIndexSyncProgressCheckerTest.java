@@ -48,12 +48,12 @@ import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 @RunWith(DataProviderRunner.class)
 public class IssueIndexSyncProgressCheckerTest {
 
-  private System2 system2 = new System2();
+  private final System2 system2 = new System2();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
+  private final IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
 
   @Test
   public void return_100_if_there_is_no_tasks_left() {
@@ -246,11 +246,11 @@ public class IssueIndexSyncProgressCheckerTest {
     underTest.checkIfComponentNeedIssueSync(session, projectDto2.getKey());
 
     // throws if flag set to TRUE
-    assertThatThrownBy(() -> underTest.checkIfComponentNeedIssueSync(session,
-      projectDto1.getKey()))
-        .isInstanceOf(EsIndexSyncInProgressException.class)
-        .hasFieldOrPropertyWithValue("httpCode", 503)
-        .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+    String key = projectDto1.getKey();
+    assertThatThrownBy(() -> underTest.checkIfComponentNeedIssueSync(session, key))
+      .isInstanceOf(EsIndexSyncInProgressException.class)
+      .hasFieldOrPropertyWithValue("httpCode", 503)
+      .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
   }
 
   @Test

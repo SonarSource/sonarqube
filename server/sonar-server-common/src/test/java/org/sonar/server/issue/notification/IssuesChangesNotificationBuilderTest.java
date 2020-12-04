@@ -64,7 +64,8 @@ public class IssuesChangesNotificationBuilderTest {
   @Test
   public void fail_if_changed_issues_empty() {
     AnalysisChange analysisChange = new AnalysisChange(1_000_000_000L);
-    assertThatThrownBy(() -> new IssuesChangesNotificationBuilder(Collections.emptySet(), analysisChange))
+    Set<ChangedIssue> issues = Collections.emptySet();
+    assertThatThrownBy(() -> new IssuesChangesNotificationBuilder(issues, analysisChange))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("issues can't be empty");
   }
@@ -89,8 +90,8 @@ public class IssuesChangesNotificationBuilderTest {
     long date = 1_000_000_000L;
     UserChange userChange = new UserChange(date, new User("user_uuid", "user_login", null));
 
-    assertThat(userChange.toString())
-      .isEqualTo("UserChange{date=1000000000, user=User{uuid='user_uuid', login='user_login', name='null'}}");
+    assertThat(userChange)
+      .hasToString("UserChange{date=1000000000, user=User{uuid='user_uuid', login='user_login', name='null'}}");
   }
 
   @Test
@@ -102,8 +103,9 @@ public class IssuesChangesNotificationBuilderTest {
     UserChange userChange1 = new UserChange(now, new User(uuid_1, login_1, name_1));
     UserChange userChange2 = new UserChange(now, new User(uuid_1, login_1, name_1));
 
-    assertThat(userChange1.equals(userChange2)).isTrue();
-    assertThat(userChange1.equals(userChange1)).isTrue();
+    assertThat(userChange1)
+      .isEqualTo(userChange2)
+      .isEqualTo(userChange1);
   }
 
   @DataProvider
@@ -132,7 +134,7 @@ public class IssuesChangesNotificationBuilderTest {
     String name_1 = "name-1";
     UserChange userChange1 = new UserChange(now, new User(uuid_1, login_1, name_1));
 
-    assertThat(userChange1.equals(object)).isFalse();
+    assertThat(userChange1).isNotEqualTo(object);
   }
 
   @Test
@@ -166,8 +168,7 @@ public class IssuesChangesNotificationBuilderTest {
     long date = 1_000_000_000L;
     AnalysisChange userChange = new AnalysisChange(date);
 
-    assertThat(userChange.toString())
-      .isEqualTo("AnalysisChange{1000000000}");
+    assertThat(userChange).hasToString("AnalysisChange{1000000000}");
   }
 
   @Test
@@ -175,8 +176,9 @@ public class IssuesChangesNotificationBuilderTest {
     AnalysisChange analysisChange1 = new AnalysisChange(1_000_000_000L);
     AnalysisChange analysisChange2 = new AnalysisChange(1_000_000_000L);
 
-    assertThat(analysisChange1.equals(analysisChange2)).isTrue();
-    assertThat(analysisChange1.equals(analysisChange1)).isTrue();
+    assertThat(analysisChange1)
+      .isEqualTo(analysisChange2)
+      .isEqualTo(analysisChange1);
   }
 
   @Test
@@ -184,21 +186,21 @@ public class IssuesChangesNotificationBuilderTest {
     AnalysisChange analysisChange1 = new AnalysisChange(1_000_000_000L);
     AnalysisChange analysisChange2 = new AnalysisChange(2_000_000_000L);
 
-    assertThat(analysisChange1.equals(analysisChange2)).isFalse();
+    assertThat(analysisChange1).isNotEqualTo(analysisChange2);
   }
 
   @Test
   public void AnalysisChange_not_equal_with_null() {
     AnalysisChange analysisChange1 = new AnalysisChange(1_000_000_000L);
 
-    assertThat(analysisChange1.equals(null)).isFalse();
+    assertThat(analysisChange1).isNotEqualTo(null);
   }
 
   @Test
   public void AnalysisChange_not_equal_with_Object() {
     AnalysisChange analysisChange1 = new AnalysisChange(1_000_000_000L);
 
-    assertThat(analysisChange1.equals(new Object())).isFalse();
+    assertThat(analysisChange1).isNotEqualTo(new Object());
   }
 
   @Test
@@ -215,8 +217,8 @@ public class IssuesChangesNotificationBuilderTest {
       .setBranchName("branch-name")
       .build();
 
-    assertThat(project.toString())
-      .isEqualTo("Project{uuid='uuid', key='key', projectName='name', branchName='branch-name'}");
+    assertThat(project)
+      .hasToString("Project{uuid='uuid', key='key', projectName='name', branchName='branch-name'}");
   }
 
   @Test
@@ -233,8 +235,9 @@ public class IssuesChangesNotificationBuilderTest {
       .setBranchName("branch-name")
       .build();
 
-    assertThat(project1.equals(project2)).isTrue();
-    assertThat(project1.equals(project1)).isTrue();
+    assertThat(project1)
+      .isEqualTo(project2)
+      .isEqualTo(project1);
   }
 
   @DataProvider
@@ -263,7 +266,7 @@ public class IssuesChangesNotificationBuilderTest {
       .setBranchName("branch-name1")
       .build();
 
-    assertThat(project1.equals(object)).isFalse();
+    assertThat(project1).isNotEqualTo(object);
   }
 
   @Test
@@ -284,8 +287,8 @@ public class IssuesChangesNotificationBuilderTest {
   public void Rule_toString() {
     Rule rule = newRule("repository", "key", RuleType.CODE_SMELL, "name");
 
-    assertThat(rule.toString())
-      .isEqualTo("Rule{key=repository:key, type=CODE_SMELL, name='name'}");
+    assertThat(rule)
+      .hasToString("Rule{key=repository:key, type=CODE_SMELL, name='name'}");
   }
 
   @Test
@@ -293,8 +296,9 @@ public class IssuesChangesNotificationBuilderTest {
     Rule rule1 = newRule("repository", "key", RuleType.CODE_SMELL, "name");
     Rule rule2 = newRule("repository", "key", RuleType.CODE_SMELL, "name");
 
-    assertThat(rule1.equals(rule2)).isTrue();
-    assertThat(rule1.equals(rule1)).isTrue();
+    assertThat(rule1)
+      .isEqualTo(rule2)
+      .isEqualTo(rule1);
   }
 
   @DataProvider
@@ -341,8 +345,8 @@ public class IssuesChangesNotificationBuilderTest {
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
-    assertThat(changedIssue.toString())
-      .isEqualTo("ChangedIssue{key='key', newStatus='status', newResolution='resolution', " +
+    assertThat(changedIssue)
+      .hasToString("ChangedIssue{key='key', newStatus='status', newResolution='resolution', " +
         "assignee=User{uuid='uuid', login='login', name='name'}, " +
         "rule=Rule{key=repository:key, type=CODE_SMELL, name='name'}, " +
         "project=Project{uuid='uuid', key='key', projectName='name', branchName='branch-name'}}");
@@ -365,8 +369,9 @@ public class IssuesChangesNotificationBuilderTest {
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
-    assertThat(changedIssue1.equals(changedIssue2)).isTrue();
-    assertThat(changedIssue1.equals(changedIssue1)).isTrue();
+    assertThat(changedIssue1)
+      .isEqualTo(changedIssue2)
+      .isEqualTo(changedIssue1);
   }
 
   @DataProvider
@@ -430,7 +435,7 @@ public class IssuesChangesNotificationBuilderTest {
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
-    assertThat(changedIssue.equals(object)).isFalse();
+    assertThat(changedIssue).isNotEqualTo(object);
   }
 
   @Test

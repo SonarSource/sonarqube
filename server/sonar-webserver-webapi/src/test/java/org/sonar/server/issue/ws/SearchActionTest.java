@@ -61,7 +61,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -77,6 +76,7 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -1193,11 +1193,11 @@ public class SearchActionTest {
     indexPermissions();
     indexIssues();
 
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("types", RuleType.SECURITY_HOTSPOT.toString())
-      .execute())
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Value of parameter 'types' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
+    TestRequest request = ws.newRequest()
+      .setParam("types", RuleType.SECURITY_HOTSPOT.toString());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'types' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
   }
 
   @Test

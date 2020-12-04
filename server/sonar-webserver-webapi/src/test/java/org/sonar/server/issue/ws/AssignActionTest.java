@@ -47,6 +47,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -212,12 +213,12 @@ public class AssignActionTest {
     setUserWithBrowsePermission(hotspot);
     UserDto arthur = insertUser("arthur");
 
-    assertThatThrownBy(() -> ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("issue", hotspot.getKey())
-      .setParam("assignee", arthur.getLogin())
-      .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+      .setParam("assignee", arthur.getLogin());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test

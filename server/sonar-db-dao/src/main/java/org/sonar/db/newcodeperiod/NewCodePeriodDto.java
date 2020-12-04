@@ -20,6 +20,7 @@
 package org.sonar.db.newcodeperiod;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class NewCodePeriodDto {
   private String uuid = null;
@@ -66,7 +67,7 @@ public class NewCodePeriodDto {
     return projectUuid;
   }
 
-  public NewCodePeriodDto setProjectUuid(String projectUuid) {
+  public NewCodePeriodDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }
@@ -76,7 +77,7 @@ public class NewCodePeriodDto {
     return branchUuid;
   }
 
-  public NewCodePeriodDto setBranchUuid(String branchUuid) {
+  public NewCodePeriodDto setBranchUuid(@Nullable String branchUuid) {
     this.branchUuid = branchUuid;
     return this;
   }

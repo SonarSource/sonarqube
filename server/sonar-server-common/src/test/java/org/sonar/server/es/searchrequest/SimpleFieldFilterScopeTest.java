@@ -51,8 +51,7 @@ public class SimpleFieldFilterScopeTest {
 
     assertThat(underTest)
       .isEqualTo(underTest)
-      .isEqualTo(new SimpleFieldFilterScope(fieldName1));
-    assertThat(underTest)
+      .isEqualTo(new SimpleFieldFilterScope(fieldName1))
       .isNotEqualTo(null)
       .isNotEqualTo(new Object())
       .isNotEqualTo(new SimpleFieldFilterScope(fieldName2))
@@ -70,7 +69,6 @@ public class SimpleFieldFilterScopeTest {
       .isEqualTo(underTest.hashCode())
       .isEqualTo(new SimpleFieldFilterScope(fieldName1).hashCode());
     assertThat(underTest.hashCode())
-      .isNotEqualTo(null)
       .isNotEqualTo(new Object().hashCode())
       .isNotEqualTo(new SimpleFieldFilterScope(fieldName2).hashCode())
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName1, "foo", "bar").hashCode())

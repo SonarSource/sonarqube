@@ -87,9 +87,9 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void verify_definition() {
     Action wsDef = wsTester.getDef();
 
-    assertThat(wsDef.isInternal()).isEqualTo(true);
+    assertThat(wsDef.isInternal()).isTrue();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(false);
+    assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
       tuple("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."));

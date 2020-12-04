@@ -122,7 +122,8 @@ public class EditCommentActionTest {
     UserDto another = dbTester.users().insertUser();
     loginWithBrowsePermission(another, USER, hotspot);
 
-    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
+    String commentDtoKey = commentDto.getKey();
+    assertThatThrownBy(() -> call(commentDtoKey, "please have a look"))
     .isInstanceOf(NotFoundException.class)
     .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }

@@ -51,8 +51,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -152,9 +150,10 @@ public class DoTransitionActionTest {
     IssueDto hotspot = db.issues().insertHotspot(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     userSession.logIn().addProjectPermission(USER, project, file);
 
-    assertThatThrownBy(() -> call(hotspot.getKey(), "confirm"))
+    String hotspotKey = hotspot.getKey();
+    assertThatThrownBy(() -> call(hotspotKey, "confirm"))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+      .hasMessage("Issue with key '%s' does not exist", hotspotKey);
   }
 
   @Test
