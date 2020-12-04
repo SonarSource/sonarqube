@@ -148,7 +148,7 @@ public class IssueQueryFactory {
     }
   }
 
-  private Optional<ZoneId> parseTimeZone(@Nullable String timeZone) {
+  private static Optional<ZoneId> parseTimeZone(@Nullable String timeZone) {
     if (timeZone == null) {
       return Optional.empty();
     }

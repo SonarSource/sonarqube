@@ -97,6 +97,19 @@ public class ClusterSettingsTest {
   }
 
   @Test
+  @UseDataProvider("validIPv4andIPv6Addresses")
+  public void valid_configuration_of_app_node_does_not_throw_exception(String host) {
+    mockValidHost(host);
+    mockLocalNonLoopback(host);
+    TestAppSettings settings = newSettingsForAppNode(host);
+    ClusterSettings clusterSettings = new ClusterSettings(network);
+    Props props = settings.getProps();
+
+    assertThatCode(() -> clusterSettings.accept(props))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
   public void accept_throws_MessageException_if_no_node_type_is_configured() {
     TestAppSettings settings = new TestAppSettings(of(CLUSTER_ENABLED.getKey(), "true"));
     ClusterSettings clusterSettings = new ClusterSettings(network);

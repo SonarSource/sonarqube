@@ -58,6 +58,8 @@ public class EsSettings {
   private static final String SECCOMP_PROPERTY = "bootstrap.system_call_filter";
   private static final String ALLOW_MMAP = "node.store.allow_mmap";
 
+  private static final String JAVA_ADDITIONAL_OPS_PROPERTY = "sonar.search.javaAdditionalOpts";
+
   private final Props props;
   private final EsInstallation fileSystem;
 
@@ -114,7 +116,7 @@ public class EsSettings {
 
       int transportPort = Integer.parseInt(props.nonNullValue(ES_PORT.getKey()));
 
-      //we have no use of transport port in non-DCE editions
+      // we have no use of transport port in non-DCE editions
       builder.put(ES_TRANSPORT_HOST_KEY, this.loopbackAddress.getHostAddress());
       builder.put(ES_TRANSPORT_PORT_KEY, valueOf(transportPort));
     }
@@ -185,15 +187,15 @@ public class EsSettings {
 
   private void configureOthers(Map<String, String> builder) {
     builder.put("action.auto_create_index", String.valueOf(false));
-    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + SECCOMP_PROPERTY + "=false")) {
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + SECCOMP_PROPERTY + "=false")) {
       builder.put(SECCOMP_PROPERTY, "false");
     }
 
-    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-Dnode.store.allow_mmapfs=false")) {
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-Dnode.store.allow_mmapfs=false")) {
       throw new MessageException("Property 'node.store.allow_mmapfs' is no longer supported. Use 'node.store.allow_mmap' instead.");
     }
 
-    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + ALLOW_MMAP + "=false")) {
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + ALLOW_MMAP + "=false")) {
       builder.put(ALLOW_MMAP, "false");
     }
   }

@@ -261,14 +261,14 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     bulk.stop();
   }
 
-  private IndexRequest newIndexRequest(IssueDoc issue) {
+  private static IndexRequest newIndexRequest(IssueDoc issue) {
     return new IndexRequest(TYPE_ISSUE.getMainType().getIndex().getName(), TYPE_ISSUE.getMainType().getType())
       .id(issue.getId())
       .routing(issue.getRouting().orElseThrow(() -> new IllegalStateException("IssueDoc should define a routing")))
       .source(issue.getFields());
   }
 
-  private void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
+  private static void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
     SearchRequest search = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
       .routing(AuthorizationDoc.idOf(projectUuid))
       .source(new SearchSourceBuilder().query(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid))));

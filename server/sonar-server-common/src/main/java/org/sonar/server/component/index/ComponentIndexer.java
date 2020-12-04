@@ -156,7 +156,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     bulk.stop();
   }
 
-  private void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
+  private static void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
     SearchRequest searchRequest = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
       .source(new SearchSourceBuilder().query(QueryBuilders.termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid)))
       .routing(AuthorizationDoc.idOf(projectUuid));

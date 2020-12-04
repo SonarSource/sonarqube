@@ -50,7 +50,6 @@ public class EsInstallation {
   private EsJvmOptions esJvmOptions;
   private EsYmlSettings esYmlSettings;
   private Properties log4j2Properties;
-  private String clusterName;
   private String host;
   private int httpPort;
 

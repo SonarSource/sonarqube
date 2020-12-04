@@ -83,24 +83,32 @@ public class ClusterSettings implements Consumer<Props> {
     NodeType nodeType = toNodeType(props);
     switch (nodeType) {
       case APPLICATION:
-        ensureNotH2(props);
-        requireValue(props, AUTH_JWT_SECRET);
-        Set<AddressAndPort> hzNodes = parseHosts(CLUSTER_HZ_HOSTS, requireValue(props, CLUSTER_HZ_HOSTS));
-        ensureNotLoopbackAddresses(CLUSTER_HZ_HOSTS, hzNodes);
-        checkClusterNodeHost(props);
-        checkClusterSearchHosts(props);
+        checkForApplicationNode(props);
         break;
       case SEARCH:
-        ensureNoSearchNodeForbiddenSettings(props);
-        AddressAndPort searchHost = parseAndCheckHost(CLUSTER_NODE_SEARCH_HOST, requireValue(props, CLUSTER_NODE_SEARCH_HOST));
-        ensureLocalButNotLoopbackAddress(CLUSTER_NODE_SEARCH_HOST, searchHost);
-        AddressAndPort esHost = parseAndCheckHost(CLUSTER_NODE_ES_HOST, requireValue(props, CLUSTER_NODE_ES_HOST));
-        ensureLocalButNotLoopbackAddress(CLUSTER_NODE_ES_HOST, esHost);
-        checkClusterEsHosts(props);
+        checkForSearchNode(props);
         break;
       default:
         throw new UnsupportedOperationException("Unknown value: " + nodeType);
     }
+  }
+
+  private void checkForApplicationNode(Props props) {
+    ensureNotH2(props);
+    requireValue(props, AUTH_JWT_SECRET);
+    Set<AddressAndPort> hzNodes = parseHosts(CLUSTER_HZ_HOSTS, requireValue(props, CLUSTER_HZ_HOSTS));
+    ensureNotLoopbackAddresses(CLUSTER_HZ_HOSTS, hzNodes);
+    checkClusterNodeHost(props);
+    checkClusterSearchHosts(props);
+  }
+
+  private void checkForSearchNode(Props props) {
+    ensureNoSearchNodeForbiddenSettings(props);
+    AddressAndPort searchHost = parseAndCheckHost(CLUSTER_NODE_SEARCH_HOST, requireValue(props, CLUSTER_NODE_SEARCH_HOST));
+    ensureLocalButNotLoopbackAddress(CLUSTER_NODE_SEARCH_HOST, searchHost);
+    AddressAndPort esHost = parseAndCheckHost(CLUSTER_NODE_ES_HOST, requireValue(props, CLUSTER_NODE_ES_HOST));
+    ensureLocalButNotLoopbackAddress(CLUSTER_NODE_ES_HOST, esHost);
+    checkClusterEsHosts(props);
   }
 
   private void checkClusterNodeHost(Props props) {
