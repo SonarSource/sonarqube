@@ -11,9 +11,7 @@ exports[`should render menu and select the right IDE 1`] = `
       href="#"
       onClick={[Function]}
     >
-      Polop
-       - 
-      Plouf
+      Polop - Plouf
     </a>
   </li>
   <li
@@ -24,8 +22,6 @@ exports[`should render menu and select the right IDE 1`] = `
       onClick={[Function]}
     >
       Foo
-       - 
-      Bar
     </a>
   </li>
 </ul>

@@ -30,12 +30,16 @@ export const HotspotOpenInIdeOverlay = ({
 }) =>
   ides.length > 1 ? (
     <ul className="menu">
-      {ides.map(ide => (
-        <li key={ide.port}>
-          <a href="#" onClick={() => onIdeSelected(ide)}>
-            {ide.ideName} - {ide.description}
-          </a>
-        </li>
-      ))}
+      {ides.map(ide => {
+        const { ideName, description } = ide;
+        const label = ideName + (description ? ` - ${description}` : '');
+        return (
+          <li key={ide.port}>
+            <a href="#" onClick={() => onIdeSelected(ide)}>
+              {label}
+            </a>
+          </li>
+        );
+      })}
     </ul>
   ) : null;

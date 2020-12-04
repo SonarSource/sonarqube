@@ -39,7 +39,7 @@ it('should render nothing with fewer than 2 IDE', () => {
 it('should render menu and select the right IDE', () => {
   const onIdeSelected = jest.fn();
   const ide1 = { port: 0, ideName: 'Polop', description: 'Plouf' };
-  const ide2 = { port: 1, ideName: 'Foo', description: 'Bar' };
+  const ide2 = { port: 1, ideName: 'Foo', description: '' };
   const wrapper = shallow(
     <HotspotOpenInIdeOverlay ides={[ide1, ide2]} onIdeSelected={onIdeSelected} />
   );
