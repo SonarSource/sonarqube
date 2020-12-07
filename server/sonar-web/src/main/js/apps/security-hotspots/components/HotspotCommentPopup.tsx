@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import MarkdownTips from '../../../components/common/MarkdownTips';
+import FormattingTips from '../../../components/common/FormattingTips';
 
 export interface HotspotCommentPopupProps {
   markdownComment: string;
@@ -43,7 +43,7 @@ export default function HotspotCommentPopup(props: HotspotCommentPopupProps) {
       </div>
       <div className="spacer-top display-flex-space-between">
         <div className="issue-comment-form-tips">
-          <MarkdownTips />
+          <FormattingTips />
         </div>
         <div className="">
           <Button

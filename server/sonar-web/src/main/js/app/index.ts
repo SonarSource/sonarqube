@@ -112,6 +112,6 @@ function isMainApp() {
     !pathname.startsWith(`${getBaseUrl()}/sessions`) &&
     !pathname.startsWith(`${getBaseUrl()}/maintenance`) &&
     !pathname.startsWith(`${getBaseUrl()}/setup`) &&
-    !pathname.startsWith(`${getBaseUrl()}/markdown/help`)
+    !pathname.startsWith(`${getBaseUrl()}/formatting/help`)
   );
 }

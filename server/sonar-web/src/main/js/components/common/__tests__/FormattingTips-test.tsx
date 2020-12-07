@@ -17,10 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import MarkdownTips from '../MarkdownTips';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import FormattingTips from '../FormattingTips';
 
-it('should render the tips', () => {
-  expect(shallow(<MarkdownTips />)).toMatchSnapshot();
+const originalOpen = window.open;
+
+beforeAll(() => {
+  Object.defineProperty(window, 'open', {
+    writable: true,
+    value: jest.fn()
+  });
 });
+
+afterAll(() => {
+  Object.defineProperty(window, 'open', {
+    writable: true,
+    value: originalOpen
+  });
+});
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should correctly open a new window', () => {
+  const wrapper = shallowRender();
+  expect(window.open).not.toBeCalled();
+  click(wrapper.find('a'));
+  expect(window.open).toBeCalled();
+});
+
+function shallowRender(props: Partial<FormattingTips['props']> = {}) {
+  return shallow<FormattingTips>(<FormattingTips {...props} />);
+}

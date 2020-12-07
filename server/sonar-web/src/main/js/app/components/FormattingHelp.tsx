@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 
-export default function MarkdownHelp() {
+export default function FormattingHelp() {
   return (
     <div className="page page-limited">
-      <h2 className="spacer-bottom">Markdown Syntax</h2>
+      <h2 className="spacer-bottom">Formatting Syntax</h2>
       <table className="width-100 data zebra">
         <thead>
           <tr>
@@ -38,17 +38,15 @@ export default function MarkdownHelp() {
             </td>
           </tr>
           <tr>
-            <td>http://sonarqube.org</td>
+            <td>https://sonarqube.org</td>
             <td className="markdown">
-              <a href="http://sonarqube.org">http://sonarqube.org</a>
+              <a href="https://sonarqube.org">https://sonarqube.org</a>
             </td>
           </tr>
           <tr>
-            <td className="text-top">[SonarQube™ Home Page](http://www.sonarqube.org)</td>
+            <td className="text-top">[SonarQube™ Home Page](https://www.sonarqube.org)</td>
             <td className="markdown text-top">
-              <a href="http://www.sonarqube.org" rel="noopener noreferrer" target="_blank">
-                SonarQube™ Home Page
-              </a>
+              <a href="https://www.sonarqube.org">SonarQube™ Home Page</a>
             </td>
           </tr>
           <tr>

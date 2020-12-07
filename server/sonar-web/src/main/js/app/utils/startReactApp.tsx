@@ -142,6 +142,7 @@ function renderRedirects() {
       <Redirect from="/view" to="/portfolio" />
       <Redirect from="/users" to="/admin/users" />
       <Redirect from="/onboarding" to="/projects/create" />
+      <Redirect from="markdown/help" to="formatting/help" />
     </>
   );
 }
@@ -263,8 +264,8 @@ export default function startReactApp(
               {renderRedirects()}
 
               <Route
-                path="markdown/help"
-                component={lazyLoadComponent(() => import('../components/MarkdownHelp'))}
+                path="formatting/help"
+                component={lazyLoadComponent(() => import('../components/FormattingHelp'))}
               />
 
               <Route component={lazyLoadComponent(() => import('../components/SimpleContainer'))}>

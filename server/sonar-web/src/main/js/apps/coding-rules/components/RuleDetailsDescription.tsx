@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { updateRule } from '../../../api/rules';
-import MarkdownTips from '../../../components/common/MarkdownTips';
+import FormattingTips from '../../../components/common/FormattingTips';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 interface Props {
@@ -176,7 +176,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
               {this.state.submitting && <i className="spinner spacer-left" />}
             </td>
             <td className="text-right">
-              <MarkdownTips />
+              <FormattingTips />
             </td>
           </tr>
         </tbody>

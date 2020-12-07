@@ -26,7 +26,7 @@ import {
   deleteSecurityHotspotComment,
   editSecurityHotspotComment
 } from '../../../api/security-hotspots';
-import MarkdownTips from '../../../components/common/MarkdownTips';
+import FormattingTips from '../../../components/common/FormattingTips';
 import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
 import HotspotReviewHistory from './HotspotReviewHistory';
@@ -124,7 +124,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
                     value={comment}
                   />
                   <div className="display-flex-space-between display-flex-center ">
-                    <MarkdownTips className="huge-spacer-bottom" />
+                    <FormattingTips className="huge-spacer-bottom" />
                     <div>
                       <Button
                         className="huge-spacer-bottom"

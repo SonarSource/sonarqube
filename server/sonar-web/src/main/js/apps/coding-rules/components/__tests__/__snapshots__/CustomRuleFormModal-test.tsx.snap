@@ -211,7 +211,7 @@ exports[`should handle re-activation 1`] = `
           rows={5}
           value=""
         />
-        <MarkdownTips
+        <FormattingTips
           className="modal-field-descriptor text-right"
         />
       </div>
@@ -442,7 +442,7 @@ exports[`should render correctly 1`] = `
           rows={5}
           value=""
         />
-        <MarkdownTips
+        <FormattingTips
           className="modal-field-descriptor text-right"
         />
       </div>

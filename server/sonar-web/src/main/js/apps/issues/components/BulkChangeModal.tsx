@@ -32,7 +32,7 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import MarkdownTips from '../../../components/common/MarkdownTips';
+import FormattingTips from '../../../components/common/FormattingTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
@@ -476,7 +476,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           rows={4}
           value={this.state.comment || ''}
         />
-        <MarkdownTips className="modal-field-descriptor text-right" />
+        <FormattingTips className="modal-field-descriptor text-right" />
       </div>
     );
   };

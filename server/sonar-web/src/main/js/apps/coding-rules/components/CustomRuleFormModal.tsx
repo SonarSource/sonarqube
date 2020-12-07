@@ -27,7 +27,7 @@ import { csvEscape } from 'sonar-ui-common/helpers/csv';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { latinize } from 'sonar-ui-common/helpers/strings';
 import { createRule, updateRule } from '../../../api/rules';
-import MarkdownTips from '../../../components/common/MarkdownTips';
+import FormattingTips from '../../../components/common/FormattingTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { RULE_STATUSES, RULE_TYPES, SEVERITIES } from '../../../helpers/constants';
@@ -204,7 +204,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         rows={5}
         value={this.state.description}
       />
-      <MarkdownTips className="modal-field-descriptor text-right" />
+      <FormattingTips className="modal-field-descriptor text-right" />
     </div>
   );
 

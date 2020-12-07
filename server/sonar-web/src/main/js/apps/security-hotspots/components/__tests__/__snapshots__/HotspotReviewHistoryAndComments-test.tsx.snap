@@ -139,7 +139,7 @@ exports[`should render correctly 1`] = `
         <div
           className="display-flex-space-between display-flex-center "
         >
-          <MarkdownTips
+          <FormattingTips
             className="huge-spacer-bottom"
           />
           <div>

@@ -20,23 +20,27 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getMarkdownHelpUrl } from '../../helpers/urls';
+import { getFormattingHelpUrl } from '../../helpers/urls';
 
 interface Props {
   className?: string;
 }
 
-export default class MarkdownTips extends React.PureComponent<Props> {
+export default class FormattingTips extends React.PureComponent<Props> {
   handleClick(evt: React.SyntheticEvent<HTMLAnchorElement>) {
     evt.preventDefault();
-    window.open(getMarkdownHelpUrl(), 'Markdown', 'height=300,width=600,scrollbars=1,resizable=1');
+    window.open(
+      getFormattingHelpUrl(),
+      'Formatting',
+      'height=300,width=600,scrollbars=1,resizable=1'
+    );
   }
 
   render() {
     return (
       <div className={classNames('markdown-tips', this.props.className)}>
         <a className="little-spacer-right" href="#" onClick={this.handleClick}>
-          {translate('markdown.helplink')}
+          {translate('formatting.helplink')}
         </a>
         {':'}
         <span className="spacer-left">*{translate('bold')}*</span>

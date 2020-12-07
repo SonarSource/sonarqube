@@ -20,7 +20,7 @@ exports[`should render correclty 1`] = `
     <div
       className="issue-comment-form-tips"
     >
-      <MarkdownTips />
+      <FormattingTips />
     </div>
     <div
       className=""

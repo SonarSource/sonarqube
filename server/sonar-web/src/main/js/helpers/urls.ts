@@ -239,8 +239,8 @@ export function getRuleUrl(rule: string) {
   return getRulesUrl({ open: rule, rule_key: rule });
 }
 
-export function getMarkdownHelpUrl(): string {
-  return getBaseUrl() + '/markdown/help';
+export function getFormattingHelpUrl(): string {
+  return getBaseUrl() + '/formatting/help';
 }
 
 export function getCodeUrl(

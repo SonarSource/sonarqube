@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render the tips 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="markdown-tips"
 >
@@ -9,7 +9,7 @@ exports[`should render the tips 1`] = `
     href="#"
     onClick={[Function]}
   >
-    markdown.helplink
+    formatting.helplink
   </a>
   :
   <span

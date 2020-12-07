@@ -53,7 +53,7 @@ exports[`should render correctly 1`] = `
       rows={4}
       value="TEST-COMMENT"
     />
-    <MarkdownTips />
+    <FormattingTips />
     <div
       className="big-spacer-top display-flex-justify-end display-flex-center"
     >
@@ -121,7 +121,7 @@ exports[`should render correctly: loading 1`] = `
       rows={4}
       value="TEST-COMMENT"
     />
-    <MarkdownTips />
+    <FormattingTips />
     <div
       className="big-spacer-top display-flex-justify-end display-flex-center"
     >
