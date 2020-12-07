@@ -60,7 +60,7 @@ public class NoSonarSensor implements Sensor {
       int[] lineCounter = {1};
       try (Stream<String> stream = Files.lines(inputFile.path(), inputFile.charset())) {
         stream.forEachOrdered(lineStr -> {
-          if (lineStr.contains("//NOSONAR")) {
+          if (lineStr.contains("//NOSONAR") || lineStr.contains("// NOSONAR")) {
             noSonarLines.add(lineCounter[0]);
           }
           lineCounter[0]++;
