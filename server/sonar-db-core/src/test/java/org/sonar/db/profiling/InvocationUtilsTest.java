@@ -19,8 +19,10 @@
  */
 package org.sonar.db.profiling;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
@@ -45,13 +47,9 @@ public class InvocationUtilsTest {
     Connection target = mock(Connection.class);
     String failSql = "any sql";
     when(target.prepareStatement(failSql)).thenThrow(new SQLException("Expected"));
+    Method prepareStatement = Connection.class.getMethod("prepareStatement", String.class);
 
-    try {
-      InvocationUtils.invokeQuietly(target, Connection.class.getMethod("prepareStatement", String.class), new Object[] {failSql});
-      fail();
-    } catch (Throwable t) {
-      assertThat(t).isInstanceOf(SQLException.class);
-    }
+    Assert.assertThrows(SQLException.class, () -> InvocationUtils.invokeQuietly(target, prepareStatement, new Object[] {failSql}));
   }
 
   @Test
@@ -59,13 +57,9 @@ public class InvocationUtilsTest {
     Connection target = mock(Connection.class);
     String failSql = "any sql";
     when(target.prepareStatement(failSql)).thenThrow(new SQLException("Expected"));
+    Method wait = Object.class.getMethod("wait");
 
-    try {
-      InvocationUtils.invokeQuietly(target, Object.class.getMethod("wait"), new Object[0]);
-      fail();
-    } catch (Throwable t) {
-      assertThat(t).isInstanceOf(IllegalStateException.class);
-    }
+    Assert.assertThrows(IllegalStateException.class, () -> InvocationUtils.invokeQuietly(target, wait, new Object[0]));
   }
 
   @Test
