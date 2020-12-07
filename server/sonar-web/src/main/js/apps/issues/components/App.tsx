@@ -1141,7 +1141,7 @@ export default class App extends React.PureComponent<Props, State> {
                 />
               </Alert>
             )}
-            {cannotShowOpenIssue && (
+            {cannotShowOpenIssue && (!paging || paging.total > 0) && (
               <Alert className="big-spacer-bottom" variant="warning">
                 {translateWithParameters(
                   'issues.cannot_open_issue_max_initial_X_fetched',
