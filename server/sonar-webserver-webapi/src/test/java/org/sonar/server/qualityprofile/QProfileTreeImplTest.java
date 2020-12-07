@@ -218,8 +218,6 @@ public class QProfileTreeImplTest {
 
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
     assertThat(activeRule.getInheritance()).isEqualTo(expectedInheritance != null ? expectedInheritance.name() : null);
-    assertThat(activeRule.getCreatedAt()).isNotNull();
-    assertThat(activeRule.getUpdatedAt()).isNotNull();
 
     List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(db.getSession(), activeRule.getUuid());
     assertThat(params).hasSize(expectedParams.size());
@@ -253,8 +251,6 @@ public class QProfileTreeImplTest {
 
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
     assertThat(activeRule.getInheritance()).isEqualTo(expectedInheritance != null ? expectedInheritance.name() : null);
-    assertThat(activeRule.getCreatedAt()).isNotNull();
-    assertThat(activeRule.getUpdatedAt()).isNotNull();
 
     List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(db.getSession(), activeRule.getUuid());
     assertThat(params).hasSize(expectedParams.size());

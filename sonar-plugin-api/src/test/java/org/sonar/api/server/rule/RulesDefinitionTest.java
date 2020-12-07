@@ -29,9 +29,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
@@ -45,6 +47,7 @@ import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(DataProviderRunner.class)
 public class RulesDefinitionTest {
@@ -135,10 +138,6 @@ public class RulesDefinitionTest {
     RulesDefinition.Rule otherRule = repo.rule("ABC");
     assertThat(otherRule.htmlDescription()).isNull();
     assertThat(otherRule.markdownDescription()).isEqualTo("ABC");
-
-    // test equals() and hashCode()
-    assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
-    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
   }
 
   @Test
@@ -221,10 +220,6 @@ public class RulesDefinitionTest {
     RulesDefinition.Rule otherRule = repo.rule("ABC");
     assertThat(otherRule.htmlDescription()).isNull();
     assertThat(otherRule.markdownDescription()).isEqualTo("ABC");
-
-    // test equals() and hashCode()
-    assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
-    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
   }
 
   @Test

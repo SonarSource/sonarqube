@@ -665,7 +665,7 @@ public class InternalCeQueueImplTest {
       assertThat(dto.getComponentUuid()).isNull();
     }
     assertThat(dto.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
-    assertThat(dto.getCreatedAt()).isEqualTo(dto.getUpdatedAt()).isNotNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(dto.getUpdatedAt());
   }
 
   private ComponentDto newProjectDto(String uuid) {

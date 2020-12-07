@@ -86,7 +86,9 @@ public class ChildSettingsTest {
     parent.setProperty(key, randomAlphanumeric(20));
     underTest.setProperty(key, randomAlphanumeric(10));
 
-    assertThat(underTest.get(key)).isNotEqualTo(parent.getString(key));
+    Optional<String> result = underTest.get(key);
+    assertThat(result).isPresent();
+    assertThat(result.get()).isNotEqualTo(parent.getString(key));
   }
 
   @Test

@@ -30,7 +30,7 @@ public class CategoryTest {
     assertThat(new Category("Licenses")).isEqualTo(new Category("licenses"));
 
     // Just to raise coverage
-    assertThat(new Category("Licenses")).isNotEqualTo("Licenses");
+    assertThat(new Category("Licenses").key()).isNotEqualTo("Licenses");
   }
 
   @Test

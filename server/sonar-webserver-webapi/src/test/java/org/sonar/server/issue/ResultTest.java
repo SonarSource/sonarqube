@@ -66,17 +66,17 @@ public class ResultTest {
 
   @Test
   public void test_text_message() {
-    Result.Message txtMessage = Result.Message.of("the error");
-    Result.Message sameMessage = Result.Message.of("the error");
+    String errorMessage = "the error";
+    Result.Message txtMessage = Result.Message.of(errorMessage);
+    Result.Message sameMessage = Result.Message.of(errorMessage);
     Result.Message otherMessage = Result.Message.of("other");
 
-    assertThat(txtMessage.toString()).contains("the error");
+    assertThat(txtMessage.toString()).contains(errorMessage);
     assertThat(txtMessage).isEqualTo(txtMessage);
     assertThat(txtMessage).isEqualTo(sameMessage);
     assertThat(txtMessage.hashCode()).isEqualTo(txtMessage.hashCode());
     assertThat(txtMessage.hashCode()).isEqualTo(sameMessage.hashCode());
     assertThat(txtMessage).isNotEqualTo(otherMessage);
-    assertThat(txtMessage).isNotEqualTo("the error");
   }
 
   @Test
@@ -94,6 +94,6 @@ public class ResultTest {
 
     assertThat(msg).isNotEqualTo(msg2);
     assertThat(msg).isNotEqualTo(msg3);
-    assertThat(msg).isNotEqualTo("issue.error.123");
+    assertThat(msg.text()).isNotEqualTo("issue.error.123");
   }
 }

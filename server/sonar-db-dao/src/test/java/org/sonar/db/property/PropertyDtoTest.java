@@ -42,15 +42,14 @@ public class PropertyDtoTest {
 
   @Test
   public void testHashCode() {
-    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode()).isNotNull();
-    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode())
-      .isEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode());
+    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123"))
+      .hasSameHashCodeAs(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
   }
 
   @Test
   public void testToString() {
-    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserUuid("456").toString())
-      .isEqualTo("PropertyDto{foo:bar, value, uuid123, 456}");
+    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserUuid("456"))
+      .hasToString("PropertyDto{foo:bar, value, uuid123, 456}");
   }
 
   @Test

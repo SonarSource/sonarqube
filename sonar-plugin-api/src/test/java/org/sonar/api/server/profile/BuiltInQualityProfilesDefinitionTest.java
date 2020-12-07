@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
@@ -56,7 +57,7 @@ public class BuiltInQualityProfilesDefinitionTest {
   }
 
   @Test
-  public void sanityCheck() {
+  public void sanityEqualCheck() {
     Map<String, Map<String, BuiltInQualityProfile>> profiles = define(c -> {
       NewBuiltInQualityProfile profile1 = c.createBuiltInQualityProfile("Foo1", "xoo");
       NewBuiltInActiveRule rule = profile1.activateRule("repo", "rule");
@@ -65,9 +66,9 @@ public class BuiltInQualityProfilesDefinitionTest {
       profile2.done();
       NewBuiltInQualityProfile profile3 = c.createBuiltInQualityProfile("Foo1", "xoo2");
       profile3.done();
-      assertThat(profile1).isEqualTo(profile1);
+      Assertions.assertEquals(profile1, profile1);
       assertThat(profile1).isNotEqualTo(null);
-      assertThat(profile1).isNotEqualTo("Foo");
+      assertThat(profile1.name()).isNotEqualTo("Foo");
       assertThat(profile1).isNotEqualTo(profile2);
       assertThat(profile1).isNotEqualTo(profile3);
       assertThat(profile1.hashCode()).isNotEqualTo(profile2.hashCode());
@@ -79,7 +80,7 @@ public class BuiltInQualityProfilesDefinitionTest {
     BuiltInQualityProfile profile3 = profiles.get("xoo2").get("Foo1");
     assertThat(profile1).isEqualTo(profile1);
     assertThat(profile1).isNotEqualTo(null);
-    assertThat(profile1).isNotEqualTo("Foo");
+    assertThat(profile1.name()).isNotEqualTo("Foo");
     assertThat(profile1).isNotEqualTo(profile2);
     assertThat(profile1).isNotEqualTo(profile3);
     assertThat(profile1.hashCode()).isNotEqualTo(profile2.hashCode());

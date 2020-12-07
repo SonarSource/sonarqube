@@ -22,13 +22,14 @@ package org.sonar.api.batch.scm;
 import org.junit.Test;
 
 import java.util.Date;
+import org.junit.jupiter.api.Assertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BlameLineTest {
 
   @Test
-  public void testBlameLine() {
+  public void testEqualBlameLine() {
     Date date = new Date();
     BlameLine line1 = new BlameLine().date(date).revision("1").author("foo");
     BlameLine line1b = new BlameLine().date(date).revision("1").author("foo");
@@ -38,12 +39,11 @@ public class BlameLineTest {
     assertThat(line1.date()).isEqualTo(date);
     assertThat(line1.revision()).isEqualTo("1");
 
-    assertThat(line1).isEqualTo(line1);
+    Assertions.assertEquals(line1, line1);
     assertThat(line1).isNotEqualTo(null);
     assertThat(line1).isEqualTo(line1b);
     assertThat(line1.hashCode()).isEqualTo(line1b.hashCode());
     assertThat(line1).isNotEqualTo(line2);
-    assertThat(line1).isNotEqualTo("foo");
 
     assertThat(line1.toString()).contains("revision=1,author=foo");
   }
