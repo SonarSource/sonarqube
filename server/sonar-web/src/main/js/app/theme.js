@@ -107,6 +107,7 @@ module.exports = {
     // badge
     badgeBlueBackground: '#2E7CB5',
     badgeBlueColor: '#FFFFFF',
+    badgeRedBackgroundOnIssue: '#EEC8C8',
 
     // alm
     azure: '#0078d7',

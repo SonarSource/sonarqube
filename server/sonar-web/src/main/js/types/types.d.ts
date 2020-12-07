@@ -352,6 +352,7 @@ declare namespace T {
     resolution?: string;
     rule: string;
     ruleName: string;
+    ruleStatus?: string;
     secondaryLocations: FlowLocation[];
     severity: string;
     status: string;

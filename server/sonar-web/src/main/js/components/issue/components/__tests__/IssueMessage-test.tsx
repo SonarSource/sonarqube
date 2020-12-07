@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { RuleStatus } from '../../../../types/rules';
 import IssueMessage, { IssueMessageProps } from '../IssueMessage';
 
 it('should render correctly', () => {
@@ -29,6 +30,10 @@ it('should render correctly', () => {
   expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
   expect(shallowRender({ engineName: 'JS' })).toMatchSnapshot('with engine name');
   expect(shallowRender({ manualVulnerability: true })).toMatchSnapshot('is manual vulnerability');
+  expect(shallowRender({ ruleStatus: RuleStatus.Deprecated })).toMatchSnapshot(
+    'is deprecated rule'
+  );
+  expect(shallowRender({ ruleStatus: RuleStatus.Removed })).toMatchSnapshot('is removed rule');
 });
 
 it('should handle click correctly', () => {

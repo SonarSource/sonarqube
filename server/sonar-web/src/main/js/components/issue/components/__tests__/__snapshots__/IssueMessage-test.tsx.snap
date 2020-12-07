@@ -19,6 +19,43 @@ exports[`should render correctly: default 1`] = `
 </div>
 `;
 
+exports[`should render correctly: is deprecated rule 1`] = `
+<div
+  className="issue-message break-word"
+>
+  <span
+    className="spacer-right"
+  >
+    Reduce the number of conditional operators (4) used in the expression
+  </span>
+  <ButtonLink
+    aria-label="issue.why_this_issue.long"
+    className="issue-see-rule spacer-right text-baseline"
+    onClick={[Function]}
+  >
+    issue.why_this_issue
+  </ButtonLink>
+  <DocumentationTooltip
+    className="spacer-left"
+    content="rules.status.DEPRECATED.help"
+    links={
+      Array [
+        Object {
+          "href": "/documentation/user-guide/rules/",
+          "label": "see_x.rules",
+        },
+      ]
+    }
+  >
+    <span
+      className="spacer-right badge badge-error"
+    >
+      rules.status.DEPRECATED
+    </span>
+  </DocumentationTooltip>
+</div>
+`;
+
 exports[`should render correctly: is manual vulnerability 1`] = `
 <div
   className="issue-message break-word"
@@ -44,6 +81,43 @@ exports[`should render correctly: is manual vulnerability 1`] = `
       issue.manual_vulnerability
     </div>
   </Tooltip>
+</div>
+`;
+
+exports[`should render correctly: is removed rule 1`] = `
+<div
+  className="issue-message break-word"
+>
+  <span
+    className="spacer-right"
+  >
+    Reduce the number of conditional operators (4) used in the expression
+  </span>
+  <ButtonLink
+    aria-label="issue.why_this_issue.long"
+    className="issue-see-rule spacer-right text-baseline"
+    onClick={[Function]}
+  >
+    issue.why_this_issue
+  </ButtonLink>
+  <DocumentationTooltip
+    className="spacer-left"
+    content="rules.status.REMOVED.help"
+    links={
+      Array [
+        Object {
+          "href": "/documentation/user-guide/rules/",
+          "label": "see_x.rules",
+        },
+      ]
+    }
+  >
+    <span
+      className="spacer-right badge badge-error"
+    >
+      rules.status.REMOVED
+    </span>
+  </DocumentationTooltip>
 </div>
 `;
 

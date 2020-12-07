@@ -21,6 +21,8 @@ import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { RuleStatus } from '../../../types/rules';
+import DocumentationTooltip from '../../common/DocumentationTooltip';
 import { WorkspaceContextShape } from '../../workspace/context';
 
 export interface IssueMessageProps {
@@ -31,10 +33,19 @@ export interface IssueMessageProps {
   onOpenRule: WorkspaceContextShape['openRule'];
   organization: string;
   ruleKey: string;
+  ruleStatus?: RuleStatus;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const { engine, engineName, manualVulnerability, message, organization, ruleKey } = props;
+  const {
+    engine,
+    engineName,
+    manualVulnerability,
+    message,
+    organization,
+    ruleKey,
+    ruleStatus
+  } = props;
   const ruleEngine = engineName ? engineName : engine;
 
   return (
@@ -46,6 +57,22 @@ export default function IssueMessage(props: IssueMessageProps) {
         onClick={() => props.onOpenRule({ key: ruleKey, organization })}>
         {translate('issue.why_this_issue')}
       </ButtonLink>
+
+      {ruleStatus && (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
+        <DocumentationTooltip
+          className="spacer-left"
+          content={translate('rules.status', ruleStatus, 'help')}
+          links={[
+            {
+              href: '/documentation/user-guide/rules/',
+              label: translateWithParameters('see_x', translate('rules'))
+            }
+          ]}>
+          <span className="spacer-right badge badge-error">
+            {translate('rules.status', ruleStatus)}
+          </span>
+        </DocumentationTooltip>
+      )}
 
       {ruleEngine && (
         <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>

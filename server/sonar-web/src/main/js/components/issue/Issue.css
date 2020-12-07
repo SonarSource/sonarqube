@@ -240,3 +240,7 @@
   max-height: 120px;
   overflow: auto;
 }
+
+.issue .badge-error {
+  background-color: var(--badgeRedBackgroundOnIssue);
+}

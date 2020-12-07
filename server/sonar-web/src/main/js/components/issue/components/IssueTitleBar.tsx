@@ -26,6 +26,7 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { RuleStatus } from '../../../types/rules';
 import LocationIndex from '../../common/LocationIndex';
 import { WorkspaceContext } from '../../workspace/context';
 import IssueChangelog from './IssueChangelog';
@@ -85,6 +86,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
             onOpenRule={openRule}
             organization={issue.organization}
             ruleKey={issue.rule}
+            ruleStatus={issue.ruleStatus as RuleStatus | undefined}
           />
         )}
       </WorkspaceContext.Consumer>
