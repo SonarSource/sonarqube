@@ -62,20 +62,14 @@ public class State {
 
   @CheckForNull
   public Transition outAutomaticTransition(Issue issue) {
-    final Transition[] result = new Transition[1];
-    Set<String> keys = new HashSet<>();
-
-    Arrays.stream(outTransitions)
+    List<Transition> transitions = Arrays.stream(outTransitions)
       .filter(Transition::automatic)
-      .filter(transition -> transition.supports(issue))
-      .peek(transition -> result[0] = transition)
-      .filter(transition -> !keys.add(transition.key()))
-      .findAny()
-      .ifPresent(transition -> {
-        throw new IllegalArgumentException("Several automatic transitions are available for issue: " + issue);
-      });
-
-    return result[0];
+      .filter(t -> t.supports(issue))
+      .collect(Collectors.toList());
+    if(transitions.size() > 1){
+      throw new IllegalArgumentException("Several automatic transitions are available for issue: " + issue);
+    }
+    return transitions.size() == 1 ? transitions.get(0) : null;
   }
 
   Transition transition(String transitionKey) {

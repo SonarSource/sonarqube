@@ -19,8 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,9 +33,9 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
+import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_EVENT;
 
 public class DeleteEventAction implements ProjectAnalysesWsAction {
@@ -74,10 +72,10 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String eventP = request.mandatoryParam(PARAM_EVENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Stream.of(getEvent(dbSession, eventP))
-              .peek(checkPermissions())
-              .peek(checkModifiable())
-              .forEach(event -> deleteEvent(dbSession, event));
+      EventDto event = getEvent(dbSession, eventP);
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
+      checkModifiable().accept(event);
+      deleteEvent(dbSession, event);
     }
     response.noContent();
   }
@@ -99,7 +97,4 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
     dbSession.commit();
   }
 
-  private Consumer<EventDto> checkPermissions() {
-    return event -> userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
-  }
 }

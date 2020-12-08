@@ -21,14 +21,10 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
@@ -84,24 +80,20 @@ public class DeleteCommentAction implements IssuesWsAction {
   public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto issueDto = Stream.of(request)
-        .map(loadCommentData(dbSession))
-        .peek(deleteComment(dbSession))
-        .collect(MoreCollectors.toOneElement())
-        .getIssueDto();
+      CommentData commentData = loadCommentData(dbSession, request);
+      deleteComment(dbSession, commentData);
+      IssueDto issueDto = commentData.getIssueDto();
       responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
     }
   }
 
-  private Function<Request, CommentData> loadCommentData(DbSession dbSession) {
-    return request -> new CommentData(dbSession, request.mandatoryParam(PARAM_COMMENT));
+  private CommentData loadCommentData(DbSession dbSession, Request request) {
+    return new CommentData(dbSession, request.mandatoryParam(PARAM_COMMENT));
   }
 
-  private Consumer<CommentData> deleteComment(DbSession dbSession) {
-    return commentData -> {
-      dbClient.issueChangeDao().delete(dbSession, commentData.getIssueChangeDto().getKey());
-      dbSession.commit();
-    };
+  private void deleteComment(DbSession dbSession, CommentData commentData) {
+    dbClient.issueChangeDao().delete(dbSession, commentData.getIssueChangeDto().getKey());
+    dbSession.commit();
   }
 
   private class CommentData {

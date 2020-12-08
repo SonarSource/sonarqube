@@ -20,6 +20,7 @@
 package org.sonar.api.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -510,11 +511,15 @@ public final class PropertyDefinition {
     }
 
     private static void addQualifiers(List<String> target, String first, String... rest) {
-      Stream.concat(Stream.of(first), stream(rest)).peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
+      List<String> qualifiers = new ArrayList<>();
+      qualifiers.add(first);
+      qualifiers.addAll(Arrays.asList(rest));
+      addQualifiers(target, qualifiers);
     }
 
     private static void addQualifiers(List<String> target, List<String> qualifiers) {
-      qualifiers.stream().peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
+      qualifiers.forEach(PropertyDefinition.Builder::validateQualifier);
+      target.addAll(qualifiers);
     }
 
     private static void validateQualifier(@Nullable String qualifier) {

@@ -20,6 +20,7 @@
 package org.sonar.server.projectanalysis.ws;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -100,17 +101,14 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
 
   private UpdateEventResponse doHandle(UpdateEventRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return Stream
-        .of(getDbEvent(dbSession, request))
-        .peek(checkPermissions())
-        .peek(checkModifiable())
-        .peek(checkVersionNameLength(request))
-        .map(updateNameAndDescription(request))
-        .peek(checkNonConflictingOtherEvents(dbSession))
-        .peek(updateInDb(dbSession))
-        .map(toWsResponse())
-        .findAny()
-        .orElseThrow(() -> new IllegalStateException("Event not found"));
+      EventDto event = Optional.ofNullable(getDbEvent(dbSession, request)).orElseThrow(() -> new IllegalStateException("Event not found"));
+      checkPermissions().accept(event);
+      checkModifiable().accept(event);
+      checkVersionNameLength(request).accept(event);
+      event = updateNameAndDescription(request).apply(event);
+      checkNonConflictingOtherEvents(dbSession).accept(event);
+      updateInDb(dbSession).accept(event);
+      return toWsResponse().apply(event);
     }
   }
 

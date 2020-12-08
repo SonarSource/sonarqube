@@ -94,13 +94,13 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
-          "Either '%s' or '%s' must be provided.<br> " +
-          "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
-          "Requires one of the following permissions: " +
-          "<ul>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified component</li>" +
-          "</ul>",
+        "Either '%s' or '%s' must be provided.<br> " +
+        "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
+        "Requires one of the following permissions: " +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified component</li>" +
+        "</ul>",
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(
@@ -212,13 +212,16 @@ public class SetAction implements SettingsWsAction {
     Set<String> fieldKeys = definition.fields().stream().map(PropertyFieldDefinition::key).collect(Collectors.toSet());
     ListMultimap<String, String> valuesByFieldKeys = ArrayListMultimap.create(fieldKeys.size(), request.getFieldValues().size() * fieldKeys.size());
 
-    request.getFieldValues().stream()
+    List<Map<String, String>> maps = request.getFieldValues().stream()
       .map(oneFieldValues -> readOneFieldValues(oneFieldValues, request.getKey()))
-      .peek(map -> checkRequest(map.values().stream().anyMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE))
-      .flatMap(map -> map.entrySet().stream())
-      .peek(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()))
-      .forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
+      .collect(Collectors.toList());
 
+    for (Map<String, String> map : maps) {
+      checkRequest(map.values().stream().anyMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE);
+    }
+    List<Map.Entry<String, String>> entries = maps.stream().flatMap(map -> map.entrySet().stream()).collect(Collectors.toList());
+    entries.forEach(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()));
+    entries.forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
     checkFieldType(request, definition, valuesByFieldKeys);
   }
 

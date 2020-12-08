@@ -21,8 +21,6 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -94,35 +92,28 @@ public class EditCommentAction implements IssuesWsAction {
   public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto issueDto = Stream.of(request)
-        .map(toWsRequest())
-        .map(loadCommentData(dbSession))
-        .peek(updateComment(dbSession))
-        .collect(MoreCollectors.toOneElement())
-        .getIssueDto();
+      CommentData commentData = loadCommentData(dbSession, toWsRequest(request));
+      updateComment(dbSession, commentData);
+      IssueDto issueDto = commentData.getIssueDto();
       responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
     }
   }
 
-  private Function<EditCommentRequest, CommentData> loadCommentData(DbSession dbSession) {
-    return request -> new CommentData(dbSession, request);
+  private CommentData loadCommentData(DbSession dbSession, EditCommentRequest request) {
+    return new CommentData(dbSession, request);
   }
 
-  private Consumer<CommentData> updateComment(DbSession dbSession) {
-    return commentData -> {
-      commentData.getIssueChangeDto().setUpdatedAt(system2.now());
-      commentData.getIssueChangeDto().setChangeData(commentData.getRequest().getText());
-      dbClient.issueChangeDao().update(dbSession, commentData.getIssueChangeDto());
-      dbSession.commit();
-    };
+  private void updateComment(DbSession dbSession, CommentData commentData) {
+    commentData.getIssueChangeDto().setUpdatedAt(system2.now());
+    commentData.getIssueChangeDto().setChangeData(commentData.getRequest().getText());
+    dbClient.issueChangeDao().update(dbSession, commentData.getIssueChangeDto());
+    dbSession.commit();
   }
 
-  private static Function<Request, EditCommentRequest> toWsRequest() {
-    return request -> {
-      EditCommentRequest wsRequest = new EditCommentRequest(request.mandatoryParam(PARAM_COMMENT), request.mandatoryParam(PARAM_TEXT));
-      checkArgument(!isNullOrEmpty(wsRequest.getText()), "Cannot set empty comment to an issue");
-      return wsRequest;
-    };
+  private static EditCommentRequest toWsRequest(Request request) {
+    EditCommentRequest wsRequest = new EditCommentRequest(request.mandatoryParam(PARAM_COMMENT), request.mandatoryParam(PARAM_TEXT));
+    checkArgument(!isNullOrEmpty(wsRequest.getText()), "Cannot set empty comment to an issue");
+    return wsRequest;
   }
 
   private class CommentData {

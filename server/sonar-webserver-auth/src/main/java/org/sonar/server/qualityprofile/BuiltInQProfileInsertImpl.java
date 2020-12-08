@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Collections;
@@ -156,15 +157,14 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     Map<String, String> valuesByParamKey = activeRule.getParams()
       .stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return ruleRepository.getRuleParams(activeRule.getRuleKey())
+    List<ActiveRuleParamDto> rules = ruleRepository.getRuleParams(activeRule.getRuleKey())
       .stream()
-      .map(param -> {
-        String activeRuleValue = valuesByParamKey.get(param.getName());
-        return createParamDto(param, activeRuleValue == null ? param.getDefaultValue() : activeRuleValue);
-      })
+      .map(param -> createParamDto(param, Optional.ofNullable(valuesByParamKey.get(param.getName())).orElse(param.getDefaultValue())))
       .filter(Objects::nonNull)
-      .peek(paramDto -> dbClient.activeRuleDao().insertParam(session, activeRuleDto, paramDto))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
+
+    rules.forEach(paramDto -> dbClient.activeRuleDao().insertParam(session, activeRuleDto, paramDto));
+    return rules;
   }
 
   @CheckForNull

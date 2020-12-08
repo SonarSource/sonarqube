@@ -103,10 +103,8 @@ public class ComponentIssuesLoader {
       .stream()
       .collect(groupingBy(IssueChangeDto::getIssueKey));
 
-    return issues
-      .stream()
-      .peek(i -> setChanges(changeDtoByIssueKey, i))
-      .collect(toList());
+    issues.forEach(i -> setChanges(changeDtoByIssueKey, i));
+    return new ArrayList<>(issues);
   }
 
   /**
@@ -175,7 +173,6 @@ public class ComponentIssuesLoader {
         // TODO to be improved, why setOnDisabledRule(true) is not enough ?
         issue.setBeingClosed(true);
       }
-      // FIXME
       issue.setSelectedAt(System.currentTimeMillis());
       result.add(issue);
     });
@@ -264,7 +261,6 @@ public class ComponentIssuesLoader {
       previousIssueKey = resultObject.getKey();
       DefaultIssue issue = resultObject.toDefaultIssue();
       issue.setLine(line);
-      // FIXME
       issue.setSelectedAt(System.currentTimeMillis());
 
       issues.add(issue);

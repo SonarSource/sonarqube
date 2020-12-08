@@ -21,8 +21,8 @@ package org.sonar.server.ui;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
@@ -31,8 +31,8 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.Page.Scope;
 import org.sonar.api.web.page.PageDefinition;
-import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.extension.CoreExtensionRepository;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.ui.page.CorePageDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -105,11 +105,12 @@ public class PageRepository implements Startable {
     corePageDefinitions.stream()
       .map(CorePageDefinition::getPageDefinition)
       .forEach(definition -> definition.define(coreContext));
-    pages = Stream.concat(
-      context.getPages().stream().peek(this::checkPluginExists),
-      coreContext.getPages().stream().peek(this::checkCoreExtensionExists))
-      .sorted(comparing(Page::getKey))
-      .collect(toList());
+    context.getPages().forEach(this::checkPluginExists);
+    coreContext.getPages().forEach(this::checkCoreExtensionExists);
+    pages = new ArrayList<>();
+    pages.addAll(context.getPages());
+    pages.addAll(coreContext.getPages());
+    pages.sort(comparing(Page::getKey));
   }
 
   @Override
