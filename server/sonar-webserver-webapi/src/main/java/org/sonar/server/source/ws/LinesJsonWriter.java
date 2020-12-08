@@ -35,7 +35,7 @@ public class LinesJsonWriter {
   }
 
   public void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, Supplier<Optional<Long>> periodDateSupplier) {
-    Optional<Long> periodDate = null;
+    Long periodDate = null;
 
     json.name("sources").beginArray();
     for (DbFileSources.Line line : lines) {
@@ -64,9 +64,9 @@ public class LinesJsonWriter {
         json.prop("isNew", line.getIsNewLine());
       } else {
         if (periodDate == null) {
-          periodDate = periodDateSupplier.get();
+          periodDate = periodDateSupplier.get().orElse(Long.MAX_VALUE);
         }
-        json.prop("isNew", periodDate.isPresent() && line.getScmDate() > periodDate.get());
+        json.prop("isNew", line.getScmDate() > periodDate);
       }
       json.endObject();
     }
