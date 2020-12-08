@@ -514,6 +514,17 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void return_correct_number_of_total_if_exceeds_index_max_results() {
+    index(IntStream.range(0, 12_000)
+      .mapToObj(operand -> newDoc(ComponentTesting.newPrivateProjectDto(ORG)))
+      .toArray(ProjectMeasuresDoc[]::new));
+
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery();
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions());
+    assertThat(result.getTotal()).isEqualTo(12_000);
+  }
+
+  @Test
   public void return_only_projects_and_applications_authorized_for_user() {
     indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2),
       newDoc(APP1), newDoc(APP2));

@@ -214,6 +214,7 @@ public class ProjectMeasuresIndex {
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
       .fetchSource(false)
+      .trackTotalHits(true)
       .from(searchOptions.getOffset())
       .size(searchOptions.getLimit());
 

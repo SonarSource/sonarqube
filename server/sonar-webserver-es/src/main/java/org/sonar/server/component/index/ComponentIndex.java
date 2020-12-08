@@ -83,6 +83,7 @@ public class ComponentIndex {
   public SearchIdResult<String> search(ComponentQuery query, SearchOptions searchOptions) {
     SearchSourceBuilder source = new SearchSourceBuilder()
       .fetchSource(false)
+      .trackTotalHits(true)
       .from(searchOptions.getOffset())
       .size(searchOptions.getLimit());
 
