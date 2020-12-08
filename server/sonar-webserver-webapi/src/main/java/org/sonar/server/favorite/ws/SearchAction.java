@@ -20,8 +20,6 @@
 package org.sonar.server.favorite.ws;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,31 +27,25 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.ACTION_SEARCH;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements FavoritesWsAction {
   private static final int MAX_PAGE_SIZE = 500;
 
   private final FavoriteFinder favoriteFinder;
-  private final DbClient dbClient;
   private final UserSession userSession;
 
-  public SearchAction(FavoriteFinder favoriteFinder, DbClient dbClient, UserSession userSession) {
+  public SearchAction(FavoriteFinder favoriteFinder, UserSession userSession) {
     this.favoriteFinder = favoriteFinder;
-    this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
@@ -85,16 +77,14 @@ public class SearchAction implements FavoritesWsAction {
 
   private SearchResults toSearchResults(SearchRequest request) {
     userSession.checkLoggedIn();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> authorizedFavorites = getAuthorizedFavorites();
-      Paging paging = Paging.forPageIndex(Integer.parseInt(request.getP())).withPageSize(Integer.parseInt(request.getPs())).andTotal(authorizedFavorites.size());
-      List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
-        .skip(paging.offset())
-        .limit(paging.pageSize())
-        .collect(MoreCollectors.toList());
-      Map<String, OrganizationDto> organizationsByUuid = getOrganizationsOfComponents(dbSession, displayedFavorites);
-      return new SearchResults(paging, displayedFavorites, organizationsByUuid);
-    }
+
+    List<ComponentDto> authorizedFavorites = getAuthorizedFavorites();
+    Paging paging = Paging.forPageIndex(Integer.parseInt(request.getP())).withPageSize(Integer.parseInt(request.getPs())).andTotal(authorizedFavorites.size());
+    List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
+      .skip(paging.offset())
+      .limit(paging.pageSize())
+      .collect(MoreCollectors.toList());
+    return new SearchResults(paging, displayedFavorites);
   }
 
   private List<ComponentDto> getAuthorizedFavorites() {
@@ -102,24 +92,13 @@ public class SearchAction implements FavoritesWsAction {
     return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
   }
 
-  private Map<String, OrganizationDto> getOrganizationsOfComponents(DbSession dbSession, List<ComponentDto> displayedFavorites) {
-    Set<String> organizationUuids = displayedFavorites.stream()
-      .map(ComponentDto::getOrganizationUuid)
-      .collect(MoreCollectors.toSet());
-    return dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-  }
-
   private static class SearchResults {
     private final List<ComponentDto> favorites;
     private final Paging paging;
-    private final Map<String, OrganizationDto> organizationsByUuid;
 
-    private SearchResults(Paging paging, List<ComponentDto> favorites, Map<String, OrganizationDto> organizationsByUuid) {
+    private SearchResults(Paging paging, List<ComponentDto> favorites) {
       this.paging = paging;
       this.favorites = favorites;
-      this.organizationsByUuid = organizationsByUuid;
     }
   }
 
@@ -141,18 +120,13 @@ public class SearchAction implements FavoritesWsAction {
   private static void addFavorites(SearchResponse.Builder builder, SearchResults results) {
     Favorite.Builder favoriteBuilder = Favorite.newBuilder();
     results.favorites.stream()
-      .map(componentDto -> toWsFavorite(favoriteBuilder, results, componentDto))
+      .map(componentDto -> toWsFavorite(favoriteBuilder, componentDto))
       .forEach(builder::addFavorites);
   }
 
-  private static Favorite toWsFavorite(Favorite.Builder builder, SearchResults results, ComponentDto componentDto) {
-    OrganizationDto organization = results.organizationsByUuid.get(componentDto.getOrganizationUuid());
-    checkArgument(organization != null,
-      "Organization with uuid '%s' not found for favorite with uuid '%s'",
-      componentDto.getOrganizationUuid(), componentDto.uuid());
+  private static Favorite toWsFavorite(Favorite.Builder builder, ComponentDto componentDto) {
     builder
       .clear()
-      .setOrganization(organization.getKey())
       .setKey(componentDto.getDbKey());
     ofNullable(componentDto.name()).ifPresent(builder::setName);
     ofNullable(componentDto.qualifier()).ifPresent(builder::setQualifier);

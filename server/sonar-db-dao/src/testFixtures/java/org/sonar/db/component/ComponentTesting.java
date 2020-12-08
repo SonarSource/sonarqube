@@ -121,26 +121,46 @@ public class ComponentTesting {
     return newModuleDto(Uuids.createFast(), subProjectOrProject);
   }
 
+  public static ComponentDto newPrivateProjectDto() {
+    return newProjectDto(Uuids.createFast(), true);
+  }
+
+  // TODO remove
+  @Deprecated
   public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto) {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
   }
 
+  // TODO remove
+  @Deprecated
   public static ProjectDto createPrivateProjectDto(OrganizationDto organizationDto) {
     return createProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
   }
 
+  public static ComponentDto newPrivateProjectDto(String uuid) {
+    return newProjectDto(uuid, true);
+  }
+
+  // TODO remove
+  @Deprecated
   public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, true);
   }
 
+  // TODO remove
+  @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto) {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), false);
   }
 
+  // TODO remove
+  @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, false);
   }
 
+  // TODO remove
+  @Deprecated
   private static ProjectDto createProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
     return new ProjectDto()
       .setOrganizationUuid(organizationUuid)
@@ -149,6 +169,25 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.PROJECT)
       .setName("NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
+      .setPrivate(isPrivate);
+  }
+
+  private static ComponentDto newProjectDto(String uuid, boolean isPrivate) {
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setUuidPath(UUID_PATH_OF_ROOT)
+      .setProjectUuid(uuid)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
+      .setRootUuid(uuid)
+      .setDbKey("KEY_" + uuid)
+      .setName("NAME_" + uuid)
+      .setLongName("LONG_NAME_" + uuid)
+      .setDescription("DESCRIPTION_" + uuid)
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.PROJECT)
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true)
       .setPrivate(isPrivate);
   }
 
@@ -198,7 +237,6 @@ public class ComponentTesting {
   public static ComponentDto newApplication(OrganizationDto organizationDto, String uuid) {
     return newApplication(organizationDto.getUuid(), uuid);
   }
-
 
   public static ComponentDto newApplication(String organizationUuid) {
     return newApplication(organizationUuid, Uuids.createFast());
@@ -292,7 +330,6 @@ public class ComponentTesting {
       .setEnabled(true)
       .setPrivate(project.isPrivate());
   }
-
 
   public static ComponentDto newBranchComponent(ComponentDto project, BranchDto branchDto) {
     checkArgument(project.qualifier().equals(Qualifiers.PROJECT) || project.qualifier().equals(Qualifiers.APP));

@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
@@ -32,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteFinder;
@@ -45,6 +43,7 @@ import org.sonarqube.ws.Favorites.SearchResponse;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -55,17 +54,16 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class SearchActionTest {
   private String userUuid;
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
 
-  private FavoriteFinder favoriteFinder = new FavoriteFinder(dbClient, userSession);
+  private final FavoriteFinder favoriteFinder = new FavoriteFinder(dbClient, userSession);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(favoriteFinder, dbClient, userSession));
+  private final WsActionTester ws = new WsActionTester(new SearchAction(favoriteFinder, userSession));
 
   @Before
   public void before() {
@@ -76,10 +74,10 @@ public class SearchActionTest {
 
   @Test
   public void return_favorites() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "P1").setDbKey("K1").setName("N1");
+    ComponentDto project = newPrivateProjectDto("P1").setDbKey("K1").setName("N1");
     addComponent(project);
     addComponent(newFileDto(project).setDbKey("K11").setName("N11"));
-    addComponent(newPrivateProjectDto(db.getDefaultOrganization(), "P2").setDbKey("K2").setName("N2"));
+    addComponent(newPrivateProjectDto("P2").setDbKey("K2").setName("N2"));
 
     SearchResponse result = call();
 
@@ -104,9 +102,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_authorized_components() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K1"));
-    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
+    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
     db.favorites().add(unauthorizedProject, userUuid);
 
     SearchResponse result = call();
@@ -118,8 +115,8 @@ public class SearchActionTest {
   @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
-      .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("K" + i).setName("N" + i)));
-    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
+      .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K" + i).setName("N" + i)));
+    ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
     db.favorites().add(unauthorizedProject, userUuid);
 
     SearchResponse result = call(2, 3);
@@ -133,9 +130,8 @@ public class SearchActionTest {
 
   @Test
   public void return_only_users_favorite() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K1"));
-    ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K42");
+    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
+    ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto().setDbKey("K42");
     db.components().insertComponent(otherUserFavorite);
     db.favorites().add(otherUserFavorite, "42");
     db.commit();
@@ -147,10 +143,9 @@ public class SearchActionTest {
 
   @Test
   public void favorites_ordered_by_name() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("N2"));
-    addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("N3"));
-    addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("N1"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setName("N2"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setName("N3"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setName("N1"));
 
     SearchResponse result = call();
 
@@ -160,14 +155,13 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    OrganizationDto organization1 = db.organizations().insertForKey("my-org");
-    OrganizationDto organization2 = db.organizations().insertForKey("openjdk");
-    addComponent(ComponentTesting.newPrivateProjectDto(organization1).setDbKey("K1").setName("Samba"));
-    addComponent(ComponentTesting.newPrivateProjectDto(organization1).setDbKey("K2").setName("Apache HBase"));
-    addComponent(ComponentTesting.newPrivateProjectDto(organization2).setDbKey("K3").setName("JDK9"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1").setName("Samba"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K2").setName("Apache HBase"));
+    addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K3").setName("JDK9"));
 
     String result = ws.newRequest().execute().getInput();
 
+    assertThat(ws.getDef().responseExampleAsString()).isNotNull();
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
@@ -183,9 +177,8 @@ public class SearchActionTest {
   public void fail_if_not_authenticated() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    call();
+    assertThatThrownBy(this::call)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private void addComponent(ComponentDto component) {

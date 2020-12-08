@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -63,11 +62,10 @@ public class AddActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
-  private WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
+  private final WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
 
   @Test
   public void add_a_project() {
@@ -119,8 +117,7 @@ public class AddActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
@@ -176,7 +173,9 @@ public class AddActionTest {
 
     assertThat(definition.key()).isEqualTo("add");
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.param("component").isRequired()).isTrue();
+    WebService.Param param = definition.param("component");
+    assertThat(param).isNotNull();
+    assertThat(param.isRequired()).isTrue();
   }
 
   private TestResponse call(@Nullable String componentKey) {

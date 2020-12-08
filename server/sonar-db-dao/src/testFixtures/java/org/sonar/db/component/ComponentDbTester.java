@@ -185,9 +185,8 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, defaults(), dtoPopulator);
   }
 
-
   public final ComponentDto insertPrivateProjectWithCustomBranch(String branchKey) {
-    return insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b ->  b.setBranchType(BRANCH).setKey(branchKey), defaults());
+    return insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b -> b.setBranchType(BRANCH).setKey(branchKey), defaults());
   }
 
   public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator) {
@@ -342,21 +341,21 @@ public class ComponentDbTester {
   }
 
   public void addApplicationProject(ComponentDto application, ComponentDto... projects) {
-    for(ComponentDto project : projects){
+    for (ComponentDto project : projects) {
       dbClient.applicationProjectsDao().addProject(dbSession, application.uuid(), project.uuid());
     }
     db.commit();
   }
 
   public void addApplicationProject(ProjectDto application, ProjectDto... projects) {
-    for(ProjectDto project : projects){
+    for (ProjectDto project : projects) {
       dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
     }
     db.commit();
   }
 
   public void addProjectBranchToApplicationBranch(BranchDto applicationBranch, BranchDto... projectBranches) {
-    for(BranchDto projectBranch : projectBranches){
+    for (BranchDto projectBranch : projectBranches) {
       dbClient.applicationProjectsDao().addProjectBranchToAppBranch(dbSession, applicationBranch, projectBranch);
     }
     db.commit();
@@ -378,6 +377,9 @@ public class ComponentDbTester {
   private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto> dtoPopulator) {
     dtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
+    if (component.getOrganizationUuid() == null) {
+      component.setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    }
     dbClient.componentDao().insert(dbSession, component);
     db.commit();
 
@@ -389,6 +391,13 @@ public class ComponentDbTester {
   }
 
   public void insertComponents(ComponentDto... components) {
+    String defaultOrgUuid = db.getDefaultOrganization().getUuid();
+    Arrays.stream(components).forEach(c -> {
+      if (c.getOrganizationUuid() == null) {
+        c.setOrganizationUuid(defaultOrgUuid);
+      }
+    });
+
     dbClient.componentDao().insert(dbSession, asList(components));
     db.commit();
   }
