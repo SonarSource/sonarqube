@@ -129,9 +129,5 @@ public class RuleKeyTest {
 
     assertThat(ab).isGreaterThan(aa);
     assertThat(aa).isLessThan(ab);
-    assertThat(aa).isNotEqualTo(ab);
-    assertThat(ab).isNotEqualTo(aa);
-    assertThat(aa).isEqualTo(aa);
-    assertThat(ab).isEqualTo(ab);
   }
 }

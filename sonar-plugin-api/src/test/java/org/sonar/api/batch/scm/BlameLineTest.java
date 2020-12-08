@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.scm;
 
+import java.util.Calendar;
 import org.junit.Test;
 
 import java.util.Date;
@@ -29,23 +30,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BlameLineTest {
 
   @Test
-  public void testEqualBlameLine() {
+  public void testBlameLine() {
     Date date = new Date();
     BlameLine line1 = new BlameLine().date(date).revision("1").author("foo");
-    BlameLine line1b = new BlameLine().date(date).revision("1").author("foo");
-    BlameLine line2 = new BlameLine().date(null).revision("2").author("foo2");
 
     assertThat(line1.author()).isEqualTo("foo");
     assertThat(line1.date()).isEqualTo(date);
     assertThat(line1.revision()).isEqualTo("1");
-
-    Assertions.assertEquals(line1, line1);
-    assertThat(line1).isNotEqualTo(null);
-    assertThat(line1).isEqualTo(line1b);
-    assertThat(line1.hashCode()).isEqualTo(line1b.hashCode());
-    assertThat(line1).isNotEqualTo(line2);
-
+    assertThat(line1.toString()).isNotEqualTo("foo");
     assertThat(line1.toString()).contains("revision=1,author=foo");
+  }
+
+  @Test
+  public void test_equals_and_hashCode() {
+    Date date = new Date();
+    BlameLine line1 = new BlameLine().date(date).revision("1").author("foo");
+    BlameLine line2 = new BlameLine().date(date).revision("1").author("foo");
+    BlameLine line3 = new BlameLine().date(null).revision("1").author("bar");
+    BlameLine line4 = new BlameLine().date(date).revision("2").author("foo");
+    BlameLine line5 = new BlameLine().date(date).revision("1").author("bar");
+
+    assertThat(line1)
+      .isEqualTo(line1)
+      .isNotEqualTo(null)
+      .isEqualTo(line2)
+      .isNotEqualTo(line3)
+      .hasSameHashCodeAs(line2);
+    assertThat(line1.hashCode()).isNotEqualTo(line3.hashCode());
+    assertThat(line1.hashCode()).isNotEqualTo(line4.hashCode());
+    assertThat(line1.hashCode()).isNotEqualTo(line5.hashCode());
   }
 
   @Test
@@ -58,5 +71,4 @@ public class BlameLineTest {
     assertThat(line2.author()).isNull();
     assertThat(line3.author()).isEqualTo("foo3");
   }
-
 }

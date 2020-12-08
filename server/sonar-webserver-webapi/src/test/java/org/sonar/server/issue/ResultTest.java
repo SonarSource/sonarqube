@@ -64,36 +64,43 @@ public class ResultTest {
     assertThat(message.l10nParams()[0]).isEqualTo("10");
   }
 
-  @Test
-  public void test_text_message() {
-    String errorMessage = "the error";
-    Result.Message txtMessage = Result.Message.of(errorMessage);
-    Result.Message sameMessage = Result.Message.of(errorMessage);
-    Result.Message otherMessage = Result.Message.of("other");
 
-    assertThat(txtMessage.toString()).contains(errorMessage);
-    assertThat(txtMessage).isEqualTo(txtMessage);
-    assertThat(txtMessage).isEqualTo(sameMessage);
-    assertThat(txtMessage.hashCode()).isEqualTo(txtMessage.hashCode());
-    assertThat(txtMessage.hashCode()).isEqualTo(sameMessage.hashCode());
-    assertThat(txtMessage).isNotEqualTo(otherMessage);
+  @Test
+  public void test_toString() {
+    String errorMessage = "the error";
+    Result.Message txtMsg = Result.Message.of(errorMessage);
+    assertThat(txtMsg.toString()).contains(errorMessage);
+    assertThat(txtMsg.toString()).isNotEqualTo(errorMessage);
+
+    Result.Message msg = Result.Message.ofL10n("issue.error.123", "10");
+    assertThat(msg.toString()).contains("issue.error.123").contains("10");
+    assertThat(msg.toString()).isNotEqualTo("issue.error.123");
   }
 
   @Test
-  public void test_l10n_message() {
+  public void test_equals_and_hashCode() {
+    String errorMessage = "the error";
+    Result.Message txtMsg = Result.Message.of(errorMessage);
+    Result.Message sameTxtMsg = Result.Message.of(errorMessage);
+    Result.Message otherTxtMessage = Result.Message.of("other");
+
+    assertThat(txtMsg)
+      .isEqualTo(txtMsg)
+      .isEqualTo(sameTxtMsg)
+      .isNotEqualTo(otherTxtMessage);
+
     Result.Message msg = Result.Message.ofL10n("issue.error.123", "10");
     Result.Message sameMsg = Result.Message.ofL10n("issue.error.123", "10");
-    Result.Message msg2 = Result.Message.ofL10n("issue.error.123", "200");
-    Result.Message msg3 = Result.Message.ofL10n("issue.error.50");
+    Result.Message otherMsg1 = Result.Message.ofL10n("issue.error.123", "200");
+    Result.Message otherMsg2 = Result.Message.ofL10n("issue.error.50");
 
-    assertThat(msg.toString()).contains("issue.error.123").contains("10");
-    assertThat(msg).isEqualTo(msg);
-    assertThat(msg).isEqualTo(sameMsg);
-    assertThat(msg.hashCode()).isEqualTo(msg.hashCode());
-    assertThat(msg.hashCode()).isEqualTo(sameMsg.hashCode());
-
-    assertThat(msg).isNotEqualTo(msg2);
-    assertThat(msg).isNotEqualTo(msg3);
-    assertThat(msg.text()).isNotEqualTo("issue.error.123");
+    assertThat(msg)
+      .isEqualTo(msg)
+      .isEqualTo(sameMsg)
+      .isNotEqualTo(otherMsg1)
+      .isNotEqualTo(otherMsg2)
+      .hasSameHashCodeAs(msg)
+      .hasSameHashCodeAs(sameMsg);
+    assertThat(msg.hashCode()).isNotEqualTo(otherMsg1.hashCode());
   }
 }

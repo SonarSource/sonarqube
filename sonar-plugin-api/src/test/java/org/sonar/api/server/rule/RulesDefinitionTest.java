@@ -46,6 +46,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.useDefaultDateFormatsOnly;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -83,10 +84,6 @@ public class RulesDefinitionTest {
     assertThat(checkstyle.name()).isEqualTo("checkstyle");
     assertThat(checkstyle.rules()).isEmpty();
     assertThat(context.repository("unknown")).isNull();
-
-    // test equals() and hashCode()
-    assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(checkstyle).isNotEqualTo("findbugs").isNotEqualTo(null);
-    assertThat(findbugs.hashCode()).isEqualTo(findbugs.hashCode());
   }
 
   @Test
@@ -120,6 +117,7 @@ public class RulesDefinitionTest {
     assertThat(repo.isExternal()).isFalse();
 
     RulesDefinition.Rule rule = repo.rule("NPE");
+    assertThat(rule).isNotNull();
     assertThat(rule.scope()).isEqualTo(RuleScope.ALL);
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.name()).isEqualTo("Detect NPE");
@@ -132,7 +130,7 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
+    assertThat(rule.toString()).hasToString("[repository=findbugs, key=NPE]");
     assertThat(rule.repository()).isSameAs(repo);
 
     RulesDefinition.Rule otherRule = repo.rule("ABC");
@@ -202,6 +200,7 @@ public class RulesDefinitionTest {
     assertThat(repo.isExternal()).isTrue();
 
     RulesDefinition.Rule rule = repo.rule("NPE");
+    assertThat(rule).isNotNull();
     assertThat(rule.scope()).isEqualTo(RuleScope.ALL);
     assertThat(rule.key()).isEqualTo("NPE");
     assertThat(rule.name()).isEqualTo("Detect NPE");
@@ -214,7 +213,7 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.toString()).isEqualTo("[repository=external_eslint, key=NPE]");
+    assertThat(rule.toString()).hasToString("[repository=external_eslint, key=NPE]");
     assertThat(rule.repository()).isSameAs(repo);
 
     RulesDefinition.Rule otherRule = repo.rule("ABC");
@@ -234,6 +233,7 @@ public class RulesDefinitionTest {
     assertThat(rule.params()).hasSize(2);
 
     RulesDefinition.Param level = rule.param("level");
+    assertThat(level).isNotNull();
     assertThat(level.key()).isEqualTo("level");
     assertThat(level.name()).isEqualTo("Level");
     assertThat(level.description()).isEqualTo("The level");
@@ -245,10 +245,6 @@ public class RulesDefinitionTest {
     assertThat(effort.description()).isNull();
     assertThat(effort.defaultValue()).isNull();
     assertThat(effort.type()).isEqualTo(RuleParamType.STRING);
-
-    // test equals() and hashCode()
-    assertThat(level).isEqualTo(level).isNotEqualTo(effort).isNotEqualTo("level").isNotEqualTo(null);
-    assertThat(level.hashCode()).isEqualTo(level.hashCode());
   }
 
   @Test
@@ -296,7 +292,7 @@ public class RulesDefinitionTest {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""}
     };
