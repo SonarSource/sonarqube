@@ -42,11 +42,11 @@ import static org.mockito.Mockito.when;
 public class CeQueueCleanerTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-  private CeQueue queue = mock(CeQueue.class);
-  private MapSettings settings = new MapSettings();
+  private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  private final CeQueue queue = mock(CeQueue.class);
+  private final MapSettings settings = new MapSettings();
 
   @Test
   public void start_does_not_reset_in_progress_tasks_to_pending() {

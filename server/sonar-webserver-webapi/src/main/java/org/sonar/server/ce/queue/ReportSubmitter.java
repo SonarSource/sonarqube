@@ -37,16 +37,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
@@ -61,26 +60,25 @@ public class ReportSubmitter {
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
   private final BranchSupport branchSupport;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
-    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport) {
+    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.permissionTemplateService = permissionTemplateService;
     this.dbClient = dbClient;
     this.branchSupport = branchSupport;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  /**
-   * @throws NotFoundException if the organization with the specified key does not exist
-   * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
-   */
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
+  public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       boolean projectCreated = false;
-      OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
-      // Note: when the main branch is analyzed, the characteristics may or may not have the branch name, so componentKey#isMainBranch is not reliable!
+      // Note: when the main branch is analyzed, the characteristics may or may not have the branch name, so componentKey#isMainBranch is not
+      // reliable!
       BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
       Optional<ComponentDto> mainBranchComponentOpt = dbClient.componentDao().selectByKey(dbSession, componentKey.getKey());
       ComponentDto mainBranchComponent;
@@ -88,9 +86,8 @@ public class ReportSubmitter {
       if (mainBranchComponentOpt.isPresent()) {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
-        ensureOrganizationIsConsistent(mainBranchComponent, organizationDto);
       } else {
-        mainBranchComponent = createProject(dbSession, organizationDto, componentKey.getMainBranchComponentKey(), projectName);
+        mainBranchComponent = createProject(dbSession, componentKey.getMainBranchComponentKey(), projectName);
         projectCreated = true;
       }
 
@@ -101,7 +98,7 @@ public class ReportSubmitter {
         branchComponent = mainBranchComponent;
       } else {
         branchComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey())
-          .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, organizationDto, mainBranchComponent, mainBranch));
+          .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, mainBranchComponent, mainBranch));
       }
 
       if (projectCreated) {
@@ -134,11 +131,6 @@ public class ReportSubmitter {
     }
   }
 
-  private OrganizationDto getOrganizationDtoOrFail(DbSession dbSession, String organizationKey) {
-    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
-      .orElseThrow(() -> new NotFoundException(format("Organization with key '%s' does not exist", organizationKey)));
-  }
-
   private void validateProject(DbSession dbSession, ComponentDto component, String rawProjectKey) {
     List<String> errors = new ArrayList<>();
 
@@ -149,7 +141,7 @@ public class ReportSubmitter {
       // Project key is already used as a module of another project
       ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
-          + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
     }
     if (!errors.isEmpty()) {
@@ -157,13 +149,7 @@ public class ReportSubmitter {
     }
   }
 
-  private static void ensureOrganizationIsConsistent(ComponentDto project, OrganizationDto organizationDto) {
-    checkArgument(project.getOrganizationUuid().equals(organizationDto.getUuid()),
-      "Organization of component with key '%s' does not match specified organization '%s'",
-      project.getDbKey(), organizationDto.getKey());
-  }
-
-  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
+  private ComponentDto createProject(DbSession dbSession, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
     String userUuid = userSession.getUuid();
 
@@ -173,10 +159,12 @@ public class ReportSubmitter {
       throw insufficientPrivilegesException();
     }
 
-    boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
+    // TODO:: remove once we move organization settings somewhere else
+    String defaultOrgUuid = defaultOrganizationProvider.get().getUuid();
+    boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, defaultOrgUuid);
 
     NewComponent newProject = newComponentBuilder()
-      .setOrganizationUuid(organization.getUuid())
+      .setOrganizationUuid(defaultOrgUuid)
       .setKey(componentKey.getKey())
       .setName(defaultIfBlank(projectName, componentKey.getKey()))
       .setQualifier(Qualifiers.PROJECT)

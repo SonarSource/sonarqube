@@ -123,6 +123,10 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).updateDefaultQualityGate(organization.getUuid(), qualityGate.getUuid(), system2.now());
   }
 
+  public boolean getNewProjectPrivate(DbSession dbSession, String organizationUuid) {
+    return getMapper(dbSession).selectNewProjectPrivateByUuid(organizationUuid);
+  }
+
   public boolean getNewProjectPrivate(DbSession dbSession, OrganizationDto organization) {
     return getMapper(dbSession).selectNewProjectPrivateByUuid(organization.getUuid());
   }

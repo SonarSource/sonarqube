@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -38,11 +37,11 @@ import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
@@ -50,6 +49,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
@@ -62,8 +62,6 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -88,10 +86,9 @@ public class ComponentActionTest {
 
   @Test
   public void project_tasks() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project1);
     insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
     insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
@@ -112,10 +109,6 @@ public class ComponentActionTest {
     assertThat(current.hasAnalysisId()).isFalse();
     assertThat(current.getWarningCount()).isZero();
     assertThat(current.getWarningsList()).isEmpty();
-    assertThat(response.getQueueList())
-      .extracting(Ce.Task::getOrganization)
-      .containsOnly(organization.getKey());
-    assertThat(current.getOrganization()).isEqualTo(organization.getKey());
   }
 
   @Test
@@ -286,11 +279,11 @@ public class ComponentActionTest {
 
   @Test
   public void fail_with_404_when_component_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, "UNKNOWN")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .setMediaType(MediaTypes.PROTOBUF);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -298,20 +291,21 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey());
 
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_when_no_component_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
     logInWithBrowsePermission(db.components().insertPrivateProject());
 
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private void logInWithBrowsePermission(ComponentDto project) {

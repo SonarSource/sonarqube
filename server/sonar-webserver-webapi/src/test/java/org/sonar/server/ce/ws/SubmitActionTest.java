@@ -27,8 +27,6 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.ce.queue.ReportSubmitter;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
@@ -58,16 +56,15 @@ public class SubmitActionTest {
     .setSubmitter(new CeTask.User("UUID_1", "LOGIN_1"))
     .build();
 
-  private ArgumentCaptor<Map<String, String>> map = ArgumentCaptor.forClass(Map.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("org1");
-  private String organizationKey = defaultOrganizationProvider.get().getKey();
-  private ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
-  private SubmitAction underTest = new SubmitAction(reportSubmitter, defaultOrganizationProvider);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final ArgumentCaptor<Map<String, String>> map = ArgumentCaptor.forClass(Map.class);
+
+  private final ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
+  private final SubmitAction underTest = new SubmitAction(reportSubmitter);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -76,7 +73,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any());
+    verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
@@ -84,7 +81,7 @@ public class SubmitActionTest {
 
   @Test
   public void submit_task_with_characteristics() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     String[] characteristics = {"branch=foo", "pullRequest=123", "unsupported=bar"};
     Ce.SubmitResponse submitResponse = tester.newRequest()
@@ -96,7 +93,7 @@ public class SubmitActionTest {
       .executeProtobuf(Ce.SubmitResponse.class);
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("My Project"), map.capture(), any());
+    verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), map.capture(), any());
 
     // unsupported characteristics are ignored
     assertThat(map.getValue()).containsExactly(entry("branch", "foo"), entry("pullRequest", "123"));
@@ -106,7 +103,7 @@ public class SubmitActionTest {
   public void abbreviate_long_name() {
     String longName = Strings.repeat("a", 1_000);
     String expectedName = Strings.repeat("a", 497) + "...";
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq(expectedName), anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq("my_project"), eq(expectedName), anyMap(), any())).thenReturn(A_CE_TASK);
 
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -115,7 +112,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq(expectedName), anyMap(), any());
+    verify(reportSubmitter).submit(eq("my_project"), eq(expectedName), anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
@@ -123,7 +120,7 @@ public class SubmitActionTest {
 
   @Test
   public void test_example_json_response() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -141,7 +138,7 @@ public class SubmitActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), eq("my_project"), anyMap(), any())).thenReturn(A_CE_TASK);
+    when(reportSubmitter.submit(eq("my_project"), eq("my_project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
     tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -150,6 +147,6 @@ public class SubmitActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), eq("my_project"), anyMap(), any());
+    verify(reportSubmitter).submit(eq("my_project"), eq("my_project"), anyMap(), any());
   }
 }

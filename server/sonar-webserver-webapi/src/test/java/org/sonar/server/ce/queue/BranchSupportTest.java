@@ -25,19 +25,17 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -46,12 +44,9 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 public class BranchSupportTest {
   private static final Map<String, String> NO_CHARACTERISTICS = Collections.emptyMap();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
-  private BranchSupport underTestNoBranch = new BranchSupport();
-  private BranchSupport underTestWithBranch = new BranchSupport(branchSupportDelegate);
+  private final BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
+  private final BranchSupport underTestNoBranch = new BranchSupport();
+  private final BranchSupport underTestWithBranch = new BranchSupport(branchSupportDelegate);
 
   @Test
   public void createComponentKey_of_main_branch() {
@@ -84,28 +79,25 @@ public class BranchSupportTest {
   public void createBranchComponent_fails_with_ISE_if_delegate_is_null() {
     DbSession dbSession = mock(DbSession.class);
     ComponentKey componentKey = mock(ComponentKey.class);
-    OrganizationDto organization = new OrganizationDto();
     ComponentDto mainComponentDto = new ComponentDto();
     BranchDto mainComponentBranchDto = new BranchDto();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Current edition does not support branch feature");
-
-    underTestNoBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
+    assertThatThrownBy(() -> underTestNoBranch.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Current edition does not support branch feature");
   }
 
   @Test
   public void createBranchComponent_delegates_to_delegate() {
     DbSession dbSession = mock(DbSession.class);
     ComponentKey componentKey = mock(ComponentKey.class);
-    OrganizationDto organization = new OrganizationDto();
     ComponentDto mainComponentDto = new ComponentDto();
     ComponentDto expected = new ComponentDto();
     BranchDto mainComponentBranchDto = new BranchDto();
-    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto))
+    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto))
       .thenReturn(expected);
 
-    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
+    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto);
 
     assertThat(dto).isSameAs(expected);
   }

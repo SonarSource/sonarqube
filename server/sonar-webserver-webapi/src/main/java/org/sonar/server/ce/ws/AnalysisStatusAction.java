@@ -111,7 +111,6 @@ public class AnalysisStatusAction implements CeWsAction {
   private AnalysisStatusWsResponse.Component formatComponent(DbSession dbSession, ProjectDto project, @Nullable CeActivityDto lastActivity,
     @Nullable String branchKey, @Nullable String pullRequestKey) {
     AnalysisStatusWsResponse.Component.Builder builder = AnalysisStatusWsResponse.Component.newBuilder()
-      .setOrganization(getOrganizationKey(dbSession, project))
       .setKey(project.getKey())
       .setName(project.getName());
 
@@ -141,13 +140,6 @@ public class AnalysisStatusAction implements CeWsAction {
       .collect(Collectors.toList());
     builder.addAllWarnings(result);
     return builder.build();
-  }
-
-  private String getOrganizationKey(DbSession dbSession, ProjectDto project) {
-    String organizationUuid = project.getOrganizationUuid();
-    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-      .orElseThrow(() -> new IllegalStateException("Unknown organization: " + organizationUuid))
-      .getKey();
   }
 
 }

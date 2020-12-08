@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.server.ce.queue.ReportSubmitter;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Ce;
 
@@ -42,18 +41,15 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SubmitAction implements CeWsAction {
 
-  private static final String PARAM_ORGANIZATION_KEY = "organization";
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_PROJECT_NAME = "projectName";
   private static final String PARAM_REPORT_DATA = "report";
   private static final String PARAM_ANALYSIS_CHARACTERISTIC = "characteristic";
 
   private final ReportSubmitter reportSubmitter;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SubmitAction(ReportSubmitter reportSubmitter, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public SubmitAction(ReportSubmitter reportSubmitter) {
     this.reportSubmitter = reportSubmitter;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -66,12 +62,6 @@ public class SubmitAction implements CeWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(getClass().getResource("submit-example.json"));
-
-    action.createParam(PARAM_ORGANIZATION_KEY)
-      .setDescription("Key of the organization the project belongs to")
-      .setExampleValue("my-org")
-      .setSince("6.3")
-      .setInternal(true);
 
     action
       .createParam(PARAM_PROJECT_KEY)
@@ -101,16 +91,13 @@ public class SubmitAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String organizationKey = wsRequest.getParam(PARAM_ORGANIZATION_KEY)
-      .emptyAsNull()
-      .or(defaultOrganizationProvider.get()::getKey);
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
     String projectName = abbreviate(defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey), MAX_COMPONENT_NAME_LENGTH);
 
     Map<String, String> characteristics = parseTaskCharacteristics(wsRequest);
 
     try (InputStream report = new BufferedInputStream(wsRequest.mandatoryParamAsPart(PARAM_REPORT_DATA).getInputStream())) {
-      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectName, characteristics, report);
+      CeTask task = reportSubmitter.submit(projectKey, projectName, characteristics, report);
       Ce.SubmitResponse submitResponse = Ce.SubmitResponse.newBuilder()
         .setTaskId(task.getUuid())
         .setProjectId(task.getComponent().get().getUuid())

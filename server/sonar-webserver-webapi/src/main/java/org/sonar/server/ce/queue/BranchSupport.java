@@ -28,7 +28,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -63,11 +62,11 @@ public class BranchSupport {
     return delegate.createComponentKey(projectKey, characteristics);
   }
 
-  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey, OrganizationDto organization,
+  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey,
     ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {
     checkState(delegate != null, "Current edition does not support branch feature");
 
-    return delegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
+    return delegate.createBranchComponent(dbSession, componentKey, mainComponentDto, mainComponentBranchDto);
   }
 
   public abstract static class ComponentKey {
@@ -88,7 +87,6 @@ public class BranchSupport {
      */
     public abstract ComponentKey getMainBranchComponentKey();
   }
-
 
   private static final class ComponentKeyImpl extends ComponentKey {
     private final String key;

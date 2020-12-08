@@ -22,7 +22,6 @@ package org.sonar.server.ce.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -34,16 +33,17 @@ import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.AnalysisStatusWsResponse.Warning;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
@@ -63,8 +63,6 @@ public class AnalysisStatusActionTest {
 
   private static int counter = 1;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -87,7 +85,7 @@ public class AnalysisStatusActionTest {
 
   @Test
   public void allows_unauthenticated_access() {
-    ComponentDto project = db.components().insertPublicProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -295,10 +293,8 @@ public class AnalysisStatusActionTest {
 
   @Test
   public void json_example() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertPrivateProject(organization,
-      p -> p.setDbKey("com.github.kevinsawicki:http-request-parent")
-        .setName("HttpRequest"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("com.github.kevinsawicki:http-request-parent")
+      .setName("HttpRequest"));
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
     CeTaskMessageDto ceTaskMessage = new CeTaskMessageDto()
@@ -322,27 +318,27 @@ public class AnalysisStatusActionTest {
 
   @Test
   public void fail_if_component_key_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_component_key_is_unknown() {
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest().setParam(PARAM_COMPONENT, "nonexistent").execute();
+    TestRequest request = ws.newRequest().setParam(PARAM_COMPONENT, "nonexistent");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_both_branch_and_pullRequest_are_specified() {
-    expectedException.expect(BadRequestException.class);
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, "dummy")
       .setParam(PARAM_BRANCH, "feature1")
-      .setParam(PARAM_PULL_REQUEST, "pr1")
-      .execute();
+      .setParam(PARAM_PULL_REQUEST, "pr1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class);
   }
 
   private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning) {

@@ -26,7 +26,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -43,7 +42,6 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -62,6 +60,7 @@ import org.sonarqube.ws.MediaTypes;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -86,8 +85,6 @@ public class ActivityActionTest {
   private static final long EXECUTED_AT = System2.INSTANCE.now();
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -99,10 +96,8 @@ public class ActivityActionTest {
   @Test
   public void get_all_past_activity() {
     logInAsSystemAdministrator();
-    OrganizationDto org1 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(org1);
-    OrganizationDto org2 = db.organizations().insert();
-    ComponentDto project2 = db.components().insertPrivateProject(org2);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
     insertActivity("T1", project1, SUCCESS, analysisProject1);
     insertActivity("T2", project2, FAILED, null);
@@ -113,7 +108,6 @@ public class ActivityActionTest {
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     // chronological order, from newest to oldest
     Task task = activityResponse.getTasks(0);
-    assertThat(task.getOrganization()).isEqualTo(org2.getKey());
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(project2.uuid());
@@ -127,7 +121,6 @@ public class ActivityActionTest {
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getLogs()).isFalse();
-    assertThat(task.getOrganization()).isEqualTo(org1.getKey());
     assertThat(task.getWarningCount()).isZero();
   }
 
@@ -290,10 +283,10 @@ public class ActivityActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    call(ws.newRequest().setParam("componentId", project.uuid()));
+    TestRequest request = ws.newRequest().setParam("componentId", project.uuid());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -374,10 +367,10 @@ public class ActivityActionTest {
     insertActivity("T1", view, SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, view);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
+    TestRequest request = ws.newRequest().setParam(TEXT_QUERY, "T1");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -477,83 +470,80 @@ public class ActivityActionTest {
 
   @Test
   public void fail_if_both_component_id_and_component_key_provided() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("componentId and component must not be set at the same time");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("componentId", "ID1")
       .setParam("component", "apache")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .setMediaType(MediaTypes.PROTOBUF);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("componentId and component must not be set at the same time");
   }
 
   @Test
   public void fail_if_both_filters_on_component_key_and_name() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("component and q must not be set at the same time");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("q", "apache")
       .setParam("component", "apache")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .setMediaType(MediaTypes.PROTOBUF);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("component and q must not be set at the same time");
   }
 
   @Test
   public void fail_if_both_filters_on_component_id_and_name() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("componentId and q must not be set at the same time");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("componentId", "ID1")
       .setParam("q", "apache")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .setMediaType(MediaTypes.PROTOBUF);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("componentId and q must not be set at the same time");
   }
 
   @Test
   public void fail_if_page_size_greater_than_1000() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'ps' value (1001) must be less than 1000");
+    TestRequest request = ws.newRequest()
+      .setParam(Param.PAGE_SIZE, "1001");
 
-    ws.newRequest()
-      .setParam(Param.PAGE_SIZE, "1001")
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'ps' value (1001) must be less than 1000");
   }
 
   @Test
   public void fail_if_date_is_not_well_formatted() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_MAX_EXECUTED_AT, "ill-formatted-date");
 
-    ws.newRequest()
-      .setParam(PARAM_MAX_EXECUTED_AT, "ill-formatted-date")
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
   }
 
   @Test
   public void throws_IAE_if_pageSize_is_0() {
     logInAsSystemAdministrator();
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page size must be >= 1");
-
-    call(ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(Param.PAGE_SIZE, Integer.toString(0))
-      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page size must be >= 1");
+
   }
 
   @Test
   public void fail_when_project_does_not_exist() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component 'unknown' does not exist");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "unknown")
-      .execute();
+    TestRequest request = ws.newRequest().setParam(PARAM_COMPONENT_ID, "unknown");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component 'unknown' does not exist");
   }
 
   private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
@@ -579,7 +569,7 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void filter_out_duplicate_tasks_in_progress_and_success(){
+  public void filter_out_duplicate_tasks_in_progress_and_success() {
     logInAsSystemAdministrator();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -593,7 +583,7 @@ public class ActivityActionTest {
 
     assertThat(response.getTasksList())
       .extracting(Task::getId)
-      .containsExactlyInAnyOrder("T1","T2","T3");
+      .containsExactlyInAnyOrder("T1", "T2", "T3");
   }
 
   private void logInAsSystemAdministrator() {

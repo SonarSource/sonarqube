@@ -27,14 +27,13 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
 
@@ -42,6 +41,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,13 +51,11 @@ public class TaskFormatterTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  private int warningCount = new Random().nextInt(10);
+  private final int warningCount = new Random().nextInt(10);
 
-  private System2 system2 = mock(System2.class);
-  private TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);
+  private final System2 system2 = mock(System2.class);
+  private final TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);
 
   @Test
   public void formatQueue_without_component() {
@@ -89,8 +87,7 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() {
     String uuid = "COMPONENT_UUID";
-    OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(uuid).setDbKey("COMPONENT_KEY").setName("Component Name"));
+    db.components().insertPrivateProject((t) -> t.setUuid(uuid).setDbKey("COMPONENT_KEY").setName("Component Name"));
     UserDto user = db.users().insertUser();
 
     CeQueueDto dto = new CeQueueDto();
@@ -178,9 +175,9 @@ public class TaskFormatterTest {
     UserDto user = db.users().insertUser();
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
 
-    expectedException.expect(NullPointerException.class);
-
-    underTest.formatActivity(db.getSession(), dto, "foo", null);
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.formatActivity(dbSession, dto, "foo", null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

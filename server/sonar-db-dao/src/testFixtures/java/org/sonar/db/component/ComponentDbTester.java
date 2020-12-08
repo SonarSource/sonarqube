@@ -247,6 +247,10 @@ public class ComponentDbTester {
     return insertComponentImpl(ComponentTesting.newView(organizationDto, uuid), false, defaults());
   }
 
+  public final ComponentDto insertPublicPortfolio() {
+    return insertPublicPortfolio(db.getDefaultOrganization(), defaults());
+  }
+
   public final ComponentDto insertPublicPortfolio(OrganizationDto organization) {
     return insertPublicPortfolio(organization, defaults());
   }
