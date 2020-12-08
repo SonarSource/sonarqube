@@ -113,7 +113,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
         String metricKey = batchMeasure.getMetricKey();
         if (reportMetricValidator.validate(metricKey)) {
           Metric metric = metricRepository.getByKey(metricKey);
-          delegate.add(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+          batchMeasureToMeasure.toMeasure(batchMeasure, metric).ifPresent(measure -> delegate.add(component, metric, measure, OverridePolicy.DO_NOT_OVERRIDE));
         }
       }
     }
