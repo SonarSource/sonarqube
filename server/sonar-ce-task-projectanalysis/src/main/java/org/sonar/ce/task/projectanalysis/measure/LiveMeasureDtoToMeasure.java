@@ -84,7 +84,7 @@ public class LiveMeasureDtoToMeasure {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value == 1.0d, data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(Double.compare(value, 1.0D) == 0, data));
   }
 
   private static Optional<Measure> toStringMeasure(LiveMeasureDto measureDto, @Nullable String data) {

@@ -82,7 +82,7 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public Double gap() {
-    return rawIssue.getGap() != 0 ? rawIssue.getGap() : null;
+    return Double.compare(rawIssue.getGap(), 0D) != 0 ? rawIssue.getGap() : null;
   }
 
   @Override

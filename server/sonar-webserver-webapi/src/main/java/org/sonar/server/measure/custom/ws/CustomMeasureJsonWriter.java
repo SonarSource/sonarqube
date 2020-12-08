@@ -88,7 +88,7 @@ public class CustomMeasureJsonWriter {
 
     switch (metricType) {
       case BOOL:
-        return doubleValue == 1.0d ? "true" : "false";
+        return Double.compare(doubleValue, 1.0D) == 0 ? "true" : "false";
       case INT:
       case MILLISEC:
         return String.valueOf((int) doubleValue);

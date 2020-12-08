@@ -180,7 +180,7 @@ public class TrackerRawInputFactory {
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         issue.setSeverity(reportIssue.getSeverity().name());
       }
-      if (reportIssue.getGap() != 0) {
+      if (Double.compare(reportIssue.getGap(), 0D) != 0) {
         issue.setGap(reportIssue.getGap());
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();

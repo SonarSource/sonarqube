@@ -98,7 +98,7 @@ public class DebtRatingGrid {
     private Bounds(double lowerBound, double higherBound) {
       this.lowerBound = lowerBound;
       this.higherBound = higherBound;
-      this.isLowerBoundInclusive = lowerBound == 0;
+      this.isLowerBoundInclusive = Double.compare(lowerBound, 0D) == 0;
     }
 
     boolean match(double value) {
