@@ -360,7 +360,8 @@ public class IssueIndex {
     configureQuery(sourceBuilder, filterComputer);
     configureTopFilters(sourceBuilder, filterComputer);
 
-    sourceBuilder.fetchSource(false);
+    sourceBuilder.fetchSource(false)
+      .trackTotalHits(true);
 
     return client.search(requestBuilder);
   }

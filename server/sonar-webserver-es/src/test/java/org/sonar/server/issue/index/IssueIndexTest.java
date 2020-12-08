@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -128,6 +129,25 @@ public class IssueIndexTest {
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
     assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
+  }
+
+  // SONAR-14224
+  @Test
+  public void search_exceeding_default_index_max_window() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+    List<IssueDoc> issues = new ArrayList<>();
+    for (int i = 0; i < 11_000; i++) {
+      String key = "I" + i;
+      issues.add(newDoc(key, file));
+    }
+    indexIssues(issues.toArray(new IssueDoc[] {}));
+
+    IssueQuery.Builder query = IssueQuery.builder();
+    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
+    assertThat(result.getHits().getTotalHits().value).isEqualTo(11_000L);
+    assertThat(result.getHits().getTotalHits().relation).isEqualTo(Relation.EQUAL_TO);
   }
 
   @Test
