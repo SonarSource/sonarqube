@@ -28,7 +28,6 @@ import WebhooksList from './WebhooksList';
 
 interface Props {
   component?: T.LightComponent;
-  organization: T.Organization | undefined;
 }
 
 interface State {
@@ -64,10 +63,8 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  getScopeParams = ({ organization, component } = this.props) => {
-    const organizationKey = organization && organization.key;
+  getScopeParams = ({ component } = this.props) => {
     return {
-      organization: component ? component.organization : organizationKey,
       project: component && component.key
     };
   };
