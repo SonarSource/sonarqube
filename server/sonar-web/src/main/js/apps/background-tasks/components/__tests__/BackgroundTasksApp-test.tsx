@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { BackgroundTasksApp } from '../BackgroundTasksApp';
+import BackgroundTasksApp from '../BackgroundTasksApp';
 
 jest.mock('../../../../api/ce', () => ({
   getTypes: jest.fn().mockResolvedValue({
@@ -45,7 +45,6 @@ jest.mock('../../../../api/ce', () => ({
         errorMessage:
           'Analyses suspended. Please set a valid license for the Edition you installed.',
         hasScannerContext: false,
-        organization: 'default-organization',
         errorType: 'LICENSING',
         warningCount: 0,
         warnings: []
@@ -64,7 +63,6 @@ jest.mock('../../../../api/ce', () => ({
         executionTimeMs: 19,
         logs: false,
         hasScannerContext: false,
-        organization: 'default-organization',
         warningCount: 0,
         warnings: []
       }
@@ -81,17 +79,16 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('initial');
 
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loaded');
 });
 
 function shallowRender(props: Partial<BackgroundTasksApp['props']> = {}) {
   return shallow(
     <BackgroundTasksApp
       component={{ key: 'foo', id: '564' }}
-      fetchOrganizations={jest.fn()}
       location={mockLocation()}
       router={mockRouter()}
       {...props}

@@ -27,7 +27,6 @@ export function mockTask(overrides: Partial<Task> = {}): Task {
     componentName: 'Foo',
     componentQualifier: ComponentQualifier.Project,
     id: 'AXR8jg_0mF2ZsYr8Wzs2',
-    organization: 'bar',
     status: TaskStatuses.Pending,
     submittedAt: '2020-09-11T11:45:35+0200',
     type: TaskTypes.Report,

@@ -22,7 +22,6 @@ import { Link } from 'react-router';
 import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import Organization from '../../../components/shared/Organization';
 import {
   getBranchUrl,
   getPortfolioUrl,
@@ -57,8 +56,6 @@ export default function TaskComponent({ task }: Props) {
           <QualifierIcon qualifier={task.componentQualifier} />
         </span>
       )}
-
-      {task.organization && <Organization organizationKey={task.organization} />}
 
       {task.componentName && (
         <Link className="spacer-right" to={getTaskComponentUrl(task.componentKey, task)}>

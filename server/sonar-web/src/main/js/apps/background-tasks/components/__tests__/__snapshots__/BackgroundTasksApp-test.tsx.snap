@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: initial 1`] = `
 <div
   className="page page-limited"
 >
@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: loaded 1`] = `
 <div
   className="page page-limited"
 >
@@ -91,7 +91,6 @@ exports[`should render correctly 2`] = `
           "hasScannerContext": false,
           "id": "AWkGcOThOiAPiP5AE-kM",
           "logs": false,
-          "organization": "default-organization",
           "startedAt": "2019-02-19T16:47:36+0100",
           "status": "FAILED",
           "submittedAt": "2019-02-19T16:47:35+0100",
@@ -109,7 +108,6 @@ exports[`should render correctly 2`] = `
           "hasScannerContext": false,
           "id": "AWkGcOThOiAPiP5AE-kL",
           "logs": false,
-          "organization": "default-organization",
           "startedAt": "2019-02-19T16:47:36+0100",
           "status": "SUCCESS",
           "submittedAt": "2019-02-19T16:47:35+0100",
@@ -135,7 +133,6 @@ exports[`should render correctly 2`] = `
           "hasScannerContext": false,
           "id": "AWkGcOThOiAPiP5AE-kM",
           "logs": false,
-          "organization": "default-organization",
           "startedAt": "2019-02-19T16:47:36+0100",
           "status": "FAILED",
           "submittedAt": "2019-02-19T16:47:35+0100",
@@ -153,7 +150,6 @@ exports[`should render correctly 2`] = `
           "hasScannerContext": false,
           "id": "AWkGcOThOiAPiP5AE-kL",
           "logs": false,
-          "organization": "default-organization",
           "startedAt": "2019-02-19T16:47:36+0100",
           "status": "SUCCESS",
           "submittedAt": "2019-02-19T16:47:35+0100",

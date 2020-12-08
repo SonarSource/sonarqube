@@ -192,7 +192,6 @@ exports[`renders correctly: has failed notification 1`] = `
           "componentName": "Foo",
           "componentQualifier": "TRK",
           "id": "AXR8jg_0mF2ZsYr8Wzs2",
-          "organization": "bar",
           "status": "FAILED",
           "submittedAt": "2020-09-11T11:45:35+0200",
           "type": "REPORT",

@@ -9,9 +9,6 @@ exports[`renders correctly 1`] = `
       qualifier="TRK"
     />
   </span>
-  <Connect(Organization)
-    organizationKey="bar"
-  />
   <Link
     className="spacer-right"
     onlyActiveOnIndex={false}
@@ -38,9 +35,6 @@ exports[`renders correctly: branch 1`] = `
 <td>
   <BranchIcon
     className="little-spacer-right"
-  />
-  <Connect(Organization)
-    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -84,9 +78,6 @@ exports[`renders correctly: branch 2`] = `
 <td>
   <BranchIcon
     className="little-spacer-right"
-  />
-  <Connect(Organization)
-    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -135,9 +126,6 @@ exports[`renders correctly: portfolio 1`] = `
       qualifier="VW"
     />
   </span>
-  <Connect(Organization)
-    organizationKey="bar"
-  />
   <Link
     className="spacer-right"
     onlyActiveOnIndex={false}
@@ -163,9 +151,6 @@ exports[`renders correctly: pull request 1`] = `
 <td>
   <PullRequestIcon
     className="little-spacer-right"
-  />
-  <Connect(Organization)
-    organizationKey="bar"
   />
   <Link
     className="spacer-right"

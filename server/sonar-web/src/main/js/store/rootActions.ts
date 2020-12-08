@@ -22,7 +22,7 @@ import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
-import { getOrganization, getOrganizationNavigation, getOrganizations } from '../api/organizations';
+import { getOrganization, getOrganizationNavigation } from '../api/organizations';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
@@ -47,15 +47,6 @@ export function fetchMetrics() {
   return (dispatch: Dispatch) => {
     getAllMetrics().then(
       metrics => dispatch(receiveMetrics(metrics)),
-      () => {}
-    );
-  };
-}
-
-export function fetchOrganizations(organizations: string[]) {
-  return (dispatch: Dispatch) => {
-    getOrganizations({ organizations: organizations && organizations.join() }).then(
-      r => dispatch(receiveOrganizations(r.organizations)),
       () => {}
     );
   };

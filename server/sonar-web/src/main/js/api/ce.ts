@@ -31,7 +31,6 @@ export function getAnalysisStatus(data: {
     branch?: string;
     key: string;
     name: string;
-    organization?: string;
     pullRequest?: string;
     warnings: TaskWarning[];
   };
