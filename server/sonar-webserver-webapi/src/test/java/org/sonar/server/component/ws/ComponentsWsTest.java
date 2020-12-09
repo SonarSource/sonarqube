@@ -30,8 +30,8 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLE
 
 public class ComponentsWsTest {
 
-  private String actionKey = randomAlphanumeric(10);
-  private ComponentsWsAction action = new ComponentsWsAction() {
+  private final String actionKey = randomAlphanumeric(10);
+  private final ComponentsWsAction action = new ComponentsWsAction() {
 
     @Override
     public void handle(Request request, Response response) {

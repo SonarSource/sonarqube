@@ -54,8 +54,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.BillingValidations;
-import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -99,17 +97,15 @@ public class ComponentAction implements NavigationWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
-  private final BillingValidationsProxy billingValidations;
 
   public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
-    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, BillingValidationsProxy billingValidations) {
+    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
     this.pageRepository = pageRepository;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
-    this.billingValidations = billingValidations;
   }
 
   @Override
@@ -158,19 +154,18 @@ public class ComponentAction implements NavigationWsAction {
         !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
-      OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         boolean isFavourite = isFavourite(session, rootProject);
-        writeComponent(json, component, org, analysis.orElse(null), isFavourite);
+        writeComponent(json, component, analysis.orElse(null), isFavourite);
         writeProfiles(json, session, component);
-        writeQualityGate(json, session, org, rootProject);
+        writeQualityGate(json, session, rootProject);
         if (userSession.hasComponentPermission(ADMIN, component) ||
           userSession.hasPermission(ADMINISTER_QUALITY_PROFILES) ||
           userSession.hasPermission(ADMINISTER_QUALITY_GATES)) {
-          writeConfiguration(json, component, org);
+          writeConfiguration(json, component);
         }
         writeBreadCrumbs(json, session, component);
         json.endObject().close();
@@ -206,9 +201,8 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeComponent(JsonWriter json, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis, boolean isFavourite) {
+  private void writeComponent(JsonWriter json, ComponentDto component, @Nullable SnapshotDto analysis, boolean isFavourite) {
     json.prop("key", component.getKey())
-      .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
@@ -251,8 +245,11 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeQualityGate(JsonWriter json, DbSession session, OrganizationDto organization, ComponentDto component) {
-    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organization, component.uuid())
+  private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
+    // TODO:: remove while dropping for quality gate
+    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(session, component.getOrganizationUuid())
+      .orElseThrow(IllegalStateException::new);
+    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organizationDto, component.uuid())
       .orElseThrow(() -> new NotFoundException(format("Quality Gate not found for %s", component.getKey())));
     QualityGateDto qualityGateDto = qualityGateData.getQualityGate();
     json.name("qualityGate").beginObject()
@@ -274,11 +271,11 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeConfiguration(JsonWriter json, ComponentDto component, OrganizationDto organization) {
+  private void writeConfiguration(JsonWriter json, ComponentDto component) {
     boolean isProjectAdmin = userSession.hasComponentPermission(ADMIN, component);
 
     json.name("configuration").beginObject();
-    writeConfigPageAccess(json, isProjectAdmin, component, organization);
+    writeConfigPageAccess(json, isProjectAdmin, component);
 
     if (isProjectAdmin) {
       json.name("extensions").beginArray();
@@ -289,7 +286,7 @@ public class ComponentAction implements NavigationWsAction {
     json.endObject();
   }
 
-  private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component, OrganizationDto organization) {
+  private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     boolean showManualMeasures = isProjectAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
     boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
@@ -309,8 +306,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showBackgroundTasks", showBackgroundTasks);
     json.prop("canApplyPermissionTemplate", isOrganizationAdmin);
     json.prop("canBrowseProject", canBrowseProject);
-    json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin &&
-      billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName())));
+    json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin);
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {

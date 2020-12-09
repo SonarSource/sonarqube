@@ -147,6 +147,11 @@ public class ComponentTesting {
     return newProjectDto(organizationDto.getUuid(), uuid, true);
   }
 
+
+  public static ComponentDto newPublicProjectDto() {
+    return newProjectDto(Uuids.createFast(), false);
+  }
+
   // TODO remove
   @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto) {
@@ -211,10 +216,24 @@ public class ComponentTesting {
       .setPrivate(isPrivate);
   }
 
+  public static ComponentDto newView() {
+    return newView(Uuids.createFast());
+  }
+
+  public static ComponentDto newView(String uuid) {
+    return newPrivateProjectDto(uuid)
+        .setUuid(uuid)
+        .setScope(Scopes.PROJECT)
+        .setQualifier(Qualifiers.VIEW)
+        .setPrivate(false);
+  }
+
+  @Deprecated
   public static ComponentDto newView(OrganizationDto organizationDto) {
     return newView(organizationDto.getUuid(), Uuids.createFast());
   }
 
+  @Deprecated
   public static ComponentDto newView(OrganizationDto organizationDto, String uuid) {
     return newPrivateProjectDto(organizationDto, uuid)
       .setUuid(uuid)

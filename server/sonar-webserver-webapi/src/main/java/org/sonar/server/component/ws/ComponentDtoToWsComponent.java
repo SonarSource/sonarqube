@@ -21,18 +21,15 @@ package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.project.Visibility;
 import org.sonarqube.ws.Components;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -48,15 +45,8 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
-  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, OrganizationDto organizationDto, @Nullable SnapshotDto lastAnalysis) {
-
-    checkArgument(
-      Objects.equals(project.getOrganizationUuid(), organizationDto.getUuid()),
-      "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
-      project.getOrganizationUuid(), organizationDto.getUuid());
-
+  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, @Nullable SnapshotDto lastAnalysis) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
-      .setOrganization(organizationDto.getKey())
       .setKey(project.getKey())
       .setName(project.getName())
       .setQualifier(project.getQualifier());
@@ -76,19 +66,9 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto, OrganizationDto organizationDto,
-    @Nullable SnapshotDto lastAnalysis) {
-    checkArgument(
-      Objects.equals(dto.getOrganizationUuid(), organizationDto.getUuid()),
-      "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
-      dto.getOrganizationUuid(), organizationDto.getUuid());
-    return componentDtoToWsComponent(dto, parentProjectDto, organizationDto.getKey(), lastAnalysis);
-  }
-
-  private static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto, String organizationDtoKey,
+  public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto,
     @Nullable SnapshotDto lastAnalysis) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
-      .setOrganization(organizationDtoKey)
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());

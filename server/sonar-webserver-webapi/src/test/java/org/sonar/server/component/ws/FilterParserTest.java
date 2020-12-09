@@ -20,9 +20,7 @@
 package org.sonar.server.component.ws;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 
 import static java.util.Arrays.asList;
@@ -37,9 +35,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 
 public class FilterParserTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void parse_filter_having_operator_and_value() {

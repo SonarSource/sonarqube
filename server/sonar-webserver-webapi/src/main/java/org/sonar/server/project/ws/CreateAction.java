@@ -112,7 +112,6 @@ public class CreateAction implements ProjectsWsAction {
       support.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-          .setOrganizationUuid(organization.getUuid())
           .setKey(request.getProjectKey())
           .setName(request.getName())
           .setPrivate(changeToPrivate)

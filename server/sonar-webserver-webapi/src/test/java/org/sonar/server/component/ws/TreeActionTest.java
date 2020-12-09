@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -42,19 +41,21 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.TreeWsResponse;
 
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -76,8 +77,6 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUA
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
 public class TreeActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -132,7 +131,7 @@ public class TreeActionTest {
 
   @Test
   public void return_children() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     db.components().insertComponent(module);
@@ -162,7 +161,7 @@ public class TreeActionTest {
 
   @Test
   public void return_descendants() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     db.components().insertComponent(module);
@@ -192,7 +191,7 @@ public class TreeActionTest {
 
   @Test
   public void filter_descendants_by_qualifier() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newFileDto(project, 1));
     db.components().insertComponent(newFileDto(project, 2));
@@ -210,7 +209,7 @@ public class TreeActionTest {
 
   @Test
   public void return_leaves() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     db.components().insertComponent(module);
@@ -234,7 +233,7 @@ public class TreeActionTest {
 
   @Test
   public void sort_descendants_by_qualifier() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newFileDto(project, 1));
     db.components().insertComponent(newFileDto(project, 2));
@@ -254,10 +253,9 @@ public class TreeActionTest {
 
   @Test
   public void project_reference_from_portfolio() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto view = newView(organizationDto, "view-uuid");
+    ComponentDto view = newView("view-uuid");
     db.components().insertViewAndSnapshot(view);
-    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid-1").setName("project-name").setDbKey("project-key-1");
+    ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setDbKey("project-key-1");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     db.components().insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
@@ -300,7 +298,7 @@ public class TreeActionTest {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto project = db.components().insertPrivateProject("project-uuid");
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()
@@ -315,9 +313,9 @@ public class TreeActionTest {
 
   @Test
   public void return_projects_composing_a_view() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
+    ComponentDto view = newView("view-uuid");
     db.components().insertViewAndSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
     userSession.logIn()
@@ -385,12 +383,11 @@ public class TreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .executeProtobuf(Components.ShowWsResponse.class);
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey());
+    assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -399,107 +396,104 @@ public class TreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .executeProtobuf(Components.ShowWsResponse.class);
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey());
+    assertThatThrownBy(() -> request.executeProtobuf(Components.ShowWsResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
   public void fail_when_not_enough_privileges() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     userSession.logIn()
       .addProjectPermission(UserRole.CODEVIEWER, project);
     db.commit();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getDbKey())
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getDbKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_page_size_above_500() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'ps' value (501) must be less than 500");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     db.commit();
 
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getDbKey())
-      .setParam(Param.PAGE_SIZE, "501")
-      .execute();
+      .setParam(Param.PAGE_SIZE, "501");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'ps' value (501) must be less than 500");
   }
 
   @Test
   public void fail_when_search_query_has_less_than_3_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     db.commit();
 
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getDbKey())
-      .setParam(Param.TEXT_QUERY, "fi")
-      .execute();
+      .setParam(Param.TEXT_QUERY, "fi");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'q' length (2) is shorter than the minimum authorized (3)");
   }
 
   @Test
   public void fail_when_sort_is_unknown() {
-    expectedException.expect(IllegalArgumentException.class);
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     db.commit();
 
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, "project-key")
-      .setParam(Param.SORT, "unknown-sort")
-      .execute();
+      .setParam(Param.SORT, "unknown-sort");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_strategy_is_unknown() {
-    expectedException.expect(IllegalArgumentException.class);
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     db.commit();
 
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, "project-key")
-      .setParam(PARAM_STRATEGY, "unknown-strategy")
-      .execute();
+      .setParam(PARAM_STRATEGY, "unknown-strategy");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_base_component_not_found() {
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, "project-key")
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, "project-key");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_base_component_is_removed() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(ComponentTesting.newFileDto(project).setDbKey("file-key").setEnabled(false));
     logInWithBrowsePermission(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, "file-key")
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, "file-key");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'file-key' not found");
   }
 
   @Test
   public void fail_when_no_base_component_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'component' parameter is missing");
-
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'component' parameter is missing");
   }
 
   @Test
@@ -508,13 +502,12 @@ public class TreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_BRANCH, "another_branch")
-      .execute();
+      .setParam(PARAM_BRANCH, "another_branch");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
   }
 
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
@@ -529,13 +522,11 @@ public class TreeActionTest {
   }
 
   private ComponentDto initJsonExampleComponents() throws IOException {
-    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = db.components().insertPrivateProject(organizationDto,
-      c -> c.setUuid("MY_PROJECT_ID")
-        .setDescription("MY_PROJECT_DESCRIPTION")
-        .setDbKey("MY_PROJECT_KEY")
-        .setName("Project Name")
-        .setProjectUuid("MY_PROJECT_ID"),
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("MY_PROJECT_ID")
+      .setDescription("MY_PROJECT_DESCRIPTION")
+      .setDbKey("MY_PROJECT_KEY")
+      .setName("Project Name")
+      .setProjectUuid("MY_PROJECT_ID"),
       p -> p.setTagsString("abc,def"));
     db.components().insertSnapshot(project);
 
@@ -546,7 +537,7 @@ public class TreeActionTest {
     for (int i = 0; i < components.size(); i++) {
       JsonElement componentAsJsonElement = components.get(i);
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
-      String uuid = String.format("child-component-uuid-%d", i);
+      String uuid = format("child-component-uuid-%d", i);
       db.components().insertComponent(newChildComponent(uuid, project, project)
         .setDbKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))

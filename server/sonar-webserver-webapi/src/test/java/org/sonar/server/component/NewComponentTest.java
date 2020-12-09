@@ -19,33 +19,23 @@
  */
 package org.sonar.server.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class NewComponentTest {
-  private static final String ORGANIZATION_UUID = "org1";
   private static final String KEY = "key";
   private static final String NAME = "name";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private NewComponent.Builder underTest = newComponentBuilder();
-
-  @Test
-  public void build_throws_NPE_if_organizationUuid_is_null() {
-    expectBuildException(NullPointerException.class, "organization uuid can't be null");
-  }
+  private final NewComponent.Builder underTest = newComponentBuilder();
 
   @Test
   public void build_throws_IAE_when_key_is_null() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID);
+    underTest.setKey(null);
 
     expectBuildException(IllegalArgumentException.class, "Component key can't be empty");
   }
@@ -53,16 +43,14 @@ public class NewComponentTest {
   @Test
   public void build_throws_IAE_when_key_is_empty() {
     underTest
-      .setKey("")
-      .setOrganizationUuid(ORGANIZATION_UUID);
+      .setKey("");
 
     expectBuildException(IllegalArgumentException.class, "Component key can't be empty");
   }
 
   @Test
   public void build_throws_IAE_when_key_is_longer_than_400_characters() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(repeat("a", 400 + 1));
+    underTest.setKey(repeat("a", 400 + 1));
 
     expectBuildException(
       IllegalArgumentException.class,
@@ -71,16 +59,14 @@ public class NewComponentTest {
 
   @Test
   public void build_fails_with_IAE_when_name_is_null() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY);
+    underTest.setKey(KEY);
 
     expectBuildException(IllegalArgumentException.class, "Component name can't be empty");
   }
 
   @Test
   public void build_fails_with_IAE_when_name_is_empty() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    underTest.setKey(KEY)
       .setName("");
 
     expectBuildException(IllegalArgumentException.class, "Component name can't be empty");
@@ -88,8 +74,7 @@ public class NewComponentTest {
 
   @Test
   public void build_fails_with_IAE_when_name_is_longer_than_2000_characters() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    underTest.setKey(KEY)
       .setName(repeat("a", 501));
 
     expectBuildException(
@@ -99,8 +84,7 @@ public class NewComponentTest {
 
   @Test
   public void build_fails_with_IAE_when_qualifier_is_null() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    underTest.setKey(KEY)
       .setName(NAME)
       .setQualifier(null);
 
@@ -109,8 +93,7 @@ public class NewComponentTest {
 
   @Test
   public void build_fails_with_IAE_when_qualifier_is_empty() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    underTest.setKey(KEY)
       .setName(NAME)
       .setQualifier("");
 
@@ -119,8 +102,7 @@ public class NewComponentTest {
 
   @Test
   public void build_fails_with_IAE_when_qualifier_is_longer_than_10_characters() {
-    underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    underTest.setKey(KEY)
       .setName(NAME)
       .setQualifier(repeat("a", 10 + 1));
 
@@ -131,8 +113,7 @@ public class NewComponentTest {
 
   @Test
   public void getQualifier_returns_PROJECT_when_no_set_in_builder() {
-    NewComponent newComponent = underTest.setOrganizationUuid(ORGANIZATION_UUID)
-      .setKey(KEY)
+    NewComponent newComponent = underTest.setKey(KEY)
       .setName(NAME)
       .build();
 
@@ -140,9 +121,8 @@ public class NewComponentTest {
   }
 
   private void expectBuildException(Class<? extends Exception> expectedExceptionType, String expectedMessage) {
-    expectedException.expect(expectedExceptionType);
-    expectedException.expectMessage(expectedMessage);
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(expectedExceptionType)
+      .hasMessageContaining(expectedMessage);
   }
 }

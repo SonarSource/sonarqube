@@ -22,7 +22,6 @@ package org.sonar.server.component;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -32,17 +31,19 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,29 +57,27 @@ public class ComponentUpdaterTest {
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String DEFAULT_PROJECT_NAME = "project-name";
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final DbTester db = DbTester.create(system2);
   @Rule
-  public DbTester db = DbTester.create(system2);
-  @Rule
-  public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
+  public final I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory());
+    projectIndexers, new SequenceUuidFactory(), defaultOrganizationProvider);
 
   @Test
   public void persist_and_index_when_creating_project() {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setPrivate(true)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), project, null);
@@ -89,7 +88,6 @@ public class ComponentUpdaterTest {
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);
     assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
-    assertThat(loaded.getOrganizationUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.projectUuid()).isEqualTo(loaded.uuid());
     assertThat(loaded.moduleUuid()).isNull();
@@ -111,11 +109,9 @@ public class ComponentUpdaterTest {
 
   @Test
   public void persist_private_flag_true_when_creating_project() {
-    OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(organization.getUuid())
       .setPrivate(true)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), project, null);
@@ -125,11 +121,9 @@ public class ComponentUpdaterTest {
 
   @Test
   public void persist_private_flag_false_when_creating_project() {
-    OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(organization.getUuid())
       .setPrivate(false)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), project, null);
@@ -143,7 +137,6 @@ public class ComponentUpdaterTest {
       .setKey("view-key")
       .setName("view-name")
       .setQualifier(VIEW)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
 
     ComponentDto returned = underTest.create(db.getSession(), view, null);
@@ -163,7 +156,6 @@ public class ComponentUpdaterTest {
       .setKey("app-key")
       .setName("app-name")
       .setQualifier(APP)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
 
     ComponentDto returned = underTest.create(db.getSession(), application, null);
@@ -188,7 +180,6 @@ public class ComponentUpdaterTest {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
     ComponentDto dto = underTest.create(db.getSession(), project, userUuid);
 
@@ -201,7 +192,6 @@ public class ComponentUpdaterTest {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
       .thenReturn(true);
@@ -218,7 +208,6 @@ public class ComponentUpdaterTest {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ComponentDto.class)))
       .thenReturn(true);
@@ -236,7 +225,6 @@ public class ComponentUpdaterTest {
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
       null);
 
@@ -249,7 +237,6 @@ public class ComponentUpdaterTest {
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
       null);
 
@@ -260,59 +247,37 @@ public class ComponentUpdaterTest {
   public void fail_when_project_key_already_exists() {
     ComponentDto existing = db.components().insertPrivateProject();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Could not create Project, key already exists: " + existing.getDbKey());
-
-    underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(existing.getDbKey())
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(existing.getOrganizationUuid())
-        .build(),
-      null);
-  }
-
-  @Test
-  public void fail_when_project_key_already_exists_on_other_organization() {
-    ComponentDto existing = db.components().insertPrivateProject(db.organizations().insert());
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Could not create Project, key already exists: " + existing.getDbKey());
-
-    underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(existing.getDbKey())
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(existing.getOrganizationUuid())
-        .build(),
-      null);
+    DbSession session = db.getSession();
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(existing.getDbKey())
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create Project, key already exists: " + existing.getDbKey());
   }
 
   @Test
   public void fail_when_key_has_bad_format() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: '1234'");
-
-    underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey("1234")
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
+    DbSession session = db.getSession();
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey("1234")
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Malformed key for Project: '1234'");
   }
 
   @Test
   public void fail_when_key_contains_percent_character() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: 'roject%Key'");
-
-    underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey("roject%Key")
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
+    DbSession session = db.getSession();
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey("roject%Key")
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Malformed key for Project: 'roject%Key'");
   }
 }

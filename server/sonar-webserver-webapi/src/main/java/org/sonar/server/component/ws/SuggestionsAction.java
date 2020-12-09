@@ -47,7 +47,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
@@ -61,7 +60,6 @@ import org.sonarqube.ws.Components.SuggestionsWsResponse.Category;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.Components.SuggestionsWsResponse.Suggestion;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -72,7 +70,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Common.Organization;
 import static org.sonarqube.ws.Components.SuggestionsWsResponse.newBuilder;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
@@ -109,7 +106,6 @@ public class SuggestionsAction implements ComponentsWsAction {
         "Internal WS for the top-right search engine. The result will contain component search results, grouped by their qualifiers.<p>"
           + "Each result contains:"
           + "<ul>"
-          + "<li>the organization key</li>"
           + "<li>the component key</li>"
           + "<li>the component's name (unescaped)</li>"
           + "<li>optionally a display name, which puts emphasis to matching characters (this text contains html tags and parts of the html-escaped name)</li>"
@@ -280,9 +276,8 @@ public class SuggestionsAction implements ComponentsWsAction {
 
     Map<String, ComponentDto> componentsByUuids = componentDtos.stream()
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
-    Map<String, OrganizationDto> organizationsByUuids = loadOrganizations(dbSession, componentsByUuids.values());
     Map<String, ComponentDto> projectsByUuids = loadProjects(dbSession, componentsByUuids.values());
-    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, organizationsByUuids, componentsByUuids, projectsByUuids, coveredItems);
+    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids, coveredItems);
   }
 
   private Map<String, ComponentDto> loadProjects(DbSession dbSession, Collection<ComponentDto> components) {
@@ -294,35 +289,26 @@ public class SuggestionsAction implements ComponentsWsAction {
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
   }
 
-  private Map<String, OrganizationDto> loadOrganizations(DbSession dbSession, Collection<ComponentDto> components) {
-    Set<String> organizationUuids = components.stream()
-      .map(ComponentDto::getOrganizationUuid)
-      .collect(MoreCollectors.toSet());
-    return dbClient.organizationDao().selectByUuids(dbSession, organizationUuids).stream()
-      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-  }
-
   private ComponentIndexResults searchInIndex(SuggestionQuery suggestionQuery) {
     return index.searchSuggestions(suggestionQuery);
   }
 
   private static SuggestionsWsResponse.Builder toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, OrganizationDto> organizationsByUuids, Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
+    Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
     if (componentsPerQualifiers.isEmpty()) {
       return newBuilder();
     }
     return newBuilder()
-      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, organizationsByUuids, projectsByUuids, coveredItems))
-      .addAllOrganizations(toOrganizations(organizationsByUuids))
+      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids, coveredItems))
       .addAllProjects(toProjects(projectsByUuids));
   }
 
   private static List<Category> toCategories(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, ComponentDto> componentsByUuids, Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
+    Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
     return componentsPerQualifiers.getQualifiers().map(qualifier -> {
 
       List<Suggestion> suggestions = qualifier.getHits().stream()
-        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, organizationByUuids, projectsByUuids))
+        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, projectsByUuids))
         .filter(Objects::nonNull)
         .collect(toList());
 
@@ -340,17 +326,14 @@ public class SuggestionsAction implements ComponentsWsAction {
    */
   @CheckForNull
   private static Suggestion toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, Map<String, ComponentDto> componentsByUuids,
-    Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
+    Map<String, ComponentDto> projectsByUuids) {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
     if (result == null
       // SONAR-11419 this has happened in production while code does not really allow it. An inconsistency in DB may be the cause.
       || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.projectUuid()) == null)) {
       return null;
     }
-    String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();
-    checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     Suggestion.Builder builder = Suggestion.newBuilder()
-      .setOrganization(organizationKey)
       .setKey(result.getDbKey())
       .setName(result.name())
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
@@ -360,15 +343,6 @@ public class SuggestionsAction implements ComponentsWsAction {
       builder.setProject(projectsByUuids.get(result.projectUuid()).getDbKey());
     }
     return builder.build();
-  }
-
-  private static List<Organization> toOrganizations(Map<String, OrganizationDto> organizationByUuids) {
-    return organizationByUuids.values().stream()
-      .map(o -> Organization.newBuilder()
-        .setKey(o.getKey())
-        .setName(o.getName())
-        .build())
-      .collect(Collectors.toList());
   }
 
   private static List<Project> toProjects(Map<String, ComponentDto> projectsByUuids) {

@@ -39,6 +39,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 
 import static java.util.Collections.singletonList;
@@ -58,10 +59,12 @@ public class ComponentUpdater {
   private final FavoriteUpdater favoriteUpdater;
   private final ProjectIndexers projectIndexers;
   private final UuidFactory uuidFactory;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers, UuidFactory uuidFactory) {
+    ProjectIndexers projectIndexers, UuidFactory uuidFactory,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -69,6 +72,7 @@ public class ComponentUpdater {
     this.favoriteUpdater = favoriteUpdater;
     this.projectIndexers = projectIndexers;
     this.uuidFactory = uuidFactory;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -108,8 +112,10 @@ public class ComponentUpdater {
 
     long now = system2.now();
     String uuid = uuidFactory.create();
+
+    // TODO:: remove setOrganizationUuid once column dropped
     ComponentDto component = new ComponentDto()
-      .setOrganizationUuid(newComponent.getOrganizationUuid())
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setRootUuid(uuid)
@@ -142,7 +148,7 @@ public class ComponentUpdater {
       .setQualifier(component.qualifier())
       .setName(component.name())
       .setPrivate(component.isPrivate())
-      .setOrganizationUuid(component.getOrganizationUuid())
+      .setOrganizationUuid(component.getOrganizationUuid()) // TODO:: remove once column dropped
       .setDescription(component.description())
       .setUpdatedAt(now)
       .setCreatedAt(now);

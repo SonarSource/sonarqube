@@ -21,7 +21,6 @@ package org.sonar.server.component.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -30,9 +29,11 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -49,15 +50,13 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class AppActionTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create();
 
-  private ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(db.getDbClient());
+  private final ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(db.getDbClient());
 
-  private WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession,
+  private final WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession,
     TestComponentFinder.from(db), componentViewerJsonWriter));
 
   @Test
@@ -290,10 +289,10 @@ public class AppActionTest {
 
   @Test
   public void fail_if_no_parameter_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'component' parameter is missing");
-
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'component' parameter is missing");
   }
 
   @Test
@@ -361,15 +360,13 @@ public class AppActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either branch or pull request can be provided, not both");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("component", file.getDbKey())
       .setParam("branch", "unknown_branch")
-      .setParam("pullRequest", "unknown_component")
-      .execute()
-      .getInput();
+      .setParam("pullRequest", "unknown_component");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either branch or pull request can be provided, not both");
   }
 
   @Test
@@ -377,11 +374,10 @@ public class AppActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam("component", "unknown")
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam("component", "unknown");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -390,12 +386,12 @@ public class AppActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("component", file.getKey())
-      .setParam("branch", "unknown")
-      .execute();
+      .setParam("branch", "unknown");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -403,11 +399,11 @@ public class AppActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    expectedException.expect(ForbiddenException.class);
+    TestRequest request = ws.newRequest()
+      .setParam("component", file.getKey());
 
-    ws.newRequest()
-      .setParam("component", file.getKey())
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

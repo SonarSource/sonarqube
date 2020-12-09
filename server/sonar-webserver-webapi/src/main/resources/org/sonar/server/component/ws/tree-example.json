@@ -5,7 +5,6 @@
     "total": 3
   },
   "baseComponent": {
-    "organization": "my-org-1",
     "key": "MY_PROJECT_KEY",
     "description": "MY_PROJECT_DESCRIPTION",
     "qualifier": "TRK",
@@ -17,23 +16,20 @@
   },
   "components": [
     {
-      "organization": "my-org-1",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java",
       "name": "BasicMarkdownParser.java",
       "qualifier": "UTS",
       "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java",
-      "language":"java"
+      "language": "java"
     },
     {
-      "organization": "my-org-1",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java",
       "name": "BasicMarkdownParserTest.java",
       "qualifier": "UTS",
       "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java",
-      "language":"java"
+      "language": "java"
     },
     {
-      "organization": "my-org-1",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown",
       "name": "src/main/java/com/sonarsource/markdown",
       "qualifier": "DIR",

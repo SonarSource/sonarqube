@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -113,8 +112,7 @@ public class ShowAction implements ComponentsWsAction {
       userSession.checkComponentPermission(UserRole.USER, component);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
-      OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
-      return buildResponse(dbSession, component, organizationDto, ancestors, lastAnalysis.orElse(null));
+      return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null));
     }
   }
 
@@ -126,37 +124,34 @@ public class ShowAction implements ComponentsWsAction {
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private ShowWsResponse buildResponse(DbSession dbSession, ComponentDto component,
-    OrganizationDto organizationDto, List<ComponentDto> orderedAncestors,
+  private ShowWsResponse buildResponse(DbSession dbSession, ComponentDto component, List<ComponentDto> orderedAncestors,
     @Nullable SnapshotDto lastAnalysis) {
     ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(toWsComponent(dbSession, component, organizationDto, lastAnalysis));
-    addAncestorsToResponse(dbSession, response, orderedAncestors, organizationDto, lastAnalysis);
+    response.setComponent(toWsComponent(dbSession, component, lastAnalysis));
+    addAncestorsToResponse(dbSession, response, orderedAncestors, lastAnalysis);
     return response.build();
   }
 
   private void addAncestorsToResponse(DbSession dbSession, ShowWsResponse.Builder response, List<ComponentDto> orderedAncestors,
-    OrganizationDto organizationDto,
     @Nullable SnapshotDto lastAnalysis) {
     // ancestors are ordered from root to leaf, whereas it's the opposite in WS response
     int size = orderedAncestors.size() - 1;
     IntStream.rangeClosed(0, size).forEach(
-      index -> response.addAncestors(toWsComponent(dbSession, orderedAncestors.get(size - index), organizationDto, lastAnalysis)));
+      index -> response.addAncestors(toWsComponent(dbSession, orderedAncestors.get(size - index), lastAnalysis)));
   }
 
-  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, OrganizationDto organizationDto,
-    @Nullable SnapshotDto lastAnalysis) {
+  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto lastAnalysis) {
     if (isProjectOrApp(component)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
       boolean needIssueSync = needIssueSync(dbSession, component, project);
-      return projectOrAppToWsComponent(project, organizationDto, lastAnalysis)
+      return projectOrAppToWsComponent(project, lastAnalysis)
         .setNeedIssueSync(needIssueSync);
     } else {
       Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
         ofNullable(component.getMainBranchProjectUuid()).orElse(component.projectUuid()));
       boolean needIssueSync = needIssueSync(dbSession, component, parentProject.orElse(null));
-      return componentDtoToWsComponent(component, parentProject.orElse(null), organizationDto, lastAnalysis)
+      return componentDtoToWsComponent(component, parentProject.orElse(null), lastAnalysis)
         .setNeedIssueSync(needIssueSync);
     }
   }

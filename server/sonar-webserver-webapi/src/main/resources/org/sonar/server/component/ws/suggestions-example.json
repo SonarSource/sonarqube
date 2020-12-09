@@ -22,7 +22,6 @@
           "key": "org.sonarsource:sonarqube",
           "name": "SonarSource :: SonarQube",
           "match": "<mark>Sonar</mark>Source :: <mark>Sonar</mark>Qube",
-          "organization": "default-organization",
           "project": "",
           "isRecentlyBrowsed": true,
           "isFavorite": false
@@ -31,19 +30,12 @@
           "key": "org.sonarsource:sonarlint",
           "name": "SonarSource :: SonarLint",
           "match": "<mark>Sonar</mark>Source :: <mark>Sonar</mark>Lint",
-          "organization": "default-organization",
           "project": "",
           "isRecentlyBrowsed": false,
           "isFavorite": false
         }
       ],
       "more": 0
-    }
-  ],
-  "organizations": [
-    {
-      "key": "default-organization",
-      "name": "Default Organization"
     }
   ],
   "projects": [

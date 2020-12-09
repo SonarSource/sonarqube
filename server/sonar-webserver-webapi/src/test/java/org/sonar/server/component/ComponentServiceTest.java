@@ -21,7 +21,6 @@ package org.sonar.server.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,28 +39,26 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 public class ComponentServiceTest {
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final ComponentDbTester componentDb = new ComponentDbTester(dbTester);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
 
-  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexers, projectLifeCycleListeners);
+  private final ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexers, projectLifeCycleListeners);
 
   @Test
   public void bulk_update() {
-    ComponentDto project = componentDb.insertPublicProject(dbTester.organizations().insert(), c -> c.setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(c -> c.setDbKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
     ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
-    
+
     underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
 
     assertComponentKeyUpdated(project.getDbKey(), "your_project");

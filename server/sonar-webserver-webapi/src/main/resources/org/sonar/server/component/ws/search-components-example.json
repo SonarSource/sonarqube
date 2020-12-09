@@ -6,7 +6,6 @@
   },
   "components": [
     {
-      "organization": "my-org-1",
       "key": "project-key",
       "qualifier": "TRK",
       "name": "Project Name",

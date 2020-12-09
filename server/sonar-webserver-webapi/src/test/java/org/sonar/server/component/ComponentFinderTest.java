@@ -21,7 +21,6 @@ package org.sonar.server.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -30,6 +29,7 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -40,59 +40,51 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 public class ComponentFinderTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
-  private ComponentFinder underTest = TestComponentFinder.from(db);
+  private final ComponentFinder underTest = TestComponentFinder.from(db);
 
   @Test
   public void fail_when_the_uuid_and_key_are_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided");
-
-    underTest.getByUuidOrKey(dbSession, null, null, ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, null, ID_AND_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either 'id' or 'key' must be provided");
   }
 
   @Test
   public void fail_when_the_uuid_and_key_are_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided");
-
-    underTest.getByUuidOrKey(dbSession, "project-uuid", "project-key", ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, "project-uuid", "project-key", ID_AND_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either 'id' or 'key' must be provided");
   }
 
   @Test
   public void fail_when_the_uuid_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter must not be empty");
-
-    underTest.getByUuidOrKey(dbSession, "", null, ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, "", null, ID_AND_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'id' parameter must not be empty");
   }
 
   @Test
   public void fail_when_the_key_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter must not be empty");
-
-    underTest.getByUuidOrKey(dbSession, null, "", ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, "", ID_AND_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'key' parameter must not be empty");
   }
 
   @Test
   public void fail_when_component_uuid_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id 'project-uuid' not found");
-
-    underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component id 'project-uuid' not found");
   }
 
   @Test
   public void fail_when_component_key_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'project-key' not found");
-
-    underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'project-key' not found");
   }
 
   @Test
@@ -100,10 +92,10 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    underTest.getByUuidOrKey(dbSession, branch.uuid(), null, ID_AND_KEY);
+    String branchUuid = branch.uuid();
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, branchUuid, null, ID_AND_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component id '%s' not found", branchUuid));
   }
 
   @Test
@@ -111,21 +103,20 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    underTest.getByUuidOrKey(dbSession, null, branch.getDbKey(), ID_AND_KEY);
+    String branchDbKey = branch.getDbKey();
+    assertThatThrownBy(() -> underTest.getByUuidOrKey(dbSession, null, branchDbKey, ID_AND_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
   public void fail_when_component_uuid_is_removed() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project, null, "file-uuid").setEnabled(false));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id 'file-uuid' not found");
-
-    underTest.getByUuid(dbSession, "file-uuid");
+    assertThatThrownBy(() -> underTest.getByUuid(dbSession, "file-uuid"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component id 'file-uuid' not found");
   }
 
   @Test
@@ -133,21 +124,20 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    underTest.getByUuid(dbSession, branch.uuid());
+    String branchUuid = branch.uuid();
+    assertThatThrownBy(() -> underTest.getByUuid(dbSession, branchUuid))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component id '%s' not found", branchUuid));
   }
 
   @Test
   public void fail_when_component_key_is_removed() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
-
-    underTest.getByKey(dbSession, "file-key");
+    assertThatThrownBy(() -> underTest.getByKey(dbSession, "file-key"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'file-key' not found");
   }
 
   @Test
@@ -155,15 +145,15 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    underTest.getByKey(dbSession, branch.getDbKey());
+    String branchDbKey = branch.getDbKey();
+    assertThatThrownBy(() -> underTest.getByKey(dbSession, branchDbKey))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branchDbKey));
   }
 
   @Test
   public void get_component_by_uuid() {
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto("project-uuid"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY);
 
@@ -172,7 +162,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto().setDbKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
@@ -212,10 +202,10 @@ public class ComponentFinderTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either branch or pull request can be provided, not both");
-
-    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), "pr-123", "pr-123").uuid()).isEqualTo(pullRequest.uuid());
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, "pr-123", "pr-123"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either branch or pull request can be provided, not both");
   }
 
   @Test
@@ -231,9 +221,9 @@ public class ComponentFinderTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch 'other_branch' not found", file.getKey()));
-
-    underTest.getByKeyAndBranch(dbSession, file.getKey(), "other_branch");
+    String fileKey = file.getKey();
+    assertThatThrownBy(() -> underTest.getByKeyAndBranch(dbSession, fileKey, "other_branch"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch 'other_branch' not found", fileKey));
   }
 }

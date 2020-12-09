@@ -164,7 +164,6 @@ public class ReportSubmitter {
     boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, defaultOrgUuid);
 
     NewComponent newProject = newComponentBuilder()
-      .setOrganizationUuid(defaultOrgUuid)
       .setKey(componentKey.getKey())
       .setName(defaultIfBlank(projectName, componentKey.getKey()))
       .setQualifier(Qualifiers.PROJECT)

@@ -22,7 +22,6 @@ package org.sonar.server.component;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -31,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -48,14 +49,12 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ComponentServiceUpdateKeyTest {
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2);
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
@@ -106,12 +105,12 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_to_update_project_key_without_admin_permission() {
-    expectedException.expect(ForbiddenException.class);
-
     ComponentDto project = insertSampleProject();
     userSession.logIn("john").addProjectPermission(UserRole.USER, project);
 
-    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample2:root");
+    ProjectDto projectDto = componentDb.getProjectDto(project);
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample2:root"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -120,10 +119,12 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto anotherProject = componentDb.insertPrivateProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.getDbKey() + "\" already exists.");
-
-    underTest.updateKey(dbSession, componentDb.getProjectDto(project), anotherProject.getDbKey());
+    ProjectDto projectDto = componentDb.getProjectDto(project);
+    String anotherProjectDbKey = anotherProject.getDbKey();
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto,
+      anotherProjectDbKey))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Impossible to update key: a component with key \"" + anotherProjectDbKey + "\" already exists.");
   }
 
   @Test
@@ -131,10 +132,10 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "");
+    ProjectDto projectDto = componentDb.getProjectDto(project);
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, ""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
@@ -142,15 +143,15 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    underTest.updateKey(dbSession, componentDb.getProjectDto(project), "sample?root");
+    ProjectDto projectDto = componentDb.getProjectDto(project);
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample?root"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
   public void bulk_update_key() {
-    ComponentDto project = componentDb.insertPublicProject(db.organizations().insert(), c -> c.setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(c -> c.setDbKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
@@ -169,7 +170,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void bulk_update_key_with_branch_and_pr() {
-    ComponentDto project = componentDb.insertPublicProject(db.organizations().insert(), c -> c.setDbKey("my_project"));
+    ComponentDto project = componentDb.insertPublicProject(c -> c.setDbKey("my_project"));
     ComponentDto branch = componentDb.insertProjectBranch(project);
     ComponentDto module = componentDb.insertComponent(newModuleDto(branch).setDbKey("my_project:root:module"));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
@@ -193,7 +194,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    return componentDb.insertPrivateProject(db.organizations().insert(), c -> c.setDbKey(key));
+    return componentDb.insertPrivateProject(c -> c.setDbKey(key));
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {

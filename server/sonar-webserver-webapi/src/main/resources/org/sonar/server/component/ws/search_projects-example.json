@@ -4,19 +4,8 @@
     "pageSize": 100,
     "total": 3
   },
-  "organizations": [
-    {
-      "key": "my-org-key-1",
-      "name": "Foo"
-    },
-    {
-      "key": "my-org-key-2",
-      "name": "Bar"
-    }
-  ],
   "components": [
     {
-      "organization": "my-org-key-1",
       "key": "my_project",
       "name": "My Project 1",
       "qualifier": "TRK",
@@ -29,7 +18,6 @@
       "needIssueSync": true
     },
     {
-      "organization": "my-org-key-1",
       "key": "another_project",
       "name": "My Project 2",
       "qualifier": "TRK",
@@ -39,7 +27,6 @@
       "needIssueSync": false
     },
     {
-      "organization": "my-org-key-2",
       "key": "third_project",
       "name": "My Project 3",
       "qualifier": "TRK",

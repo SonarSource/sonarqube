@@ -26,8 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Language;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -35,14 +33,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.component.ws.SearchAction.SearchRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,6 +52,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
@@ -69,34 +66,29 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchActionTest {
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public EsTester es = EsTester.create();
+  public final EsTester es = EsTester.create();
 
-  private I18nRule i18n = new I18nRule();
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
-  private ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
+  private final I18nRule i18n = new I18nRule();
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private final ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
+  private final ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   private UserDto user;
-
-  private WsActionTester ws;
+  private WsActionTester underTest;
 
   @Before
   public void setUp() {
     resourceTypes.setAllQualifiers(APP, PROJECT, DIRECTORY, FILE);
-    ws = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n, defaultOrganizationProvider));
+    underTest = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n));
 
     user = db.users().insertUser("john");
     userSession.logIn(user);
@@ -104,7 +96,7 @@ public class SearchActionTest {
 
   @Test
   public void verify_definition() {
-    WebService.Action action = ws.getDef();
+    WebService.Action action = underTest.getDef();
 
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.isPost()).isFalse();
@@ -118,7 +110,7 @@ public class SearchActionTest {
         tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(4);
 
     WebService.Param pageSize = action.param("ps");
     assertThat(pageSize.isRequired()).isFalse();
@@ -128,20 +120,13 @@ public class SearchActionTest {
 
     WebService.Param qualifiers = action.param("qualifiers");
     assertThat(qualifiers.isRequired()).isTrue();
-
-    WebService.Param organization = action.param("organization");
-    assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.description()).isEqualTo("Organization key");
-    assertThat(organization.isInternal()).isTrue();
-    assertThat(organization.exampleValue()).isEqualTo("my-org");
-    assertThat(organization.since()).isEqualTo("6.3");
   }
 
   @Test
   public void search_by_key_query() {
     insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
-      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key-without-escaped-characters"));
+      ComponentTesting.newPrivateProjectDto().setDbKey("project-_%-key"),
+      ComponentTesting.newPrivateProjectDto().setDbKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(new SearchRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
@@ -150,23 +135,22 @@ public class SearchActionTest {
 
   @Test
   public void search_with_pagination() {
-    OrganizationDto organizationDto = db.organizations().insert();
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newPrivateProjectDto(organizationDto, "project-uuid-" + i).setDbKey("project-key-" + i).setName("Project Name " + i));
+      componentDtoList.add(newPrivateProjectDto("project-uuid-" + i).setDbKey("project-key-" + i).setName("Project Name " + i));
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
-    SearchWsResponse response = call(new SearchRequest().setOrganization(organizationDto.getKey()).setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchRequest().setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly("project-key-4", "project-key-5", "project-key-6");
   }
 
   @Test
   public void return_only_projects_on_which_user_has_browse_permission() {
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto portfolio = ComponentTesting.newView(db.getDefaultOrganization());
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto();
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto();
+    ComponentDto portfolio = ComponentTesting.newView();
 
     db.components().insertComponents(project1, project2, portfolio);
     setBrowsePermissionOnUserAndIndex(project1);
@@ -180,7 +164,7 @@ public class SearchActionTest {
 
   @Test
   public void return_project_key() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPublicProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto dir1 = newDirectory(module, "dir1").setDbKey("dir1");
     ComponentDto dir2 = newDirectory(module, "dir2").setDbKey("dir2");
@@ -208,37 +192,35 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_unknown_qualifier_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [APP, TRK]");
-
-    call(new SearchRequest().setQualifiers(singletonList("Unknown-Qualifier")));
+    SearchRequest searchRequest = new SearchRequest().setQualifiers(singletonList("Unknown-Qualifier"));
+    assertThatThrownBy(() -> call(searchRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [APP, TRK]");
   }
 
   @Test
   public void fail_when_no_qualifier_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'qualifiers' parameter is missing");
-
-    call(new SearchRequest());
+    SearchRequest searchRequest = new SearchRequest();
+    assertThatThrownBy(() -> call(searchRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'qualifiers' parameter is missing");
   }
 
   @Test
   public void test_json_example() {
-    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    db.components().insertComponent(newView(organizationDto));
-    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setName("Project Name").setDbKey("project-key");
+    db.components().insertComponent(newView());
+    ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setDbKey("project-key");
     ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setDbKey("module-key");
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
-    ComponentDto view = newView(organizationDto);
+    ComponentDto view = newView();
     db.components().insertComponents(project, module, directory, view);
     setBrowsePermissionOnUserAndIndex(project);
 
-    String response = ws.newRequest()
+    String response = underTest.newRequest()
       .setMediaType(MediaTypes.JSON)
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
       .setParam(PARAM_QUALIFIERS, PROJECT)
       .execute().getInput();
-    assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(response).isSimilarTo(underTest.getDef().responseExampleAsString());
   }
 
   private void insertProjectsAuthorizedForUser(ComponentDto... projects) {
@@ -253,8 +235,7 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(SearchRequest wsRequest) {
-    TestRequest request = ws.newRequest();
-    ofNullable(wsRequest.getOrganization()).ifPresent(p3 -> request.setParam(PARAM_ORGANIZATION, p3));
+    TestRequest request = underTest.newRequest();
     ofNullable(wsRequest.getQualifiers()).ifPresent(p1 -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p1)));
     ofNullable(wsRequest.getQuery()).ifPresent(p -> request.setParam(TEXT_QUERY, p));
     ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(PAGE, String.valueOf(page)));
@@ -266,22 +247,4 @@ public class SearchActionTest {
     indexer.indexAll();
   }
 
-  private static Language[] javaLanguage() {
-    return new Language[] {new Language() {
-      @Override
-      public String getKey() {
-        return "java";
-      }
-
-      @Override
-      public String getName() {
-        return "Java";
-      }
-
-      @Override
-      public String[] getFileSuffixes() {
-        return new String[0];
-      }
-    }};
-  }
 }

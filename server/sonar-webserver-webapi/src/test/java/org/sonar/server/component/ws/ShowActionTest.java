@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
@@ -32,7 +31,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -44,6 +42,7 @@ import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -62,13 +61,11 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PUL
 
 public class ShowActionTest {
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db),
+  private final WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db),
     new IssueIndexSyncProgressChecker(db.getDbClient())));
 
   @Test
@@ -126,7 +123,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_browse_permission() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     userSession.logIn().addProjectPermission(USER, project);
 
@@ -316,8 +313,8 @@ public class ShowActionTest {
 
   @Test
   public void verify_need_issue_sync_pr() {
-    ComponentDto portfolio1 = db.components().insertPublicPortfolio(db.getDefaultOrganization());
-    ComponentDto portfolio2 = db.components().insertPublicPortfolio(db.getDefaultOrganization());
+    ComponentDto portfolio1 = db.components().insertPublicPortfolio();
+    ComponentDto portfolio2 = db.components().insertPublicPortfolio();
     ComponentDto subview = db.components().insertSubView(portfolio1);
 
     ComponentDto project1 = db.components().insertPrivateProject();
@@ -383,31 +380,30 @@ public class ShowActionTest {
   public void throw_ForbiddenException_if_user_doesnt_have_browse_permission_on_project() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    ComponentDto componentDto = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto componentDto = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(componentDto);
 
-    newRequest(componentDto.getDbKey());
+    String componentDtoDbKey = componentDto.getDbKey();
+    assertThatThrownBy(() -> newRequest(componentDtoDbKey))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_component_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown-key' not found");
-
-    newRequest("unknown-key");
+    assertThatThrownBy(() -> newRequest("unknown-key"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown-key' not found");
   }
 
   @Test
   public void fail_if_component_is_removed() {
     userSession.logIn().setRoot();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
-
-    newRequest("file-key");
+    assertThatThrownBy(() -> newRequest("file-key"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'file-key' not found");
   }
 
   @Test
@@ -417,13 +413,13 @@ public class ShowActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, "another_branch")
-      .execute();
+      .setParam(PARAM_BRANCH, "another_branch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -432,12 +428,11 @@ public class ShowActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .executeProtobuf(ShowWsResponse.class);
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getDbKey());
+    assertThatThrownBy(() -> request.executeProtobuf(ShowWsResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private ShowWsResponse newRequest(@Nullable String key) {
@@ -449,14 +444,12 @@ public class ShowActionTest {
   }
 
   private void insertJsonExampleComponentsAndSnapshots() {
-    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = db.components().insertPrivateProject(organizationDto,
-      c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
-        .setProjectUuid("AVIF98jgA3Ax6PH2efOW")
-        .setDbKey("com.sonarsource:java-markdown")
-        .setName("Java Markdown")
-        .setDescription("Java Markdown Project")
-        .setQualifier(Qualifiers.PROJECT),
+    ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
+      .setProjectUuid("AVIF98jgA3Ax6PH2efOW")
+      .setDbKey("com.sonarsource:java-markdown")
+      .setName("Java Markdown")
+      .setDescription("Java Markdown Project")
+      .setQualifier(Qualifiers.PROJECT),
       p -> p.setTagsString("language, plugin"));
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setProjectVersion("1.1")

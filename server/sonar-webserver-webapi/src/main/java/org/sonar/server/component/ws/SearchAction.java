@@ -22,7 +22,6 @@ package org.sonar.server.component.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -38,17 +37,13 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentQuery;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
@@ -62,7 +57,6 @@ import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
@@ -73,15 +67,12 @@ public class SearchAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.i18n = i18n;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -105,14 +96,6 @@ public class SearchAction implements ComponentsWsAction {
         "</ul>")
       .setExampleValue("sonar");
 
-    action
-      .createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
-      .setSince("6.3");
-
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes), VALID_QUALIFIERS)
       .setRequired(true);
   }
@@ -125,7 +108,6 @@ public class SearchAction implements ComponentsWsAction {
 
   private static SearchRequest toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     return new SearchRequest()
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
@@ -134,14 +116,13 @@ public class SearchAction implements ComponentsWsAction {
 
   private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = getOrganization(dbSession, request);
-      ComponentQuery esQuery = buildEsQuery(organization, request);
+      ComponentQuery esQuery = buildEsQuery(request);
       SearchIdResult<String> results = componentIndex.search(esQuery, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
       List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, results.getUuids());
       Map<String, String> projectKeysByUuids = searchProjectsKeysByUuids(dbSession, components);
 
-      return buildResponse(components, organization, projectKeysByUuids,
+      return buildResponse(components, projectKeysByUuids,
         Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) results.getTotal()));
     }
   }
@@ -158,23 +139,14 @@ public class SearchAction implements ComponentsWsAction {
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
   }
 
-  private OrganizationDto getOrganization(DbSession dbSession, SearchRequest request) {
-    String organizationKey = Optional.ofNullable(request.getOrganization())
-      .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return NotFoundException.checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-      "No organizationDto with key '%s'", organizationKey);
-  }
-
-  private static ComponentQuery buildEsQuery(OrganizationDto organization, SearchRequest request) {
+  private static ComponentQuery buildEsQuery(SearchRequest request) {
     return ComponentQuery.builder()
       .setQuery(request.getQuery())
-      .setOrganization(organization.getUuid())
       .setQualifiers(request.getQualifiers())
       .build();
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, String> projectKeysByUuids, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, String> projectKeysByUuids, Paging paging) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -183,20 +155,14 @@ public class SearchAction implements ComponentsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToComponent(organization, dto, projectKeysByUuids.get(dto.projectUuid())))
+      .map(dto -> dtoToComponent(dto, projectKeysByUuids.get(dto.projectUuid())))
       .forEach(responseBuilder::addComponents);
 
     return responseBuilder.build();
   }
 
-  private static Components.Component dtoToComponent(OrganizationDto organization, ComponentDto dto, String projectKey) {
-    checkArgument(
-      organization.getUuid().equals(dto.getOrganizationUuid()),
-      "No Organization found for uuid '%s'",
-      dto.getOrganizationUuid());
-
+  private static Components.Component dtoToComponent(ComponentDto dto, String projectKey) {
     Components.Component.Builder builder = Components.Component.newBuilder()
-      .setOrganization(organization.getKey())
       .setKey(dto.getDbKey())
       .setProject(projectKey)
       .setName(dto.name())
@@ -206,21 +172,10 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   static class SearchRequest {
-    private String organization;
     private List<String> qualifiers;
     private Integer page;
     private Integer pageSize;
     private String query;
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
-    }
-
-    public SearchRequest setOrganization(@Nullable String organization) {
-      this.organization = organization;
-      return this;
-    }
 
     public List<String> getQualifiers() {
       return qualifiers;

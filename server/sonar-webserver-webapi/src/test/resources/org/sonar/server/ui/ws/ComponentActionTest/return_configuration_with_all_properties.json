@@ -11,7 +11,7 @@
     "showBackgroundTasks": true,
     "canApplyPermissionTemplate": false,
     "canBrowseProject": true,
-    "canUpdateProjectVisibilityToPrivate": false,
+    "canUpdateProjectVisibilityToPrivate": true,
     "extensions": []
   }
 }

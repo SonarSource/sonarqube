@@ -57,6 +57,12 @@ public class QualityGateDbTester {
   }
 
   @SafeVarargs
+  public final QGateWithOrgDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
+    return insertQualityGate(db.getDefaultOrganization(), dtoPopulators);
+  }
+
+  @Deprecated
+  @SafeVarargs
   public final QGateWithOrgDto insertQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto qualityGate = new QualityGateDto()
       .setName(randomAlphanumeric(30))
@@ -80,6 +86,12 @@ public class QualityGateDbTester {
   }
 
   @SafeVarargs
+  public final QualityGateDto createDefaultQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
+    return createDefaultQualityGate(db.getDefaultOrganization(), dtoPopulators);
+  }
+
+  @SafeVarargs
+  @Deprecated
   public final QualityGateDto createDefaultQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto defaultQGate = insertQualityGate(organization, dtoPopulators);
     setDefaultQualityGate(organization, defaultQGate);

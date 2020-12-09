@@ -1,6 +1,5 @@
 {
   "component": {
-    "organization": "my-org-1",
     "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java",
     "name": "Rule.java",
     "qualifier": "FIL",
@@ -12,7 +11,6 @@
   },
   "ancestors": [
     {
-      "organization": "my-org-1",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
       "name": "src/main/java/com/sonarsource/markdown/impl",
       "qualifier": "DIR",
@@ -21,7 +19,6 @@
       "version": "1.1"
     },
     {
-      "organization": "my-org-1",
       "key": "com.sonarsource:java-markdown",
       "name": "Java Markdown",
       "description": "Java Markdown Project",

@@ -19,14 +19,12 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,7 +52,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -85,19 +82,15 @@ import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
@@ -106,14 +99,13 @@ public class SearchProjectsAction implements ComponentsWsAction {
   public static final int MAX_PAGE_SIZE = 500;
   public static final int DEFAULT_PAGE_SIZE = 100;
   private static final String ALL = "_all";
-  private static final String ORGANIZATIONS = "organizations";
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
   private static final String METRIC_LEAK_PROJECTS_KEY = "leak_projects";
   private static final String HTML_POSSIBLE_VALUES_TEXT = "The possible values are:";
   private static final String HTML_UL_START_TAG = "<ul>";
   private static final String HTML_UL_END_TAG = "</ul>";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ALL, ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE);
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ALL, ANALYSIS_DATE, LEAK_PERIOD_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
@@ -150,11 +142,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
     action.createFieldsParam(POSSIBLE_FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response")
       .setSince("6.4");
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("the organization to search projects in")
-      .setRequired(false)
-      .setInternal(true)
-      .setSince("6.3");
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(Arrays.stream(ProjectMeasuresIndex.Facet.values())
@@ -238,44 +225,19 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String organizationKey = request.getOrganization();
-      if (organizationKey == null) {
-        return handleForAnyOrganization(dbSession, request);
-      } else {
-        OrganizationDto organization = checkFoundWithOptional(
-          dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-          "No organization for key '%s'", organizationKey);
-        return handleForOrganization(dbSession, request, organization);
-      }
+      SearchResults searchResults = searchData(dbSession, request);
+      boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+      return buildResponse(request, searchResults, needIssueSync);
     }
   }
 
-  private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
-    SearchResults searchResults = searchData(dbSession, request, null);
-    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
-    Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-    return buildResponse(request, searchResults, organizationsByUuid, needIssueSync);
-  }
-
-  private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
-    SearchResults searchResults = searchData(dbSession, request, organization);
-    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
-    return buildResponse(request, searchResults, ImmutableMap.of(organization.getUuid(), organization), needIssueSync);
-  }
-
-  private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
+  private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request) {
     Set<String> favoriteProjectUuids = loadFavoriteProjectUuids(dbSession);
     List<Criterion> criteria = FilterParser.parse(firstNonNull(request.getFilter(), ""));
     ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, hasFavoriteFilter(criteria) ? favoriteProjectUuids : null)
       .setIgnoreWarning(projectsInWarning.count() == 0L)
       .setSort(request.getSort())
       .setAsc(request.getAsc());
-    Optional.ofNullable(organization)
-      .map(OrganizationDto::getUuid)
-      .ifPresent(query::setOrganizationUuid);
 
     Set<String> qualifiersBasedOnEdition = getQualifiersBasedOnEdition(query);
     query.setQualifiers(qualifiersBasedOnEdition);
@@ -395,7 +357,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
     RequestBuilder request = new RequestBuilder()
-      .setOrganization(httpRequest.param(PARAM_ORGANIZATION))
       .setFilter(httpRequest.param(PARAM_FILTER))
       .setSort(httpRequest.mandatoryParam(Param.SORT))
       .setAsc(httpRequest.mandatoryParamAsBoolean(Param.ASCENDING))
@@ -407,7 +368,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (httpRequest.hasParam(FIELDS)) {
       List<String> paramsAsString = httpRequest.mandatoryParamAsStrings(FIELDS);
       if (paramsAsString.contains(ALL)) {
-        request.setAdditionalFields(of(ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE));
+        request.setAdditionalFields(of(ANALYSIS_DATE, LEAK_PERIOD_DATE));
       } else {
         request.setAdditionalFields(paramsAsString);
       }
@@ -415,14 +376,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid,
-    boolean needIssueSync) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults, userSession.isLoggedIn(), needIssueSync);
-
-    Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
-    if (request.additionalFields.contains(ORGANIZATIONS)) {
-      organizationsByUuidForAdditionalInfo.putAll(organizationsByUuid);
-    }
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, boolean needIssueSync) {
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn(), needIssueSync);
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -433,15 +388,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
         searchResults.projects.stream()
           .map(dbToWsComponent)
           .forEach(response::addComponents);
-        return response;
-      })
-      .map(response -> {
-        organizationsByUuidForAdditionalInfo.values().stream().forEach(
-          dto -> response.addOrganizations(
-            Common.Organization.newBuilder()
-              .setKey(dto.getKey())
-              .setName(dto.getName())
-              .build()));
         return response;
       })
       .map(response -> addFacets(searchResults, response))
@@ -526,7 +472,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private static class DbToWsComponent implements Function<ProjectDto, Component> {
     private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
-    private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
     private final List<String> projectsWithIssuesInSync;
     private final boolean isUserLoggedIn;
@@ -534,13 +479,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Map<String, Long> applicationsLeakPeriod;
     private final boolean needIssueSync;
 
-    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, SearchResults searchResults, boolean isUserLoggedIn,
+    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn,
       boolean needIssueSync) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
       this.wsComponent = Component.newBuilder();
-      this.organizationsByUuid = organizationsByUuid;
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
       this.projectsWithIssuesInSync = searchResults.projectsWithIssuesInSync;
       this.isUserLoggedIn = isUserLoggedIn;
@@ -549,12 +493,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     @Override
     public Component apply(ProjectDto dbProject) {
-      String organizationUuid = dbProject.getOrganizationUuid();
-      OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
-      checkFound(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
       wsComponent
         .clear()
-        .setOrganization(organizationDto.getKey())
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
@@ -673,7 +613,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     private final int page;
     private final int pageSize;
-    private final String organization;
     private final String filter;
     private final List<String> facets;
     private final String sort;
@@ -683,17 +622,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private SearchProjectsRequest(RequestBuilder builder) {
       this.page = builder.page;
       this.pageSize = builder.pageSize;
-      this.organization = builder.organization;
       this.filter = builder.filter;
       this.facets = builder.facets;
       this.sort = builder.sort;
       this.asc = builder.asc;
       this.additionalFields = builder.additionalFields;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
     }
 
     @CheckForNull
@@ -734,7 +667,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   static class RequestBuilder {
-    private String organization;
     private Integer page;
     private Integer pageSize;
     private String filter;
@@ -745,11 +677,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     private RequestBuilder() {
       // enforce static factory method
-    }
-
-    public RequestBuilder setOrganization(@Nullable String organization) {
-      this.organization = organization;
-      return this;
     }
 
     public RequestBuilder setFilter(@Nullable String filter) {
