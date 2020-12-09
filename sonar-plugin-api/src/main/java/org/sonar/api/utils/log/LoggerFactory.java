@@ -19,24 +19,37 @@
  */
 package org.sonar.api.utils.log;
 
-public abstract class Loggers {
+/**
+ * @since 8.7
+ */
+public abstract class LoggerFactory {
 
-  static Loggers getFactory() {
-    return LoggerFactory.getFactory();
+  private static Loggers factory;
+
+  private LoggerFactory() {
+    // no new instance
   }
 
-  protected abstract Logger newInstance(String name);
-
-  protected abstract LoggerLevel getLevel();
-
-  protected abstract void setLevel(LoggerLevel level);
-
-  public static Logger get(Class<?> name) {
-    return LoggerFactory.get(name);
+  static {
+    try {
+      Class.forName("ch.qos.logback.classic.Logger");
+      factory = new LogbackLoggers();
+    } catch (Exception e) {
+      // no slf4j -> testing environment
+      factory = new ConsoleLoggers();
+    }
   }
 
-  public static Logger get(String name) {
-    return LoggerFactory.get(name);
+  static Loggers getFactory(){
+    return factory;
+  }
+
+  static Logger get(Class<?> name) {
+    return factory.newInstance(name.getName());
+  }
+
+  static Logger get(String name) {
+    return factory.newInstance(name);
   }
 
 }
