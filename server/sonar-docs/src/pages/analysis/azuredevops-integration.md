@@ -42,6 +42,9 @@ For information on analyzing your projects with Azure Pipelines, see the followi
 ## Analyzing projects with Azure Pipelines
 SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
 
+[[info]]
+| Automatic branch detection is only available when using Git.
+
 You can find a tutorial on setting up analysis with Azure Pipelines by selecting **Azure Pipelines** when asked how you want to analyze your repository:
 
 ![Analyzing repositories with Azure Pipelines](/images/AzurePipelinesAnalysis.png)
