@@ -26,25 +26,40 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.InternalPropertiesDao;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class WebhookDao implements Dao {
 
   private final System2 system2;
+  private final InternalPropertiesDao internalPropertiesDao;
 
-  public WebhookDao(System2 system2) {
+  public WebhookDao(System2 system2, InternalPropertiesDao internalPropertiesDao) {
     this.system2 = system2;
+    this.internalPropertiesDao = internalPropertiesDao;
+  }
+
+  public List<WebhookDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAllOrderedByName();
+  }
+
+  public List<WebhookDto> selectGlobalWebhooks(DbSession dbSession) {
+    return mapper(dbSession).selectGlobalWebhooksOrderedByName();
   }
 
   public Optional<WebhookDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
 
+  // TODO remove
+  @Deprecated
   public List<WebhookDto> selectByOrganization(DbSession dbSession, OrganizationDto organizationDto) {
     return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationDto.getUuid());
   }
 
+  // TODO remove
+  @Deprecated
   public List<WebhookDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
     return mapper(dbSession).selectForOrganizationUuidOrderedByName(organizationUuid);
   }
@@ -54,10 +69,14 @@ public class WebhookDao implements Dao {
   }
 
   public void insert(DbSession dbSession, WebhookDto dto) {
-    checkState(dto.getOrganizationUuid() != null || dto.getProjectUuid() != null,
-      "A webhook can not be created if not linked to an organization or a project.");
     checkState(dto.getOrganizationUuid() == null || dto.getProjectUuid() == null,
       "A webhook can not be linked to both an organization and a project.");
+
+    if (dto.getProjectUuid() == null && dto.getOrganizationUuid() == null) {
+      Optional<String> uuid = internalPropertiesDao.selectByKey(dbSession, "organization.default");
+      checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");
+      dto.setOrganizationUuid(uuid.get());
+    }
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()).setUpdatedAt(system2.now()));
   }
 
@@ -67,10 +86,6 @@ public class WebhookDao implements Dao {
 
   public void delete(DbSession dbSession, String uuid) {
     mapper(dbSession).delete(uuid);
-  }
-
-  public void deleteByOrganization(DbSession dbSession, OrganizationDto organization) {
-    mapper(dbSession).deleteForOrganizationUuid(organization.getUuid());
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto projectDto) {

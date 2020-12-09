@@ -22,14 +22,12 @@ package org.sonar.server.webhook.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.organization.OrganizationDbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
@@ -37,28 +35,24 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 
 public class UpdateActionTest {
-
-  @Rule
-  public ExpectedException expectedException = none();
 
   @Rule
   public UserSessionRule userSession = standalone();
@@ -67,12 +61,11 @@ public class UpdateActionTest {
   public DbTester db = create();
   private final DbClient dbClient = db.getDbClient();
   private final WebhookDbTester webhookDbTester = db.webhooks();
-  private final OrganizationDbTester organizationDbTester = db.organizations();
   private final ComponentDbTester componentDbTester = db.components();
-  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
   private final Configuration configuration = mock(Configuration.class);
   private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
-  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, resourceTypes);
   private final UpdateAction underTest = new UpdateAction(dbClient, userSession, webhookSupport, componentFinder);
   private final WsActionTester wsActionTester = new WsActionTester(underTest);
 
@@ -106,10 +99,9 @@ public class UpdateActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
-    assertThat(reloaded.get()).isNotNull();
+    assertThat(reloaded).isPresent();
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(reloaded.get().getOrganizationUuid()).isNull();
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
     assertThat(reloaded.get().getSecret()).isNull();
   }
@@ -129,18 +121,16 @@ public class UpdateActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
-    assertThat(reloaded.get()).isNotNull();
+    assertThat(reloaded).isPresent();
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(reloaded.get().getOrganizationUuid()).isNull();
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
     assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
   }
 
   @Test
-  public void update_an_organization_webhook() {
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+  public void update_a_global_webhook() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     userSession.logIn().addPermission(ADMINISTER);
 
     TestResponse response = wsActionTester.newRequest()
@@ -152,10 +142,9 @@ public class UpdateActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
-    assertThat(reloaded.get()).isNotNull();
+    assertThat(reloaded).isPresent();
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-    assertThat(reloaded.get().getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
     assertThat(reloaded.get().getProjectUuid()).isNull();
     assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
   }
@@ -163,64 +152,56 @@ public class UpdateActionTest {
   @Test
   public void fail_if_webhook_does_not_exist() {
     userSession.logIn().addPermission(ADMINISTER);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No webhook with key 'inexistent-webhook-uuid'");
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", "inexistent-webhook-uuid")
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .execute();
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No webhook with key 'inexistent-webhook-uuid'");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     userSession.anonymous();
-
-    expectedException.expect(UnauthorizedException.class);
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .execute();
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-
     userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .execute();
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
-  public void fail_if_no_permission_on_webhook_scope_organization() {
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
-
+  public void fail_if_no_permission_on_webhook_scope_global() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .execute();
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -228,14 +209,13 @@ public class UpdateActionTest {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", "htp://www.wrong-protocol.com/")
-      .execute();
+      .setParam("url", "htp://www.wrong-protocol.com/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -243,14 +223,13 @@ public class UpdateActionTest {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    wsActionTester.newRequest()
+    TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
-      .setParam("url", "http://:www.wrong-protocol.com/")
-      .execute();
+      .setParam("url", "http://:www.wrong-protocol.com/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
 }

@@ -32,18 +32,18 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationQuery;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.index.UserIndexer;
 
 import static org.sonar.db.Pagination.forPage;
 
+//TODO remove
+@Deprecated
 public class OrganizationDeleter {
 
   private static final Logger LOGGER = Loggers.get(OrganizationDeleter.class);
@@ -54,25 +54,21 @@ public class OrganizationDeleter {
   private final DbClient dbClient;
   private final ComponentCleanerService componentCleanerService;
   private final UserIndexer userIndexer;
-  private final QProfileFactory qProfileFactory;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
   private final BillingValidationsProxy billingValidations;
 
   public OrganizationDeleter(DbClient dbClient, ComponentCleanerService componentCleanerService, UserIndexer userIndexer,
-    QProfileFactory qProfileFactory, ProjectLifeCycleListeners projectLifeCycleListeners,
+    ProjectLifeCycleListeners projectLifeCycleListeners,
     BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
     this.componentCleanerService = componentCleanerService;
     this.userIndexer = userIndexer;
-    this.qProfileFactory = qProfileFactory;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
     this.billingValidations = billingValidations;
   }
 
   void delete(DbSession dbSession, OrganizationDto organization) {
     deleteProjects(dbSession, organization);
-    deletePermissions(dbSession, organization);
-    deleteGroups(dbSession, organization);
     deleteQualityGates(dbSession, organization);
     deleteOrganizationAlmBinding(dbSession, organization);
     deleteOrganization(dbSession, organization);
@@ -89,13 +85,6 @@ public class OrganizationDeleter {
         .collect(MoreCollectors.toSet());
       projectLifeCycleListeners.onProjectsDeleted(projects);
     }
-  }
-
-  private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
-
-  }
-
-  private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
   }
 
   private void deleteQualityGates(DbSession dbSession, OrganizationDto organization) {
@@ -118,7 +107,6 @@ public class OrganizationDeleter {
     dbClient.userDao().cleanHomepage(dbSession, organization);
     dbClient.webhookDao().selectByOrganizationUuid(dbSession, organization.getUuid())
       .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh));
-    dbClient.webhookDao().deleteByOrganization(dbSession, organization);
     List<UserDto> users = dbClient.userDao().selectByUuids(dbSession, uuids);
     userIndexer.commitAndIndex(dbSession, users);
   }

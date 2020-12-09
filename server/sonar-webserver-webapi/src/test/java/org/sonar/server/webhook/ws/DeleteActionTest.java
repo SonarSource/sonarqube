@@ -22,15 +22,12 @@ package org.sonar.server.webhook.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.organization.OrganizationDbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDao;
@@ -39,28 +36,24 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 
 public class DeleteActionTest {
-
-  @Rule
-  public ExpectedException expectedException = none();
 
   @Rule
   public UserSessionRule userSession = standalone();
@@ -72,9 +65,7 @@ public class DeleteActionTest {
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
   private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
-  private final OrganizationDbTester organizationDbTester = db.organizations();
   private final ComponentDbTester componentDbTester = db.components();
-  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
   private final Configuration configuration = mock(Configuration.class);
   private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
   private final DeleteAction underTest = new DeleteAction(dbClient, userSession, webhookSupport);
@@ -118,15 +109,11 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_an_organization_webhook() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+  public void delete_a_global_webhook() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-
     userSession.logIn().addPermission(ADMINISTER);
-
     TestResponse response = wsActionTester.newRequest()
       .setParam(KEY_PARAM, dto.getUuid())
       .execute();
@@ -141,64 +128,49 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_webhook_does_not_exist() {
-
     userSession.logIn().addPermission(ADMINISTER);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(KEY_PARAM, "inexistent-webhook-uuid");
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No webhook with key 'inexistent-webhook-uuid'");
-
-    wsActionTester.newRequest()
-      .setParam(KEY_PARAM, "inexistent-webhook-uuid")
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No webhook with key 'inexistent-webhook-uuid'");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     userSession.anonymous();
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(KEY_PARAM, dto.getUuid());
 
-    expectedException.expect(UnauthorizedException.class);
-
-    wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .execute();
-
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
-
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-
     userSession.logIn();
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(KEY_PARAM, dto.getUuid());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .execute();
-
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
-  public void fail_if_no_permission_on_webhook_scope_organization() {
-
-    OrganizationDto organization = organizationDbTester.insert();
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
-
+  public void fail_if_no_permission_on_webhook_scope_global() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     userSession.logIn();
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(KEY_PARAM, dto.getUuid());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .execute();
-
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
 }

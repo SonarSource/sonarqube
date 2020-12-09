@@ -39,18 +39,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.db.DbTester.create;
-import static org.sonar.db.webhook.WebhookTesting.newWebhook;
+import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 
 public class AsynchronousWebHooksImplTest {
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester db = create(system2);
-  private WebhookDbTester webhookDbTester = db.webhooks();
-  private ComponentDbTester componentDbTester = db.components();
+  private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final ComponentDbTester componentDbTester = db.components();
 
   private static final long NOW = 1_500_000_000_000L;
 
@@ -66,8 +66,8 @@ public class AsynchronousWebHooksImplTest {
 
     OrganizationDto organizationDto = db.getDefaultOrganization();
     ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setOrganizationUuid(organizationDto.getUuid()));
-    webhookDbTester.insert(newWebhook(organizationDto).setName("First").setUrl("http://url1"));
-    webhookDbTester.insert(newWebhook(organizationDto).setName("Second").setUrl("http://url2"));
+    webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"));
+    webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"));
 
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
@@ -75,7 +75,7 @@ public class AsynchronousWebHooksImplTest {
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(project.uuid(), "1", "#1"), () -> mock, mock(LogStatistics.class));
 
     assertThat(caller.countSent()).isZero();
-    verifyZeroInteractions(deliveryStorage);
+    verifyNoInteractions(deliveryStorage);
 
     asyncExecution.executeRecorded();
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.organization;
 
+//TODO remove
+@Deprecated
 public interface DefaultOrganizationProvider {
   /**
    * @throws IllegalStateException if there is no default organization

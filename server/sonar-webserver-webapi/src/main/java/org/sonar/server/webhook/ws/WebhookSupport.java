@@ -23,12 +23,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import okhttp3.HttpUrl;
 import org.sonar.api.config.Configuration;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
@@ -67,11 +64,4 @@ public class WebhookSupport {
       // this will only happen for public URLs
     }
   }
-
-  void checkThatProjectBelongsToOrganization(ProjectDto projectDto, OrganizationDto organizationDto, String message, Object... messageArguments) {
-    if (!organizationDto.getUuid().equals(projectDto.getOrganizationUuid())) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
-  }
-
 }

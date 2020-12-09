@@ -75,6 +75,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private boolean disableDefaultOrganization = false;
   private boolean started = false;
   private String defaultOrganizationUuid = randomAlphanumeric(40);
+  private String defaultOrganizationKey = randomAlphanumeric(40);
   private OrganizationDto defaultOrganization;
 
   private final UserDbTester userTester;
@@ -161,15 +162,27 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
   }
 
+  //TODO remove
+  @Deprecated
   public DbTester setDisableDefaultOrganization(boolean b) {
     checkState(!started, "DbTester is already started");
     this.disableDefaultOrganization = b;
     return this;
   }
 
+  //TODO remove
+  @Deprecated
   public DbTester setDefaultOrganizationUuid(String uuid) {
     checkState(!started, "DbTester is already started");
     this.defaultOrganizationUuid = uuid;
+    return this;
+  }
+
+  //TODO remove
+  @Deprecated
+  public DbTester setDefaultOrganizationKey(String key) {
+    checkState(!started, "DbTester is already started");
+    this.defaultOrganizationKey = key;
     return this;
   }
 
@@ -184,8 +197,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     started = true;
   }
 
+  //TODO remove
+  @Deprecated
   private void insertDefaultOrganization() {
-    defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid);
+    defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid).setKey(defaultOrganizationKey);
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
       client.organizationDao().insert(dbSession, defaultOrganization, false);
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
@@ -193,6 +208,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     }
   }
 
+  //TODO remove
+  @Deprecated
   public OrganizationDto getDefaultOrganization() {
     checkState(defaultOrganization != null, "Default organization has not been created");
     return defaultOrganization;

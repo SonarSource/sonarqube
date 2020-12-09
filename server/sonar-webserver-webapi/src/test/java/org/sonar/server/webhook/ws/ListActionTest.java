@@ -22,16 +22,14 @@ package org.sonar.server.webhook.ws;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
@@ -40,25 +38,22 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.ListResponse;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
-import static org.sonar.db.webhook.WebhookTesting.newOrganizationWebhook;
-import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
+import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 import static org.sonar.server.tester.UserSessionRule.standalone;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
 
 public class ListActionTest {
@@ -67,25 +62,21 @@ public class ListActionTest {
   private static final long BEFORE = NOW - 1_000L;
 
   @Rule
-  public ExpectedException expectedException = none();
-
-  @Rule
   public UserSessionRule userSession = standalone();
 
   @Rule
   public DbTester db = create();
 
   private final DbClient dbClient = db.getDbClient();
-  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
   private final Configuration configuration = mock(Configuration.class);
   private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
-  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
-  private final ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport, componentFinder);
+  private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, resourceTypes);
+  private final ListAction underTest = new ListAction(dbClient, userSession, webhookSupport, componentFinder);
 
   private final ComponentDbTester componentDbTester = db.components();
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
-  private final OrganizationDbTester organizationDbTester = db.organizations();
   private final WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
@@ -99,18 +90,17 @@ public class ListActionTest {
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("organization", false),
         tuple("project", false));
     assertThat(action.changelog()).hasSize(1);
   }
 
   @Test
   public void list_webhooks_and_their_latest_delivery() {
-    WebhookDto webhook1 = webhookDbTester.insert(newOrganizationWebhook("aaa", defaultOrganizationProvider.get().getUuid()));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
-    WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", defaultOrganizationProvider.get().getUuid()));
+    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"));
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
@@ -134,8 +124,8 @@ public class ListActionTest {
 
   @Test
   public void list_webhooks_when_no_delivery() {
-    WebhookDto webhook1 = webhookDbTester.insert(newOrganizationWebhook("aaa", defaultOrganizationProvider.get().getUuid()));
-    WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", defaultOrganizationProvider.get().getUuid()));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"));
+    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"));
 
     userSession.logIn().addPermission(ADMINISTER);
 
@@ -157,10 +147,10 @@ public class ListActionTest {
   public void obfuscate_credentials_in_webhook_URLs() {
     String url = "http://foo:barouf@toto/bop";
     String expectedUrl = "http://***:******@toto/bop";
-    WebhookDto webhook1 = webhookDbTester.insert(newOrganizationWebhook("aaa", defaultOrganizationProvider.get().getUuid(), t -> t.setUrl(url)));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa", t -> t.setUrl(url)));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
-    WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", db.getDefaultOrganization().getUuid(), t -> t.setUrl(url)));
+    webhookDbTester.insert(newGlobalWebhook("bbb", t -> t.setUrl(url)));
 
     userSession.logIn().addPermission(ADMINISTER);
 
@@ -175,8 +165,8 @@ public class ListActionTest {
 
   @Test
   public void list_global_webhooks() {
-    WebhookDto dto1 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
-    WebhookDto dto2 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
+    WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
+    WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
     userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
@@ -190,7 +180,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_project_webhooks_when_no_organization_is_provided() {
+  public void list_project_webhooks_when_project_key_param_is_provided() {
     ProjectDto project1 = componentDbTester.insertPrivateProjectDto();
     userSession.logIn().addProjectPermission(ADMIN, project1);
 
@@ -209,35 +199,12 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_organization_webhooks() {
-    OrganizationDto organizationDto = organizationDbTester.insert();
-    WebhookDto dto1 = webhookDbTester.insertWebhook(organizationDto);
-    WebhookDto dto2 = webhookDbTester.insertWebhook(organizationDto);
+  public void list_global_webhooks_if_project_key_param_missing() {
+    WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
+    WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
     userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organizationDto.getKey())
-      .executeProtobuf(ListResponse.class);
-
-    assertThat(response.getWebhooksList())
-      .extracting(Webhooks.ListResponseElement::getName, Webhooks.ListResponseElement::getUrl)
-      .contains(tuple(dto1.getName(), dto1.getUrl()),
-        tuple(dto2.getName(), dto2.getUrl()));
-
-  }
-
-  @Test
-  public void list_project_webhooks_when_organization_is_provided() {
-    OrganizationDto organization = organizationDbTester.insert();
-    ProjectDto project = componentDbTester.insertPrivateProjectDto(organization);
-    userSession.logIn().addProjectPermission(ADMIN, project);
-
-    WebhookDto dto1 = webhookDbTester.insertWebhook(project);
-    WebhookDto dto2 = webhookDbTester.insertWebhook(project);
-
-    ListResponse response = wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
       .executeProtobuf(ListResponse.class);
 
     assertThat(response.getWebhooksList())
@@ -250,76 +217,42 @@ public class ListActionTest {
   @Test
   public void return_NotFoundException_if_requested_project_is_not_found() {
     userSession.logIn().setSystemAdministrator();
-    expectedException.expect(NotFoundException.class);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(PROJECT_KEY_PARAM, "pipo");
 
-    wsActionTester.newRequest()
-      .setParam(PROJECT_KEY_PARAM, "pipo")
-      .executeProtobuf(ListResponse.class);
-
-  }
-
-  @Test
-  public void return_NotFoundException_if_requested_organization_is_not_found() {
-    userSession.logIn().setSystemAdministrator();
-    expectedException.expect(NotFoundException.class);
-
-    wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, "pipo")
-      .executeProtobuf(ListResponse.class);
-
-  }
-
-  @Test
-  public void fail_if_project_exists_but_does_not_belong_to_requested_organization() {
-    OrganizationDto organization = organizationDbTester.insert();
-    ComponentDto project = componentDbTester.insertPrivateProject();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' does not belong to organisation '%s'", project.getKey(), organization.getKey()));
-
-    userSession.logIn().addProjectPermission(ADMIN, project);
-
-    wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .execute();
-
+    assertThatThrownBy(() -> request.executeProtobuf(ListResponse.class))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void return_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
-    expectedException.expect(UnauthorizedException.class);
+    TestRequest request = wsActionTester.newRequest();
 
-    wsActionTester.newRequest()
-      .executeProtobuf(ListResponse.class);
-
+    assertThatThrownBy(() -> request.executeProtobuf(ListResponse.class))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_organization_administrator() {
+  public void throw_ForbiddenException_if_not_administrator() {
     userSession.logIn();
+    TestRequest request = wsActionTester.newRequest();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
-      .executeProtobuf(ListResponse.class);
+    assertThatThrownBy(() -> request.executeProtobuf(ListResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
     ComponentDto project = componentDbTester.insertPrivateProject();
-
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(PROJECT_KEY_PARAM, project.getKey());
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    wsActionTester.newRequest()
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .executeProtobuf(ListResponse.class);
-
+    assertThatThrownBy(() -> request.executeProtobuf(ListResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
 }

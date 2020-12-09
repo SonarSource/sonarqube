@@ -29,13 +29,13 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -44,11 +44,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationQuery;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
@@ -60,13 +58,10 @@ import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
-import org.sonar.server.qualityprofile.QProfileFactoryImpl;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -84,8 +79,12 @@ import static org.sonar.server.organization.ws.OrganizationDeleter.PAGE_SIZE;
 @RunWith(DataProviderRunner.class)
 public class OrganizationDeleterTest {
 
+  private static final String DEFAULT_ORG_UUID = "org3-uuid";
+
   @Rule
-  public final DbTester db = DbTester.create(new System2()).setDisableDefaultOrganization(true);
+  public final DbTester db = DbTester.create(new System2()).setDisableDefaultOrganization(false)
+    .setDefaultOrganizationUuid(DEFAULT_ORG_UUID)
+    .setDefaultOrganizationKey("defaultOrg");
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
@@ -95,7 +94,7 @@ public class OrganizationDeleterTest {
   @Rule
   public final EsTester es = EsTester.create();
   private final EsClient esClient = es.client();
-  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+  private final ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
   private final ComponentCleanerService componentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mockResourceTypes, mock(ProjectIndexers.class)));
   private final UserIndex userIndex = new UserIndex(esClient, System2.INSTANCE);
   private final UserIndexer userIndexer = new UserIndexer(dbClient, esClient);
@@ -103,7 +102,7 @@ public class OrganizationDeleterTest {
   private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private final OrganizationDeleter underTest = new OrganizationDeleter(dbClient, componentCleanerService, userIndexer,
-    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), new System2(), new ActiveRuleIndexer(dbClient, esClient)), projectLifeCycleListeners, billingValidations);
+    projectLifeCycleListeners, billingValidations);
 
   @Test
   public void delete_specified_organization() {
@@ -118,14 +117,14 @@ public class OrganizationDeleterTest {
   @Test
   public void delete_webhooks_of_organization_if_exist() {
     OrganizationDto organization = db.organizations().insert();
-    db.webhooks().insertWebhook(organization);
+    db.webhooks().insertGlobalWebhook();
     ProjectDto project = db.components().insertPrivateProjectDto(organization);
     WebhookDto projectWebhook = db.webhooks().insertWebhook(project);
     db.webhookDelivery().insert(projectWebhook);
 
     underTest.delete(dbSession, organization);
 
-    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isZero();
+    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isOne();
     assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isZero();
   }
 
@@ -304,8 +303,8 @@ public class OrganizationDeleterTest {
   public static Object[][] queriesAndUnmatchedOrganizationKeys() {
     return new Object[][] {
       {OrganizationQuery.returnAll(), Collections.emptyList()},
-      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("nonexistent")).build(), Arrays.asList("org1", "org2", "org3")},
-      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("org1")).build(), Arrays.asList("org2", "org3")},
+      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("nonexistent")).build(), Arrays.asList("org1", "org2", "org3", "defaultOrg")},
+      {OrganizationQuery.newOrganizationQueryBuilder().setKeys(singleton("org1")).build(), Arrays.asList("org2", "org3", "defaultOrg")},
     };
   }
 
@@ -314,9 +313,8 @@ public class OrganizationDeleterTest {
     int orgsCountGreaterThanPageSize = PAGE_SIZE + 1;
 
     IntStream.range(0, orgsCountGreaterThanPageSize).forEach(ignored -> db.organizations().insert());
-
     OrganizationQuery query = OrganizationQuery.returnAll();
-    assertThat(dbClient.organizationDao().countByQuery(db.getSession(), query)).isEqualTo(orgsCountGreaterThanPageSize);
+    assertThat(dbClient.organizationDao().countByQuery(db.getSession(), query)).isEqualTo(orgsCountGreaterThanPageSize + 1);
 
     underTest.deleteByQuery(query);
 
