@@ -42,7 +42,6 @@ function shallowRender(props = {}) {
     <ProfileInheritanceBox
       depth={1}
       language="foo"
-      organization={null}
       profile={mockQualityProfileInheritance()}
       {...props}
     />

@@ -25,7 +25,6 @@ import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {
   language: string;
-  organization: string | null;
   profile: string;
   sonarway: string;
   sonarWayMissingRules: number;

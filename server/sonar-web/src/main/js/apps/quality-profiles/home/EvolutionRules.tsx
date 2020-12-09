@@ -35,10 +35,6 @@ function parseRules(rules: T.Rule[], actives?: T.Dict<T.RuleActivation[]>): Exte
   });
 }
 
-interface Props {
-  organization: string | null;
-}
-
 interface ExtendedRule extends T.Rule {
   activations: number;
 }
@@ -48,11 +44,11 @@ interface State {
   latestRulesTotal?: number;
 }
 
-export default class EvolutionRules extends React.PureComponent<Props, State> {
+export default class EvolutionRules extends React.PureComponent<{}, State> {
   periodStartDate: string;
   mounted = false;
 
-  constructor(props: Props) {
+  constructor(props: {}) {
     super(props);
     this.state = {};
     const startDate = new Date();
@@ -74,7 +70,6 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
       asc: false,
       available_since: this.periodStartDate,
       f: 'name,langName,actives',
-      organization: this.props.organization || undefined,
       ps: RULES_LIMIT,
       s: 'createdAt'
     };
@@ -88,7 +83,9 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
           });
         }
       },
-      () => {}
+      () => {
+        /*noop*/
+      }
     );
   }
 

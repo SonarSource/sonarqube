@@ -36,7 +36,6 @@ export interface Group {
 }
 
 interface Props {
-  organization?: string;
   profile: Pick<Profile, 'key' | 'language' | 'name'>;
 }
 
@@ -57,10 +56,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.organization !== this.props.organization ||
-      prevProps.profile.key !== this.props.profile.key
-    ) {
+    if (prevProps.profile.key !== this.props.profile.key) {
       this.fetchUsersAndGroups();
     }
   }
@@ -71,10 +67,9 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
 
   fetchUsersAndGroups() {
     this.setState({ loading: true });
-    const { organization, profile } = this.props;
+    const { profile } = this.props;
     const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
-      organization,
       qualityProfile: profile.name,
       selected: 'selected'
     };
@@ -158,7 +153,6 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                   <ProfilePermissionsUser
                     key={user.login}
                     onDelete={this.handleUserDelete}
-                    organization={this.props.organization}
                     profile={this.props.profile}
                     user={user}
                   />
@@ -169,7 +163,6 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                     group={group}
                     key={group.name}
                     onDelete={this.handleGroupDelete}
-                    organization={this.props.organization}
                     profile={this.props.profile}
                   />
                 ))}
@@ -187,7 +180,6 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
             onClose={this.handleAddUserFormClose}
             onGroupAdd={this.handleGroupAdd}
             onUserAdd={this.handleUserAdd}
-            organization={this.props.organization}
             profile={this.props.profile}
           />
         )}

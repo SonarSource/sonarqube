@@ -29,13 +29,12 @@ import { getProfileChangelogPath, getProfilesForLanguagePath, PROFILE_PATH } fro
 
 interface Props {
   profile: Profile;
-  organization: string | null;
   updateProfiles: () => Promise<void>;
 }
 
 export default class ProfileHeader extends React.PureComponent<Props> {
   render() {
-    const { organization, profile } = this.props;
+    const { profile } = this.props;
 
     return (
       <header className="page-header quality-profile-header">
@@ -74,7 +73,6 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             <li>
               <ProfileActions
                 className="pull-left"
-                organization={organization}
                 profile={profile}
                 updateProfiles={this.props.updateProfiles}
               />

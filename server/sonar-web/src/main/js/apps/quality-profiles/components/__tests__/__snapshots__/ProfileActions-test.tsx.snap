@@ -22,7 +22,7 @@ exports[`renders with all permissions 1`] = `
     </ActionsDropdownItem>
     <ActionsDropdownItem
       download="key.xml"
-      to="/api/qualityprofiles/backup?language=js&qualityProfile=name&organization=foo"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
       <span
         data-test="quality-profiles__backup"
@@ -103,7 +103,7 @@ exports[`renders with no permissions 1`] = `
   <ActionsDropdown>
     <ActionsDropdownItem
       download="key.xml"
-      to="/api/qualityprofiles/backup?language=js&qualityProfile=name&organization=foo"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
       <span
         data-test="quality-profiles__backup"
@@ -154,7 +154,7 @@ exports[`renders with permission to edit only 1`] = `
     </ActionsDropdownItem>
     <ActionsDropdownItem
       download="key.xml"
-      to="/api/qualityprofiles/backup?language=js&qualityProfile=name&organization=foo"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
       <span
         data-test="quality-profiles__backup"

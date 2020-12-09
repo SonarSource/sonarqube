@@ -22,22 +22,16 @@ import * as React from 'react';
 import ProfileRulesRowTotal from '../ProfileRulesRowTotal';
 
 it('should render correctly', () => {
-  expect(
-    shallow(<ProfileRulesRowTotal count={3} organization="foo" qprofile="bar" total={10} />)
-  ).toMatchSnapshot();
+  expect(shallow(<ProfileRulesRowTotal count={3} qprofile="bar" total={10} />)).toMatchSnapshot();
 });
 
 it('should render correctly if there is 0 rules', () => {
-  expect(
-    shallow(<ProfileRulesRowTotal count={0} organization={null} qprofile="bar" total={0} />)
-  ).toMatchSnapshot();
+  expect(shallow(<ProfileRulesRowTotal count={0} qprofile="bar" total={0} />)).toMatchSnapshot();
 });
 
 it('should render correctly if there is missing data', () => {
+  expect(shallow(<ProfileRulesRowTotal count={5} qprofile="bar" total={null} />)).toMatchSnapshot();
   expect(
-    shallow(<ProfileRulesRowTotal count={5} organization={null} qprofile="bar" total={null} />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(<ProfileRulesRowTotal count={null} organization={null} qprofile="foo" total={10} />)
+    shallow(<ProfileRulesRowTotal count={null} qprofile="foo" total={10} />)
   ).toMatchSnapshot();
 });

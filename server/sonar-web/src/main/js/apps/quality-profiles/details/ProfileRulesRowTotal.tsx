@@ -25,7 +25,6 @@ import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {
   count: number | null;
-  organization: string | null;
   qprofile: string;
   total: number | null;
 }

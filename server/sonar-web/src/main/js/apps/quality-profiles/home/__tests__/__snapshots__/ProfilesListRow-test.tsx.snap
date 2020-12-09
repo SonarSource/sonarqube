@@ -98,7 +98,6 @@ exports[`should render correctly: built-in profile 1`] = `
   >
     <withRouter(ProfileActions)
       fromList={true}
-      organization={null}
       profile={
         Object {
           "activeDeprecatedRuleCount": 2,
@@ -112,7 +111,6 @@ exports[`should render correctly: built-in profile 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         }
       }
@@ -192,7 +190,6 @@ exports[`should render correctly: default 1`] = `
   >
     <withRouter(ProfileActions)
       fromList={true}
-      organization={null}
       profile={
         Object {
           "activeDeprecatedRuleCount": 0,
@@ -206,7 +203,6 @@ exports[`should render correctly: default 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         }
       }
@@ -317,7 +313,6 @@ exports[`should render correctly: default profile 1`] = `
   >
     <withRouter(ProfileActions)
       fromList={true}
-      organization={null}
       profile={
         Object {
           "activeDeprecatedRuleCount": 2,
@@ -331,7 +326,6 @@ exports[`should render correctly: default profile 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         }
       }
@@ -436,7 +430,6 @@ exports[`should render correctly: with deprecated rules 1`] = `
   >
     <withRouter(ProfileActions)
       fromList={true}
-      organization={null}
       profile={
         Object {
           "activeDeprecatedRuleCount": 10,
@@ -450,7 +443,6 @@ exports[`should render correctly: with deprecated rules 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         }
       }

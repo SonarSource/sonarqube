@@ -19,25 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ProfileRulesRowOfType from '../ProfileRulesRowOfType';
+import Evolution, { EvolutionProps } from '../Evolution';
 
 it('should render correctly', () => {
-  expect(
-    shallow(<ProfileRulesRowOfType count={3} qprofile="bar" total={10} type="BUG" />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should render correctly if there is 0 rules', () => {
-  expect(
-    shallow(<ProfileRulesRowOfType count={0} qprofile="bar" total={0} type="VULNERABILITY" />)
-  ).toMatchSnapshot();
-});
-
-it('should render correctly if there is missing data', () => {
-  expect(
-    shallow(<ProfileRulesRowOfType count={5} qprofile="bar" total={null} type="VULNERABILITY" />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(<ProfileRulesRowOfType count={null} qprofile="foo" total={10} type="VULNERABILITY" />)
-  ).toMatchSnapshot();
-});
+function shallowRender(props: Partial<EvolutionProps> = {}) {
+  return shallow(<Evolution profiles={[]} {...props} />);
+}

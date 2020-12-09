@@ -30,7 +30,6 @@ const PROFILE = mockQualityProfile({
   activeDeprecatedRuleCount: 0,
   depth: 0,
   language: 'js',
-  organization: 'org',
   rulesUpdatedAt: '2017-06-28T12:58:44+0000'
 });
 
@@ -79,7 +78,7 @@ const apiResponseActive = {
   });
 
 it('should render the quality profiles rules with sonarway comparison', async () => {
-  const wrapper = shallow(<ProfileRules organization="foo" profile={PROFILE} />);
+  const wrapper = shallow(<ProfileRules profile={PROFILE} />);
   const instance = wrapper.instance() as any;
   instance.mounted = true;
   instance.loadRules();
@@ -89,42 +88,32 @@ it('should render the quality profiles rules with sonarway comparison', async ()
 });
 
 it('should show a button to activate more rules for admins', () => {
-  const wrapper = shallow(<ProfileRules organization="foo" profile={EDITABLE_PROFILE} />);
+  const wrapper = shallow(<ProfileRules profile={EDITABLE_PROFILE} />);
   expect(wrapper.find('.js-activate-rules')).toMatchSnapshot();
 });
 
 it('should show a disabled button to activate more rules for built-in profiles', () => {
   const wrapper = shallow(
-    <ProfileRules
-      organization={null}
-      profile={{ ...EDITABLE_PROFILE, actions: { copy: true }, isBuiltIn: true }}
-    />
+    <ProfileRules profile={{ ...EDITABLE_PROFILE, actions: { copy: true }, isBuiltIn: true }} />
   );
   expect(wrapper.find('.js-activate-rules')).toMatchSnapshot();
 });
 
 it('should show a deprecated rules warning message', () => {
   const wrapper = shallow(
-    <ProfileRules
-      organization="foo"
-      profile={{ ...EDITABLE_PROFILE, activeDeprecatedRuleCount: 8 }}
-    />
+    <ProfileRules profile={{ ...EDITABLE_PROFILE, activeDeprecatedRuleCount: 8 }} />
   );
   expect(wrapper.find('ProfileRulesDeprecatedWarning')).toMatchSnapshot();
 });
 
 it('should not show a button to activate more rules on built in profiles', () => {
-  const wrapper = shallow(
-    <ProfileRules organization={null} profile={{ ...EDITABLE_PROFILE, isBuiltIn: true }} />
-  );
+  const wrapper = shallow(<ProfileRules profile={{ ...EDITABLE_PROFILE, isBuiltIn: true }} />);
   expect(wrapper.find('.js-activate-rules').exists()).toBe(false);
 });
 
 it('should not show sonarway comparison for built in profiles', async () => {
   (apiQP as any).getQualityProfile = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <ProfileRules organization={null} profile={{ ...PROFILE, isBuiltIn: true }} />
-  );
+  const wrapper = shallow(<ProfileRules profile={{ ...PROFILE, isBuiltIn: true }} />);
   await new Promise(setImmediate);
   wrapper.update();
   expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(0);
@@ -141,7 +130,7 @@ it('should not show sonarway comparison if there is no missing rules', async () 
       }
     })
   );
-  const wrapper = shallow(<ProfileRules organization={null} profile={PROFILE} />);
+  const wrapper = shallow(<ProfileRules profile={PROFILE} />);
   await waitAndUpdate(wrapper);
   expect(apiQP.getQualityProfile).toHaveBeenCalledTimes(1);
   expect(wrapper.find('ProfileRulesSonarWayComparison')).toHaveLength(0);

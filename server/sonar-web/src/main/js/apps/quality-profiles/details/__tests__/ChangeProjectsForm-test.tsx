@@ -29,7 +29,6 @@ import {
 import ChangeProjectsForm from '../ChangeProjectsForm';
 
 const profile: any = { key: 'profFile_key' };
-const organization = 'TEST';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   getProfileProjects: jest.fn().mockResolvedValue({
@@ -69,7 +68,6 @@ it('should render correctly', async () => {
   expect(getProfileProjects).toHaveBeenCalledWith(
     expect.objectContaining({
       key: profile.key,
-      organization,
       p: 1,
       ps: 100,
       q: undefined,
@@ -110,11 +108,6 @@ it('should close modal properly', () => {
 
 function shallowRender(props: Partial<ChangeProjectsForm['props']> = {}) {
   return shallow<ChangeProjectsForm>(
-    <ChangeProjectsForm
-      onClose={jest.fn()}
-      organization={organization}
-      profile={profile}
-      {...props}
-    />
+    <ChangeProjectsForm onClose={jest.fn()} profile={profile} {...props} />
   );
 }

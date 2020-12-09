@@ -65,7 +65,6 @@ exports[`renderActions should render the activate button 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         },
       ]

@@ -26,11 +26,6 @@ import ProfileNotFound from './ProfileNotFound';
 
 interface Props {
   children: React.ReactElement<any>;
-  location: {
-    pathname: string;
-    query: { key?: string; language: string; name: string };
-  };
-  organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
@@ -53,7 +48,7 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
   }
 
   render() {
-    const { organization, profiles, location, ...other } = this.props;
+    const { profiles, location, ...other } = this.props;
     const { key, language, name } = location.query;
 
     if (key) {
@@ -74,7 +69,6 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
     }
 
     const child = React.cloneElement(this.props.children, {
-      organization,
       profile,
       profiles,
       ...other
@@ -83,11 +77,7 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
     return (
       <div id="quality-profile">
         <Helmet defer={false} title={profile.name} />
-        <ProfileHeader
-          organization={organization}
-          profile={profile}
-          updateProfiles={this.props.updateProfiles}
-        />
+        <ProfileHeader profile={profile} updateProfiles={this.props.updateProfiles} />
         {child}
       </div>
     );

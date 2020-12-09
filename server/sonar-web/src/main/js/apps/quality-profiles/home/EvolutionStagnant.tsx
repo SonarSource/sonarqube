@@ -25,7 +25,6 @@ import { Profile } from '../types';
 import { isStagnant } from '../utils';
 
 interface Props {
-  organization: string | null;
   profiles: Profile[];
 }
 

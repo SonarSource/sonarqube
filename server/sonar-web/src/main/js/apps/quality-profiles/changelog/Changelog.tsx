@@ -30,7 +30,6 @@ import ChangesList from './ChangesList';
 
 interface Props {
   events: ProfileChangelogEvent[];
-  organization: string | null;
 }
 
 export default function Changelog(props: Props) {

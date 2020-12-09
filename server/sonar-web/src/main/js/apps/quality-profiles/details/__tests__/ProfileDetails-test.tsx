@@ -27,7 +27,6 @@ it('renders without permissions', () => {
     shallow(
       <ProfileDetails
         exporters={[]}
-        organization="org"
         profile={{} as Profile}
         profiles={[]}
         updateProfiles={jest.fn()}
@@ -41,7 +40,6 @@ it('renders with edit permission', () => {
     shallow(
       <ProfileDetails
         exporters={[]}
-        organization="org"
         profile={{ actions: { edit: true } } as Profile}
         profiles={[]}
         updateProfiles={jest.fn()}

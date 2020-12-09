@@ -26,7 +26,6 @@ it('should render correctly', () => {
     shallow(
       <ProfileRulesSonarWayComparison
         language="Java"
-        organization="foo"
         profile="bar"
         sonarWayMissingRules={158}
         sonarway="baz"

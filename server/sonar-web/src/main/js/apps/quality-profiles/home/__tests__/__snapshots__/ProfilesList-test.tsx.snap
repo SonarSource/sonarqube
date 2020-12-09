@@ -69,7 +69,6 @@ exports[`should render correctly 1`] = `
       <tbody>
         <Memo(ProfilesListRow)
           key="key"
-          organization="foo"
           profile={
             Object {
               "activeDeprecatedRuleCount": 2,
@@ -83,7 +82,6 @@ exports[`should render correctly 1`] = `
               "language": "css",
               "languageName": "CSS",
               "name": "name",
-              "organization": "foo",
               "projectCount": 3,
             }
           }
@@ -145,7 +143,6 @@ exports[`should render correctly 1`] = `
       <tbody>
         <Memo(ProfilesListRow)
           key="key"
-          organization="foo"
           profile={
             Object {
               "activeDeprecatedRuleCount": 2,
@@ -159,7 +156,6 @@ exports[`should render correctly 1`] = `
               "language": "js",
               "languageName": "JavaScript",
               "name": "name",
-              "organization": "foo",
               "projectCount": 3,
             }
           }
@@ -241,7 +237,6 @@ exports[`should render correctly 2`] = `
       <tbody>
         <Memo(ProfilesListRow)
           key="key"
-          organization="foo"
           profile={
             Object {
               "activeDeprecatedRuleCount": 2,
@@ -255,7 +250,6 @@ exports[`should render correctly 2`] = `
               "language": "css",
               "languageName": "CSS",
               "name": "name",
-              "organization": "foo",
               "projectCount": 3,
             }
           }

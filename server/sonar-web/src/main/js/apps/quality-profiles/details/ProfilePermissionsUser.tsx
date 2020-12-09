@@ -31,7 +31,6 @@ import Avatar from '../../../components/ui/Avatar';
 
 interface Props {
   onDelete: (user: T.UserSelected) => void;
-  organization?: string;
   profile: { language: string; name: string };
   user: T.UserSelected;
 }
@@ -63,12 +62,11 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
   };
 
   handleDelete = () => {
-    const { organization, profile, user } = this.props;
+    const { profile, user } = this.props;
 
     return removeUser({
       language: profile.language,
       login: user.login,
-      organization,
       qualityProfile: profile.name
     }).then(() => {
       this.handleDeleteModalClose();

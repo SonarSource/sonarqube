@@ -25,7 +25,6 @@ import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 
 interface Props {
   activeDeprecatedRules: number;
-  organization: string | null;
   profile: string;
 }
 

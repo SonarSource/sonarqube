@@ -35,7 +35,6 @@ import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
-  organization: string | null;
   profile: Profile;
 }
 
@@ -71,7 +70,6 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
   fetchProjects = (searchParams: SelectListSearchParams) =>
     getProfileProjects({
       key: this.props.profile.key,
-      organization: this.props.organization,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,

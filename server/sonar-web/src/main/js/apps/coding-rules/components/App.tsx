@@ -324,7 +324,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchQualityProfiles = () => {
     const { currentUser, organization, userOrganizations } = this.props;
     if (hasPrivateAccess(currentUser, organization, userOrganizations)) {
-      return searchQualityProfiles({ organization: organization && organization.key });
+      return searchQualityProfiles();
     }
     return { profiles: [] };
   };

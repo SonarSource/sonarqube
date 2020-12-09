@@ -30,7 +30,6 @@ import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  organization: string | null;
   profile: Profile;
 }
 
@@ -152,7 +151,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
 
         {this.state.events != null && this.state.events.length > 0 && (
-          <Changelog events={this.state.events} organization={this.props.organization} />
+          <Changelog events={this.state.events} />
         )}
 
         {shouldDisplayFooter && (

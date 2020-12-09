@@ -43,7 +43,7 @@ it('renders', () => {
 it('removes user', async () => {
   const onDelete = jest.fn();
   const wrapper = shallow(
-    <ProfilePermissionsUser onDelete={onDelete} organization="org" profile={profile} user={user} />
+    <ProfilePermissionsUser onDelete={onDelete} profile={profile} user={user} />
   );
   (wrapper.instance() as ProfilePermissionsUser).mounted = true;
   expect(wrapper.find('SimpleModal').exists()).toBe(false);
@@ -55,7 +55,6 @@ it('removes user', async () => {
   expect(removeUser).toBeCalledWith({
     language: 'js',
     login: 'luke',
-    organization: 'org',
     qualityProfile: 'Sonar way'
   });
 

@@ -545,7 +545,6 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
     languageName: 'JavaScript',
     name: 'name',
     projectCount: 3,
-    organization: 'foo',
     ...overrides
   };
 }

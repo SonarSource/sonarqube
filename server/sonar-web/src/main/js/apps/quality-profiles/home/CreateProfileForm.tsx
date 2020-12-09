@@ -37,7 +37,6 @@ interface Props {
   location: Location;
   onClose: () => void;
   onCreate: Function;
-  organization: string | null;
   profiles: Profile[];
 }
 
@@ -96,9 +95,6 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
     this.setState({ loading: true });
 
     const data = new FormData(event.currentTarget);
-    if (this.props.organization) {
-      data.append('organization', this.props.organization);
-    }
 
     try {
       const { profile } = await createQualityProfile(data);

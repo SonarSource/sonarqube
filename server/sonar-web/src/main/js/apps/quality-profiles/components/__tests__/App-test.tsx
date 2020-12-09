@@ -28,7 +28,7 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(
-    <App languages={{}} organization={undefined} {...props}>
+    <App languages={{}} {...props}>
       <div />
     </App>
   );

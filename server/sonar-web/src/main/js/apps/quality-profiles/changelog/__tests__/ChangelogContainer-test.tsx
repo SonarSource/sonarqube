@@ -71,7 +71,6 @@ function shallowRender() {
   return shallow<ChangelogContainer>(
     <ChangelogContainer
       location={mockLocation()}
-      organization="TEST"
       profile={mockQualityProfile()}
       router={mockRouter()}
     />

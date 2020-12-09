@@ -23,6 +23,6 @@ import RestoreProfileForm from '../RestoreProfileForm';
 
 it('should render correctly', () => {
   expect(
-    shallow(<RestoreProfileForm onClose={jest.fn()} onRestore={jest.fn()} organization="org" />)
+    shallow(<RestoreProfileForm onClose={jest.fn()} onRestore={jest.fn()} />)
   ).toMatchSnapshot();
 });

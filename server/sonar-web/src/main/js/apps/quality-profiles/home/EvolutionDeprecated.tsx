@@ -26,7 +26,6 @@ import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
 interface Props {
-  organization: string | null;
   profiles: Profile[];
 }
 

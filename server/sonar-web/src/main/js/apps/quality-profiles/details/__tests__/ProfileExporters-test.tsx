@@ -32,7 +32,6 @@ function shallowRender(props: Partial<ProfileExporters['props']> = {}) {
   return shallow<ProfileExporters>(
     <ProfileExporters
       exporters={[mockQualityProfileExporter({ languages: [profile.language] })]}
-      organization="test-org"
       profile={profile}
       {...props}
     />

@@ -21,27 +21,19 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockLocation, mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
 import ProfileHeader from '../../details/ProfileHeader';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
-
-const routerProps = { router: {} } as WithRouterProps;
 
 it('should render ProfileHeader', () => {
   const targetProfile = mockQualityProfile({ name: 'fake' });
   const profiles = [targetProfile, mockQualityProfile({ name: 'another' })];
   const updateProfiles = jest.fn();
-  const output = shallow(
-    <ProfileContainer
-      location={{ pathname: '', query: { language: 'js', name: 'fake' } }}
-      organization={null}
-      profiles={profiles}
-      updateProfiles={updateProfiles}
-      {...routerProps}>
-      <div />
-    </ProfileContainer>
-  );
+  const location = mockLocation({ pathname: '', query: { language: 'js', name: 'fake' } });
+
+  const output = shallowRender({ profiles, updateProfiles, location });
+
   const header = output.find(ProfileHeader);
   expect(header.length).toBe(1);
   expect(header.prop('profile')).toBe(targetProfile);
@@ -50,16 +42,10 @@ it('should render ProfileHeader', () => {
 
 it('should render ProfileNotFound', () => {
   const profiles = [mockQualityProfile({ name: 'fake' }), mockQualityProfile({ name: 'another' })];
-  const output = shallow(
-    <ProfileContainer
-      location={{ pathname: '', query: { language: 'js', name: 'random' } }}
-      organization={null}
-      profiles={profiles}
-      updateProfiles={jest.fn()}
-      {...routerProps}>
-      <div />
-    </ProfileContainer>
-  );
+  const location = mockLocation({ pathname: '', query: { language: 'js', name: 'random' } });
+
+  const output = shallowRender({ profiles, location });
+
   expect(output.is(ProfileNotFound)).toBe(true);
 });
 
@@ -67,17 +53,21 @@ it('should render Helmet', () => {
   const name = 'First Profile';
   const profiles = [mockQualityProfile({ name })];
   const updateProfiles = jest.fn();
-  const output = shallow(
-    <ProfileContainer
-      location={{ pathname: '', query: { language: 'js', name } }}
-      organization={null}
-      profiles={profiles}
-      updateProfiles={updateProfiles}
-      {...routerProps}>
-      <div />
-    </ProfileContainer>
-  );
+  const location = mockLocation({ pathname: '', query: { language: 'js', name } });
+
+  const output = shallowRender({ profiles, updateProfiles, location });
+
   const helmet = output.find(Helmet);
   expect(helmet.length).toBe(1);
   expect(helmet.prop('title')).toContain(name);
 });
+
+function shallowRender(overrides: Partial<ProfileContainer['props']> = {}) {
+  const routerProps = { router: mockRouter(), ...overrides } as WithRouterProps;
+
+  return shallow(
+    <ProfileContainer profiles={[]} updateProfiles={jest.fn()} {...routerProps} {...overrides}>
+      <div />
+    </ProfileContainer>
+  );
+}

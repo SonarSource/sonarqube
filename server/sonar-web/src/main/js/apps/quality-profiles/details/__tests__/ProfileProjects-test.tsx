@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
+import ChangeProjectsForm from '../ChangeProjectsForm';
 import ProfileProjects from '../ProfileProjects';
 
 jest.mock('../../../../api/quality-profiles', () => ({
@@ -45,10 +46,20 @@ it('should render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should open and close the form', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleChangeClick();
+  expect(wrapper.find(ChangeProjectsForm).exists()).toBe(true);
+
+  wrapper.instance().closeForm();
+  expect(wrapper.find(ChangeProjectsForm).exists()).toBe(false);
+});
+
 function shallowRender(props: Partial<ProfileProjects['props']> = {}) {
-  return shallow(
+  return shallow<ProfileProjects>(
     <ProfileProjects
-      organization="foo"
       profile={mockQualityProfile({ actions: { associateProjects: true } })}
       {...props}
     />

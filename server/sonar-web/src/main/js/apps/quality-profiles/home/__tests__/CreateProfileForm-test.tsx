@@ -83,7 +83,6 @@ function shallowRender(props?: Partial<CreateProfileForm['props']>) {
       location={mockLocation()}
       onClose={jest.fn()}
       onCreate={jest.fn()}
-      organization="org"
       profiles={[mockQualityProfile(), mockQualityProfile({ language: 'css' })]}
       {...props}
     />

@@ -126,12 +126,6 @@ it('should delete profile properly', async () => {
 function shallowRender(props: Partial<ProfileActions['props']> = {}) {
   const router = mockRouter();
   return shallow<ProfileActions>(
-    <ProfileActions
-      organization="org"
-      profile={PROFILE}
-      router={router}
-      updateProfiles={jest.fn()}
-      {...props}
-    />
+    <ProfileActions profile={PROFILE} router={router} updateProfiles={jest.fn()} {...props} />
   );
 }

@@ -23,8 +23,6 @@ import ProfileRulesDeprecatedWarning from '../ProfileRulesDeprecatedWarning';
 
 it('should render correctly', () => {
   expect(
-    shallow(
-      <ProfileRulesDeprecatedWarning activeDeprecatedRules={18} organization="foo" profile="bar" />
-    )
+    shallow(<ProfileRulesDeprecatedWarning activeDeprecatedRules={18} profile="bar" />)
   ).toMatchSnapshot();
 });

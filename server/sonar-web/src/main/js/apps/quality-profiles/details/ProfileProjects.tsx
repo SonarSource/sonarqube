@@ -29,7 +29,6 @@ import { Profile } from '../types';
 import ChangeProjectsForm from './ChangeProjectsForm';
 
 interface Props {
-  organization: string | null;
   profile: Profile;
 }
 
@@ -178,13 +177,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
           {profile.isDefault ? this.renderDefault() : this.renderProjects()}
         </div>
 
-        {this.state.formOpen && (
-          <ChangeProjectsForm
-            onClose={this.closeForm}
-            organization={this.props.organization}
-            profile={profile}
-          />
-        )}
+        {this.state.formOpen && <ChangeProjectsForm onClose={this.closeForm} profile={profile} />}
       </div>
     );
   }

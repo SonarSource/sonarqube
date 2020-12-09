@@ -25,7 +25,6 @@ import { Exporter, Profile } from '../types';
 
 interface Props {
   exporters: Exporter[];
-  organization: string | null;
   profile: Profile;
 }
 

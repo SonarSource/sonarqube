@@ -29,7 +29,6 @@ import { sortProfiles } from '../utils';
 interface Props {
   children: React.ReactElement<any>;
   languages: T.Languages;
-  organization: { name: string; key: string } | undefined;
 }
 
 interface State {
@@ -53,9 +52,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   fetchProfiles() {
-    const { organization } = this.props;
-    const data = organization ? { organization: organization.key } : {};
-    return searchQualityProfiles(data);
+    return searchQualityProfiles();
   }
 
   loadData() {
@@ -92,7 +89,6 @@ export default class App extends React.PureComponent<Props, State> {
     if (this.state.loading) {
       return <i className="spinner" />;
     }
-    const { organization } = this.props;
     const finalLanguages = Object.values(this.props.languages);
 
     return React.cloneElement(this.props.children, {
@@ -100,8 +96,7 @@ export default class App extends React.PureComponent<Props, State> {
       profiles: this.state.profiles || [],
       languages: finalLanguages,
       exporters: this.state.exporters,
-      updateProfiles: this.updateProfiles,
-      organization: organization ? organization.key : null
+      updateProfiles: this.updateProfiles
     });
   }
 

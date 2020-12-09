@@ -27,36 +27,30 @@ import ProfileRules from './ProfileRules';
 
 interface Props {
   exporters: Exporter[];
-  organization: string | null;
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 
 export default function ProfileDetails(props: Props) {
-  const { organization, profile } = props;
+  const { profile } = props;
   return (
     <div>
       <div className="quality-profile-grid">
         <div className="quality-profile-grid-left">
-          <ProfileRules organization={organization} profile={profile} />
-          <ProfileExporters
-            exporters={props.exporters}
-            organization={organization}
-            profile={profile}
-          />
+          <ProfileRules profile={profile} />
+          <ProfileExporters exporters={props.exporters} profile={profile} />
           {profile.actions && profile.actions.edit && !profile.isBuiltIn && (
-            <ProfilePermissions organization={organization || undefined} profile={profile} />
+            <ProfilePermissions profile={profile} />
           )}
         </div>
         <div className="quality-profile-grid-right">
           <ProfileInheritance
-            organization={organization}
             profile={profile}
             profiles={props.profiles}
             updateProfiles={props.updateProfiles}
           />
-          <ProfileProjects organization={organization} profile={profile} />
+          <ProfileProjects profile={profile} />
         </div>
       </div>
     </div>

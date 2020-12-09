@@ -37,7 +37,6 @@ import RenameProfileForm from './RenameProfileForm';
 interface Props {
   className?: string;
   fromList?: boolean;
-  organization: string | null;
   profile: Profile;
   router: Pick<Router, 'push' | 'replace'>;
   updateProfiles: () => Promise<void>;
@@ -209,7 +208,6 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           <ExtendProfileForm
             onClose={this.closeExtendForm}
             onExtend={this.handleProfileExtend}
-            organization={this.props.organization}
             profile={profile}
           />
         )}

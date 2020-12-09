@@ -52,7 +52,6 @@ function shallowRender(props: Partial<PageHeader['props']> = {}) {
       actions={{ create: false }}
       languages={[mockLanguage()]}
       location={mockLocation()}
-      organization="foo"
       profiles={[mockQualityProfile()]}
       router={mockRouter()}
       updateProfiles={jest.fn()}

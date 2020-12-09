@@ -60,7 +60,6 @@ it('should handle parent change correctly', async () => {
 function shallowRender(props: Partial<ProfileInheritance['props']> = {}) {
   return shallow<ProfileInheritance>(
     <ProfileInheritance
-      organization={null}
       profile={mockQualityProfile()}
       profiles={[mockQualityProfile()]}
       updateProfiles={jest.fn()}

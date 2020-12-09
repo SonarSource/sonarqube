@@ -39,7 +39,6 @@ function shallowRender(props: Partial<ProfilesList['props']> = {}) {
     <ProfilesList
       languages={[mockLanguage(), mockLanguage({ key: 'js', name: 'JS' })]}
       location={mockLocation()}
-      organization="foo"
       profiles={[
         mockQualityProfile(),
         mockQualityProfile({ language: 'css', languageName: 'CSS' })

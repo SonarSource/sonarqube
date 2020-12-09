@@ -20,6 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { searchGroups, searchUsers } from '../../../../api/quality-profiles';
 import ProfilePermissions from '../ProfilePermissions';
 
 jest.mock('../../../../api/quality-profiles', () => ({
@@ -27,33 +28,36 @@ jest.mock('../../../../api/quality-profiles', () => ({
   searchGroups: jest.fn(() => Promise.resolve([]))
 }));
 
-const searchUsers = require('../../../../api/quality-profiles').searchUsers as jest.Mock<any>;
-const searchGroups = require('../../../../api/quality-profiles').searchGroups as jest.Mock<any>;
-
-const profile = { key: 'sonar-way', name: 'Sonar way', language: 'js' };
-
 beforeEach(() => {
-  searchUsers.mockClear();
-  searchGroups.mockClear();
+  jest.clearAllMocks();
 });
 
 it('renders', () => {
-  const wrapper = shallow(<ProfilePermissions profile={profile} />);
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({
     groups: [{ name: 'Lambda' }],
     loading: false,
-    users: [{ login: 'luke', name: 'Luke Skywalker' }]
+    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }]
   });
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should update correctly', () => {
+  const wrapper = shallowRender();
+
+  wrapper.setProps({ profile: { key: 'otherKey', name: 'new profile', language: 'js' } });
+
+  expect(searchGroups).toBeCalledTimes(2);
+  expect(searchUsers).toBeCalledTimes(2);
+});
+
 it('opens add users form', async () => {
-  searchUsers.mockImplementationOnce(() =>
+  (searchUsers as jest.Mock).mockImplementationOnce(() =>
     Promise.resolve({ users: [{ login: 'luke', name: 'Luke Skywalker' }] })
   );
-  const wrapper = shallow(<ProfilePermissions profile={profile} />);
+  const wrapper = shallowRender();
   expect(searchUsers).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
   expect(wrapper.find('ProfilePermissionsForm').exists()).toBe(false);
@@ -67,11 +71,14 @@ it('opens add users form', async () => {
 });
 
 it('removes user', () => {
-  const wrapper = shallow(<ProfilePermissions profile={profile} />);
+  const wrapper = shallowRender();
   (wrapper.instance() as ProfilePermissions).mounted = true;
 
-  const joda = { login: 'joda', name: 'Joda' };
-  wrapper.setState({ loading: false, users: [{ login: 'luke', name: 'Luke Skywalker' }, joda] });
+  const joda = { login: 'joda', name: 'Joda', selected: false };
+  wrapper.setState({
+    loading: false,
+    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }, joda]
+  });
   expect(wrapper.find('ProfilePermissionsUser')).toHaveLength(2);
 
   wrapper
@@ -83,7 +90,7 @@ it('removes user', () => {
 });
 
 it('removes group', () => {
-  const wrapper = shallow(<ProfilePermissions profile={profile} />);
+  const wrapper = shallowRender();
   (wrapper.instance() as ProfilePermissions).mounted = true;
 
   const lambda = { name: 'Lambda' };
@@ -99,17 +106,20 @@ it('removes group', () => {
 });
 
 it('fetches users and groups on mount', () => {
-  mount(<ProfilePermissions organization="org" profile={profile} />);
+  mount(<ProfilePermissions profile={{ key: 'sonar-way', name: 'Sonar way', language: 'js' }} />);
   expect(searchUsers).toBeCalledWith({
     language: 'js',
-    organization: 'org',
     qualityProfile: 'Sonar way',
     selected: 'selected'
   });
   expect(searchGroups).toBeCalledWith({
     language: 'js',
-    organization: 'org',
     qualityProfile: 'Sonar way',
     selected: 'selected'
   });
 });
+
+function shallowRender(overrides: Partial<{ key: string; name: string; language: string }> = {}) {
+  const profile = { key: 'sonar-way', name: 'Sonar way', language: 'js', ...overrides };
+  return shallow<ProfilePermissions>(<ProfilePermissions profile={profile} />);
+}

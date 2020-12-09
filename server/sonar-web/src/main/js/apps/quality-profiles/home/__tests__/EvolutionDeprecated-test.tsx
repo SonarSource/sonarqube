@@ -25,7 +25,6 @@ import EvolutionDeprecated from '../EvolutionDeprecated';
 it('should render correctly', () => {
   const wrapper = shallow(
     <EvolutionDeprecated
-      organization="foo"
       profiles={[
         mockQualityProfile({
           key: 'qp-1',

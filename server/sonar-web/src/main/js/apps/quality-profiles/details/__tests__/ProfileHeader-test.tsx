@@ -28,11 +28,6 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<ProfileHeader['props']> = {}) {
   return shallow(
-    <ProfileHeader
-      organization="foo"
-      profile={mockQualityProfile()}
-      updateProfiles={jest.fn()}
-      {...props}
-    />
+    <ProfileHeader profile={mockQualityProfile()} updateProfiles={jest.fn()} {...props} />
   );
 }

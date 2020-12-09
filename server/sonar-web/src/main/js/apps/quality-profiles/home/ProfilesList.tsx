@@ -30,7 +30,6 @@ import ProfilesListRow from './ProfilesListRow';
 interface Props {
   languages: T.Language[];
   location: Pick<Location, 'query'>;
-  organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
@@ -40,7 +39,6 @@ export default class ProfilesList extends React.PureComponent<Props> {
     return profiles.map(profile => (
       <ProfilesListRow
         key={profile.key}
-        organization={this.props.organization}
         profile={profile}
         updateProfiles={this.props.updateProfiles}
       />

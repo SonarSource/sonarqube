@@ -22,7 +22,6 @@ exports[`should render correctly 1`] = `
           depth={0}
           key="foo"
           language="js"
-          organization={null}
           profile={
             Object {
               "activeRuleCount": 4,
@@ -38,7 +37,6 @@ exports[`should render correctly 1`] = `
           depth={2}
           key="foo"
           language="js"
-          organization={null}
           profile={
             Object {
               "activeRuleCount": 4,
@@ -78,7 +76,6 @@ exports[`should render modal correctly 1`] = `
           depth={0}
           key="foo"
           language="js"
-          organization={null}
           profile={
             Object {
               "activeRuleCount": 4,
@@ -94,7 +91,6 @@ exports[`should render modal correctly 1`] = `
           depth={2}
           key="foo"
           language="js"
-          organization={null}
           profile={
             Object {
               "activeRuleCount": 4,
@@ -125,7 +121,6 @@ exports[`should render modal correctly 1`] = `
         "language": "js",
         "languageName": "JavaScript",
         "name": "name",
-        "organization": "foo",
         "projectCount": 3,
       }
     }
@@ -143,7 +138,6 @@ exports[`should render modal correctly 1`] = `
           "language": "js",
           "languageName": "JavaScript",
           "name": "name",
-          "organization": "foo",
           "projectCount": 3,
         },
       ]

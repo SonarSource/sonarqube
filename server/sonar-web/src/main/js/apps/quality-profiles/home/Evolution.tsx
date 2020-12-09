@@ -23,17 +23,16 @@ import EvolutionDeprecated from './EvolutionDeprecated';
 import EvolutionRules from './EvolutionRules';
 import EvolutionStagnant from './EvolutionStagnant';
 
-interface Props {
-  organization: string | null;
+export interface EvolutionProps {
   profiles: Profile[];
 }
 
-export default function Evolution({ organization, profiles }: Props) {
+export default function Evolution({ profiles }: EvolutionProps) {
   return (
     <div className="quality-profiles-evolution">
-      <EvolutionDeprecated organization={organization} profiles={profiles} />
-      <EvolutionStagnant organization={organization} profiles={profiles} />
-      <EvolutionRules organization={organization} />
+      <EvolutionDeprecated profiles={profiles} />
+      <EvolutionStagnant profiles={profiles} />
+      <EvolutionRules />
     </div>
   );
 }

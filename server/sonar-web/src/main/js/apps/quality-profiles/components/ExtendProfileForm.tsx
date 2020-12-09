@@ -28,7 +28,6 @@ import { Profile } from '../types';
 interface Props {
   onClose: () => void;
   onExtend: (name: string) => void;
-  organization: string | null;
   profile: Profile;
 }
 
@@ -62,17 +61,13 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
   handleFormSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (this.canSubmit(this.state)) {
-      const { organization, profile: parentProfile } = this.props;
+      const { profile: parentProfile } = this.props;
       const { name } = this.state;
 
       const data = new FormData();
 
       data.append('language', parentProfile.language);
       data.append('name', name);
-
-      if (organization) {
-        data.append('organization', organization);
-      }
 
       this.setState({ loading: true });
 

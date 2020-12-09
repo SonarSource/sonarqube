@@ -9,7 +9,6 @@ exports[`renders with edit permission 1`] = `
       className="quality-profile-grid-left"
     >
       <ProfileRules
-        organization="org"
         profile={
           Object {
             "actions": Object {
@@ -20,7 +19,6 @@ exports[`renders with edit permission 1`] = `
       />
       <ProfileExporters
         exporters={Array []}
-        organization="org"
         profile={
           Object {
             "actions": Object {
@@ -30,7 +28,6 @@ exports[`renders with edit permission 1`] = `
         }
       />
       <ProfilePermissions
-        organization="org"
         profile={
           Object {
             "actions": Object {
@@ -44,7 +41,6 @@ exports[`renders with edit permission 1`] = `
       className="quality-profile-grid-right"
     >
       <ProfileInheritance
-        organization="org"
         profile={
           Object {
             "actions": Object {
@@ -56,7 +52,6 @@ exports[`renders with edit permission 1`] = `
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
-        organization="org"
         profile={
           Object {
             "actions": Object {
@@ -79,12 +74,10 @@ exports[`renders without permissions 1`] = `
       className="quality-profile-grid-left"
     >
       <ProfileRules
-        organization="org"
         profile={Object {}}
       />
       <ProfileExporters
         exporters={Array []}
-        organization="org"
         profile={Object {}}
       />
     </div>
@@ -92,13 +85,11 @@ exports[`renders without permissions 1`] = `
       className="quality-profile-grid-right"
     >
       <ProfileInheritance
-        organization="org"
         profile={Object {}}
         profiles={Array []}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
-        organization="org"
         profile={Object {}}
       />
     </div>

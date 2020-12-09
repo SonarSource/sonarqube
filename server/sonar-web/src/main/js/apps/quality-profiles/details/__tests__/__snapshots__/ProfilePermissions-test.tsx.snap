@@ -58,6 +58,7 @@ exports[`renders 2`] = `
           Object {
             "login": "luke",
             "name": "Luke Skywalker",
+            "selected": false,
           }
         }
       />

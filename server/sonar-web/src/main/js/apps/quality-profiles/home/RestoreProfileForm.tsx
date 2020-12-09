@@ -27,7 +27,6 @@ import { restoreQualityProfile } from '../../../api/quality-profiles';
 interface Props {
   onClose: () => void;
   onRestore: () => void;
-  organization: string | null;
 }
 
 interface State {
@@ -55,9 +54,6 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
     this.setState({ loading: true });
 
     const data = new FormData(event.currentTarget);
-    if (this.props.organization) {
-      data.append('organization', this.props.organization);
-    }
 
     restoreQualityProfile(data).then(
       (response: any) => {

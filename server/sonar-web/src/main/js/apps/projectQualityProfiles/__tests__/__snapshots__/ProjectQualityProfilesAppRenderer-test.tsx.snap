@@ -261,7 +261,6 @@ exports[`should render correctly: add language 1`] = `
                 "language": "css",
                 "languageName": "JavaScript",
                 "name": "name",
-                "organization": "foo",
                 "projectCount": 3,
               },
             ],
@@ -278,7 +277,6 @@ exports[`should render correctly: add language 1`] = `
                 "language": "html",
                 "languageName": "JavaScript",
                 "name": "name",
-                "organization": "foo",
                 "projectCount": 3,
               },
             ],
@@ -295,7 +293,6 @@ exports[`should render correctly: add language 1`] = `
                 "language": "js",
                 "languageName": "JavaScript",
                 "name": "name",
-                "organization": "foo",
                 "projectCount": 3,
               },
             ],
@@ -903,7 +900,6 @@ exports[`should render correctly: open profile 1`] = `
               "language": "js",
               "languageName": "JavaScript",
               "name": "name",
-              "organization": "foo",
               "projectCount": 3,
             },
           ]
@@ -944,7 +940,6 @@ exports[`should render correctly: open profile 1`] = `
             "language": "js",
             "languageName": "JavaScript",
             "name": "name",
-            "organization": "foo",
             "projectCount": 3,
           }
         }

@@ -29,7 +29,6 @@ import { Group } from './ProfilePermissions';
 interface Props {
   group: Group;
   onDelete: (group: Group) => void;
-  organization?: string;
   profile: { language: string; name: string };
 }
 
@@ -60,12 +59,11 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
   };
 
   handleDelete = () => {
-    const { group, organization, profile } = this.props;
+    const { group, profile } = this.props;
 
     return removeGroup({
       group: group.name,
       language: profile.language,
-      organization,
       qualityProfile: profile.name
     }).then(() => {
       this.handleDeleteModalClose();

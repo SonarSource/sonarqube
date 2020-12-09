@@ -36,9 +36,8 @@ it('should render correctly', () => {
 
 it('should correctly create a new profile and extend the existing one', async () => {
   const profile = mockQualityProfile();
-  const organization = 'org';
   const name = 'New name';
-  const wrapper = shallowRender({ organization, profile });
+  const wrapper = shallowRender({ profile });
 
   expect(wrapper.find('SubmitButton').props().disabled).toBe(true);
 
@@ -49,7 +48,6 @@ it('should correctly create a new profile and extend the existing one', async ()
   const data = new FormData();
   data.append('language', profile.language);
   data.append('name', name);
-  data.append('organization', organization);
   expect(createQualityProfile).toHaveBeenCalledWith(data);
   expect(changeProfileParent).toHaveBeenCalledWith({ key: 'new-profile' }, profile);
 });
@@ -59,7 +57,6 @@ function shallowRender(props: Partial<ExtendProfileForm['props']> = {}) {
     <ExtendProfileForm
       onClose={jest.fn()}
       onExtend={jest.fn()}
-      organization="foo"
       profile={mockQualityProfile()}
       {...props}
     />

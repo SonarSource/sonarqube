@@ -33,7 +33,6 @@ interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   location: Location;
-  organization: string | null;
   profiles: Profile[];
   router: Pick<Router, 'push'>;
   updateProfiles: () => Promise<void>;
@@ -76,7 +75,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { actions, languages, location, organization, profiles } = this.props;
+    const { actions, languages, location, profiles } = this.props;
     return (
       <header className="page-header">
         <h1 className="page-title">{translate('quality_profiles.page')}</h1>
@@ -121,7 +120,6 @@ export class PageHeader extends React.PureComponent<Props, State> {
           <RestoreProfileForm
             onClose={this.closeRestoreForm}
             onRestore={this.props.updateProfiles}
-            organization={organization}
           />
         )}
 
@@ -131,7 +129,6 @@ export class PageHeader extends React.PureComponent<Props, State> {
             location={location}
             onClose={this.closeCreateForm}
             onCreate={this.handleCreate}
-            organization={organization}
             profiles={profiles}
           />
         )}

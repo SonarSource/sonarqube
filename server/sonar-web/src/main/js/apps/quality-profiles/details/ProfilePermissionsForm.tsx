@@ -35,7 +35,6 @@ interface Props {
   onClose: () => void;
   onGroupAdd: (group: Group) => void;
   onUserAdd: (user: T.UserSelected) => void;
-  organization?: string;
   profile: { language: string; name: string };
 }
 
@@ -64,26 +63,22 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
 
   handleUserAdd = (user: T.UserSelected) => {
     const {
-      profile: { language, name },
-      organization
+      profile: { language, name }
     } = this.props;
     addUser({
       language,
       login: user.login,
-      organization,
       qualityProfile: name
     }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
   };
 
   handleGroupAdd = (group: Group) => {
     const {
-      profile: { language, name },
-      organization
+      profile: { language, name }
     } = this.props;
     addGroup({
       group: group.name,
       language,
-      organization,
       qualityProfile: name
     }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
   };
@@ -102,10 +97,9 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
   };
 
   handleSearch = (q: string) => {
-    const { organization, profile } = this.props;
+    const { profile } = this.props;
     const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
-      organization,
       q,
       qualityProfile: profile.name,
       selected: 'deselected'

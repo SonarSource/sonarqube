@@ -29,7 +29,6 @@ interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   location: Location;
-  organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }

@@ -29,7 +29,6 @@ interface Props {
   displayLink?: boolean;
   extendsBuiltIn?: boolean;
   language: string;
-  organization: string | null;
   profile: T.ProfileInheritanceDetails;
   type?: string;
 }

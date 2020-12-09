@@ -38,7 +38,6 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<ProfilesListRowProps> = {}) {
   return shallow(
     <ProfilesListRow
-      organization={null}
       profile={mockQualityProfile({ activeDeprecatedRuleCount: 0 })}
       updateProfiles={jest.fn()}
       {...props}

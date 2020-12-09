@@ -29,13 +29,12 @@ import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
 export interface ProfilesListRowProps {
-  organization: string | null;
   profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 
 export function ProfilesListRow(props: ProfilesListRowProps) {
-  const { organization, profile } = props;
+  const { profile } = props;
 
   const offset = 25 * (profile.depth - 1);
   const activeRulesUrl = getRulesUrl({
@@ -99,12 +98,7 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       </td>
 
       <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
-        <ProfileActions
-          fromList={true}
-          organization={organization}
-          profile={profile}
-          updateProfiles={props.updateProfiles}
-        />
+        <ProfileActions fromList={true} profile={profile} updateProfiles={props.updateProfiles} />
       </td>
     </tr>
   );

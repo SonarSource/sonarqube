@@ -26,7 +26,6 @@ import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 
 interface Props extends WithRouterProps {
-  organization?: string;
   profile: Profile;
   profiles: Profile[];
 }
@@ -113,7 +112,6 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
               left={this.state.left}
               leftProfile={profile}
               modified={this.state.modified}
-              organization={this.props.organization}
               refresh={this.loadResults}
               right={this.state.right}
               rightProfile={profiles.find(p => p.key === withKey)}

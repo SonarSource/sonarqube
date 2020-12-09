@@ -50,7 +50,6 @@ exports[`should render correctly 1`] = `
         },
       ]
     }
-    organization="TEST"
   />
   <footer
     className="text-center spacer-top small"

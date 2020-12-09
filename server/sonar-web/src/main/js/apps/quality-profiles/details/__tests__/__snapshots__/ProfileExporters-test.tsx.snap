@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
         key="exporter-key"
       >
         <a
-          href="/api/qualityprofiles/export?exporterKey=exporter-key&language=js&qualityProfile=name&organization=foo"
+          href="/api/qualityprofiles/export?exporterKey=exporter-key&language=js&qualityProfile=name"
           rel="noopener noreferrer"
           target="_blank"
         >

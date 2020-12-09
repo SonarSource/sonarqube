@@ -89,7 +89,6 @@ exports[`should render correctly 1`] = `
       <li>
         <withRouter(ProfileActions)
           className="pull-left"
-          organization="foo"
           profile={
             Object {
               "activeDeprecatedRuleCount": 2,
@@ -103,7 +102,6 @@ exports[`should render correctly 1`] = `
               "language": "js",
               "languageName": "JavaScript",
               "name": "name",
-              "organization": "foo",
               "projectCount": 3,
             }
           }

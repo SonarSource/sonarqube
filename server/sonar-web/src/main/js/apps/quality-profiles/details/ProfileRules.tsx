@@ -35,7 +35,6 @@ import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 interface Props {
-  organization: string | null;
   profile: Profile;
 }
 
@@ -98,7 +97,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     return searchRules({
       languages: this.props.profile.language,
       facets: 'types',
-      organization: this.props.organization || undefined,
       ps: 1
     });
   }
@@ -107,14 +105,13 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     return searchRules({
       activation: 'true',
       facets: 'types',
-      organization: this.props.organization || undefined,
       ps: 1,
       qprofile: this.props.profile.key
     });
   }
 
   loadRules() {
-    Promise.all([this.loadAllRules(), this.loadActivatedRules(), this.loadProfile()]).then(
+    return Promise.all([this.loadAllRules(), this.loadActivatedRules(), this.loadProfile()]).then(
       responses => {
         if (this.mounted) {
           const [allRules, activatedRules, showProfile] = responses;
@@ -143,7 +140,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { organization, profile } = this.props;
+    const { profile } = this.props;
     const { compareToSonarWay } = this.state;
     const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
     const { actions = {} } = profile;
@@ -164,7 +161,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             <tbody>
               <ProfileRulesRowTotal
                 count={this.state.activatedTotal}
-                organization={organization}
                 qprofile={profile.key}
                 total={this.state.total}
               />
@@ -172,7 +168,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
                 <ProfileRulesRowOfType
                   count={this.getRulesCountForType(type)}
                   key={type}
-                  organization={organization}
                   qprofile={profile.key}
                   total={this.getRulesTotalForType(type)}
                   type={type}
@@ -189,7 +184,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             </div>
           )}
 
-          {/* if a user is allowed to `copy` a profile if they are a global or organization admin */}
+          {/* if a user is allowed to `copy` a profile if they are a global admin */}
           {/* this user could potentially active more rules if the profile was not built-in */}
           {/* in such cases it's better to show the button but disable it with a tooltip */}
           {actions.copy && profile.isBuiltIn && (
@@ -205,14 +200,12 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
         {profile.activeDeprecatedRuleCount > 0 && (
           <ProfileRulesDeprecatedWarning
             activeDeprecatedRules={profile.activeDeprecatedRuleCount}
-            organization={organization}
             profile={profile.key}
           />
         )}
         {compareToSonarWay != null && compareToSonarWay.missingRuleCount > 0 && (
           <ProfileRulesSonarWayComparison
             language={profile.language}
-            organization={organization}
             profile={profile.key}
             sonarWayMissingRules={compareToSonarWay.missingRuleCount}
             sonarway={compareToSonarWay.profile}
