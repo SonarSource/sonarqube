@@ -413,6 +413,16 @@ public class ComponentDbTester {
     return insertSnapshot(branchDto, defaults());
   }
 
+  public SnapshotDto insertSnapshot(ProjectDto project) {
+    return insertSnapshot(project, defaults());
+  }
+
+  public SnapshotDto insertSnapshot(ProjectDto project, Consumer<SnapshotDto> consumer) {
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(project.getUuid());
+    consumer.accept(snapshotDto);
+    return insertSnapshot(snapshotDto);
+  }
+
   public SnapshotDto insertSnapshot(BranchDto branchDto, Consumer<SnapshotDto> consumer) {
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(branchDto);
     consumer.accept(snapshotDto);
