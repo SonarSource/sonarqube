@@ -233,8 +233,8 @@ public class SourceLinesHashRepositoryImplTest {
 
     for (int i = 0; i < expectedLines.size(); i++) {
       assertThat(actualLines.get(i))
-        .isEqualTo(expectedLines.get(i))
-        .withFailMessage("Line hash is different for line %d", i);
+        .withFailMessage("Line hash is different for line %d", i)
+        .isEqualTo(expectedLines.get(i));
     }
   }
 }

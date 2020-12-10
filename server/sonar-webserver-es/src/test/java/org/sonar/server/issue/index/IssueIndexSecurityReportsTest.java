@@ -164,7 +164,9 @@ public class IssueIndexSecurityReportsTest {
   public void getOwaspTop10Report_aggregation_no_cwe() {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(false);
 
-    assertThat(owaspTop10Report).allMatch(category -> category.getChildren().isEmpty());
+    assertThat(owaspTop10Report)
+      .isNotEmpty()
+      .allMatch(category -> category.getChildren().isEmpty());
   }
 
   @Test

@@ -54,6 +54,9 @@ public class JvmStateSectionTest {
     JvmStateSection underTest = new JvmStateSection(PROCESS_NAME);
     ProtobufSystemInfo.Section section = underTest.toProtobuf(memoryBean);
 
-    assertThat(section.getAttributesList()).extracting("key").doesNotContain("Heap Committed (MB)");
+    assertThat(section.getAttributesList())
+      .extracting("key")
+      .isNotEmpty()
+      .doesNotContain("Heap Committed (MB)");
   }
 }

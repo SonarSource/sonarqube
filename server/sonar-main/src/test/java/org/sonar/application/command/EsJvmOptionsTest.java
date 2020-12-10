@@ -80,6 +80,7 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
+      .isNotEmpty()
       .doesNotContain("-Des.enforce.bootstrap.checks=true");
   }
 
@@ -109,6 +110,7 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
+      .isNotEmpty()
       .doesNotContain("-Des.enforce.bootstrap.checks=true");
   }
 
