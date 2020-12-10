@@ -22,7 +22,6 @@ exports[`should render correctly: extension exists 1`] = `
         },
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,

@@ -119,12 +119,10 @@ function shallowRender(props: Partial<Props> = {}) {
   return shallow<ProjectRowActions>(
     <ProjectRowActions
       currentUser={mockLoggedInUser()}
-      organization="org"
       project={{
         id: 'foo',
         key: 'foo',
         name: 'Foo',
-        organization: 'bar',
         qualifier: 'TRK',
         visibility: 'private'
       }}

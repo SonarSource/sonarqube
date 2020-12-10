@@ -277,7 +277,6 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
     breadcrumbs: [],
     key: 'my-project',
     name: 'MyProject',
-    organization: 'foo',
     qualifier: ComponentQualifier.Project,
     qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
     qualityProfiles: [

@@ -21,7 +21,6 @@ exports[`renders correctly: default 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -52,7 +51,6 @@ exports[`renders correctly: default 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -87,7 +85,6 @@ exports[`renders correctly: default 1`] = `
         ],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -126,7 +123,6 @@ exports[`renders correctly: default 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -167,7 +163,6 @@ exports[`renders correctly: has failed notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -218,7 +213,6 @@ exports[`renders correctly: has failed notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -249,7 +243,6 @@ exports[`renders correctly: has failed notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -284,7 +277,6 @@ exports[`renders correctly: has failed notification 1`] = `
         ],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -323,7 +315,6 @@ exports[`renders correctly: has failed notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -364,7 +355,6 @@ exports[`renders correctly: has in progress notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -403,7 +393,6 @@ exports[`renders correctly: has in progress notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -434,7 +423,6 @@ exports[`renders correctly: has in progress notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -469,7 +457,6 @@ exports[`renders correctly: has in progress notification 1`] = `
         ],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -508,7 +495,6 @@ exports[`renders correctly: has in progress notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -549,7 +535,6 @@ exports[`renders correctly: has pending notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -588,7 +573,6 @@ exports[`renders correctly: has pending notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -619,7 +603,6 @@ exports[`renders correctly: has pending notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -654,7 +637,6 @@ exports[`renders correctly: has pending notification 1`] = `
         ],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -693,7 +675,6 @@ exports[`renders correctly: has pending notification 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -738,7 +719,6 @@ exports[`renders correctly: has warnings 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -769,7 +749,6 @@ exports[`renders correctly: has warnings 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -812,7 +791,6 @@ exports[`renders correctly: has warnings 1`] = `
         ],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -851,7 +829,6 @@ exports[`renders correctly: has warnings 1`] = `
           ],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,

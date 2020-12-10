@@ -26,7 +26,6 @@ export interface Project {
   leakPeriodDate?: string;
   measures: T.Dict<string>;
   name: string;
-  organization?: { key: string; name: string };
   projects?: number;
   qualifier: ComponentQualifier;
   tags: string[];

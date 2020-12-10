@@ -7,7 +7,6 @@ exports[`should render additional categories component correctly 1`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,
@@ -38,7 +37,6 @@ exports[`should render additional categories component correctly 3`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,
@@ -67,7 +65,6 @@ exports[`should render additional categories component correctly 4`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,
@@ -96,7 +93,6 @@ exports[`should render additional categories component correctly 5`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,

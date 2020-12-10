@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { Button, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isSonarCloud } from '../../helpers/system';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {
   hasProvisionPermission?: boolean;
   onProjectCreate: () => void;
   onVisibilityChange: (visibility: T.Visibility) => void;
-  organization: T.Organization;
+  organization: Pick<T.Organization, 'canUpdateProjectsVisibilityToPrivate' | 'projectVisibility'>;
 }
 
 interface State {
@@ -53,7 +52,7 @@ export default class Header extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
-          {!isSonarCloud() && organization.projectVisibility && (
+          {organization.projectVisibility && (
             <span className="big-spacer-right">
               <span className="text-middle">
                 {translate('organization.default_visibility_of_new_projects')}{' '}
@@ -74,7 +73,7 @@ export default class Header extends React.PureComponent<Props, State> {
 
         <p className="page-description">{translate('projects_management.page.description')}</p>
 
-        {!isSonarCloud() && this.state.visibilityForm && (
+        {this.state.visibilityForm && (
           <ChangeDefaultVisibilityForm
             onClose={this.closeVisiblityForm}
             onConfirm={this.props.onVisibilityChange}

@@ -79,7 +79,6 @@ exports[`should render all tabs correctly 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -173,7 +172,6 @@ exports[`should render all tabs correctly 2`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -216,7 +214,6 @@ exports[`should render deletion modal correctly 1`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,
@@ -254,7 +251,6 @@ exports[`should render renaming modal correctly 1`] = `
       "breadcrumbs": Array [],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,

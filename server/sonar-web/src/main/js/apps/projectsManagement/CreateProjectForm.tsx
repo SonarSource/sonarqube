@@ -31,8 +31,7 @@ import { getProjectUrl } from '../../helpers/urls';
 interface Props {
   onClose: () => void;
   onProjectCreated: () => void;
-  onOrganizationUpgrade: () => void;
-  organization: T.Organization;
+  organization: Pick<T.Organization, 'canUpdateProjectsVisibilityToPrivate' | 'projectVisibility'>;
 }
 
 interface State {
@@ -90,7 +89,6 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
 
     const data = {
       name: this.state.name,
-      organization: this.props.organization && this.props.organization.key,
       project: this.state.key,
       visibility: this.state.visibility
     };
@@ -112,7 +110,9 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   };
 
   render() {
-    const { organization } = this.props;
+    const {
+      organization: { canUpdateProjectsVisibilityToPrivate }
+    } = this.props;
     const { createdProject } = this.state;
 
     return (
@@ -189,7 +189,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               <div className="modal-field">
                 <label>{translate('visibility')}</label>
                 <VisibilitySelector
-                  canTurnToPrivate={organization.canUpdateProjectsVisibilityToPrivate}
+                  canTurnToPrivate={canUpdateProjectsVisibilityToPrivate}
                   className="little-spacer-top"
                   onChange={this.handleVisibilityChange}
                   visibility={this.state.visibility}

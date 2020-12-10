@@ -43,16 +43,8 @@ interface OwnProps {
 
 class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchProps> {
   componentDidMount() {
-    // if there is no organization, that means we are in the global scope
-    // let's fetch defails for the default organization in this case
-    if (!this.props.organization || !this.props.organization.projectVisibility) {
-      this.props.fetchOrganization(this.props.appState.defaultOrganization);
-    }
+    this.props.fetchOrganization(this.props.appState.defaultOrganization);
   }
-
-  handleOrganizationUpgrade = () => {
-    this.props.fetchOrganization(this.props.organization.key);
-  };
 
   handleVisibilityChange = (visibility: T.Visibility) => {
     if (this.props.organization) {
@@ -74,7 +66,6 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
       <App
         currentUser={this.props.currentUser}
         hasProvisionPermission={actions.provision}
-        onOrganizationUpgrade={this.handleOrganizationUpgrade}
         onVisibilityChange={this.handleVisibilityChange}
         organization={organization}
         topLevelQualifiers={topLevelQualifiers}

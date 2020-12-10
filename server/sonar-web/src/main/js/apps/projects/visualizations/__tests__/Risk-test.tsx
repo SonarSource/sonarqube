@@ -52,12 +52,5 @@ function shallowRender(overrides: Partial<Risk['props']> = {}) {
     name: 'Bar',
     measures: {}
   });
-  return shallow<Risk>(
-    <Risk
-      displayOrganizations={false}
-      helpText="foobar"
-      projects={[project1, project2]}
-      {...overrides}
-    />
-  );
+  return shallow<Risk>(<Risk helpText="foobar" projects={[project1, project2]} {...overrides} />);
 }

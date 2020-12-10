@@ -3,7 +3,6 @@
 exports[`bulk applies permission template 1`] = `
 <BulkApplyTemplateModal
   onClose={[Function]}
-  organization="org"
   provisioned={false}
   qualifier="TRK"
   query=""
@@ -16,7 +15,6 @@ exports[`deletes projects 1`] = `
 <DeleteModal
   onClose={[Function]}
   onConfirm={[Function]}
-  organization="org"
   provisioned={false}
   qualifier="TRK"
   query=""

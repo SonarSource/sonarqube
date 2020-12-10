@@ -55,7 +55,6 @@ function shallowRender(props?: any) {
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       isFiltered={false}
-      organization={undefined}
       projects={[
         { key: 'foo', name: 'Foo' },
         { key: 'bar', name: 'Bar' }

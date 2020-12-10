@@ -115,7 +115,6 @@ exports[`should render correctly 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "FIL",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -140,7 +139,6 @@ exports[`should render correctly 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "TRK",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -223,7 +221,6 @@ exports[`should render correctly 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -248,7 +245,6 @@ exports[`should render correctly 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -317,7 +313,6 @@ exports[`should render correctly 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -358,7 +353,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -383,7 +377,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -459,7 +452,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -484,7 +476,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -571,7 +562,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -596,7 +586,6 @@ exports[`should render correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -770,7 +759,6 @@ exports[`should render correctly: anonymous user 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "FIL",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -795,7 +783,6 @@ exports[`should render correctly: anonymous user 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "TRK",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -878,7 +865,6 @@ exports[`should render correctly: anonymous user 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -903,7 +889,6 @@ exports[`should render correctly: anonymous user 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -972,7 +957,6 @@ exports[`should render correctly: anonymous user 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1013,7 +997,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1038,7 +1021,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1114,7 +1096,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1139,7 +1120,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1226,7 +1206,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1251,7 +1230,6 @@ exports[`should render correctly: anonymous user 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1425,7 +1403,6 @@ exports[`should render correctly: assignee without name 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "FIL",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -1450,7 +1427,6 @@ exports[`should render correctly: assignee without name 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "TRK",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -1533,7 +1509,6 @@ exports[`should render correctly: assignee without name 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -1558,7 +1533,6 @@ exports[`should render correctly: assignee without name 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -1627,7 +1601,6 @@ exports[`should render correctly: assignee without name 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1668,7 +1641,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1693,7 +1665,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1769,7 +1740,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1794,7 +1764,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1881,7 +1850,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -1906,7 +1874,6 @@ exports[`should render correctly: assignee without name 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -2080,7 +2047,6 @@ exports[`should render correctly: deleted assignee 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "FIL",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -2105,7 +2071,6 @@ exports[`should render correctly: deleted assignee 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "TRK",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -2188,7 +2153,6 @@ exports[`should render correctly: deleted assignee 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -2213,7 +2177,6 @@ exports[`should render correctly: deleted assignee 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -2282,7 +2245,6 @@ exports[`should render correctly: deleted assignee 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -2323,7 +2285,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -2348,7 +2309,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -2424,7 +2384,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -2449,7 +2408,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -2536,7 +2494,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -2561,7 +2518,6 @@ exports[`should render correctly: deleted assignee 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -2741,7 +2697,6 @@ exports[`should render correctly: unassigned 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "FIL",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -2766,7 +2721,6 @@ exports[`should render correctly: unassigned 1`] = `
                     "breadcrumbs": Array [],
                     "key": "my-project",
                     "name": "MyProject",
-                    "organization": "foo",
                     "qualifier": "TRK",
                     "qualityGate": Object {
                       "isDefault": true,
@@ -2849,7 +2803,6 @@ exports[`should render correctly: unassigned 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -2874,7 +2827,6 @@ exports[`should render correctly: unassigned 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -2943,7 +2895,6 @@ exports[`should render correctly: unassigned 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -2984,7 +2935,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -3009,7 +2959,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -3085,7 +3034,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -3110,7 +3058,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -3197,7 +3144,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "FIL",
             "qualityGate": Object {
               "isDefault": true,
@@ -3222,7 +3168,6 @@ exports[`should render correctly: unassigned 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,

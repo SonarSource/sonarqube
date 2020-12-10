@@ -8,7 +8,6 @@ exports[`should render correctly: azure pipelines tutorial 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -56,7 +55,6 @@ exports[`should render correctly: gitlab tutorial 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -110,7 +108,6 @@ exports[`should render correctly: jenkins tutorial 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -154,7 +151,6 @@ exports[`should render correctly: manual tutorial 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,

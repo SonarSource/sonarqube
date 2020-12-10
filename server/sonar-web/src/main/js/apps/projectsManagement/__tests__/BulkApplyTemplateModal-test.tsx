@@ -61,7 +61,6 @@ it('bulk applies template to all results', async () => {
   expect(bulkApplyTemplate).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: true,
-    organization: 'org',
     q: 'bla',
     qualifiers: 'TRK',
     templateId: 'foo'
@@ -91,7 +90,6 @@ it('bulk applies template to selected results', async () => {
   expect(wrapper).toMatchSnapshot();
   await new Promise(setImmediate);
   expect(bulkApplyTemplate).toBeCalledWith({
-    organization: 'org',
     projects: 'proj1,proj2',
     qualifiers: 'VW',
     templateId: 'foo'
@@ -113,7 +111,6 @@ function render(props?: { [P in keyof Props]?: Props[P] }) {
     <BulkApplyTemplateModal
       analyzedBefore={parseDate('2017-04-08T00:00:00.000Z')}
       onClose={jest.fn()}
-      organization="org"
       provisioned={true}
       qualifier="TRK"
       query="bla"

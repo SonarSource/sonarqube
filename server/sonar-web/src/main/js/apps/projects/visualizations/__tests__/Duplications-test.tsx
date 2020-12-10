@@ -22,7 +22,5 @@ import * as React from 'react';
 import Duplications from '../Duplications';
 
 it('renders', () => {
-  expect(
-    shallow(<Duplications displayOrganizations={false} helpText="foobar" projects={[]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Duplications helpText="foobar" projects={[]} />)).toMatchSnapshot();
 });

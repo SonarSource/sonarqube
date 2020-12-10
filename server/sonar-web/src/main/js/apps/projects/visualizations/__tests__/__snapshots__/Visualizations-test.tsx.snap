@@ -8,7 +8,6 @@ exports[`renders 1`] = `
     className="projects-visualization"
   >
     <Coverage
-      displayOrganizations={false}
       helpText="projects.visualization.coverage.description"
       projects={Array []}
     />
@@ -24,7 +23,6 @@ exports[`renders when limit is reached 1`] = `
     className="projects-visualization"
   >
     <Coverage
-      displayOrganizations={false}
       helpText="projects.visualization.coverage.description"
       projects={Array []}
     />

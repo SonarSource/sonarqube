@@ -30,7 +30,6 @@ export interface Props {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   property?: string;
   value?: any;
 }
@@ -64,7 +63,6 @@ export default function SecurityReviewFilter(props: Props) {
       maxFacetValue={props.maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
-      organization={props.organization}
       property={property}
       renderOption={renderOption}
       value={props.value}

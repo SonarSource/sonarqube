@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { invert, uniq } from 'lodash';
+import { invert } from 'lodash';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { RequestData } from 'sonar-ui-common/helpers/request';
 import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
-import { getOrganizations } from '../../api/organizations';
 import { isDiffMetric } from '../../helpers/measures';
 import { MetricKey } from '../../types/metrics';
 import { convertToFilter, Query } from './query';
@@ -199,14 +198,9 @@ export function parseSorting(sort: string): { sortValue: string; sortDesc: boole
   return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
 }
 
-export function fetchProjects(
-  query: Query,
-  isFavorite: boolean,
-  organization: T.Organization | undefined,
-  pageIndex = 1
-) {
+export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) {
   const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
-  const data = convertToQueryData(query, isFavorite, organization && organization.key, {
+  const data = convertToQueryData(query, isFavorite, {
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
     facets: defineFacets(query).join(),
@@ -214,32 +208,23 @@ export function fetchProjects(
   });
   return searchProjects(data)
     .then(response =>
-      Promise.all([
-        fetchProjectMeasures(response.components, query),
-        fetchProjectOrganizations(response.components, organization),
-        Promise.resolve(response)
-      ])
+      Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
     )
-    .then(([measures, organizations, { components, facets, paging }]) => {
+    .then(([measures, { components, facets, paging }]) => {
       return {
         facets: getFacetsMap(facets),
-        projects: components
-          .map(component => {
-            const componentMeasures: T.Dict<string> = {};
-            measures
-              .filter(measure => measure.component === component.key)
-              .forEach(measure => {
-                const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
-                if (value !== undefined) {
-                  componentMeasures[measure.metric] = value;
-                }
-              });
-            return { ...component, measures: componentMeasures };
-          })
-          .map(component => {
-            const organization = organizations.find(o => o.key === component.organization);
-            return { ...component, organization };
-          }),
+        projects: components.map(component => {
+          const componentMeasures: T.Dict<string> = {};
+          measures
+            .filter(measure => measure.component === component.key)
+            .forEach(measure => {
+              const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
+              if (value !== undefined) {
+                componentMeasures[measure.metric] = value;
+              }
+            });
+          return { ...component, measures: componentMeasures };
+        }),
         total: paging.total
       };
     });
@@ -263,13 +248,8 @@ function defineFacets(query: Query): string[] {
   return FACETS;
 }
 
-function convertToQueryData(
-  query: Query,
-  isFavorite: boolean,
-  organization?: string,
-  defaultData = {}
-) {
-  const data: RequestData = { ...defaultData, organization };
+function convertToQueryData(query: Query, isFavorite: boolean, defaultData = {}) {
+  const data: RequestData = { ...defaultData };
   const filter = convertToFilter(query, isFavorite);
   const sort = convertToSorting(query);
 
@@ -293,21 +273,6 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
   const projectKeys = projects.map(project => project.key);
   const metrics = defineMetrics(query);
   return getMeasuresForProjects(projectKeys, metrics);
-}
-
-export function fetchProjectOrganizations(
-  projects: Array<{ organization: string }>,
-  organization: T.Organization | undefined
-) {
-  if (organization) {
-    return Promise.resolve([organization]);
-  }
-  if (!projects.length) {
-    return Promise.resolve([]);
-  }
-
-  const organizations = uniq(projects.map(project => project.organization));
-  return getOrganizations({ organizations: organizations.join() }).then(r => r.organizations);
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {

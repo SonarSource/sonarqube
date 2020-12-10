@@ -45,7 +45,6 @@ it('deletes all projects', async () => {
   expect(bulkDeleteProjects).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: undefined,
-    organization: 'org',
     q: 'bla',
     qualifiers: 'TRK'
   });
@@ -62,7 +61,7 @@ it('deletes selected projects', async () => {
 
   click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
-  expect(bulkDeleteProjects).toBeCalledWith({ organization: 'org', projects: 'proj1,proj2' });
+  expect(bulkDeleteProjects).toBeCalledWith({ projects: 'proj1,proj2' });
 
   await new Promise(setImmediate);
   expect(onConfirm).toBeCalled();
@@ -81,7 +80,6 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       analyzedBefore={parseDate('2017-04-08T00:00:00.000Z')}
       onClose={jest.fn()}
       onConfirm={jest.fn()}
-      organization="org"
       provisioned={false}
       qualifier="TRK"
       query="bla"

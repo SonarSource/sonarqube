@@ -46,7 +46,6 @@ it('renders correctly', () => {
 it('correctly adds data to the history if there are breadcrumbs', () => {
   const key = 'foo';
   const name = 'Foo';
-  const organization = 'baz';
   const qualifier = ComponentQualifier.Portfolio;
   const spy = jest.spyOn(RecentHistory, 'add');
 
@@ -54,7 +53,6 @@ it('correctly adds data to the history if there are breadcrumbs', () => {
     component: mockComponent({
       key,
       name,
-      organization,
       breadcrumbs: [
         {
           key: 'bar',
@@ -65,7 +63,7 @@ it('correctly adds data to the history if there are breadcrumbs', () => {
     })
   });
 
-  expect(spy).toBeCalledWith(key, name, qualifier.toLowerCase(), organization);
+  expect(spy).toBeCalledWith(key, name, qualifier.toLowerCase());
 });
 
 it('correctly toggles the project info display', () => {

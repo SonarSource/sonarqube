@@ -22,7 +22,5 @@ import * as React from 'react';
 import Reliability from '../Reliability';
 
 it('renders', () => {
-  expect(
-    shallow(<Reliability displayOrganizations={false} helpText="foobar" projects={[]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Reliability helpText="foobar" projects={[]} />)).toMatchSnapshot();
 });

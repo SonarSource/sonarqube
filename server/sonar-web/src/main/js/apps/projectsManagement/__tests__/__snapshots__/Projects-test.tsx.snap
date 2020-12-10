@@ -35,7 +35,6 @@ exports[`renders list of projects 1`] = `
         }
         key="a"
         onProjectCheck={[Function]}
-        organization="org"
         project={
           Object {
             "key": "a",
@@ -54,7 +53,6 @@ exports[`renders list of projects 1`] = `
         }
         key="b"
         onProjectCheck={[Function]}
-        organization="org"
         project={
           Object {
             "key": "b",

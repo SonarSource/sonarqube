@@ -46,24 +46,6 @@ it('saves last selection', () => {
   expect(save).toBeCalledWith('sonarqube.projects.default', 'all');
 });
 
-it('handles organization', () => {
-  expect(
-    shallow(
-      <FavoriteFilter currentUser={currentUser} organization={{ key: 'org' }} query={query} />
-    )
-  ).toMatchSnapshot();
-});
-
-it('does not save last selection with organization', () => {
-  const wrapper = shallow(
-    <FavoriteFilter currentUser={currentUser} organization={{ key: 'org' }} query={query} />
-  );
-  click(wrapper.find('#favorite-projects'));
-  expect(save).not.toBeCalled();
-  click(wrapper.find('#all-projects'));
-  expect(save).not.toBeCalled();
-});
-
 it('does not render for anonymous', () => {
   expect(
     shallow(<FavoriteFilter currentUser={{ isLoggedIn: false }} query={query} />).type()

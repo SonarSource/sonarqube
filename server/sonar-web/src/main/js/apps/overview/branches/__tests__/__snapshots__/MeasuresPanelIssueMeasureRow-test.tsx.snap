@@ -22,7 +22,6 @@ exports[`should render correctly for apps: new code 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "APP",
           "qualityGate": Object {
             "isDefault": true,
@@ -137,7 +136,6 @@ exports[`should render correctly for apps: overview 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "APP",
           "qualityGate": Object {
             "isDefault": true,
@@ -244,7 +242,6 @@ exports[`should render correctly for apps: overview 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "APP",
           "qualityGate": Object {
             "isDefault": true,
@@ -359,7 +356,6 @@ exports[`should render correctly for projects: Bug 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -466,7 +462,6 @@ exports[`should render correctly for projects: Bug 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -581,7 +576,6 @@ exports[`should render correctly for projects: Code Smell 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -687,7 +681,6 @@ exports[`should render correctly for projects: Code Smell 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -794,7 +787,6 @@ exports[`should render correctly for projects: Code Smell 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -909,7 +901,6 @@ exports[`should render correctly for projects: Hotspot 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1092,7 +1083,6 @@ exports[`should render correctly for projects: Hotspot 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1207,7 +1197,6 @@ exports[`should render correctly for projects: Overview 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1314,7 +1303,6 @@ exports[`should render correctly for projects: Overview 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1429,7 +1417,6 @@ exports[`should render correctly for projects: Vulnerabilty 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1536,7 +1523,6 @@ exports[`should render correctly for projects: Vulnerabilty 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,

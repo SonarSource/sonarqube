@@ -36,7 +36,6 @@ interface Props {
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
   onQueryChange: (change: T.RawQuery) => void;
   onSortChange: (sort: string, desc: boolean) => void;
-  organization?: { key: string };
   projects?: Project[];
   query: T.RawQuery;
   selectedSort: string;

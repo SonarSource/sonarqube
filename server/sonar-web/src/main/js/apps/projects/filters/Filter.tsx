@@ -36,7 +36,6 @@ interface Props {
   facet?: Facet;
   maxFacetValue?: number;
   optionClassName?: string;
-  organization?: { key: string };
 
   getFacetValueForOption?: (facet: Facet, option: Option) => number;
 

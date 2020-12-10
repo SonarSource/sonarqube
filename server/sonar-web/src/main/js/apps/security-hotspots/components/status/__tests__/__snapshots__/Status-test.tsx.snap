@@ -38,7 +38,6 @@ exports[`should render correctly: closed 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -63,7 +62,6 @@ exports[`should render correctly: closed 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -182,7 +180,6 @@ exports[`should render correctly: open 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "FIL",
                 "qualityGate": Object {
                   "isDefault": true,
@@ -207,7 +204,6 @@ exports[`should render correctly: open 1`] = `
                 "breadcrumbs": Array [],
                 "key": "my-project",
                 "name": "MyProject",
-                "organization": "foo",
                 "qualifier": "TRK",
                 "qualityGate": Object {
                   "isDefault": true,

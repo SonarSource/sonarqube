@@ -39,7 +39,6 @@ const PROJECT: Project = {
   key: 'foo',
   measures: MEASURES,
   name: 'Foo',
-  organization: { key: 'org', name: 'org' },
   qualifier: ComponentQualifier.Project,
   tags: [],
   visibility: 'public'

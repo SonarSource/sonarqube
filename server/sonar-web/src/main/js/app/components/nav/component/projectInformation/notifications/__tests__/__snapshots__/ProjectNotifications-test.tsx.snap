@@ -52,7 +52,6 @@ exports[`should render correctly 1`] = `
           Array [
             Object {
               "channel": "channel1",
-              "organization": "org",
               "project": "foo",
               "projectName": "Foo",
               "type": "type-global",

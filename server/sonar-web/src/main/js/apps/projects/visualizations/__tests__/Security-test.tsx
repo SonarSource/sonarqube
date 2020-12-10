@@ -22,7 +22,5 @@ import * as React from 'react';
 import Security from '../Security';
 
 it('renders', () => {
-  expect(
-    shallow(<Security displayOrganizations={false} helpText="foobar" projects={[]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Security helpText="foobar" projects={[]} />)).toMatchSnapshot();
 });

@@ -27,7 +27,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 export interface Props {
   onClose: () => void;
   onConfirm: (visiblity: T.Visibility) => void;
-  organization: T.Organization;
+  organization: Pick<T.Organization, 'canUpdateProjectsVisibilityToPrivate' | 'projectVisibility'>;
 }
 
 interface State {

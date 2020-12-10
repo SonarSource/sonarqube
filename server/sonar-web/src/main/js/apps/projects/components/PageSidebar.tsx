@@ -47,26 +47,17 @@ export interface PageSidebarProps {
   facets?: Facets;
   onClearAll: () => void;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   query: T.RawQuery;
   view: string;
   visualization: string;
 }
 
 export default function PageSidebar(props: PageSidebarProps) {
-  const {
-    applicationsEnabled,
-    facets,
-    onQueryChange,
-    query,
-    organization,
-    view,
-    visualization
-  } = props;
+  const { applicationsEnabled, facets, onQueryChange, query, view, visualization } = props;
   const isFiltered = hasFilterParams(query);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
-  const facetProps = { onQueryChange, maxFacetValue, organization };
+  const facetProps = { onQueryChange, maxFacetValue };
 
   let linkQuery: T.RawQuery | undefined = undefined;
   if (view !== 'overall') {
@@ -79,7 +70,7 @@ export default function PageSidebar(props: PageSidebarProps) {
 
   return (
     <div>
-      <FavoriteFilterContainer organization={organization} query={linkQuery} />
+      <FavoriteFilterContainer query={linkQuery} />
 
       <div className="projects-facets-header clearfix">
         {isFiltered && <ClearAll onClearAll={props.onClearAll} />}

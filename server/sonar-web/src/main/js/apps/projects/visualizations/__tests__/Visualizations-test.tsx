@@ -22,20 +22,11 @@ import * as React from 'react';
 import Visualizations from '../Visualizations';
 
 it('renders', () => {
-  expect(
-    shallow(<Visualizations displayOrganizations={false} projects={[]} visualization="coverage" />)
-  ).toMatchSnapshot();
+  expect(shallow(<Visualizations projects={[]} visualization="coverage" />)).toMatchSnapshot();
 });
 
 it('renders when limit is reached', () => {
   expect(
-    shallow(
-      <Visualizations
-        displayOrganizations={false}
-        projects={[]}
-        total={1000}
-        visualization="coverage"
-      />
-    )
+    shallow(<Visualizations projects={[]} total={1000} visualization="coverage" />)
   ).toMatchSnapshot();
 });

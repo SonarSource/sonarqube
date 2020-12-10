@@ -31,7 +31,6 @@ interface Props {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   property?: string;
   query: T.Dict<any>;
   value?: string[];
@@ -110,7 +109,6 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
             onOpen={this.handleSearch}
             onQueryChange={this.props.onQueryChange}
             options={this.getSearchOptions()}
-            organization={this.props.organization}
             property={property}
             query={this.props.query}
           />
@@ -119,7 +117,6 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
         maxFacetValue={this.props.maxFacetValue}
         onQueryChange={this.props.onQueryChange}
         options={this.getSortedOptions(this.props.facet)}
-        organization={this.props.organization}
         property={property}
         renderOption={this.renderOption}
         value={this.props.value}

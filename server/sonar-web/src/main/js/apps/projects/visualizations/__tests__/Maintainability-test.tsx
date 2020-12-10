@@ -22,7 +22,5 @@ import * as React from 'react';
 import Maintainability from '../Maintainability';
 
 it('renders', () => {
-  expect(
-    shallow(<Maintainability displayOrganizations={false} helpText="foobar" projects={[]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Maintainability helpText="foobar" projects={[]} />)).toMatchSnapshot();
 });

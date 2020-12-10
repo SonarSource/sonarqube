@@ -48,7 +48,6 @@ function shallowRender(overrides: Partial<SimpleBubbleChart['props']> = {}) {
   return shallow<SimpleBubbleChart>(
     <SimpleBubbleChart
       colorMetric="security_rating"
-      displayOrganizations={false}
       helpText="foobar"
       projects={[app, project1]}
       sizeMetric={{ key: 'ncloc', type: 'INT' }}

@@ -405,7 +405,7 @@ declare namespace T {
 
   export interface LightComponent {
     key: string;
-    organization: string;
+    organization?: string;
     qualifier: string;
   }
 
@@ -510,7 +510,6 @@ declare namespace T {
 
   export interface Notification {
     channel: string;
-    organization?: string;
     project?: string;
     projectName?: string;
     type: string;

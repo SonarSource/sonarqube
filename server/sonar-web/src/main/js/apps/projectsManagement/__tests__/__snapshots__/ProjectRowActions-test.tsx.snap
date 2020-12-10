@@ -3,13 +3,11 @@
 exports[`permissions shows the apply permission template modal 1`] = `
 <ApplyTemplate
   onClose={[Function]}
-  organization="org"
   project={
     Object {
       "id": "foo",
       "key": "foo",
       "name": "Foo",
-      "organization": "bar",
       "qualifier": "TRK",
       "visibility": "private",
     }
@@ -50,7 +48,6 @@ exports[`restore access shows the restore access modal 1`] = `
       "id": "foo",
       "key": "foo",
       "name": "Foo",
-      "organization": "bar",
       "qualifier": "TRK",
       "visibility": "private",
     }

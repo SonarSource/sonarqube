@@ -21,7 +21,6 @@ exports[`should render correctly 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -80,7 +79,6 @@ exports[`should render correctly with hotspots 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -215,7 +213,6 @@ exports[`should render correctly: loading 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,
@@ -273,7 +270,6 @@ exports[`should render correctly: no hotspots with filters 1`] = `
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
-        "organization": "foo",
         "qualifier": "TRK",
         "qualityGate": Object {
           "isDefault": true,

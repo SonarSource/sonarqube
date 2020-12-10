@@ -46,7 +46,6 @@ interface Props {
   currentUser: T.CurrentUser;
   isFavorite: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
-  organization: T.Organization | undefined;
   qualifiers: ComponentQualifier[];
   router: Pick<Router, 'push' | 'replace'>;
 }
@@ -96,7 +95,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   fetchProjects = (query: Query) => {
     this.setState({ loading: true, query });
-    fetchProjects(query, this.props.isFavorite, this.props.organization).then(response => {
+    fetchProjects(query, this.props.isFavorite).then(response => {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
@@ -113,18 +112,15 @@ export class AllProjects extends React.PureComponent<Props, State> {
     const { pageIndex, projects, query } = this.state;
     if (pageIndex && projects && query) {
       this.setState({ loading: true });
-      fetchProjects(query, this.props.isFavorite, this.props.organization, pageIndex + 1).then(
-        response => {
-          if (this.mounted) {
-            this.setState({
-              loading: false,
-              pageIndex: pageIndex + 1,
-              projects: [...projects, ...response.projects]
-            });
-          }
-        },
-        this.stopLoading
-      );
+      fetchProjects(query, this.props.isFavorite, pageIndex + 1).then(response => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            pageIndex: pageIndex + 1,
+            projects: [...projects, ...response.projects]
+          });
+        }
+      }, this.stopLoading);
     }
   };
 
@@ -242,7 +238,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
                 facets={this.state.facets}
                 onClearAll={this.handleClearAll}
                 onQueryChange={this.updateLocationQuery}
-                organization={this.props.organization}
                 query={this.state.query}
                 view={this.getView()}
                 visualization={this.getVisualization()}
@@ -265,7 +260,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}
             onSortChange={this.handleSortChange}
-            organization={this.props.organization}
             projects={this.state.projects}
             query={this.state.query}
             selectedSort={this.getSort()}
@@ -287,7 +281,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
       <div className="layout-page-main-inner">
         {this.state.projects && (
           <Visualizations
-            displayOrganizations={false}
             projects={this.state.projects}
             sort={this.state.query.sort}
             total={this.state.total}

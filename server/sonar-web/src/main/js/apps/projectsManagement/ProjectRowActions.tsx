@@ -31,7 +31,6 @@ import RestoreAccessModal from './RestoreAccessModal';
 
 export interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;
-  organization: string | undefined;
   project: Project;
 }
 
@@ -146,11 +145,7 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
         )}
 
         {this.state.applyTemplateModal && (
-          <ApplyTemplate
-            onClose={this.handleApplyTemplateClose}
-            organization={this.props.organization}
-            project={this.props.project}
-          />
+          <ApplyTemplate onClose={this.handleApplyTemplateClose} project={this.props.project} />
         )}
       </>
     );

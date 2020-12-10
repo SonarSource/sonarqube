@@ -25,7 +25,6 @@ import { ComponentQualifier, TreeComponent, TreeComponentWithPath } from '../typ
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
   onProvisionedOnly?: boolean;
-  organization: string;
   projects?: string;
   q?: string;
   qualifiers?: string;
@@ -42,7 +41,6 @@ export interface ProjectBase {
 export interface Project extends ProjectBase {
   id: string;
   lastAnalysisDate?: string;
-  organization: string;
 }
 
 export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
@@ -76,7 +74,6 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
 export function createProject(data: {
   name: string;
   project: string;
-  organization?: string;
   visibility?: T.Visibility;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);

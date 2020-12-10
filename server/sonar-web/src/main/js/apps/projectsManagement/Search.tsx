@@ -41,7 +41,6 @@ export interface Props {
   onQualifierChanged: (qualifier: string) => void;
   onVisibilityChanged: (qualifier: string) => void;
   onSearch: (query: string) => void;
-  organization: T.Organization;
   projects: Project[];
   provisioned: boolean;
   qualifiers: string;
@@ -257,7 +256,6 @@ export default class Search extends React.PureComponent<Props, State> {
           <BulkApplyTemplateModal
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeBulkApplyTemplateModal}
-            organization={this.props.organization.key}
             provisioned={this.props.provisioned}
             qualifier={this.props.qualifiers}
             query={this.props.query}
@@ -271,7 +269,6 @@ export default class Search extends React.PureComponent<Props, State> {
             analyzedBefore={this.props.analyzedBefore}
             onClose={this.closeDeleteModal}
             onConfirm={this.handleDeleteConfirm}
-            organization={this.props.organization.key}
             provisioned={this.props.provisioned}
             qualifier={this.props.qualifiers}
             query={this.props.query}

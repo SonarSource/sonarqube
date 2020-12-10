@@ -28,7 +28,6 @@ interface Props {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   value?: any;
 }
 

@@ -66,10 +66,10 @@ it('should clear history', () => {
 it('should add item to history', () => {
   const history = [{ key: 'foo', name: 'Foo', icon: 'TRK' }];
   (get as jest.Mock).mockReturnValueOnce(JSON.stringify(history));
-  RecentHistory.add('bar', 'Bar', 'VW', 'org');
+  RecentHistory.add('bar', 'Bar', 'VW');
   expect(save).toBeCalledWith(
     'sonar_recent_history',
-    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW', organization: 'org' }, ...history])
+    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history])
   );
 });
 
@@ -79,13 +79,10 @@ it('should keep 10 items maximum', () => {
     history.push({ key: `key-${i}`, name: `name-${i}`, icon: 'TRK' });
   }
   (get as jest.Mock).mockReturnValueOnce(JSON.stringify(history));
-  RecentHistory.add('bar', 'Bar', 'VW', 'org');
+  RecentHistory.add('bar', 'Bar', 'VW');
   expect(save).toBeCalledWith(
     'sonar_recent_history',
-    JSON.stringify([
-      { key: 'bar', name: 'Bar', icon: 'VW', organization: 'org' },
-      ...history.slice(0, 9)
-    ])
+    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history.slice(0, 9)])
   );
 });
 

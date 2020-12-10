@@ -24,7 +24,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { getTree, searchProjects } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import Organization from '../../../components/shared/Organization';
+import { ComponentQualifier } from '../../../types/component';
 import { Facet, Query, ReferencedComponent } from '../utils';
 
 interface Props {
@@ -34,7 +34,6 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: { key: string } | undefined;
   projects: string[];
   query: Query;
   referencedComponents: T.Dict<ReferencedComponent>;
@@ -44,7 +43,6 @@ interface Props {
 interface SearchedProject {
   key: string;
   name: string;
-  organization: string;
 }
 
 export default class ProjectFacet extends React.PureComponent<Props> {
@@ -52,20 +50,26 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     query: string,
     page = 1
   ): Promise<{ results: SearchedProject[]; paging: T.Paging }> => {
-    const { component, organization } = this.props;
-    if (component && ['VW', 'SVW', 'APP'].includes(component.qualifier)) {
+    const { component } = this.props;
+    if (
+      component &&
+      [
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.SubPortfolio,
+        ComponentQualifier.Application
+      ].includes(component.qualifier as ComponentQualifier)
+    ) {
       return getTree({
         component: component.key,
         p: page,
         ps: 30,
         q: query,
-        qualifiers: 'TRK'
+        qualifiers: ComponentQualifier.Project
       }).then(({ components, paging }) => ({
         paging,
         results: components.map(component => ({
           key: component.refKey || component.key,
-          name: component.name,
-          organization: component.organization
+          name: component.name
         }))
       }));
     }
@@ -73,14 +77,12 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     return searchProjects({
       p: page,
       ps: 30,
-      filter: query ? `query = "${query}"` : '',
-      organization: organization && organization.key
+      filter: query ? `query = "${query}"` : ''
     }).then(({ components, paging }) => ({
       paging,
       results: components.map(component => ({
         key: component.key,
-        name: component.name,
-        organization: component.organization
+        name: component.name
       }))
     }));
   };
@@ -96,34 +98,18 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     });
   };
 
-  renderFacetItem = (project: string) => {
-    const { referencedComponents } = this.props;
-    return referencedComponents[project] ? (
-      this.renderProject(referencedComponents[project])
-    ) : (
+  renderFacetItem = (projectKey: string) => {
+    return (
       <span>
-        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-        {project}
+        <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
+        {this.getProjectName(projectKey)}
       </span>
     );
   };
 
-  renderProject = (project: Pick<SearchedProject, 'name' | 'organization'>) => (
-    <span>
-      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-      {!this.props.organization && (
-        <Organization link={false} organizationKey={project.organization} />
-      )}
-      {project.name}
-    </span>
-  );
-
-  renderSearchResult = (project: Pick<SearchedProject, 'name' | 'organization'>, term: string) => (
+  renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
     <>
-      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-      {!this.props.organization && (
-        <Organization link={false} organizationKey={project.organization} />
-      )}
+      <QualifierIcon className="little-spacer-right" qualifier={ComponentQualifier.Project} />
       {highlightTerm(project.name, term)}
     </>
   );

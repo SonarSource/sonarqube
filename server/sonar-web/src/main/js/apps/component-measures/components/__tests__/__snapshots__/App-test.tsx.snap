@@ -129,7 +129,6 @@ exports[`should render correctly 1`] = `
           "breadcrumbs": Array [],
           "key": "foo",
           "name": "Foo",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,

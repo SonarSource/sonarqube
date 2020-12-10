@@ -21,14 +21,13 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockOrganization } from '../../../helpers/testMocks';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
 
-const organization: T.Organization = {
+const organization: T.Organization = mockOrganization({
   canUpdateProjectsVisibilityToPrivate: true,
-  key: 'org',
-  name: 'org',
   projectVisibility: 'public'
-};
+});
 
 it('renders disabled', () => {
   expect(

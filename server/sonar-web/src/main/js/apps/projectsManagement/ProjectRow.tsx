@@ -32,7 +32,6 @@ import ProjectRowActions from './ProjectRowActions';
 interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;
   onProjectCheck: (project: Project, checked: boolean) => void;
-  organization: string | undefined;
   project: Project;
   selected: boolean;
 }
@@ -43,7 +42,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
   };
 
   render() {
-    const { organization, project, selected } = this.props;
+    const { project, selected } = this.props;
 
     return (
       <tr data-project-key={project.key}>
@@ -82,11 +81,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          <ProjectRowActions
-            currentUser={this.props.currentUser}
-            organization={organization}
-            project={project}
-          />
+          <ProjectRowActions currentUser={this.props.currentUser} project={project} />
         </td>
       </tr>
     );

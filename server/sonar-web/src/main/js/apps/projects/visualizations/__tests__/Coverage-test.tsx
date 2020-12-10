@@ -22,7 +22,5 @@ import * as React from 'react';
 import Coverage from '../Coverage';
 
 it('renders', () => {
-  expect(
-    shallow(<Coverage displayOrganizations={false} helpText="foobar" projects={[]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Coverage helpText="foobar" projects={[]} />)).toMatchSnapshot();
 });

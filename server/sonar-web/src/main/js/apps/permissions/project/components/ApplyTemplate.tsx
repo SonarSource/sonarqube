@@ -29,7 +29,7 @@ import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/
 interface Props {
   onApply?: () => void;
   onClose: () => void;
-  organization: string | undefined;
+  organization?: string;
   project: { key: string; name: string };
 }
 

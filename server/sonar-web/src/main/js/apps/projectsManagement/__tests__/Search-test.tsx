@@ -22,8 +22,6 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import Search, { Props } from '../Search';
 
-const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
-
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
@@ -123,7 +121,6 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       onQualifierChanged={jest.fn()}
       onSearch={jest.fn()}
       onVisibilityChanged={jest.fn()}
-      organization={organization}
       projects={[]}
       provisioned={false}
       qualifiers="TRK"

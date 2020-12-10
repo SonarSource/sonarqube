@@ -41,7 +41,6 @@ const COLOR_METRIC_2 = 'security_rating';
 const COLOR_METRIC_TYPE = 'RATING';
 
 interface Props {
-  displayOrganizations: boolean;
   helpText: string;
   projects: Project[];
 }
@@ -75,21 +74,10 @@ export default class Risk extends React.PureComponent<Props, State> {
     color1?: number,
     color2?: number
   ) {
-    const fullProjectName =
-      this.props.displayOrganizations && project.organization ? (
-        <>
-          {project.organization.name}
-          {' / '}
-          <strong>{project.name}</strong>
-        </>
-      ) : (
-        <strong>{project.name}</strong>
-      );
-
     return (
       <div className="text-left">
         <div className="little-spacer-bottom display-flex-center display-flex-space-between">
-          {fullProjectName}
+          <strong>{project.name}</strong>
 
           {project.qualifier === ComponentQualifier.Application && (
             <div className="big-spacer-left nowrap">

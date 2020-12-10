@@ -28,7 +28,6 @@ interface Props {
   onOpen?: () => void;
   onQueryChange: (change: T.RawQuery) => void;
   options: Array<{ label: string; value: string }>;
-  organization?: { key: string };
   property: string;
   query: T.Dict<any>;
 }

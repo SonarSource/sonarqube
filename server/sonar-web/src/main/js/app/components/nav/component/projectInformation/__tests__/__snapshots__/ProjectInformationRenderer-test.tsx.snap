@@ -30,7 +30,6 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": undefined,
             "qualityProfiles": undefined,
@@ -49,7 +48,6 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": undefined,
             "qualityProfiles": undefined,
@@ -65,7 +63,6 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": undefined,
           "qualityProfiles": undefined,
@@ -129,7 +126,6 @@ exports[`should render a private project correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -160,7 +156,6 @@ exports[`should render a private project correctly 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -214,7 +209,6 @@ exports[`should render a private project correctly 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -286,7 +280,6 @@ exports[`should render an app correctly: default 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "APP",
             "qualityGate": Object {
               "isDefault": true,
@@ -316,7 +309,6 @@ exports[`should render an app correctly: default 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "APP",
             "qualityGate": Object {
               "isDefault": true,
@@ -393,7 +385,6 @@ exports[`should render correctly: default 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -424,7 +415,6 @@ exports[`should render correctly: default 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -478,7 +468,6 @@ exports[`should render correctly: default 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -554,7 +543,6 @@ exports[`should render correctly: no badges 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -585,7 +573,6 @@ exports[`should render correctly: no badges 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -639,7 +626,6 @@ exports[`should render correctly: no badges 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -710,7 +696,6 @@ exports[`should render correctly: no badges, no notifications 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -741,7 +726,6 @@ exports[`should render correctly: no badges, no notifications 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -795,7 +779,6 @@ exports[`should render correctly: no badges, no notifications 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -861,7 +844,6 @@ exports[`should render correctly: with notifications 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -892,7 +874,6 @@ exports[`should render correctly: with notifications 1`] = `
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -946,7 +927,6 @@ exports[`should render correctly: with notifications 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1019,7 +999,6 @@ exports[`should render with description 1`] = `
             "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1050,7 +1029,6 @@ exports[`should render with description 1`] = `
             "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
-            "organization": "foo",
             "qualifier": "TRK",
             "qualityGate": Object {
               "isDefault": true,
@@ -1104,7 +1082,6 @@ exports[`should render with description 1`] = `
           "description": "Lorem ipsum",
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,

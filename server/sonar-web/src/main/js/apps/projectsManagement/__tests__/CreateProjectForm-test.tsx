@@ -42,7 +42,6 @@ it('creates project', async () => {
   const wrapper = shallow(
     <CreateProjectForm
       onClose={jest.fn()}
-      onOrganizationUpgrade={jest.fn()}
       onProjectCreated={jest.fn()}
       organization={organization}
     />
@@ -63,7 +62,6 @@ it('creates project', async () => {
   submit(wrapper.find('form'));
   expect(createProject).toBeCalledWith({
     name: 'name',
-    organization: 'org',
     project: 'key',
     visibility: 'private'
   });

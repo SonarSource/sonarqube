@@ -24,7 +24,7 @@ import App, { Props } from '../App';
 import Search from '../Search';
 
 jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
+  const lodash = jest.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
   return lodash;
 });
@@ -36,7 +36,6 @@ jest.mock('../../../api/components', () => ({
 const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
 const defaultSearchParameters = {
-  organization: 'org',
   p: undefined,
   ps: 50,
   q: undefined
@@ -149,7 +148,6 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
     <App
       currentUser={{ login: 'foo' }}
       hasProvisionPermission={true}
-      onOrganizationUpgrade={jest.fn()}
       onVisibilityChange={jest.fn()}
       organization={organization}
       topLevelQualifiers={['TRK', 'VW', 'APP']}

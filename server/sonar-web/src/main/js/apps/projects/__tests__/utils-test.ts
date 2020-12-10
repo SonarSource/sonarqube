@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchProjects } from '../../../api/components';
-import { mockComponent, mockOrganization } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/testMocks';
 import * as utils from '../utils';
 
 jest.mock('../../../api/components', () => ({
@@ -30,10 +30,6 @@ jest.mock('../../../api/measures', () => ({
     { component: 'foo', metric: 'new_coverage', period: { index: 1, value: '10' } },
     { component: 'bar', metric: 'languages', value: '20' }
   ])
-}));
-
-jest.mock('../../../api/organizations', () => ({
-  getOrganizations: jest.fn().mockResolvedValue({})
 }));
 
 describe('localizeSorting', () => {
@@ -89,21 +85,19 @@ describe('formatDuration', () => {
 
 describe('fetchProjects', () => {
   it('correctly converts the passed arguments to the desired query format', async () => {
-    await utils.fetchProjects({ view: 'visualizations' }, true, mockOrganization());
+    await utils.fetchProjects({ view: 'visualizations' }, true);
     expect(searchProjects).toBeCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.FACETS.join(),
       filter: 'isFavorite',
-      organization: 'foo',
       p: undefined,
       ps: 99
     });
 
-    await utils.fetchProjects({ view: 'leak' }, false, mockOrganization({ key: 'bar' }), 3);
+    await utils.fetchProjects({ view: 'leak' }, false, 3);
     expect(searchProjects).toBeCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.LEAK_FACETS.join(),
-      organization: 'bar',
       p: 3,
       ps: 50
     });
@@ -111,7 +105,6 @@ describe('fetchProjects', () => {
 
   it('correctly treats result data', async () => {
     const components = [mockComponent({ key: 'foo' }), mockComponent({ key: 'bar' })];
-    const organization = mockOrganization();
     (searchProjects as jest.Mock).mockResolvedValue({
       components,
       facets: [
@@ -126,14 +119,13 @@ describe('fetchProjects', () => {
       ],
       paging: { total: 2 }
     });
-    await utils.fetchProjects({ view: 'visualizations' }, true, organization).then(r => {
+    await utils.fetchProjects({ view: 'visualizations' }, true).then(r => {
       expect(r).toEqual({
         facets: {
           new_coverage: { NO_DATA: 0 },
           languages: { css: 10, js: 2 }
         },
         projects: components.map((component: any) => {
-          component.organization = organization;
           if (component.key === 'foo') {
             component.measures = { new_coverage: '10' };
           } else {

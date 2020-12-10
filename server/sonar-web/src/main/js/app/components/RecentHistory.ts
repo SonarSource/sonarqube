@@ -26,7 +26,6 @@ export type History = Array<{
   key: string;
   name: string;
   icon: string;
-  organization?: string;
 }>;
 
 export default class RecentHistory {
@@ -52,14 +51,9 @@ export default class RecentHistory {
     remove(RECENT_HISTORY);
   }
 
-  static add(
-    componentKey: string,
-    componentName: string,
-    icon: string,
-    organization: string | undefined
-  ) {
+  static add(componentKey: string, componentName: string, icon: string) {
     const sonarHistory = RecentHistory.get();
-    const newEntry = { key: componentKey, name: componentName, icon, organization };
+    const newEntry = { key: componentKey, name: componentName, icon };
     let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
     newHistory.unshift(newEntry);
     newHistory = newHistory.slice(0, HISTORY_LIMIT);

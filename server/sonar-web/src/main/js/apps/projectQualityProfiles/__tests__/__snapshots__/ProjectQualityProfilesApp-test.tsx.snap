@@ -10,7 +10,6 @@ exports[`renders correctly 1`] = `
       },
       "key": "foo",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,

@@ -31,7 +31,6 @@ interface Props {
   maxFacetValue?: number;
   name: string;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   property: string;
   value?: any;
 }
@@ -50,7 +49,6 @@ export default function IssuesFilter(props: Props) {
       maxFacetValue={props.maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
-      organization={props.organization}
       property={props.property}
       renderOption={renderOption}
       value={props.value}

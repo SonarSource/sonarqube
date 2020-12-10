@@ -29,14 +29,13 @@ export interface QualifierFilterProps {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   value: ComponentQualifier | undefined;
 }
 
 const options = [ComponentQualifier.Project, ComponentQualifier.Application];
 
 export default function QualifierFilter(props: QualifierFilterProps) {
-  const { facet, maxFacetValue, organization, value } = props;
+  const { facet, maxFacetValue, value } = props;
 
   return (
     <Filter
@@ -45,7 +44,6 @@ export default function QualifierFilter(props: QualifierFilterProps) {
       maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={options}
-      organization={organization}
       property="qualifier"
       renderOption={renderOption}
       value={value}

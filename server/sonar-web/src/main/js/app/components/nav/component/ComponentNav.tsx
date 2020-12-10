@@ -61,7 +61,7 @@ export default function ComponentNav(props: ComponentNavProps) {
   const [displayProjectInfo, setDisplayProjectInfo] = React.useState(false);
 
   React.useEffect(() => {
-    const { breadcrumbs, key, name, organization } = component;
+    const { breadcrumbs, key, name } = component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (
       [
@@ -71,7 +71,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         ComponentQualifier.Developper
       ].includes(qualifier as ComponentQualifier)
     ) {
-      RecentHistory.add(key, name, qualifier.toLowerCase(), organization);
+      RecentHistory.add(key, name, qualifier.toLowerCase());
     }
   }, [component, component.key]);
 

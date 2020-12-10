@@ -33,7 +33,6 @@ import Search from './Search';
 export interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;
   hasProvisionPermission?: boolean;
-  onOrganizationUpgrade: () => void;
   onVisibilityChange: (visibility: T.Visibility) => void;
   organization: T.Organization;
   topLevelQualifiers: string[];
@@ -88,7 +87,6 @@ export default class App extends React.PureComponent<Props, State> {
     const parameters = {
       analyzedBefore: analyzedBefore && toShortNotSoISOString(analyzedBefore),
       onProvisionedOnly: this.state.provisioned || undefined,
-      organization: this.props.organization.key,
       p: this.state.page !== 1 ? this.state.page : undefined,
       ps: PAGE_SIZE,
       q: this.state.query || undefined,
@@ -202,7 +200,6 @@ export default class App extends React.PureComponent<Props, State> {
           onQualifierChanged={this.onQualifierChanged}
           onSearch={this.onSearch}
           onVisibilityChanged={this.onVisibilityChanged}
-          organization={this.props.organization}
           projects={this.state.projects}
           provisioned={this.state.provisioned}
           qualifiers={this.state.qualifiers}
@@ -218,7 +215,6 @@ export default class App extends React.PureComponent<Props, State> {
           currentUser={this.props.currentUser}
           onProjectDeselected={this.onProjectDeselected}
           onProjectSelected={this.onProjectSelected}
-          organization={this.props.organization}
           projects={this.state.projects}
           ready={this.state.ready}
           selection={this.state.selection}
@@ -234,7 +230,6 @@ export default class App extends React.PureComponent<Props, State> {
         {this.state.createProjectForm && (
           <CreateProjectForm
             onClose={this.closeCreateProjectForm}
-            onOrganizationUpgrade={this.props.onOrganizationUpgrade}
             onProjectCreated={this.requestProjects}
             organization={this.props.organization}
           />

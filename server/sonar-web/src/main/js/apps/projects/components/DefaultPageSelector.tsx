@@ -21,7 +21,6 @@ import * as React from 'react';
 import { get } from 'sonar-ui-common/helpers/storage';
 import { searchProjects } from '../../../api/components';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
@@ -41,26 +40,22 @@ export class DefaultPageSelector extends React.PureComponent<Props, State> {
   state: State = {};
 
   componentDidMount() {
-    if (!isSonarCloud()) {
-      this.defineIfShouldBeRedirected();
-    }
+    this.defineIfShouldBeRedirected();
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!isSonarCloud()) {
-      if (prevProps.location !== this.props.location) {
-        this.defineIfShouldBeRedirected();
-      } else if (this.state.shouldBeRedirected === true) {
-        this.props.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
-      } else if (this.state.shouldForceSorting != null) {
-        this.props.router.replace({
-          ...this.props.location,
-          query: {
-            ...this.props.location.query,
-            sort: this.state.shouldForceSorting
-          }
-        });
-      }
+    if (prevProps.location !== this.props.location) {
+      this.defineIfShouldBeRedirected();
+    } else if (this.state.shouldBeRedirected === true) {
+      this.props.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
+    } else if (this.state.shouldForceSorting != null) {
+      this.props.router.replace({
+        ...this.props.location,
+        query: {
+          ...this.props.location.query,
+          sort: this.state.shouldForceSorting
+        }
+      });
     }
   }
 
@@ -103,10 +98,6 @@ export class DefaultPageSelector extends React.PureComponent<Props, State> {
   }
 
   render() {
-    if (isSonarCloud() && isLoggedIn(this.props.currentUser)) {
-      return <AllProjectsContainer isFavorite={true} organization={undefined} />;
-    }
-
     const { shouldBeRedirected, shouldForceSorting } = this.state;
 
     if (
@@ -114,7 +105,7 @@ export class DefaultPageSelector extends React.PureComponent<Props, State> {
       shouldBeRedirected !== true &&
       shouldForceSorting === undefined
     ) {
-      return <AllProjectsContainer isFavorite={false} organization={undefined} />;
+      return <AllProjectsContainer isFavorite={false} />;
     }
 
     return null;

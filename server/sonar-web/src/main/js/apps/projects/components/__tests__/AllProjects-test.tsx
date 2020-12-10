@@ -99,8 +99,7 @@ it('fetches projects', () => {
       view: undefined,
       visualization: undefined
     },
-    false,
-    undefined
+    false
   );
 });
 
@@ -196,7 +195,6 @@ function shallowRender(
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
-      organization={undefined}
       qualifiers={[ComponentQualifier.Project, ComponentQualifier.Application]}
       router={{ push, replace }}
       {...props}

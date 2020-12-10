@@ -23,7 +23,6 @@ import { Project } from '../types';
 import SimpleBubbleChart from './SimpleBubbleChart';
 
 interface Props {
-  displayOrganizations: boolean;
   helpText: string;
   projects: Project[];
 }

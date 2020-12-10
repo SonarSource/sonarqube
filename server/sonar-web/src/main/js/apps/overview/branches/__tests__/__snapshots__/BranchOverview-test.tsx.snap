@@ -58,7 +58,6 @@ exports[`application overview should fetch correctly other branch 1`] = `
           "breadcrumbs": Array [],
           "key": "foo",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "APP",
           "qualityGate": Object {
             "isDefault": true,
@@ -78,7 +77,6 @@ exports[`application overview should fetch correctly other branch 1`] = `
       ],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "APP",
       "qualityGate": Object {
         "isDefault": true,
@@ -980,7 +978,6 @@ exports[`application overview should render correctly 1`] = `
           "breadcrumbs": Array [],
           "key": "foo",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "APP",
           "qualityGate": Object {
             "isDefault": true,
@@ -1000,7 +997,6 @@ exports[`application overview should render correctly 1`] = `
       ],
       "key": "my-project",
       "name": "MyProject",
-      "organization": "foo",
       "qualifier": "APP",
       "qualityGate": Object {
         "isDefault": true,
@@ -1895,7 +1891,6 @@ exports[`project overview should render correctly 1`] = `
           "breadcrumbs": Array [],
           "key": "foo",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -1915,7 +1910,6 @@ exports[`project overview should render correctly 1`] = `
       ],
       "key": "foo",
       "name": "Foo",
-      "organization": "foo",
       "qualifier": "TRK",
       "qualityGate": Object {
         "isDefault": true,

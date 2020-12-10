@@ -29,7 +29,6 @@ interface Props {
   headerDetail?: React.ReactNode;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
   value?: any;
 }
 

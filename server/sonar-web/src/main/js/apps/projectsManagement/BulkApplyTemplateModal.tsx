@@ -29,7 +29,6 @@ import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions
 export interface Props {
   analyzedBefore: Date | undefined;
   onClose: () => void;
-  organization: string;
   provisioned: boolean;
   qualifier: string;
   query: string;
@@ -86,7 +85,6 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
       this.setState({ submitting: true });
       const parameters = this.props.selection.length
         ? {
-            organization: this.props.organization,
             projects: this.props.selection.join(),
             qualifiers: this.props.qualifier,
             templateId: permissionTemplate
@@ -94,7 +92,6 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         : {
             analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
             onProvisionedOnly: this.props.provisioned || undefined,
-            organization: this.props.organization,
             qualifiers: this.props.qualifier,
             q: this.props.query || undefined,
             templateId: permissionTemplate

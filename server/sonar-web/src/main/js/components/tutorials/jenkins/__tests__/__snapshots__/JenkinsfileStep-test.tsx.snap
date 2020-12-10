@@ -30,7 +30,6 @@ exports[`should render correctly for .NET 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -152,7 +151,6 @@ exports[`should render correctly for Gradle 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -274,7 +272,6 @@ exports[`should render correctly for Maven 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
@@ -396,7 +393,6 @@ exports[`should render correctly for Other 1`] = `
           "breadcrumbs": Array [],
           "key": "my-project",
           "name": "MyProject",
-          "organization": "foo",
           "qualifier": "TRK",
           "qualityGate": Object {
             "isDefault": true,
