@@ -19,47 +19,36 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { copyQualityGate } from '../../../../api/quality-gates';
+import { deleteQualityGate } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockRouter } from '../../../../helpers/testMocks';
-import { CopyQualityGateForm } from '../CopyQualityGateForm';
+import { DeleteQualityGateForm } from '../DeleteQualityGateForm';
 
 jest.mock('../../../../api/quality-gates', () => ({
-  copyQualityGate: jest.fn().mockResolvedValue({})
+  deleteQualityGate: jest.fn().mockResolvedValue({})
 }));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should handle copy', async () => {
-  const onCopy = jest.fn();
+it('should handle onDelete', async () => {
+  const onDelete = jest.fn();
   const router = mockRouter();
   const qualityGate = mockQualityGate();
-  const wrapper = shallowRender({ onCopy, qualityGate, router });
+  const wrapper = shallowRender({ onDelete, qualityGate, router });
 
-  const name = 'name';
-  wrapper.setState({ name });
+  await wrapper.instance().onDelete();
 
-  await wrapper.instance().handleCopy();
-
-  expect(copyQualityGate).toBeCalledWith({ id: qualityGate.id, name });
-  expect(onCopy).toBeCalled();
+  expect(deleteQualityGate).toBeCalledWith({ id: qualityGate.id });
+  expect(onDelete).toBeCalled();
   expect(router.push).toBeCalled();
-
-  jest.clearAllMocks();
-
-  wrapper.setState({ name: '' });
-  await wrapper.instance().handleCopy();
-
-  expect(copyQualityGate).not.toBeCalled();
 });
 
-function shallowRender(overrides: Partial<CopyQualityGateForm['props']> = {}) {
-  return shallow<CopyQualityGateForm>(
-    <CopyQualityGateForm
-      onClose={jest.fn()}
-      onCopy={jest.fn()}
+function shallowRender(overrides: Partial<DeleteQualityGateForm['props']> = {}) {
+  return shallow<DeleteQualityGateForm>(
+    <DeleteQualityGateForm
+      onDelete={jest.fn()}
       qualityGate={mockQualityGate()}
       router={mockRouter()}
       {...overrides}

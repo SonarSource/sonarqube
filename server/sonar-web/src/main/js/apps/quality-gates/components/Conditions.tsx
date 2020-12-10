@@ -38,7 +38,6 @@ interface Props {
   onAddCondition: (condition: T.Condition) => void;
   onRemoveCondition: (Condition: T.Condition) => void;
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
-  organization?: string;
   qualityGate: T.QualityGate;
   updatedConditionId?: number;
 }
@@ -59,7 +58,6 @@ export class Conditions extends React.PureComponent<Props> {
       canEdit,
       onRemoveCondition,
       onSaveCondition,
-      organization,
       updatedConditionId
     } = this.props;
     return (
@@ -88,7 +86,6 @@ export class Conditions extends React.PureComponent<Props> {
               metric={metrics[condition.metric]}
               onRemoveCondition={onRemoveCondition}
               onSaveCondition={onSaveCondition}
-              organization={organization}
               qualityGate={qualityGate}
               updated={condition.id === updatedConditionId}
             />
@@ -150,7 +147,6 @@ export class Conditions extends React.PureComponent<Props> {
                   metrics={availableMetrics}
                   onAddCondition={this.props.onAddCondition}
                   onClose={onClose}
-                  organization={this.props.organization}
                   qualityGate={this.props.qualityGate}
                 />
               )}>

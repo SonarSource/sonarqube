@@ -19,10 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { createCondition, updateCondition } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockMetric } from '../../../../helpers/testMocks';
+import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import ConditionModal from '../ConditionModal';
+
+jest.mock('../../../../api/quality-gates', () => ({
+  createCondition: jest.fn().mockResolvedValue({}),
+  updateCondition: jest.fn().mockResolvedValue({})
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -57,6 +63,26 @@ it('should correctly switch scope', () => {
 
   wrapper.instance().handleScopeChange('new');
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should handle submission', async () => {
+  const onAddCondition = jest.fn();
+  const wrapper = shallowRender({ onAddCondition });
+
+  wrapper.setState({ metric: mockMetric() });
+
+  await wrapper.instance().handleFormSubmit();
+
+  expect(createCondition).toBeCalled();
+  expect(updateCondition).not.toBeCalled();
+
+  jest.clearAllMocks();
+
+  wrapper.setProps({ condition: mockCondition() });
+  await wrapper.instance().handleFormSubmit();
+
+  expect(createCondition).not.toBeCalled();
+  expect(updateCondition).toBeCalled();
 });
 
 function shallowRender(props: Partial<ConditionModal['props']> = {}) {

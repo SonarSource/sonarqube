@@ -27,7 +27,6 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 interface Props {
   onClose: () => void;
   onCreate: () => Promise<void>;
-  organization?: string;
   router: Pick<Router, 'push'>;
 }
 
@@ -43,14 +42,13 @@ class CreateQualityGateForm extends React.PureComponent<Props, State> {
   };
 
   handleCreate = () => {
-    const { organization } = this.props;
     const { name } = this.state;
 
     if (!name) {
       return undefined;
     }
 
-    return createQualityGate({ name, organization })
+    return createQualityGate({ name })
       .then(qualityGate => {
         return this.props.onCreate().then(() => qualityGate);
       })

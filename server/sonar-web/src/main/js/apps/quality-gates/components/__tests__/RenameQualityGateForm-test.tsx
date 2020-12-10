@@ -19,17 +19,46 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { renameQualityGate } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import RenameQualityGateForm from '../RenameQualityGateForm';
 
+jest.mock('../../../../api/quality-gates', () => ({
+  renameQualityGate: jest.fn().mockResolvedValue({})
+}));
+
 it('should render correctly', () => {
-  expect(
-    shallow(
-      <RenameQualityGateForm
-        onClose={jest.fn()}
-        onRename={jest.fn()}
-        qualityGate={mockQualityGate()}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should handle rename', async () => {
+  const qualityGate = mockQualityGate();
+  const wrapper = shallowRender({ qualityGate });
+
+  const name = 'new name';
+
+  wrapper.setState({ name });
+
+  await wrapper.instance().handleRename();
+
+  expect(renameQualityGate).toBeCalledWith({ ...qualityGate, name });
+
+  jest.clearAllMocks();
+
+  wrapper.setState({ name: '' });
+
+  await wrapper.instance().handleRename();
+
+  expect(renameQualityGate).not.toBeCalled();
+});
+
+function shallowRender(overrides: Partial<RenameQualityGateForm['props']> = {}) {
+  return shallow<RenameQualityGateForm>(
+    <RenameQualityGateForm
+      onClose={jest.fn()}
+      onRename={jest.fn()}
+      qualityGate={mockQualityGate()}
+      {...overrides}
+    />
+  );
+}

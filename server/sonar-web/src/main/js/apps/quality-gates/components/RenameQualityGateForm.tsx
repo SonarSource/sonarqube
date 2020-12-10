@@ -25,7 +25,6 @@ import { renameQualityGate } from '../../../api/quality-gates';
 interface Props {
   onClose: () => void;
   onRename: () => Promise<void>;
-  organization?: string;
   qualityGate: T.QualityGate;
 }
 
@@ -44,16 +43,14 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
   };
 
   handleRename = () => {
-    const { qualityGate, organization } = this.props;
+    const { qualityGate } = this.props;
     const { name } = this.state;
 
     if (!name) {
       return undefined;
     }
 
-    return renameQualityGate({ id: qualityGate.id, name, organization }).then(() =>
-      this.props.onRename()
-    );
+    return renameQualityGate({ id: qualityGate.id, name }).then(() => this.props.onRename());
   };
 
   render() {

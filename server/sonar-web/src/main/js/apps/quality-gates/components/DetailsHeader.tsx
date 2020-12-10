@@ -29,7 +29,6 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
   onSetDefault: () => void;
-  organization?: string;
   qualityGate: T.QualityGate;
   refreshItem: () => Promise<void>;
   refreshList: () => Promise<void>;
@@ -45,11 +44,11 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   };
 
   handleSetAsDefaultClick = () => {
-    const { organization, qualityGate } = this.props;
+    const { qualityGate } = this.props;
     if (!qualityGate.isDefault) {
       // Optimistic update
       this.props.onSetDefault();
-      setQualityGateAsDefault({ id: qualityGate.id, organization }).then(
+      setQualityGateAsDefault({ id: qualityGate.id }).then(
         this.handleActionRefresh,
         this.handleActionRefresh
       );
@@ -57,7 +56,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   };
 
   render() {
-    const { organization, qualityGate } = this.props;
+    const { qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
@@ -75,7 +74,6 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                     <RenameQualityGateForm
                       onClose={onClose}
                       onRename={this.handleActionRefresh}
-                      organization={organization}
                       qualityGate={qualityGate}
                     />
                   )}>
@@ -92,7 +90,6 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                     <CopyQualityGateForm
                       onClose={onClose}
                       onCopy={this.handleActionRefresh}
-                      organization={organization}
                       qualityGate={qualityGate}
                     />
                   )}>
@@ -114,7 +111,6 @@ export default class DetailsHeader extends React.PureComponent<Props> {
               {actions.delete && (
                 <DeleteQualityGateForm
                   onDelete={this.props.refreshList}
-                  organization={organization}
                   qualityGate={qualityGate}
                 />
               )}

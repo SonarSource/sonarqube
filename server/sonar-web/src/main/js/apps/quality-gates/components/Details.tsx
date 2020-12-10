@@ -33,7 +33,6 @@ import DetailsHeader from './DetailsHeader';
 interface OwnProps {
   id: string;
   onSetDefault: (qualityGate: T.QualityGate) => void;
-  organization?: string;
   qualityGates: T.QualityGate[];
   refreshQualityGates: () => Promise<void>;
 }
@@ -75,9 +74,9 @@ export class Details extends React.PureComponent<Props, State> {
   }
 
   fetchDetails = () => {
-    const { id, organization } = this.props;
+    const { id } = this.props;
     this.setState({ loading: true });
-    return fetchQualityGate({ id, organization }).then(
+    return fetchQualityGate({ id }).then(
       qualityGate => {
         if (this.mounted) {
           this.setState({ loading: false, qualityGate, updatedConditionId: undefined });
@@ -145,7 +144,7 @@ export class Details extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { organization, metrics, refreshQualityGates } = this.props;
+    const { metrics, refreshQualityGates } = this.props;
     const { loading, qualityGate, updatedConditionId } = this.state;
 
     return (
@@ -156,7 +155,6 @@ export class Details extends React.PureComponent<Props, State> {
               <Helmet defer={false} title={qualityGate.name} />
               <DetailsHeader
                 onSetDefault={this.handleSetDefault}
-                organization={organization}
                 qualityGate={qualityGate}
                 refreshItem={this.fetchDetails}
                 refreshList={refreshQualityGates}
@@ -167,7 +165,6 @@ export class Details extends React.PureComponent<Props, State> {
                 onAddCondition={this.handleAddCondition}
                 onRemoveCondition={this.handleRemoveCondition}
                 onSaveCondition={this.handleSaveCondition}
-                organization={organization}
                 qualityGate={qualityGate}
                 updatedConditionId={updatedConditionId}
               />

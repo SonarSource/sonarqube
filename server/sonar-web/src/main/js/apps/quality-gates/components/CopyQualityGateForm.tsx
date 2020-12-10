@@ -27,7 +27,6 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 interface Props {
   onClose: () => void;
   onCopy: () => Promise<void>;
-  organization?: string;
   qualityGate: T.QualityGate;
   router: Pick<Router, 'push'>;
 }
@@ -36,7 +35,7 @@ interface State {
   name: string;
 }
 
-class CopyQualityGateForm extends React.PureComponent<Props, State> {
+export class CopyQualityGateForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { name: props.qualityGate.name };
@@ -47,14 +46,14 @@ class CopyQualityGateForm extends React.PureComponent<Props, State> {
   };
 
   handleCopy = () => {
-    const { qualityGate, organization } = this.props;
+    const { qualityGate } = this.props;
     const { name } = this.state;
 
     if (!name) {
       return undefined;
     }
 
-    return copyQualityGate({ id: qualityGate.id, name, organization }).then(qualityGate => {
+    return copyQualityGate({ id: qualityGate.id, name }).then(qualityGate => {
       this.props.onCopy();
       this.props.router.push(getQualityGateUrl(String(qualityGate.id)));
     });

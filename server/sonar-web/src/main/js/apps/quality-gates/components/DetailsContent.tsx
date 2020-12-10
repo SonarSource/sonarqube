@@ -26,7 +26,6 @@ import Projects from './Projects';
 export interface DetailsContentProps {
   isDefault?: boolean;
   metrics: T.Dict<T.Metric>;
-  organization?: string;
   onAddCondition: (condition: T.Condition) => void;
   onRemoveCondition: (Condition: T.Condition) => void;
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
@@ -35,7 +34,7 @@ export interface DetailsContentProps {
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { isDefault, metrics, organization, qualityGate, updatedConditionId } = props;
+  const { isDefault, metrics, qualityGate, updatedConditionId } = props;
   const conditions = qualityGate.conditions || [];
   const actions = qualityGate.actions || ({} as any);
 
@@ -48,7 +47,6 @@ export function DetailsContent(props: DetailsContentProps) {
         onAddCondition={props.onAddCondition}
         onRemoveCondition={props.onRemoveCondition}
         onSaveCondition={props.onSaveCondition}
-        organization={organization}
         qualityGate={qualityGate}
         updatedConditionId={updatedConditionId}
       />
@@ -72,7 +70,6 @@ export function DetailsContent(props: DetailsContentProps) {
             canEdit={actions.associateProjects}
             // pass unique key to re-mount the component when the quality gate changes
             key={qualityGate.id}
-            organization={organization}
             qualityGate={qualityGate}
           />
         )}

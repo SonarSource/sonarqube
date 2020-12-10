@@ -30,7 +30,6 @@ import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import Projects from '../Projects';
 
 const qualityGate = mockQualityGate();
-const organization = 'TEST';
 
 jest.mock('../../../../api/quality-gates', () => ({
   searchProjects: jest.fn().mockResolvedValue({
@@ -70,7 +69,6 @@ it('should render correctly', async () => {
   expect(searchProjects).toHaveBeenCalledWith(
     expect.objectContaining({
       gateName: qualityGate.name,
-      organization,
       page: 1,
       pageSize: 100,
       query: undefined,
@@ -110,7 +108,5 @@ it('should handle deselection properly', async () => {
 });
 
 function shallowRender(props: Partial<Projects['props']> = {}) {
-  return shallow<Projects>(
-    <Projects organization={organization} qualityGate={qualityGate} {...props} />
-  );
+  return shallow<Projects>(<Projects qualityGate={qualityGate} {...props} />);
 }
