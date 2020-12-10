@@ -55,7 +55,9 @@ final class LogsIteratorInputStream extends InputStream {
         return END_OF_STREAM;
       }
     }
-    return buf[nextChar++];
+    byte signedByte = buf[nextChar];
+    nextChar++;
+    return signedByte & 0xFF;
   }
 
   private void fill() {
