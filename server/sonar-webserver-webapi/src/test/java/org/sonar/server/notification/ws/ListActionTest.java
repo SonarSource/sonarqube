@@ -21,14 +21,12 @@ package org.sonar.server.notification.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -42,6 +40,7 @@ import org.sonarqube.ws.Notifications.Notification;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,22 +54,20 @@ public class ListActionTest {
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "NewQualityGateStatus";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
-  private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
+  private final NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
+  private final NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
 
-  private NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
-  private Dispatchers dispatchers = mock(Dispatchers.class);
+  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
+  private final Dispatchers dispatchers = mock(Dispatchers.class);
 
-  private WsActionTester ws = new WsActionTester(new ListAction(new NotificationCenter(
+  private final WsActionTester ws = new WsActionTester(new ListAction(new NotificationCenter(
     new NotificationDispatcherMetadata[] {},
     new NotificationChannel[] {emailChannel, twitterChannel}),
     dbClient, userSession, dispatchers));
@@ -177,8 +174,7 @@ public class ListActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
@@ -191,14 +187,14 @@ public class ListActionTest {
     ListResponse result = call();
 
     assertThat(result.getNotificationsList())
-      .extracting(Notification::getChannel, Notification::getOrganization, Notification::getType, Notification::getProject)
+      .extracting(Notification::getChannel, Notification::getType, Notification::getProject)
       .containsExactly(
-        tuple(emailChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
-        tuple(emailChannel.getKey(), "", NOTIF_NEW_ISSUES, ""),
-        tuple(twitterChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
-        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()),
-        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, project.getKey()),
-        tuple(twitterChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()));
+        tuple(emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, ""),
+        tuple(emailChannel.getKey(), NOTIF_NEW_ISSUES, ""),
+        tuple(twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, ""),
+        tuple(emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()),
+        tuple(emailChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, project.getKey()),
+        tuple(twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, project.getKey()));
   }
 
   @Test
@@ -225,19 +221,18 @@ public class ListActionTest {
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(user.getLogin());
+    String userLogin = user.getLogin();
+    assertThatThrownBy(() -> call(userLogin))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_login_is_provided_and_unknown() {
     userSession.logIn().setSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'LOGIN 404' not found");
-
-    call("LOGIN 404");
+    assertThatThrownBy(() -> call("LOGIN 404"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'LOGIN 404' not found");
   }
 
   @Test
@@ -246,8 +241,7 @@ public class ListActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
-    OrganizationDto organization = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
@@ -283,9 +277,8 @@ public class ListActionTest {
   public void fail_when_not_authenticated() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    call();
+    assertThatThrownBy(this::call)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private ListResponse call() {

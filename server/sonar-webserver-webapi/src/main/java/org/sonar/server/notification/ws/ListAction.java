@@ -20,7 +20,6 @@
 package org.sonar.server.notification.ws;
 
 import com.google.common.base.Splitter;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,15 +37,14 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Notifications.ListResponse;
 import org.sonarqube.ws.Notifications.Notification;
+import org.sonarqube.ws.Notifications.Notification.Builder;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
@@ -123,7 +121,6 @@ public class ListAction implements NotificationsWsAction {
     return response -> {
       List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession);
       Map<String, ComponentDto> componentsByUuid = searchProjects(dbSession, properties);
-      Map<String, OrganizationDto> organizationsByUuid = getOrganizations(dbSession, componentsByUuid.values());
 
       Predicate<PropertyDto> isNotification = prop -> prop.getKey().startsWith("notification.");
       Predicate<PropertyDto> isComponentInDb = prop -> prop.getComponentUuid() == null || componentsByUuid.containsKey(prop.getComponentUuid());
@@ -134,7 +131,7 @@ public class ListAction implements NotificationsWsAction {
         .filter(isNotification)
         .filter(channelAndDispatcherAuthorized())
         .filter(isComponentInDb)
-        .map(toWsNotification(notification, organizationsByUuid, componentsByUuid))
+        .map(toWsNotification(notification, componentsByUuid))
         .sorted(comparing(Notification::getProject, nullsFirst(naturalOrder()))
           .thenComparing(Notification::getChannel)
           .thenComparing(Notification::getType))
@@ -169,36 +166,22 @@ public class ListAction implements NotificationsWsAction {
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
   }
 
-  private Map<String, OrganizationDto> getOrganizations(DbSession dbSession, Collection<ComponentDto> values) {
-    Set<String> organizationUuids = values.stream()
-      .map(ComponentDto::getOrganizationUuid)
-      .collect(MoreCollectors.toSet());
-    return dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-  }
-
-  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification,
-    Map<String, OrganizationDto> organizationsByUuid, Map<String, ComponentDto> projectsByUuid) {
+  private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification, Map<String, ComponentDto> projectsByUuid) {
     return property -> {
       notification.clear();
       List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());
       notification.setType(propertyKey.get(1));
       notification.setChannel(propertyKey.get(2));
-      ofNullable(property.getComponentUuid()).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, organizationsByUuid, projectsByUuid));
+      ofNullable(property.getComponentUuid()).ifPresent(componentUuid -> populateProjectFields(notification, componentUuid, projectsByUuid));
 
       return notification.build();
     };
   }
 
-  private static Notification.Builder populateProjectFields(Notification.Builder notification, String componentUuid,
-    Map<String, OrganizationDto> organizationsByUuid, Map<String, ComponentDto> projectsByUuid) {
+  private static void populateProjectFields(Builder notification, String componentUuid,
+    Map<String, ComponentDto> projectsByUuid) {
     ComponentDto project = projectsByUuid.get(componentUuid);
-    String organizationUuid = project.getOrganizationUuid();
-    OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
-    checkArgument(organizationDto != null, "No organization for uuid '%s'", organizationUuid);
-
-    return notification.setOrganization(organizationDto.getKey())
+    notification
       .setProject(project.getDbKey())
       .setProjectName(project.name());
   }

@@ -35,7 +35,6 @@ message ListResponse {
 message Notification {
   optional string channel = 1;
   optional string type = 2;
-  optional string organization = 5;
   optional string project = 3;
   optional string projectName = 4;
 }

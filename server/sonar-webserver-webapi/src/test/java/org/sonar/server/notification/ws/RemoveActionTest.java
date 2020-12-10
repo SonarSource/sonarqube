@@ -21,7 +21,6 @@ package org.sonar.server.notification.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
@@ -47,6 +46,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -60,25 +60,23 @@ public class RemoveActionTest {
   private static final String NOTIF_NEW_ISSUES = "Dispatcher2";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "Dispatcher3";
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  public final DbTester db = DbTester.create();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
-  private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
+  private final NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
+  private final NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
   // default channel, based on class simple name
-  private NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
+  private final NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
 
-  private NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
-  private Dispatchers dispatchers = mock(Dispatchers.class);
+  private final NotificationUpdater notificationUpdater = new NotificationUpdater(dbClient);
+  private final Dispatchers dispatchers = mock(Dispatchers.class);
 
-  private RemoveRequest request = new RemoveRequest().setType(NOTIF_MY_NEW_ISSUES);
+  private final RemoveRequest request = new RemoveRequest().setType(NOTIF_MY_NEW_ISSUES);
 
-  private WsActionTester ws = new WsActionTester(new RemoveAction(new NotificationCenter(
+  private final WsActionTester ws = new WsActionTester(new RemoveAction(new NotificationCenter(
     new NotificationDispatcherMetadata[] {},
     new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}), notificationUpdater, dispatchers, dbClient, TestComponentFinder.from(db), userSession));
 
@@ -133,10 +131,9 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Notification doesn't exist");
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Notification doesn't exist");
   }
 
   @Test
@@ -149,10 +146,10 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Notification doesn't exist");
-
-    call(request.setProject(project.getDbKey()));
+    RemoveRequest request = this.request.setProject(project.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Notification doesn't exist");
   }
 
   @Test
@@ -190,10 +187,10 @@ public class RemoveActionTest {
     userSession.logIn(user).setSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'LOGIN 404' not found");
-
-    call(request.setLogin("LOGIN 404"));
+    RemoveRequest request = this.request.setLogin("LOGIN 404");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'LOGIN 404' not found");
   }
 
   @Test
@@ -204,9 +201,9 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(request.setLogin(user.getLogin()));
+    RemoveRequest request = this.request.setLogin(user.getLogin());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -215,10 +212,9 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Notification doesn't exist");
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Notification doesn't exist");
   }
 
   @Test
@@ -227,9 +223,9 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(request.setChannel("Channel42"));
+    RemoveRequest request = this.request.setChannel("Channel42");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -238,10 +234,10 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
-
-    call(request.setType("Dispatcher42"));
+    RemoveRequest request = this.request.setType("Dispatcher42");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
   }
 
   @Test
@@ -252,10 +248,10 @@ public class RemoveActionTest {
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
-
-    call(request.setType("Dispatcher42").setProject(project.getDbKey()));
+    RemoveRequest request = this.request.setType("Dispatcher42").setProject(project.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
   }
 
   @Test
@@ -264,10 +260,10 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'type' parameter is missing");
-
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'type' parameter is missing");
   }
 
   @Test
@@ -277,9 +273,9 @@ public class RemoveActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(NotFoundException.class);
-
-    call(request.setProject("Project-42"));
+    RemoveRequest request = this.request.setProject("Project-42");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -288,12 +284,12 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setDbKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newView().setDbKey("VIEW_1"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component 'VIEW_1' must be a project");
-
-    call(request.setProject("VIEW_1"));
+    RemoveRequest request = this.request.setProject("VIEW_1");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Component 'VIEW_1' must be a project");
   }
 
   @Test
@@ -301,9 +297,8 @@ public class RemoveActionTest {
     userSession.anonymous();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(UnauthorizedException.class);
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -315,10 +310,10 @@ public class RemoveActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    call(request.setProject(branch.getDbKey()));
+    RemoveRequest request = this.request.setProject(branch.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private TestResponse call(RemoveRequest remove) {

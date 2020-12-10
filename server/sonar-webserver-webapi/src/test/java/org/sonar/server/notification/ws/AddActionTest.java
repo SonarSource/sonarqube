@@ -306,7 +306,7 @@ public class AddActionTest {
   public void fail_when_component_is_not_a_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setDbKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newView().setDbKey("VIEW_1"));
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
