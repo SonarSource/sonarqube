@@ -56,7 +56,6 @@ public class IssueQueryTest {
       .owaspTop10(newArrayList("a1", "a2"))
       .sansTop25(newArrayList("insecure-interaction", "porous-defenses"))
       .cwe(newArrayList("12", "125"))
-      .organizationUuid("orga")
       .branchUuid("my_branch")
       .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", filterDate))
       .assigned(true)
@@ -81,7 +80,6 @@ public class IssueQueryTest {
     assertThat(query.owaspTop10()).containsOnly("a1", "a2");
     assertThat(query.sansTop25()).containsOnly("insecure-interaction", "porous-defenses");
     assertThat(query.cwe()).containsOnly("12", "125");
-    assertThat(query.organizationUuid()).isEqualTo("orga");
     assertThat(query.branchUuid()).isEqualTo("my_branch");
     assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", filterDate));
     assertThat(query.assigned()).isTrue();
@@ -173,7 +171,6 @@ public class IssueQueryTest {
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
     assertThat(query.types()).isEmpty();
-    assertThat(query.organizationUuid()).isNull();
     assertThat(query.branchUuid()).isNull();
     assertThat(query.assigned()).isNull();
     assertThat(query.createdAfter()).isNull();

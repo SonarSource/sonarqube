@@ -66,9 +66,9 @@ public class IssueDbTester {
    * Inserts an issue or a security hotspot.
    */
   @SafeVarargs
-  public final IssueDto insert(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+  public final IssueDto insert(Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject(organizationDto);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));

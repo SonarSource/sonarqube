@@ -123,37 +123,6 @@ public class AuthorsActionTest {
   }
 
   @Test
-  public void search_authors_by_organization() {
-    String leia = "leia.organa";
-    String luke = "luke.skywalker";
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
-    indexIssues();
-    userSession.logIn();
-
-    assertThat(ws.newRequest()
-      .setParam("organization", organization1.getKey())
-      .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
-    assertThat(ws.newRequest()
-      .setParam("organization", organization1.getKey())
-      .setParam(TEXT_QUERY, "eia")
-      .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
-    assertThat(ws.newRequest()
-      .setParam("organization", organization1.getKey())
-      .setParam(TEXT_QUERY, "luke")
-      .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .isEmpty();
-  }
-
-  @Test
   public void search_authors_by_project() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
@@ -171,19 +140,19 @@ public class AuthorsActionTest {
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
+        .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "eia")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
+        .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "luke")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .isEmpty();
+        .isEmpty();
 
     verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
   }
@@ -205,7 +174,7 @@ public class AuthorsActionTest {
     assertThat(ws.newRequest()
       .setParam("project", portfolio.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
+        .containsExactlyInAnyOrder(leia);
   }
 
   @Test
@@ -225,28 +194,7 @@ public class AuthorsActionTest {
     assertThat(ws.newRequest()
       .setParam("project", application.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-      .containsExactlyInAnyOrder(leia);
-  }
-
-  @Test
-  public void default_organization_is_used_when_no_organization_parameter_set() {
-    String leia = "leia.organa";
-    String luke = "luke.skywalker";
-    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization());
-    OrganizationDto otherOrganization = db.organizations().insert();
-    ComponentDto project2 = db.components().insertPrivateProject(otherOrganization);
-    permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
-    indexIssues();
-    userSession.logIn();
-
-    AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
-
-    assertThat(result.getAuthorsList())
-      .containsExactlyInAnyOrder(leia)
-      .doesNotContain(luke);
+        .containsExactlyInAnyOrder(leia);
   }
 
   @Test

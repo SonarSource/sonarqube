@@ -67,7 +67,6 @@ import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
@@ -109,20 +108,16 @@ public class ShowActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-
-  private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-
-  private AvatarResolver avatarResolver = new AvatarResolverImpl();
-  private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
-  private IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
-  private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
-  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
-
-  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport, macroInterpreter);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private final AvatarResolver avatarResolver = new AvatarResolverImpl();
+  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
+  private final IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
+  private final HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
+  private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
+  private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport, macroInterpreter);
+  private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Before
   public void before() {
@@ -399,8 +394,7 @@ public class ShowActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT,
       r -> r.setTemplateUuid("123")
         .setDescription(description)
-        .setDescriptionFormat(MARKDOWN)
-    );
+        .setDescriptionFormat(MARKDOWN));
 
     doReturn(resultingDescription).when(macroInterpreter).interpret(parsedDescription);
 
@@ -942,10 +936,10 @@ public class ShowActionTest {
     when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());
     when(issueChangeSupport.formatComments(any(), any(), any())).thenReturn(comments.stream());
 
+    assertThat(actionTester.getDef().responseExampleAsString()).isNotNull();
     newRequest(hotspot)
       .execute()
-      .assertJson(actionTester.getDef().responseExampleAsString()
-        .replaceAll("default-organization", dbTester.getDefaultOrganization().getKey()));
+      .assertJson(actionTester.getDef().responseExampleAsString());
   }
 
   private FormattingContext mockChangelogAndCommentsFormattingContext() {

@@ -162,7 +162,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_SONARSOURCE_SECURITY);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILES, PARAM_DIRECTORIES);
+  private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -174,7 +174,7 @@ public class SearchAction implements IssuesWsAction {
   private final DbClient dbClient;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-                      SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -324,7 +324,8 @@ public class SearchAction implements IssuesWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false");
     action.createParam(PARAM_TIMEZONE)
-      .setDescription("To resolve dates passed to '" + PARAM_CREATED_AFTER + "' or '" + PARAM_CREATED_BEFORE + "' (does not apply to datetime) and to compute creation date histogram")
+      .setDescription(
+        "To resolve dates passed to '" + PARAM_CREATED_AFTER + "' or '" + PARAM_CREATED_BEFORE + "' (does not apply to datetime) and to compute creation date histogram")
       .setRequired(false)
       .setExampleValue("'Europe/Paris', 'Z' or '+02:00'")
       .setSince("8.6");
@@ -404,12 +405,12 @@ public class SearchAction implements IssuesWsAction {
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
     IssueQuery query = issueQueryFactory.create(request);
 
-    Set<String> facetsRequiringProjectOrOrganizationParameter = options.getFacets().stream()
-      .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
+    Set<String> facetsRequiringProjectParameter = options.getFacets().stream()
+      .filter(FACETS_REQUIRING_PROJECT::contains)
       .collect(toSet());
-    checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
-      String.join(",", facetsRequiringProjectOrOrganizationParameter));
+    checkArgument(facetsRequiringProjectParameter.isEmpty() ||
+      (!query.projectUuids().isEmpty()), "Facet(s) '%s' require to also filter by project",
+      String.join(",", facetsRequiringProjectParameter));
 
     // execute request
     SearchResponse result = issueIndex.search(query, options);
@@ -541,7 +542,6 @@ public class SearchAction implements IssuesWsAction {
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
       .setBranch(request.param(PARAM_BRANCH))
       .setPullRequest(request.param(PARAM_PULL_REQUEST))
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))

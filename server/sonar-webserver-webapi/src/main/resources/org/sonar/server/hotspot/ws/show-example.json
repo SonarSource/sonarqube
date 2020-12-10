@@ -1,7 +1,6 @@
 {
   "key": "AW9mgJw6eFC3pGl94Wrf",
   "component": {
-    "organization": "default-organization",
     "key": "com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java",
     "qualifier": "FIL",
     "name": "FourthClass.java",
@@ -9,7 +8,6 @@
     "path": "src/main/java/com/sonarsource/FourthClass.java"
   },
   "project": {
-    "organization": "default-organization",
     "key": "com.sonarsource:test-project",
     "qualifier": "TRK",
     "name": "test-project",

@@ -61,7 +61,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
@@ -114,12 +113,11 @@ public class SearchActionTest {
 
   private final TestSystem2 system2 = new TestSystem2();
   private final DbClient dbClient = dbTester.getDbClient();
-  private final TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
-  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
+  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
     issueIndexSyncProgressChecker, responseFormatter, system2);
@@ -1016,9 +1014,6 @@ public class SearchActionTest {
       .containsOnly(fileHotspot.getKey(), dirHotspot.getKey(), projectHotspot.getKey());
     assertThat(response.getComponentsList()).hasSize(3);
     assertThat(response.getComponentsList())
-      .extracting(Component::getOrganization)
-      .containsOnly(defaultOrganizationProvider.get().getKey());
-    assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), directory.getKey(), file.getKey());
     Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
@@ -1535,10 +1530,10 @@ public class SearchActionTest {
       .toArray(IssueDto[]::new);
     indexIssues();
 
+    assertThat(actionTester.getDef().responseExampleAsString()).isNotNull();
     newRequest(project)
       .execute()
-      .assertJson(actionTester.getDef().responseExampleAsString()
-        .replaceAll("default-organization", dbTester.getDefaultOrganization().getKey()));
+      .assertJson(actionTester.getDef().responseExampleAsString());
   }
 
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {

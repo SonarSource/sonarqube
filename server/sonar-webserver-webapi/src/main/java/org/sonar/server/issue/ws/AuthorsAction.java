@@ -115,7 +115,7 @@ public class AuthorsAction implements IssuesWsAction {
       checkIfComponentNeedIssueSync(dbSession, request.param(PARAM_PROJECT));
 
       Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));
-      List<String> authors = getAuthors(organization, project, request);
+      List<String> authors = getAuthors(project.orElse(null), request);
       AuthorsResponse wsResponse = AuthorsResponse.newBuilder().addAllAuthors(authors).build();
       writeProtobuf(wsResponse, request, response);
     }
@@ -146,10 +146,9 @@ public class AuthorsAction implements IssuesWsAction {
     return Optional.of(project);
   }
 
-  private List<String> getAuthors(OrganizationDto organization, Optional<ComponentDto> project, Request request) {
-    IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
-      .organizationUuid(organization.getUuid());
-    project.ifPresent(p -> {
+  private List<String> getAuthors(@Nullable ComponentDto project, Request request) {
+    IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
+    ofNullable(project).ifPresent(p -> {
       switch (p.qualifier()) {
         case Qualifiers.PROJECT:
           issueQueryBuilder.projectUuids(ImmutableSet.of(p.uuid()));

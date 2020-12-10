@@ -74,7 +74,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "c.module_uuid_path",
     "c.path",
     "c.scope",
-    "c.organization_uuid",
     "c.project_uuid",
     "c.main_branch_project_uuid",
 
@@ -215,9 +214,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       String filePath = extractFilePath(rs.getString(16), scope);
       doc.setFilePath(filePath);
       doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-      doc.setOrganizationUuid(rs.getString(18));
-      String branchUuid = rs.getString(19);
-      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 20);
+      String branchUuid = rs.getString(18);
+      String mainBranchProjectUuid = DatabaseUtils.getString(rs, 19);
       doc.setBranchUuid(branchUuid);
       if (mainBranchProjectUuid == null) {
         doc.setProjectUuid(branchUuid);
@@ -226,11 +224,11 @@ class IssueIteratorForSingleChunk implements IssueIterator {
         doc.setProjectUuid(mainBranchProjectUuid);
         doc.setIsMainBranch(false);
       }
-      String tags = rs.getString(21);
+      String tags = rs.getString(20);
       doc.setTags(IssueIteratorForSingleChunk.TAGS_SPLITTER.splitToList(tags == null ? "" : tags));
-      doc.setType(RuleType.valueOf(rs.getInt(22)));
+      doc.setType(RuleType.valueOf(rs.getInt(21)));
 
-      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(23)));
+      SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(22)));
       SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
       doc.setOwaspTop10(securityStandards.getOwaspTop10());
       doc.setCwe(securityStandards.getCwe());
@@ -238,7 +236,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setSonarSourceSecurityCategory(sqCategory);
       doc.setVulnerabilityProbability(sqCategory.getVulnerability());
 
-      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(24)) ? IssueScope.TEST : IssueScope.MAIN);
+      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
       return doc;
     }
 

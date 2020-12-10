@@ -94,7 +94,6 @@ public class IssueQuery {
   private final String sort;
   private final Boolean asc;
   private final String facetMode;
-  private final String organizationUuid;
   private final String branchUuid;
   private final boolean mainBranch;
   private final ZoneId timeZone;
@@ -132,7 +131,6 @@ public class IssueQuery {
     this.sort = builder.sort;
     this.asc = builder.asc;
     this.facetMode = builder.facetMode;
-    this.organizationUuid = builder.organizationUuid;
     this.branchUuid = builder.branchUuid;
     this.mainBranch = builder.mainBranch;
     this.timeZone = builder.timeZone;
@@ -271,11 +269,6 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public String organizationUuid() {
-    return organizationUuid;
-  }
-
-  @CheckForNull
   public String branchUuid() {
     return branchUuid;
   }
@@ -335,7 +328,6 @@ public class IssueQuery {
     private String sort;
     private Boolean asc = false;
     private String facetMode;
-    private String organizationUuid;
     private String branchUuid;
     private boolean mainBranch = true;
     private ZoneId timeZone;
@@ -528,11 +520,6 @@ public class IssueQuery {
 
     public Builder facetMode(String facetMode) {
       this.facetMode = facetMode;
-      return this;
-    }
-
-    public Builder organizationUuid(String s) {
-      this.organizationUuid = s;
       return this;
     }
 

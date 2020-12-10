@@ -20,22 +20,19 @@
 package org.sonar.server.hotspot.ws;
 
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonarqube.ws.Hotspots;
 
 import static java.util.Optional.ofNullable;
 
 public class HotspotWsResponseFormatter {
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public HotspotWsResponseFormatter(DefaultOrganizationProvider defaultOrganizationProvider) {
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+  public HotspotWsResponseFormatter() {
+    // nothing to do here
   }
 
   Hotspots.Component formatComponent(Hotspots.Component.Builder builder, ComponentDto component) {
     builder
       .clear()
-      .setOrganization(defaultOrganizationProvider.get().getKey())
       .setKey(component.getKey())
       .setQualifier(component.qualifier())
       .setName(component.name())

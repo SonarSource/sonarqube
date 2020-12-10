@@ -31,7 +31,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -143,55 +142,16 @@ public class TagsActionTest {
   }
 
   @Test
-  public void search_tags_by_organization() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    // Tags on issues of organization 1
-    OrganizationDto organization1 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
-    // Tags on issues of organization 2
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
-    indexIssues();
-    permissionIndexer.allowOnlyAnyone(project1, project2);
-
-    assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
-  }
-
-  @Test
-  public void search_tags_by_organization_ignores_hotspots() {
-    RuleDefinitionDto issueRule = db.rules().insertIssueRule();
-    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
-    // Tags on issues of organization 1
-    OrganizationDto organization1 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(asList("tag3", "tag4")));
-    // Tags on issues of organization 2
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag5")));
-    db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag6")));
-    indexIssues();
-    permissionIndexer.allowOnlyAnyone(project1, project2);
-
-    assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
-  }
-
-  @Test
   public void search_tags_by_project() {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
     indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey()))).containsExactly("tag1");
     verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
   }
@@ -200,9 +160,8 @@ public class TagsActionTest {
   public void search_tags_by_project_ignores_hotspots() {
     RuleDefinitionDto issueRule = db.rules().insertIssueRule();
     RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     db.issues().insertHotspot(hotspotRule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(singletonList("tag2")));
     db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
@@ -211,15 +170,13 @@ public class TagsActionTest {
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey()))).containsExactly("tag2");
   }
 
   @Test
   public void search_tags_by_portfolio() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -232,9 +189,8 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_portfolio_ignores_hotspots() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto issueRule = db.rules().insertIssueRule();
@@ -249,9 +205,8 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_application() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto application = db.components().insertPrivateApplication(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -264,9 +219,8 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_application_ignores_hotspots() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto application = db.components().insertPrivateApplication(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto issueRule = db.rules().insertIssueRule();
@@ -312,46 +266,10 @@ public class TagsActionTest {
   }
 
   @Test
-  public void without_organization_parameter_is_cross_organization() {
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    // Tags on issues of organization 1
-    OrganizationDto organization1 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
-    // Tags on issues of organization 2
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
-    indexIssues();
-    permissionIndexer.allowOnlyAnyone(project1, project2);
-
-    TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
-
-    assertThat(result.getTagsList()).containsExactly("tag1", "tag2", "tag3");
-  }
-
-  @Test
   public void empty_list() {
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
     assertThat(result.getTagsList()).isEmpty();
-  }
-
-  @Test
-  public void fail_when_project_does_not_belong_to_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto otherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
-    indexIssues();
-    permissionIndexer.allowOnlyAnyone(project, project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Project '%s' is not part of the organization '%s'", project.getKey(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .setParam("project", project.getKey())
-      .execute();
   }
 
   private void indexIssues() {
@@ -360,8 +278,7 @@ public class TagsActionTest {
 
   @Test
   public void fail_when_project_parameter_does_not_match_a_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     indexIssues();
     permissionIndexer.allowOnlyAnyone(project, project);
@@ -370,7 +287,6 @@ public class TagsActionTest {
     expectedException.expectMessage(format("Component '%s' must be a project", file.getKey()));
 
     ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", file.getKey())
       .execute();
   }
@@ -386,6 +302,7 @@ public class TagsActionTest {
 
     String result = ws.newRequest().execute().getInput();
 
+    assertThat(ws.getDef().responseExampleAsString()).isNotNull();
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
@@ -402,7 +319,6 @@ public class TagsActionTest {
       .containsExactlyInAnyOrder(
         tuple("q", null, null, false, false),
         tuple("ps", "10", null, false, false),
-        tuple("organization", null, "6.4", false, true),
         tuple("project", null, "7.4", false, false));
   }
 

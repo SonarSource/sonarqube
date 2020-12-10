@@ -97,7 +97,6 @@ public class IssueQueryFactoryTest {
       .setScopes(asList("MAIN", "TEST"))
       .setLanguages(asList("xoo"))
       .setTags(asList("tag1", "tag2"))
-      .setOrganization(organization.getKey())
       .setAssigned(true)
       .setCreatedAfter("2013-04-16T09:08:24+0200")
       .setCreatedBefore("2013-04-17T09:08:24+0200")
@@ -119,7 +118,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.scopes()).containsOnly("TEST", "MAIN");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
-    assertThat(query.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).hasSize(2);
@@ -233,7 +231,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.directories()).isEmpty();
     assertThat(query.files()).isEmpty();
     assertThat(query.viewUuids()).isEmpty();
-    assertThat(query.organizationUuid()).isNull();
     assertThat(query.branchUuid()).isNull();
   }
 
@@ -583,16 +580,6 @@ public class IssueQueryFactoryTest {
 
     underTest.create(new SearchRequest()
       .setCreatedAfter("unknown-date"));
-  }
-
-  @Test
-  public void return_empty_results_if_organization_with_specified_key_does_not_exist() {
-    SearchRequest request = new SearchRequest()
-      .setOrganization("does_not_exist");
-
-    IssueQuery query = underTest.create(request);
-
-    assertThat(query.organizationUuid()).isEqualTo("<UNKNOWN>");
   }
 
 }

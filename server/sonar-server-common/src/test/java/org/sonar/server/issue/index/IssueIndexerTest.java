@@ -28,7 +28,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,7 +41,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
@@ -77,13 +75,7 @@ public class IssueIndexerTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private OrganizationDto organization;
-  private IssueIndexer underTest = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-
-  @Before
-  public void setUp() {
-    organization = db.organizations().insert();
-  }
+  private final IssueIndexer underTest = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
 
   @Test
   public void test_getIndexTypes() {
@@ -105,8 +97,8 @@ public class IssueIndexerTest {
 
   @Test
   public void indexOnStartup_scrolls_db_and_adds_all_issues_to_index() {
-    IssueDto issue1 = db.issues().insert(organization);
-    IssueDto issue2 = db.issues().insert(organization);
+    IssueDto issue1 = db.issues().insert();
+    IssueDto issue2 = db.issues().insert();
 
     underTest.indexAllIssues();
 
@@ -116,7 +108,7 @@ public class IssueIndexerTest {
   @Test
   public void verify_indexed_fields() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -125,7 +117,6 @@ public class IssueIndexerTest {
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.assigneeUuid()).isEqualTo(issue.getAssigneeUuid());
     assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
@@ -151,7 +142,7 @@ public class IssueIndexerTest {
   @Test
   public void verify_security_standards_indexation() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863"))));
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -167,7 +158,7 @@ public class IssueIndexerTest {
   @Test
   public void indexOnStartup_does_not_fail_on_errors_and_does_enable_recovery_mode() {
     es.lockWrites(TYPE_ISSUE);
-    db.issues().insert(organization);
+    db.issues().insert();
 
     try {
       // FIXME : test also message
@@ -183,10 +174,10 @@ public class IssueIndexerTest {
   @Test
   public void indexOnAnalysis_indexes_the_issues_of_project() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
-    ComponentDto otherProject = db.components().insertPrivateProject(organization);
+    ComponentDto otherProject = db.components().insertPrivateProject();
     ComponentDto fileOnOtherProject = db.components().insertComponent(newFileDto(otherProject));
 
     underTest.indexOnAnalysis(project.uuid());
@@ -197,7 +188,7 @@ public class IssueIndexerTest {
   @Test
   public void indexOnAnalysis_does_not_delete_orphan_docs() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
 
@@ -218,7 +209,7 @@ public class IssueIndexerTest {
   @Test
   public void indexOnAnalysis_does_not_fail_on_errors_and_does_not_enable_recovery_mode() {
     es.lockWrites(TYPE_ISSUE);
-    IssueDto issue = db.issues().insert(organization);
+    IssueDto issue = db.issues().insert();
 
     try {
       // FIXME : test also message
@@ -236,7 +227,7 @@ public class IssueIndexerTest {
     // it's impossible to already have an issue on a project
     // that is being created, but it's just to verify that
     // indexing is disabled
-    IssueDto issue = db.issues().insert(organization);
+    IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     assertThat(result.getTotal()).isEqualTo(0L);
@@ -246,7 +237,7 @@ public class IssueIndexerTest {
   @Test
   public void index_is_not_updated_when_updating_project_key() {
     // issue is inserted to verify that indexing of project is not triggered
-    IssueDto issue = db.issues().insert(organization);
+    IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     assertThat(result.getTotal()).isEqualTo(0L);
@@ -256,7 +247,7 @@ public class IssueIndexerTest {
   @Test
   public void index_is_not_updated_when_updating_tags() {
     // issue is inserted to verify that indexing of project is not triggered
-    IssueDto issue = db.issues().insert(organization);
+    IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
     assertThat(result.getTotal()).isEqualTo(0L);
@@ -302,7 +293,7 @@ public class IssueIndexerTest {
   @Test
   public void commitAndIndexIssues_commits_db_transaction_and_adds_issues_to_index() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // insert issues in db without committing
@@ -322,7 +313,7 @@ public class IssueIndexerTest {
   public void commitAndIndexIssues_removes_issue_from_index_if_it_does_not_exist_in_db() {
     IssueDto issue1 = new IssueDto().setKee("I1").setProjectUuid("P1");
     addIssueToIndex(issue1.getProjectUuid(), issue1.getKey());
-    IssueDto issue2 = db.issues().insert(organization);
+    IssueDto issue2 = db.issues().insert();
 
     underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
 
@@ -335,7 +326,7 @@ public class IssueIndexerTest {
   @Test
   public void indexing_errors_during_commitAndIndexIssues_are_recovered() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     // insert issues in db without committing
@@ -382,12 +373,12 @@ public class IssueIndexerTest {
   @Test
   public void indexing_recovers_multiple_errors_on_the_same_issue() {
     es.lockWrites(TYPE_ISSUE);
-    IssueDto issue = db.issues().insert(organization);
+    IssueDto issue = db.issues().insert();
 
     // three changes on the same issue
-    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
-    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
-    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
+    underTest.commitAndIndexIssues(db.getSession(), singletonList(issue));
+    underTest.commitAndIndexIssues(db.getSession(), singletonList(issue));
+    underTest.commitAndIndexIssues(db.getSession(), singletonList(issue));
 
     assertThatIndexHasSize(0);
     // three attempts of indexing are stored in es_queue recovery table
@@ -403,7 +394,7 @@ public class IssueIndexerTest {
   @Test
   public void indexing_recovers_multiple_errors_on_the_same_project() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue1 = db.issues().insert(rule, project, file);
     IssueDto issue2 = db.issues().insert(rule, project, file);
@@ -485,7 +476,7 @@ public class IssueIndexerTest {
     issueDoc.setKey("key");
     issueDoc.setProjectUuid("parent-does-not-exist");
     new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null)
-      .index(asList(issueDoc).iterator());
+      .index(singletonList(issueDoc).iterator());
 
     assertThat(es.countDocuments(TYPE_ISSUE)).isEqualTo(1L);
   }
@@ -493,7 +484,7 @@ public class IssueIndexerTest {
   @Test
   public void index_issue_in_non_main_branch() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, dir, "F1"));
@@ -503,7 +494,6 @@ public class IssueIndexerTest {
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
     assertThat(doc.projectUuid()).isEqualTo(branch.getMainBranchProjectUuid());
     assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
@@ -514,7 +504,7 @@ public class IssueIndexerTest {
   @Test
   public void issue_on_test_file_has_test_scope() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1").setQualifier("UTS"));
     IssueDto issue = db.issues().insert(rule, project, file);
@@ -523,7 +513,6 @@ public class IssueIndexerTest {
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
     assertThat(doc.scope()).isEqualTo(IssueScope.TEST);
   }
@@ -531,7 +520,7 @@ public class IssueIndexerTest {
   @Test
   public void issue_on_directory_has_main_code_scope() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     IssueDto issue = db.issues().insert(rule, project, dir);
 
@@ -539,7 +528,6 @@ public class IssueIndexerTest {
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(dir.uuid());
     assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
   }
@@ -547,14 +535,13 @@ public class IssueIndexerTest {
   @Test
   public void issue_on_project_has_main_code_scope() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     IssueDto issue = db.issues().insert(rule, project, project);
 
     underTest.indexAllIssues();
 
     IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(project.uuid());
     assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
   }

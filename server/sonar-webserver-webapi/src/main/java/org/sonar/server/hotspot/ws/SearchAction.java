@@ -317,7 +317,6 @@ public class SearchAction implements HotspotsWsAction {
       .statuses(wsRequest.getStatus().map(Collections::singletonList).orElse(STATUSES));
 
     if (project != null) {
-      builder.organizationUuid(project.getOrganizationUuid());
       String projectUuid = firstNonNull(project.getMainBranchProjectUuid(), project.uuid());
       if (Qualifiers.APP.equals(project.qualifier())) {
         builder.viewUuids(singletonList(projectUuid));

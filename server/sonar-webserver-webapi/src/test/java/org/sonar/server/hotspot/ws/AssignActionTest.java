@@ -79,14 +79,14 @@ public class AssignActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
-  private System2 system2 = mock(System2.class);
-  private IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
-  private HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final IssueUpdater issueUpdater = mock(IssueUpdater.class);
+  private final System2 system2 = mock(System2.class);
+  private final IssueFieldsSetter issueFieldsSetter = mock(IssueFieldsSetter.class);
+  private final HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, system2);
 
-  private AssignAction underTest = new AssignAction(dbClient, hotspotWsSupport, issueFieldsSetter, issueUpdater);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private final AssignAction underTest = new AssignAction(dbClient, hotspotWsSupport, issueFieldsSetter, issueUpdater);
+  private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
   public void ws_definition_check() {
@@ -95,9 +95,15 @@ public class AssignActionTest {
     assertThat(wsDefinition.isPost()).isTrue();
     assertThat(wsDefinition.isInternal()).isTrue();
     assertThat(wsDefinition.params()).hasSize(3);
-    assertThat(wsDefinition.param("hotspot").isRequired()).isTrue();
-    assertThat(wsDefinition.param("assignee").isRequired()).isTrue();
-    assertThat(wsDefinition.param("comment").isRequired()).isFalse();
+    WebService.Param hotspotParam = wsDefinition.param("hotspot");
+    assertThat(hotspotParam).isNotNull();
+    assertThat(hotspotParam.isRequired()).isTrue();
+    WebService.Param assigneeParam = wsDefinition.param("assignee");
+    assertThat(assigneeParam).isNotNull();
+    assertThat(assigneeParam.isRequired()).isTrue();
+    WebService.Param commentParam = wsDefinition.param("comment");
+    assertThat(commentParam).isNotNull();
+    assertThat(commentParam.isRequired()).isFalse();
     assertThat(wsDefinition.since()).isEqualTo("8.2");
   }
 
@@ -466,14 +472,11 @@ public class AssignActionTest {
   }
 
   private UserDto insertUser(String login) {
-    UserDto user = dbTester.users().insertUser(login);
-    dbTester.organizations().addMember(dbTester.getDefaultOrganization(), user);
-    return user;
+    return dbTester.users().insertUser(login);
   }
 
   private UserDto insertUserWithProjectPermission(String login, ComponentDto project, String permission) {
     UserDto user = dbTester.users().insertUser(login);
-    dbTester.organizations().addMember(dbTester.getDefaultOrganization(), user);
     dbTester.users().insertProjectPermissionOnUser(user, permission, project);
     return user;
   }

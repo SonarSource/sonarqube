@@ -43,7 +43,6 @@ public class SearchRequestTest {
       .setScopes(asList("MAIN", "TEST"))
       .setLanguages(singletonList("xoo"))
       .setTags(asList("tag1", "tag2"))
-      .setOrganization("org-a")
       .setAssigned(true)
       .setCreatedAfter("2013-04-16T09:08:24+0200")
       .setCreatedBefore("2013-04-17T09:08:24+0200")
@@ -64,7 +63,6 @@ public class SearchRequestTest {
     assertThat(underTest.getScopes()).containsExactly("MAIN", "TEST");
     assertThat(underTest.getLanguages()).containsExactly("xoo");
     assertThat(underTest.getTags()).containsExactly("tag1", "tag2");
-    assertThat(underTest.getOrganization()).isEqualTo("org-a");
     assertThat(underTest.getAssigned()).isTrue();
     assertThat(underTest.getCreatedAfter()).isEqualTo("2013-04-16T09:08:24+0200");
     assertThat(underTest.getCreatedBefore()).isEqualTo("2013-04-17T09:08:24+0200");

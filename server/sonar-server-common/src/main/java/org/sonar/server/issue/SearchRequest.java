@@ -50,7 +50,6 @@ public class SearchRequest {
   private Boolean onComponentOnly;
   private String branch;
   private String pullRequest;
-  private String organization;
   private int page;
   private int pageSize;
   private List<String> projects;
@@ -270,16 +269,6 @@ public class SearchRequest {
 
   public SearchRequest setOnComponentOnly(@Nullable Boolean onComponentOnly) {
     this.onComponentOnly = onComponentOnly;
-    return this;
-  }
-
-  @CheckForNull
-  public String getOrganization() {
-    return organization;
-  }
-
-  public SearchRequest setOrganization(@Nullable String s) {
-    this.organization = s;
     return this;
   }
 

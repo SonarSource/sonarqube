@@ -150,7 +150,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LANG
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LINE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
@@ -438,9 +437,6 @@ public class IssueIndex {
         FIELD_ISSUE_RULE_UUID,
         query.rules().stream().map(RuleDefinitionDto::getUuid).collect(toList())));
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
-    filters.addFilter(
-      FIELD_ISSUE_ORGANIZATION_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_ORGANIZATION_UUID),
-      createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
 
     // security category
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
