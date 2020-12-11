@@ -217,7 +217,7 @@ public class OrganizationDeleterTest {
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user1.getUuid())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), org.getUuid(), user2.getUuid())).isNotPresent();
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), otherOrg.getUuid(), user1.getUuid())).isPresent();
-    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(org.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(org.getUuid()).build(), new SearchOptions()).getTotal()).isZero();
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(otherOrg.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(1);
     verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
   }

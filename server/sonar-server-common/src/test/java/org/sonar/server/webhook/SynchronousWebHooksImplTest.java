@@ -98,7 +98,7 @@ public class SynchronousWebHooksImplTest {
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
 
-    assertThat(caller.countSent()).isEqualTo(0);
+    assertThat(caller.countSent()).isZero();
     assertThat(logTester.logs(DEBUG)).isEmpty();
     verifyZeroInteractions(deliveryStorage);
   }
@@ -109,7 +109,7 @@ public class SynchronousWebHooksImplTest {
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
 
-    assertThat(caller.countSent()).isEqualTo(0);
+    assertThat(caller.countSent()).isZero();
     assertThat(logTester.logs(DEBUG)).isEmpty();
     verifyZeroInteractions(deliveryStorage);
     verifyLogStatistics(0, 0);

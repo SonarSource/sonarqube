@@ -229,7 +229,7 @@ public class IssuesMediumTest {
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in property 'sonar.issue.ignore.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
-    assertThat(issues).hasSize(0);
+    assertThat(issues).isEmpty();
 
     issues = result.issuesFor(result.inputFile("moduleB/src/sampleB.xoo"));
     assertThat(issues).hasSize(10);
@@ -376,7 +376,7 @@ public class IssuesMediumTest {
     assertThat(issues).hasSize(10);
 
     issues = result.issuesFor(result.inputFile("moduleB/src/sampleB.xoo"));
-    assertThat(issues).hasSize(0);
+    assertThat(issues).isEmpty();
   }
 
   private void activateTODORule() {

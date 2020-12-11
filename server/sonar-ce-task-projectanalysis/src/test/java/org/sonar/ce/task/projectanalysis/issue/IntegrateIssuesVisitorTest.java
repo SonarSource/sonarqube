@@ -264,7 +264,7 @@ public class IntegrateIssuesVisitorTest {
     underTest.visitAny(FILE);
 
     List<DefaultIssue> issues = newArrayList(protoIssueCache.traverse());
-    assertThat(issues).hasSize(0);
+    assertThat(issues).isEmpty();
   }
 
   @Test

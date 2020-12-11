@@ -71,7 +71,7 @@ public class GenerateSecretKeyActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.params()).hasSize(0);
+    assertThat(definition.params()).isEmpty();
   }
 
   @Test

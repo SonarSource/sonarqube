@@ -68,7 +68,7 @@ public class MigrationHistoryTableImplTest {
   }
 
   private void verifyTable() {
-    assertThat(dbTester.countRowsOfTable(TABLE_SCHEMA_MIGRATIONS)).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable(TABLE_SCHEMA_MIGRATIONS)).isZero();
     dbTester.assertColumnDefinition(TABLE_SCHEMA_MIGRATIONS, "version", Types.VARCHAR, 255, false);
   }
 }

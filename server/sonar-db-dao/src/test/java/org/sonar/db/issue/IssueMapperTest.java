@@ -224,7 +224,7 @@ public class IssueMapperTest {
     dto.setSelectedAt(1400000000000L);
 
     int count = underTest.updateIfBeforeSelectedDate(dto);
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
     dbTester.getSession().commit();
 
     // No change

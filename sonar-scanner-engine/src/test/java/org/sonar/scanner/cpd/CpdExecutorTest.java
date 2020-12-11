@@ -275,7 +275,7 @@ public class CpdExecutorTest {
     if (otherFileRef != null) {
       assertThat(d.getDuplicate(0).getOtherFileRef()).isEqualTo(otherFileRef);
     } else {
-      assertThat(d.getDuplicate(0).getOtherFileRef()).isEqualTo(0);
+      assertThat(d.getDuplicate(0).getOtherFileRef()).isZero();
     }
     assertThat(d.getDuplicate(0).getRange().getStartLine()).isEqualTo(rangeStartLine);
     assertThat(d.getDuplicate(0).getRange().getEndLine()).isEqualTo(rangeEndLine);

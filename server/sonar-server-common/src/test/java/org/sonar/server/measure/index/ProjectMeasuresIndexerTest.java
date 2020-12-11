@@ -244,7 +244,7 @@ public class ProjectMeasuresIndexerTest {
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid());
     IndexingResult result = indexProject(project, PROJECT_DELETION);
 
-    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
     assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getSuccess()).isEqualTo(1L);
   }
@@ -257,7 +257,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index(db.getSession(), emptyList());
 
-    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
   }
 
   @Test
@@ -273,7 +273,7 @@ public class ProjectMeasuresIndexerTest {
     result = recover();
     assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getFailures()).isEqualTo(1L);
-    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
     assertThatEsQueueTableHasSize(1);
 
     es.unlockWrites(TYPE_PROJECT_MEASURES);
@@ -292,7 +292,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.indexOnAnalysis(branch.uuid());
 
-    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
   }
 
   private IndexingResult indexProject(ComponentDto project, ProjectIndexer.Cause cause) {

@@ -55,7 +55,7 @@ public class EnsureHotspotDefaultStatusIsToReviewTest {
   public void does_not_fail_if_table_is_empty() throws SQLException {
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("issues")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issues")).isZero();
   }
 
   @Test

@@ -83,7 +83,7 @@ public class LdapSearchTest {
     assertThat(search.getParameters()).isEqualTo(new String[] {"inetOrgPerson"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"cn"});
     assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=onelevel, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[cn]}");
-    assertThat(enumerationToArrayList(search.find()).size()).isEqualTo(0);
+    assertThat(enumerationToArrayList(search.find()).size()).isZero();
     assertThat(search.findUnique()).isNull();
   }
 

@@ -160,7 +160,7 @@ public class ProjectLinkDaoTest {
     underTest.delete(db.getSession(), link.getUuid());
     db.getSession().commit();
 
-    assertThat(db.countRowsOfTable("project_links")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("project_links")).isZero();
   }
 
 }

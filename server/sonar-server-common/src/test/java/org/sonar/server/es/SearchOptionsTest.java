@@ -41,7 +41,7 @@ public class SearchOptionsTest {
 
     assertThat(options.getFacets()).isEmpty();
     assertThat(options.getFields()).isEmpty();
-    assertThat(options.getOffset()).isEqualTo(0);
+    assertThat(options.getOffset()).isZero();
     assertThat(options.getLimit()).isEqualTo(10);
     assertThat(options.getPage()).isEqualTo(1);
   }
@@ -58,7 +58,7 @@ public class SearchOptionsTest {
   public void page_starts_at_one() {
     SearchOptions options = new SearchOptions().setPage(1, 10);
     assertThat(options.getLimit()).isEqualTo(10);
-    assertThat(options.getOffset()).isEqualTo(0);
+    assertThat(options.getOffset()).isZero();
     assertThat(options.getPage()).isEqualTo(1);
   }
 

@@ -76,6 +76,6 @@ public class TrackerReferenceBranchInputFactoryTest {
     Input<DefaultIssue> input = underTest.create(component);
 
     assertThat(input.getIssues()).isEmpty();
-    assertThat(input.getLineHashSequence().length()).isEqualTo(0);
+    assertThat(input.getLineHashSequence().length()).isZero();
   }
 }

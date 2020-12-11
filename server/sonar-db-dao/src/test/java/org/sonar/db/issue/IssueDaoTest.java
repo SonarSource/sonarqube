@@ -269,31 +269,31 @@ public class IssueDaoTest {
     assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
 
     assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
-    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> g.getSeverity().equals("CRITICAL")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
-    assertThat(result.stream().filter(g -> g.getSeverity().equals("MINOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getSeverity().equals("MINOR")).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> g.getStatus().equals("OPEN")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
-    assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> "FALSE-POSITIVE".equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
     assertThat(result.stream().filter(g -> g.getResolution() == null).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
 
     assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     // test leak
     result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 999_999_999L);
-    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
 
     // test leak using exact creation time of criticalBug2 issue
     result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, criticalBug2.getIssueCreationTime());
-    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
   }
 

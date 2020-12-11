@@ -165,7 +165,7 @@ public class LogbackHelperTest {
     julLogger.severe("Message1");
 
     // JUL bridge has not been initialized, nothing in logs
-    assertThat(memoryAppender.getLogs()).hasSize(0);
+    assertThat(memoryAppender.getLogs()).isEmpty();
 
     // Enabling JUL bridge
     LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);

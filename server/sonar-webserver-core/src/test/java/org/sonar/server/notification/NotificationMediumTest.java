@@ -208,7 +208,7 @@ public class NotificationMediumTest {
     Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(dbClient);
-    assertThat(service.getDispatchers()).hasSize(0);
+    assertThat(service.getDispatchers()).isEmpty();
   }
 
   @Test

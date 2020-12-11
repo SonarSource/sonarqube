@@ -81,7 +81,7 @@ public class EsQueueDaoTest {
 
     underTest.delete(dbSession, esQueueDtos);
 
-    assertThat(dbTester.countSql(dbSession, "select count(*) from es_queue")).isEqualTo(0);
+    assertThat(dbTester.countSql(dbSession, "select count(*) from es_queue")).isZero();
   }
 
   @Test
@@ -115,7 +115,7 @@ public class EsQueueDaoTest {
     system2.setNow(1_002L);
     EsQueueDto i3 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
 
-    assertThat(underTest.selectForRecovery(dbSession, 999, LIMIT)).hasSize(0);
+    assertThat(underTest.selectForRecovery(dbSession, 999, LIMIT)).isEmpty();
     assertThat(underTest.selectForRecovery(dbSession, 1_000, LIMIT))
       .extracting(EsQueueDto::getUuid)
       .containsExactly(i1.getUuid());

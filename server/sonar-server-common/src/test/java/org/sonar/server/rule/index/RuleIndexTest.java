@@ -324,7 +324,7 @@ public class RuleIndexTest {
     SearchOptions options = new SearchOptions().addFacets(FACET_TAGS);
 
     // do not fail
-    assertThat(underTest.search(query, options).getTotal()).isEqualTo(0);
+    assertThat(underTest.search(query, options).getTotal()).isZero();
   }
 
   @Test

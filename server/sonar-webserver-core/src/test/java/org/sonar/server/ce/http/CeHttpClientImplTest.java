@@ -77,7 +77,7 @@ public class CeHttpClientImplTest {
     setUpWithHttpUrl(ProcessId.COMPUTE_ENGINE);
 
     Optional<ProtobufSystemInfo.SystemInfo> info = underTest.retrieveSystemInfo();
-    assertThat(info.get().getSectionsCount()).isEqualTo(0);
+    assertThat(info.get().getSectionsCount()).isZero();
   }
 
   @Test

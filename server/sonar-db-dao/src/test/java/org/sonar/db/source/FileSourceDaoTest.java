@@ -163,7 +163,7 @@ public class FileSourceDaoTest {
 
     FileSourceDto res = underTest.selectByFileUuid(dbSession, fileSourceDto.getFileUuid());
 
-    assertThat(res.getLineCount()).isEqualTo(0);
+    assertThat(res.getLineCount()).isZero();
     assertThat(res.getLineHashes()).isEmpty();
   }
 

@@ -498,7 +498,7 @@ public class LiveMeasureDaoTest {
 
     // update
     int count = underTest.upsert(db.getSession(), dto);
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
     verifyPersisted(dto);
     verifyTableSize(1);
   }
@@ -530,7 +530,7 @@ public class LiveMeasureDaoTest {
 
     // update
     int count = underTest.upsert(db.getSession(), dto);
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
     verifyPersisted(dto);
     verifyTableSize(1);
   }

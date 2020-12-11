@@ -66,12 +66,12 @@ public class ProcessInfoProviderTest {
       new TestSystemInfoSection("foo"),
       new TestSystemInfoSection("bar")});
 
-    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(0);
+    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isZero();
 
     underTest.start();
     assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(2);
 
     underTest.stop();
-    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isEqualTo(0);
+    assertThat(ProcessInfoProvider.provide().getSectionsCount()).isZero();
   }
 }

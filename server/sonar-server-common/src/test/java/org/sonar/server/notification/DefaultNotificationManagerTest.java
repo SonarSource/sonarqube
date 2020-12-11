@@ -107,7 +107,7 @@ public class DefaultNotificationManagerTest {
     assertThat(underTest.getChannels()).containsOnly(emailChannel, twitterChannel);
 
     underTest = new DefaultNotificationManager(new NotificationChannel[] {}, dbClient);
-    assertThat(underTest.getChannels()).hasSize(0);
+    assertThat(underTest.getChannels()).isEmpty();
   }
 
   @Test
@@ -150,7 +150,7 @@ public class DefaultNotificationManagerTest {
   @Test
   public void shouldFindNoRecipient() {
     assertThat(underTest.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_45", new SubscriberPermissionsOnProject(UserRole.USER)).asMap().entrySet())
-      .hasSize(0);
+      .isEmpty();
   }
 
   @Test

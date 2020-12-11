@@ -98,7 +98,7 @@ public class SearchActionTest {
   public void empty_list() {
     SearchResponse result = call();
 
-    assertThat(result.getFavoritesCount()).isEqualTo(0);
+    assertThat(result.getFavoritesCount()).isZero();
     assertThat(result.getFavoritesList()).isEmpty();
   }
 

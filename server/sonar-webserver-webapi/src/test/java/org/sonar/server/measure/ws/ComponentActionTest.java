@@ -98,7 +98,7 @@ public class ComponentActionTest {
 
     assertThat(response.getMetrics().getMetricsCount()).isEqualTo(1);
     assertThat(response.hasPeriod()).isFalse();
-    assertThat(response.getPeriods().getPeriodsCount()).isEqualTo(0);
+    assertThat(response.getPeriods().getPeriodsCount()).isZero();
     assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());
   }
 

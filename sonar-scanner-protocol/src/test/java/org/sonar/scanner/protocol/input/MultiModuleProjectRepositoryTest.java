@@ -54,7 +54,7 @@ public class MultiModuleProjectRepositoryTest {
 
     repository.addFileDataToModule("module1", null, fileData);
 
-    assertThat(repository.repositoriesByModule()).hasSize(0);
+    assertThat(repository.repositoriesByModule()).isEmpty();
   }
 
   @Test
@@ -63,6 +63,6 @@ public class MultiModuleProjectRepositoryTest {
 
     repository.addFileDataToModule("module2", "/Abc.java", fileData);
 
-    assertThat(repository.repositoriesByModule()).hasSize(0);
+    assertThat(repository.repositoriesByModule()).isEmpty();
   }
 }

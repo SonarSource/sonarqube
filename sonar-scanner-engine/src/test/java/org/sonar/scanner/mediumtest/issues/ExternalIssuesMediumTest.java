@@ -122,37 +122,25 @@ public class ExternalIssuesMediumTest {
 
     // precise issue location
     ExternalIssue issue = externalIssues.get(0);
-    assertThat(issue.getFlowCount()).isZero();
-    assertThat(issue.getMsg()).isEqualTo("fix the issue here");
-    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
-    assertThat(issue.getRuleId()).isEqualTo("rule1");
-    assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
-    assertThat(issue.getEffort()).isEqualTo(50l);
-    assertThat(issue.getType()).isEqualTo(IssueType.CODE_SMELL);
-    assertThat(issue.getTextRange().getStartLine()).isEqualTo(5);
-    assertThat(issue.getTextRange().getEndLine()).isEqualTo(5);
-    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(3);
-    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(41);
+    assertPreciseIssueLocation(issue);
 
     // location on a line
     issue = externalIssues.get(1);
-    assertThat(issue.getFlowCount()).isZero();
-    assertThat(issue.getMsg()).isEqualTo("fix the bug here");
-    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
-    assertThat(issue.getRuleId()).isEqualTo("rule2");
-    assertThat(issue.getSeverity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.getType()).isEqualTo(IssueType.BUG);
-    assertThat(issue.getEffort()).isZero();
-    assertThat(issue.getTextRange().getStartLine()).isEqualTo(3);
-    assertThat(issue.getTextRange().getEndLine()).isEqualTo(3);
-    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(0);
-    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(24);
+    assertIssueLocationLine(issue);
 
     // One file-level issue in helloscala, with secondary location
     List<ExternalIssue> externalIssues2 = result.externalIssuesFor(result.inputFile("xources/hello/helloscala.xoo"));
     assertThat(externalIssues2).hasSize(1);
 
     issue = externalIssues2.iterator().next();
+    assertSecondaryLocation(issue);
+
+    // one issue is located in a non-existing file
+    assertThat(logs.logs()).contains("External issues ignored for 1 unknown files, including: invalidFile");
+
+  }
+
+  private void assertSecondaryLocation(ExternalIssue issue) {
     assertThat(issue.getFlowCount()).isEqualTo(2);
     assertThat(issue.getMsg()).isEqualTo("fix the bug here");
     assertThat(issue.getEngineId()).isEqualTo("externalXoo");
@@ -164,9 +152,33 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getFlow(0).getLocation(0).getTextRange().getStartLine()).isOne();
     assertThat(issue.getFlow(1).getLocationCount()).isOne();
     assertThat(issue.getFlow(1).getLocation(0).getTextRange().getStartLine()).isEqualTo(3);
+  }
 
-    // one issue is located in a non-existing file
-    assertThat(logs.logs()).contains("External issues ignored for 1 unknown files, including: invalidFile");
+  private void assertIssueLocationLine(ExternalIssue issue) {
+    assertThat(issue.getFlowCount()).isZero();
+    assertThat(issue.getMsg()).isEqualTo("fix the bug here");
+    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
+    assertThat(issue.getRuleId()).isEqualTo("rule2");
+    assertThat(issue.getSeverity()).isEqualTo(Severity.CRITICAL);
+    assertThat(issue.getType()).isEqualTo(IssueType.BUG);
+    assertThat(issue.getEffort()).isZero();
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(3);
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(3);
+    assertThat(issue.getTextRange().getStartOffset()).isZero();
+    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(24);
+  }
 
+  private void assertPreciseIssueLocation(ExternalIssue issue) {
+    assertThat(issue.getFlowCount()).isZero();
+    assertThat(issue.getMsg()).isEqualTo("fix the issue here");
+    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
+    assertThat(issue.getRuleId()).isEqualTo("rule1");
+    assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(issue.getEffort()).isEqualTo(50l);
+    assertThat(issue.getType()).isEqualTo(IssueType.CODE_SMELL);
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(5);
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(5);
+    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(3);
+    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(41);
   }
 }

@@ -119,7 +119,7 @@ public class SearchHistoryActionTest {
     SearchHistoryResponse result = call(request);
 
     assertThat(result.getMeasuresList()).hasSize(1);
-    assertThat(result.getMeasures(0).getHistoryCount()).isEqualTo(0);
+    assertThat(result.getMeasures(0).getHistoryCount()).isZero();
 
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
       // pagination is applied to the number of analyses

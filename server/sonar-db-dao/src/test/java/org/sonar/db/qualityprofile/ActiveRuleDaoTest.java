@@ -526,7 +526,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteParam(dbSession, param);
 
-    assertThat(underTest.selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid())).hasSize(0);
+    assertThat(underTest.selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid())).isEmpty();
   }
 
   @Test
@@ -593,7 +593,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteParamsByActiveRuleUuids(dbSession, singletonList(ar1.getUuid()));
 
-    assertThat(underTest.selectParamsByActiveRuleUuid(dbSession, ar1.getUuid())).hasSize(0);
+    assertThat(underTest.selectParamsByActiveRuleUuid(dbSession, ar1.getUuid())).isEmpty();
     assertThat(underTest.selectParamsByActiveRuleUuid(dbSession, ar2.getUuid())).hasSize(1);
   }
 

@@ -172,7 +172,7 @@ public class ProjectDaoTest {
     projectDao.insert(db.getSession(), dto3);
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), Collections.emptySet());
-    assertThat(projectsByUuids).hasSize(0);
+    assertThat(projectsByUuids).isEmpty();
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String org, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

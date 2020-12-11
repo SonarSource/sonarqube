@@ -67,10 +67,10 @@ public class TaskContainerImplTest {
     });
     ceContainer.bootup();
 
-    assertThat(defaultStartable.startCalls).isEqualTo(0);
-    assertThat(defaultStartable.stopCalls).isEqualTo(0);
+    assertThat(defaultStartable.startCalls).isZero();
+    assertThat(defaultStartable.stopCalls).isZero();
     assertThat(eagerStartable.startCalls).isEqualTo(1);
-    assertThat(eagerStartable.stopCalls).isEqualTo(0);
+    assertThat(eagerStartable.stopCalls).isZero();
   }
 
   @Test
@@ -85,8 +85,8 @@ public class TaskContainerImplTest {
 
     ceContainer.close();
 
-    assertThat(defaultStartable.startCalls).isEqualTo(0);
-    assertThat(defaultStartable.stopCalls).isEqualTo(0);
+    assertThat(defaultStartable.startCalls).isZero();
+    assertThat(defaultStartable.stopCalls).isZero();
     assertThat(eagerStartable.startCalls).isEqualTo(1);
     assertThat(eagerStartable.stopCalls).isEqualTo(1);
   }

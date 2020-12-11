@@ -33,7 +33,7 @@ public class RangeDistributionBuilderTest {
 
     assertThat(limits[0]).isEqualTo(4);
     assertThat(limits[1]).isEqualTo(2);
-    assertThat(limits[2]).isEqualTo(0);
+    assertThat(limits[2]).isZero();
   }
 
   @Test

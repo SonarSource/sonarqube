@@ -214,7 +214,7 @@ public class UserDaoTest {
 
   @Test
   public void countRootUsersButLogin_returns_0_when_there_is_no_user_at_all() {
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
   }
 
   @Test
@@ -222,7 +222,7 @@ public class UserDaoTest {
     underTest.insert(session, newUserDto());
     session.commit();
 
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
   }
 
   @Test
@@ -231,7 +231,7 @@ public class UserDaoTest {
     insertInactiveRootUser(newUserDto());
     session.commit();
 
-    assertThat(underTest.countRootUsersButLogin(session, "bla")).isEqualTo(0);
+    assertThat(underTest.countRootUsersButLogin(session, "bla")).isZero();
   }
 
   @Test

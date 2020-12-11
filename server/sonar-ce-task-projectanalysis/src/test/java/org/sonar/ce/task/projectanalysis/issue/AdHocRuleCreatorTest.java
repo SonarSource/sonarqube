@@ -63,7 +63,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
     assertThat(rule.getSeverity()).isNull();
-    assertThat(rule.getType()).isEqualTo(0);
+    assertThat(rule.getType()).isZero();
     assertThat(rule.getMetadata().getAdHocName()).isNull();
     assertThat(rule.getMetadata().getAdHocDescription()).isNull();
     assertThat(rule.getMetadata().getAdHocSeverity()).isNull();
@@ -91,7 +91,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
     assertThat(rule.getSeverity()).isNull();
-    assertThat(rule.getType()).isEqualTo(0);
+    assertThat(rule.getType()).isZero();
     assertThat(rule.getMetadata().getAdHocName()).isEqualTo("No condition assigned");
     assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo("A description");
     assertThat(rule.getMetadata().getAdHocSeverity()).isEqualTo(Severity.BLOCKER);
@@ -146,7 +146,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(ruleUpdated.getDescription()).isNull();
     assertThat(ruleUpdated.getSeverity()).isNull();
-    assertThat(ruleUpdated.getType()).isEqualTo(0);
+    assertThat(ruleUpdated.getType()).isZero();
     assertThat(ruleUpdated.getMetadata().getAdHocName()).isEqualTo("No condition assigned updated");
     assertThat(ruleUpdated.getMetadata().getAdHocDescription()).isEqualTo("A description updated");
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(Severity.CRITICAL);

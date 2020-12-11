@@ -167,7 +167,7 @@ public class JwtCsrfVerifierTest {
     verify(response).addCookie(cookieArgumentCaptor.capture());
     Cookie cookie = cookieArgumentCaptor.getValue();
     assertThat(cookie.getValue()).isNull();
-    assertThat(cookie.getMaxAge()).isEqualTo(0);
+    assertThat(cookie.getMaxAge()).isZero();
   }
 
   private void verifyCookie(Cookie cookie) {

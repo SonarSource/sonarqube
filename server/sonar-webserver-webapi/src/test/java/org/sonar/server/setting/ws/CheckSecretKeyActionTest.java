@@ -83,7 +83,7 @@ public class CheckSecretKeyActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.params()).hasSize(0);
+    assertThat(definition.params()).isEmpty();
   }
 
   @Test

@@ -53,10 +53,10 @@ public abstract class CommonCEQueueStatusImplTest {
 
   @Test
   public void verify_just_created_instance_metrics() {
-    assertThat(getUnderTest().getInProgressCount()).isEqualTo(0);
-    assertThat(getUnderTest().getErrorCount()).isEqualTo(0);
-    assertThat(getUnderTest().getSuccessCount()).isEqualTo(0);
-    assertThat(getUnderTest().getProcessingTime()).isEqualTo(0);
+    assertThat(getUnderTest().getInProgressCount()).isZero();
+    assertThat(getUnderTest().getErrorCount()).isZero();
+    assertThat(getUnderTest().getSuccessCount()).isZero();
+    assertThat(getUnderTest().getProcessingTime()).isZero();
   }
 
   @Test
@@ -64,9 +64,9 @@ public abstract class CommonCEQueueStatusImplTest {
     getUnderTest().addInProgress();
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(1);
-    assertThat(getUnderTest().getErrorCount()).isEqualTo(0);
-    assertThat(getUnderTest().getSuccessCount()).isEqualTo(0);
-    assertThat(getUnderTest().getProcessingTime()).isEqualTo(0);
+    assertThat(getUnderTest().getErrorCount()).isZero();
+    assertThat(getUnderTest().getSuccessCount()).isZero();
+    assertThat(getUnderTest().getProcessingTime()).isZero();
   }
 
   @Test
@@ -77,7 +77,7 @@ public abstract class CommonCEQueueStatusImplTest {
     }
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(calls);
-    assertThat(getUnderTest().getProcessingTime()).isEqualTo(0);
+    assertThat(getUnderTest().getProcessingTime()).isZero();
   }
 
   @Test
@@ -94,7 +94,7 @@ public abstract class CommonCEQueueStatusImplTest {
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(-1);
     assertThat(getUnderTest().getErrorCount()).isEqualTo(1);
-    assertThat(getUnderTest().getSuccessCount()).isEqualTo(0);
+    assertThat(getUnderTest().getSuccessCount()).isZero();
     assertThat(getUnderTest().getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
@@ -123,7 +123,7 @@ public abstract class CommonCEQueueStatusImplTest {
     getUnderTest().addSuccess(SOME_PROCESSING_TIME);
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(-1);
-    assertThat(getUnderTest().getErrorCount()).isEqualTo(0);
+    assertThat(getUnderTest().getErrorCount()).isZero();
     assertThat(getUnderTest().getSuccessCount()).isEqualTo(1);
     assertThat(getUnderTest().getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }

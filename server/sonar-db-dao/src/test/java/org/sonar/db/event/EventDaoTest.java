@@ -214,7 +214,7 @@ public class EventDaoTest {
     underTest.delete(dbTester.getSession(), "E1");
     dbTester.commit();
 
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("events")).isZero();
   }
 
 }

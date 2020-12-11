@@ -62,7 +62,7 @@ public class BulkIndexerTest {
     indexer.start();
     indexer.stop();
 
-    assertThat(count()).isEqualTo(0);
+    assertThat(count()).isZero();
   }
 
   @Test
@@ -73,7 +73,7 @@ public class BulkIndexerTest {
     indexer.add(newIndexRequest(78));
 
     // request is not sent yet
-    assertThat(count()).isEqualTo(0);
+    assertThat(count()).isZero();
 
     // send remaining requests
     indexer.stop();
@@ -89,7 +89,7 @@ public class BulkIndexerTest {
     indexer.start();
 
     // replicas are temporarily disabled
-    assertThat(replicas()).isEqualTo(0);
+    assertThat(replicas()).isZero();
 
     for (int i = 0; i < 10; i++) {
       indexer.add(newIndexRequest(i));
@@ -98,7 +98,7 @@ public class BulkIndexerTest {
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.getSuccess()).isEqualTo(10);
-    assertThat(result.getFailures()).isEqualTo(0);
+    assertThat(result.getFailures()).isZero();
     assertThat(result.getTotal()).isEqualTo(10);
     assertThat(count()).isEqualTo(10);
     // replicas are re-enabled

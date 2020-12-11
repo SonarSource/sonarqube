@@ -141,7 +141,7 @@ public class RuleRepositoryDaoTest {
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     underTest.insertOrUpdate(dbSession, asList(dto1));
 
-    assertThat(underTest.selectByLanguage(dbSession, "missing")).hasSize(0);
+    assertThat(underTest.selectByLanguage(dbSession, "missing")).isEmpty();
   }
 
   private long selectCreatedAtByKey(DbSession dbSession, String key) {

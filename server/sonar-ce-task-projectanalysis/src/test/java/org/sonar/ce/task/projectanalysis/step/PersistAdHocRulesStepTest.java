@@ -87,7 +87,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getRepositoryKey()).isEqualTo("external_eslint");
     assertThat(reloaded.isExternal()).isTrue();
     assertThat(reloaded.isAdHoc()).isTrue();
-    assertThat(reloaded.getType()).isEqualTo(0);
+    assertThat(reloaded.getType()).isZero();
     assertThat(reloaded.getSeverity()).isNull();
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
 

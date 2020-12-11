@@ -72,7 +72,7 @@ public class DoubleValueTest {
 
   private static void verifyUnsetVariationValue(DoubleValue variationValue) {
     assertThat(variationValue.isSet()).isFalse();
-    assertThat(variationValue.getValue()).isEqualTo(0);
+    assertThat(variationValue.getValue()).isZero();
   }
 
   private static void verifySetVariationValue(DoubleValue variationValue, double expected) {

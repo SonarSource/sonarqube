@@ -83,7 +83,7 @@ public class OAuthCsrfVerifierTest {
     assertThat(updatedCookie.getName()).isEqualTo("OAUTHSTATE");
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
-    assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
+    assertThat(updatedCookie.getMaxAge()).isZero();
   }
 
   @Test
@@ -99,7 +99,7 @@ public class OAuthCsrfVerifierTest {
     assertThat(updatedCookie.getName()).isEqualTo("OAUTHSTATE");
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
-    assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
+    assertThat(updatedCookie.getMaxAge()).isZero();
   }
 
   @Test

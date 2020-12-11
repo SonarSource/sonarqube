@@ -308,7 +308,7 @@ public class TreeActionTest {
 
     assertThat(response.getBaseComponent().getKey()).isEqualTo(project.getDbKey());
     assertThat(response.getComponentsList()).isEmpty();
-    assertThat(response.getPaging().getTotal()).isEqualTo(0);
+    assertThat(response.getPaging().getTotal()).isZero();
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
     assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
   }

@@ -177,7 +177,7 @@ public class DefaultInputFileTest {
     Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(1, 0).line()).isEqualTo(1);
-    assertThat(file.newPointer(1, 0).lineOffset()).isEqualTo(0);
+    assertThat(file.newPointer(1, 0).lineOffset()).isZero();
     // Don't fail
     file.newPointer(1, 9);
     file.newPointer(2, 0);
@@ -214,14 +214,14 @@ public class DefaultInputFileTest {
     Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(0).line()).isEqualTo(1);
-    assertThat(file.newPointer(0).lineOffset()).isEqualTo(0);
+    assertThat(file.newPointer(0).lineOffset()).isZero();
 
     assertThat(file.newPointer(9).line()).isEqualTo(1);
     // Ignore eol characters
     assertThat(file.newPointer(9).lineOffset()).isEqualTo(8);
 
     assertThat(file.newPointer(10).line()).isEqualTo(2);
-    assertThat(file.newPointer(10).lineOffset()).isEqualTo(0);
+    assertThat(file.newPointer(10).lineOffset()).isZero();
 
     assertThat(file.newPointer(15).line()).isEqualTo(2);
     assertThat(file.newPointer(15).lineOffset()).isEqualTo(5);
@@ -277,15 +277,15 @@ public class DefaultInputFileTest {
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
 
     assertThat(file.selectLine(1).start().line()).isEqualTo(1);
-    assertThat(file.selectLine(1).start().lineOffset()).isEqualTo(0);
+    assertThat(file.selectLine(1).start().lineOffset()).isZero();
     assertThat(file.selectLine(1).end().line()).isEqualTo(1);
     assertThat(file.selectLine(1).end().lineOffset()).isEqualTo(9);
 
     // Don't fail when selecting empty line
     assertThat(file.selectLine(3).start().line()).isEqualTo(3);
-    assertThat(file.selectLine(3).start().lineOffset()).isEqualTo(0);
+    assertThat(file.selectLine(3).start().lineOffset()).isZero();
     assertThat(file.selectLine(3).end().line()).isEqualTo(3);
-    assertThat(file.selectLine(3).end().lineOffset()).isEqualTo(0);
+    assertThat(file.selectLine(3).end().lineOffset()).isZero();
 
     try {
       file.selectLine(5);
@@ -301,7 +301,7 @@ public class DefaultInputFileTest {
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     TextRange newRange = file.newRange(10, 13);
     assertThat(newRange.start().line()).isEqualTo(2);
-    assertThat(newRange.start().lineOffset()).isEqualTo(0);
+    assertThat(newRange.start().lineOffset()).isZero();
     assertThat(newRange.end().line()).isEqualTo(2);
     assertThat(newRange.end().lineOffset()).isEqualTo(3);
   }

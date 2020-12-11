@@ -524,7 +524,7 @@ public class ComponentTreeActionTest {
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(result.getBaseComponent().getKey()).isEqualTo(project.getKey());
-    assertThat(result.getComponentsCount()).isEqualTo(0);
+    assertThat(result.getComponentsCount()).isZero();
   }
 
   @Test

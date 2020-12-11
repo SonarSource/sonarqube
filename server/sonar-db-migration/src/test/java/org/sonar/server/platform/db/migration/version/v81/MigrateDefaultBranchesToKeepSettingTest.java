@@ -126,7 +126,7 @@ public class MigrateDefaultBranchesToKeepSettingTest {
 
   private void verifyMigrationOfDefaultSetting(String expectedValue) {
     assertThat(dbTester.countRowsOfTable(PROPS_TABLE)).isEqualTo(4);
-    assertThat(dbTester.countSql("select count(*) from " + PROPS_TABLE + " where prop_key = 'sonar.branch.longLivedBranches.regex'")).isEqualTo(0);
+    assertThat(dbTester.countSql("select count(*) from " + PROPS_TABLE + " where prop_key = 'sonar.branch.longLivedBranches.regex'")).isZero();
     assertThat(dbTester.countSql("select count(*) from " + PROPS_TABLE + " where prop_key = 'sonar.dbcleaner.branchesToKeepWhenInactive'")).isEqualTo(1);
     assertThat(dbTester.select("select resource_id, text_value from " + PROPS_TABLE + " where prop_key = 'sonar.dbcleaner.branchesToKeepWhenInactive'")
       .stream()

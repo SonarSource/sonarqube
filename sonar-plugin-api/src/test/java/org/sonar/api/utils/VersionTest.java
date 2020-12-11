@@ -77,8 +77,8 @@ public class VersionTest {
 
   @Test
   public void test_compareTo() {
-    assertThat(parse("1.2").compareTo(parse("1.2.0"))).isEqualTo(0);
-    assertThat(parse("1.2.3").compareTo(parse("1.2.3"))).isEqualTo(0);
+    assertThat(parse("1.2")).isEqualByComparingTo(parse("1.2.0"));
+    assertThat(parse("1.2.3")).isEqualByComparingTo(parse("1.2.3"));
     assertThat(parse("1.2.3").compareTo(parse("1.2.4"))).isLessThan(0);
     assertThat(parse("1.2.3").compareTo(parse("1.3"))).isLessThan(0);
     assertThat(parse("1.2.3").compareTo(parse("2.1"))).isLessThan(0);
@@ -88,7 +88,7 @@ public class VersionTest {
 
   @Test
   public void compareTo_handles_build_number() {
-    assertThat(parse("1.2").compareTo(parse("1.2.0.0"))).isEqualTo(0);
+    assertThat(parse("1.2")).isEqualByComparingTo(parse("1.2.0.0"));
     assertThat(parse("1.2.3.1234").compareTo(parse("1.2.3.4567"))).isLessThan(0);
     assertThat(parse("1.2.3.1234").compareTo(parse("1.2.3"))).isGreaterThan(0);
     assertThat(parse("1.2.3.1234").compareTo(parse("1.2.4"))).isLessThan(0);
@@ -99,7 +99,7 @@ public class VersionTest {
   public void qualifier_is_ignored_from_comparison() {
     assertThat(parse("1.2.3")).isEqualTo(parse("1.2.3-build1"));
     assertThat(parse("1.2.3")).isEqualTo(parse("1.2.3-build1"));
-    assertThat(parse("1.2.3").compareTo(parse("1.2.3-build1"))).isEqualTo(0);
+    assertThat(parse("1.2.3")).isEqualByComparingTo(parse("1.2.3-build1"));
   }
 
   @Test

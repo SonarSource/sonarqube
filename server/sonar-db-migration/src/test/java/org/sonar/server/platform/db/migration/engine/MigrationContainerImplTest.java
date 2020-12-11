@@ -48,7 +48,7 @@ public class MigrationContainerImplTest {
 
   @Test
   public void migration_container_lazily_instance_components() {
-    assertThat(StartCallCounter.startCalls).isEqualTo(0);
+    assertThat(StartCallCounter.startCalls).isZero();
 
     StartCallCounter startCallCounter = underTest.getComponentByType(StartCallCounter.class);
 

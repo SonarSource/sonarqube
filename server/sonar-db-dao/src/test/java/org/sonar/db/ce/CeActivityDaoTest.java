@@ -129,7 +129,7 @@ public class CeActivityDaoTest {
     insertWarnings(tasks[2], 1);
 
     assertThat(underTest.selectByUuid(dbSession, tasks[0].getUuid()).get().getWarningCount()).isEqualTo(moreThan1);
-    assertThat(underTest.selectByUuid(dbSession, tasks[1].getUuid()).get().getWarningCount()).isEqualTo(0);
+    assertThat(underTest.selectByUuid(dbSession, tasks[1].getUuid()).get().getWarningCount()).isZero();
     assertThat(underTest.selectByUuid(dbSession, tasks[2].getUuid()).get().getWarningCount()).isEqualTo(1);
   }
 

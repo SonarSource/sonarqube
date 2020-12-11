@@ -252,7 +252,7 @@ public class PluginDownloaderTest {
   @Test
   public void getDownloadedPluginFilenames_reads_plugin_info_of_files_in_download_folder() throws Exception {
     pluginDownloader.start();
-    assertThat(pluginDownloader.getDownloadedPlugins()).hasSize(0);
+    assertThat(pluginDownloader.getDownloadedPlugins()).isEmpty();
 
     File file1 = new File(downloadDir, "file1.jar");
     file1.createNewFile();

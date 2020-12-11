@@ -72,7 +72,7 @@ public class IntValueTest {
 
   private static void verifyUnsetVariationValue(IntValue variationValue) {
     assertThat(variationValue.isSet()).isFalse();
-    assertThat(variationValue.getValue()).isEqualTo(0);
+    assertThat(variationValue.getValue()).isZero();
   }
 
   private static void verifySetVariationValue(IntValue variationValue, int expected) {

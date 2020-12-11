@@ -482,7 +482,7 @@ public class Log4JPropertiesBuilderTest {
 
   private static Log4JPropertiesBuilder newLog4JPropertiesBuilder(String... propertyKeysAndValues) {
     Properties properties = new Properties();
-    assertThat(propertyKeysAndValues.length % 2).describedAs("propertyKeysAndValues must have even length").isEqualTo(0);
+    assertThat(propertyKeysAndValues.length % 2).describedAs("propertyKeysAndValues must have even length").isZero();
     for (int i = 0; i < propertyKeysAndValues.length; i++) {
       properties.put(propertyKeysAndValues[i++], propertyKeysAndValues[i]);
     }
@@ -534,7 +534,7 @@ public class Log4JPropertiesBuilderTest {
     if (expectedPropertyKeysAndValuesOrdered.length == 0) {
       assertThat(properties.size()).isEqualTo(1);
     } else {
-      assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isEqualTo(0);
+      assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isZero();
       Set<String> keys = new HashSet<>(expectedPropertyKeysAndValuesOrdered.length / 2 + 1);
       keys.add("status");
       for (int i = 0; i < expectedPropertyKeysAndValuesOrdered.length; i++) {

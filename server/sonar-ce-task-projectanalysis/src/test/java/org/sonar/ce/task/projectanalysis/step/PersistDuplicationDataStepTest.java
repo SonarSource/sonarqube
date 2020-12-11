@@ -165,7 +165,7 @@ public class PersistDuplicationDataStepTest extends BaseStepTest {
   }
 
   private void assertThatNothingPersisted() {
-    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isZero();
   }
 
   private Optional<String> selectMeasureData(String componentUuid) {

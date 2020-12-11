@@ -159,16 +159,16 @@ public class FieldDiffsTest {
     assertThat(diff.newValue()).isEqualTo("FIXED");
 
     diff = diffs.diffs().get("donut");
-    assertThat(diff.oldValue()).isEqualTo(null);
+    assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("new");
 
     diff = diffs.diffs().get("gambas");
-    assertThat(diff.oldValue()).isEqualTo(null);
+    assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("miam");
 
     diff = diffs.diffs().get("acme");
     assertThat(diff.oldValue()).isEqualTo("old");
-    assertThat(diff.newValue()).isEqualTo(null);
+    assertThat(diff.newValue()).isNull();
   }
 
   @Test
@@ -191,12 +191,12 @@ public class FieldDiffsTest {
     assertThat(diffs.diffs()).hasSize(2);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
-    assertThat(diff.oldValue()).isEqualTo(null);
+    assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("INFO");
 
     diff = diffs.diffs().get("resolution");
-    assertThat(diff.oldValue()).isEqualTo(null);
-    assertThat(diff.newValue()).isEqualTo(null);
+    assertThat(diff.oldValue()).isNull();
+    assertThat(diff.newValue()).isNull();
   }
 
   @Test

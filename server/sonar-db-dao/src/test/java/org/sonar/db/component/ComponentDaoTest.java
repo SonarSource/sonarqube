@@ -1159,7 +1159,7 @@ public class ComponentDaoTest {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setOnProvisionedOnly(true);
 
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT).build())).isEqualTo(1);
-    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.VIEW).build())).isEqualTo(0);
+    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.VIEW).build())).isZero();
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build())).isEqualTo(1);
   }
 
@@ -1470,7 +1470,7 @@ public class ComponentDaoTest {
     assertThat(underTest.countByQuery(dbSession, organization2.getUuid(), ALL_PROJECTS_COMPONENT_QUERY))
       .isEqualTo(1);
     assertThat(underTest.countByQuery(dbSession, "non existent organization uuid", ALL_PROJECTS_COMPONENT_QUERY))
-      .isEqualTo(0);
+      .isZero();
   }
 
   @Test
@@ -1628,7 +1628,7 @@ public class ComponentDaoTest {
     int count = underTest.countByQuery(dbSession, dbQuery);
 
     assertThat(result).isEmpty();
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test
@@ -1656,7 +1656,7 @@ public class ComponentDaoTest {
     int count = underTest.countByQuery(dbSession, dbQuery);
 
     assertThat(result).isEmpty();
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test

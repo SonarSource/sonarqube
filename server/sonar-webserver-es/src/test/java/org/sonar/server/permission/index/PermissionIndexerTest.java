@@ -105,7 +105,7 @@ public class PermissionIndexerTest {
 
     underTest.index(db.getSession(), esQueueDtos);
 
-    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isZero();
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(1);
   }
 

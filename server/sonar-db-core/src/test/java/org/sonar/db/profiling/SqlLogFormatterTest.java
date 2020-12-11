@@ -74,7 +74,7 @@ public class SqlLogFormatterTest {
 
   @Test
   public void countArguments() {
-    assertThat(SqlLogFormatter.countArguments("select * from issues")).isEqualTo(0);
+    assertThat(SqlLogFormatter.countArguments("select * from issues")).isZero();
     assertThat(SqlLogFormatter.countArguments("select * from issues where id=?")).isEqualTo(1);
     assertThat(SqlLogFormatter.countArguments("select * from issues where id=? and kee=?")).isEqualTo(2);
   }

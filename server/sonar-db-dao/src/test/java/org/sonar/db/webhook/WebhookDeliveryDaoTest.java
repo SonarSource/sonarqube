@@ -225,7 +225,7 @@ public class WebhookDeliveryDaoTest {
   public void deleteComponentBeforeDate_does_nothing_on_empty_table() {
     underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_1", 1_500_000L);
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isZero();
   }
 
   @Test

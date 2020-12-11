@@ -139,9 +139,9 @@ public class DuplicationDaoTest {
     Assertions.assertThat(block.getComponentUuid()).isEqualTo(project3.uuid());
     Assertions.assertThat(block.getHash()).isEqualTo("bb");
     Assertions.assertThat(block.getAnalysisUuid()).isEqualTo(analysis3.getUuid());
-    Assertions.assertThat(block.getIndexInFile()).isEqualTo(0);
-    Assertions.assertThat(block.getStartLine()).isEqualTo(0);
-    Assertions.assertThat(block.getEndLine()).isEqualTo(0);
+    Assertions.assertThat(block.getIndexInFile()).isZero();
+    Assertions.assertThat(block.getStartLine()).isZero();
+    Assertions.assertThat(block.getEndLine()).isZero();
   }
 
   @Test

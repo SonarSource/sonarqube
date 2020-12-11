@@ -63,9 +63,9 @@ public class CeTaskCharacteristicDaoTest {
     insert("key3", "value3", "uuid3", "task3");
 
     underTest.deleteByTaskUuids(dbTester.getSession(), ImmutableSet.of("task1", "task3"));
-    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("task1"))).hasSize(0);
+    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("task1"))).isEmpty();
     assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("task2"))).hasSize(1);
-    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("task3"))).hasSize(0);
+    assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("task3"))).isEmpty();
   }
 
   @Test

@@ -32,9 +32,9 @@ public class IndexingResultTest {
 
   @Test
   public void test_empty() {
-    assertThat(underTest.getFailures()).isEqualTo(0);
-    assertThat(underTest.getSuccess()).isEqualTo(0);
-    assertThat(underTest.getTotal()).isEqualTo(0);
+    assertThat(underTest.getFailures()).isZero();
+    assertThat(underTest.getSuccess()).isZero();
+    assertThat(underTest.getTotal()).isZero();
     assertThat(underTest.getSuccessRatio()).isEqualTo(1.0, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isTrue();
   }
@@ -46,7 +46,7 @@ public class IndexingResultTest {
     underTest.incrementSuccess();
     underTest.incrementSuccess();
 
-    assertThat(underTest.getFailures()).isEqualTo(0);
+    assertThat(underTest.getFailures()).isZero();
     assertThat(underTest.getSuccess()).isEqualTo(2);
     assertThat(underTest.getTotal()).isEqualTo(2);
     assertThat(underTest.getSuccessRatio()).isEqualTo(1.0, DOUBLE_OFFSET);
@@ -59,7 +59,7 @@ public class IndexingResultTest {
     underTest.incrementRequests();
 
     assertThat(underTest.getFailures()).isEqualTo(2);
-    assertThat(underTest.getSuccess()).isEqualTo(0);
+    assertThat(underTest.getSuccess()).isZero();
     assertThat(underTest.getTotal()).isEqualTo(2);
     assertThat(underTest.getSuccessRatio()).isEqualTo(0.0, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isFalse();
@@ -82,9 +82,9 @@ public class IndexingResultTest {
 
   @Test
   public void correctness_even_with_no_data() {
-    assertThat(underTest.getFailures()).isEqualTo(0);
-    assertThat(underTest.getSuccess()).isEqualTo(0);
-    assertThat(underTest.getTotal()).isEqualTo(0);
+    assertThat(underTest.getFailures()).isZero();
+    assertThat(underTest.getSuccess()).isZero();
+    assertThat(underTest.getTotal()).isZero();
     assertThat(underTest.getSuccessRatio()).isEqualTo(1.0);
     assertThat(underTest.isSuccess()).isTrue();
   }

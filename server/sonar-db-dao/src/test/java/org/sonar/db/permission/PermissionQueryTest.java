@@ -65,7 +65,7 @@ public class PermissionQueryTest {
     PermissionQuery query = PermissionQuery.builder()
       .build();
 
-    assertThat(query.getPageOffset()).isEqualTo(0);
+    assertThat(query.getPageOffset()).isZero();
     assertThat(query.getPageSize()).isEqualTo(20);
   }
 

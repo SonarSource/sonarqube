@@ -191,6 +191,6 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(updatedCookie.getName()).isEqualTo(AUTHENTICATION_COOKIE_NAME);
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
-    assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
+    assertThat(updatedCookie.getMaxAge()).isZero();
   }
 }

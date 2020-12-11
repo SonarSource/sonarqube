@@ -248,10 +248,10 @@ public class PurgeDaoTest {
     IssueDto openOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("OPEN"));
     IssueDto confirmOnEnabledComponent = db.issues().insert(rule, project, enabledFile, issue -> issue.setStatus("CONFIRM"));
 
-    assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(0);
+    assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isZero();
 
-    assertThat(db.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(0);
-    assertThat(db.countSql("select count(*) from issues where resolution = 'REMOVED'")).isEqualTo(0);
+    assertThat(db.countSql("select count(*) from issues where status = 'CLOSED'")).isZero();
+    assertThat(db.countSql("select count(*) from issues where resolution = 'REMOVED'")).isZero();
 
     db.fileSources().insertFileSource(srcFile);
     FileSourceDto nonSelectedFileSource = db.fileSources().insertFileSource(enabledFile);
@@ -826,7 +826,7 @@ public class PurgeDaoTest {
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(1);
-    assertThat(db.countSql("select count(*) from ce_queue where main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql("select count(*) from ce_queue where main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isZero();
   }
 
   @Test
@@ -1160,7 +1160,7 @@ public class PurgeDaoTest {
 
     assertThat(selectActivity("VERY_OLD_1")).isEmpty();
     assertThat(selectTaskInput("VERY_OLD_1")).isEmpty();
-    assertThat(selectTaskCharacteristic("VERY_OLD_1")).hasSize(0);
+    assertThat(selectTaskCharacteristic("VERY_OLD_1")).isEmpty();
     assertThat(scannerContextExists("VERY_OLD_1")).isFalse();
     assertThat(selectActivity("VERY_OLD_2")).isNotEmpty();
     assertThat(selectTaskInput("VERY_OLD_2")).isNotEmpty();
@@ -1169,7 +1169,7 @@ public class PurgeDaoTest {
 
     assertThat(selectActivity("JUST_OLD_ENOUGH_1")).isEmpty();
     assertThat(selectTaskInput("JUST_OLD_ENOUGH_1")).isEmpty();
-    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).hasSize(0);
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).isEmpty();
     assertThat(scannerContextExists("JUST_OLD_ENOUGH_1")).isFalse();
     assertThat(selectActivity("JUST_OLD_ENOUGH_2")).isNotEmpty();
     assertThat(selectTaskInput("JUST_OLD_ENOUGH_2")).isNotEmpty();
@@ -1218,7 +1218,7 @@ public class PurgeDaoTest {
 
     assertThat(selectActivity("VERY_OLD_1")).isEmpty();
     assertThat(selectTaskInput("VERY_OLD_1")).isEmpty();
-    assertThat(selectTaskCharacteristic("VERY_OLD_1")).hasSize(0);
+    assertThat(selectTaskCharacteristic("VERY_OLD_1")).isEmpty();
     assertThat(scannerContextExists("VERY_OLD_1")).isFalse();
     assertThat(selectActivity("VERY_OLD_2")).isEmpty();
     assertThat(selectTaskInput("VERY_OLD_2")).isEmpty();
@@ -1227,7 +1227,7 @@ public class PurgeDaoTest {
 
     assertThat(selectActivity("JUST_OLD_ENOUGH_1")).isEmpty();
     assertThat(selectTaskInput("JUST_OLD_ENOUGH_1")).isEmpty();
-    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).hasSize(0);
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH_1")).isEmpty();
     assertThat(scannerContextExists("JUST_OLD_ENOUGH_1")).isFalse();
     assertThat(selectActivity("JUST_OLD_ENOUGH_2")).isEmpty();
     assertThat(selectTaskInput("JUST_OLD_ENOUGH_2")).isEmpty();
@@ -1561,12 +1561,12 @@ public class PurgeDaoTest {
 
     assertThat(selectActivity("VERY_OLD")).isEmpty();
     assertThat(selectTaskInput("VERY_OLD")).isEmpty();
-    assertThat(selectTaskCharacteristic("VERY_OLD")).hasSize(0);
+    assertThat(selectTaskCharacteristic("VERY_OLD")).isEmpty();
     assertThat(scannerContextExists("VERY_OLD")).isFalse();
 
     assertThat(selectActivity("JUST_OLD_ENOUGH")).isEmpty();
     assertThat(selectTaskInput("JUST_OLD_ENOUGH")).isEmpty();
-    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH")).hasSize(0);
+    assertThat(selectTaskCharacteristic("JUST_OLD_ENOUGH")).isEmpty();
     assertThat(scannerContextExists("JUST_OLD_ENOUGH")).isFalse();
 
     assertThat(selectActivity("NOT_OLD_ENOUGH")).isNotEmpty();

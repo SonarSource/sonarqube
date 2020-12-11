@@ -164,7 +164,7 @@ public class WebIssueStorageTest {
     underTest.save(db.getSession(), singletonList(issue));
 
     assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issue_changes")).isZero();
 
     DefaultIssue updated = new DefaultIssue()
       .setKey(issue.key())

@@ -147,7 +147,7 @@ public class SearchActionTest {
 
     assertThat(response.getTotal()).isEqualTo(0L);
     assertThat(response.getP()).isEqualTo(1);
-    assertThat(response.getRulesCount()).isEqualTo(0);
+    assertThat(response.getRulesCount()).isZero();
   }
 
   @Test

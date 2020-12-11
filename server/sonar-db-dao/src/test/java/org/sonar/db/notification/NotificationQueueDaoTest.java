@@ -59,7 +59,7 @@ public class NotificationQueueDaoTest {
   public void should_count_notification_queue() {
     NotificationQueueDto notificationQueueDto = toNotificationQueueDto(new Notification("email"));
 
-    assertThat(dao.count()).isEqualTo(0);
+    assertThat(dao.count()).isZero();
 
     dao.insert(Arrays.asList(notificationQueueDto));
 

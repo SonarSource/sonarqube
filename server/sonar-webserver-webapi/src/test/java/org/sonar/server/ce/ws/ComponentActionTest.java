@@ -82,7 +82,7 @@ public class ComponentActionTest {
       .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(Ce.ComponentResponse.class);
 
-    assertThat(response.getQueueCount()).isEqualTo(0);
+    assertThat(response.getQueueCount()).isZero();
     assertThat(response.hasCurrent()).isFalse();
   }
 
@@ -167,7 +167,7 @@ public class ComponentActionTest {
     Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(Ce.ComponentResponse.class);
-    assertThat(response.getQueueCount()).isEqualTo(0);
+    assertThat(response.getQueueCount()).isZero();
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();
     Ce.Task current = response.getCurrent();

@@ -366,8 +366,8 @@ public class RequestTest {
     assertThat(emptyAsNull).isNotSameAs(stringParam);
     assertThat(emptyAsNull.isPresent()).isTrue();
     expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
-    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo(null);
-    assertThat(emptyAsNull.getValue()).isEqualTo(null);
+    assertThat(emptyAsNull.or(() -> "bar")).isNull();
+    assertThat(emptyAsNull.getValue()).isNull();
   }
 
   @Test
@@ -427,8 +427,8 @@ public class RequestTest {
     assertThat(emptyAsNull).isNotSameAs(stringParam);
     assertThat(emptyAsNull.isPresent()).isTrue();
     expectSupplierCanNotBeNullNPE(() -> emptyAsNull.or(null));
-    assertThat(emptyAsNull.or(() -> "bar")).isEqualTo(null);
-    assertThat(emptyAsNull.getValue()).isEqualTo(null);
+    assertThat(emptyAsNull.or(() -> "bar")).isNull();
+    assertThat(emptyAsNull.getValue()).isNull();
   }
 
   @Test

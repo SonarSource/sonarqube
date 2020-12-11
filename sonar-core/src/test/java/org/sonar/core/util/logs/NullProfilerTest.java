@@ -44,13 +44,13 @@ public class NullProfilerTest {
   @Test
   public void stop_methods_returns_0() {
     underTest.start();
-    assertThat(underTest.stopInfo()).isEqualTo(0);
-    assertThat(underTest.stopInfo("msg")).isEqualTo(0);
-    assertThat(underTest.stopDebug()).isEqualTo(0);
-    assertThat(underTest.stopDebug("msg")).isEqualTo(0);
-    assertThat(underTest.stopTrace()).isEqualTo(0);
-    assertThat(underTest.stopTrace("msg")).isEqualTo(0);
-    assertThat(underTest.stopError("msg")).isEqualTo(0);
+    assertThat(underTest.stopInfo()).isZero();
+    assertThat(underTest.stopInfo("msg")).isZero();
+    assertThat(underTest.stopDebug()).isZero();
+    assertThat(underTest.stopDebug("msg")).isZero();
+    assertThat(underTest.stopTrace()).isZero();
+    assertThat(underTest.stopTrace("msg")).isZero();
+    assertThat(underTest.stopError("msg")).isZero();
 
   }
 }

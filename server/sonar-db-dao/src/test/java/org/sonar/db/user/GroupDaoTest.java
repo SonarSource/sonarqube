@@ -216,6 +216,6 @@ public class GroupDaoTest {
 
     underTest.deleteByUuid(dbSession, aGroup.getUuid());
 
-    assertThat(db.countRowsOfTable(dbSession, "groups")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(dbSession, "groups")).isZero();
   }
 }

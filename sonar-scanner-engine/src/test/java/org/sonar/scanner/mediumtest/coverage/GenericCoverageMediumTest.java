@@ -52,8 +52,8 @@ public class GenericCoverageMediumTest {
 
     InputFile noConditions = result.inputFile("xources/hello/NoConditions.xoo");
     assertThat(result.coverageFor(noConditions, 6).getHits()).isTrue();
-    assertThat(result.coverageFor(noConditions, 6).getConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(noConditions, 6).getCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(noConditions, 6).getConditions()).isZero();
+    assertThat(result.coverageFor(noConditions, 6).getCoveredConditions()).isZero();
 
     assertThat(result.coverageFor(noConditions, 7).getHits()).isFalse();
 
@@ -79,8 +79,8 @@ public class GenericCoverageMediumTest {
 
     InputFile noConditions = result.inputFile("xources/hello/NoConditions.xoo");
     assertThat(result.coverageFor(noConditions, 6).getHits()).isTrue();
-    assertThat(result.coverageFor(noConditions, 6).getConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(noConditions, 6).getCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(noConditions, 6).getConditions()).isZero();
+    assertThat(result.coverageFor(noConditions, 6).getCoveredConditions()).isZero();
 
     assertThat(result.coverageFor(noConditions, 7).getHits()).isTrue();
 

@@ -159,7 +159,7 @@ public class NewIssuesStatisticsTest {
     DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.COMPONENT);
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
-        assertThat(distribution.getTotal()).isEqualTo(0);
+        assertThat(distribution.getTotal()).isZero();
         assertThat(distribution.getForLabel(null).isPresent()).isFalse();
       });
   }
@@ -204,7 +204,7 @@ public class NewIssuesStatisticsTest {
     DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.RULE);
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
-        assertThat(distribution.getTotal()).isEqualTo(0);
+        assertThat(distribution.getTotal()).isZero();
         assertThat(distribution.getForLabel(null).isPresent()).isFalse();
       });
   }
@@ -249,14 +249,14 @@ public class NewIssuesStatisticsTest {
     assignees.forEach(assignee -> {
       NewIssuesStatistics.Stats stats = underTest.getAssigneesStatistics().get(assignee);
       DistributedMetricStatsInt assigneeStats = stats.getDistributedMetricStats(Metric.ASSIGNEE);
-      assertThat(assigneeStats.getOnCurrentAnalysis()).isEqualTo(0);
+      assertThat(assigneeStats.getOnCurrentAnalysis()).isZero();
       assertThat(assigneeStats.getTotal()).isEqualTo(1);
       assignees.forEach(s -> {
         Optional<MetricStatsInt> forLabelOpts = assigneeStats.getForLabel(s);
         if (s.equals(assignee)) {
           assertThat(forLabelOpts.isPresent()).isTrue();
           MetricStatsInt forLabel = forLabelOpts.get();
-          assertThat(forLabel.getOnCurrentAnalysis()).isEqualTo(0);
+          assertThat(forLabel.getOnCurrentAnalysis()).isZero();
           assertThat(forLabel.getTotal()).isEqualTo(1);
         } else {
           assertThat(forLabelOpts.isPresent()).isFalse();
@@ -270,7 +270,7 @@ public class NewIssuesStatisticsTest {
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setAssigneeUuid(null).setNew(new Random().nextBoolean()));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.ASSIGNEE);
-    assertThat(globalDistribution.getTotal()).isEqualTo(0);
+    assertThat(globalDistribution.getTotal()).isZero();
     assertThat(globalDistribution.getForLabel(null).isPresent()).isFalse();
     assertThat(underTest.getAssigneesStatistics()).isEmpty();
   }
@@ -308,7 +308,7 @@ public class NewIssuesStatisticsTest {
     DistributedMetricStatsInt assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).getDistributedMetricStats(Metric.TAG);
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
-        assertThat(distribution.getTotal()).isEqualTo(0);
+        assertThat(distribution.getTotal()).isZero();
         assertThat(distribution.getForLabel(null).isPresent()).isFalse();
       });
   }
@@ -328,7 +328,7 @@ public class NewIssuesStatisticsTest {
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
         assertThat(distribution.getOnCurrentAnalysis()).isEqualTo(expected);
-        assertThat(distribution.getOffCurrentAnalysis()).isEqualTo(0);
+        assertThat(distribution.getOffCurrentAnalysis()).isZero();
         assertThat(distribution.getTotal()).isEqualTo(expected);
       });
   }
@@ -347,7 +347,7 @@ public class NewIssuesStatisticsTest {
     MetricStatsLong assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).effort();
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
-        assertThat(distribution.getOnCurrentAnalysis()).isEqualTo(0);
+        assertThat(distribution.getOnCurrentAnalysis()).isZero();
         assertThat(distribution.getOffCurrentAnalysis()).isEqualTo(expected);
         assertThat(distribution.getTotal()).isEqualTo(expected);
       });
@@ -361,7 +361,7 @@ public class NewIssuesStatisticsTest {
     MetricStatsLong globalDistribution = underTest.globalStatistics().effort();
     MetricStatsLong assigneeDistribution = underTest.getAssigneesStatistics().get(assignee).effort();
     Stream.of(globalDistribution, assigneeDistribution)
-      .forEach(distribution -> assertThat(distribution.getTotal()).isEqualTo(0));
+      .forEach(distribution -> assertThat(distribution.getTotal()).isZero());
   }
 
   @Test

@@ -452,7 +452,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDescription()).isEqualTo("Description");
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -533,7 +533,7 @@ public class RegisterRulesTest {
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isEqualTo(1);
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -575,7 +575,7 @@ public class RegisterRulesTest {
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isEqualTo(1);
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -691,7 +691,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDescription()).isEqualTo("Desc2");
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -748,7 +748,7 @@ public class RegisterRulesTest {
 
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(REMOVED);
-    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
+    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isZero();
 
     // Re-install rule
     system.setNow(DATE3.getTime());
@@ -899,7 +899,7 @@ public class RegisterRulesTest {
 
     assertThat(dbClient.ruleDao().selectAllDefinitions(db.getSession())).hasSize(1);
     deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(db.getSession());
-    assertThat(deprecatedRuleKeys).hasSize(0);
+    assertThat(deprecatedRuleKeys).isEmpty();
   }
 
   @Test

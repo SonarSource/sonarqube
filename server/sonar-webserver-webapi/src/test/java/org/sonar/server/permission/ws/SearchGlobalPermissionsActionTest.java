@@ -68,7 +68,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
       if (permission.getKey().equals(SCAN_EXECUTION)) {
         assertThat(permission.getUsersCount()).isEqualTo(1);
       } else {
-        assertThat(permission.getUsersCount()).isEqualTo(0);
+        assertThat(permission.getUsersCount()).isZero();
       }
     }
   }

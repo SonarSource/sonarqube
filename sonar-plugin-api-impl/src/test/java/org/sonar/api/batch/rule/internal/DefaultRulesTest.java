@@ -47,9 +47,9 @@ public class DefaultRulesTest {
     newRules.add(createRule("key2", "repo", "internal"));
     
     DefaultRules rules = new DefaultRules(newRules);
-    assertThat(rules.findByInternalKey("xx", "xx")).hasSize(0);
+    assertThat(rules.findByInternalKey("xx", "xx")).isEmpty();
     assertThat(rules.find(RuleKey.of("xxx", "xx"))).isNull();
-    assertThat(rules.findByRepository("xxxx")).hasSize(0);
+    assertThat(rules.findByRepository("xxxx")).isEmpty();
   }
   
   @Test

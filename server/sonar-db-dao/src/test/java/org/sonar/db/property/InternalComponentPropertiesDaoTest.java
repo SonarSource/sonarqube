@@ -165,7 +165,7 @@ public class InternalComponentPropertiesDaoTest {
   public void delete_by_component_uuid_and_key_does_nothing_if_property_doesnt_exist() {
     saveDto();
 
-    assertThat(underTest.deleteByComponentUuid(dbSession, "other_component")).isEqualTo(0);
+    assertThat(underTest.deleteByComponentUuid(dbSession, "other_component")).isZero();
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isNotEmpty();
   }
 

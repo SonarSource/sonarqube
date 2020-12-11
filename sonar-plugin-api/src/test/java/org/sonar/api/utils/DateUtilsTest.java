@@ -134,7 +134,7 @@ public class DateUtilsTest {
   public void date_to_long() {
     Date date = new Date();
     assertThat(DateUtils.dateToLong(date)).isEqualTo(date.getTime());
-    assertThat(DateUtils.dateToLong(null)).isEqualTo(null);
+    assertThat(DateUtils.dateToLong(null)).isNull();
   }
 
   @DataProvider

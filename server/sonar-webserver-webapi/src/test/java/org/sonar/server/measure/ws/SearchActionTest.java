@@ -269,7 +269,7 @@ public class SearchActionTest {
 
     userSession.setNonRoot();
     SearchWsResponse result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
-    assertThat(result.getMeasuresCount()).isEqualTo(0);
+    assertThat(result.getMeasuresCount()).isZero();
 
     userSession.setRoot();
     result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));

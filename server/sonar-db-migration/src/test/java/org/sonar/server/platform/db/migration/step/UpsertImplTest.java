@@ -48,7 +48,7 @@ public class UpsertImplTest {
 
     underTest.setBatchSize(0);
 
-    assertThat(underTest.getMaxBatchSize()).isEqualTo(0);
+    assertThat(underTest.getMaxBatchSize()).isZero();
   }
 
   @Test

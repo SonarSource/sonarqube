@@ -161,7 +161,7 @@ public class ActivityActionTest {
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
       .setParam(PARAM_MAX_EXECUTED_AT, "2016-02-15"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(0);
+    assertThat(activityResponse.getTasksCount()).isZero();
   }
 
   @Test

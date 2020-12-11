@@ -560,7 +560,7 @@ public class BranchDaoTest {
 
   @Test
   public void countByTypeAndCreationDate() {
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isZero();
 
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
@@ -568,10 +568,10 @@ public class BranchDaoTest {
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(3);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW)).isEqualTo(3);
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW + 100)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, NOW + 100)).isZero();
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
-    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isZero();
   }
 
   @Test

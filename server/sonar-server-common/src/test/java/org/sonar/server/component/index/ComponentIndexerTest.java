@@ -228,7 +228,7 @@ public class ComponentIndexerTest {
     result = recover();
     assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getFailures()).isEqualTo(1L);
-    assertThat(es.countDocuments(TYPE_COMPONENT)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_COMPONENT)).isZero();
 
     es.unlockWrites(TYPE_COMPONENT);
 

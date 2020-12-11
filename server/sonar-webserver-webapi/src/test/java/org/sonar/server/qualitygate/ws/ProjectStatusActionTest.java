@@ -282,7 +282,7 @@ public class ProjectStatusActionTest {
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
-    assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
+    assertThat(result.getProjectStatus().getConditionsCount()).isZero();
   }
 
   @Test
@@ -296,7 +296,7 @@ public class ProjectStatusActionTest {
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
-    assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
+    assertThat(result.getProjectStatus().getConditionsCount()).isZero();
   }
 
   @Test

@@ -104,7 +104,7 @@ public class CeTaskInputDaoTest {
 
     underTest.deleteByUuids(dbTester.getSession(), singleton(A_UUID));
     dbTester.commit();
-    assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isZero();
   }
 
   private void insertData(String uuid) {

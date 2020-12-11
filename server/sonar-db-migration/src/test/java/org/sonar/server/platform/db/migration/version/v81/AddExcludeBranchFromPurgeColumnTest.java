@@ -75,7 +75,7 @@ public class AddExcludeBranchFromPurgeColumnTest {
   }
 
   private void verifyMigrationResult() {
-    assertThat(dbTester.countSql("select count(*) from " + TABLE + " where exclude_from_purge = true")).isEqualTo(0);
+    assertThat(dbTester.countSql("select count(*) from " + TABLE + " where exclude_from_purge = true")).isZero();
     assertThat(dbTester.countSql("select count(*) from " + TABLE + " where exclude_from_purge = false")).isEqualTo(8);
   }
 

@@ -67,10 +67,10 @@ public class NotificationCenterTest {
     assertThat(underTest.getChannels()).hasSize(1);
 
     underTest = new NotificationCenter();
-    assertThat(underTest.getChannels()).hasSize(0);
+    assertThat(underTest.getChannels()).isEmpty();
 
     underTest = new NotificationCenter(new NotificationDispatcherMetadata[] {NotificationDispatcherMetadata.create("Dispatcher1").setProperty("global", "true")});
-    assertThat(underTest.getChannels()).hasSize(0);
+    assertThat(underTest.getChannels()).isEmpty();
     assertThat(underTest.getDispatcherKeysForProperty("global", null)).hasSize(1);
   }
 

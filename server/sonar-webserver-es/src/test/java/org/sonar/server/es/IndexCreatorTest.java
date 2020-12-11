@@ -245,7 +245,7 @@ public class IndexCreatorTest {
       // keep existing metadata
       .doesNotContain("Create type metadatas/metadata");
     // index has been dropped and re-created
-    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isEqualTo(0);
+    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isZero();
   }
 
   private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings() {

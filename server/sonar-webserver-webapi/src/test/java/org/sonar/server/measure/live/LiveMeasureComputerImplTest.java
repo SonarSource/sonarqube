@@ -250,7 +250,7 @@ public class LiveMeasureComputerImplTest {
   public void do_nothing_if_project_has_not_been_analyzed() {
     // project has no snapshots
     List<QGChangeEvent> result = run(file1, newIncrementalFormula());
-    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isZero();
     assertThatProjectNotChanged(result, project);
   }
 
@@ -258,7 +258,7 @@ public class LiveMeasureComputerImplTest {
   public void do_nothing_if_input_components_are_empty() {
     List<QGChangeEvent> result = run(emptyList(), newIncrementalFormula());
 
-    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isZero();
     assertThatProjectNotChanged(result, project);
   }
 
@@ -507,6 +507,6 @@ public class LiveMeasureComputerImplTest {
 
   private void assertThatProjectNotChanged(List<QGChangeEvent> events, ComponentDto project) {
     assertThat(projectIndexer.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.MEASURE_CHANGE)).isFalse();
-    assertThat(events).hasSize(0);
+    assertThat(events).isEmpty();
   }
 }

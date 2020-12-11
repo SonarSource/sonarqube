@@ -132,7 +132,7 @@ public class ExternalIssueImporterTest {
     assertThat(context.allExternalIssues()).hasSize(1);
     TextRange got = context.allExternalIssues().iterator().next().primaryLocation().textRange();
     assertThat(got.start().line()).isEqualTo(input.startLine);
-    assertThat(got.start().lineOffset()).isEqualTo(0);
+    assertThat(got.start().lineOffset()).isZero();
     assertThat(got.end().line()).isEqualTo(input.startLine);
     assertThat(got.end().lineOffset()).isEqualTo(sourceFile.selectLine(input.startLine).end().lineOffset());
   }

@@ -119,7 +119,7 @@ public class ActiveRuleIndexerTest {
 
     underTest.commitAndIndex(db.getSession(), Collections.emptyList());
 
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isZero();
     assertThatEsQueueTableIsEmpty();
   }
 
@@ -144,7 +144,7 @@ public class ActiveRuleIndexerTest {
     db.getDbClient().activeRuleDao().delete(db.getSession(), ar.getKey());
     commitAndIndex(rule1, ar);
 
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isZero();
     assertThatEsQueueTableIsEmpty();
   }
 
@@ -156,7 +156,7 @@ public class ActiveRuleIndexerTest {
     underTest.index(db.getSession(), singletonList(item));
 
     assertThatEsQueueTableIsEmpty();
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isZero();
   }
 
   @Test
@@ -184,7 +184,7 @@ public class ActiveRuleIndexerTest {
   }
 
   private void assertThatEsQueueTableIsEmpty() {
-    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isZero();
   }
 
   private void assertThatEsQueueContainsExactly(EsQueueDto expected) {

@@ -246,7 +246,7 @@ public class CeQueueDaoTest {
     insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
 
     int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN");
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
@@ -264,15 +264,15 @@ public class CeQueueDaoTest {
     insertInProgress(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
 
     int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN", null);
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1, new DeleteIf(IN_PROGRESS));
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, new DeleteIf(PENDING));
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1, new DeleteIf(PENDING));
@@ -519,7 +519,7 @@ public class CeQueueDaoTest {
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
-    assertThat(total).isEqualTo(0);
+    assertThat(total).isZero();
   }
 
   @Test
@@ -536,7 +536,7 @@ public class CeQueueDaoTest {
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
-    assertThat(total).isEqualTo(0);
+    assertThat(total).isZero();
   }
 
   @Test
@@ -553,7 +553,7 @@ public class CeQueueDaoTest {
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
-    assertThat(total).isEqualTo(0);
+    assertThat(total).isZero();
   }
 
   @Test

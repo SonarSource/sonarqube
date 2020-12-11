@@ -61,7 +61,7 @@ public class TaskDefinitionTest {
     TaskDefinition bar = TaskDefinition.builder().key("bar").taskClass(FooTask.class).description("Bar").build();
 
     assertThat(foo.compareTo(bar)).isGreaterThan(0);
-    assertThat(foo.compareTo(foo)).isEqualTo(0);
+    assertThat(foo).isEqualByComparingTo(foo);
     assertThat(bar.compareTo(foo)).isLessThan(0);
   }
 

@@ -124,7 +124,7 @@ public class ComponentsPublisherTest {
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
-    assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
+    assertThat(rootProtobuf.getLinkCount()).isZero();
 
     assertThat(reader.readComponent(4).getStatus()).isEqualTo(FileStatus.SAME);
     assertThat(reader.readComponent(6).getStatus()).isEqualTo(FileStatus.CHANGED);
@@ -195,7 +195,7 @@ public class ComponentsPublisherTest {
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getName()).isEqualTo("");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
-    assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
+    assertThat(rootProtobuf.getLinkCount()).isZero();
   }
 
   @Test

@@ -50,7 +50,7 @@ public class SingleProjectRepositoryTest {
 
     repository.addFileData(null, fileData);
 
-    assertThat(repository.fileData()).hasSize(0);
+    assertThat(repository.fileData()).isEmpty();
   }
 
   @Test
@@ -59,6 +59,6 @@ public class SingleProjectRepositoryTest {
 
     repository.addFileData("/Abc.java", fileData);
 
-    assertThat(repository.fileData()).hasSize(0);
+    assertThat(repository.fileData()).isEmpty();
   }
 }

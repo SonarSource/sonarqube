@@ -219,7 +219,7 @@ public class MapSettingsTest {
   @Test
   public void default_number_values_are_zero() {
     Settings settings = new MapSettings();
-    assertThat(settings.getInt("foo")).isEqualTo(0);
+    assertThat(settings.getInt("foo")).isZero();
     assertThat(settings.getLong("foo")).isEqualTo(0L);
   }
 
@@ -471,7 +471,7 @@ public class MapSettingsTest {
 
   @Test
   public void getStringLines_no_value() {
-    Assertions.assertThat(new MapSettings().getStringLines("foo")).hasSize(0);
+    Assertions.assertThat(new MapSettings().getStringLines("foo")).isEmpty();
   }
 
   @Test
@@ -517,7 +517,7 @@ public class MapSettingsTest {
 
     assertThat(settings.getKeysStartingWith("sonar")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username", "sonar.security");
     assertThat(settings.getKeysStartingWith("sonar.jdbc")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username");
-    assertThat(settings.getKeysStartingWith("other")).hasSize(0);
+    assertThat(settings.getKeysStartingWith("other")).isEmpty();
   }
 
   @Test

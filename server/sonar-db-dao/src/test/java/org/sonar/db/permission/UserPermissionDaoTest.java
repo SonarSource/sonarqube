@@ -381,7 +381,7 @@ public class UserPermissionDaoTest {
 
     // global permission exists -> delete it, but not the project permission with the same name !
     underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm1");
-    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
 
@@ -523,7 +523,7 @@ public class UserPermissionDaoTest {
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, "124", SCAN.getKey());
 
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
   }
 
@@ -535,7 +535,7 @@ public class UserPermissionDaoTest {
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), SCAN.getKey());
 
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
   }
 
@@ -548,7 +548,7 @@ public class UserPermissionDaoTest {
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), "p1");
 
-    assertThat(deletedCount).isEqualTo(0);
+    assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).containsOnly(SCAN.getKey());
   }
@@ -647,11 +647,11 @@ public class UserPermissionDaoTest {
   private void assertThatProjectPermissionDoesNotExist(UserDto user, String permission, ComponentDto project) {
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='" + permission + "' and user_uuid='" + user.getUuid()
       + "' and component_uuid='" + project.uuid() + "'"))
-      .isEqualTo(0);
+      .isZero();
   }
 
   private void assertThatProjectHasNoPermissions(ComponentDto project) {
-    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isZero();
   }
 
   private void assertGlobalPermissionsOfUser(UserDto user, GlobalPermission... permissions) {

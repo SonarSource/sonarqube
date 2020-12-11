@@ -80,7 +80,7 @@ public class MigrateSlbsAndLlbsToCommonTypeTest {
 
   private void verifyMigrationResult() {
     assertThat(dbTester.countRowsOfTable(BRANCHES_TABLE)).isEqualTo(8);
-    assertThat(dbTester.countSql("select count(*) from project_branches where branch_type = 'LONG' or branch_type = 'SHORT'")).isEqualTo(0);
+    assertThat(dbTester.countSql("select count(*) from project_branches where branch_type = 'LONG' or branch_type = 'SHORT'")).isZero();
     assertThat(dbTester.select("select uuid from " + BRANCHES_TABLE + " where branch_type = 'BRANCH'")
       .stream()
       .map(e -> e.get("UUID"))

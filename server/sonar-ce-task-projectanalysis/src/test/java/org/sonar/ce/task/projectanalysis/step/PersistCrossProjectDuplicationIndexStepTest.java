@@ -141,7 +141,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("duplications_index")).isZero();
     context.getStatistics().assertValue("inserts", 0);
   }
 
@@ -153,7 +153,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("duplications_index")).isZero();
     context.getStatistics().assertValue("inserts", null);
   }
 

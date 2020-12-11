@@ -103,7 +103,7 @@ public class PostMeasuresComputationChecksStepTest {
 
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
-    assertThat(contextArgumentCaptor.getValue().getNcloc()).isEqualTo(0);
+    assertThat(contextArgumentCaptor.getValue().getNcloc()).isZero();
   }
 
   @Test

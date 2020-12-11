@@ -91,7 +91,7 @@ public class PluginFilesTest {
 
     verifySameContent(result, jar);
     // no requests to server
-    assertThat(server.getRequestCount()).isEqualTo(0);
+    assertThat(server.getRequestCount()).isZero();
   }
 
   @Test

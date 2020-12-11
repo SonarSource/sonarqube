@@ -219,6 +219,6 @@ public class DefaultIssueTest {
 
     issue.addChange(null);
 
-    assertThat(issue.changes()).hasSize(0);
+    assertThat(issue.changes()).isEmpty();
   }
 }

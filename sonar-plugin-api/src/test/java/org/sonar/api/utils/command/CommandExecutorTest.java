@@ -62,7 +62,7 @@ public class CommandExecutorTest {
       StreamConsumer stdErrConsumer = line -> stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
       Command command = Command.create(getScript("output")).setDirectory(workDir);
       int exitCode = CommandExecutor.create().execute(command, stdOutConsumer, stdErrConsumer, 1000L);
-      assertThat(exitCode).isEqualTo(0);
+      assertThat(exitCode).isZero();
 
       String stdOut = stdOutBuilder.toString();
       String stdErr = stdErrBuilder.toString();
@@ -103,7 +103,7 @@ public class CommandExecutorTest {
       .addArgument("1")
       .setEnvironmentVariable("ENVVAR", "2");
     int exitCode = CommandExecutor.create().execute(command, 1000L);
-    assertThat(exitCode).isEqualTo(0);
+    assertThat(exitCode).isZero();
     File logFile = new File(workDir, "echo.log");
     assertThat(logFile).exists();
     String log = FileUtils.readFileToString(logFile);

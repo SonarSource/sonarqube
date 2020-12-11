@@ -104,7 +104,7 @@ public class EsLoggingTest {
   }
 
   private static Props newProps(String... propertyKeysAndValues) {
-    assertThat(propertyKeysAndValues.length % 2).describedAs("Number of parameters must be even").isEqualTo(0);
+    assertThat(propertyKeysAndValues.length % 2).describedAs("Number of parameters must be even").isZero();
     Properties properties = new Properties();
     for (int i = 0; i < propertyKeysAndValues.length; i++) {
       properties.put(propertyKeysAndValues[i++], propertyKeysAndValues[i]);
@@ -114,9 +114,9 @@ public class EsLoggingTest {
 
   private void verifyProperties(Properties properties, String... expectedPropertyKeysAndValuesOrdered) {
     if (expectedPropertyKeysAndValuesOrdered.length == 0) {
-      assertThat(properties.size()).isEqualTo(0);
+      assertThat(properties.size()).isZero();
     } else {
-      assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isEqualTo(0);
+      assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isZero();
       Set<String> keys = new HashSet<>(expectedPropertyKeysAndValuesOrdered.length / 2 + 1);
       keys.add("status");
       for (int i = 0; i < expectedPropertyKeysAndValuesOrdered.length; i++) {

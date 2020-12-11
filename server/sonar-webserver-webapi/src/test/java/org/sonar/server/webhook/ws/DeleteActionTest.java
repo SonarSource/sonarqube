@@ -113,7 +113,7 @@ public class DeleteActionTest {
     assertThat(reloaded).isEmpty();
 
     int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
+    assertThat(deliveriesCount).isZero();
 
   }
 
@@ -136,7 +136,7 @@ public class DeleteActionTest {
     assertThat(reloaded).isEmpty();
 
     int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
+    assertThat(deliveriesCount).isZero();
   }
 
   @Test

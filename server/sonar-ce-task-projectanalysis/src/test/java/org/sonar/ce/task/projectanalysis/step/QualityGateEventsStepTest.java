@@ -265,7 +265,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
     assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getProjectVersion());
-    assertThat(notification.getFieldValue("branch")).isEqualTo(null);
+    assertThat(notification.getFieldValue("branch")).isNull();
 
     reset(measureRepository, eventRepository, notificationService);
   }

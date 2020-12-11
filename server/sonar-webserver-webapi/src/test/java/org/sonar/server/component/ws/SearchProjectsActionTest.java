@@ -321,11 +321,11 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request);
 
-    assertThat(result.getComponentsCount()).isEqualTo(0);
+    assertThat(result.getComponentsCount()).isZero();
     Common.Paging paging = result.getPaging();
     assertThat(paging.getPageIndex()).isEqualTo(1);
     assertThat(paging.getPageSize()).isEqualTo(100);
-    assertThat(paging.getTotal()).isEqualTo(0);
+    assertThat(paging.getTotal()).isZero();
   }
 
   @Test

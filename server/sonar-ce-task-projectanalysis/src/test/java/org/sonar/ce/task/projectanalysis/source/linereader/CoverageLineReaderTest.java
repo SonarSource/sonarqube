@@ -73,7 +73,7 @@ public class CoverageLineReaderTest {
     assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasLineHits()).isTrue();
-    assertThat(lineBuilder.getLineHits()).isEqualTo(0);
+    assertThat(lineBuilder.getLineHits()).isZero();
   }
 
   @Test

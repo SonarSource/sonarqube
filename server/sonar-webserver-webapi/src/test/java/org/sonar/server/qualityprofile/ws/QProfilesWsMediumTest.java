@@ -175,7 +175,7 @@ public class QProfilesWsMediumTest {
     dbSession.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(0);
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, php.getKee())).hasSize(2);
   }
 
@@ -339,7 +339,7 @@ public class QProfilesWsMediumTest {
     dbSession.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(0);
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
 
     // 1. Activate Rule with query returning 1 hits
     wsActivateRules.newRequest().setMethod("POST")

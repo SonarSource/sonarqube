@@ -92,7 +92,7 @@ public class WebhookDeliveriesActionTest {
       .setParam("componentKey", project.getDbKey())
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
-    assertThat(response.getDeliveriesCount()).isEqualTo(0);
+    assertThat(response.getDeliveriesCount()).isZero();
   }
 
   @Test
@@ -103,7 +103,7 @@ public class WebhookDeliveriesActionTest {
       .setParam("ceTaskId", "t1")
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
-    assertThat(response.getDeliveriesCount()).isEqualTo(0);
+    assertThat(response.getDeliveriesCount()).isZero();
   }
 
   @Test
@@ -114,7 +114,7 @@ public class WebhookDeliveriesActionTest {
       .setParam("webhook", "t1")
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
-    assertThat(response.getDeliveriesCount()).isEqualTo(0);
+    assertThat(response.getDeliveriesCount()).isZero();
   }
 
   @Test

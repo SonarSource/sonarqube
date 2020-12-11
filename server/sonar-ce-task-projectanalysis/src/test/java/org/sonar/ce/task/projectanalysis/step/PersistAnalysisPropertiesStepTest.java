@@ -110,7 +110,7 @@ public class PersistAnalysisPropertiesStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isZero();
   }
 
   @Test
@@ -121,7 +121,7 @@ public class PersistAnalysisPropertiesStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isZero();
   }
 
   @Test

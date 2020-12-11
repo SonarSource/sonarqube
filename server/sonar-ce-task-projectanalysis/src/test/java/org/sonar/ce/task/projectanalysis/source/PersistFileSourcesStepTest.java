@@ -220,7 +220,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(1).getScmRevision()).isEmpty();
 
     assertThat(data.getLines(2).getScmAuthor()).isEmpty();
-    assertThat(data.getLines(2).getScmDate()).isEqualTo(0);
+    assertThat(data.getLines(2).getScmDate()).isZero();
     assertThat(data.getLines(2).getScmRevision()).isEmpty();
     verify(fileSourceDataWarnings).commitWarnings();
   }

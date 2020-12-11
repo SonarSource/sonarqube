@@ -448,7 +448,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
     assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
-    assertThat(ruleDto.getSeverity()).isEqualTo(0);
+    assertThat(ruleDto.getSeverity()).isZero();
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.isExternal()).isTrue();
@@ -505,7 +505,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
     assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
-    assertThat(ruleDto.getSeverity()).isEqualTo(0);
+    assertThat(ruleDto.getSeverity()).isZero();
     assertThat(ruleDto.getLanguage()).isEqualTo("dart");
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.isExternal()).isTrue();

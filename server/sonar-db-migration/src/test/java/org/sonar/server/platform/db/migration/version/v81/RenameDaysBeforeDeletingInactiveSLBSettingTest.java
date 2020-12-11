@@ -82,7 +82,7 @@ public class RenameDaysBeforeDeletingInactiveSLBSettingTest {
     int numberOfPropsWithNewName = dbTester.countSql("select count(*) from " + TABLE + " where prop_key = '" + NEW_PROPERTY_NAME + "'");
     int numberOfPropsWithOldName = dbTester.countSql("select count(*) from " + TABLE + " where prop_key = '" + OLD_PROPERTY_NAME + "'");
     assertThat(numberOfPropsWithNewName).isEqualTo(TOTAL_NUMBER_OF_PROJECT_LEVEL_PROPERTIES + 1);
-    assertThat(numberOfPropsWithOldName).isEqualTo(0);
+    assertThat(numberOfPropsWithOldName).isZero();
   }
 
   private void insertProperty(@Nullable Long projectId, String propertyKey, String propertyValue) {

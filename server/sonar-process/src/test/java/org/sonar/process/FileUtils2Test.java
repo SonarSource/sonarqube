@@ -268,7 +268,7 @@ public class FileUtils2Test {
   public void sizeOf_is_zero_on_empty_files() throws IOException {
     File file = temporaryFolder.newFile();
 
-    assertThat(FileUtils2.sizeOf(file.toPath())).isEqualTo(0);
+    assertThat(FileUtils2.sizeOf(file.toPath())).isZero();
   }
 
   @Test

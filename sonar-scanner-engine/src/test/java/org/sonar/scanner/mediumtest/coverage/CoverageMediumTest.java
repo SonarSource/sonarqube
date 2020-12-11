@@ -277,8 +277,8 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 1)).isNull();
 
     assertThat(result.coverageFor(file, 2).getHits()).isFalse();
-    assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getConditions()).isZero();
+    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isZero();
 
     assertThat(result.coverageFor(file, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file, 4)).isNull();
@@ -351,8 +351,8 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file1, 1)).isNull();
 
     assertThat(result.coverageFor(file1, 2).getHits()).isFalse();
-    assertThat(result.coverageFor(file1, 2).getConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file1, 2).getCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file1, 2).getConditions()).isZero();
+    assertThat(result.coverageFor(file1, 2).getCoveredConditions()).isZero();
 
     assertThat(result.coverageFor(file1, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file1, 4)).isNull();

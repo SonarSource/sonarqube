@@ -422,7 +422,7 @@ public class QProfileRuleImplTest {
 
     List<ActiveRuleChange> changes = deactivate(profile, rule);
     verifyNoActiveRules();
-    assertThat(changes).hasSize(0);
+    assertThat(changes).isEmpty();
   }
 
   @Test
@@ -576,7 +576,7 @@ public class QProfileRuleImplTest {
     List<ActiveRuleChange> changes = activate(childProfile, overrideActivation);
 
     assertThatRuleIsUpdated(childProfile, rule, MAJOR, INHERITED, of(param.getName(), "foo"));
-    assertThat(changes).hasSize(0);
+    assertThat(changes).isEmpty();
   }
 
   @Test
@@ -702,7 +702,7 @@ public class QProfileRuleImplTest {
     RuleActivation resetActivation = RuleActivation.createReset(rule.getUuid());
     List<ActiveRuleChange> changes = activate(parentProfile, resetActivation);
     verifyNoActiveRules();
-    assertThat(changes).hasSize(0);
+    assertThat(changes).isEmpty();
   }
 
   @Test
@@ -724,7 +724,7 @@ public class QProfileRuleImplTest {
 
     BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), profile, ruleQuery, MINOR);
 
-    assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
+    assertThat(bulkChangeResult.countFailed()).isZero();
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(bulkSize);
@@ -751,7 +751,7 @@ public class QProfileRuleImplTest {
 
     BulkChangeResult bulkChangeResult = underTest.bulkActivateAndCommit(db.getSession(), profile, ruleQuery, MINOR);
 
-    assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
+    assertThat(bulkChangeResult.countFailed()).isZero();
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(bulkSize);
@@ -759,10 +759,10 @@ public class QProfileRuleImplTest {
     // Now deactivate all rules
     bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), profile, ruleQuery);
 
-    assertThat(bulkChangeResult.countFailed()).isEqualTo(0);
+    assertThat(bulkChangeResult.countFailed()).isZero();
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
-    assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(0);
+    assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).isEmpty();
     rules.stream().forEach(
       r -> assertThatRuleIsNotPresent(profile, r.getDefinition()));
   }
@@ -784,8 +784,8 @@ public class QProfileRuleImplTest {
     BulkChangeResult bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), childProfile, ruleQuery);
 
     assertThat(bulkChangeResult.countFailed()).isEqualTo(1);
-    assertThat(bulkChangeResult.countSucceeded()).isEqualTo(0);
-    assertThat(bulkChangeResult.getChanges()).hasSize(0);
+    assertThat(bulkChangeResult.countSucceeded()).isZero();
+    assertThat(bulkChangeResult.getChanges()).isEmpty();
     assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), INHERITED, emptyMap());
   }
@@ -810,7 +810,7 @@ public class QProfileRuleImplTest {
 
     assertThat(result.getChanges()).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(1);
-    assertThat(result.countFailed()).isEqualTo(0);
+    assertThat(result.countFailed()).isZero();
 
     // Rule1 must be activated with BLOCKER on all profiles
     assertThatRuleIsActivated(parentProfile, rule1, null, BLOCKER, null, emptyMap());
@@ -954,7 +954,7 @@ public class QProfileRuleImplTest {
   }
 
   private void verifyNoActiveRules() {
-    assertThat(db.countRowsOfTable(db.getSession(), "active_rules")).isEqualTo(0);
+    assertThat(db.countRowsOfTable(db.getSession(), "active_rules")).isZero();
   }
 
   private RuleDefinitionDto createRule() {

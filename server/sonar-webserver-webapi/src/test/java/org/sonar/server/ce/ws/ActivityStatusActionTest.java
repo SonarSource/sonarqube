@@ -144,8 +144,8 @@ public class ActivityStatusActionTest {
   public void empty_status() {
     Ce.ActivityStatusWsResponse result = call();
 
-    assertThat(result.getPending()).isEqualTo(0);
-    assertThat(result.getFailing()).isEqualTo(0);
+    assertThat(result.getPending()).isZero();
+    assertThat(result.getFailing()).isZero();
   }
 
   @Test

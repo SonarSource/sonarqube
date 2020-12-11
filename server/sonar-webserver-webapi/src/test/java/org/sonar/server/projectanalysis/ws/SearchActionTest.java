@@ -612,7 +612,7 @@ public class SearchActionTest {
 
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
-    assertThat(result.getAnalysesCount()).isEqualTo(0);
+    assertThat(result.getAnalysesCount()).isZero();
   }
 
   @Test

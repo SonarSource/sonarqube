@@ -69,11 +69,11 @@ public class GenericCoverageReportParserTest {
     parser.parse(new File(this.getClass().getResource("coverage.xml").toURI()), context);
     assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
 
-    assertThat(context.lineHits(fileWithoutBranch.key(), 2)).isEqualTo(0);
+    assertThat(context.lineHits(fileWithoutBranch.key(), 2)).isZero();
     assertThat(context.lineHits(fileWithoutBranch.key(), 3)).isEqualTo(1);
     assertThat(context.lineHits(fileWithoutBranch.key(), 4)).isNull();
     assertThat(context.lineHits(fileWithoutBranch.key(), 5)).isEqualTo(1);
-    assertThat(context.lineHits(fileWithoutBranch.key(), 6)).isEqualTo(0);
+    assertThat(context.lineHits(fileWithoutBranch.key(), 6)).isZero();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class GenericCoverageReportParserTest {
     assertThat(context.conditions(fileWithBranches.key(), 4)).isEqualTo(2);
 
     assertThat(context.coveredConditions(fileWithBranches.key(), 3)).isEqualTo(5);
-    assertThat(context.coveredConditions(fileWithBranches.key(), 4)).isEqualTo(0);
+    assertThat(context.coveredConditions(fileWithBranches.key(), 4)).isZero();
   }
 
   @Test(expected = MessageException.class)
