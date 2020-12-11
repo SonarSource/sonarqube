@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.organization;
+package org.sonar.db.permission.template;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -31,6 +31,10 @@ public class DefaultTemplates {
   private String applicationsUuid;
   // Hold the template uuid for new portfolios
   private String portfoliosUuid;
+
+  public DefaultTemplates() {
+    // nothing to do here
+  }
 
   public String getProjectUuid() {
     checkProjectNotNull(this.projectUuid);

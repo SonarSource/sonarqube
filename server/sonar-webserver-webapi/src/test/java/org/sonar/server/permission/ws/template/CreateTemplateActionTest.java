@@ -56,7 +56,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
     assertJson(result.getInput())
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("create_template-example.json"));
-    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
+    PermissionTemplateDto finance = selectPermissionTemplate("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
@@ -71,7 +71,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
     newRequest("Finance", null, null);
 
-    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
+    PermissionTemplateDto finance = selectPermissionTemplate("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isNullOrEmpty();
     assertThat(finance.getKeyPattern()).isNullOrEmpty();

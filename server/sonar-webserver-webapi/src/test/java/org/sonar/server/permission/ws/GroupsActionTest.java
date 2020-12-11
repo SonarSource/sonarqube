@@ -58,10 +58,9 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   private GroupDto group1;
   private GroupDto group2;
-  private GroupDto group3;
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final WsParameters wsParameters = new WsParameters(permissionService);
 
   @Override
   protected GroupsAction buildWsAction() {
@@ -75,7 +74,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void setUp() {
     group1 = db.users().insertGroup("group-1-name");
     group2 = db.users().insertGroup("group-2-name");
-    group3 = db.users().insertGroup("group-3-name");
+    GroupDto group3 = db.users().insertGroup("group-3-name");
     db.users().insertPermissionOnGroup(group1, SCAN);
     db.users().insertPermissionOnGroup(group2, SCAN);
     db.users().insertPermissionOnGroup(group3, ADMINISTER);
@@ -222,7 +221,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_only_groups_with_permission_when_no_search_query() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     GroupDto group = db.users().insertGroup("project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -257,7 +256,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_on_views() {
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView("view-uuid").setDbKey("view-key"));
     GroupDto group = db.users().insertGroup("project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 

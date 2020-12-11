@@ -95,7 +95,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     userSession.logIn().addPermission(ADMINISTER);
   }
 
-  protected PermissionTemplateDto selectTemplateInDefaultOrganization(String name) {
+  protected PermissionTemplateDto selectPermissionTemplate(String name) {
     return db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), name);
   }
 
@@ -104,9 +104,5 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
-  }
-
-  protected PermissionTemplateDto addTemplateToDefaultOrganization() {
-    return addTemplate();
   }
 }

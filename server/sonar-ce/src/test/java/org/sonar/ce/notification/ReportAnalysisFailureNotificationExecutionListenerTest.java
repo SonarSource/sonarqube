@@ -69,17 +69,17 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
-  private DbClient dbClient = dbTester.getDbClient();
-  private NotificationService notificationService = mock(NotificationService.class);
-  private ReportAnalysisFailureNotificationSerializer serializer = mock(ReportAnalysisFailureNotificationSerializer.class);
-  private System2 system2 = mock(System2.class);
-  private DbClient dbClientMock = mock(DbClient.class);
-  private CeTask ceTaskMock = mock(CeTask.class);
-  private Throwable throwableMock = mock(Throwable.class);
-  private CeTaskResult ceTaskResultMock = mock(CeTaskResult.class);
-  private ReportAnalysisFailureNotificationExecutionListener fullMockedUnderTest = new ReportAnalysisFailureNotificationExecutionListener(
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final NotificationService notificationService = mock(NotificationService.class);
+  private final ReportAnalysisFailureNotificationSerializer serializer = mock(ReportAnalysisFailureNotificationSerializer.class);
+  private final System2 system2 = mock(System2.class);
+  private final DbClient dbClientMock = mock(DbClient.class);
+  private final CeTask ceTaskMock = mock(CeTask.class);
+  private final Throwable throwableMock = mock(Throwable.class);
+  private final CeTaskResult ceTaskResultMock = mock(CeTaskResult.class);
+  private final ReportAnalysisFailureNotificationExecutionListener fullMockedUnderTest = new ReportAnalysisFailureNotificationExecutionListener(
     notificationService, dbClientMock, serializer, system2);
-  private ReportAnalysisFailureNotificationExecutionListener underTest = new ReportAnalysisFailureNotificationExecutionListener(
+  private final ReportAnalysisFailureNotificationExecutionListener underTest = new ReportAnalysisFailureNotificationExecutionListener(
     notificationService, dbClient, serializer, system2);
 
   @Before
@@ -311,8 +311,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setComponentUuid(project.uuid())
       .setCreatedAt(createdAt))
-      .setExecutedAt(executedAt)
-      .setStatus(CeActivityDto.Status.FAILED));
+        .setExecutedAt(executedAt)
+        .setStatus(CeActivityDto.Status.FAILED));
     dbTester.getSession().commit();
   }
 

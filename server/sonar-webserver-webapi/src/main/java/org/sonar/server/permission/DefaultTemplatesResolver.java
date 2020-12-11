@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.DefaultTemplates;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;

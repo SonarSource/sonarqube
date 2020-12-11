@@ -75,7 +75,7 @@ public class UserPermissionChangerTest {
 
   @Test
   public void apply_adds_any_global_permission_to_user() {
-    permissionService.getGlobalPermissions().stream()
+    permissionService.getGlobalPermissions()
       .forEach(perm -> {
         UserPermissionChange change = new UserPermissionChange(ADD, perm.getKey(), null, UserId.from(user1), permissionService);
 
@@ -86,15 +86,15 @@ public class UserPermissionChangerTest {
   }
 
   @Test
-  public void apply_removes_any_organization_permission_to_user() {
+  public void apply_removes_any_global_permission_to_user() {
     // give ADMIN perm to user2 so that user1 is not the only one with this permission and it can be removed from user1
     db.users().insertPermissionOnUser(user2, GlobalPermission.ADMINISTER);
-    permissionService.getGlobalPermissions().stream()
+    permissionService.getGlobalPermissions()
       .forEach(perm -> db.users().insertPermissionOnUser(user1, perm));
     assertThat(db.users().selectPermissionsOfUser(user1))
       .containsOnly(permissionService.getGlobalPermissions().toArray(new GlobalPermission[0]));
 
-    permissionService.getGlobalPermissions().stream()
+    permissionService.getGlobalPermissions()
       .forEach(perm -> {
         UserPermissionChange change = new UserPermissionChange(REMOVE, perm.getKey(), null, UserId.from(user1), permissionService);
 

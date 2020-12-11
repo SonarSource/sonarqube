@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -74,9 +73,7 @@ public class AddUserAction implements PermissionsWsAction {
         "</ul>")
       .setSince("5.2")
       .setPost(true)
-      .setHandler(this)
-      .setChangelog(
-        new Change("7.4", "If organizationKey and projectId are both set, the organisationKey must be the key of the organization of the project"));
+      .setHandler(this);
 
     wsParameters.createPermissionParameter(action, "The permission you would like to grant to the user");
     createUserLoginParameter(action);

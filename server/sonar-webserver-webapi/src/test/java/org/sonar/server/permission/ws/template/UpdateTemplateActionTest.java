@@ -45,7 +45,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 
 public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplateAction> {
 
-  private System2 system = spy(System2.INSTANCE);
+  private final System2 system = spy(System2.INSTANCE);
   private PermissionTemplateDto template;
 
   @Override
@@ -74,7 +74,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
     assertJson(result)
       .ignoreFields("id")
       .isSimilarTo(getClass().getResource("update_template-example.json"));
-    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
+    PermissionTemplateDto finance = selectPermissionTemplate("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
@@ -101,7 +101,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
     call(template.getUuid(), "Finance", null, null);
 
-    PermissionTemplateDto finance = selectTemplateInDefaultOrganization("Finance");
+    PermissionTemplateDto finance = selectPermissionTemplate("Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo(template.getDescription());
     assertThat(finance.getKeyPattern()).isEqualTo(template.getKeyPattern());
@@ -120,7 +120,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   @Test
   public void fail_if_name_already_exists_in_another_template() {
     loginAsAdmin();
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("A template with the name '" + anotherTemplate.getName() + "' already exists (case insensitive).");
@@ -170,7 +170,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   @Test
   public void fail_if_name_already_exists_in_database_case_insensitive() {
     loginAsAdmin();
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
 
     String nameCaseInsensitive = anotherTemplate.getName().toUpperCase();
     expectedException.expect(BadRequestException.class);

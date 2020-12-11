@@ -68,11 +68,9 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   private GroupDto group1;
   private GroupDto group2;
   private PermissionTemplateDto template1;
-  private PermissionTemplateDto template2;
-  private ProjectIndexers projectIndexers = new TestProjectIndexers();
-
-  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
-  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
+  private final ProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
@@ -95,7 +93,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     addGroupToTemplate(group1, template1, UserRole.ADMIN);
     addGroupToTemplate(group2, template1, UserRole.USER);
     // template 2
-    template2 = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto template2 = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user1, template2, UserRole.USER);
     addUserToTemplate(user2, template2, UserRole.USER);
     addGroupToTemplate(group1, template2, UserRole.USER);
@@ -160,8 +158,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void apply_template_by_qualifiers() {
     ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization()));
-    ComponentDto application = db.components().insertComponent(newApplication(db.getDefaultOrganization()));
+    ComponentDto view = db.components().insertComponent(newView());
+    ComponentDto application = db.components().insertComponent(newApplication());
     loginAsAdmin();
 
     newRequest()
@@ -177,11 +175,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key_public_project() {
-    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("sonar");
+    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto().setDbKey("sonar");
     db.components().insertProjectAndSnapshot(publicProjectFoundByKey);
-    ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setName("name-sonar-name");
+    ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto().setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(publicProjectFoundByName);
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("new-sona").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setDbKey("new-sona").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin();
 
@@ -198,11 +196,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Test
   public void apply_template_by_query_on_name_and_key() {
     // partial match on key
-    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("sonarqube");
+    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto().setDbKey("sonarqube");
     db.components().insertProjectAndSnapshot(privateProjectFoundByKey);
-    ComponentDto privateProjectFoundByName = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("name-sonar-name");
+    ComponentDto privateProjectFoundByName = ComponentTesting.newPrivateProjectDto().setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(privateProjectFoundByName);
-    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("new-sona").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto().setDbKey("new-sona").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin();
 

@@ -17,53 +17,60 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.organization;
+package org.sonar.db.permission.template;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultTemplatesTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultTemplates underTest = new DefaultTemplates();
+  private final DefaultTemplates underTest = new DefaultTemplates();
 
   @Test
   public void setProject_throws_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("defaultTemplates.project can't be null");
-
-    underTest.setProjectUuid(null);
+    assertThatThrownBy(() -> underTest.setProjectUuid(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("defaultTemplates.project can't be null");
   }
 
   @Test
   public void getProject_throws_NPE_if_project_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("defaultTemplates.project can't be null");
+    assertThatThrownBy(underTest::getProjectUuid)
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("defaultTemplates.project can't be null");
+  }
 
-    underTest.getProjectUuid();
+  @Test
+  public void setProjectU() {
+    String uuid = "uuid-1";
+    underTest.setProjectUuid(uuid);
+
+    assertThat(underTest.getProjectUuid()).isEqualTo(uuid);
   }
 
   @Test
   public void setApplicationsUuid_accepts_null() {
     underTest.setApplicationsUuid(null);
+
+    assertThat(underTest.getApplicationsUuid()).isNull();
   }
 
   @Test
   public void setPortfoliosUuid_accepts_null() {
     underTest.setPortfoliosUuid(null);
+
+    assertThat(underTest.getPortfoliosUuid()).isNull();
   }
 
   @Test
   public void check_toString() {
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', portfoliosUuid='null', applicationsUuid='null'}");
+    assertThat(underTest).hasToString("DefaultTemplates{projectUuid='null', portfoliosUuid='null', applicationsUuid='null'}");
     underTest
-        .setProjectUuid("a project")
-        .setApplicationsUuid("an application")
-        .setPortfoliosUuid("a portfolio");
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='a project', portfoliosUuid='a portfolio', applicationsUuid='an application'}");
+      .setProjectUuid("a project")
+      .setApplicationsUuid("an application")
+      .setPortfoliosUuid("a portfolio");
+    assertThat(underTest).hasToString("DefaultTemplates{projectUuid='a project', portfoliosUuid='a portfolio', applicationsUuid='an application'}");
   }
 }

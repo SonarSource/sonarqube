@@ -114,7 +114,6 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     private String login;
     private String permission;
     private String templateId;
-    private String organization;
     private String templateName;
 
     public String getLogin() {
@@ -152,16 +151,6 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
 
     public AddUserToTemplateRequest setTemplateName(@Nullable String templateName) {
       this.templateName = templateName;
-      return this;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
-    }
-
-    public AddUserToTemplateRequest setOrganization(@Nullable String s) {
-      this.organization = s;
       return this;
     }
   }

@@ -252,6 +252,10 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.VIEW);
   }
 
+  public static ComponentDto newApplication() {
+    return newView(Uuids.createFast()).setQualifier(Qualifiers.APP);
+  }
+
   public static ComponentDto newApplication(OrganizationDto organizationDto) {
     return newApplication(organizationDto.getUuid());
   }

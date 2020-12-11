@@ -29,7 +29,7 @@
       org.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDefaultTemplatesByUuid" resultType="org.sonar.db.organization.DefaultTemplates">
+  <select id="selectDefaultTemplatesByUuid" resultType="org.sonar.db.permission.template.DefaultTemplates">
     select
       <include refid="defaultTemplatesColumns"/>
     from organizations org

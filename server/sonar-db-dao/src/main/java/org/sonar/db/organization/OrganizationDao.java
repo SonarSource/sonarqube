@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 

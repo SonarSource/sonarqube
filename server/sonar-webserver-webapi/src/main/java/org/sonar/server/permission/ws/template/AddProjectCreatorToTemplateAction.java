@@ -128,13 +128,11 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
 
   private static class AddProjectCreatorToTemplateRequest {
     private final String templateId;
-    private final String organization;
     private final String templateName;
     private final String permission;
 
     private AddProjectCreatorToTemplateRequest(Builder builder) {
       this.templateId = builder.templateId;
-      this.organization = builder.organization;
       this.templateName = builder.templateName;
       this.permission = requireNonNull(builder.permission);
     }
@@ -142,11 +140,6 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     @CheckForNull
     public String getTemplateId() {
       return templateId;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
     }
 
     @CheckForNull
@@ -165,7 +158,6 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
 
   private static class Builder {
     private String templateId;
-    private String organization;
     private String templateName;
     private String permission;
 
@@ -175,11 +167,6 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
 
     public Builder setTemplateId(@Nullable String templateId) {
       this.templateId = templateId;
-      return this;
-    }
-
-    public Builder setOrganization(@Nullable String s) {
-      this.organization = s;
       return this;
     }
 

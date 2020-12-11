@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.user.UserDto;
 
 //TODO remove

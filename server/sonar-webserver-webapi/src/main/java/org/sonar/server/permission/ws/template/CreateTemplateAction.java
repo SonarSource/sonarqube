@@ -132,7 +132,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
     private String description;
     private String name;
     private String projectKeyPattern;
-    private String organization;
 
     @CheckForNull
     public String getDescription() {
@@ -160,16 +159,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
     public CreateTemplateRequest setProjectKeyPattern(@Nullable String projectKeyPattern) {
       this.projectKeyPattern = projectKeyPattern;
-      return this;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
-    }
-
-    public CreateTemplateRequest setOrganization(@Nullable String s) {
-      this.organization = s;
       return this;
     }
   }

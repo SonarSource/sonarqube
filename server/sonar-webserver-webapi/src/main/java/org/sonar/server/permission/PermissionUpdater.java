@@ -27,9 +27,7 @@ import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 
 /**
- * Add or remove global/project permissions to a group. This class
- * does not verify that caller has administration right on the related
- * organization or project.
+ * Add or remove global/project permissions to a group. This class does not verify that caller has administration right on the related project.
  */
 public class PermissionUpdater {
 

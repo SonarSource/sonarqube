@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.permission.template.DefaultTemplates;
 
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization, @Param("newProjectPrivate") boolean newProjectPrivate);

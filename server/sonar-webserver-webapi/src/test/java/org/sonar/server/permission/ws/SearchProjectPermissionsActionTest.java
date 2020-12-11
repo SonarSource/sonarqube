@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
@@ -55,10 +54,9 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 
 public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<SearchProjectPermissionsAction> {
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-  private I18nRule i18n = new I18nRule();
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final I18nRule i18n = new I18nRule();
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
   @Before
   public void setUp() {
@@ -176,7 +174,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_project_permissions_with_project_permission() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String result = newRequest()
@@ -229,9 +227,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void handle_more_than_1000_projects() {
-    IntStream.rangeClosed(1, 1001).forEach(i -> {
-      db.components().insertPrivateProject("project-uuid-" + i);
-    });
+    IntStream.rangeClosed(1, 1001).forEach(i -> db.components().insertPrivateProject("project-uuid-" + i));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -299,25 +295,25 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertView() {
-    return db.components().insertComponent(newView(db.getDefaultOrganization())
+    return db.components().insertComponent(newView()
       .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setDbKey("Java"));
   }
 
-  private ComponentDto insertProjectInView(ComponentDto project, ComponentDto view) {
-    return db.components().insertComponent(newProjectCopy("project-in-view-uuid", project, view));
+  private void insertProjectInView(ComponentDto project, ComponentDto view) {
+    db.components().insertComponent(newProjectCopy("project-in-view-uuid", project, view));
   }
 
   private ComponentDto insertClang() {
-    return db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-2")
+    return db.components().insertComponent(newPrivateProjectDto("project-uuid-2")
       .setName("Clang")
       .setDbKey("clang")
       .setUuid("ce4c03d6-430f-40a9-b777-ad877c00aa4d"));
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization())
+    return db.components().insertComponent(ComponentTesting.newPublicProjectDto()
       .setName("JDK 7")
       .setDbKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

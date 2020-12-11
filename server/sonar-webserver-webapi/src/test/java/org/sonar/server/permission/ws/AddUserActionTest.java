@@ -112,7 +112,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() {
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView( "view-uuid").setDbKey("view-key"));
     loginAsAdmin();
 
     newRequest()

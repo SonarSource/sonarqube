@@ -54,15 +54,14 @@ public class PermissionTemplateServiceTest {
   @Rule
   public DbTester dbTester = DbTester.create();
 
-  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
-  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypesRule);
-  private UserSessionRule userSession = UserSessionRule.standalone();
-  private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
-  private DbSession session = dbTester.getSession();
-  private ProjectIndexers projectIndexers = new TestProjectIndexers();
-
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver,
+  private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypesRule);
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  private final PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
+  private final DbSession session = dbTester.getSession();
+  private final ProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver,
     new SequenceUuidFactory());
 
   @Test
@@ -307,7 +306,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_default_template_on_portfolio() {
-    ComponentDto view = dbTester.components().insertPublicPortfolio(dbTester.getDefaultOrganization());
+    ComponentDto view = dbTester.components().insertPublicPortfolio();
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate();
     PermissionTemplateDto portPermissionTemplate = dbTester.permissionTemplates().insertTemplate();
     GroupDto group = dbTester.users().insertGroup();

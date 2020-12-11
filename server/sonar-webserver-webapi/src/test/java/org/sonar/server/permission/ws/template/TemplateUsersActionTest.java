@@ -26,8 +26,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
@@ -60,10 +60,10 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 
 public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersAction> {
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
-  private RequestValidator requestValidator = new RequestValidator(permissionService);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final WsParameters wsParameters = new WsParameters(permissionService);
+  private final RequestValidator requestValidator = new RequestValidator(permissionService);
 
   @Override
   protected TemplateUsersAction buildWsAction() {
@@ -79,7 +79,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(PARAM_PERMISSION).isRequired()).isFalse();
+    WebService.Param permissionParam = action.param(PARAM_PERMISSION);
+    assertThat(permissionParam).isNotNull();
+    assertThat(permissionParam.isRequired()).isFalse();
   }
 
   @Test
@@ -87,7 +89,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user1 = insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
 
-    PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template1 = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user1));
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user2));
     addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2));
@@ -105,13 +107,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     Permissions.UsersWsResponse response = newRequest(null, null)
@@ -132,13 +134,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     Permissions.UsersWsResponse response = newRequest(null, null)
@@ -155,13 +157,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     loginAsAdmin();
@@ -178,13 +180,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    PermissionTemplateDto anotherTemplate = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     loginAsAdmin();
@@ -204,7 +206,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("login-3").setName("name-3"));
     UserDto user3 = insertUser(newUserDto().setLogin("login-1").setName("name-1"));
 
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
@@ -219,7 +221,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void search_ignores_other_template_and_is_ordered_by_users_with_permission_when_many_users() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     // Add another template having some users with permission to make sure it's correctly ignored
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
@@ -242,12 +244,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_not_a_project_permission() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(GlobalPermissions.PROVISIONING, template.getUuid())
+    newRequest(GlobalPermission.PROVISION_PROJECTS.getKey(), template.getUuid())
       .execute();
   }
 
@@ -273,7 +275,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_template_uuid_and_name_provided() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
@@ -285,7 +287,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_not_logged_in() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -295,7 +297,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_insufficient_privileges() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto template = addTemplate();
     userSession.logIn().addPermission(SCAN);
 
     expectedException.expect(ForbiddenException.class);

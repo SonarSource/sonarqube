@@ -119,7 +119,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility of the organization will be used.",
+        "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -189,7 +189,6 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private static class BulkApplyTemplateRequest {
     private String templateId;
-    private String organization;
     private String templateName;
     private String query;
     private Collection<String> qualifiers = singleton(Qualifiers.PROJECT);
@@ -205,16 +204,6 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     public BulkApplyTemplateRequest setTemplateId(@Nullable String templateId) {
       this.templateId = templateId;
-      return this;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
-    }
-
-    public BulkApplyTemplateRequest setOrganization(@Nullable String s) {
-      this.organization = s;
       return this;
     }
 

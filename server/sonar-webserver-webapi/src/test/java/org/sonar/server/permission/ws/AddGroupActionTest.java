@@ -43,13 +43,14 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -62,9 +63,9 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   private static final String A_PROJECT_UUID = "project-uuid";
   private static final String A_PROJECT_KEY = "project-key";
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final WsParameters wsParameters = new WsParameters(permissionService);
 
   @Override
   protected AddGroupAction buildWsAction() {
@@ -89,10 +90,10 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, ADMINISTER.getKey())
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("admin");
   }
 
   @Test
@@ -102,10 +103,10 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(PROVISIONING);
+    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("provisioning");
   }
 
   @Test
@@ -124,7 +125,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_id() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin();
 
     newRequest()
@@ -140,7 +141,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void add_permission_to_project_referenced_by_its_key() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
     loginAsAdmin();
 
     newRequest()
@@ -329,7 +330,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
   }
 
@@ -343,7 +344,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, PROVISIONING)
+      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .execute();
   }
