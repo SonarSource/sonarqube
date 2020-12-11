@@ -21,13 +21,11 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Objects;
-import java.util.stream.Stream;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;

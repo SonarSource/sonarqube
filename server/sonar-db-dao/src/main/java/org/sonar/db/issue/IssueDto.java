@@ -96,7 +96,6 @@ public final class IssueDto implements Serializable {
   private String projectKey;
   private String filePath;
   private String tags;
-  private boolean isFromHotspot;
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
 

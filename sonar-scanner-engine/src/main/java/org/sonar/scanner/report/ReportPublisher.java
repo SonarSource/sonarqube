@@ -67,7 +67,6 @@ public class ReportPublisher implements Startable {
   private static final String DASHBOARD = "dashboard";
   private static final String BRANCH = "branch";
   private static final String ID = "id";
-  private static final String RESOLVED = "resolved";
 
   private final DefaultScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;

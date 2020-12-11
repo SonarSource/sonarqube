@@ -53,7 +53,6 @@ public class TestExecutionPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    final ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
 
     for (final InputComponent c : componentStore.all()) {
       DefaultInputComponent component = (DefaultInputComponent) c;

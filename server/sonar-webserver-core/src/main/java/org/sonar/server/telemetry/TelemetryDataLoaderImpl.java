@@ -38,7 +38,6 @@ import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.telemetry.TelemetryData.Database;

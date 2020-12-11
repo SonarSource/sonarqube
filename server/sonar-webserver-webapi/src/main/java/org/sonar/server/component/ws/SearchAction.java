@@ -211,7 +211,6 @@ public class SearchAction implements ComponentsWsAction {
     private Integer page;
     private Integer pageSize;
     private String query;
-    private String language;
 
     @CheckForNull
     public String getOrganization() {

@@ -19,13 +19,10 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 class EmailValidator {

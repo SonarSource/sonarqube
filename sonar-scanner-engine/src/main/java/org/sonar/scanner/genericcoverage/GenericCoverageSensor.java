@@ -60,20 +60,6 @@ public class GenericCoverageSensor implements ProjectSensor {
 
   }
 
-  private void loadArrayDeprecated(Set<String> reportPaths, String propertyKey) {
-    if (config.getOriginalProperties().containsKey(propertyKey)) {
-      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
-      reportPaths.addAll(Arrays.asList(config.getStringArray(propertyKey)));
-    }
-  }
-
-  private void loadDeprecated(Set<String> reportPaths, String propertyKey) {
-    if (config.getOriginalProperties().containsKey(propertyKey)) {
-      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
-      config.get(propertyKey).ifPresent(reportPaths::add);
-    }
-  }
-
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Generic Coverage Report")
