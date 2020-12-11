@@ -33,7 +33,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -57,24 +56,21 @@ public class AssignActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "user_uuid");
-  private DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
+  private final IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), "user_uuid");
+  private final DefaultIssue issue = new DefaultIssue().setKey("ABC").setAssigneeUuid(ISSUE_CURRENT_ASSIGNEE_UUID);
   private Action.Context context;
-  private OrganizationDto issueOrganizationDto;
 
-  private AssignAction underTest = new AssignAction(db.getDbClient(), new IssueFieldsSetter());
+  private final AssignAction underTest = new AssignAction(db.getDbClient(), new IssueFieldsSetter());
 
   @Before
-  public void setUp() throws Exception {
-    issueOrganizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(issueOrganizationDto);
+  public void setUp() {
+    ComponentDto project = db.components().insertPrivateProject();
     context = new ActionContext(issue, issueChangeContext, project);
   }
 
   @Test
   public void assign_issue() {
     UserDto assignee = db.users().insertUser("john");
-    db.organizations().addMember(issueOrganizationDto, assignee);
     Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", "john"));
 
     underTest.verify(properties, Collections.emptyList(), userSession);

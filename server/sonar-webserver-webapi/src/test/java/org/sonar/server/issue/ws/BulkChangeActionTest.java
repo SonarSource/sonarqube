@@ -60,7 +60,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -78,7 +77,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -270,7 +268,6 @@ public class BulkChangeActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     UserDto oldAssignee = db.users().insertUser();
     UserDto userToAssign = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), userToAssign);
     IssueDto issue1 = db.issues().insertIssue(rule, project, file,
       i -> i.setAssigneeUuid(oldAssignee.getUuid()).setType(BUG).setSeverity(MINOR).setStatus(STATUS_OPEN).setResolution(null));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file,
@@ -408,7 +405,7 @@ public class BulkChangeActionTest {
       .build());
 
     checkResponse(response, 1, 1, 0, 0);
-    verifyZeroInteractions(notificationManager);
+    verifyNoInteractions(notificationManager);
     verifyPostProcessorCalled(fileOnBranch);
   }
 

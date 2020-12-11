@@ -53,8 +53,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -95,7 +93,8 @@ public class SetTagsActionTest {
   private WsActionTester ws = new WsActionTester(new SetTagsAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient), issueIndexer, new SequenceUuidFactory()),
-      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer), responseWriter));
+      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
+    responseWriter));
 
   @Test
   public void set_tags() {
@@ -212,7 +211,7 @@ public class SetTagsActionTest {
   @Test
   public void fail_when_security_hotspot() {
     RuleDefinitionDto rule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertHotspot(rule, project, file);
     logIn(issueDto);
@@ -245,7 +244,7 @@ public class SetTagsActionTest {
   @SafeVarargs
   private final IssueDto insertIssueForPublicProject(Consumer<IssueDto>... consumers) {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertPublicProject(newPublicProjectDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return db.issues().insertIssue(rule, project, file, consumers);
   }

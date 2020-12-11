@@ -43,7 +43,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
@@ -579,8 +578,7 @@ public class IssueChangeWSSupportTest {
       .extracting(Comment::getKey, Comment::hasMarkdown, Comment::hasHtmlText)
       .containsExactlyInAnyOrder(
         tuple(withText.getKey(), true, true),
-        tuple(noText.getKey(), false, false)
-      );
+        tuple(noText.getKey(), false, false));
     assertThat(comments.stream().filter(Comment::hasHtmlText))
       .extracting(Comment::getMarkdown, Comment::getHtmlText)
       .containsOnly(tuple(withText.getChangeData(), Markdown.convertToHtml(withText.getChangeData())));
@@ -603,7 +601,7 @@ public class IssueChangeWSSupportTest {
   }
 
   private ComponentDto insertFile() {
-    return dbTester.components().insertComponent(ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto(OrganizationTesting.newOrganizationDto())));
+    return dbTester.components().insertComponent(ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto()));
   }
 
   private static IssueChangeDto newComment(IssueDto issue) {

@@ -110,7 +110,7 @@ message Issue {
   optional string project = 6;
   optional string subProject = 7;
   optional int32 line = 8;
-  optional string hash = 31;
+  optional string hash = 30;
   optional sonarqube.ws.commons.TextRange textRange = 9;
   repeated sonarqube.ws.commons.Flow flows = 10;
   optional string resolution = 11;
@@ -148,13 +148,12 @@ message Issue {
 
   optional sonarqube.ws.commons.RuleType type = 27;
 
-  optional string organization = 29;
-  optional string branch = 30;
-  optional string pullRequest = 32;
+  optional string branch = 29;
+  optional string pullRequest = 31;
 
-  optional string externalRuleEngine = 33;
-  optional bool fromHotspot = 34;
-  optional string scope = 35;
+  optional string externalRuleEngine = 32;
+  optional bool fromHotspot = 33;
+  optional string scope = 34;
 }
 
 message Transitions {
@@ -196,7 +195,6 @@ message Languages {
 }
 
 message Component {
-  optional string organization = 11;
   optional int64 deprecatedId = 1;
   optional string key = 2;
   optional string uuid = 3;
@@ -207,8 +205,8 @@ message Component {
   optional string path = 8;
   optional int64 unusedProjectId = 9;
   optional int64 unusedSubProjectId = 10;
-  optional string branch = 12;
-  optional string pullRequest = 13;
+  optional string branch = 11;
+  optional string pullRequest = 12;
 }
 
 // Response of GET api/issues/changelog

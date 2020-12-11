@@ -37,12 +37,10 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.AuthorsResponse;
 
@@ -50,14 +48,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class AuthorsAction implements IssuesWsAction {
 
   private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
-  private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_PROJECT = "project";
 
   private final UserSession userSession;
@@ -65,18 +61,15 @@ public class AuthorsAction implements IssuesWsAction {
   private final IssueIndex issueIndex;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final ComponentFinder componentFinder;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public AuthorsAction(UserSession userSession, DbClient dbClient, IssueIndex issueIndex,
     IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    ComponentFinder componentFinder,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+    ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.componentFinder = componentFinder;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -93,13 +86,6 @@ public class AuthorsAction implements IssuesWsAction {
     action.createSearchQuery("luke", "authors");
     action.createPageSize(10, 100);
 
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
-      .setSince("7.4");
-
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
       .setRequired(false)
@@ -111,10 +97,9 @@ public class AuthorsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
       checkIfComponentNeedIssueSync(dbSession, request.param(PARAM_PROJECT));
 
-      Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));
+      Optional<ComponentDto> project = getProject(dbSession, request.param(PARAM_PROJECT));
       List<String> authors = getAuthors(project.orElse(null), request);
       AuthorsResponse wsResponse = AuthorsResponse.newBuilder().addAllAuthors(authors).build();
       writeProtobuf(wsResponse, request, response);
@@ -129,20 +114,12 @@ public class AuthorsAction implements IssuesWsAction {
     }
   }
 
-  private OrganizationDto getOrganization(DbSession dbSession, @Nullable String organizationKey) {
-    String organizationOrDefaultKey = ofNullable(organizationKey).orElseGet(defaultOrganizationProvider.get()::getKey);
-    return checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
-      "No organization with key '%s'", organizationOrDefaultKey);
-  }
-
-  private Optional<ComponentDto> getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectKey) {
+  private Optional<ComponentDto> getProject(DbSession dbSession, @Nullable String projectKey) {
     if (projectKey == null) {
       return Optional.empty();
     }
     ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
     checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
-    checkArgument(project.getOrganizationUuid().equals(organization.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, organization.getKey());
     return Optional.of(project);
   }
 

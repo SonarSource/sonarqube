@@ -28,18 +28,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.index.AsyncIssueIndexing;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
@@ -72,16 +70,15 @@ public class AuthorsActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
-
-  private WsActionTester ws = new WsActionTester(new AuthorsAction(userSession, db.getDbClient(), issueIndex,
-    issueIndexSyncProgressChecker, new ComponentFinder(db.getDbClient(), resourceTypes), defaultOrganizationProvider));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
+  private final PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private final ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+  private final WsActionTester ws = new WsActionTester(new AuthorsAction(userSession, db.getDbClient(), issueIndex,
+    issueIndexSyncProgressChecker, new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test
   public void search_authors() {
@@ -126,9 +123,8 @@ public class AuthorsActionTest {
   public void search_authors_by_project() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project1, project2);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
@@ -137,18 +133,15 @@ public class AuthorsActionTest {
     userSession.logIn();
 
     assertThat(ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
         .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "eia")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
         .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "luke")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
@@ -160,9 +153,8 @@ public class AuthorsActionTest {
   @Test
   public void search_authors_by_portfolio() {
     String leia = "leia.organa";
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -180,9 +172,8 @@ public class AuthorsActionTest {
   @Test
   public void search_authors_by_application() {
     String leia = "leia.organa";
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    ComponentDto application = db.components().insertPrivateApplication(defaultOrganization);
-    ComponentDto project = db.components().insertPrivateProject(defaultOrganization);
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -265,14 +256,12 @@ public class AuthorsActionTest {
 
   @Test
   public void fail_when_project_does_not_exist() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'unknown' not found");
 
     ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", "unknown")
       .execute();
   }
@@ -289,6 +278,7 @@ public class AuthorsActionTest {
 
     String result = ws.newRequest().execute().getInput();
 
+    assertThat(ws.getDef().responseExampleAsString()).isNotNull();
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
@@ -307,7 +297,6 @@ public class AuthorsActionTest {
       .containsExactlyInAnyOrder(
         tuple("q", false, false),
         tuple("ps", false, false),
-        tuple("organization", false, true),
         tuple("project", false, false));
 
     assertThat(definition.param("ps"))

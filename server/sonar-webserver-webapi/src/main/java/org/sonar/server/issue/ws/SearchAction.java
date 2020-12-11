@@ -115,7 +115,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
@@ -380,13 +379,6 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Pull request id. Not available in the community edition.")
       .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
       .setSince("7.1");
-
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
-      .setSince("6.4");
   }
 
   @Override

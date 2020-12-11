@@ -12,11 +12,9 @@
     "component": "FILE_KEY",
     "project": "PROJECT_KEY",
     "flows": [],
-    "status": "OPEN",
-    "organization": "my-org-1"
+    "status": "OPEN"
   }],
   "components": [    {
-    "organization": "my-org-1",
     "key": "FILE_KEY",
     "uuid": "FILE_ID",
     "enabled": true,
@@ -26,7 +24,6 @@
     "path": "null/NAME_FILE_ID"
   },
     {
-      "organization": "my-org-1",
       "key": "PROJECT_KEY",
       "uuid": "PROJECT_ID",
       "enabled": true,

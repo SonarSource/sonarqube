@@ -20,7 +20,6 @@
       "status": "OPEN",
       "effort": "10min",
       "debt": "10min",
-      "organization": "org-1",
       "scope": "MAIN"
     },
     {
@@ -33,13 +32,11 @@
       "status": "OPEN",
       "effort": "10min",
       "debt": "10min",
-      "organization": "org-1",
       "scope": "MAIN"
     }
   ],
   "components": [
     {
-      "organization": "org-1",
       "key": "FILE_KEY",
       "uuid": "FILE_ID",
       "enabled": true,
@@ -49,7 +46,6 @@
       "path": "null/NAME_FILE_ID"
     },
     {
-      "organization": "org-1",
       "key": "PROJECT_KEY",
       "uuid": "PROJECT_ID",
       "enabled": true,

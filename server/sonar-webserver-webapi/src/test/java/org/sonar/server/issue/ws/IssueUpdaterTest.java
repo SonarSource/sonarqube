@@ -48,8 +48,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Chan
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;

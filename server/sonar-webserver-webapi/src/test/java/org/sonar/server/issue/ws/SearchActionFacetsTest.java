@@ -35,7 +35,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -69,7 +68,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_K
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
 public class SearchActionFacetsTest {
@@ -195,12 +193,9 @@ public class SearchActionFacetsTest {
 
   @Test
   public void projects_facet_is_sticky() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    OrganizationDto organization3 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPublicProject(organization1);
-    ComponentDto project2 = db.components().insertPublicProject(organization2);
-    ComponentDto project3 = db.components().insertPublicProject(organization3);
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project3 = db.components().insertPublicProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project2));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project3));
@@ -308,8 +303,7 @@ public class SearchActionFacetsTest {
 
   @Test
   public void display_files_facet_with_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project));

@@ -261,9 +261,7 @@ public class AssignActionTest {
   }
 
   private UserDto insertUser(String login) {
-    UserDto user = db.users().insertUser(login);
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    return user;
+    return db.users().insertUser(login);
   }
 
   private IssueDto newIssue(String assignee) {

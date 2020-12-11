@@ -97,7 +97,6 @@ public class SearchResponseLoader {
       loadComments(collector, dbSession, fields, result);
       loadUsers(preloadedResponseData, collector, dbSession, result);
       loadComponents(preloadedResponseData, collector, dbSession, result);
-      loadOrganizations(dbSession, result);
       loadActionsAndTransitions(result, fields);
       completeTotalEffortFromFacet(facets, result);
       return result;
@@ -186,18 +185,6 @@ public class SearchResponseLoader {
 
   private boolean canEditOrDelete(IssueChangeDto dto) {
     return userSession.isLoggedIn() && requireNonNull(userSession.getUuid(), "User uuid should not be null").equals(dto.getUserUuid());
-  }
-
-  private void loadOrganizations(DbSession dbSession, SearchResponseData result) {
-    Collection<ComponentDto> components = result.getComponents();
-    dbClient.organizationDao().selectByUuids(
-      dbSession,
-      components.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
-      .forEach(result::addOrganization);
-
-    if (userSession.isLoggedIn()) {
-      result.setUserOrganizationUuids(dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUuid()));
-    }
   }
 
   private void loadActionsAndTransitions(SearchResponseData result, Set<SearchAdditionalField> fields) {

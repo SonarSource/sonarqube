@@ -35,7 +35,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -58,14 +57,12 @@ public class TransitionActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private IssueFieldsSetter updater = new IssueFieldsSetter();
-  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
-  private TransitionService transitionService = new TransitionService(userSession, workflow);
-
-  private Action.Context context = mock(Action.Context.class);
-  private DefaultIssue issue = newIssue().toDefaultIssue();
-
-  private TransitionAction action = new TransitionAction(transitionService);
+  private final IssueFieldsSetter updater = new IssueFieldsSetter();
+  private final IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private final TransitionService transitionService = new TransitionService(userSession, workflow);
+  private final Action.Context context = mock(Action.Context.class);
+  private final DefaultIssue issue = newIssue().toDefaultIssue();
+  private final TransitionAction action = new TransitionAction(transitionService);
 
   @Before
   public void setUp() {
@@ -121,13 +118,13 @@ public class TransitionActionTest {
 
   private IssueDto newIssue() {
     RuleDefinitionDto rule = newRule().setUuid(Uuids.createFast());
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = (newFileDto(project));
     return IssueTesting.newIssue(rule, project, file);
   }
 
   private void loginAndAddProjectPermission(String login, String permission) {
-    userSession.logIn(login).addProjectPermission(permission, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), issue.projectUuid()));
+    userSession.logIn(login).addProjectPermission(permission, ComponentTesting.newPrivateProjectDto(issue.projectUuid()));
   }
 
 }

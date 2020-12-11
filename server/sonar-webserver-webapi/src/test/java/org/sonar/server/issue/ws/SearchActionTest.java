@@ -51,7 +51,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -127,21 +126,21 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
-  private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
-  private Languages languages = new Languages();
-  private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
-  private WsActionTester ws = new WsActionTester(
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession session = db.getSession();
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
+  private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
+  private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+  private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
+  private final Languages languages = new Languages();
+  private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
+  private final WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+  private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Before
   public void setUp() {
@@ -150,11 +149,9 @@ public class SearchActionTest {
 
   @Test
   public void response_contains_all_fields_except_additional_fields() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     UserDto simon = db.users().insertUser();
@@ -180,18 +177,17 @@ public class SearchActionTest {
 
     assertThat(response.getIssuesList())
       .extracting(
-        Issue::getOrganization, Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getEffort,
+        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getEffort,
         Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate)
       .containsExactlyInAnyOrder(
-        tuple(organization.getKey(), issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
+        tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
           simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate())));
   }
 
   @Test
   public void issue_on_external_rule() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo"));
@@ -204,26 +200,6 @@ public class SearchActionTest {
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
       .containsExactlyInAnyOrder(tuple(issue.getKey(), rule.getKey().toString(), "xoo"));
-  }
-
-  @Test
-  public void hide_author_if_not_member_of_organization() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-    indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newIssueRule().getDefinition();
-    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("John"));
-    indexIssues();
-
-    SearchWsResponse response = ws.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(response.getIssuesList())
-      .extracting(Issue::getKey, Issue::hasAuthor)
-      .containsExactlyInAnyOrder(tuple(issue.getKey(), false));
   }
 
   @Test
@@ -378,8 +354,8 @@ public class SearchActionTest {
   public void load_additional_fields_with_issue_admin_permission() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
+
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
     grantPermissionToAnyone(project, ISSUE_ADMIN);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("js"));
@@ -403,8 +379,7 @@ public class SearchActionTest {
   @Test
   public void search_by_rule_key() {
     RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("java"));
 
     db.issues().insertIssue(rule.getDefinition(), project, file);
@@ -425,8 +400,7 @@ public class SearchActionTest {
   @Test
   public void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project, null).setUuid("REMOVED_FILE_ID")
       .setDbKey("REMOVED_FILE_KEY")
@@ -451,8 +425,7 @@ public class SearchActionTest {
   @Test
   public void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -468,8 +441,7 @@ public class SearchActionTest {
 
   @Test
   public void components_contains_sub_projects() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("ProjectHavingModule"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("ProjectHavingModule"));
     indexPermissions();
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setDbKey("ModuleHavingFile"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "BCDE").setDbKey("FileLinkedToModule"));
@@ -486,8 +458,7 @@ public class SearchActionTest {
   public void filter_by_assigned_to_me() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -533,8 +504,7 @@ public class SearchActionTest {
   public void filter_by_leak_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
@@ -573,8 +543,7 @@ public class SearchActionTest {
   public void filter_by_leak_period_without_a_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(project);
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -612,8 +581,7 @@ public class SearchActionTest {
   public void filter_by_leak_period_has_no_effect_on_prs() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization, c -> c.setUuid("PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setDbKey("PROJECT_KEY"));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
     SnapshotDto snapshotDto = db.components().insertSnapshot(pr);
     indexPermissions();
@@ -653,8 +621,7 @@ public class SearchActionTest {
   public void return_empty_when_login_is_unknown() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -703,8 +670,7 @@ public class SearchActionTest {
     userSession.logIn(poy);
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -766,8 +732,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_test_scope() {
-    OrganizationDto organization = db.organizations().insert(p -> p.setUuid("org-1").setKey("org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -808,8 +773,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_main_scope() {
-    OrganizationDto organization = db.organizations().insert(p -> p.setUuid("org-1").setKey("org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -853,8 +817,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_scope_always_returns_all_scope_facet_values() {
-    OrganizationDto organization = db.organizations().insert(p -> p.setUuid("org-1").setKey("org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -922,8 +885,7 @@ public class SearchActionTest {
   @Test
   public void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newDto(rule, file, project)
@@ -1249,8 +1211,7 @@ public class SearchActionTest {
   @Test
   public void paging() {
     RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
@@ -1327,16 +1288,10 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "branch",
-      "pullRequest", "organization",
-      "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "files", "issues", "scopes", "languages", "moduleUuids",
-      "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
-      "statuses", "tags", "types", "owaspTop10", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone");
-
-    assertThat(def.param("organization"))
-      .matches(WebService.Param::isInternal)
-      .matches(p -> p.since().equals("6.4"));
+      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
+      "createdBefore", "createdInLast", "directories", "facetMode", "facets", "files", "issues", "scopes", "languages", "moduleUuids", "onComponentOnly",
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "owaspTop10", "sansTop25",
+      "cwe", "sonarsourceSecurity", "timeZone");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();

@@ -50,30 +50,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTagsActionTest {
-  private static String[] ISSUE_RULE_TYPES = Arrays.stream(RuleType.values())
+  private static final String[] ISSUE_RULE_TYPES = Arrays.stream(RuleType.values())
     .filter(t -> t != SECURITY_HOTSPOT)
     .map(Enum::name)
     .toArray(String[]::new);
 
-  private IssueIndex service = mock(IssueIndex.class);
-  private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
-  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private DbClient dbClient = mock(DbClient.class);
-  private ComponentDao componentDao = mock(ComponentDao.class);
-  private ComponentTagsAction underTest = new ComponentTagsAction(service, issueIndexSyncProgressChecker,
+  private final IssueIndex service = mock(IssueIndex.class);
+  private final IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final DbClient dbClient = mock(DbClient.class);
+  private final ComponentDao componentDao = mock(ComponentDao.class);
+  private final ComponentTagsAction underTest = new ComponentTagsAction(service, issueIndexSyncProgressChecker,
     issueQueryFactory, dbClient);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void before() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(componentDao.selectByUuid(any(), any())).thenAnswer((Answer<Optional<ComponentDto>>) invocation -> {
       Object[] args = invocation.getArguments();
-      return Optional.of(ComponentTesting.newPrivateProjectDto(newOrganizationDto(), (String) args[1]));
+      return Optional.of(ComponentTesting.newPrivateProjectDto((String) args[1]));
     });
 
     when(componentDao.selectByUuid(any(), eq("not-exists")))

@@ -32,7 +32,6 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -106,8 +105,7 @@ public class ChangelogActionTest {
   @Test
   public void changelog_of_file_move_contains_file_names() {
     RuleDto rule = db.rules().insertRule(newRuleDto());
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(org);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(newDto(rule, file2, project));

@@ -173,7 +173,6 @@ public class SearchResponseFormat {
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
-    issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.getKey());
     ofNullable(component.getBranch()).ifPresent(issueBuilder::setBranch);
     ofNullable(component.getPullRequest()).ifPresent(issueBuilder::setPullRequest);
@@ -207,10 +206,7 @@ public class SearchResponseFormat {
     ofNullable(emptyToNull(dto.getChecksum())).ifPresent(issueBuilder::setHash);
     completeIssueLocations(dto, issueBuilder, data);
 
-    // Filter author only if user is member of the organization
-    if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
-      issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
-    }
+    issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
     ofNullable(dto.getIssueCreationDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCreationDate);
     ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
     ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
@@ -310,7 +306,6 @@ public class SearchResponseFormat {
     for (ComponentDto dto : components) {
       String uuid = dto.uuid();
       Component.Builder builder = Component.newBuilder()
-        .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
         .setKey(dto.getKey())
         .setUuid(uuid)
         .setQualifier(dto.qualifier())
