@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +41,6 @@ public final class RuleParamType {
   public static final RuleParamType INTEGER = new RuleParamType("INTEGER");
   public static final RuleParamType FLOAT = new RuleParamType("FLOAT");
 
-  private static final String CSV_SPLIT_REGEX = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
   private static final String VALUES_PARAM = "values";
   private static final String MULTIPLE_PARAM = "multiple";
   private static final String PARAMETER_SEPARATOR = "=";
@@ -110,7 +110,6 @@ public final class RuleParamType {
     return new RuleParamType(type, true, acceptedValues);
   }
 
-  // TODO validate format
   public static RuleParamType parse(String s) {
     // deprecated formats
     if ("i".equals(s) || "i{}".equals(s)) {
@@ -131,7 +130,7 @@ public final class RuleParamType {
     String format = StringUtils.substringBefore(s, OPTION_SEPARATOR);
     String values = null;
     boolean multiple = false;
-    String[] options = s.split(CSV_SPLIT_REGEX);
+    String[] options = csvFormatSplit(s);
     for (String option : options) {
       String opt = StringEscapeUtils.unescapeCsv(option);
       if (opt.startsWith(VALUES_PARAM + PARAMETER_SEPARATOR)) {
@@ -143,7 +142,26 @@ public final class RuleParamType {
     if (values == null || StringUtils.isBlank(values)) {
       return new RuleParamType(format);
     }
-    return new RuleParamType(format, multiple, values.split(CSV_SPLIT_REGEX));
+    return new RuleParamType(format, multiple, csvFormatSplit(values));
+  }
+
+  private static String[] csvFormatSplit(String input) {
+    List<String> result = new ArrayList<>();
+    boolean betweenQuote = false;
+    int startIndex = 0;
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (c == '"') {
+        betweenQuote = !betweenQuote;
+      } else if (!betweenQuote && c == ',') {
+        result.add(input.substring(startIndex, i));
+        startIndex = i + 1;
+      }
+    }
+    if (startIndex < input.length()) {
+      result.add(input.substring(startIndex));
+    }
+    return result.toArray(new String[0]);
   }
 
   @Override
