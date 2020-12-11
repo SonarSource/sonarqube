@@ -25,8 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.BillingValidations;
-import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -37,12 +35,10 @@ public class ProjectsWsSupport {
 
   private final DbClient dbClient;
   private final DefaultOrganizationProvider organizationProvider;
-  private final BillingValidationsProxy billingValidations;
 
-  public ProjectsWsSupport(DbClient dbClient, DefaultOrganizationProvider organizationProvider, BillingValidationsProxy billingValidations) {
+  public ProjectsWsSupport(DbClient dbClient, DefaultOrganizationProvider organizationProvider) {
     this.dbClient = dbClient;
     this.organizationProvider = organizationProvider;
-    this.billingValidations = billingValidations;
   }
 
   void addOrganizationParam(WebService.NewAction action) {
@@ -60,12 +56,4 @@ public class ProjectsWsSupport {
       "No organization for key '%s'", organizationKey);
   }
 
-  public void checkCanUpdateProjectsVisibility(OrganizationDto organizationDto, boolean newProjectsPrivate) {
-    try {
-      BillingValidations.Organization organization = new BillingValidations.Organization(organizationDto.getKey(), organizationDto.getUuid(), organizationDto.getName());
-      billingValidations.checkCanUpdateProjectVisibility(organization, newProjectsPrivate);
-    } catch (BillingValidations.BillingValidationsException e) {
-      throw new IllegalArgumentException(e.getMessage());
-    }
-  }
 }

@@ -28,8 +28,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.CreateWsResponse;
@@ -55,12 +55,15 @@ public class CreateAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
+  private final ProjectDefaultVisibility projectDefaultVisibility;
 
-  public CreateAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater) {
+  public CreateAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
+    ProjectDefaultVisibility projectDefaultVisibility) {
     this.support = support;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
+    this.projectDefaultVisibility = projectDefaultVisibility;
   }
 
   @Override
@@ -105,18 +108,16 @@ public class CreateAction implements ProjectsWsAction {
 
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
       userSession.checkPermission(PROVISION_PROJECTS);
       String visibility = request.getVisibility();
-      boolean changeToPrivate = visibility == null ? dbClient.organizationDao().getNewProjectPrivate(dbSession, organization) : "private".equals(visibility);
-      support.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
+      boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-          .setKey(request.getProjectKey())
-          .setName(request.getName())
-          .setPrivate(changeToPrivate)
-          .setQualifier(PROJECT)
-          .build(),
+        .setKey(request.getProjectKey())
+        .setName(request.getName())
+        .setPrivate(changeToPrivate)
+        .setQualifier(PROJECT)
+        .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null);
       return toCreateResponse(componentDto);
     }

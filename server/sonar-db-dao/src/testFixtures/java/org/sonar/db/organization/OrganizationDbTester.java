@@ -87,13 +87,4 @@ public class OrganizationDbTester {
         u -> db.getDbClient().organizationMemberDao().insert(db.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserUuid(u.getUuid())));
     db.commit();
   }
-
-  public void setNewProjectPrivate(OrganizationDto organization, boolean newProjectPrivate) {
-    db.getDbClient().organizationDao().setNewProjectPrivate(db.getSession(), organization, newProjectPrivate);
-    db.commit();
-  }
-
-  public boolean getNewProjectPrivate(OrganizationDto organization) {
-    return db.getDbClient().organizationDao().getNewProjectPrivate(db.getSession(), organization);
-  }
 }

@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentMapper;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
@@ -43,7 +42,6 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -58,16 +56,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
-  private final ProjectsWsSupport projectsWsSupport;
   private final UuidFactory uuidFactory;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, UuidFactory uuidFactory) {
+    ProjectIndexers projectIndexers, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
-    this.projectsWsSupport = projectsWsSupport;
     this.uuidFactory = uuidFactory;
   }
 
@@ -104,9 +100,6 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       checkRequest(noPendingTask(dbSession, component), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
 
       if (changeToPrivate != component.isPrivate()) {
-        OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, component.getOrganizationUuid())
-          .orElseThrow(() -> new IllegalStateException(format("Could not find organization with uuid '%s' of project '%s'", component.getOrganizationUuid(), projectKey)));
-        projectsWsSupport.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
         setPrivateForRootComponentUuid(dbSession, component, changeToPrivate);
         if (changeToPrivate) {
           updatePermissionsToPrivate(dbSession, component);

@@ -37,6 +37,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
@@ -55,14 +56,16 @@ public class OrganizationAction implements NavigationWsAction {
   private final UserSession userSession;
   private final PageRepository pageRepository;
   private final BillingValidationsProxy billingValidations;
+  private final ProjectDefaultVisibility projectDefaultVisibility;
 
   public OrganizationAction(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession, PageRepository pageRepository,
-    BillingValidationsProxy billingValidations) {
+    BillingValidationsProxy billingValidations, ProjectDefaultVisibility projectDefaultVisibility) {
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userSession = userSession;
     this.pageRepository = pageRepository;
     this.billingValidations = billingValidations;
+    this.projectDefaultVisibility = projectDefaultVisibility;
   }
 
   @Override
@@ -89,7 +92,7 @@ public class OrganizationAction implements NavigationWsAction {
         dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "No organization with key '%s'", organizationKey);
 
-      boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
+      boolean newProjectPrivate = projectDefaultVisibility.get(dbSession).isPrivate();
       Optional<OrganizationAlmBindingDto> optOrganizationAlmBinding = dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization);
 
       JsonWriter json = response.newJsonWriter();

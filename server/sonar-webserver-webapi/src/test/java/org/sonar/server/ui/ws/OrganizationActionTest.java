@@ -20,6 +20,7 @@
 package org.sonar.server.ui.ws;
 
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +41,8 @@ import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.TestRequest;
@@ -68,12 +71,19 @@ public class OrganizationActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private PageRepository pageRepository = mock(PageRepository.class);
-  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final PageRepository pageRepository = mock(PageRepository.class);
+  private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+  private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
 
-  private WsActionTester ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository, billingValidations));
+  private WsActionTester ws = new WsActionTester(
+    new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository, billingValidations, projectDefaultVisibility));
+
+  @Before
+  public void before() {
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+  }
 
   @Test
   public void filter_out_admin_pages_when_user_is_not_admin() {
@@ -94,9 +104,9 @@ public class OrganizationActionTest {
   @Test
   public void returns_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setNewProjectPrivate(organization, true);
     userSession.logIn().addPermission(PROVISION_PROJECTS);
 
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     TestResponse response = executeRequest(organization);
 
     assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
@@ -104,10 +114,10 @@ public class OrganizationActionTest {
 
   @Test
   public void returns_project_visibility_public() {
-    OrganizationDto organization = db.organizations().insert();
-    db.organizations().setNewProjectPrivate(organization, false);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
     userSession.logIn().addPermission(PROVISION_PROJECTS);
 
+    OrganizationDto organization = db.organizations().insert();
     TestResponse response = executeRequest(organization);
 
     assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
@@ -240,7 +250,7 @@ public class OrganizationActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository, billingValidations));
+    ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository, billingValidations, projectDefaultVisibility));
   }
 
   private TestResponse executeRequest(@Nullable OrganizationDto organization) {

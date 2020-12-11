@@ -57,9 +57,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.BillingValidations;
-import org.sonar.server.organization.BillingValidationsProxy;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
@@ -71,12 +68,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class UpdateVisibilityActionTest {
   private static final String PARAM_VISIBILITY = "visibility";
@@ -96,21 +88,19 @@ public class UpdateVisibilityActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private final Set<String> PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER = permissionService.getAllProjectPermissions().stream()
     .filter(perm -> !perm.equals(UserRole.USER) && !perm.equals(UserRole.CODEVIEWER))
     .collect(MoreCollectors.toSet(permissionService.getAllProjectPermissions().size() - 2));
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
-    userSessionRule, projectIndexers, wsSupport, new SequenceUuidFactory());
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
+    userSessionRule, projectIndexers, new SequenceUuidFactory());
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
   private final String randomVisibility = random.nextBoolean() ? PUBLIC : PRIVATE;
@@ -290,21 +280,6 @@ public class UpdateVisibilityActionTest {
     expectedException.expectMessage("Component visibility can't be changed as long as it has background task(s) pending or in progress");
 
     request.execute();
-  }
-
-  @Test
-  public void execute_throws_ISE_when_project_organization_uuid_does_not_match_existing_organization() {
-    // Organization is not persisted
-    OrganizationDto organization = newOrganizationDto();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Could not find organization with uuid '%s' of project '%s'", organization.getUuid(), project.getDbKey()));
-
-    request.setParam(PARAM_PROJECT, project.getDbKey())
-      .setParam(PARAM_VISIBILITY, PRIVATE)
-      .execute();
   }
 
   @Test
@@ -593,37 +568,6 @@ public class UpdateVisibilityActionTest {
       .containsOnly(UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getUuid(), portfolio.uuid()))
       .containsOnly(UserRole.ADMIN);
-  }
-
-  @Test
-  public void fail_to_update_visibility_to_private_when_organization_is_not_allowed_to_use_private_projects() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    dbTester.organizations().setNewProjectPrivate(organization, true);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-    doThrow(new BillingValidations.BillingValidationsException("This organization cannot use project private")).when(billingValidations)
-      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("This organization cannot use project private");
-
-    request.setParam(PARAM_PROJECT, project.getDbKey())
-      .setParam(PARAM_VISIBILITY, PRIVATE)
-      .execute();
-  }
-
-  @Test
-  public void does_not_fail_to_update_visibility_to_public_when_organization_is_not_allowed_to_use_private_projects() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    dbTester.organizations().setNewProjectPrivate(organization, true);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-    doThrow(new BillingValidations.BillingValidationsException("This organization cannot use project private")).when(billingValidations)
-      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
-
-    request.setParam(PARAM_PROJECT, project.getDbKey())
-      .setParam(PARAM_VISIBILITY, PUBLIC)
-      .execute();
   }
 
   @Test

@@ -46,7 +46,6 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -79,13 +78,13 @@ public class BulkDeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
-  private DbClient dbClient = db.getDbClient();
-  private ProjectsWsSupport support = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(db), mock(BillingValidationsProxy.class));
-  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final ProjectsWsSupport support = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(db));
+  private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
 
-  private BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, support, projectLifeCycleListeners);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, support, projectLifeCycleListeners);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   private OrganizationDto org1;
   private OrganizationDto org2;

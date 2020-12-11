@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -47,6 +48,8 @@ import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
@@ -82,6 +85,7 @@ public class ReportSubmitterTest {
   public final DbTester db = DbTester.create();
 
   private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
 
   private final CeQueue queue = mock(CeQueueImpl.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
@@ -91,7 +95,12 @@ public class ReportSubmitterTest {
   private final BranchSupport ossEditionBranchSupport = new BranchSupport();
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
-    defaultOrganizationProvider);
+    projectDefaultVisibility);
+
+  @Before
+  public void before() {
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
+  }
 
   @Test
   public void submit_with_characteristics_fails_with_ISE_when_no_branch_support_delegate() {

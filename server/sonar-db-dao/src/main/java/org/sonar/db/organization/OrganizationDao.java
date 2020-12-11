@@ -124,18 +124,6 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).updateDefaultQualityGate(organization.getUuid(), qualityGate.getUuid(), system2.now());
   }
 
-  public boolean getNewProjectPrivate(DbSession dbSession, String organizationUuid) {
-    return getMapper(dbSession).selectNewProjectPrivateByUuid(organizationUuid);
-  }
-
-  public boolean getNewProjectPrivate(DbSession dbSession, OrganizationDto organization) {
-    return getMapper(dbSession).selectNewProjectPrivateByUuid(organization.getUuid());
-  }
-
-  public void setNewProjectPrivate(DbSession dbSession, OrganizationDto organization, boolean newProjectPrivate) {
-    getMapper(dbSession).updateNewProjectPrivate(organization.getUuid(), newProjectPrivate, system2.now());
-  }
-
   public int update(DbSession dbSession, OrganizationDto organization) {
     checkDto(organization);
     organization.setUpdatedAt(system2.now());
@@ -148,9 +136,7 @@ public class OrganizationDao implements Dao {
 
   public List<OrganizationWithNclocDto> selectOrganizationsWithNcloc(DbSession dbSession, List<String> organizationUuids) {
     List<OrganizationWithNclocDto> result = new ArrayList<>();
-    executeLargeUpdates(organizationUuids, chunk ->
-      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, BranchType.BRANCH))
-    );
+    executeLargeUpdates(organizationUuids, chunk -> result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, BranchType.BRANCH)));
     return result;
   }
 

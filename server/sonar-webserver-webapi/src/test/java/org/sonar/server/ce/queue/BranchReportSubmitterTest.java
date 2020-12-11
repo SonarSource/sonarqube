@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,9 +48,9 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyMap;
@@ -86,7 +87,7 @@ public class BranchReportSubmitterTest {
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
 
   private final CeQueue queue = mock(CeQueueImpl.class);
   private final ComponentUpdater componentUpdater = mock(ComponentUpdater.class);
@@ -96,7 +97,12 @@ public class BranchReportSubmitterTest {
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    defaultOrganizationProvider);
+    projectDefaultVisibility);
+
+  @Before
+  public void before() {
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
+  }
 
   @Test
   public void submit_does_not_use_delegate_if_characteristics_are_empty() {
@@ -165,8 +171,8 @@ public class BranchReportSubmitterTest {
   }
 
   @Test
-  public void submit_report_on_missing_branch_of_missing_project_provisions_project_when_org_PROVISION_PROJECT_perm() {
-    ComponentDto nonExistingProject = newPrivateProjectDto(db.getDefaultOrganization());
+  public void submit_report_on_missing_branch_of_missing_project_provisions_project_when_PROVISION_PROJECT_perm() {
+    ComponentDto nonExistingProject = newPrivateProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
       .addPermission(PROVISION_PROJECTS)
@@ -218,7 +224,7 @@ public class BranchReportSubmitterTest {
 
   @Test
   public void submit_report_on_missing_branch_of_missing_project_fails_with_ForbiddenException_if_only_scan_permission() {
-    ComponentDto nonExistingProject = newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto nonExistingProject = newPrivateProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, nonExistingProject);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();

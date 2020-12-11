@@ -21,6 +21,7 @@ package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,6 +45,8 @@ import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.project.ws.CreateAction.CreateRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -73,7 +76,7 @@ public class CreateActionTest {
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String DEFAULT_PROJECT_NAME = "project-name";
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -84,16 +87,23 @@ public class CreateActionTest {
   @Rule
   public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
-  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-  private WsActionTester ws = new WsActionTester(
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
+  private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+  private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private final WsActionTester ws = new WsActionTester(
     new CreateAction(
-      new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, billingValidations),
+      new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
-        projectIndexers, new SequenceUuidFactory(), defaultOrganizationProvider)));
+        projectIndexers, new SequenceUuidFactory(), defaultOrganizationProvider),
+      projectDefaultVisibility));
+
+  @Before
+  public void before() {
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
+  }
 
   @Test
   public void create_project() {
@@ -145,7 +155,7 @@ public class CreateActionTest {
   @Test
   public void apply_default_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setNewProjectPrivate(organization, false);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
@@ -160,7 +170,7 @@ public class CreateActionTest {
   @Test
   public void apply_default_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setNewProjectPrivate(organization, true);
+    when(projectDefaultVisibility.get(any())).thenReturn(PRIVATE);
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
@@ -238,24 +248,6 @@ public class CreateActionTest {
 
     ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
-  }
-
-  @Test
-  public void fail_to_create_private_projects_when_organization_is_not_allowed_to_use_private_projects() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS);
-    doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
-      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("This organization cannot use project private");
-
-    ws.newRequest()
-      .setParam("project", DEFAULT_PROJECT_KEY)
-      .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
-      .setParam("visibility", "private")
-      .executeProtobuf(CreateWsResponse.class);
   }
 
   @Test

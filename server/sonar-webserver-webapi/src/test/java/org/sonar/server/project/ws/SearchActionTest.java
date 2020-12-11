@@ -37,7 +37,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,7 +51,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -88,10 +86,10 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(
-    new SearchAction(db.getDbClient(), userSession, new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, mock(BillingValidationsProxy.class))));
+  private final WsActionTester ws = new WsActionTester(
+    new SearchAction(db.getDbClient(), userSession, new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider)));
 
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() {

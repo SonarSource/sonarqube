@@ -17,33 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonar.server.platform.db.migration.version.v87;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.project.ProjectLifeCycleListenersImpl;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class ProjectsWsModule extends Module {
-
-  public ProjectsWsModule() {
-    // nothing to do
-  }
+public class DbVersion87 implements DbVersion {
 
   @Override
-  protected void configureModule() {
-    add(
-      ProjectDefaultVisibility.class,
-      ProjectLifeCycleListenersImpl.class,
-      ProjectsWsSupport.class,
-      ProjectsWs.class,
-      CreateAction.class,
-      BulkDeleteAction.class,
-      DeleteAction.class,
-      UpdateKeyAction.class,
-      BulkUpdateKeyAction.class,
-      SearchMyProjectsAction.class,
-      SearchAction.class,
-      UpdateVisibilityAction.class,
-      UpdateDefaultVisibilityAction.class);
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(4200, "Move default project visibility to global properties", MoveDefaultProjectVisibilityToGlobalProperties.class)
+
+    ;
   }
 }

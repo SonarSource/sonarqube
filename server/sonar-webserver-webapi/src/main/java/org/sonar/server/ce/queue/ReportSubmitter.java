@@ -41,9 +41,9 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -60,18 +60,18 @@ public class ReportSubmitter {
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
   private final BranchSupport branchSupport;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final ProjectDefaultVisibility projectDefaultVisibility;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
     PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+    ProjectDefaultVisibility projectDefaultVisibility) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.permissionTemplateService = permissionTemplateService;
     this.dbClient = dbClient;
     this.branchSupport = branchSupport;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.projectDefaultVisibility = projectDefaultVisibility;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
@@ -122,10 +122,10 @@ public class ReportSubmitter {
 
   private void checkScanPermission(ComponentDto project) {
     // this is a specific and inconsistent behavior. For legacy reasons, "technical users"
-    // defined on an organization should be able to analyze a project even if
+    // defined with global scan permission should be able to analyze a project even if
     // they don't have the direct permission on the project.
     // That means that dropping the permission on the project does not have any effects
-    // if user has still the permission on the organization
+    // if user has still the global permission
     if (!userSession.hasComponentPermission(UserRole.SCAN, project) && !userSession.hasPermission(GlobalPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
@@ -159,18 +159,18 @@ public class ReportSubmitter {
       throw insufficientPrivilegesException();
     }
 
-    // TODO:: remove once we move organization settings somewhere else
-    String defaultOrgUuid = defaultOrganizationProvider.get().getUuid();
-    boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, defaultOrgUuid);
-
     NewComponent newProject = newComponentBuilder()
       .setKey(componentKey.getKey())
       .setName(defaultIfBlank(projectName, componentKey.getKey()))
       .setQualifier(Qualifiers.PROJECT)
-      .setPrivate(newProjectPrivate)
+      .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();
     return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, c -> {
     });
+  }
+
+  private Visibility getDefaultVisibility(DbSession dbSession) {
+    return projectDefaultVisibility.get(dbSession);
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristics) {

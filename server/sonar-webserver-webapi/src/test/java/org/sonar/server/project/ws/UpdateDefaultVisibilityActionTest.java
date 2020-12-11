@@ -21,66 +21,70 @@ package org.sonar.server.project.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.DefaultOrganizationProviderImpl;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.project.ws.UpdateDefaultVisibilityAction.ACTION;
 import static org.sonar.server.project.ws.UpdateDefaultVisibilityAction.PARAM_PROJECT_VISIBILITY;
 
 public class UpdateDefaultVisibilityActionTest {
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public final DbTester dbTester = DbTester.create();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
+  public final ProjectDefaultVisibility projectDefaultVisibility = new ProjectDefaultVisibility(dbTester.getDbClient());
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = new DefaultOrganizationProviderImpl(dbTester.getDbClient());
-  private UpdateDefaultVisibilityAction underTest = new UpdateDefaultVisibilityAction(userSession, dbTester.getDbClient(), defaultOrganizationProvider);
-  private WsActionTester wsTester = new WsActionTester(underTest);
+  private final UpdateDefaultVisibilityAction underTest = new UpdateDefaultVisibilityAction(userSession, dbTester.getDbClient(),
+    projectDefaultVisibility);
+  private final WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
   public void change_project_visibility_to_private() {
+    projectDefaultVisibility.set(dbTester.getSession(), Visibility.PUBLIC);
+    dbTester.commit();
+
     userSession.logIn().setSystemAdministrator();
 
     wsTester.newRequest()
       .setParam(PARAM_PROJECT_VISIBILITY, "private")
       .execute();
 
-    assertThat(dbTester.getDbClient().organizationDao().getNewProjectPrivate(dbTester.getSession(), dbTester.getDefaultOrganization())).isTrue();
+    assertThat(projectDefaultVisibility.get(dbTester.getSession())).isEqualTo(Visibility.PRIVATE);
   }
 
   @Test
   public void change_project_visibility_to_public() {
-    dbTester.organizations().setNewProjectPrivate(dbTester.getDefaultOrganization(), true);
+    projectDefaultVisibility.set(dbTester.getSession(), Visibility.PRIVATE);
+    dbTester.commit();
+
     userSession.logIn().setSystemAdministrator();
 
     wsTester.newRequest()
       .setParam(PARAM_PROJECT_VISIBILITY, "public")
       .execute();
 
-    assertThat(dbTester.organizations().getNewProjectPrivate(dbTester.getDefaultOrganization())).isFalse();
+    assertThat(projectDefaultVisibility.get(dbTester.getSession())).isEqualTo(Visibility.PUBLIC);
   }
 
   @Test
-  public void fail_if_not_loggued_as_system_administrator() {
+  public void fail_if_not_logged_as_system_administrator() {
     userSession.logIn();
 
     TestRequest request = wsTester.newRequest()
       .setParam(PARAM_PROJECT_VISIBILITY, "private");
 
-    expectedException.expect(ForbiddenException.class);
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

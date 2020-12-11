@@ -19,20 +19,17 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 public class UpdateDefaultVisibilityAction implements ProjectsWsAction {
   static final String ACTION = "update_default_visibility";
@@ -40,12 +37,12 @@ public class UpdateDefaultVisibilityAction implements ProjectsWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final ProjectDefaultVisibility projectDefaultVisibility;
 
-  public UpdateDefaultVisibilityAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UpdateDefaultVisibilityAction(UserSession userSession, DbClient dbClient, ProjectDefaultVisibility projectDefaultVisibility) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.projectDefaultVisibility = projectDefaultVisibility;
   }
 
   @Override
@@ -67,15 +64,13 @@ public class UpdateDefaultVisibilityAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean newProjectsPrivate = Visibility.isPrivate(request.mandatoryParam(PARAM_PROJECT_VISIBILITY));
+    String newDefaultProjectVisibility = request.mandatoryParam(PARAM_PROJECT_VISIBILITY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationDto> optionalOrganization = dbClient.organizationDao().selectByKey(dbSession, defaultOrganizationProvider.get().getKey());
-      OrganizationDto organization = checkFoundWithOptional(optionalOrganization, "No default organization.");
       if (!userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
-      dbClient.organizationDao().setNewProjectPrivate(dbSession, organization, newProjectsPrivate);
+      projectDefaultVisibility.set(dbSession, newDefaultProjectVisibility);
       dbSession.commit();
     }
     response.noContent();

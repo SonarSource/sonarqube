@@ -17,33 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonar.server.platform.db.migration.version.v87;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.project.ProjectLifeCycleListenersImpl;
+import org.junit.Test;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-public class ProjectsWsModule extends Module {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  public ProjectsWsModule() {
-    // nothing to do
+public class DbVersion87Test {
+
+  private final DbVersion underTest = new DbVersion87();
+
+  @Test
+  public void migrationNumber_starts_at_4100() {
+    verifyMinimumMigrationNumber(underTest, 4200);
   }
 
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectDefaultVisibility.class,
-      ProjectLifeCycleListenersImpl.class,
-      ProjectsWsSupport.class,
-      ProjectsWs.class,
-      CreateAction.class,
-      BulkDeleteAction.class,
-      DeleteAction.class,
-      UpdateKeyAction.class,
-      BulkUpdateKeyAction.class,
-      SearchMyProjectsAction.class,
-      SearchAction.class,
-      UpdateVisibilityAction.class,
-      UpdateDefaultVisibilityAction.class);
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationNotEmpty(underTest);
   }
+
 }
