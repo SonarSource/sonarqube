@@ -24,14 +24,12 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
@@ -39,14 +37,12 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.organization.BillingValidations;
-import org.sonar.server.organization.BillingValidations.BillingValidationsException;
-import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.project.ws.CreateAction.Builder;
 import org.sonar.server.project.ws.CreateAction.CreateRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -57,14 +53,12 @@ import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
-import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
@@ -79,22 +73,18 @@ public class CreateActionTest {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final DbTester db = DbTester.create(system2);
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
+  public final I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
   private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
-  private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
-      new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
         projectIndexers, new SequenceUuidFactory(), defaultOrganizationProvider),
@@ -124,13 +114,11 @@ public class CreateActionTest {
 
   @Test
   public void apply_project_visibility_public() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .setParam("visibility", "public")
       .executeProtobuf(CreateWsResponse.class);
 
@@ -139,13 +127,11 @@ public class CreateActionTest {
 
   @Test
   public void apply_project_visibility_private() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .setParam("visibility", PRIVATE.getLabel())
       .executeProtobuf(CreateWsResponse.class);
 
@@ -154,14 +140,12 @@ public class CreateActionTest {
 
   @Test
   public void apply_default_project_visibility_public() {
-    OrganizationDto organization = db.organizations().insert();
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(result.getProject().getVisibility()).isEqualTo("public");
@@ -169,46 +153,25 @@ public class CreateActionTest {
 
   @Test
   public void apply_default_project_visibility_private() {
-    OrganizationDto organization = db.organizations().insert();
     when(projectDefaultVisibility.get(any())).thenReturn(PRIVATE);
     userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(result.getProject().getVisibility()).isEqualTo("private");
   }
 
   @Test
-  public void does_not_fail_to_create_public_projects_when_organization_is_not_allowed_to_use_private_projects() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS);
-    doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
-      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
-
-    CreateWsResponse result = ws.newRequest()
-      .setParam("project", DEFAULT_PROJECT_KEY)
-      .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
-      .setParam("visibility", "public")
-      .executeProtobuf(CreateWsResponse.class);
-
-    assertThat(result.getProject().getVisibility()).isEqualTo("public");
-  }
-
-  @Test
   public void abbreviate_project_name_if_very_long() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(PROVISION_PROJECTS);
     String longName = Strings.repeat("a", 1_000);
 
     ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", longName)
-      .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get().name())
@@ -217,7 +180,6 @@ public class CreateActionTest {
 
   @Test
   public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
@@ -225,7 +187,6 @@ public class CreateActionTest {
     ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
 
     ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
@@ -234,7 +195,6 @@ public class CreateActionTest {
 
   @Test
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
     rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
@@ -243,7 +203,6 @@ public class CreateActionTest {
     ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
-      .setParam("organization", organization.getKey())
       .executeProtobuf(CreateWsResponse.class);
 
     ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
@@ -252,57 +211,54 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_project_already_exists() {
-    OrganizationDto organization = db.organizations().insert();
     db.components().insertPublicProject(project -> project.setDbKey(DEFAULT_PROJECT_KEY));
     userSession.addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(BadRequestException.class);
-
-    call(CreateRequest.builder()
-      .setOrganization(organization.getKey())
+    CreateRequest request = CreateRequest.builder()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
-      .build());
+      .build();
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_when_invalid_project_key() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    call(CreateRequest.builder()
+    CreateRequest request = CreateRequest.builder()
       .setProjectKey("project%Key")
       .setName(DEFAULT_PROJECT_NAME)
-      .build());
+      .build();
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
   public void fail_when_missing_project_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    call(null, null, DEFAULT_PROJECT_NAME);
+    assertThatThrownBy(() -> call(null, DEFAULT_PROJECT_NAME))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'project' parameter is missing");
   }
 
   @Test
   public void fail_when_missing_name_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    call(null, DEFAULT_PROJECT_KEY, null);
+    assertThatThrownBy(() -> call(DEFAULT_PROJECT_KEY, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'name' parameter is missing");
   }
 
   @Test
   public void fail_when_missing_create_project_permission() {
-    expectedException.expect(ForbiddenException.class);
-
-    call(CreateRequest.builder().setProjectKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
+    CreateRequest request = CreateRequest.builder().setProjectKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME)
+      .build();
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -328,15 +284,8 @@ public class CreateActionTest {
 
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       PARAM_VISIBILITY,
-      PARAM_ORGANIZATION,
       PARAM_NAME,
       PARAM_PROJECT);
-
-    WebService.Param organization = definition.param(PARAM_ORGANIZATION);
-    assertThat(organization.description()).isEqualTo("The key of the organization");
-    assertThat(organization.isInternal()).isTrue();
-    assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.since()).isEqualTo("6.3");
 
     WebService.Param visibilityParam = definition.param(PARAM_VISIBILITY);
     assertThat(visibilityParam.description()).isNotEmpty();
@@ -356,47 +305,46 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_set_null_project_name_on_create_request_builder() {
-    expectedException.expect(NullPointerException.class);
-
-    CreateRequest.builder()
-      .setProjectKey(DEFAULT_PROJECT_KEY)
-      .setName(null);
+    Builder builder = CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY);
+    assertThatThrownBy(() -> builder.setName(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_when_set_null_project_key_on_create_request_builder() {
-    expectedException.expect(NullPointerException.class);
-
-    CreateRequest.builder()
-      .setProjectKey(null)
+    Builder builder = CreateRequest.builder()
       .setName(DEFAULT_PROJECT_NAME);
+    assertThatThrownBy(() -> builder.setProjectKey(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_when_project_key_not_set_on_create_request_builder() {
-    expectedException.expect(NullPointerException.class);
     CreateRequest.builder()
-      .setName(DEFAULT_PROJECT_NAME)
-      .build();
+      .setName(DEFAULT_PROJECT_NAME);
+
+    Builder builder = CreateRequest.builder()
+      .setName(DEFAULT_PROJECT_NAME);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_when_project_name_not_set_on_create_request_builder() {
-    expectedException.expect(NullPointerException.class);
-
-    CreateRequest.builder()
-      .setProjectKey(DEFAULT_PROJECT_KEY)
-      .build();
+    Builder builder = CreateRequest.builder()
+      .setProjectKey(DEFAULT_PROJECT_KEY);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   private CreateWsResponse call(CreateRequest request) {
-    return call(request.getOrganization(), request.getProjectKey(), request.getName());
+    return call(request.getProjectKey(), request.getName());
   }
 
-  private CreateWsResponse call(@Nullable String organization, @Nullable String projectKey, @Nullable String projectName) {
+  private CreateWsResponse call(@Nullable String projectKey, @Nullable String projectName) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
-    ofNullable(organization).ifPresent(org -> httpRequest.setParam("organization", org));
     ofNullable(projectKey).ifPresent(key -> httpRequest.setParam("project", key));
     ofNullable(projectName).ifPresent(name -> httpRequest.setParam("name", name));
     return httpRequest.executeProtobuf(CreateWsResponse.class);

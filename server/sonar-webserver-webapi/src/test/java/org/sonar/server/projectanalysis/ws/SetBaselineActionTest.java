@@ -185,7 +185,7 @@ public class SetBaselineActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    ComponentDto otherProject = tester.insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), branch -> branch.setKey("main"));
+    ComponentDto otherProject = tester.insertPrivateProjectWithCustomBranch("main");
     BranchDto branchOfOtherProject = branchDao.selectByUuid(dbSession, otherProject.uuid()).get();
 
     expectedException.expect(NotFoundException.class);
@@ -196,10 +196,10 @@ public class SetBaselineActionTest {
 
   @Test
   public void fail_when_analysis_does_not_belong_to_main_branch_of_project() {
-    ComponentDto project = tester.insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b -> b.setKey("branch1"));
+    ComponentDto project = tester.insertPrivateProjectWithCustomBranch("branch1");
     logInAsProjectAdministrator(project);
 
-    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
+    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto();
     SnapshotDto otherAnalysis = db.components().insertProjectAndSnapshot(otherProject);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -215,7 +215,7 @@ public class SetBaselineActionTest {
     tester.insertProjectBranch(project, b -> b.setKey("branch1"));
     logInAsProjectAdministrator(project);
 
-    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
+    ComponentDto otherProject = ComponentTesting.newPrivateProjectDto();
     SnapshotDto otherAnalysis = db.components().insertProjectAndSnapshot(otherProject);
 
     expectedException.expect(IllegalArgumentException.class);

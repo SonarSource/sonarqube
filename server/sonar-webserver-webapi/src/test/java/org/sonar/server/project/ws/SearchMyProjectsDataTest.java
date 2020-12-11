@@ -19,80 +19,72 @@
  */
 package org.sonar.server.project.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.server.project.ws.SearchMyProjectsData.Builder;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SearchMyProjectsDataTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  SearchMyProjectsData.Builder underTest = SearchMyProjectsData.builder();
+  private final SearchMyProjectsData.Builder underTest = SearchMyProjectsData.builder();
 
   @Test
   public void fail_if_projects_are_not_provided() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest
+    Builder builder = underTest
       .setProjects(null)
       .setProjectLinks(emptyList())
       .setSnapshots(emptyList())
       .setQualityGates(emptyList())
-      .setTotalNbOfProjects(0)
-      .build();
+      .setTotalNbOfProjects(0);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_projects_links_are_not_provided() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest
+    Builder builder = underTest
       .setProjects(emptyList())
       .setProjectLinks(null)
       .setSnapshots(emptyList())
       .setQualityGates(emptyList())
-      .setTotalNbOfProjects(0)
-      .build();
+      .setTotalNbOfProjects(0);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_snapshots_are_not_provided() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest
+    Builder builder = underTest
       .setProjects(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(null)
       .setQualityGates(emptyList())
-      .setTotalNbOfProjects(0)
-      .build();
+      .setTotalNbOfProjects(0);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_quality_gates_are_not_provided() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest
+    Builder builder = underTest
       .setProjects(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(emptyList())
-      .setQualityGates(null)
-      .build();
+      .setQualityGates(null);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_total_number_of_projects_is_not_provided() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest
+    Builder builder = underTest
       .setProjects(emptyList())
       .setProjectLinks(emptyList())
       .setSnapshots(emptyList())
       .setQualityGates(emptyList())
-      .setTotalNbOfProjects(null)
-      .build();
+      .setTotalNbOfProjects(null);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class);
   }
 }

@@ -313,7 +313,7 @@ public class CreateEventActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newPrivateProjectDto("P1"));
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);

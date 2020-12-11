@@ -50,7 +50,6 @@ import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventPurgeData;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -120,8 +119,7 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(KEY_PROJECT_EXAMPLE_001));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey(KEY_PROJECT_EXAMPLE_001));
 
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
@@ -129,15 +127,13 @@ public class SearchActionTest {
       .setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.322")
-      .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf")
-    );
+      .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf"));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("A2")
       .setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
       .setProjectVersion("1.2.1")
       .setBuildString("1.2.1.423")
-      .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d")
-    );
+      .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d"));
     SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("P1")
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
@@ -199,7 +195,7 @@ public class SearchActionTest {
 
   @Test
   public void return_only_processed_analyses() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setStatus(SnapshotDto.STATUS_UNPROCESSED));
@@ -212,11 +208,10 @@ public class SearchActionTest {
 
   @Test
   public void return_events() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
-    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto(organizationDto)).setUuid("A42"));
+    SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(ComponentTesting.newPrivateProjectDto()).setUuid("A42"));
     EventDto e1 = db.events().insertEvent(newEvent(a1).setUuid("E1").setName("N1").setCategory(QUALITY_GATE.getLabel()).setDescription("D1"));
     EventDto e2 = db.events().insertEvent(newEvent(a1).setUuid("E2").setName("N2").setCategory(VERSION.getLabel()).setDescription("D2"));
     db.events().insertEvent(newEvent(a42));
@@ -233,8 +228,7 @@ public class SearchActionTest {
 
   @Test
   public void return_analyses_of_application() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
@@ -253,8 +247,7 @@ public class SearchActionTest {
 
   @Test
   public void return_definition_change_events_on_application_analyses() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -279,8 +272,7 @@ public class SearchActionTest {
   @Test
   @UseDataProvider("changedBranches")
   public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable String newBranch) {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -302,8 +294,7 @@ public class SearchActionTest {
 
   @Test
   public void incorrect_eventcomponentchange_two_identical_changes_added_on_same_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -332,8 +323,7 @@ public class SearchActionTest {
 
   @Test
   public void incorrect_eventcomponentchange_incorrect_category() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -359,8 +349,7 @@ public class SearchActionTest {
 
   @Test
   public void incorrect_eventcomponentchange_three_component_changes_on_same_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -391,8 +380,7 @@ public class SearchActionTest {
 
   @Test
   public void incorrect_quality_gate_information() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(
@@ -425,8 +413,7 @@ public class SearchActionTest {
 
   @Test
   public void return_analyses_of_portfolio() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto view = db.components().insertView(organization);
+    ComponentDto view = db.components().insertView();
     userSession.registerComponents(view);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(2_000_000L));
@@ -457,7 +444,7 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1"));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
@@ -478,7 +465,7 @@ public class SearchActionTest {
 
   @Test
   public void paginate_with_filter_on_category() {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("P1"));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("P1"));
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
@@ -597,7 +584,7 @@ public class SearchActionTest {
       .setProject(project.getKey())
       .setBranch("my_branch")
       .build())
-      .getAnalysesList();
+        .getAnalysesList();
 
     assertThat(result).extracting(Analysis::getKey).containsExactlyInAnyOrder(analysis.getUuid());
     assertThat(result.get(0).getEventsList()).extracting(Event::getKey).containsExactlyInAnyOrder(event.getUuid());
@@ -634,8 +621,7 @@ public class SearchActionTest {
         tuple(analyses[0].getUuid(), "", ""),
         tuple(analyses[1].getUuid(), "a", ""),
         tuple(analyses[2].getUuid(), "", "b"),
-        tuple(analyses[3].getUuid(), "c", "d")
-      );
+        tuple(analyses[3].getUuid(), "c", "d"));
   }
 
   @Test

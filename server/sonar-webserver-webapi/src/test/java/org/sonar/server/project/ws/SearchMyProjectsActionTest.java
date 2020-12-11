@@ -23,7 +23,6 @@ import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService.Param;
@@ -39,7 +38,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -49,6 +47,7 @@ import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -61,14 +60,12 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SearchMyProjectsActionTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
   private WsActionTester ws;
   private UserDto user;
   private MetricDto alertStatusMetric;
@@ -85,9 +82,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void search_json_example() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto cLang = insertClang(organizationDto);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto cLang = insertClang();
     db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://www.oracle.com").setType(ProjectLinkDto.TYPE_HOME_PAGE).setName("Home"));
     db.componentLinks().insertProvidedLink(jdk7, l -> l.setHref("http://download.java.net/openjdk/jdk8/").setType(ProjectLinkDto.TYPE_SOURCES).setName("Sources"));
     long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
@@ -108,9 +104,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void return_only_current_user_projects() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto cLang = insertClang(organizationDto);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto cLang = insertClang();
     UserDto anotherUser = db.users().insertUser(newUserDto());
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(anotherUser, UserRole.ADMIN, cLang);
@@ -122,9 +117,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void return_only_first_1000_projects() {
-    OrganizationDto organization = db.organizations().insert();
     IntStream.range(0, 1_010).forEach(i -> {
-      ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+      ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     });
 
@@ -135,10 +129,9 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void sort_projects_by_name() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto b_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("B_project_name"));
-    ComponentDto c_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("c_project_name"));
-    ComponentDto a_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("A_project_name"));
+    ComponentDto b_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("B_project_name"));
+    ComponentDto c_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("c_project_name"));
+    ComponentDto a_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("A_project_name"));
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
@@ -151,9 +144,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void paginate_projects() {
-    OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 0; i < 10; i++) {
-      ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project-" + i));
+      ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setName("project-" + i));
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
@@ -168,9 +160,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void return_only_projects_when_user_is_admin() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto clang = insertClang(organizationDto);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto clang = insertClang();
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, clang);
@@ -182,9 +173,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void does_not_return_views() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto view = insertView(organizationDto);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto view = insertView();
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
@@ -209,9 +199,8 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void admin_via_groups() {
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(org);
-    ComponentDto cLang = insertClang(org);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto cLang = insertClang();
 
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
@@ -226,10 +215,9 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void admin_via_groups_and_users() {
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(org);
-    ComponentDto cLang = insertClang(org);
-    ComponentDto sonarqube = db.components().insertPrivateProject(org);
+    ComponentDto jdk7 = insertJdk7();
+    ComponentDto cLang = insertClang();
+    ComponentDto sonarqube = db.components().insertPrivateProject();
 
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
@@ -254,26 +242,26 @@ public class SearchMyProjectsActionTest {
   @Test
   public void fail_if_not_authenticated() {
     userSession.anonymous();
-    expectedException.expect(UnauthorizedException.class);
 
-    callWs();
+    assertThatThrownBy(this::callWs)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
-  private ComponentDto insertClang(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_01)
+  private ComponentDto insertClang() {
+    return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
       .setDbKey("clang"));
   }
 
-  private ComponentDto insertJdk7(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_02)
+  private ComponentDto insertJdk7() {
+    return db.components().insertComponent(newPrivateProjectDto(Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
       .setDbKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));
   }
 
-  private ComponentDto insertView(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newView(organizationDto, "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
+  private ComponentDto insertView() {
+    return db.components().insertComponent(newView("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setDbKey("Java"));
   }

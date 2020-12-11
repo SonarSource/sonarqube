@@ -42,7 +42,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -76,7 +75,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_main_branch() {
-    ComponentDto project = db.components().insertPublicProject(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
@@ -88,7 +87,7 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void does_not_fail_and_has_no_effect_when_there_is_no_baseline_on_non_main_branch() {
-    ComponentDto project = db.components().insertPublicProject(db.organizations().insert());
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
@@ -212,10 +211,9 @@ public class UnsetBaselineActionTest {
 
   @Test
   public void fail_when_branch_does_not_belong_to_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto otherProject = db.components().insertPublicProject(organization);
+    ComponentDto otherProject = db.components().insertPublicProject();
     ComponentDto otherBranch = db.components().insertProjectBranch(otherProject);
     logInAsProjectAdministrator(project);
 

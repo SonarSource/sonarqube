@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -43,6 +42,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
@@ -50,16 +50,14 @@ public class UpdateKeyActionTest {
   private static final String ANOTHER_KEY = "another_key";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  private DbClient dbClient = db.getDbClient();
-  private ProjectIndexers projectIndexers = new ProjectIndexersImpl();
-  private ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers, new ProjectLifeCycleListenersImpl());
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
-  private WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService, componentFinder));
+  public final UserSessionRule userSessionRule = UserSessionRule.standalone();
+  private final DbClient dbClient = db.getDbClient();
+  private final ProjectIndexers projectIndexers = new ProjectIndexersImpl();
+  private final ComponentService componentService = new ComponentService(dbClient, userSessionRule, projectIndexers, new ProjectLifeCycleListenersImpl());
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private final WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService, componentFinder));
 
   @Test
   public void update_key_of_project_referenced_by_its_key() {
@@ -77,10 +75,10 @@ public class UpdateKeyActionTest {
     ComponentDto project = insertProject();
     userSessionRule.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(project.getKey(), ANOTHER_KEY);
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(projectKey, ANOTHER_KEY))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -88,25 +86,23 @@ public class UpdateKeyActionTest {
     ComponentDto project = insertProject();
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'to' parameter is missing");
-
-    call(project.getKey(), null);
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(projectKey, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'to' parameter is missing");
   }
 
   @Test
   public void fail_if_key_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'from' parameter is missing");
-
-    call(null, ANOTHER_KEY);
+    assertThatThrownBy(() -> call(null, ANOTHER_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'from' parameter is missing");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    call("UNKNOWN_UUID", ANOTHER_KEY);
+    assertThatThrownBy(() -> call("UNKNOWN_UUID", ANOTHER_KEY))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -115,10 +111,10 @@ public class UpdateKeyActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
-
-    call(branch.getDbKey(), ANOTHER_KEY);
+    String branchDbKey = branch.getDbKey();
+    assertThatThrownBy(() -> call(branchDbKey, ANOTHER_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Project '%s' not found", branchDbKey));
   }
 
   @Test
@@ -136,7 +132,7 @@ public class UpdateKeyActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertPrivateProject(db.organizations().insert());
+    return db.components().insertPrivateProject();
   }
 
   private String call(@Nullable String key, @Nullable String newKey) {

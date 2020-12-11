@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Project;
@@ -54,7 +53,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -66,15 +64,13 @@ public class BulkDeleteAction implements ProjectsWsAction {
   private final ComponentCleanerService componentCleanerService;
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectsWsSupport support;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
 
   public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession,
-    ProjectsWsSupport support, ProjectLifeCycleListeners projectLifeCycleListeners) {
+    ProjectLifeCycleListeners projectLifeCycleListeners) {
     this.componentCleanerService = componentCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
   }
 
@@ -92,8 +88,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setChangelog(new Change("7.8", parameterRequiredMessage));
-
-    support.addOrganizationParam(action);
 
     action
       .createParam(PARAM_PROJECTS)
@@ -114,7 +108,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-          "If no visibility is specified, the default project visibility of the organization will be used.",
+        "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -139,12 +133,11 @@ public class BulkDeleteAction implements ProjectsWsAction {
     SearchRequest searchRequest = toSearchWsRequest(request);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.getOrganization(dbSession, searchRequest.getOrganization());
       userSession.checkPermission(GlobalPermission.ADMINISTER);
       checkAtLeastOneParameterIsPresent(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE));
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
 
       try {
         componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
@@ -169,7 +162,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   private static SearchRequest toSearchWsRequest(Request request) {
     return SearchRequest.builder()
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setVisibility(request.param(PARAM_VISIBILITY))

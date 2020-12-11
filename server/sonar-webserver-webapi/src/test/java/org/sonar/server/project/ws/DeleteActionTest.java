@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
@@ -50,6 +49,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -60,32 +60,30 @@ import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 
 public class DeleteActionTest {
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2);
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private WebhookDbTester webhookDbTester = db.webhooks();
-  private ComponentDbTester componentDbTester = new ComponentDbTester(db);
-  private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
-  private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
-  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final ComponentDbTester componentDbTester = new ComponentDbTester(db);
+  private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
+  private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
-  private DeleteAction underTest = new DeleteAction(
+  private final DeleteAction underTest = new DeleteAction(
     componentCleanerService,
     from(db),
     dbClient,
     userSessionRule, projectLifeCycleListeners);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void organization_administrator_deletes_project_by_key() {
+  public void global_administrator_deletes_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER);
 
@@ -157,9 +155,10 @@ public class DeleteActionTest {
       .addProjectPermission(UserRole.CODEVIEWER, project)
       .addProjectPermission(UserRole.ISSUE_ADMIN, project)
       .addProjectPermission(UserRole.USER, project);
-    expectedException.expect(ForbiddenException.class);
 
-    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -167,9 +166,10 @@ public class DeleteActionTest {
     ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSessionRule.anonymous();
-    expectedException.expect(UnauthorizedException.class);
 
-    call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -178,10 +178,10 @@ public class DeleteActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Project '%s' not found", branch.getDbKey()));
-
-    call(tester.newRequest().setParam(PARAM_PROJECT, branch.getDbKey()));
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, branch.getDbKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Project '%s' not found", branch.getDbKey()));
   }
 
   private String verifyDeletedKey() {

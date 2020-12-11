@@ -61,7 +61,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_event() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2"));
@@ -101,7 +101,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_category_different_than_other_and_version() {
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "P1");
+    ComponentDto project = newPrivateProjectDto("P1");
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
     logInAsProjectAdministrator(project);
@@ -122,7 +122,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_not_enough_permission() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.logIn();
 

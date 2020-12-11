@@ -27,8 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
@@ -51,8 +49,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
-  private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
-
   @Rule
   public EsTester es = EsTester.create();
 
@@ -116,14 +112,13 @@ public class SearchActionTest {
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
     return new ProjectMeasuresDoc()
-      .setOrganizationUuid(project.getOrganizationUuid())
       .setId(project.uuid())
       .setKey(project.getDbKey())
       .setName(project.name());
   }
 
   private static ProjectMeasuresDoc newDoc() {
-    return newDoc(ComponentTesting.newPrivateProjectDto(ORG));
+    return newDoc(ComponentTesting.newPrivateProjectDto());
   }
 
   private SearchResponse call(@Nullable String textQuery, @Nullable Integer pageSize) {

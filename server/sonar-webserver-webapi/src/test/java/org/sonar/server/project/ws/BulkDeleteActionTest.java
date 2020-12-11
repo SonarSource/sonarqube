@@ -28,10 +28,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
@@ -41,87 +39,71 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ON_PROVISIONED_ONLY;
-import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 
 public class BulkDeleteActionTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
 
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final DbClient dbClient = db.getDbClient();
-  private final ProjectsWsSupport support = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(db));
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
 
-  private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, support, projectLifeCycleListeners);
+  private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, projectLifeCycleListeners);
   private final WsActionTester ws = new WsActionTester(underTest);
 
-  private OrganizationDto org1;
-  private OrganizationDto org2;
-
-  @Before
-  public void setUp() {
-    org1 = db.organizations().insert();
-    org2 = db.organizations().insert();
-  }
-
   @Test
-  public void delete_projects_in_default_organization_if_no_org_provided() {
+  public void delete_projects() {
     userSession.logIn().setRoot();
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
-    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(defaultOrganization);
-    ComponentDto toKeep = db.components().insertPrivateProject(defaultOrganization);
+    ComponentDto project1ToDelete = db.components().insertPrivateProject();
+    ComponentDto project2ToDelete = db.components().insertPrivateProject();
+    ComponentDto toKeep = db.components().insertPrivateProject();
 
     TestResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
+      .setParam(PARAM_PROJECTS, project1ToDelete.getDbKey() + "," + project2ToDelete.getDbKey())
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     assertThat(result.getInput()).isEmpty();
-    verifyComponentDeleted(toDeleteInOrg2);
-    verifyListenersOnProjectsDeleted(toDeleteInOrg2);
+    verifyComponentDeleted(project1ToDelete, project2ToDelete);
+    verifyListenersOnProjectsDeleted(project1ToDelete, project2ToDelete);
   }
 
   @Test
   public void delete_projects_by_keys() {
     userSession.logIn().setRoot();
-    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
-    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(org1);
-    ComponentDto toKeep = db.components().insertPrivateProject(org1);
+    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject();
+    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject();
+    ComponentDto toKeep = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, org1.getKey())
       .setParam(PARAM_PROJECTS, toDeleteInOrg1.getDbKey() + "," + toDeleteInOrg2.getDbKey())
       .execute();
 
@@ -132,27 +114,26 @@ public class BulkDeleteActionTest {
   @Test
   public void throw_IllegalArgumentException_if_request_without_any_parameters() {
     userSession.logIn().setRoot();
-    db.components().insertPrivateProject(org1);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At lease one parameter among analyzedBefore, projects and q must be provided");
+    db.components().insertPrivateProject();
 
     try {
-      ws.newRequest().execute();
+      TestRequest request = ws.newRequest();
+      assertThatThrownBy(request::execute)
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("At lease one parameter among analyzedBefore, projects and q must be provided");
     } finally {
       verifyNoDeletions();
-      verifyZeroInteractions(projectLifeCycleListeners);
+      verifyNoMoreInteractions(projectLifeCycleListeners);
     }
   }
 
   @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() {
     userSession.logIn().setRoot();
-    ComponentDto toDelete1 = db.components().insertPrivateProject(org1);
-    ComponentDto toDelete2 = db.components().insertPrivateProject(org1);
+    ComponentDto toDelete1 = db.components().insertPrivateProject();
+    ComponentDto toDelete2 = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("organization", org1.getKey())
       .setParam("projects", toDelete1.getDbKey() + ",missing," + toDelete2.getDbKey() + ",doesNotExist")
       .execute();
 
@@ -239,10 +220,9 @@ public class BulkDeleteActionTest {
   public void delete_only_the_1000_first_projects() {
     userSession.logIn().addPermission(ADMINISTER);
     List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
-    keys.forEach(key -> db.components().insertPrivateProject(org1, p -> p.setDbKey(key)));
+    keys.forEach(key -> db.components().insertPrivateProject(p -> p.setDbKey(key)));
 
     ws.newRequest()
-      .setParam("organization", org1.getKey())
       .setParam("projects", StringUtils.join(keys, ","))
       .execute();
 
@@ -255,9 +235,9 @@ public class BulkDeleteActionTest {
   @Test
   public void projectLifeCycleListeners_onProjectsDeleted_called_even_if_delete_fails() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto project1 = db.components().insertPrivateProject(org1);
-    ComponentDto project2 = db.components().insertPrivateProject(org1);
-    ComponentDto project3 = db.components().insertPrivateProject(org1);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
     ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
     RuntimeException expectedException = new RuntimeException("Faking delete failing on 2nd project");
     doNothing()
@@ -267,7 +247,6 @@ public class BulkDeleteActionTest {
 
     try {
       ws.newRequest()
-        .setParam("organization", org1.getKey())
         .setParam("projects", project1.getDbKey() + "," + project2.getDbKey() + "," + project3.getDbKey())
         .execute();
     } catch (RuntimeException e) {
@@ -277,69 +256,28 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void organization_administrator_deletes_projects_by_keys_in_his_organization() {
+  public void global_administrator_deletes_projects_by_keys() {
     userSession.logIn().addPermission(ADMINISTER);
-    ComponentDto toDelete = db.components().insertPrivateProject(org1);
-    ComponentDto cantBeDeleted = db.components().insertPrivateProject(org2);
+    ComponentDto toDelete1 = db.components().insertPrivateProject();
+    ComponentDto toDelete2 = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("organization", org1.getKey())
-      .setParam("projects", toDelete.getDbKey() + "," + cantBeDeleted.getDbKey())
+      .setParam("projects", toDelete1.getDbKey() + "," + toDelete2.getDbKey())
       .execute();
 
-    verifyComponentDeleted(toDelete);
-    verifyListenersOnProjectsDeleted(toDelete);
+    verifyComponentDeleted(toDelete1, toDelete2);
+    verifyListenersOnProjectsDeleted(toDelete1, toDelete2);
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    ws.newRequest()
-      .setParam("ids", "whatever-the-uuid").execute();
-
-    verifyNoDeletions();
-    verifyZeroInteractions(projectLifeCycleListeners);
-  }
-
-  @Test
-  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_system_administrator() {
-    userSession.logIn().setNonSystemAdministrator();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("ids", "whatever-the-uuid").execute();
+    TestRequest request = ws.newRequest().setParam("ids", "whatever-the-uuid");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
 
     verifyNoDeletions();
-    verifyZeroInteractions(projectLifeCycleListeners);
-  }
-
-  @Test
-  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() {
-    userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("organization", org1.getKey())
-      .setParam("ids", "whatever-the-uuid")
-      .execute();
-
-    verifyNoDeletions();
-    verifyZeroInteractions(projectLifeCycleListeners);
-  }
-
-  private void verifyProjectDeleted(ComponentDto... projects) {
-    ArgumentCaptor<ProjectDto> argument = ArgumentCaptor.forClass(ProjectDto.class);
-    verify(componentCleanerService, times(projects.length)).delete(any(DbSession.class), argument.capture());
-
-    for (ComponentDto project : projects) {
-      assertThat(argument.getAllValues()).extracting(ProjectDto::getUuid).contains(project.uuid());
-    }
+    verifyNoMoreInteractions(projectLifeCycleListeners);
   }
 
   private void verifyComponentDeleted(ComponentDto... projects) {
@@ -352,7 +290,7 @@ public class BulkDeleteActionTest {
   }
 
   private void verifyNoDeletions() {
-    verifyZeroInteractions(componentCleanerService);
+    verifyNoMoreInteractions(componentCleanerService);
   }
 
   private void verifyListenersOnProjectsDeleted(ComponentDto... components) {

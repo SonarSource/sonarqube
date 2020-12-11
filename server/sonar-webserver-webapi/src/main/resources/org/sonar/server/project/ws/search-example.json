@@ -6,7 +6,6 @@
   },
   "components": [
     {
-      "organization": "my-org-1",
       "key": "project-key-1",
       "name": "Project Name 1",
       "qualifier": "TRK",
@@ -15,7 +14,6 @@
       "revision": "cfb82f55c6ef32e61828c4cb3db2da12795fd767"
     },
     {
-      "organization": "my-org-1",
       "key": "project-key-2",
       "name": "Project Name 1",
       "qualifier": "TRK",
