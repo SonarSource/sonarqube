@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.notifications.Notification;
@@ -72,18 +71,14 @@ public class NotificationQueueDto {
   }
 
   public static <T extends Notification> NotificationQueueDto toNotificationQueueDto(T notification) {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    try {
-      ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
       objectOutputStream.writeObject(notification);
       objectOutputStream.close();
       return new NotificationQueueDto().setData(byteArrayOutputStream.toByteArray());
 
     } catch (IOException e) {
       throw new SonarException("Unable to write notification", e);
-
-    } finally {
-      IOUtils.closeQuietly(byteArrayOutputStream);
     }
   }
 
@@ -92,15 +87,11 @@ public class NotificationQueueDto {
       return null;
     }
 
-    ByteArrayInputStream byteArrayInputStream = null;
-    try {
-      byteArrayInputStream = new ByteArrayInputStream(this.data);
-      ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(this.data);
+      ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
       Object result = objectInputStream.readObject();
       objectInputStream.close();
       return (T) result;
-    } finally {
-      IOUtils.closeQuietly(byteArrayInputStream);
     }
   }
 
