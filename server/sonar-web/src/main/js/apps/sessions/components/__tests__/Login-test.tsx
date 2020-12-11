@@ -19,23 +19,30 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Login from '../Login';
+import { Login, LoginProps } from '../Login';
 
-const identityProvider = {
-  backgroundColor: '#000',
-  iconPath: '/some/path',
-  key: 'foo',
-  name: 'foo'
-};
-
-it('logs in with form alone', () => {
-  const wrapper = shallow(<Login identityProviders={[]} onSubmit={jest.fn()} returnTo="" />);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('logs in with identity provider', () => {
-  const wrapper = shallow(
-    <Login identityProviders={[identityProvider]} onSubmit={jest.fn()} returnTo="" />
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('with identity providers');
+  expect(shallowRender({ identityProviders: [] })).toMatchSnapshot(
+    'without any identity providers'
   );
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender({ authorizationError: true })).toMatchSnapshot('with authorization error');
 });
+
+function shallowRender(props: Partial<LoginProps> = {}) {
+  return shallow<LoginProps>(
+    <Login
+      identityProviders={[
+        {
+          backgroundColor: '#000',
+          iconPath: '/some/path',
+          key: 'foo',
+          name: 'foo'
+        }
+      ]}
+      onSubmit={jest.fn()}
+      returnTo=""
+      {...props}
+    />
+  );
+}

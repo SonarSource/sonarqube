@@ -18,30 +18,57 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import { Store } from '../../../store/rootReducer';
 import './Login.css';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
 
-interface Props {
+export interface LoginProps {
+  authorizationError?: boolean;
+  authenticationError?: boolean;
   identityProviders: T.IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
 }
 
-export default function Login({ identityProviders, onSubmit, returnTo }: Props) {
+export function Login(props: LoginProps) {
+  const { authorizationError, authenticationError, identityProviders, returnTo } = props;
+  const displayError = authorizationError || authenticationError;
+
   return (
     <div className="login-page" id="login_form">
-      <h1 className="login-title text-center">{translate('login.login_to_sonarqube')}</h1>
+      <h1 className="login-title text-center huge-spacer-bottom">
+        {translate('login.login_to_sonarqube')}
+      </h1>
 
-      <GlobalMessagesContainer />
+      {displayError && (
+        <Alert className="huge-spacer-bottom" display="block" variant="error">
+          {translate('login.unauthorized_access_alert')}
+        </Alert>
+      )}
 
       {identityProviders.length > 0 && (
         <OAuthProviders identityProviders={identityProviders} returnTo={returnTo} />
       )}
 
-      <LoginForm collapsed={identityProviders.length > 0} onSubmit={onSubmit} returnTo={returnTo} />
+      <LoginForm
+        collapsed={identityProviders.length > 0}
+        onSubmit={props.onSubmit}
+        returnTo={returnTo}
+      />
+
+      <GlobalMessagesContainer />
     </div>
   );
 }
+
+const mapStateToProps = (state: Store) => ({
+  authorizationError: state.appState.authorizationError,
+  authenticationError: state.appState.authenticationError
+});
+
+export default connect(mapStateToProps)(Login);

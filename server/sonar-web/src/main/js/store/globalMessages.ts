@@ -19,7 +19,6 @@
  */
 import { uniqueId } from 'lodash';
 import { Dispatch } from 'redux';
-import { requireAuthorization } from './appState';
 import { ActionType } from './utils/actions';
 
 enum MessageLevel {
@@ -48,8 +47,7 @@ export function closeAllGlobalMessages() {
 type Action =
   | ActionType<typeof addGlobalMessageActionCreator, 'ADD_GLOBAL_MESSAGE'>
   | ActionType<typeof closeGlobalMessage, 'CLOSE_GLOBAL_MESSAGE'>
-  | ActionType<typeof closeAllGlobalMessages, 'CLOSE_ALL_GLOBAL_MESSAGES'>
-  | ActionType<typeof requireAuthorization, 'REQUIRE_AUTHORIZATION'>;
+  | ActionType<typeof closeAllGlobalMessages, 'CLOSE_ALL_GLOBAL_MESSAGES'>;
 
 function addGlobalMessage(message: string, level: MessageLevel) {
   return (dispatch: Dispatch) => {
@@ -73,18 +71,6 @@ export default function(state: State = [], action: Action): State {
   switch (action.type) {
     case 'ADD_GLOBAL_MESSAGE':
       return [{ id: action.id, message: action.message, level: action.level }];
-
-    case 'REQUIRE_AUTHORIZATION':
-      // FIXME l10n
-      return [
-        {
-          id: uniqueId('global-message-'),
-          message:
-            'You are not authorized to access this page. ' +
-            'Please log in with more privileges and try again.',
-          level: MessageLevel.Error
-        }
-      ];
 
     case 'CLOSE_GLOBAL_MESSAGE':
       return state.filter(message => message.id !== action.id);
