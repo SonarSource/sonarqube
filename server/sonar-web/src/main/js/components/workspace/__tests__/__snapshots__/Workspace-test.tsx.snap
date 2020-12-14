@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly store data locally 1`] = `"[{\\"branchLike\\":{\\"analysisDate\\":\\"2018-01-01\\",\\"excludedFromPurge\\":true,\\"isMain\\":false,\\"name\\":\\"branch-6.7\\"},\\"key\\":\\"foo\\",\\"__type__\\":\\"component\\"},{\\"key\\":\\"foo\\",\\"organization\\":\\"default\\",\\"__type__\\":\\"rule\\"}]"`;
+exports[`should correctly store data locally 1`] = `"[{\\"branchLike\\":{\\"analysisDate\\":\\"2018-01-01\\",\\"excludedFromPurge\\":true,\\"isMain\\":false,\\"name\\":\\"branch-6.7\\"},\\"key\\":\\"foo\\",\\"__type__\\":\\"component\\"},{\\"key\\":\\"foo\\",\\"__type__\\":\\"rule\\"}]"`;
 
 exports[`should render correctly: default 1`] = `
 <ContextProvider
@@ -111,7 +111,6 @@ exports[`should render correctly: open rule 1`] = `
         Array [
           Object {
             "key": "foo",
-            "organization": "default",
           },
         ]
       }
@@ -127,7 +126,6 @@ exports[`should render correctly: open rule 1`] = `
       rule={
         Object {
           "key": "foo",
-          "organization": "default",
         }
       }
     />

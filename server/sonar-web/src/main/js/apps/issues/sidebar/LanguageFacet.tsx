@@ -24,7 +24,8 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { getLanguages, Store } from '../../../store/rootReducer';
-import { Facet, Query, ReferencedLanguage } from '../utils';
+import { Facet, ReferencedLanguage } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface InstalledLanguage {
   key: string;

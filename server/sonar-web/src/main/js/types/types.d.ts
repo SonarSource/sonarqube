@@ -343,10 +343,8 @@ declare namespace T {
     fromHotspot: boolean;
     line?: number;
     message: string;
-    organization: string;
     project: string;
     projectName: string;
-    projectOrganization: string;
     projectKey: string;
     pullRequest?: string;
     resolution?: string;

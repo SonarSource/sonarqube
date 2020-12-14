@@ -20,14 +20,14 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockIssue } from '../../../../helpers/testMocks';
 import IssueAssign from '../IssueAssign';
 
-const issue = {
+const issue = mockIssue(false, {
   assignee: 'john',
   assigneeAvatar: 'gravatarhash',
-  assigneeName: 'John Doe',
-  projectOrganization: 'org'
-};
+  assigneeName: 'John Doe'
+});
 
 it('should render without the action when the correct rights are missing', () => {
   expect(shallowRender({ canAssign: false })).toMatchSnapshot();
@@ -38,7 +38,9 @@ it('should render with the action', () => {
 });
 
 it('should render a fallback assignee display if assignee info are not available', () => {
-  expect(shallowRender({ issue: { projectOrganization: 'org' } })).toMatchSnapshot();
+  expect(
+    shallowRender({ issue: mockIssue(false, { assignee: undefined, assigneeName: undefined }) })
+  ).toMatchSnapshot();
 });
 
 it('should open the popup when the button is clicked', () => {

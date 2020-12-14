@@ -8,10 +8,6 @@ exports[`renders 1`] = `
     className="spacer-right"
     qualifier="FIL"
   />
-  <Connect(Organization)
-    link={false}
-    organizationKey="org"
-  />
   <span
     title="proj-name"
   >
@@ -35,10 +31,6 @@ exports[`renders with sub-project 1`] = `
   <QualifierIcon
     className="spacer-right"
     qualifier="FIL"
-  />
-  <Connect(Organization)
-    link={false}
-    organizationKey="org"
   />
   <span
     title="proj-name"

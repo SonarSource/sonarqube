@@ -18,7 +18,6 @@ exports[`should open the popup when the button is clicked 2`] = `
     open={true}
     overlay={
       <SetIssueTagsPopup
-        organization="foo"
         selectedTags={
           Array [
             "mytag",
@@ -56,7 +55,6 @@ exports[`should render with the action 1`] = `
     open={false}
     overlay={
       <SetIssueTagsPopup
-        organization="foo"
         selectedTags={
           Array [
             "mytag",

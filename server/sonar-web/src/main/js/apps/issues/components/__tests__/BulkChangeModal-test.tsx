@@ -20,15 +20,16 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { searchIssueTags } from '../../../../api/issues';
 import { mockIssue } from '../../../../helpers/testMocks';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
-  searchIssueTags: () => Promise.resolve([undefined, []])
+  searchIssueTags: jest.fn().mockResolvedValue([undefined, []])
 }));
 
 jest.mock('../BulkChangeModal', () => {
-  const mock = require.requireActual('../BulkChangeModal');
+  const mock = jest.requireActual('../BulkChangeModal');
   mock.MAX_PAGE_SIZE = 1;
   return mock;
 });
@@ -92,6 +93,12 @@ it('should properly handle the search for assignee', async () => {
   expect(result).toMatchSnapshot();
 });
 
+it('should properly handle the search for tags', async () => {
+  const wrapper = getWrapper([]);
+  await wrapper.instance().handleTagsSearch('query');
+  expect(searchIssueTags).toBeCalled();
+});
+
 const getWrapper = (issues: T.Issue[]) => {
   return shallow<BulkChangeModal>(
     <BulkChangeModal
@@ -109,7 +116,6 @@ const getWrapper = (issues: T.Issue[]) => {
       }
       onClose={() => {}}
       onDone={() => {}}
-      organization={undefined}
     />
   );
 };

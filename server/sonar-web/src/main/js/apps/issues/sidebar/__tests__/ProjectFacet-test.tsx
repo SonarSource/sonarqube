@@ -23,7 +23,8 @@ import * as React from 'react';
 import { getTree, searchProjects } from '../../../../api/components';
 import { mockComponent } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
-import { Query, ReferencedComponent } from '../../utils';
+import { ReferencedComponent } from '../../../../types/issues';
+import { Query } from '../../utils';
 import ProjectFacet from '../ProjectFacet';
 
 jest.mock('../../../../api/components', () => ({
@@ -31,7 +32,6 @@ jest.mock('../../../../api/components', () => ({
   searchProjects: jest.fn().mockResolvedValue({
     components: [],
     facets: [],
-    organizations: [],
     paging: {}
   })
 }));
@@ -77,8 +77,8 @@ it('should handle search for projects in portfolio', async () => {
 
 describe("ListStyleFacet's renderers", () => {
   const components: ReferencedComponent[] = [
-    { key: 'projectKey', name: 'First Project Name', organization: '', uuid: '141324' },
-    { key: 'projectKey2', name: 'Second Project Name', organization: '', uuid: '643878' }
+    { key: 'projectKey', name: 'First Project Name', uuid: '141324' },
+    { key: 'projectKey2', name: 'Second Project Name', uuid: '643878' }
   ];
   const referencedComponents = keyBy(components, c => c.key);
   const wrapper = shallowRender({ referencedComponents });

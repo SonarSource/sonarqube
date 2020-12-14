@@ -32,6 +32,7 @@ import {
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { searchUsers } from '../../api/users';
+import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard, StandardType } from '../../types/security';
 
 export interface Query {
@@ -150,15 +151,6 @@ export function serializeQuery(query: Query): T.RawQuery {
 export const areQueriesEqual = (a: T.RawQuery, b: T.RawQuery) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
-export interface RawFacet {
-  property: string;
-  values: Array<{ val: string; count: number }>;
-}
-
-export interface Facet {
-  [value: string]: number;
-}
-
 export function mapFacet(facet: string) {
   const propertyMapping: T.Dict<string> = {
     modules: 'moduleUuids'
@@ -190,23 +182,6 @@ export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
 
 export function formatFacetStat(stat: number | undefined) {
   return stat && formatMeasure(stat, 'SHORT_INT');
-}
-
-export interface ReferencedComponent {
-  key: string;
-  name: string;
-  organization: string;
-  path?: string;
-  uuid: string;
-}
-
-export interface ReferencedLanguage {
-  name: string;
-}
-
-export interface ReferencedRule {
-  langName?: string;
-  name: string;
 }
 
 export const searchAssignees = (

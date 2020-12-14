@@ -25,7 +25,8 @@ import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { searchIssueTags } from '../../../api/issues';
 import { colors } from '../../../app/theme';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { Facet, Query } from '../utils';
+import { Facet } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface Props {
   component: T.Component | undefined;
@@ -34,7 +35,6 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: string | undefined;
   query: Query;
   stats: T.Dict<number> | undefined;
   tags: string[];
@@ -48,7 +48,6 @@ export default class TagFacet extends React.PureComponent<Props> {
     const project =
       component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
     return searchIssueTags({
-      organization: this.props.organization,
       project,
       ps: SEARCH_SIZE,
       q: query

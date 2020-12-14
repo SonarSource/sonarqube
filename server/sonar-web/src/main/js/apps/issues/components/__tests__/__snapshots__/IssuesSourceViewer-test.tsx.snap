@@ -77,11 +77,9 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
         "key": "AVsae-CQS-9G3txfbFN2",
         "line": 25,
         "message": "Reduce the number of conditional operators (4) used in the expression",
-        "organization": "myorg",
         "project": "myproject",
         "projectKey": "foo",
         "projectName": "Foo",
-        "projectOrganization": "org",
         "rule": "javascript:S1067",
         "ruleName": "foo",
         "secondaryLocations": Array [
@@ -180,11 +178,9 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
           "key": "AVsae-CQS-9G3txfbFN2",
           "line": 25,
           "message": "Reduce the number of conditional operators (4) used in the expression",
-          "organization": "myorg",
           "project": "myproject",
           "projectKey": "foo",
           "projectName": "Foo",
-          "projectOrganization": "org",
           "rule": "javascript:S1067",
           "ruleName": "foo",
           "secondaryLocations": Array [

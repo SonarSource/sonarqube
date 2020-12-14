@@ -17,27 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockIssue } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
-import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
+import { ReferencedRule } from '../../types/issues';
 
-const baseIssue = mockIssue(false, {
-  component: 'comp',
-  componentLongName: 'comp-name',
-  componentQualifier: ComponentQualifier.File,
-  project: 'proj',
-  projectName: 'proj-name'
-});
-
-it('renders', () => {
-  expect(
-    shallow(<ComponentBreadcrumbs component={undefined} issue={baseIssue} />)
-  ).toMatchSnapshot();
-});
-
-it('renders with sub-project', () => {
-  const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  expect(shallow(<ComponentBreadcrumbs component={undefined} issue={issue} />)).toMatchSnapshot();
-});
+export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): ReferencedRule {
+  return {
+    langName: 'Javascript',
+    name: 'RuleFoo',
+    ...overrides
+  };
+}

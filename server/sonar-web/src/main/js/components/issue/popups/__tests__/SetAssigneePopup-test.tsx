@@ -47,11 +47,6 @@ it('should allow to search for a user on SQ', async () => {
 
 function shallowRender(props: Partial<SetAssigneePopup['props']> = {}) {
   return shallow(
-    <SetAssigneePopup
-      currentUser={mockLoggedInUser()}
-      issue={{ projectOrganization: 'foo' }}
-      onSelect={jest.fn()}
-      {...props}
-    />
+    <SetAssigneePopup currentUser={mockLoggedInUser()} onSelect={jest.fn()} {...props} />
   );
 }

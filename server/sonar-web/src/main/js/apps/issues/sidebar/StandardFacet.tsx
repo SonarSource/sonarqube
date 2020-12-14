@@ -34,8 +34,9 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
+import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards, StandardType } from '../../../types/security';
-import { Facet, formatFacetStat, Query, STANDARDS } from '../utils';
+import { formatFacetStat, Query, STANDARDS } from '../utils';
 
 interface Props {
   cwe: string[];

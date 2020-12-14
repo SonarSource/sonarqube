@@ -71,7 +71,7 @@ const ISSUES = [
 const FACETS = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
 const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
 
-const referencedComponent = { key: 'foo-key', name: 'bar', organization: 'John', uuid: 'foo-uuid' };
+const referencedComponent = { key: 'foo-key', name: 'bar', uuid: 'foo-uuid' };
 
 it('should render a list of issue', async () => {
   const wrapper = shallowRender();
@@ -393,13 +393,12 @@ it('should handle createAfter query param with time', async () => {
 
   wrapper.instance().fetchIssues({});
   expect(fetchIssues).toBeCalledWith(
-    expect.objectContaining({ createdAfter: '2020-10-21T17:21:00+0000' }),
-    false
+    expect.objectContaining({ createdAfter: '2020-10-21T17:21:00+0000' })
   );
 });
 
 function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
-  return jest.fn().mockImplementation(({ p }: any) =>
+  return jest.fn().mockImplementation(({ p }: { p: number }) =>
     Promise.resolve({
       components: [referencedComponent],
       effortTotal: 1,
@@ -439,7 +438,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
         breadcrumbs: [],
         key: 'foo',
         name: 'bar',
-        organization: 'John',
         qualifier: 'Doe'
       }}
       currentUser={mockLoggedInUser()}
@@ -456,9 +454,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
       })}
       location={mockLocation({ pathname: '/issues', query: {} })}
       onBranchesChange={() => {}}
-      organization={{ key: 'foo' }}
       router={mockRouter()}
-      userOrganizations={[]}
       {...props}
     />
   );

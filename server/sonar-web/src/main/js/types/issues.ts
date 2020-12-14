@@ -29,3 +29,85 @@ export enum IssueScope {
   Main = 'MAIN',
   Test = 'TEST'
 }
+
+interface Comment {
+  login: string;
+  [x: string]: any;
+}
+
+interface IssueBase {
+  severity: string;
+  [x: string]: any;
+}
+
+export interface RawIssue extends IssueBase {
+  assignee?: string;
+  author?: string;
+  comments?: Array<Comment>;
+  component: string;
+  flows?: Array<{
+    // `componentName` is not available in RawIssue
+    locations?: Array<T.Omit<T.FlowLocation, 'componentName'>>;
+  }>;
+  key: string;
+  line?: number;
+  project: string;
+  rule: string;
+  status: string;
+  subProject?: string;
+  textRange?: T.TextRange;
+}
+
+export interface IssueResponse {
+  components?: Array<{ key: string; name: string }>;
+  issue: RawIssue;
+  rules?: Array<{}>;
+  users?: Array<T.UserBase>;
+}
+
+export interface RawIssuesResponse {
+  components: ReferencedComponent[];
+  effortTotal: number;
+  facets: RawFacet[];
+  issues: RawIssue[];
+  languages: ReferencedLanguage[];
+  paging: T.Paging;
+  rules?: Array<{}>;
+  users?: Array<T.UserBase>;
+}
+
+export interface FetchIssuesPromise {
+  components: ReferencedComponent[];
+  effortTotal: number;
+  facets: RawFacet[];
+  issues: T.Issue[];
+  languages: ReferencedLanguage[];
+  paging: T.Paging;
+  rules: ReferencedRule[];
+  users: T.UserBase[];
+}
+
+export interface ReferencedComponent {
+  key: string;
+  name: string;
+  path?: string;
+  uuid: string;
+}
+
+export interface ReferencedLanguage {
+  name: string;
+}
+
+export interface ReferencedRule {
+  langName?: string;
+  name: string;
+}
+
+export interface RawFacet {
+  property: string;
+  values: Array<{ val: string; count: number }>;
+}
+
+export interface Facet {
+  [value: string]: number;
+}

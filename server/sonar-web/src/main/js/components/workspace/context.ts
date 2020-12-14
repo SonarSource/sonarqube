@@ -31,7 +31,6 @@ export interface ComponentDescriptor {
 export interface RuleDescriptor {
   key: string;
   name?: string;
-  organization: string;
 }
 
 export interface WorkspaceContextShape {

@@ -20,26 +20,12 @@
 import * as React from 'react';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { collapsePath, limitComponentName } from 'sonar-ui-common/helpers/path';
-import Organization from '../../../components/shared/Organization';
 import { getSelectedLocation } from '../utils';
 
 interface Props {
   component?: T.Component;
-  issue: Pick<
-    T.Issue,
-    | 'component'
-    | 'componentLongName'
-    | 'componentQualifier'
-    | 'flows'
-    | 'organization'
-    | 'project'
-    | 'projectName'
-    | 'secondaryLocations'
-    | 'subProject'
-    | 'subProjectName'
-  >;
+  issue: T.Issue;
   link?: boolean;
-  organization: { key: string } | undefined;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
 }
@@ -47,12 +33,9 @@ interface Props {
 export default function ComponentBreadcrumbs({
   component,
   issue,
-  organization,
   selectedFlowIndex,
   selectedLocationIndex
 }: Props) {
-  const displayOrganization =
-    !organization && (!component || ['VW', 'SVW'].includes(component.qualifier));
   const displayProject = !component || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
   const displaySubProject = !component || !['BRC', 'DIR'].includes(component.qualifier);
 
@@ -62,8 +45,6 @@ export default function ComponentBreadcrumbs({
   return (
     <div className="component-name text-ellipsis">
       <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
-
-      {displayOrganization && <Organization link={false} organizationKey={issue.organization} />}
 
       {displayProject && (
         <span title={issue.projectName}>

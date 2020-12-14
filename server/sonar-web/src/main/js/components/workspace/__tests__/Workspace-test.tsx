@@ -79,19 +79,18 @@ it('should render correctly', () => {
   ).toMatchSnapshot('open component');
   expect(
     shallowRender({
-      rules: [{ key: 'foo', organization: 'default' }],
+      rules: [{ key: 'foo' }],
       open: { rule: 'foo' }
     })
   ).toMatchSnapshot('open rule');
 });
 
 it('should correctly load data from local storage', () => {
-  const rule1 = { [TYPE_KEY]: WorkspaceTypes.Rule, key: 'foo', organization: 'default' };
+  const rule1 = { [TYPE_KEY]: WorkspaceTypes.Rule, key: 'foo' };
   const rule2 = {
     [TYPE_KEY]: WorkspaceTypes.Rule,
     key: 'baz',
-    name: 'Baz',
-    organization: 'default'
+    name: 'Baz'
   };
   const component = {
     [TYPE_KEY]: WorkspaceTypes.Component,
@@ -115,7 +114,7 @@ it('should correctly load data from local storage', () => {
 it('should correctly store data locally', () => {
   const wrapper = shallowRender({
     components: [{ branchLike: mockBranch(), key: 'foo' }],
-    rules: [{ key: 'foo', organization: 'default' }]
+    rules: [{ key: 'foo' }]
   });
   wrapper.instance().saveWorkspace();
   expect((save as jest.Mock).mock.calls[0][1]).toMatchSnapshot();
@@ -129,7 +128,7 @@ it('should load rule engine names', async () => {
 
 it('should allow elements to be loaded and updated', () => {
   const component = { key: 'foo', branchLike: mockBranch() };
-  const rule = { key: 'bar', organization: 'default' };
+  const rule = { key: 'bar' };
   const wrapper = shallowRender({
     components: [component],
     rules: [rule]
@@ -155,7 +154,7 @@ it('should allow elements to be loaded and updated', () => {
 
 it('should be resizable', () => {
   (get as jest.Mock).mockReturnValue(
-    JSON.stringify([{ [TYPE_KEY]: WorkspaceTypes.Rule, key: 'foo', organization: 'default' }])
+    JSON.stringify([{ [TYPE_KEY]: WorkspaceTypes.Rule, key: 'foo' }])
   );
   const wrapper = shallowRender({ open: { rule: 'foo' } });
   const instance = wrapper.instance();
@@ -180,8 +179,7 @@ it('should be resizable', () => {
 it('should be openable/collapsible', () => {
   const rule = {
     key: 'baz',
-    name: 'Baz',
-    organization: 'default'
+    name: 'Baz'
   };
   const component = {
     branchLike: mockBranch(),

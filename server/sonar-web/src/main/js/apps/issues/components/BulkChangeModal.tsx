@@ -56,7 +56,6 @@ interface Props {
   fetchIssues: (x: {}) => Promise<{ issues: T.Issue[]; paging: T.Paging }>;
   onClose: () => void;
   onDone: () => void;
-  organization: { key: string } | undefined;
 }
 
 interface FormFields {
@@ -64,7 +63,6 @@ interface FormFields {
   assignee?: AssigneeOption;
   comment?: string;
   notifications?: boolean;
-  organization?: string;
   removeTags?: Array<{ label: string; value: string }>;
   severity?: string;
   transition?: string;
@@ -94,20 +92,13 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    let organization = props.component && props.component.organization;
-    if (props.organization && !organization) {
-      organization = props.organization.key;
-    }
-    this.state = { initialTags: [], issues: [], loading: true, submitting: false, organization };
+    this.state = { initialTags: [], issues: [], loading: true, submitting: false };
   }
 
   componentDidMount() {
     this.mounted = true;
 
-    Promise.all([
-      this.loadIssues(),
-      searchIssueTags({ organization: this.state.organization })
-    ]).then(
+    Promise.all([this.loadIssues(), searchIssueTags({})]).then(
       ([{ issues, paging }, tags]) => {
         if (this.mounted) {
           if (issues.length > MAX_PAGE_SIZE) {
@@ -178,7 +169,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   handleTagsSearch = (query: string) => {
-    return searchIssueTags({ organization: this.state.organization, q: query }).then(tags =>
+    return searchIssueTags({ q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
     );
   };

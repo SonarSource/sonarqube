@@ -24,7 +24,8 @@ import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import Avatar from '../../../components/ui/Avatar';
 import { isUserActive } from '../../../helpers/users';
-import { Facet, Query, searchAssignees } from '../utils';
+import { Facet } from '../../../types/issues';
+import { Query, searchAssignees } from '../utils';
 
 interface Props {
   assigned: boolean;

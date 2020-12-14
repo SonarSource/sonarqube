@@ -51,6 +51,13 @@ import {
 } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
 import { BranchLike } from '../../../types/branch-like';
+import {
+  Facet,
+  FetchIssuesPromise,
+  ReferencedComponent,
+  ReferencedLanguage,
+  ReferencedRule
+} from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
@@ -60,16 +67,11 @@ import '../styles.css';
 import {
   areMyIssuesSelected,
   areQueriesEqual,
-  Facet,
   getOpen,
   mapFacet,
   parseFacets,
   parseQuery,
   Query,
-  RawFacet,
-  ReferencedComponent,
-  ReferencedLanguage,
-  ReferencedRule,
   saveMyIssues,
   scrollToIssue,
   serializeQuery,
@@ -86,28 +88,15 @@ import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
 
-interface FetchIssuesPromise {
-  components: ReferencedComponent[];
-  effortTotal: number;
-  facets: RawFacet[];
-  issues: T.Issue[];
-  languages: ReferencedLanguage[];
-  paging: T.Paging;
-  rules: ReferencedRule[];
-  users: T.UserBase[];
-}
-
 interface Props {
   branchLike?: BranchLike;
   component?: T.Component;
   currentUser: T.CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
-  fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
+  fetchIssues: (query: T.RawQuery) => Promise<FetchIssuesPromise>;
   location: Location;
   onBranchesChange?: () => void;
-  organization?: { key: string };
   router: Pick<Router, 'push' | 'replace'>;
-  userOrganizations: T.Organization[];
 }
 
 export interface State {
@@ -424,17 +413,12 @@ export default class App extends React.PureComponent<Props, State> {
           .join(',')
       : undefined;
 
-    const organizationKey =
-      (component && component.organization) ||
-      (this.props.organization && this.props.organization.key);
-
     const parameters: T.Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: '100',
-      organization: organizationKey,
       facets,
       ...additional
     };
@@ -452,7 +436,7 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters, false);
+    return this.props.fetchIssues(parameters);
   };
 
   fetchFirstIssues() {
@@ -630,7 +614,9 @@ export default class App extends React.PureComponent<Props, State> {
           }));
         }
       },
-      () => {}
+      () => {
+        /* Do nothing */
+      }
     );
   };
 
@@ -701,27 +687,20 @@ export default class App extends React.PureComponent<Props, State> {
     const { component } = this.props;
     const { myIssues, query } = this.state;
 
-    const organizationKey =
-      (component && component.organization) ||
-      (this.props.organization && this.props.organization.key);
-
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       facets: mapFacet(property),
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),
-      ps: 1,
-      organization: organizationKey
+      ps: 1
     };
 
     if (myIssues) {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props
-      .fetchIssues(parameters, false)
-      .then(({ facets }) => parseFacets(facets)[property]);
+    return this.props.fetchIssues(parameters).then(({ facets }) => parseFacets(facets)[property]);
   };
 
   closeFacet = (property: string) => {
@@ -918,7 +897,6 @@ export default class App extends React.PureComponent<Props, State> {
             fetchIssues={checkAll ? this.fetchIssues : this.getCheckedIssues}
             onClose={this.handleCloseBulkChange}
             onDone={this.handleBulkChangeDone}
-            organization={this.props.organization}
           />
         )}
       </div>
@@ -926,19 +904,8 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderFacets() {
-    const { component, currentUser, userOrganizations, branchLike } = this.props;
+    const { component, currentUser, branchLike } = this.props;
     const { query } = this.state;
-
-    const organizationKey =
-      (component && component.organization) ||
-      (this.props.organization && this.props.organization.key);
-
-    const userOrganization =
-      !isSonarCloud() ||
-      userOrganizations.find(o => {
-        return o.key === organizationKey;
-      });
-    const hideAuthorFacet = !userOrganization;
 
     return (
       <div className="layout-page-filters">
@@ -954,14 +921,12 @@ export default class App extends React.PureComponent<Props, State> {
           component={component}
           createdAfterIncludesTime={this.createdAfterIncludesTime()}
           facets={this.state.facets}
-          hideAuthorFacet={hideAuthorFacet}
           loadSearchResultCount={this.loadSearchResultCount}
           loadingFacets={this.state.loadingFacets}
           myIssues={this.state.myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
           openFacets={this.state.openFacets}
-          organization={this.props.organization}
           query={query}
           referencedComponentsById={this.state.referencedComponentsById}
           referencedComponentsByKey={this.state.referencedComponentsByKey}
@@ -1029,7 +994,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderList() {
-    const { branchLike, component, currentUser, organization } = this.props;
+    const { branchLike, component, currentUser } = this.props;
     const { issues, loading, loadingMore, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
@@ -1063,7 +1028,6 @@ export default class App extends React.PureComponent<Props, State> {
             onIssueClick={this.openIssue}
             onPopupToggle={this.handlePopupToggle}
             openPopup={this.state.openPopup}
-            organization={organization}
             selectedIssue={selectedIssue}
           />
         )}
@@ -1101,7 +1065,7 @@ export default class App extends React.PureComponent<Props, State> {
 
             {this.renderBulkChange(openIssue)}
             <PageActions
-              canSetHome={Boolean(!this.props.organization && !this.props.component)}
+              canSetHome={!this.props.component}
               effortTotal={this.state.effortTotal}
               onReload={this.handleReload}
               paging={paging}

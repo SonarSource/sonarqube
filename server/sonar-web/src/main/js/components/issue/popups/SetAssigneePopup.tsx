@@ -31,7 +31,6 @@ import Avatar from '../../ui/Avatar';
 
 interface Props {
   currentUser: T.CurrentUser;
-  issue: Pick<T.Issue, 'projectOrganization'>;
   onSelect: (login: string) => void;
 }
 

@@ -85,7 +85,6 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
           onFacetToggle={jest.fn()}
           onFilterChange={jest.fn()}
           openFacets={{}}
-          organization={undefined}
           query={{ types: [''] } as Query}
           referencedComponentsById={{}}
           referencedComponentsByKey={{}}

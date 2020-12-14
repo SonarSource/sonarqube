@@ -31,21 +31,12 @@ export interface IssueMessageProps {
   manualVulnerability: boolean;
   message: string;
   onOpenRule: WorkspaceContextShape['openRule'];
-  organization: string;
   ruleKey: string;
   ruleStatus?: RuleStatus;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const {
-    engine,
-    engineName,
-    manualVulnerability,
-    message,
-    organization,
-    ruleKey,
-    ruleStatus
-  } = props;
+  const { engine, engineName, manualVulnerability, message, ruleKey, ruleStatus } = props;
   const ruleEngine = engineName ? engineName : engine;
 
   return (
@@ -54,7 +45,11 @@ export default function IssueMessage(props: IssueMessageProps) {
       <ButtonLink
         aria-label={translate('issue.why_this_issue.long')}
         className="issue-see-rule spacer-right text-baseline"
-        onClick={() => props.onOpenRule({ key: ruleKey, organization })}>
+        onClick={() =>
+          props.onOpenRule({
+            key: ruleKey
+          })
+        }>
         {translate('issue.why_this_issue')}
       </ButtonLink>
 

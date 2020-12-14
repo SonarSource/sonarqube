@@ -40,7 +40,9 @@ it('should handle click correctly', () => {
   const onOpenRule = jest.fn();
   const wrapper = shallowRender({ onOpenRule });
   click(wrapper.find(ButtonLink));
-  expect(onOpenRule).toBeCalledWith({ key: 'javascript:S1067', organization: 'myorg' });
+  expect(onOpenRule).toBeCalledWith({
+    key: 'javascript:S1067'
+  });
 });
 
 function shallowRender(props: Partial<IssueMessageProps> = {}) {
@@ -49,7 +51,6 @@ function shallowRender(props: Partial<IssueMessageProps> = {}) {
       manualVulnerability={false}
       message="Reduce the number of conditional operators (4) used in the expression"
       onOpenRule={jest.fn()}
-      organization="myorg"
       ruleKey="javascript:S1067"
       {...props}
     />

@@ -23,7 +23,8 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { searchIssueAuthors } from '../../../api/issues';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { Facet, Query } from '../utils';
+import { Facet } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface Props {
   component: T.Component | undefined;
@@ -32,7 +33,6 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: string | undefined;
   query: Query;
   stats: T.Dict<number> | undefined;
   authors: string[];
@@ -50,7 +50,6 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     const project =
       component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
     return searchIssueAuthors({
-      organization: this.props.organization,
       project,
       ps: SEARCH_SIZE, // maximum
       q: query

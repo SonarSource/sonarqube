@@ -46,7 +46,6 @@ function shallowRender(overrides: Partial<IssuesList['props']> = {}) {
       onIssueClick={jest.fn()}
       onPopupToggle={jest.fn()}
       openPopup={undefined}
-      organization={undefined}
       selectedIssue={undefined}
       {...overrides}
     />

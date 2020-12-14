@@ -29,7 +29,7 @@ import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
 interface Props {
   canSetTags: boolean;
   isOpen: boolean;
-  issue: Pick<T.Issue, 'key' | 'projectOrganization' | 'tags'>;
+  issue: Pick<T.Issue, 'key' | 'tags'>;
   onChange: (issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
@@ -64,13 +64,7 @@ export default class IssueTags extends React.PureComponent<Props> {
           <Toggler
             onRequestClose={this.handleClose}
             open={this.props.isOpen}
-            overlay={
-              <SetIssueTagsPopup
-                organization={issue.projectOrganization}
-                selectedTags={tags}
-                setTags={this.setTags}
-              />
-            }>
+            overlay={<SetIssueTagsPopup selectedTags={tags} setTags={this.setTags} />}>
             <ButtonLink
               className="issue-action issue-action-with-options js-issue-edit-tags"
               onClick={this.toggleSetTags}>

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { IssueResponse } from '../../../api/issues';
+import { IssueResponse } from '../../../types/issues';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';

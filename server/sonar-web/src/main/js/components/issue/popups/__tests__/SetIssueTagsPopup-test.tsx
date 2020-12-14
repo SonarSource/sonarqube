@@ -22,9 +22,7 @@ import * as React from 'react';
 import SetIssueTagsPopup from '../SetIssueTagsPopup';
 
 it('should render tags popup correctly', () => {
-  const element = shallow(
-    <SetIssueTagsPopup organization="foo" selectedTags={['mytag']} setTags={jest.fn()} />
-  );
+  const element = shallow(<SetIssueTagsPopup selectedTags={['mytag']} setTags={jest.fn()} />);
   element.setState({ searchResult: ['mytag', 'test', 'second'] });
   expect(element).toMatchSnapshot();
 });

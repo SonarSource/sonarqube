@@ -28,7 +28,8 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { TreeComponentWithPath } from '../../../types/component';
-import { Facet, Query } from '../utils';
+import { Facet } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;

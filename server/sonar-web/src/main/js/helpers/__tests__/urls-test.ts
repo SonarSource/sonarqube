@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../types/component';
+import { IssueType } from '../../types/issues';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
+  getIssuesUrl,
   getQualityGatesUrl,
   getQualityGateUrl
 } from '../urls';
@@ -119,5 +121,15 @@ describe('#getQualityGate(s)Url', () => {
   it('should take organization key into account', () => {
     expect(getQualityGatesUrl()).toEqual({ pathname: '/quality_gates' });
     expect(getQualityGateUrl('bar')).toEqual({ pathname: '/quality_gates/show/bar' });
+  });
+});
+
+describe('getIssuesUrl', () => {
+  it('should work as expected', () => {
+    const type = IssueType.Bug;
+    expect(getIssuesUrl({ type })).toEqual({
+      pathname: '/issues',
+      query: { type }
+    });
   });
 });

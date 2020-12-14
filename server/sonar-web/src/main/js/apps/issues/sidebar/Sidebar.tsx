@@ -22,7 +22,13 @@ import { connect } from 'react-redux';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { Facet, Query, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
+import {
+  Facet,
+  ReferencedComponent,
+  ReferencedLanguage,
+  ReferencedRule
+} from '../../../types/issues';
+import { Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
 import CreationDateFacet from './CreationDateFacet';
@@ -44,14 +50,12 @@ export interface Props {
   component: T.Component | undefined;
   createdAfterIncludesTime: boolean;
   facets: T.Dict<Facet | undefined>;
-  hideAuthorFacet?: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   loadingFacets: T.Dict<boolean>;
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: T.Dict<boolean>;
-  organization: { key: string } | undefined;
   query: Query;
   referencedComponentsById: T.Dict<ReferencedComponent>;
   referencedComponentsByKey: T.Dict<ReferencedComponent>;
@@ -99,22 +103,11 @@ export class Sidebar extends React.PureComponent<Props> {
   }
 
   render() {
-    const {
-      component,
-      createdAfterIncludesTime,
-      facets,
-      hideAuthorFacet,
-      openFacets,
-      query
-    } = this.props;
+    const { component, createdAfterIncludesTime, facets, openFacets, query } = this.props;
 
     const displayProjectsFacet =
       !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
-    const displayAuthorFacet = !hideAuthorFacet && (!component || component.qualifier !== 'DEV');
-
-    const organizationKey =
-      (component && component.organization) ||
-      (this.props.organization && this.props.organization.key);
+    const displayAuthorFacet = !component || component.qualifier !== 'DEV';
 
     return (
       <>
@@ -214,7 +207,6 @@ export class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.rules}
-          organization={organizationKey}
           query={query}
           referencedRules={this.props.referencedRules}
           rules={query.rules}
@@ -227,7 +219,6 @@ export class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.tags}
-          organization={organizationKey}
           query={query}
           stats={facets.tags}
           tags={query.tags}
@@ -270,7 +261,6 @@ export class Sidebar extends React.PureComponent<Props> {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.authors}
-            organization={organizationKey}
             query={query}
             stats={facets.authors}
           />

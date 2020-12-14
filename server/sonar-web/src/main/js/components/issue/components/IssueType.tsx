@@ -23,8 +23,9 @@ import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { IssueResponse, setIssueType } from '../../../api/issues';
+import { setIssueType } from '../../../api/issues';
 import { colors } from '../../../app/theme';
+import { IssueResponse } from '../../../types/issues';
 import SetTypePopup from '../popups/SetTypePopup';
 
 interface Props {

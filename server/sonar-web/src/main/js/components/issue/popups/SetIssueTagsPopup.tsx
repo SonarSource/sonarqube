@@ -25,7 +25,6 @@ import { searchIssueTags } from '../../../api/issues';
 import TagsSelector from '../../tags/TagsSelector';
 
 interface Props {
-  organization: string;
   selectedTags: string[];
   setTags: (tags: string[]) => void;
 }
@@ -35,6 +34,7 @@ interface State {
 }
 
 const LIST_SIZE = 10;
+const MAX_LIST_SIZE = 100;
 
 export default class SetIssueTagsPopup extends React.PureComponent<Props, State> {
   mounted = false;
@@ -51,8 +51,7 @@ export default class SetIssueTagsPopup extends React.PureComponent<Props, State>
   onSearch = (query: string) => {
     return searchIssueTags({
       q: query,
-      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100),
-      organization: this.props.organization
+      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, MAX_LIST_SIZE)
     }).then(
       (tags: string[]) => {
         if (this.mounted) {

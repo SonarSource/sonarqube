@@ -22,43 +22,15 @@ import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import { IssueType } from '../types/issues';
+import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
 import { ISSUE_TYPES } from './constants';
-
-interface Comment {
-  login: string;
-  [x: string]: any;
-}
 
 interface Rule {}
 
 interface Component {
   key: string;
   name: string;
-}
-
-interface IssueBase {
-  severity: string;
-  [x: string]: any;
-}
-
-export interface RawIssue extends IssueBase {
-  assignee?: string;
-  author?: string;
-  comments?: Array<Comment>;
-  component: string;
-  flows?: Array<{
-    // `componentName` is not available in RawIssue
-    locations?: Array<T.Omit<T.FlowLocation, 'componentName'>>;
-  }>;
-  key: string;
-  line?: number;
-  project: string;
-  rule: string;
-  status: string;
-  subProject?: string;
-  textRange?: T.TextRange;
 }
 
 export function sortByType<T extends Pick<T.Issue, 'type'>>(issues: T[]): T[] {

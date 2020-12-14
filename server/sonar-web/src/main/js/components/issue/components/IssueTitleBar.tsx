@@ -84,7 +84,6 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
             manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
             message={issue.message}
             onOpenRule={openRule}
-            organization={issue.organization}
             ruleKey={issue.rule}
             ruleStatus={issue.ruleStatus as RuleStatus | undefined}
           />

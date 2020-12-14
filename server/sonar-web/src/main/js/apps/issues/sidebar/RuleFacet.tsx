@@ -22,7 +22,8 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchRules } from '../../../api/rules';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { Facet, Query, ReferencedRule } from '../utils';
+import { Facet, ReferencedRule } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface Props {
   fetching: boolean;
@@ -31,7 +32,6 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: string | undefined;
   query: Query;
   referencedRules: T.Dict<ReferencedRule>;
   rules: string[];
@@ -40,11 +40,10 @@ interface Props {
 
 export default class RuleFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page = 1) => {
-    const { languages, organization } = this.props;
+    const { languages } = this.props;
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
-      organization,
       q: query,
       p: page,
       ps: 30,

@@ -25,7 +25,8 @@ import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { getTree, searchProjects } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { ComponentQualifier } from '../../../types/component';
-import { Facet, Query, ReferencedComponent } from '../utils';
+import { Facet, ReferencedComponent } from '../../../types/issues';
+import { Query } from '../utils';
 
 interface Props {
   component: T.Component | undefined;

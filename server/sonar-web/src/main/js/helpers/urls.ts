@@ -99,8 +99,8 @@ export function getPullRequestUrl(project: string, pullRequest: string): Locatio
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query: Query, organization?: string): Location {
-  const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+export function getIssuesUrl(query: Query): Location {
+  const pathname = '/issues';
   return { pathname, query };
 }
 

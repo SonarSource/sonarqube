@@ -21,7 +21,8 @@ import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { IssueResponse, setIssueSeverity } from '../../../api/issues';
+import { setIssueSeverity } from '../../../api/issues';
+import { IssueResponse } from '../../../types/issues';
 import SeverityHelper from '../../shared/SeverityHelper';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
 

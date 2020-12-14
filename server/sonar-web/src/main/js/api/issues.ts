@@ -20,27 +20,7 @@
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
-import { RawIssue } from '../helpers/issues';
-
-export interface IssueResponse {
-  components?: Array<{ key: string; name: string }>;
-  issue: RawIssue;
-  rules?: Array<{}>;
-  users?: Array<T.UserBase>;
-}
-
-interface IssuesResponse {
-  components?: { key: string; organization: string; name: string }[];
-  effortTotal: number;
-  facets: Array<{
-    property: string;
-    values: { count: number; val: string }[];
-  }>;
-  issues: RawIssue[];
-  paging: T.Paging;
-  rules?: Array<{}>;
-  users?: Array<T.UserBase>;
-}
+import { IssueResponse, RawIssuesResponse } from '../types/issues';
 
 type FacetName =
   | 'assigned_to_me'
@@ -63,7 +43,7 @@ type FacetName =
   | 'tags'
   | 'types';
 
-export function searchIssues(query: RequestData): Promise<IssuesResponse> {
+export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
   return getJSON('/api/issues/search', query);
 }
 
@@ -72,7 +52,7 @@ export function getFacets(
   facets: FacetName[]
 ): Promise<{
   facets: Array<{ property: string; values: T.FacetValue[] }>;
-  response: IssuesResponse;
+  response: RawIssuesResponse;
 }> {
   const data = {
     ...query,
@@ -88,7 +68,7 @@ export function getFacets(
 export function getFacet(
   query: RequestData,
   facet: FacetName
-): Promise<{ facet: { count: number; val: string }[]; response: IssuesResponse }> {
+): Promise<{ facet: { count: number; val: string }[]; response: RawIssuesResponse }> {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
