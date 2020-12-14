@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Query } from '../../query';
-import FacetsList from '../FacetsList';
+import FacetsList, { FacetsListProps } from '../FacetsList';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -34,13 +34,8 @@ it('should correctly hide profile facets', () => {
   expect(wrapper.find('ActivationSeverityFacet').length).toEqual(0);
 });
 
-it('should correctly hide the template facet', () => {
-  const wrapper = shallowRender({ organizationsEnabled: true });
-  expect(wrapper.find('TemplateFacet').length).toEqual(0);
-});
-
 it('should correctly enable/disable the language facet', () => {
-  const wrapper = shallowRender({ query: { profile: 'foo' } });
+  const wrapper = shallowRender({ query: { profile: 'foo' } as Query });
   expect(wrapper.find('Connect(LanguageFacet)').prop('disabled')).toBe(true);
 
   wrapper.setProps({ query: {} }).update();
@@ -63,13 +58,12 @@ it('should correctly enable/disable the inheritcance facet', () => {
   expect(wrapper.find('InheritanceFacet').prop('disabled')).toBe(false);
 });
 
-function shallowRender(props = {}) {
+function shallowRender(props: Partial<FacetsListProps> = {}) {
   return shallow(
     <FacetsList
       onFacetToggle={jest.fn()}
       onFilterChange={jest.fn()}
       openFacets={{}}
-      organization="foo"
       query={{} as Query}
       referencedProfiles={{}}
       referencedRepositories={{}}

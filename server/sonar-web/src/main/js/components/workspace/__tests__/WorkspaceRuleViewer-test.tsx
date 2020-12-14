@@ -28,7 +28,7 @@ it('should render', () => {
 });
 
 it('should correctly mark the content as busy loading (aria)', () => {
-  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  const rule = { key: 'foo', name: 'Foo' };
   const wrapper = shallowRender({ rule });
   const instance = wrapper.instance();
   const container = () => wrapper.find('.workspace-viewer-container');
@@ -40,7 +40,7 @@ it('should correctly mark the content as busy loading (aria)', () => {
   wrapper.update();
   expect(container().prop('aria-busy')).toBe(false);
 
-  const newRule = { key: 'bar', name: 'Bar', organization: 'org' };
+  const newRule = { key: 'bar', name: 'Bar' };
   wrapper.setProps({ rule: newRule }).update();
   expect(container().prop('aria-busy')).toBe(true);
 
@@ -66,7 +66,7 @@ it('should call back after load', () => {
 });
 
 function shallowRender(props?: Partial<Props>) {
-  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  const rule = { key: 'foo', name: 'Foo' };
   return shallow<WorkspaceRuleViewer>(
     <WorkspaceRuleViewer
       height={300}

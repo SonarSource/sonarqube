@@ -22,14 +22,7 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getRulesApp } from '../../../../api/rules';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import {
-  mockAppState,
-  mockCurrentUser,
-  mockLocation,
-  mockOrganization,
-  mockRouter,
-  mockRule
-} from '../../../../helpers/testMocks';
+import { mockCurrentUser, mockLocation, mockRouter, mockRule } from '../../../../helpers/testMocks';
 import { App } from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
@@ -104,20 +97,16 @@ describe('renderBulkButton', () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  const organization = mockOrganization();
   return shallow<App>(
     <App
-      appState={mockAppState()}
       currentUser={mockCurrentUser({
         isLoggedIn: true
       })}
       languages={{ js: { key: 'js', name: 'JavaScript' } }}
       location={mockLocation()}
-      organization={organization}
       params={{}}
       router={mockRouter()}
       routes={[]}
-      userOrganizations={[organization]}
       {...props}
     />
   );

@@ -16,7 +16,6 @@ exports[`should render 1`] = `
         Object {
           "key": "foo",
           "name": "Foo",
-          "organization": "org",
         }
       }
     />

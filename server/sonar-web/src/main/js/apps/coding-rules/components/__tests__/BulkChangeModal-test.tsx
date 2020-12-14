@@ -105,7 +105,6 @@ function shallowRender(props: Partial<BulkChangeModal['props']> = {}) {
       action="activate"
       languages={{ js: mockLanguage() }}
       onClose={jest.fn()}
-      organization={undefined}
       profile={mockQualityProfile()}
       query={{ languages: ['js'] } as Query}
       referencedProfiles={{

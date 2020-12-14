@@ -17,31 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import WorkspaceNavRule, { Props } from '../WorkspaceNavRule';
+export interface GetRulesAppResponse {
+  canWrite?: boolean;
+  repositories: { key: string; language: string; name: string }[];
+}
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should close', () => {
-  const onClose = jest.fn();
-  const wrapper = shallowRender({ onClose });
-  wrapper.find('WorkspaceNavItem').prop<Function>('onClose')();
-  expect(onClose).toBeCalledWith('foo');
-});
-
-it('should open', () => {
-  const onOpen = jest.fn();
-  const wrapper = shallowRender({ onOpen });
-  wrapper.find('WorkspaceNavItem').prop<Function>('onOpen')();
-  expect(onOpen).toBeCalledWith('foo');
-});
-
-function shallowRender(props?: Partial<Props>) {
-  const rule = { key: 'foo' };
-  return shallow(
-    <WorkspaceNavRule onClose={jest.fn()} onOpen={jest.fn()} rule={rule} {...props} />
-  );
+export interface SearchRulesResponse {
+  actives?: T.Dict<T.RuleActivation[]>;
+  facets?: { property: string; values: { count: number; val: string }[] }[];
+  p: number;
+  ps: number;
+  rules: T.Rule[];
+  total: number;
 }

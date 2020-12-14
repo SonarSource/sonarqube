@@ -33,21 +33,19 @@ import TagFacet from './TagFacet';
 import TemplateFacet from './TemplateFacet';
 import TypeFacet from './TypeFacet';
 
-interface Props {
+export interface FacetsListProps {
   facets?: Facets;
   hideProfileFacet?: boolean;
   onFacetToggle: (facet: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
-  organization: string | undefined;
-  organizationsEnabled?: boolean;
   query: Query;
   referencedProfiles: T.Dict<Profile>;
   referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   selectedProfile?: Profile;
 }
 
-export default function FacetsList(props: Props) {
+export default function FacetsList(props: FacetsListProps) {
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
   const inheritanceDisabled =
@@ -80,7 +78,6 @@ export default function FacetsList(props: Props) {
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.tags}
-        organization={props.organization}
         stats={props.facets && props.facets.tags}
         values={props.query.tags}
       />
@@ -134,14 +131,12 @@ export default function FacetsList(props: Props) {
         open={!!props.openFacets.availableSince}
         value={props.query.availableSince}
       />
-      {!props.organizationsEnabled && (
-        <TemplateFacet
-          onChange={props.onFilterChange}
-          onToggle={props.onFacetToggle}
-          open={!!props.openFacets.template}
-          value={props.query.template}
-        />
-      )}
+      <TemplateFacet
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.template}
+        value={props.query.template}
+      />
       {!props.hideProfileFacet && (
         <>
           <ProfileFacet

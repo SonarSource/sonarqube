@@ -165,7 +165,6 @@ function shallowRender(props?: Partial<RuleListItem['props']>) {
       onDeactivate={jest.fn()}
       onFilterChange={jest.fn()}
       onOpen={jest.fn()}
-      organization={undefined}
       rule={mockRule({ key: 'javascript:S1067' })}
       selected={false}
       {...props}

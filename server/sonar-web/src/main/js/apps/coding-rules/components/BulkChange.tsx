@@ -21,15 +21,14 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import { Query } from '../query';
 import BulkChangeModal from './BulkChangeModal';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 
 interface Props {
   languages: T.Languages;
-  organization: string | undefined;
   query: Query;
   referencedProfiles: T.Dict<Profile>;
   total: number;
@@ -138,7 +137,6 @@ export default class BulkChange extends React.PureComponent<Props, State> {
             action={this.state.action}
             languages={this.props.languages}
             onClose={this.closeModal}
-            organization={this.props.organization}
             profile={this.state.profile}
             query={this.props.query}
             referencedProfiles={this.props.referencedProfiles}

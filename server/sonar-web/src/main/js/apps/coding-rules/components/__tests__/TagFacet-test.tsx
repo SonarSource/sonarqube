@@ -17,37 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import WorkspaceNav, { Props } from '../WorkspaceNav';
+import { getRuleTags } from '../../../../api/rules';
+import TagFacet from '../TagFacet';
 
-it('should render', () => {
+jest.mock('../../../../api/rules', () => ({
+  getRuleTags: jest.fn().mockResolvedValue([])
+}));
+
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should not render open component', () => {
-  expect(shallowRender({ open: { component: 'bar' } })).toMatchSnapshot();
+it('should handle search', async () => {
+  const wrapper = shallowRender();
+
+  const query = 'query';
+
+  await wrapper.instance().handleSearch(query);
+
+  expect(getRuleTags).toBeCalledWith({ ps: 50, q: query });
 });
 
-it('should not render open rule', () => {
-  expect(shallowRender({ open: { rule: 'qux' } })).toMatchSnapshot();
+describe('ListStyleFacet Renderers', () => {
+  const instance = shallowRender().instance();
+
+  it('should include renderFacetItem', () => {
+    expect(instance.renderTag('tag')).toMatchSnapshot();
+  });
+
+  it('should include renderSearchResult', () => {
+    expect(instance.renderSearchResult('my-tag', 'tag')).toMatchSnapshot();
+  });
 });
 
-function shallowRender(props?: Partial<Props>) {
-  const components = [
-    { branchLike: undefined, key: 'foo' },
-    { branchLike: undefined, key: 'bar' }
-  ];
-  const rules = [{ key: 'qux' }];
-  return shallow(
-    <WorkspaceNav
-      components={components}
-      onComponentClose={jest.fn()}
-      onComponentOpen={jest.fn()}
-      onRuleClose={jest.fn()}
-      onRuleOpen={jest.fn()}
-      open={{}}
-      rules={rules}
+function shallowRender(props: Partial<TagFacet['props']> = {}) {
+  return shallow<TagFacet>(
+    <TagFacet
+      onChange={jest.fn()}
+      onToggle={jest.fn()}
+      open={false}
+      stats={{}}
+      values={[]}
       {...props}
     />
   );

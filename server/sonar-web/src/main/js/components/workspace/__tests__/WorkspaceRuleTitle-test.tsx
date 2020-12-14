@@ -22,11 +22,11 @@ import * as React from 'react';
 import WorkspaceRuleTitle from '../WorkspaceRuleTitle';
 
 it('should render rule', () => {
-  const rule = { key: 'foo', organization: 'org' };
+  const rule = { key: 'foo' };
   expect(shallow(<WorkspaceRuleTitle rule={rule} />)).toMatchSnapshot();
 });
 
 it('should render loaded rule', () => {
-  const rule = { key: 'foo', name: 'Foo', organization: 'org' };
+  const rule = { key: 'foo', name: 'Foo' };
   expect(shallow(<WorkspaceRuleTitle rule={rule} />)).toMatchSnapshot();
 });

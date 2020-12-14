@@ -42,7 +42,6 @@ interface Props {
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   onOpen: (ruleKey: string) => void;
-  organization: string | undefined;
   rule: T.Rule;
   selected: boolean;
   selectedProfile?: Profile;
@@ -53,7 +52,6 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (this.props.selectedProfile) {
       const data = {
         key: this.props.selectedProfile.key,
-        organization: this.props.organization,
         rule: this.props.rule.key
       };
       deactivateRule(data).then(

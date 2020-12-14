@@ -293,7 +293,6 @@ export interface BulkActivateParameters {
   inheritance?: string;
   is_template?: string;
   languages?: string;
-  organization: string | undefined;
   q?: string;
   qprofile?: string;
   repositories?: string;

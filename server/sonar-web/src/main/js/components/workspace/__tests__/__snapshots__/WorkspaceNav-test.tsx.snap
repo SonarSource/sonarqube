@@ -25,7 +25,6 @@ exports[`should not render open component 1`] = `
       rule={
         Object {
           "key": "qux",
-          "organization": "org",
         }
       }
     />
@@ -102,7 +101,6 @@ exports[`should render 1`] = `
       rule={
         Object {
           "key": "qux",
-          "organization": "org",
         }
       }
     />

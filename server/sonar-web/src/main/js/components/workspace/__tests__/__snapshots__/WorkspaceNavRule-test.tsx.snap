@@ -10,7 +10,6 @@ exports[`should render 1`] = `
     rule={
       Object {
         "key": "foo",
-        "organization": "org",
       }
     }
   />

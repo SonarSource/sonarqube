@@ -31,7 +31,6 @@ interface Props {
   action: string;
   languages: T.Languages;
   onClose: () => void;
-  organization: string | undefined;
   profile?: Profile;
   query: Query;
   referencedProfiles: T.Dict<Profile>;
@@ -117,13 +116,14 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       : this.state.selectedProfiles;
 
     for (const profile of profiles) {
-      looper = looper.then(() =>
-        method({
-          ...data,
-          organization: this.props.organization,
-          targetKey: profile
-        }).then(response => this.processResponse(profile, response))
-      );
+      looper = looper
+        .then(() =>
+          method({
+            ...data,
+            targetKey: profile
+          })
+        )
+        .then(response => this.processResponse(profile, response));
     }
     return looper;
   };

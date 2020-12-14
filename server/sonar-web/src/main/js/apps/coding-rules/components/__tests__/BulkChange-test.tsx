@@ -54,7 +54,6 @@ function shallowRender(props: Partial<BulkChange['props']> = {}) {
   return shallow<BulkChange>(
     <BulkChange
       languages={{ js: { key: 'js', name: 'JavaScript' } }}
-      organization={undefined}
       query={{ activation: false, profile: 'key' } as BulkChange['props']['query']}
       referencedProfiles={{ key: profile }}
       total={2}

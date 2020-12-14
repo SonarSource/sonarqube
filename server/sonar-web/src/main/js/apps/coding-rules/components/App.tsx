@@ -41,15 +41,8 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
-import { hasPrivateAccess } from '../../../helpers/organizations';
 import { isLoggedIn } from '../../../helpers/users';
-import {
-  getAppState,
-  getCurrentUser,
-  getLanguages,
-  getMyOrganizations,
-  Store
-} from '../../../store/rootReducer';
+import { getCurrentUser, getLanguages, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
 import {
   shouldOpenSonarSourceSecurityFacet,
@@ -84,18 +77,10 @@ const PAGE_SIZE = 100;
 const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
-interface StateToProps {
-  appState: T.AppState;
+interface Props extends WithRouterProps {
   currentUser: T.CurrentUser;
   languages: T.Languages;
-  userOrganizations: T.Organization[];
 }
-
-interface OwnProps extends WithRouterProps {
-  organization: T.Organization | undefined;
-}
-
-type Props = OwnProps & StateToProps;
 
 interface State {
   actives?: Actives;
@@ -233,7 +218,6 @@ export class App extends React.PureComponent<Props, State> {
   getSearchParameters = () => ({
     f: this.getFieldsToFetch().join(),
     facets: this.getFacetsToFetch().join(),
-    organization: this.props.organization && this.props.organization.key,
     ps: PAGE_SIZE,
     s: 'name',
     ...serializeQuery(this.state.query)
@@ -247,8 +231,7 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchInitialData = () => {
     this.setState({ loading: true });
-    const organization = this.props.organization && this.props.organization.key;
-    Promise.all([getRulesApp(organization), this.fetchQualityProfiles()]).then(
+    Promise.all([getRulesApp(), searchQualityProfiles()]).then(
       ([{ canWrite, repositories }, { profiles }]) => {
         this.setState({
           canWrite,
@@ -319,14 +302,6 @@ export class App extends React.PureComponent<Props, State> {
         this.setState(state => ({ facets: { ...state.facets, ...facets }, loading: false }));
       }
     }, this.stopLoading);
-  };
-
-  fetchQualityProfiles = () => {
-    const { currentUser, organization, userOrganizations } = this.props;
-    if (hasPrivateAccess(currentUser, organization, userOrganizations)) {
-      return searchQualityProfiles();
-    }
-    return { profiles: [] };
   };
 
   getSelectedIndex = ({ selected, rules } = this.state) => {
@@ -551,7 +526,6 @@ export class App extends React.PureComponent<Props, State> {
   renderBulkButton = () => {
     const { currentUser, languages } = this.props;
     const { canWrite, paging, query, referencedProfiles } = this.state;
-    const organization = this.props.organization && this.props.organization.key;
 
     if (!isLoggedIn(currentUser) || !canWrite) {
       return null;
@@ -561,7 +535,6 @@ export class App extends React.PureComponent<Props, State> {
       paging && (
         <BulkChange
           languages={languages}
-          organization={organization}
           query={query}
           referencedProfiles={referencedProfiles}
           total={paging.total}
@@ -573,12 +546,6 @@ export class App extends React.PureComponent<Props, State> {
   render() {
     const { paging, rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
-    const organization = this.props.organization && this.props.organization.key;
-    const hideQualityProfiles = !hasPrivateAccess(
-      this.props.currentUser,
-      this.props.organization,
-      this.props.userOrganizations
-    );
 
     return (
       <>
@@ -609,12 +576,9 @@ export class App extends React.PureComponent<Props, State> {
                     />
                     <FacetsList
                       facets={this.state.facets}
-                      hideProfileFacet={hideQualityProfiles}
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
                       openFacets={this.state.openFacets}
-                      organization={organization}
-                      organizationsEnabled={this.props.appState.organizationsEnabled}
                       query={this.state.query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
@@ -659,9 +623,8 @@ export class App extends React.PureComponent<Props, State> {
             <div className="layout-page-main-inner">
               {this.state.openRule ? (
                 <RuleDetails
-                  allowCustomRules={!this.props.appState.organizationsEnabled}
+                  allowCustomRules={true}
                   canWrite={this.state.canWrite}
-                  hideQualityProfiles={hideQualityProfiles}
                   onActivate={this.handleRuleActivate}
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
@@ -683,7 +646,6 @@ export class App extends React.PureComponent<Props, State> {
                       onDeactivate={this.handleRuleDeactivate}
                       onFilterChange={this.handleFilterChange}
                       onOpen={this.handleRuleOpen}
-                      organization={organization}
                       rule={rule}
                       selected={rule.key === this.state.selected}
                       selectedProfile={this.getSelectedProfile()}
@@ -731,10 +693,8 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
 }
 
 const mapStateToProps = (state: Store) => ({
-  appState: getAppState(state),
   currentUser: getCurrentUser(state),
-  languages: getLanguages(state),
-  userOrganizations: getMyOrganizations(state)
+  languages: getLanguages(state)
 });
 
 export default withRouter(connect(mapStateToProps)(App));

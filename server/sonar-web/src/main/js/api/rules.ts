@@ -19,23 +19,10 @@
  */
 import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 
-export interface GetRulesAppResponse {
-  canWrite?: boolean;
-  repositories: { key: string; language: string; name: string }[];
-}
-
-export function getRulesApp(organization?: string): Promise<GetRulesAppResponse> {
-  return getJSON('/api/rules/app', { organization }).catch(throwGlobalError);
-}
-
-export interface SearchRulesResponse {
-  actives?: T.Dict<T.RuleActivation[]>;
-  facets?: { property: string; values: { count: number; val: string }[] }[];
-  p: number;
-  ps: number;
-  rules: T.Rule[];
-  total: number;
+export function getRulesApp(): Promise<GetRulesAppResponse> {
+  return getJSON('/api/rules/app').catch(throwGlobalError);
 }
 
 export function searchRules(data: {
@@ -53,16 +40,11 @@ export function takeFacet(response: any, property: string) {
 export function getRuleDetails(parameters: {
   actives?: boolean;
   key: string;
-  organization?: string;
 }): Promise<{ actives?: T.RuleActivation[]; rule: T.RuleDetails }> {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
-export function getRuleTags(parameters: {
-  organization?: string;
-  ps?: number;
-  q: string;
-}): Promise<string[]> {
+export function getRuleTags(parameters: { ps?: number; q: string }): Promise<string[]> {
   return getJSON('/api/rules/tags', parameters).then(r => r.tags, throwGlobalError);
 }
 
@@ -70,7 +52,6 @@ export function createRule(data: {
   custom_key: string;
   markdown_description: string;
   name: string;
-  organization?: string;
   params?: string;
   prevent_reactivation?: boolean;
   severity?: string;
@@ -101,7 +82,6 @@ export function updateRule(data: {
   markdown_description?: string;
   markdown_note?: string;
   name?: string;
-  organization?: string;
   params?: string;
   remediation_fn_base_effort?: string;
   remediation_fn_type?: string;
