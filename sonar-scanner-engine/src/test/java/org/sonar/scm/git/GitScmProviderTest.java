@@ -66,7 +66,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
@@ -468,7 +468,7 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedFiles("master", worktree2))
       .containsOnly(worktree2.resolve("file-b1"));
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -489,7 +489,7 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedFiles("master", worktree2))
       .containsOnly(worktree2.resolve("file-b1"));
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -509,7 +509,7 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedFiles("local-only", worktree2))
       .containsOnly(worktree2.resolve("file-b1"));
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -527,8 +527,26 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedFiles("master", worktree2))
       .containsOnly(worktree2.resolve("file-b1"));
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
 
+  }
+
+  @Test
+  public void branchChangedFiles_finds_branch_in_specific_origin() throws IOException, GitAPIException {
+    git.branchCreate().setName("b1").call();
+    git.checkout().setName("b1").call();
+    createAndCommitFile("file-b1");
+
+    Path worktree2 = temp.newFolder().toPath();
+    Git.cloneRepository()
+      .setURI(worktree.toString())
+      .setRemote("upstream")
+      .setDirectory(worktree2.toFile())
+      .call();
+
+    assertThat(newScmProvider().branchChangedFiles("upstream/master", worktree2))
+      .containsOnly(worktree2.resolve("file-b1"));
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -559,7 +577,7 @@ public class GitScmProviderTest {
       }
     };
     assertThat(provider.branchChangedFiles("branch", worktree)).isNull();
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -577,7 +595,7 @@ public class GitScmProviderTest {
     };
     assertThat(provider.branchChangedFiles("branch", worktree)).isNull();
 
-    String warning = "Could not find ref 'branch' in refs/heads, refs/remotes/upstream or refs/remotes/origin."
+    String warning = "Could not find ref 'branch' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin."
       + " You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis.";
     verify(analysisWarnings).addUnique(warning);
   }

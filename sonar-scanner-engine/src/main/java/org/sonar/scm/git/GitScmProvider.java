@@ -63,7 +63,7 @@ import org.sonar.api.utils.log.Loggers;
 public class GitScmProvider extends ScmProvider {
 
   private static final Logger LOG = Loggers.get(GitScmProvider.class);
-
+  private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
   private final JGitBlameCommand jgitBlameCommand;
   private final AnalysisWarnings analysisWarnings;
   private final GitIgnoreCommand gitIgnoreCommand;
@@ -103,8 +103,8 @@ public class GitScmProvider extends ScmProvider {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
-        analysisWarnings.addUnique(String.format("Could not find ref '%s' in refs/heads, refs/remotes/upstream or refs/remotes/origin. "
-          + "You may see unexpected issues and changes. "
+        analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
+          + ". You may see unexpected issues and changes. "
           + "Please make sure to fetch this ref before pull request analysis.", targetBranchName));
         return null;
       }
@@ -147,8 +147,8 @@ public class GitScmProvider extends ScmProvider {
     try (Repository repo = buildRepo(projectBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
-        analysisWarnings.addUnique(String.format("Could not find ref '%s' in refs/heads, refs/remotes/upstream or refs/remotes/origin. "
-          + "You may see unexpected issues and changes. "
+        analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
+          + ". You may see unexpected issues and changes. "
           + "Please make sure to fetch this ref before pull request analysis.", targetBranchName));
         return null;
       }
@@ -240,20 +240,21 @@ public class GitScmProvider extends ScmProvider {
   @CheckForNull
   private Ref resolveTargetRef(String targetBranchName, Repository repo) throws IOException {
     String localRef = "refs/heads/" + targetBranchName;
-    String remoteRef = "refs/remotes/origin/" + targetBranchName;
+    String remotesRef = "refs/remotes/" + targetBranchName;
+    String originRef = "refs/remotes/origin/" + targetBranchName;
     String upstreamRef = "refs/remotes/upstream/" + targetBranchName;
 
     Ref targetRef;
     // Because circle ci destroys the local reference to master, try to load remote ref first.
     // https://discuss.circleci.com/t/git-checkout-of-a-branch-destroys-local-reference-to-master/23781
     if (runningOnCircleCI()) {
-      targetRef = getFirstExistingRef(repo, remoteRef, localRef, upstreamRef);
+      targetRef = getFirstExistingRef(repo, originRef, localRef, upstreamRef, remotesRef);
     } else {
-      targetRef = getFirstExistingRef(repo, localRef, remoteRef, upstreamRef);
+      targetRef = getFirstExistingRef(repo, localRef, originRef, upstreamRef, remotesRef);
     }
-    
+
     if (targetRef == null) {
-      LOG.warn("Could not find ref: {} in refs/heads, refs/remotes/upstream or refs/remotes/origin", targetBranchName);
+      LOG.warn(COULD_NOT_FIND_REF, targetBranchName);
     }
 
     return targetRef;
