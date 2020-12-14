@@ -34,7 +34,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -75,7 +74,7 @@ public class ShowActionTest {
   private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), LANGUAGES, ruleIndex));
+    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), LANGUAGES, ruleIndex));
 
   @Test
   public void profile_info() {
@@ -172,7 +171,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -192,7 +191,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -255,7 +254,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -271,7 +270,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -335,7 +334,7 @@ public class ShowActionTest {
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ws = new WsActionTester(
-      new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), new Languages(cs), ruleIndex));
+      new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), new Languages(cs), ruleIndex));
     String result = ws.newRequest().setParam(PARAM_KEY, profile.getKee()).execute().getInput();
 
     assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt").isSimilarTo(ws.getDef().responseExampleAsString());

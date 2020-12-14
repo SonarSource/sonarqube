@@ -29,7 +29,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -37,8 +36,6 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -66,8 +63,8 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS
 
 public class CreateActionTest {
 
-  private MapSettings settings = new MapSettings();
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final MapSettings settings = new MapSettings();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -78,15 +75,11 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
+  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroup;
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private WsActionTester tester = new WsActionTester(new CreateAction(
-    db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
-    userSessionRule));
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final WsActionTester tester = new WsActionTester(new CreateAction(db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class),
+    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication), userSessionRule));
 
   @Before
   public void setUp() {
@@ -124,7 +117,7 @@ public class CreateActionTest {
     assertThat(dbUser).isPresent();
     assertThat(dbUser.get().isRoot()).isFalse();
 
-    // member of default group in default organization
+    // member of default group
     assertThat(db.users().selectGroupUuidsOfUser(dbUser.get())).containsOnly(defaultGroup.getUuid());
   }
 
@@ -374,10 +367,6 @@ public class CreateActionTest {
     ofNullable(createRequest.getScmAccounts()).ifPresent(e -> request.setMultiParam("scmAccount", e));
     request.setParam("local", createRequest.isLocal() ? "true" : "false");
     return request.executeProtobuf(CreateWsResponse.class);
-  }
-
-  private void enableCreatePersonalOrg(boolean flag) {
-    settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_CREATE_PERSONAL_ORG, flag);
   }
 
 }

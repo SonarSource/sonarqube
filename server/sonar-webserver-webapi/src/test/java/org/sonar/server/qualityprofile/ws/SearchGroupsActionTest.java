@@ -32,7 +32,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse;
@@ -63,7 +62,7 @@ public class SearchGroupsActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
 
   private WsActionTester ws = new WsActionTester(new SearchGroupsAction(db.getDbClient(), wsSupport, LANGUAGES));
 

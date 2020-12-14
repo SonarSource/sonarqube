@@ -39,7 +39,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -62,7 +61,7 @@ public class RemoveProjectActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
   private RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
     new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport);

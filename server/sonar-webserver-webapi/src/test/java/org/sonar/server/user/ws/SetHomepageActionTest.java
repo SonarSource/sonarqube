@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -50,9 +49,8 @@ public class SetHomepageActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-
-  private WsActionTester ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
+  private final DbClient dbClient = db.getDbClient();
+  private final WsActionTester ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
 
   @Test
   public void verify_definition() {
@@ -82,8 +80,7 @@ public class SetHomepageActionTest {
 
   @Test
   public void set_project_homepage() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -102,8 +99,7 @@ public class SetHomepageActionTest {
 
   @Test
   public void set_branch_homepage() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -172,8 +168,7 @@ public class SetHomepageActionTest {
 
   @Test
   public void set_portfolio_homepage() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
@@ -191,8 +186,7 @@ public class SetHomepageActionTest {
 
   @Test
   public void set_application_homepage() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPrivateApplication(organization);
+    ComponentDto application = db.components().insertPrivateApplication();
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 

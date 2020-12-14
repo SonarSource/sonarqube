@@ -37,8 +37,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -66,15 +64,14 @@ public class CopyActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public JUnitTempFolder tempDir = new JUnitTempFolder();
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private TestBackuper backuper = new TestBackuper();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileFactory profileFactory = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
-  private QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
-  private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
-  private CopyAction underTest = new CopyAction(db.getDbClient(), profileCopier, languages, userSession, wsSupport);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private final TestBackuper backuper = new TestBackuper();
+  private final QProfileFactory profileFactory = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
+  private final QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
+  private final Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
+  private final CopyAction underTest = new CopyAction(db.getDbClient(), profileCopier, languages, userSession, wsSupport);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
@@ -295,7 +292,8 @@ public class CopyActionTest {
       throw new UnsupportedOperationException();
     }
 
-    @Override public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
+    @Override
+    public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
       this.copiedProfile = from;
       this.toProfile = to;
       return null;

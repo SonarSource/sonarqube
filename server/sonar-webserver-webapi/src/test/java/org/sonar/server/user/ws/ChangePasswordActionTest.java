@@ -31,7 +31,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -56,17 +55,13 @@ public class ChangePasswordActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
-  private TestDefaultOrganizationProvider testDefaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(),
+    new UserIndexer(db.getDbClient(), es.client()), new DefaultGroupFinder(db.getDbClient()),
+    new MapSettings().asConfig(), localAuthentication);
 
-  private UserUpdater userUpdater = new UserUpdater(
-    mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), testDefaultOrganizationProvider,
-    new DefaultGroupFinder(db.getDbClient()),
-    new MapSettings().asConfig(),
-    localAuthentication);
-
-  private WsActionTester tester = new WsActionTester(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication));
+  private final WsActionTester tester = new WsActionTester(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication));
 
   @Before
   public void setUp() {

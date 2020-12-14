@@ -28,8 +28,6 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
@@ -44,8 +42,7 @@ public class QProfileWsSupportTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DefaultOrganizationProvider defaultOrgProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileWsSupport underTest = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrgProvider);
+  private final QProfileWsSupport underTest = new QProfileWsSupport(db.getDbClient(), userSession);
 
   @Test
   public void getProfile_returns_the_profile_specified_by_key() {

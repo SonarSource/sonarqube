@@ -36,7 +36,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -59,7 +58,7 @@ public class AddGroupActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   private WsActionTester ws = new WsActionTester(new AddGroupAction(db.getDbClient(), uuidFactory, wsSupport, LANGUAGES));

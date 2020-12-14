@@ -33,7 +33,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -57,7 +56,7 @@ public class RemoveUserActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
 
   private WsActionTester ws = new WsActionTester(new RemoveUserAction(db.getDbClient(), wsSupport, LANGUAGES));
 

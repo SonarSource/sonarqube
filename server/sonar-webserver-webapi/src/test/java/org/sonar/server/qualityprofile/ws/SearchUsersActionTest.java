@@ -35,7 +35,6 @@ import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.FakeAvatarResolver;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
@@ -66,7 +65,7 @@ public class SearchUsersActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private AvatarResolver avatarResolver = new FakeAvatarResolver();
 
   private WsActionTester ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES, avatarResolver));

@@ -36,7 +36,13 @@ public class CorePropertyDefinitions {
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
+
+  //TODO remove
+  @Deprecated
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
+
+  //TODO remove
+  @Deprecated
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
@@ -180,13 +186,6 @@ public class CorePropertyDefinitions {
       // ORGANIZATIONS
       PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
         .name("Allow any authenticated user to create organizations.")
-        .defaultValue(Boolean.toString(false))
-        .category(CATEGORY_ORGANIZATIONS)
-        .type(BOOLEAN)
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
-        .name("Create an organization for each new user.")
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)

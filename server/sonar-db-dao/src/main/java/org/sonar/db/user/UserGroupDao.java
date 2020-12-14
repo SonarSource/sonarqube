@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -27,6 +28,10 @@ public class UserGroupDao implements Dao {
   public UserGroupDto insert(DbSession session, UserGroupDto dto) {
     mapper(session).insert(dto);
     return dto;
+  }
+
+  public Set<String> selectUserUuidsInGroup(DbSession session, String groupUuid) {
+    return mapper(session).selectUserUuidsInGroup(groupUuid);
   }
 
   public void delete(DbSession session, String groupUuid, String userUuid) {

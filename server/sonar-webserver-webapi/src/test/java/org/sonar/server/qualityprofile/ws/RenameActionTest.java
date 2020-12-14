@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.user.UserDto;
@@ -37,7 +36,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -62,16 +60,13 @@ public class RenameActionTest {
 
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
-  private OrganizationDto organization;
 
   @Before
   public void setUp() {
-    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-    QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
+    QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
     RenameAction underTest = new RenameAction(dbClient, userSession, wsSupport);
     ws = new WsActionTester(underTest);
 
-    organization = db.organizations().getDefaultOrganization();
     createProfiles();
   }
 

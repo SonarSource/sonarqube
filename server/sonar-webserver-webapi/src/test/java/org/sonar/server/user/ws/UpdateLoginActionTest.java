@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 
 public class UpdateLoginActionTest {
 
-  private System2 system2 = new System2();
+  private final System2 system2 = new System2();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -55,9 +55,8 @@ public class UpdateLoginActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
-      null,null, null, null)));
+  private final WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null)));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {

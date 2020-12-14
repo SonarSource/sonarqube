@@ -35,8 +35,6 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -52,8 +50,8 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
 
-  private MapSettings settings = new MapSettings();
-  private System2 system2 = new System2();
+  private final MapSettings settings = new MapSettings();
+  private final System2 system2 = new System2();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -64,15 +62,12 @@ public class UpdateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-
-  private WsActionTester ws = new WsActionTester(new UpdateAction(
-    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final WsActionTester ws = new WsActionTester(new UpdateAction(
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before

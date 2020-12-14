@@ -13,6 +13,12 @@
     )
   </insert>
 
+  <select id="selectUserUuidsInGroup" resultType="String">
+    select gu.user_uuid
+    from groups_users gu
+    where gu.group_uuid=#{groupUuid,jdbcType=VARCHAR}
+  </select>
+
   <delete id="delete" parameterType="map">
     delete from groups_users
     where user_uuid = #{userUuid,jdbcType=VARCHAR} and

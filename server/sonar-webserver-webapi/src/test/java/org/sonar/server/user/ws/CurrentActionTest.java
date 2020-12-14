@@ -140,7 +140,6 @@ public class CurrentActionTest {
     UserDto user = db.users().insertUser();
     userSession
       .logIn(user)
-      // permissions on default organization
       .addPermission(SCAN)
       .addPermission(ADMINISTER_QUALITY_PROFILES);
 

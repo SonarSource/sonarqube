@@ -28,7 +28,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.index.UserIndexer;
@@ -56,12 +55,12 @@ public class MemberUpdater {
     this.userIndexer = userIndexer;
   }
 
-  public void addMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    addMembers(dbSession, organization, singletonList(user));
+  public void addMember(DbSession dbSession, UserDto user) {
+    addMembers(dbSession, singletonList(user));
   }
 
-  public void addMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
-    Set<String> currentMemberUuids = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
+  public void addMembers(DbSession dbSession, List<UserDto> users) {
+    Set<String> currentMemberUuids = dbClient.userGroupDao().selectUserUuidsInGroup(dbSession, defaultGroupFinder.findDefaultGroup(dbSession).getUuid());
     List<UserDto> usersToAdd = users.stream()
       .filter(UserDto::isActive)
       .filter(u -> !currentMemberUuids.contains(u.getUuid()))
@@ -69,22 +68,21 @@ public class MemberUpdater {
     if (usersToAdd.isEmpty()) {
       return;
     }
-    usersToAdd.forEach(u -> addMemberInDb(dbSession, organization, u));
+    usersToAdd.forEach(u -> addMemberInDb(dbSession, u));
     userIndexer.commitAndIndex(dbSession, usersToAdd);
   }
 
-  private void addMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
-      .setOrganizationUuid(organization.getUuid())
-      .setUserUuid(user.getUuid()));
+  private void addMemberInDb(DbSession dbSession, UserDto user) {
     dbClient.userGroupDao().insert(dbSession,
       new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession).getUuid()).setUserUuid(user.getUuid()));
   }
 
+  // TODO remove org param like it was removed from addMembers
   public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
     removeMembers(dbSession, organization, singletonList(user));
   }
 
+  // TODO remove org param like it was removed from addMembers
   public void removeMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
     Set<String> currentMemberIds = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
     List<UserDto> usersToRemove = users.stream()
@@ -126,7 +124,7 @@ public class MemberUpdater {
 
     allOrganizationsByUuid.entrySet().stream()
       .filter(entry -> organizationUuidsToBeAdded.contains(entry.getKey()))
-      .forEach(entry -> addMemberInDb(dbSession, entry.getValue(), user));
+      .forEach(entry -> addMemberInDb(dbSession, user));
     allOrganizationsByUuid.entrySet().stream()
       .filter(entry -> organizationUuidsToBeRemoved.contains(entry.getKey()))
       .forEach(entry -> removeMemberInDb(dbSession, entry.getValue(), user));

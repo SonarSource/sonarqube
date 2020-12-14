@@ -19,11 +19,14 @@
  */
 package org.sonar.db.user;
 
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserGroupMapper {
 
   void insert(UserGroupDto dto);
+
+  Set<String> selectUserUuidsInGroup(@Param("groupUuid") String groupUuid);
 
   void delete(@Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
 

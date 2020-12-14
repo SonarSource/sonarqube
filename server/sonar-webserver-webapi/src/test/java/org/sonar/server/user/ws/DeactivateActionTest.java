@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.project.ProjectDto;
@@ -221,22 +219,6 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_organization_membership() {
-    createAdminUser();
-    logInAsSystemAdministrator();
-    UserDto user = db.users().insertUser();
-    OrganizationDto organization = db.organizations().insert();
-    db.organizations().addMember(organization, user);
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    db.organizations().addMember(anotherOrganization, user);
-
-    deactivate(user.getLogin());
-
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).isNotPresent();
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), anotherOrganization.getUuid(), user.getUuid())).isNotPresent();
-  }
-
-  @Test
   public void deactivate_user_deletes_his_user_settings() {
     createAdminUser();
     logInAsSystemAdministrator();
@@ -389,7 +371,8 @@ public class DeactivateActionTest {
 
   @Test
   public void administrators_can_be_deactivated_if_there_are_still_other_administrators() {
-    UserDto admin = createAdminUser();;
+    UserDto admin = createAdminUser();
+    ;
     UserDto anotherAdmin = createAdminUser();
     logInAsSystemAdministrator();
 

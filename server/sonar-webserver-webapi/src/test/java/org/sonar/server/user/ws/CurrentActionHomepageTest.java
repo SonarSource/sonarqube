@@ -86,7 +86,7 @@ public class CurrentActionHomepageTest {
   @UseDataProvider("enterpriseAndAbove")
   public void return_homepage_when_set_to_a_portfolio(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, portfolio);
 
@@ -101,7 +101,7 @@ public class CurrentActionHomepageTest {
   @UseDataProvider("enterpriseAndAbove")
   public void return_default_when_set_to_a_portfolio_but_no_rights_on_this_portfolio(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
     userSessionRule.logIn(user);
 
@@ -116,7 +116,7 @@ public class CurrentActionHomepageTest {
   @UseDataProvider("enterpriseAndAbove")
   public void return_homepage_when_set_to_an_application(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, application);
 
@@ -131,7 +131,7 @@ public class CurrentActionHomepageTest {
   @UseDataProvider("enterpriseAndAbove")
   public void return_default_homepage_when_set_to_an_application_but_no_rights_on_this_application(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user);
 
@@ -211,7 +211,7 @@ public class CurrentActionHomepageTest {
   @Test
   public void fallback_when_edition_is_null() {
     setPlatformEdition(null);
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user.getLogin());
 
@@ -237,7 +237,7 @@ public class CurrentActionHomepageTest {
   @UseDataProvider("belowEnterprise")
   public void fallback_when_user_homepage_application_and_edition_below_enterprise(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user.getLogin());
 

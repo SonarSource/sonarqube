@@ -37,8 +37,6 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -54,22 +52,22 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class UserRegistrarImplTest {
-  private static String USER_LOGIN = "johndoo";
+  private static final String USER_LOGIN = "johndoo";
 
-  private static UserIdentity USER_IDENTITY = UserIdentity.builder()
+  private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
     .setProviderLogin("johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();
 
-  private static TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
+  private static final TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
     .setKey("github")
     .setName("name of github")
     .setEnabled(true)
     .setAllowsUsersToSignUp(true);
 
-  private MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -77,20 +75,18 @@ public class UserRegistrarImplTest {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public EsTester es = EsTester.create();
-  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
-  private UserUpdater userUpdater = new UserUpdater(
+  private final UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     db.getDbClient(),
     userIndexer,
-    defaultOrganizationProvider,
     groupFinder,
     settings.asConfig(),
     localAuthentication);
 
-  private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder);
+  private final UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder);
   private GroupDto defaultGroup;
 
   @Before

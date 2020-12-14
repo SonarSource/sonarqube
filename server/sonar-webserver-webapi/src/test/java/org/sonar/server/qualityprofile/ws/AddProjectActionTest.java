@@ -38,7 +38,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -62,7 +61,7 @@ public class AddProjectActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
   private AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 

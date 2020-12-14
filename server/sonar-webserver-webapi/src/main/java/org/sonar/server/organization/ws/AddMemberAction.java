@@ -45,6 +45,8 @@ import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGA
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
+//TODO remove when getting rid of organizations
+@Deprecated
 public class AddMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -96,7 +98,7 @@ public class AddMemberAction implements OrganizationsWsAction {
       userSession.checkPermission(GlobalPermission.ADMINISTER);
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
-      memberUpdater.addMember(dbSession, organization, user);
+      memberUpdater.addMember(dbSession, user);
 
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder().membership(IN).build(), user.getUuid());
       AddMemberWsResponse wsResponse = buildResponse(user, groups);

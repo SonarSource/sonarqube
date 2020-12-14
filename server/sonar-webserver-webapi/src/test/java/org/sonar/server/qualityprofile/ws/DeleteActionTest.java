@@ -39,7 +39,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -71,7 +70,7 @@ public class DeleteActionTest {
   private DeleteAction underTest = new DeleteAction(
     new Languages(LanguageTesting.newLanguage(A_LANGUAGE)),
     new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer), dbClient, userSession,
-    new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db)));
+    new QProfileWsSupport(dbClient, userSession));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

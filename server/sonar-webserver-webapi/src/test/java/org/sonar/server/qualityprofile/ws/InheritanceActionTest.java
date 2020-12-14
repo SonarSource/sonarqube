@@ -42,7 +42,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTree;
@@ -89,7 +88,7 @@ public class InheritanceActionTest {
 
   private WsActionTester ws = new WsActionTester(new InheritanceAction(
     dbClient,
-    new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db)),
+    new QProfileWsSupport(dbClient, userSession),
     new Languages()));
 
   @Test

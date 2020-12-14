@@ -40,8 +40,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -63,7 +61,7 @@ import static org.sonar.server.authentication.event.AuthenticationExceptionMatch
 
 public class HttpHeadersAuthenticationTest {
 
-  private MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
   @Rule
   public ExpectedException expectedException = none();
@@ -93,24 +91,20 @@ public class HttpHeadersAuthenticationTest {
   private GroupDto group2;
   private GroupDto sonarUsers;
 
-  private System2 system2 = mock(System2.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final System2 system2 = mock(System2.class);
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
-  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
+  private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
   private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
-  private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(
-    db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider, defaultGroupFinder, settings.asConfig(),
-      localAuthentication),
+  private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(db.getDbClient(),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultGroupFinder, settings.asConfig(), localAuthentication),
     defaultGroupFinder);
-
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-
-  private HttpHeadersAuthentication underTest = new HttpHeadersAuthentication(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private final HttpHeadersAuthentication underTest = new HttpHeadersAuthentication(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler,
+    authenticationEvent);
 
   @Before
   public void setUp() {

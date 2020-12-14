@@ -28,15 +28,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -59,14 +56,12 @@ public class SetDefaultActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider;
   private DbClient dbClient;
   private QProfileWsSupport wsSupport;
 
   private SetDefaultAction underTest;
   private WsActionTester ws;
 
-  private OrganizationDto organization;
   /** Single, default quality profile for language xoo1 */
   private QProfileDto xoo1Profile;
   /** Parent quality profile for language xoo2 (not a default) */
@@ -76,10 +71,8 @@ public class SetDefaultActionTest {
 
   @Before
   public void setUp() {
-    defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     dbClient = db.getDbClient();
-    wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-    organization = db.organizations().getDefaultOrganization();
+    wsSupport = new QProfileWsSupport(dbClient, userSessionRule);
     underTest = new SetDefaultAction(LanguageTesting.newLanguages(XOO_1_KEY, XOO_2_KEY), dbClient, userSessionRule, wsSupport);
 
     xoo1Profile = QualityProfileTesting.newQualityProfileDto().setLanguage(XOO_1_KEY);

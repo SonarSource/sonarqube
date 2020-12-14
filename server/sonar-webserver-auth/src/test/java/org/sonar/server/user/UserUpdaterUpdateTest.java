@@ -39,8 +39,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -63,21 +61,20 @@ public class UserUpdaterUpdateTest {
   private static final Consumer<UserDto> EMPTY_USER_CONSUMER = userDto -> {
   };
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = db.getDbClient();
-  private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
-  private DbSession session = db.getSession();
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private MapSettings settings = new MapSettings();
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
+  private final DbClient dbClient = db.getDbClient();
+  private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
+  private final DbSession session = db.getSession();
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private final MapSettings settings = new MapSettings();
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test

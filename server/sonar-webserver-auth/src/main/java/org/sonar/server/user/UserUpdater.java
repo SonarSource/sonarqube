@@ -35,12 +35,10 @@ import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
@@ -75,18 +73,15 @@ public class UserUpdater {
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
   private final CredentialsLocalAuthentication localAuthentication;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer,
-    DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder, Configuration config,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
     CredentialsLocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.defaultGroupFinder = defaultGroupFinder;
     this.config = config;
     this.localAuthentication = localAuthentication;
@@ -120,7 +115,7 @@ public class UserUpdater {
     setOnboarded(reactivatedUser);
     updateDto(dbSession, updateUser, reactivatedUser);
     updateUser(dbSession, reactivatedUser);
-    addUserToDefaultOrganizationAndDefaultGroup(dbSession, reactivatedUser);
+    addUserToDefaultGroup(dbSession, reactivatedUser);
   }
 
   public void updateAndCommit(DbSession dbSession, UserDto dto, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
@@ -416,7 +411,7 @@ public class UserUpdater {
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
     userDto.setActive(true);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
-    addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
+    addUserToDefaultGroup(dbSession, userDto);
     return res;
   }
 
@@ -437,14 +432,8 @@ public class UserUpdater {
     return userGroups.stream().anyMatch(group -> defaultGroup.getUuid().equals(group.getUuid()));
   }
 
-  private void addUserToDefaultOrganizationAndDefaultGroup(DbSession dbSession, UserDto userDto) {
-    addUserToDefaultOrganization(dbSession, userDto);
+  private void addUserToDefaultGroup(DbSession dbSession, UserDto userDto) {
     addDefaultGroup(dbSession, userDto);
-  }
-
-  private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {
-    String defOrgUuid = defaultOrganizationProvider.get().getUuid();
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserUuid(userDto.getUuid()));
   }
 
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {

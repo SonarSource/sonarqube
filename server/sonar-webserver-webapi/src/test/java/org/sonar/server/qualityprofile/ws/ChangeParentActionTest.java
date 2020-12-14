@@ -49,7 +49,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTreeImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -108,8 +107,7 @@ public class ChangeParentActionTest {
       new Languages(),
       new QProfileWsSupport(
         dbClient,
-        userSession,
-        TestDefaultOrganizationProvider.from(db)),
+        userSession),
       userSession);
 
     ws = new WsActionTester(underTest);

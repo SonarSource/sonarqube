@@ -24,16 +24,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
@@ -45,18 +42,10 @@ public class QProfileWsSupport {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public QProfileWsSupport(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
-  }
-
-  public OrganizationDto getDefaultOrganization(DbSession dbSession) {
-    String organizationOrDefaultKey = defaultOrganizationProvider.get().getKey();
-    return checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
-      "No organization with key '%s'", organizationOrDefaultKey);
   }
 
   public RuleDefinitionDto getRule(DbSession dbSession, RuleKey ruleKey) {
@@ -92,7 +81,6 @@ public class QProfileWsSupport {
   public UserDto getUser(DbSession dbSession, String login) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
     checkFound(user, "User with login '%s' is not found'", login);
-    checkMembership(dbSession, getDefaultOrganization(dbSession), user);
     return user;
   }
 
@@ -125,13 +113,5 @@ public class QProfileWsSupport {
 
   void checkNotBuiltIn(QProfileDto profile) {
     checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
-  }
-
-  private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    checkArgument(isMember(dbSession, organization, user.getUuid()), "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
-  }
-
-  private boolean isMember(DbSession dbSession, OrganizationDto organization, String userUuid) {
-    return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userUuid).isPresent();
   }
 }
