@@ -22,10 +22,7 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
-import java.security.SecureRandom;
 import javax.annotation.Nullable;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -34,12 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class AesCipher implements Cipher {
-
-  // Can't be increased because of Java 6 policy files :
-  // https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps
-  // http://java.sun.com/javase/6/webnotes/install/jre/README
-  public static final int KEY_SIZE_IN_BITS = 128;
-
   private static final String CRYPTO_KEY = "AES";
 
   /**
@@ -110,18 +101,6 @@ final class AesCipher implements Cipher {
       throw new IllegalStateException("No secret key in the file: " + path);
     }
     return new SecretKeySpec(Base64.decodeBase64(StringUtils.trim(s)), CRYPTO_KEY);
-  }
-
-  String generateRandomSecretKey() {
-    try {
-      KeyGenerator keyGen = KeyGenerator.getInstance(CRYPTO_KEY);
-      keyGen.init(KEY_SIZE_IN_BITS, new SecureRandom());
-      SecretKey secretKey = keyGen.generateKey();
-      return Base64.encodeBase64String(secretKey.getEncoded());
-
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to generate secret key", e);
-    }
   }
 
   String getPathToSecretKey() {

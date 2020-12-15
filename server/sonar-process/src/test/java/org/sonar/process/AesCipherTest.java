@@ -20,35 +20,23 @@
 package org.sonar.process;
 
 import com.google.common.io.Resources;
+import java.io.File;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import javax.crypto.BadPaddingException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.crypto.BadPaddingException;
-import java.io.File;
-import java.security.InvalidKeyException;
-import java.security.Key;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-
 
 public class AesCipherTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void generateRandomSecretKey() {
-    AesCipher cipher = new AesCipher(null);
-
-    String key = cipher.generateRandomSecretKey();
-
-    assertThat(StringUtils.isNotBlank(key)).isTrue();
-    assertThat(Base64.isBase64(key.getBytes())).isTrue();
-  }
 
   @Test
   public void encrypt() {
