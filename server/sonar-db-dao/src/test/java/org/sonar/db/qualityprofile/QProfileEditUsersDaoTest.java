@@ -27,7 +27,6 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
@@ -44,14 +43,14 @@ public class QProfileEditUsersDaoTest {
 
   private static final long NOW = 10_000_000_000L;
 
-  private System2 system2 = new TestSystem2().setNow(NOW);
+  private final System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private QProfileEditUsersDao underTest = db.getDbClient().qProfileEditUsersDao();
+  private final QProfileEditUsersDao underTest = db.getDbClient().qProfileEditUsersDao();
 
   @Test
   public void exists() {
@@ -69,14 +68,10 @@ public class QProfileEditUsersDaoTest {
 
   @Test
   public void countByQuery() {
-    OrganizationDto organization = db.getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
-    db.organizations().addMember(organization, user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
 
@@ -102,9 +97,6 @@ public class QProfileEditUsersDaoTest {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
-    db.organizations().addMember(db.getDefaultOrganization(), user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
 
@@ -138,9 +130,6 @@ public class QProfileEditUsersDaoTest {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1").setName("John Doe"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2").setName("John Smith"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("user3").setName("Jane Doe"));
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
-    db.organizations().addMember(db.getDefaultOrganization(), user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
     db.qualityProfiles().addUserPermission(profile, user3);
@@ -176,9 +165,6 @@ public class QProfileEditUsersDaoTest {
     UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("user3"));
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
-    db.organizations().addMember(db.getDefaultOrganization(), user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
 

@@ -30,15 +30,12 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 public class OrganizationQuery {
   private static final OrganizationQuery NO_FILTER = newOrganizationQueryBuilder().build();
   private final Set<String> keys;
-  @Nullable
-  private final String userUuid;
   private final boolean withAnalyses;
   @Nullable
   private final Long analyzedAfter;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
-    this.userUuid = builder.member;
     this.withAnalyses = builder.withAnalyses;
     this.analyzedAfter = builder.analyzedAfter;
   }
@@ -46,11 +43,6 @@ public class OrganizationQuery {
   @CheckForNull
   public Set<String> getKeys() {
     return keys;
-  }
-
-  @CheckForNull
-  public String getMember() {
-    return userUuid;
   }
 
   public boolean isWithAnalyses() {
@@ -72,8 +64,6 @@ public class OrganizationQuery {
 
   public static class Builder {
     private Set<String> keys;
-    @Nullable
-    private String member;
     private boolean withAnalyses = false;
     @Nullable
     private Long analyzedAfter;
@@ -88,11 +78,6 @@ public class OrganizationQuery {
           .filter(Objects::nonNull)
           .collect(toSet(keys.size()));
       }
-      return this;
-    }
-
-    public Builder setMember(@Nullable String userUuid) {
-      this.member = userUuid;
       return this;
     }
 

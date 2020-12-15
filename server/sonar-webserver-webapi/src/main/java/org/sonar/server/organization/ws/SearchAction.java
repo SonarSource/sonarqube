@@ -22,7 +22,6 @@ package org.sonar.server.organization.ws;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -123,7 +122,6 @@ public class SearchAction implements OrganizationsWsAction {
   private OrganizationQuery buildDbQuery(Request request) {
     return newOrganizationQueryBuilder()
       .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
-      .setMember(getUserIdIfFilterOnMembership(request))
       .build();
   }
 
@@ -192,11 +190,5 @@ public class SearchAction implements OrganizationsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setTotal(total)
       .build();
-  }
-
-  @CheckForNull
-  private String getUserIdIfFilterOnMembership(Request request) {
-    boolean filterOnAuthenticatedUser = request.mandatoryParamAsBoolean(PARAM_MEMBER);
-    return (userSession.isLoggedIn() && filterOnAuthenticatedUser) ? userSession.getUuid() : null;
   }
 }

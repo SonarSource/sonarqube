@@ -21,13 +21,9 @@ package org.sonar.server.organization;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.ALM;
-import org.sonar.db.alm.OrganizationAlmBindingDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.index.UserIndexer;
@@ -35,12 +31,10 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.difference;
-import static com.google.common.collect.Sets.union;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 public class MemberUpdater {
@@ -73,18 +67,18 @@ public class MemberUpdater {
   }
 
   private void addMemberInDb(DbSession dbSession, UserDto user) {
+    String defaultGroupUuid = defaultGroupFinder.findDefaultGroup(dbSession).getUuid();
     dbClient.userGroupDao().insert(dbSession,
-      new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession).getUuid()).setUserUuid(user.getUuid()));
+      new UserGroupDto().setGroupUuid(defaultGroupUuid).setUserUuid(user.getUuid()));
   }
 
-  // TODO remove org param like it was removed from addMembers
-  public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    removeMembers(dbSession, organization, singletonList(user));
+  public void removeMember(DbSession dbSession, UserDto user) {
+    removeMembers(dbSession, singletonList(user));
   }
 
-  // TODO remove org param like it was removed from addMembers
-  public void removeMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
-    Set<String> currentMemberIds = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
+  public void removeMembers(DbSession dbSession, List<UserDto> users) {
+    String defaultGroupUuid = defaultGroupFinder.findDefaultGroup(dbSession).getUuid();
+    Set<String> currentMemberIds = dbClient.userGroupDao().selectUserUuidsInGroup(dbSession, defaultGroupUuid);
     List<UserDto> usersToRemove = users.stream()
       .filter(UserDto::isActive)
       .filter(u -> currentMemberIds.contains(u.getUuid()))
@@ -97,46 +91,14 @@ public class MemberUpdater {
     Set<String> adminUuids = new HashSet<>(dbClient.authorizationDao().selectUserUuidsWithGlobalPermission(dbSession, ADMINISTER.getKey()));
     checkArgument(!difference(adminUuids, userUuidsToRemove).isEmpty(), "The last administrator member cannot be removed");
 
-    usersToRemove.forEach(u -> removeMemberInDb(dbSession, organization, u));
+    usersToRemove.forEach(u -> removeMemberInDb(dbSession, u));
     userIndexer.commitAndIndex(dbSession, usersToRemove);
   }
 
-  /**
-   * Synchronize organization membership of a user from a list of ALM organization specific ids
-   * Please note that no commit will not be executed.
-   */
-  public void synchronizeUserOrganizationMembership(DbSession dbSession, UserDto user, ALM alm, Set<String> organizationAlmIds) {
-    Set<String> userOrganizationUuids = dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, user.getUuid());
-    Set<String> userOrganizationUuidsWithMembersSyncEnabled = dbClient.organizationAlmBindingDao().selectByOrganizationUuids(dbSession, userOrganizationUuids).stream()
-      .filter(OrganizationAlmBindingDto::isMembersSyncEnable)
-      .map(OrganizationAlmBindingDto::getOrganizationUuid)
-      .collect(toSet());
-    Set<String> almOrganizationUuidsWithMembersSyncEnabled = dbClient.organizationAlmBindingDao().selectByOrganizationAlmIds(dbSession, alm, organizationAlmIds).stream()
-      .filter(OrganizationAlmBindingDto::isMembersSyncEnable)
-      .map(OrganizationAlmBindingDto::getOrganizationUuid)
-      .collect(toSet());
-
-    Set<String> organizationUuidsToBeAdded = difference(almOrganizationUuidsWithMembersSyncEnabled, userOrganizationUuidsWithMembersSyncEnabled);
-    Set<String> organizationUuidsToBeRemoved = difference(userOrganizationUuidsWithMembersSyncEnabled, almOrganizationUuidsWithMembersSyncEnabled);
-    Map<String, OrganizationDto> allOrganizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, union(organizationUuidsToBeAdded, organizationUuidsToBeRemoved))
-      .stream()
-      .collect(uniqueIndex(OrganizationDto::getUuid));
-
-    allOrganizationsByUuid.entrySet().stream()
-      .filter(entry -> organizationUuidsToBeAdded.contains(entry.getKey()))
-      .forEach(entry -> addMemberInDb(dbSession, user));
-    allOrganizationsByUuid.entrySet().stream()
-      .filter(entry -> organizationUuidsToBeRemoved.contains(entry.getKey()))
-      .forEach(entry -> removeMemberInDb(dbSession, entry.getValue(), user));
-  }
-
-  private void removeMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {
+  private void removeMemberInDb(DbSession dbSession, UserDto user) {
     String userUuid = user.getUuid();
-    String organizationUuid = organization.getUuid();
-    dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userUuid);
-    dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
-
-    dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userUuid);
+    dbClient.propertiesDao().deleteByUser(dbSession, userUuid);
+    dbClient.propertiesDao().deleteByMatchingLogin(dbSession, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
   }
 
 }

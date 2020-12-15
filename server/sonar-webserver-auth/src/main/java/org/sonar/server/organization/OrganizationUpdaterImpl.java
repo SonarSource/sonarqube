@@ -30,11 +30,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
@@ -61,6 +60,8 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
+// TODO remove
+@Deprecated
 public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
   private final DbClient dbClient;
@@ -96,9 +97,8 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate);
     beforeCommit.accept(organization);
-    insertOrganizationMember(dbSession, organization, userCreator.getUuid());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
-    GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
+    GroupDto ownerGroup = insertOwnersGroup(dbSession);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession);
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
     addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getUuid());
@@ -215,7 +215,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   /**
    * Owners group has an hard coded name, a description based on the organization's name and has all global permissions.
    */
-  private GroupDto insertOwnersGroup(DbSession dbSession, OrganizationDto organization) {
+  private GroupDto insertOwnersGroup(DbSession dbSession) {
     GroupDto group = dbClient.groupDao().insert(dbSession, new GroupDto()
       .setUuid(uuidFactory.create())
       .setName(OWNERS_GROUP_NAME)
@@ -237,11 +237,5 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     dbClient.userGroupDao().insert(
       dbSession,
       new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(createUserUuid));
-  }
-
-  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, String userUuid) {
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
-      .setOrganizationUuid(organizationDto.getUuid())
-      .setUserUuid(userUuid));
   }
 }

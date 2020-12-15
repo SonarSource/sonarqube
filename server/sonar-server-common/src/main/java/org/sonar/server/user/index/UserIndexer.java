@@ -19,12 +19,11 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -41,6 +40,7 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -72,15 +72,17 @@ public class UserIndexer implements ResilientIndexer {
 
   private void indexAll(Size bulkSize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
-      dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByUserUuid::put);
-
       BulkIndexer bulkIndexer = newBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
+
+      // TODO remove this after removing the need for organization uuids in the user index
+      Optional<String> defaultOrgUuid = dbClient.internalPropertiesDao().selectByKey(dbSession, "organization.default");
+      checkState(defaultOrgUuid.isPresent() && !defaultOrgUuid.get().isEmpty(), "No Default organization uuid configured");
+
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.
         // Deactivated users are not deleted but updated.
-        u -> bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid)));
+        u -> bulkIndexer.add(newIndexRequest(u, defaultOrgUuid.get())));
       bulkIndexer.stop();
     }
   }
@@ -121,17 +123,19 @@ public class UserIndexer implements ResilientIndexer {
       .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
-    ListMultimap<String, String> organizationUuidsByUserUuid = ArrayListMultimap.create();
-    dbClient.organizationMemberDao().selectForUserIndexing(dbSession, uuids, organizationUuidsByUserUuid::put);
-
     BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
+
+    // TODO remove this after removing the need for organization uuids in the user index
+    Optional<String> defaultOrgUuid = dbClient.internalPropertiesDao().selectByKey(dbSession, "organization.default");
+    checkState(defaultOrgUuid.isPresent() && !defaultOrgUuid.get().isEmpty(), "No Default organization uuid configured");
+
     dbClient.userDao().scrollByUuids(dbSession, uuids,
       // only index requests, no deletion requests.
       // Deactivated users are not deleted but updated.
       u -> {
         uuids.remove(u.getUuid());
-        bulkIndexer.add(newIndexRequest(u, organizationUuidsByUserUuid));
+        bulkIndexer.add(newIndexRequest(u, defaultOrgUuid.get()));
       });
 
     // the remaining uuids reference rows that don't exist in db. They must
@@ -144,7 +148,8 @@ public class UserIndexer implements ResilientIndexer {
     return new BulkIndexer(esClient, TYPE_USER, bulkSize, listener);
   }
 
-  private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByUserUuid) {
+  // TODO remove defaultOrg method param and dto.setOrganizationUuids call
+  private static IndexRequest newIndexRequest(UserDto user, String defaultOrgUuid) {
     UserDoc doc = new UserDoc(Maps.newHashMapWithExpectedSize(8));
     // all the keys must be present, even if value is null
     doc.setUuid(user.getUuid());
@@ -153,7 +158,7 @@ public class UserIndexer implements ResilientIndexer {
     doc.setEmail(user.getEmail());
     doc.setActive(user.isActive());
     doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
-    doc.setOrganizationUuids(organizationUuidsByUserUuid.get(user.getUuid()));
+    doc.setOrganizationUuids(singletonList(defaultOrgUuid));
 
     return doc.toIndexRequest();
   }

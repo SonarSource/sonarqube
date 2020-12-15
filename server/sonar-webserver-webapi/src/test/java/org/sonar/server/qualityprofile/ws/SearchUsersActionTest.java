@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -84,12 +83,9 @@ public class SearchUsersActionTest {
   public void test_example() {
     avatarResolver = new AvatarResolverImpl();
     ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES, avatarResolver));
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("admin").setName("Administrator").setEmail("admin@email.com"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -106,12 +102,9 @@ public class SearchUsersActionTest {
 
   @Test
   public void search_all_users() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
     UserDto user2 = db.users().insertUser(u -> u.setEmail("user2@email.com"));
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -130,12 +123,9 @@ public class SearchUsersActionTest {
 
   @Test
   public void search_selected_users() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -152,12 +142,9 @@ public class SearchUsersActionTest {
 
   @Test
   public void search_deselected_users() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -174,12 +161,9 @@ public class SearchUsersActionTest {
 
   @Test
   public void search_by_login() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -196,14 +180,10 @@ public class SearchUsersActionTest {
 
   @Test
   public void search_by_name() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser(u -> u.setName("John Doe"));
     UserDto user2 = db.users().insertUser(u -> u.setName("Jane Doe"));
     UserDto user3 = db.users().insertUser(u -> u.setName("John Smith"));
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
-    db.organizations().addMember(organization, user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -220,10 +200,8 @@ public class SearchUsersActionTest {
 
   @Test
   public void user_without_email() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
-    db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -239,14 +217,10 @@ public class SearchUsersActionTest {
 
   @Test
   public void paging_search() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("user3"));
     UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
-    db.organizations().addMember(organization, user1);
-    db.organizations().addMember(organization, user2);
-    db.organizations().addMember(organization, user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
@@ -284,10 +258,8 @@ public class SearchUsersActionTest {
 
   @Test
   public void uses_default_organization_when_no_organization() {
-    OrganizationDto organization = db.getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -302,10 +274,8 @@ public class SearchUsersActionTest {
 
   @Test
   public void qp_administers_can_search_users() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
@@ -321,7 +291,6 @@ public class SearchUsersActionTest {
   public void qp_editors_can_search_users() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.organizations().getDefaultOrganization(), user);
     UserDto userAllowedToEditProfile = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, userAllowedToEditProfile);
     userSession.logIn(userAllowedToEditProfile);
@@ -337,9 +306,7 @@ public class SearchUsersActionTest {
 
   @Test
   public void fail_when_qprofile_does_not_exist() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
@@ -353,10 +320,8 @@ public class SearchUsersActionTest {
 
   @Test
   public void fail_when_wrong_language() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
-    db.organizations().addMember(organization, user1);
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -371,10 +336,8 @@ public class SearchUsersActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(ForbiddenException.class);

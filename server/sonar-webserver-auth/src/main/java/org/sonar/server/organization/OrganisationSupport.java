@@ -29,28 +29,27 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreator;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
+//TODO drop this
+@Deprecated
 @ServerSide
 public class OrganisationSupport {
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
   private final DefaultGroupCreator defaultGroupCreator;
   private final DefaultGroupFinder defaultGroupFinder;
   private final RuleIndexer ruleIndexer;
   private final UuidFactory uuidFactory;
 
-  public OrganisationSupport(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
+  public OrganisationSupport(DbClient dbClient,
     OrganizationFlags organizationFlags, DefaultGroupCreator defaultGroupCreator, DefaultGroupFinder defaultGroupFinder,
     RuleIndexer ruleIndexer, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
     this.defaultGroupCreator = defaultGroupCreator;
     this.defaultGroupFinder = defaultGroupFinder;
@@ -59,11 +58,10 @@ public class OrganisationSupport {
   }
 
   public void enable(String login) {
-    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (!organizationFlags.isEnabled(dbSession)) {
         flagAdminUserAsRoot(dbSession, login);
-        createDefaultMembersGroup(dbSession, defaultOrganizationUuid);
+        createDefaultMembersGroup(dbSession);
         List<String> disabledTemplateAndCustomRuleUuids = disableTemplateRulesAndCustomRules(dbSession);
         enableFeature(dbSession);
         ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleUuids);
@@ -75,23 +73,17 @@ public class OrganisationSupport {
     dbClient.userDao().setRoot(dbSession, login, true);
   }
 
-  private void createDefaultMembersGroup(DbSession dbSession, String defaultOrganizationUuid) {
+  private void createDefaultMembersGroup(DbSession dbSession) {
     GroupDto sonarUsersGroup = defaultGroupFinder.findDefaultGroup(dbSession);
     GroupDto members = defaultGroupCreator.create(dbSession);
     copySonarUsersGroupPermissionsToMembersGroup(dbSession, sonarUsersGroup, members);
     copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroup, members);
-    associateMembersOfDefaultOrganizationToGroup(dbSession, defaultOrganizationUuid, members);
-  }
-
-  private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto membersGroup) {
-    List<String> organizationMembers = dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, defaultOrganizationUuid);
-    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(membersGroup.getUuid()).setUserUuid(member)));
   }
 
   private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, GroupDto sonarUsersGroup, GroupDto membersGroup) {
     dbClient.groupPermissionDao().selectAllPermissionsByGroupUuid(dbSession, sonarUsersGroup.getUuid(),
       context -> {
-        GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
+        GroupPermissionDto groupPermissionDto = context.getResultObject();
         dbClient.groupPermissionDao().insert(dbSession,
           new GroupPermissionDto()
             .setUuid(uuidFactory.create())

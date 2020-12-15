@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
@@ -37,7 +36,7 @@ import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexerTest {
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -45,7 +44,7 @@ public class UserIndexerTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private UserIndexer underTest = new UserIndexer(db.getDbClient(), es.client());
+  private final UserIndexer underTest = new UserIndexer(db.getDbClient(), es.client());
 
   @Test
   public void index_nothing_on_startup() {
@@ -69,7 +68,7 @@ public class UserIndexerTest {
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
     assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
-    assertThat(doc.organizationUuids()).isEmpty();
+    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -87,16 +86,12 @@ public class UserIndexerTest {
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
     assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
-    assertThat(doc.organizationUuids()).isEmpty();
+    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
-  public void indexOnStartup_adds_all_users_with_organizations() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
+  public void indexOnStartup_adds_all_users() {
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization1, user);
-    db.organizations().addMember(organization2, user);
 
     underTest.indexOnStartup(new HashSet<>());
 
@@ -105,7 +100,7 @@ public class UserIndexerTest {
     UserDoc doc = docs.get(0);
     assertThat(doc.uuid()).isEqualTo(user.getUuid());
     assertThat(doc.login()).isEqualTo(user.getLogin());
-    assertThat(doc.organizationUuids()).containsExactlyInAnyOrder(organization1.getUuid(), organization2.getUuid());
+    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -123,36 +118,9 @@ public class UserIndexerTest {
   }
 
   @Test
-  public void commitAndIndex_single_user_belonging_to_organizations() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization1, user);
-    db.organizations().addMember(organization2, user);
-    UserDto anotherUser = db.users().insertUser();
-    db.organizations().addMember(organization1, anotherUser);
-
-    underTest.commitAndIndex(db.getSession(), user);
-
-    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
-    assertThat(docs).hasSize(1);
-
-    UserDoc userDoc = docs.get(0);
-    assertThat(userDoc.uuid())
-      .isEqualTo(user.getUuid());
-
-    assertThat(userDoc.organizationUuids())
-      .containsExactlyInAnyOrder(organization1.getUuid(), organization2.getUuid());
-  }
-
-  @Test
   public void commitAndIndex_multiple_users() {
-    OrganizationDto organization1 = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
-    db.organizations().addMember(organization1, user1);
-    OrganizationDto organization2 = db.organizations().insert();
     UserDto user2 = db.users().insertUser();
-    db.organizations().addMember(organization2, user2);
 
     underTest.commitAndIndex(db.getSession(), asList(user1, user2));
 
@@ -160,8 +128,8 @@ public class UserIndexerTest {
     assertThat(docs)
       .extracting(UserDoc::login, UserDoc::organizationUuids)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), singletonList(organization1.getUuid())),
-        tuple(user2.getLogin(), singletonList(organization2.getUuid())));
+        tuple(user1.getLogin(), singletonList(db.getDefaultOrganization().getUuid())),
+        tuple(user2.getLogin(), singletonList(db.getDefaultOrganization().getUuid())));
     assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(2);
   }
 }

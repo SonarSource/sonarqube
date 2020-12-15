@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -56,9 +55,8 @@ public class RemoveUserActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
-
-  private WsActionTester ws = new WsActionTester(new RemoveUserAction(db.getDbClient(), wsSupport, LANGUAGES));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
+  private final WsActionTester ws = new WsActionTester(new RemoveUserAction(db.getDbClient(), wsSupport, LANGUAGES));
 
   @Test
   public void test_definition() {
@@ -71,10 +69,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void remove_user() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
@@ -90,10 +86,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void does_nothing_when_user_cannot_edit_profile() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     assertThat(db.getDbClient().qProfileEditUsersDao().exists(db.getSession(), profile, user)).isFalse();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
@@ -108,10 +102,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void qp_administers_can_remove_user() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
@@ -126,10 +118,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void qp_editors_can_remove_user() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
     UserDto userAllowedToEditProfile = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, userAllowedToEditProfile);
@@ -146,10 +136,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void uses_default_organization_when_no_organization() {
-    OrganizationDto organization = db.getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -179,9 +167,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void fail_when_qprofile_does_not_exist() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
@@ -196,10 +182,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void fail_when_wrong_language() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("unknown"));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
@@ -214,9 +198,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void fail_when_qp_is_built_in() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO).setIsBuiltIn(true));
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     expectedException.expect(BadRequestException.class);
@@ -231,10 +213,8 @@ public class RemoveUserActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(ForbiddenException.class);

@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -27,7 +26,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,21 +33,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultAssigneeTest {
 
   public static final String PROJECT_KEY = "PROJECT_KEY";
-  public static final String ORGANIZATION_UUID = "ORGANIZATION_UUID";
 
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings settings = new MapSettings();
-  private ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
-  private OrganizationDto organizationDto;
-
-  private DefaultAssignee underTest = new DefaultAssignee(db.getDbClient(), settingsRepository);
-
-  @Before
-  public void setUp() {
-    organizationDto = db.organizations().insertForUuid(ORGANIZATION_UUID);
-  }
+  private final MapSettings settings = new MapSettings();
+  private final ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
+  private final DefaultAssignee underTest = new DefaultAssignee(db.getDbClient(), settingsRepository);
 
   @Test
   public void no_default_assignee() {
@@ -60,7 +50,6 @@ public class DefaultAssigneeTest {
   public void set_default_assignee() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     UserDto userDto = db.users().insertUser("erik");
-    db.organizations().addMember(organizationDto, userDto);
 
     assertThat(underTest.loadDefaultAssigneeUuid()).isEqualTo(userDto.getUuid());
   }
@@ -84,7 +73,6 @@ public class DefaultAssigneeTest {
   public void default_assignee_is_cached() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     UserDto userDto = db.users().insertUser("erik");
-    db.organizations().addMember(organizationDto, userDto);
     assertThat(underTest.loadDefaultAssigneeUuid()).isEqualTo(userDto.getUuid());
 
     // The setting is updated but the assignee hasn't changed

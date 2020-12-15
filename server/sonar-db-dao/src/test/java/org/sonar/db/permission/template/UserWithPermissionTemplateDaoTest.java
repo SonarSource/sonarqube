@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.UserDto;
 
@@ -46,17 +45,15 @@ public class UserWithPermissionTemplateDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
+  private final DbSession dbSession = db.getSession();
 
-  private PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
+  private final PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_logins() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, ADMIN);
@@ -76,9 +73,7 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void return_no_logins_on_unknown_template_key() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user, USER);
 
@@ -89,11 +84,9 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void select_only_logins_with_permission() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, ADMIN);
@@ -110,10 +103,8 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void select_only_enable_users() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     UserDto disabledUser = db.users().insertUser(u -> u.setActive(false));
-    db.organizations().addMember(organization, user, disabledUser);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, disabledUser, USER);
@@ -125,11 +116,9 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void search_by_user_name() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser(u -> u.setName("User1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("User2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("User3"));
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user2, USER);
@@ -151,7 +140,6 @@ public class UserWithPermissionTemplateDaoTest {
     UserDto user1 = db.users().insertUser(u -> u.setName("A"));
     UserDto user2 = db.users().insertUser(u -> u.setName("B"));
     UserDto user3 = db.users().insertUser(u -> u.setName("C"));
-    //db.organizations().addMember(organization, user1, user2, user3);
     db.permissionTemplates().addUserToTemplate(template.getUuid(), user3.getUuid(), UserRole.USER);
 
     PermissionQuery query = PermissionQuery.builder().build();
@@ -161,13 +149,11 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void selectUserLoginsByQueryAndTemplate_is_order_by_groups_with_permission_when_many_users() {
-    OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     // Add another template having some users with permission to make sure it's correctly ignored
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = db.users().insertUser("User-" + i);
-      db.organizations().addMember(organization, user);
       db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
     });
     String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
@@ -181,11 +167,9 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void should_be_paginated() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser(u -> u.setName("User1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("User2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("User3"));
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user2, USER);
@@ -203,11 +187,9 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void count_users() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user2, USER);
@@ -222,11 +204,9 @@ public class UserWithPermissionTemplateDaoTest {
 
   @Test
   public void select_user_permission_templates_by_template_and_logins() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
-    db.organizations().addMember(organization, user1, user2, user3);
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, ADMIN);

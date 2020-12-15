@@ -50,10 +50,9 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByKeyAndMatchingValue(@Param("key") String key, @Param("value") String value);
 
-  List<String> selectUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
+  List<String> selectUuidsByUser(@Param("userUuid") String userUuid);
 
-  List<String> selectIdsByOrganizationAndMatchingLogin(@Param("organizationUuid") String organizationUuid, @Param("login") String login,
-    @Param("propertyKeys") List<String> propertyKeys);
+  List<String> selectIdsByMatchingLogin(@Param("login") String login, @Param("propertyKeys") List<String> propertyKeys);
 
   void insertAsEmpty(@Param("uuid") String uuid, @Param("key") String key, @Nullable @Param("userUuid") String userUuid, @Nullable @Param("componentUuid") String componentUuid,
     @Param("now") long now);

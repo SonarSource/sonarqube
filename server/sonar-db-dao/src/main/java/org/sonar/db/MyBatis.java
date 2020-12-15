@@ -87,8 +87,6 @@ import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationMapper;
-import org.sonar.db.organization.OrganizationMemberDto;
-import org.sonar.db.organization.OrganizationMemberMapper;
 import org.sonar.db.permission.AuthorizationMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.GroupPermissionMapper;
@@ -196,7 +194,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Organization", OrganizationDto.class);
-    confBuilder.loadAlias("OrganizationMember", OrganizationMemberDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
@@ -265,7 +262,6 @@ public class MyBatis implements Startable {
       NotificationQueueMapper.class,
       OrganizationAlmBindingMapper.class,
       OrganizationMapper.class,
-      OrganizationMemberMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,
@@ -333,7 +329,6 @@ public class MyBatis implements Startable {
     int fetchSize = database.getDialect().getScrollDefaultFetchSize();
     return newScrollingSelectStatement(session, sql, fetchSize);
   }
-
 
   private static PreparedStatement newScrollingSelectStatement(DbSession session, String sql, int fetchSize) {
     try {

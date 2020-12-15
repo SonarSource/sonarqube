@@ -86,7 +86,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
 
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
-      memberUpdater.removeMember(dbSession, organization, user);
+      memberUpdater.removeMember(dbSession, user);
     }
     response.noContent();
   }

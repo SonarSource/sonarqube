@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
@@ -201,10 +200,8 @@ public class AddGroupActionTest {
 
   @Test
   public void fail_when_wrong_language() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("unknown"));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
@@ -219,9 +216,7 @@ public class AddGroupActionTest {
 
   @Test
   public void fail_when_qp_is_built_in() {
-    OrganizationDto organization = db.getDefaultOrganization();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO).setIsBuiltIn(true));
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
@@ -237,10 +232,8 @@ public class AddGroupActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    OrganizationDto organization = db.getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(ForbiddenException.class);

@@ -102,6 +102,8 @@ public class UserDoc extends BaseDoc {
     return this;
   }
 
+  // TODO remove
+  @Deprecated
   public UserDoc setOrganizationUuids(@Nullable List<String> organizationUuids) {
     setField(FIELD_ORGANIZATION_UUIDS, organizationUuids);
     return this;

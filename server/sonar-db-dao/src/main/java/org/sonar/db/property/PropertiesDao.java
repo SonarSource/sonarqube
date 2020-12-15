@@ -207,7 +207,7 @@ public class PropertiesDao implements Dao {
   }
 
   private void save(PropertiesMapper mapper, String key,
-                    @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
+    @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();
@@ -289,13 +289,13 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, String userUuid) {
-    List<String> uuids = getMapper(dbSession).selectUuidsByOrganizationAndUser(organizationUuid, userUuid);
+  public void deleteByUser(DbSession dbSession, String userUuid) {
+    List<String> uuids = getMapper(dbSession).selectUuidsByUser(userUuid);
     executeLargeInputsWithoutOutput(uuids, subList -> getMapper(dbSession).deleteByUuids(subList));
   }
 
-  public void deleteByOrganizationAndMatchingLogin(DbSession dbSession, String organizationUuid, String login, List<String> propertyKeys) {
-    List<String> uuids = getMapper(dbSession).selectIdsByOrganizationAndMatchingLogin(organizationUuid, login, propertyKeys);
+  public void deleteByMatchingLogin(DbSession dbSession, String login, List<String> propertyKeys) {
+    List<String> uuids = getMapper(dbSession).selectIdsByMatchingLogin(login, propertyKeys);
     executeLargeInputsWithoutOutput(uuids, list -> getMapper(dbSession).deleteByUuids(list));
   }
 

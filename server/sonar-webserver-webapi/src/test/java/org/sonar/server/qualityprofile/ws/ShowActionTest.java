@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
@@ -278,11 +277,9 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_on_paid_organization() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
+  public void show() {
     QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
     userSession.logIn(user);
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, qualityProfile.getKee()));

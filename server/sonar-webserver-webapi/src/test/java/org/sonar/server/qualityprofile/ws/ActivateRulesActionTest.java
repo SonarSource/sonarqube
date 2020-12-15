@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,7 +26,6 @@ import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -64,13 +62,6 @@ public class ActivateRulesActionTest {
 
   private QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
   private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
-
-  private OrganizationDto defaultOrganization;
-
-  @Before
-  public void before() {
-    defaultOrganization = db.getDefaultOrganization();
-  }
 
   @Test
   public void define_bulk_activate_rule_action() {
@@ -122,7 +113,6 @@ public class ActivateRulesActionTest {
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-    db.organizations().addMember(defaultOrganization, user);
     db.qualityProfiles().addGroupPermission(qualityProfile, group);
     userSession.logIn(user).setGroups(group);
 

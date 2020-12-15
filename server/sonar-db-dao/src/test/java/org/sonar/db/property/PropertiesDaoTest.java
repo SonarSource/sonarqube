@@ -43,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -1011,11 +1010,9 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void delete_by_organization_and_user() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
+  public void delete_by_user() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", "VALUE", project.uuid(), user.getUuid());
@@ -1023,22 +1020,19 @@ public class PropertiesDaoTest {
     insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getUuid());
     insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getUuid());
 
-    underTest.deleteByOrganizationAndUser(session, organization.getUuid(), user.getUuid());
+    underTest.deleteByUser(session, user.getUuid());
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), session))
       .hasSize(1)
       .extracting(PropertyDto::getUserUuid).containsOnly(anotherUser.getUuid());
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), session))
-      .extracting(PropertyDto::getUserUuid)
-      .hasSize(1).containsOnly(user.getUuid());
+      .isEmpty();
   }
 
   @Test
-  public void delete_by_organization_and_matching_login() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
+  public void delete_by_matching_login() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", user.getLogin(), project.uuid(), null);
@@ -1046,14 +1040,13 @@ public class PropertiesDaoTest {
     insertProperty("KEY_11", anotherUser.getLogin(), project.uuid(), null);
     insertProperty("KEY_11", user.getLogin(), anotherProject.uuid(), null);
 
-    underTest.deleteByOrganizationAndMatchingLogin(session, organization.getUuid(), user.getLogin(), newArrayList("KEY_11", "KEY_12"));
+    underTest.deleteByMatchingLogin(session, user.getLogin(), newArrayList("KEY_11", "KEY_12"));
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), session))
       .hasSize(1)
       .extracting(PropertyDto::getValue).containsOnly(anotherUser.getLogin());
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), session))
-      .extracting(PropertyDto::getValue)
-      .hasSize(1).containsOnly(user.getLogin());
+      .isEmpty();
   }
 
   @Test

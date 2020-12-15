@@ -30,7 +30,6 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -135,7 +134,7 @@ public class OrganizationUpdaterImplTest {
 
     underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
-    verifyMembersGroup(user, FULL_POPULATED_NEW_ORGANIZATION.getKey());
+    verifyMembersGroup(user);
   }
 
   @Test
@@ -157,16 +156,19 @@ public class OrganizationUpdaterImplTest {
     assertThat(organization.getAvatarUrl()).isNull();
   }
 
+  // TODO this test should be removed when default organization entry is removed from db. For now regardless of which org we provide, the test
+  // makes sure the user is assigned to default org
   @Test
-  public void create_add_current_user_as_member_of_organization() throws OrganizationUpdater.KeyConflictException {
+  public void create_add_current_user_as_member_of_default_organization() throws OrganizationUpdater.KeyConflictException {
     UserDto user = db.users().insertUser();
     builtInQProfileRepositoryRule.initialize();
     db.qualityGates().insertBuiltInQualityGate();
 
-    OrganizationDto result = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
-    assertThat(dbClient.organizationMemberDao().select(dbSession, result.getUuid(), user.getUuid())).isPresent();
-    assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(result.getUuid()).setTextQuery(user.getLogin()).build(), new SearchOptions()).getTotal()).isEqualTo(1L);
+    assertThat(
+      userIndex.search(UserQuery.builder().setOrganizationUuid(db.getDefaultOrganization().getUuid()).setTextQuery(user.getLogin()).build(), new SearchOptions()).getTotal())
+        .isEqualTo(1L);
   }
 
   @Test
@@ -181,7 +183,6 @@ public class OrganizationUpdaterImplTest {
 
     underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     List<QProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession);
     assertThat(profiles).extracting(p -> new QProfileName(p.getLanguage(), p.getName())).containsExactlyInAnyOrder(
       builtIn1.getQProfileName(), builtIn2.getQProfileName());
@@ -217,7 +218,7 @@ public class OrganizationUpdaterImplTest {
     UserDto user = db.users().insertUser();
     builtInQProfileRepositoryRule.initialize();
     db.qualityGates().insertBuiltInQualityGate();
-    Boolean[] isConsumerCalled = new Boolean[]{false};
+    Boolean[] isConsumerCalled = new Boolean[] {false};
 
     underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, o -> {
       isConsumerCalled[0] = true;
@@ -327,28 +328,8 @@ public class OrganizationUpdaterImplTest {
     underTest.updateOrganizationKey(dbSession, organization, "new_login");
   }
 
-  private void verifyGroupOwners(UserDto user, String organizationKey) {
-    Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession, "Owners");
-    assertThat(groupOpt).isPresent();
-    GroupDto groupDto = groupOpt.get();
-    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization");
-
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getUuid()))
-      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
-    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
-      dbSession,
-      UserMembershipQuery.builder()
-        .groupUuid(groupDto.getUuid())
-        .membership(UserMembershipQuery.IN).build(),
-      0, Integer.MAX_VALUE);
-    assertThat(members)
-      .extracting(UserMembershipDto::getLogin)
-      .containsOnly(user.getLogin());
-  }
-
-  private void verifyMembersGroup(UserDto user, String organizationKey) {
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
-    Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession,"Members");
+  private void verifyMembersGroup(UserDto user) {
+    Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession, "Members");
     assertThat(groupOpt).isPresent();
     GroupDto groupDto = groupOpt.get();
     assertThat(groupDto.getDescription()).isEqualTo("All members of the organization");
