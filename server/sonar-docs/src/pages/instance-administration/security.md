@@ -181,7 +181,7 @@ Note that there is no relation between a project and a permission template, mean
 ## Settings Encryption
 Encryption is mostly used to remove clear passwords from settings (database or SCM credentials for instance). The implemented solution is based on a symmetric key algorithm. The key point is that the secret key is stored in a secured file on disk. This file must be owned by and readable only by the system account that runs the SonarQube server.
 
-The algorithm is AES 128 bits. Note that 256 bits cipher is not used because it's not supported by default on all Java Virtual Machines ([see this article](https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps)).
+The encryption algorithm used is AES with 256 bit keys.
 
 1. **Generate the secret key**  
 A unique secret key must be shared between all parts of the SonarQube infrastructure. To generate it, go to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and click on Generate Secret Key.
