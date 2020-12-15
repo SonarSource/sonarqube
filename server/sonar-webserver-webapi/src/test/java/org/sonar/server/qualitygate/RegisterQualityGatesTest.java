@@ -64,16 +64,16 @@ public class RegisterQualityGatesTest {
 
   private static final String BUILT_IN_NAME = "Sonar way";
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private QualityGateDao qualityGateDao = dbClient.qualityGateDao();
-  private QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
-  private MetricDao metricDao = dbClient.metricDao();
-  private QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
-  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
+  private final QualityGateDao qualityGateDao = dbClient.qualityGateDao();
+  private final QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
+  private final MetricDao metricDao = dbClient.metricDao();
+  private final QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
+  private final QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
-  private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
+  private final RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
     UuidFactoryFast.getInstance(), System2.INSTANCE);
 
   @Test
@@ -248,7 +248,6 @@ public class RegisterQualityGatesTest {
     MetricDto newCoverage = metricDao.selectByKey(dbSession, NEW_COVERAGE_KEY);
     MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
     MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
-
 
     QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, BUILT_IN_NAME);
     assertThat(qualityGateDto).isNotNull();

@@ -45,7 +45,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -53,7 +52,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -61,7 +59,6 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptySortedSet;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -246,11 +243,7 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
-    // TODO:: remove while dropping for quality gate
-    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(session, component.getOrganizationUuid())
-      .orElseThrow(IllegalStateException::new);
-    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organizationDto, component.uuid())
-      .orElseThrow(() -> new NotFoundException(format("Quality Gate not found for %s", component.getKey())));
+    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, component.uuid());
     QualityGateDto qualityGateDto = qualityGateData.getQualityGate();
     json.name("qualityGate").beginObject()
       .prop("key", qualityGateDto.getUuid())

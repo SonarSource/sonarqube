@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
@@ -52,7 +51,7 @@ public class ListAction implements QualityGatesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("list")
+    controller.createAction("list")
       .setDescription("Get a list of quality gates")
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
@@ -63,15 +62,13 @@ public class ListAction implements QualityGatesWsAction {
         new Change("7.0", "'isBuiltIn' field is added in the response"),
         new Change("7.0", "'actions' fields are added in the response"))
       .setHandler(this);
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
-      Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession, organization);
+      QualityGateDto defaultQualityGate = finder.getDefault(dbSession);
+      Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession);
       writeProtobuf(buildResponse(qualityGates, defaultQualityGate), request, response);
     }
   }

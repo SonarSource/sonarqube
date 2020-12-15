@@ -22,10 +22,10 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.project.Project;
@@ -33,6 +33,7 @@ import org.sonar.server.project.Project;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class QualityGateServiceImpl implements QualityGateService {
+  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
@@ -54,14 +55,22 @@ public class QualityGateServiceImpl implements QualityGateService {
   }
 
   @Override
-  public QualityGate findDefaultQualityGate(Organization organization) {
+  public QualityGate findDefaultQualityGate() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization.toDto(), organization.getDefaultQualityGateUuid());
+      QualityGateDto qualityGateDto = getDefaultQualityGate(dbSession);
       if (qualityGateDto == null) {
-        throw new IllegalStateException("The default Quality gate is missing on organization " + organization.getKey());
+        throw new IllegalStateException("The default Quality gate is missing");
       }
       return toQualityGate(dbSession, qualityGateDto);
     }
+  }
+
+  private QualityGateDto getDefaultQualityGate(DbSession dbSession) {
+    PropertyDto propertyDto = Optional.ofNullable(dbClient.propertiesDao()
+      .selectGlobalProperty(dbSession, DEFAULT_QUALITY_GATE_PROPERTY_NAME))
+      .orElseThrow(() -> new IllegalStateException("The default Quality Gate property is missing"));
+    return Optional.ofNullable(dbClient.qualityGateDao().selectByUuid(dbSession, propertyDto.getValue()))
+      .orElseThrow(() -> new IllegalStateException("The default Quality gate is missing"));
   }
 
   @Override

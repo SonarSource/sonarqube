@@ -40,7 +40,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -95,7 +94,6 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     // load all the components to be refreshed, including their ancestors
     List<ComponentDto> components = loadTreeOfComponents(dbSession, touchedComponents);
     ComponentDto branchComponent = findBranchComponent(components);
-    OrganizationDto organization = loadOrganization(dbSession, branchComponent);
     BranchDto branch = loadBranch(dbSession, branchComponent);
     ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
     Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, branchComponent.uuid());
@@ -103,7 +101,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       return Optional.empty();
     }
 
-    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, organization, project, branch);
+    QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
 
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
@@ -224,12 +222,6 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   private ProjectDto loadProject(DbSession dbSession, String uuid) {
     return dbClient.projectDao().selectByUuid(dbSession, uuid)
       .orElseThrow(() -> new IllegalStateException("Project not found: " + uuid));
-  }
-
-  private OrganizationDto loadOrganization(DbSession dbSession, ComponentDto project) {
-    String organizationUuid = project.getOrganizationUuid();
-    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-      .orElseThrow(() -> new IllegalStateException("No organization with UUID " + organizationUuid));
   }
 
   private static class FormulaContextImpl implements IssueMetricFormula.Context {

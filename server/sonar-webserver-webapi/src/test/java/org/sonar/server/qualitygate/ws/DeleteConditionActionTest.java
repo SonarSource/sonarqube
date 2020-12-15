@@ -26,14 +26,11 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -45,7 +42,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
 public class DeleteConditionActionTest {
 
@@ -56,10 +52,8 @@ public class DeleteConditionActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
-
-  private WsActionTester ws = new WsActionTester(
-    new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider, TestComponentFinder.from(db))));
+  private final WsActionTester ws = new WsActionTester(
+    new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));
 
   @Test
   public void definition() {
@@ -70,30 +64,13 @@ public class DeleteConditionActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", true),
-        tuple("organization", false));
+        tuple("id", true));
   }
 
   @Test
   public void delete_condition() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = db.measures().insertMetric();
-    QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
-
-    ws.newRequest()
-      .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-
-    assertThat(searchConditionsOf(qualityGate)).isEmpty();
-  }
-
-  @Test
-  public void default_organization_is_used_when_no_organization_parameter() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
@@ -106,15 +83,13 @@ public class DeleteConditionActionTest {
 
   @Test
   public void no_content() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
     TestResponse result = ws.newRequest()
       .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -122,9 +97,8 @@ public class DeleteConditionActionTest {
 
   @Test
   public void fail_if_built_in_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
@@ -133,15 +107,13 @@ public class DeleteConditionActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_if_not_quality_gate_administrator() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
@@ -149,15 +121,13 @@ public class DeleteConditionActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_if_condition_uuid_is_not_found() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
     String unknownConditionUuid = "unknown";
@@ -167,13 +137,11 @@ public class DeleteConditionActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, unknownConditionUuid)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_condition_match_unknown_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setMetricUuid("metric").setQualityGateUuid("123");
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
@@ -184,25 +152,6 @@ public class DeleteConditionActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_condition_match_quality_gate_on_other_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
-    OrganizationDto otherOrganization = db.organizations().insert();
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(otherOrganization);
-    MetricDto metric = db.measures().insertMetric();
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), qualityGate.getUuid()));
-
-    ws.newRequest()
-      .setParam(PARAM_ID, condition.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 

@@ -28,14 +28,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -48,7 +45,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
 public class DestroyActionTest {
 
@@ -59,59 +55,52 @@ public class DestroyActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
-  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider, TestComponentFinder.from(db));
+  private final DbClient dbClient = db.getDbClient();
+  private final QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
+  private final QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db));
 
-  private DbSession dbSession = db.getSession();
-  private DestroyAction underTest = new DestroyAction(dbClient, wsSupport, qualityGateFinder);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final DbSession dbSession = db.getSession();
+  private final DestroyAction underTest = new DestroyAction(dbClient, wsSupport, qualityGateFinder);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void delete_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
-    db.qualityGates().createDefaultQualityGate(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().createDefaultQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid())).isNull();
+    assertThat(db.getDbClient().qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid())).isNull();
   }
 
   @Test
   public void delete_quality_gate_if_non_default_when_a_default_exist() {
-    OrganizationDto organization = db.organizations().insert();
-    db.qualityGates().createDefaultQualityGate(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().createDefaultQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
       .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid())).isNull();
+    assertThat(db.getDbClient().qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid())).isNull();
   }
 
   @Test
   public void delete_quality_gate_and_any_association_to_any_project() {
-    OrganizationDto organization = db.organizations().insert();
-    db.qualityGates().createDefaultQualityGate(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ProjectDto prj1 = db.components().insertPublicProjectDto(organization);
-    ProjectDto prj2 = db.components().insertPublicProjectDto(organization);
+    db.qualityGates().createDefaultQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto prj1 = db.components().insertPublicProjectDto();
+    ProjectDto prj2 = db.components().insertPublicProjectDto();
     db.qualityGates().associateProjectToQualityGate(prj1, qualityGate);
     db.qualityGates().associateProjectToQualityGate(prj2, qualityGate);
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
       .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
     assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj1.getUuid()))
@@ -127,10 +116,9 @@ public class DestroyActionTest {
 
   @Test
   public void does_not_delete_built_in_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
-    db.qualityGates().createDefaultQualityGate(organization);
+    db.qualityGates().createDefaultQualityGate();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
-    db.getDbClient().qualityGateDao().associate(db.getSession(), Uuids.createFast(), organization, builtInQualityGate);
+    db.getDbClient().qualityGateDao().associate(db.getSession(), Uuids.createFast(), builtInQualityGate);
     db.commit();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
@@ -139,43 +127,23 @@ public class DestroyActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, valueOf(builtInQualityGate.getUuid()))
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
-  }
-
-  @Test
-  public void default_organization_is_used_when_no_organization_parameter() {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    db.qualityGates().createDefaultQualityGate(defaultOrganization);
-    userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(defaultOrganization);
-    OrganizationDto otherOrganization = db.organizations().insert();
-    QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
-
-    ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
-      .execute();
-
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, defaultOrganization, qualityGate.getUuid())).isNull();
   }
 
   @Test
   public void fail_when_missing_id() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
       .setParam(PARAM_ID, EMPTY)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_to_delete_default_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
-    QualityGateDto defaultQualityGate = db.qualityGates().createDefaultQualityGate(organization);
+    QualityGateDto defaultQualityGate = db.qualityGates().createDefaultQualityGate();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -183,35 +151,30 @@ public class DestroyActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ID, valueOf(defaultQualityGate.getUuid()))
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_on_unknown_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
       .setParam(PARAM_ID, "123")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_not_quality_gates_administer() {
-    OrganizationDto organization = db.organizations().insert();
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().createDefaultQualityGate(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().createDefaultQualityGate();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
@@ -226,8 +189,7 @@ public class DestroyActionTest {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("id", false),
-        tuple("name", false),
-        tuple("organization", false));
+        tuple("name", false));
   }
 
 }

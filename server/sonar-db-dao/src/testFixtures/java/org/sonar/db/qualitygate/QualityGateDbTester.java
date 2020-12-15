@@ -30,11 +30,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.PropertyDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 
 public class QualityGateDbTester {
+  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
 
   private final DbTester db;
   private final DbClient dbClient;
@@ -80,6 +82,7 @@ public class QualityGateDbTester {
     db.commit();
   }
 
+  @Deprecated
   public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
     dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
     db.commit();
@@ -87,19 +90,13 @@ public class QualityGateDbTester {
 
   @SafeVarargs
   public final QualityGateDto createDefaultQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
-    return createDefaultQualityGate(db.getDefaultOrganization(), dtoPopulators);
-  }
-
-  @SafeVarargs
-  @Deprecated
-  public final QualityGateDto createDefaultQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
-    QualityGateDto defaultQGate = insertQualityGate(organization, dtoPopulators);
-    setDefaultQualityGate(organization, defaultQGate);
+    QualityGateDto defaultQGate = insertQualityGate(dtoPopulators);
+    setDefaultQualityGate(defaultQGate);
     return defaultQGate;
   }
 
-  public void setDefaultQualityGate(OrganizationDto organization, QualityGateDto qualityGate) {
-    dbClient.organizationDao().update(dbSession, organization.setDefaultQualityGateUuid(qualityGate.getUuid()));
+  public void setDefaultQualityGate(QualityGateDto qualityGate) {
+    dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(DEFAULT_QUALITY_GATE_PROPERTY_NAME).setValue(qualityGate.getUuid()));
     dbSession.commit();
   }
 

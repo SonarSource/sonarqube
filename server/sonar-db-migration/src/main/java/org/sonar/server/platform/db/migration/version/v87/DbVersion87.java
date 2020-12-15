@@ -28,6 +28,7 @@ public class DbVersion87 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(4200, "Move default project visibility to global properties", MoveDefaultProjectVisibilityToGlobalProperties.class)
+      .add(4201, "Move default quality gate to global properties", MoveDefaultQualityGateToGlobalProperties.class)
 
     ;
   }

@@ -22,15 +22,14 @@ package org.sonar.server.qualitygate;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Optional.ofNullable;
 
 public class QualityGateFinder {
+  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
 
   private final DbClient dbClient;
 
@@ -38,30 +37,31 @@ public class QualityGateFinder {
     this.dbClient = dbClient;
   }
 
-  /**
-   * Return effective quality gate of a project.
-   *
-   * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate of the organization
-   */
-  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, ProjectDto projectDto) {
-    return getQualityGate(dbSession, organization, projectDto.getUuid());
+  public QualityGateData getQualityGate(DbSession dbSession, ProjectDto projectDto) {
+    return getQualityGate(dbSession, projectDto.getUuid());
   }
 
-  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, String projectUuid) {
-    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid)
+  public QualityGateData getQualityGate(DbSession dbSession, String projectUuid) {
+    Optional<QualityGateData> res = getQualityGateForProject(dbSession, projectUuid);
+    if (res.isPresent()) {
+      return res.get();
+    }
+    QualityGateDto defaultQualityGate = getDefault(dbSession);
+    return new QualityGateData(defaultQualityGate, true);
+  }
+
+  private Optional<QualityGateData> getQualityGateForProject(DbSession dbSession, String projectUuid) {
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid)
       .map(qualityGateUuid -> dbClient.qualityGateDao().selectByUuid(dbSession, qualityGateUuid))
       .map(qualityGateDto -> new QualityGateData(qualityGateDto, false));
-    if (res.isPresent()) {
-      return res;
-    }
-    return ofNullable(dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid()))
-      .map(qualityGateDto -> new QualityGateData(qualityGateDto, true));
   }
 
-  public QualityGateDto getDefault(DbSession dbSession, OrganizationDto organization) {
-    QGateWithOrgDto qgate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-    checkState(qgate != null, "Default quality gate [%s] is missing on organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
-    return qgate;
+  public QualityGateDto getDefault(DbSession dbSession) {
+    PropertyDto qGateDefaultUuidProperty = dbClient.propertiesDao().selectGlobalProperty(dbSession, DEFAULT_QUALITY_GATE_PROPERTY_NAME);
+    checkState(qGateDefaultUuidProperty != null, "Default quality gate property is missing");
+    dbClient.qualityGateDao().selectByUuid(dbSession, qGateDefaultUuidProperty.getValue());
+    return Optional.ofNullable(dbClient.qualityGateDao().selectByUuid(dbSession, qGateDefaultUuidProperty.getValue()))
+      .orElseThrow(() -> new IllegalStateException("Default quality gate is missing"));
   }
 
   public QualityGateDto getBuiltInQualityGate(DbSession dbSession) {

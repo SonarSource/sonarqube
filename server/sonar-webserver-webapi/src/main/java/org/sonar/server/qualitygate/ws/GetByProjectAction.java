@@ -25,17 +25,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 
-import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
@@ -50,14 +47,12 @@ public class GetByProjectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
-  private final QualityGatesWsSupport wsSupport;
 
-  public GetByProjectAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+  public GetByProjectAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
-    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -84,25 +79,19 @@ public class GetByProjectAction implements QualityGatesWsAction {
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       ProjectDto project = componentFinder.getProjectByKey(dbSession, request.mandatoryParam(PARAM_PROJECT));
-      // As ComponentFinder doesn't handle organization yet, we only check here that the project belongs to the organization
-      wsSupport.checkProjectBelongsToOrganization(organization, project);
 
       if (!userSession.hasProjectPermission(USER, project) &&
         !userSession.hasProjectPermission(ADMIN, project)) {
         throw insufficientPrivilegesException();
       }
 
-      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project)
-        .orElseThrow(() -> new NotFoundException(format("Quality gate not found for project %s", project.getKey())));
+      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, project);
 
       writeProtobuf(buildResponse(data), request, response);
     }

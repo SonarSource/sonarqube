@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
@@ -37,6 +37,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
+  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -72,8 +73,6 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -83,17 +82,15 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
     checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getDefaultOrganization(dbSession);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES);
       QualityGateDto qualityGate;
 
       if (uuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
+        qualityGate = wsSupport.getByUuid(dbSession, uuid);
       } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
+        qualityGate = wsSupport.getByName(dbSession, name);
       }
-      organization.setDefaultQualityGateUuid(qualityGate.getUuid());
-      dbClient.organizationDao().update(dbSession, organization);
+      dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(DEFAULT_QUALITY_GATE_PROPERTY_NAME).setValue(qualityGate.getUuid()));
       dbSession.commit();
     }
 

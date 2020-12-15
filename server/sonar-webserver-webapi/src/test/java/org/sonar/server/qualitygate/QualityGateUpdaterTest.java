@@ -27,7 +27,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,15 +41,13 @@ public class QualityGateUpdaterTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final QualityGateUpdater underTest = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
 
   @Test
   public void create_quality_gate() {
-    OrganizationDto organization = db.organizations().insert();
-
-    QualityGateDto result = underTest.create(dbSession, organization, QGATE_NAME);
+    QualityGateDto result = underTest.create(dbSession, QGATE_NAME);
 
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo(QGATE_NAME);
@@ -62,12 +59,11 @@ public class QualityGateUpdaterTest {
 
   @Test
   public void fail_to_create_when_name_already_exists() {
-    OrganizationDto org = db.organizations().insert();
-    underTest.create(dbSession, org, QGATE_NAME);
+    underTest.create(dbSession, QGATE_NAME);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name has already been taken");
 
-    underTest.create(dbSession, org, QGATE_NAME);
+    underTest.create(dbSession, QGATE_NAME);
   }
 }

@@ -25,9 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -83,8 +81,6 @@ public class SelectAction implements QualityGatesWsAction {
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -96,14 +92,13 @@ public class SelectAction implements QualityGatesWsAction {
     checkArgument(gateName != null ^ gateUuid != null, "Either 'gateId' or 'gateName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate;
+      QualityGateDto qualityGate;
       if (gateUuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+        qualityGate = wsSupport.getByUuid(dbSession, gateUuid);
       } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
+        qualityGate = wsSupport.getByName(dbSession, gateName);
       }
-      ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey);
+      ProjectDto project = wsSupport.getProject(dbSession, projectKey);
       wsSupport.checkCanAdminProject(project);
 
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());

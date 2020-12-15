@@ -30,7 +30,6 @@ import org.sonar.db.Pagination;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.permission.template.DefaultTemplates;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
@@ -118,10 +117,6 @@ public class OrganizationDao implements Dao {
     checkUuid(uuid);
     String defaultGroupUuid = requireNonNull(defaultGroup, "Default group cannot be null").getUuid();
     getMapper(dbSession).updateDefaultGroupUuid(uuid, requireNonNull(defaultGroupUuid, "Default group uuid cannot be null"), system2.now());
-  }
-
-  public void setDefaultQualityGate(DbSession dbSession, OrganizationDto organization, QGateWithOrgDto qualityGate) {
-    getMapper(dbSession).updateDefaultQualityGate(organization.getUuid(), qualityGate.getUuid(), system2.now());
   }
 
   public int update(DbSession dbSession, OrganizationDto organization) {

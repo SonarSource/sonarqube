@@ -40,7 +40,6 @@ public class ProjectQgateAssociationQuery {
   public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
 
   private final String gateUuid;
-  private final String organizationUuid;
   private final String membership;
 
   private final String projectSearch;
@@ -56,7 +55,6 @@ public class ProjectQgateAssociationQuery {
 
   private ProjectQgateAssociationQuery(Builder builder) {
     this.gateUuid = builder.qualityGate.getUuid();
-    this.organizationUuid = builder.qualityGate.getOrganizationUuid();
     this.membership = builder.membership;
     this.projectSearch = builder.projectSearch;
     if (this.projectSearch == null) {
@@ -71,10 +69,6 @@ public class ProjectQgateAssociationQuery {
 
   public String gateUuid() {
     return gateUuid;
-  }
-
-  public String organizationUuid() {
-    return organizationUuid;
   }
 
   @CheckForNull
@@ -103,7 +97,7 @@ public class ProjectQgateAssociationQuery {
   }
 
   public static class Builder {
-    private QGateWithOrgDto qualityGate;
+    private QualityGateDto qualityGate;
     private String membership;
     private String projectSearch;
 
@@ -113,7 +107,7 @@ public class ProjectQgateAssociationQuery {
     private Builder() {
     }
 
-    public Builder qualityGate(QGateWithOrgDto qualityGate) {
+    public Builder qualityGate(QualityGateDto qualityGate) {
       this.qualityGate = qualityGate;
       return this;
     }

@@ -24,11 +24,11 @@ import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -54,16 +54,18 @@ public class QualityGateServiceImplTest {
   private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setUuid("456").setMetricUuid(METRIC_UUID_2).setOperator("GT")
     .setErrorThreshold("error_th");
 
-  private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
-  private QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
-  private MetricRepository metricRepository = mock(MetricRepository.class);
-  private DbClient dbClient = mock(DbClient.class);
-  private QualityGateServiceImpl underTest = new QualityGateServiceImpl(dbClient, metricRepository);
+  private final QualityGateDao qualityGateDao = mock(QualityGateDao.class);
+  private final QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
+  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  private final MetricRepository metricRepository = mock(MetricRepository.class);
+  private final DbClient dbClient = mock(DbClient.class);
+  private final QualityGateServiceImpl underTest = new QualityGateServiceImpl(dbClient, metricRepository);
 
   @Before
   public void setUp() {
     when(dbClient.qualityGateDao()).thenReturn(qualityGateDao);
     when(dbClient.gateConditionDao()).thenReturn(qualityGateConditionDao);
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
 
     when(METRIC_1.getKey()).thenReturn("metric");
     when(METRIC_2.getKey()).thenReturn("new_metric");
@@ -123,23 +125,25 @@ public class QualityGateServiceImplTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void findDefaultQualityGate_by_organization_not_found() {
-    when(qualityGateDao.selectByOrganizationAndUuid(any(), any(), any())).thenReturn(null);
+  public void findDefaultQualityGate_by_property_not_found() {
+    when(propertiesDao.selectGlobalProperty(any(), any())).thenReturn(null);
 
-    underTest.findDefaultQualityGate(mock(Organization.class));
+    underTest.findDefaultQualityGate();
   }
 
   @Test
-  public void findDefaultQualityGate_by_organization_found() {
-    QGateWithOrgDto qGateWithOrgDto = new QGateWithOrgDto();
-    qGateWithOrgDto.setUuid(QUALITY_GATE_DTO.getUuid());
-    qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
-    when(qualityGateDao.selectByOrganizationAndUuid(any(), any(), any())).thenReturn(qGateWithOrgDto);
+  public void findDefaultQualityGate_by_property_found() {
+    QualityGateDto qualityGateDto = new QualityGateDto();
+    qualityGateDto.setUuid(QUALITY_GATE_DTO.getUuid());
+    qualityGateDto.setName(QUALITY_GATE_DTO.getName());
+    when(propertiesDao.selectGlobalProperty(any(), any())).thenReturn(new PropertyDto().setValue(QUALITY_GATE_DTO.getUuid()));
+
+    when(qualityGateDao.selectByUuid(any(), any())).thenReturn(qualityGateDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
-    QualityGate result = underTest.findDefaultQualityGate(mock(Organization.class));
+    QualityGate result = underTest.findDefaultQualityGate();
 
     assertThat(result).isNotNull();
     assertThat(result.getUuid()).isEqualTo(QUALITY_GATE_DTO.getUuid());
@@ -156,10 +160,10 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findQualityGate_by_project_found() {
-    QGateWithOrgDto qGateWithOrgDto = new QGateWithOrgDto();
-    qGateWithOrgDto.setUuid(QUALITY_GATE_DTO.getUuid());
-    qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
-    when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qGateWithOrgDto);
+    QualityGateDto qualityGateDto = new QualityGateDto();
+    qualityGateDto.setUuid(QUALITY_GATE_DTO.getUuid());
+    qualityGateDto.setName(QUALITY_GATE_DTO.getName());
+    when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qualityGateDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));

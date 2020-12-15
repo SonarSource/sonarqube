@@ -81,7 +81,7 @@ public class LiveMeasureComputerImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestProjectIndexers projectIndexer = new TestProjectIndexers();
+  private final TestProjectIndexers projectIndexer = new TestProjectIndexers();
   private MetricDto intMetric;
   private MetricDto ratingMetric;
   private MetricDto alertStatusMetric;
@@ -93,9 +93,9 @@ public class LiveMeasureComputerImplTest {
   private ComponentDto file2;
   private ComponentDto branch;
   private ComponentDto branchFile;
-  private LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class);
-  private QualityGate qualityGate = mock(QualityGate.class);
-  private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
+  private final LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class);
+  private final QualityGate qualityGate = mock(QualityGate.class);
+  private final EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
 
   @Before
   public void setUp() {
@@ -370,7 +370,7 @@ public class LiveMeasureComputerImplTest {
       .extracting(QGChangeEvent::getQualityGateSupplier)
       .extracting(Supplier::get)
       .containsExactly(Optional.of(newQualityGate));
-    verify(qGateComputer).loadQualityGate(any(DbSession.class), eq(organization), argThat(p -> p.getUuid().equals(projectDto.getUuid())), eq(branch));
+    verify(qGateComputer).loadQualityGate(any(DbSession.class), argThat(p -> p.getUuid().equals(projectDto.getUuid())), eq(branch));
     verify(qGateComputer).getMetricsRelatedTo(qualityGate);
     verify(qGateComputer).refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class));
   }
@@ -395,7 +395,7 @@ public class LiveMeasureComputerImplTest {
   private List<QGChangeEvent> run(Collection<ComponentDto> components, IssueMetricFormula... formulas) {
     IssueMetricFormulaFactory formulaFactory = new TestIssueMetricFormulaFactory(asList(formulas));
 
-    when(qGateComputer.loadQualityGate(any(DbSession.class), any(OrganizationDto.class), any(ProjectDto.class), any(BranchDto.class)))
+    when(qGateComputer.loadQualityGate(any(DbSession.class), any(ProjectDto.class), any(BranchDto.class)))
       .thenReturn(qualityGate);
     when(qGateComputer.getMetricsRelatedTo(qualityGate)).thenReturn(singleton(CoreMetrics.ALERT_STATUS_KEY));
     when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class)))
@@ -450,7 +450,7 @@ public class LiveMeasureComputerImplTest {
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
     assertThat(measure.getMetricUuid()).isEqualTo(ratingMetric.getUuid());
-    assertThat(measure.getVariation()).isEqualTo((double) expectedValue.getIndex());
+    assertThat(measure.getVariation()).isEqualTo(expectedValue.getIndex());
   }
 
   private IssueMetricFormula newIncrementalFormula() {

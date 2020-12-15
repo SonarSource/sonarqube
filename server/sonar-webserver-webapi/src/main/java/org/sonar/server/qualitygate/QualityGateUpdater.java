@@ -23,7 +23,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
@@ -40,40 +39,38 @@ public class QualityGateUpdater {
     this.uuidFactory = uuidFactory;
   }
 
-  public QualityGateDto create(DbSession dbSession, OrganizationDto organizationDto, String name) {
-    validateQualityGate(dbSession, organizationDto, name);
+  public QualityGateDto create(DbSession dbSession, String name) {
+    validateQualityGate(dbSession, name);
     QualityGateDto newQualityGate = new QualityGateDto()
       .setName(name)
       .setBuiltIn(false)
       .setUuid(uuidFactory.create());
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
-    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organizationDto, newQualityGate);
+    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), newQualityGate);
     return newQualityGate;
   }
 
-  public QualityGateDto copy(DbSession dbSession, OrganizationDto organizationDto, QualityGateDto qualityGateDto, String destinationName) {
-
-    QualityGateDto destinationGate = create(dbSession, organizationDto, destinationName);
-
+  public QualityGateDto copy(DbSession dbSession, QualityGateDto qualityGateDto, String destinationName) {
+    QualityGateDto destinationGate = create(dbSession, destinationName);
     for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getUuid())) {
       dbClient.gateConditionDao().insert(new QualityGateConditionDto()
-          .setUuid(Uuids.create())
-          .setQualityGateUuid(destinationGate.getUuid())
-          .setMetricUuid(sourceCondition.getMetricUuid())
-          .setOperator(sourceCondition.getOperator())
-          .setErrorThreshold(sourceCondition.getErrorThreshold()),
+        .setUuid(Uuids.create())
+        .setQualityGateUuid(destinationGate.getUuid())
+        .setMetricUuid(sourceCondition.getMetricUuid())
+        .setOperator(sourceCondition.getOperator())
+        .setErrorThreshold(sourceCondition.getErrorThreshold()),
         dbSession);
     }
 
     return destinationGate;
   }
 
-  private void validateQualityGate(DbSession dbSession, OrganizationDto organizationDto, String name) {
-    checkQualityGateDoesNotAlreadyExist(dbSession, organizationDto, name);
+  private void validateQualityGate(DbSession dbSession, String name) {
+    checkQualityGateDoesNotAlreadyExist(dbSession, name);
   }
 
-  private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name) {
-    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, name);
-    checkArgument(existingQgate == null, IS_ALREADY_USED_MESSAGE, "Name");
+  private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, String name) {
+    QualityGateDto existingQGate = dbClient.qualityGateDao().selectByName(dbSession, name);
+    checkArgument(existingQGate == null, IS_ALREADY_USED_MESSAGE, "Name");
   }
 }

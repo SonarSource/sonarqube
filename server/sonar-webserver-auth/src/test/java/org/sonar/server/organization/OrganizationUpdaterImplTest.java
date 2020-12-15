@@ -68,7 +68,7 @@ import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.
 public class OrganizationUpdaterImplTest {
   private static final long A_DATE = 12893434L;
 
-  private OrganizationUpdater.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
+  private final OrganizationUpdater.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
     .setKey("a-key")
     .setDescription("a-description")
@@ -76,9 +76,9 @@ public class OrganizationUpdaterImplTest {
     .setAvatarUrl("a-avatar")
     .build();
 
-  private System2 system2 = new TestSystem2().setNow(A_DATE);
+  private final System2 system2 = new TestSystem2().setNow(A_DATE);
 
-  private static Consumer<OrganizationDto> EMPTY_ORGANIZATION_CONSUMER = o -> {
+  private static final Consumer<OrganizationDto> EMPTY_ORGANIZATION_CONSUMER = o -> {
   };
 
   @Rule
@@ -90,20 +90,20 @@ public class OrganizationUpdaterImplTest {
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
 
-  private DbSession dbSession = db.getSession();
+  private final DbSession dbSession = db.getSession();
 
-  private IllegalArgumentException exceptionThrownByOrganizationValidation = new IllegalArgumentException("simulate IAE thrown by OrganizationValidation");
-  private DbClient dbClient = db.getDbClient();
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private UserIndex userIndex = new UserIndex(es.client(), system2);
-  private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient, uuidFactory, TestDefaultOrganizationProvider.from(db));
+  private final IllegalArgumentException exceptionThrownByOrganizationValidation = new IllegalArgumentException("simulate IAE thrown by OrganizationValidation");
+  private final DbClient dbClient = db.getDbClient();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private final UserIndex userIndex = new UserIndex(es.client(), system2);
+  private final DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient, uuidFactory, TestDefaultOrganizationProvider.from(db));
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
-  private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, userIndexer,
+  private final OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, userIndexer,
     builtInQProfileRepositoryRule, defaultGroupCreator, permissionService);
 
   @Test
@@ -198,19 +198,6 @@ public class OrganizationUpdaterImplTest {
       .setName(builtIn.getName());
     dbClient.qualityProfileDao().insert(db.getSession(), dto);
     db.commit();
-  }
-
-  @Test
-  public void create_associates_to_built_in_quality_gate() throws OrganizationUpdater.KeyConflictException {
-    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
-    builtInQProfileRepositoryRule.initialize();
-    UserDto user = db.users().insertUser();
-
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, o -> {
-    });
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
-    assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
   }
 
   @Test

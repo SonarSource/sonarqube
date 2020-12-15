@@ -27,13 +27,17 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.property.InternalPropertiesDao;
 
 public class QualityGateDao implements Dao {
+  private static final String DEFAULT_ORGANIZATION_PROPERTY_KEY = "organization.default";
 
   private final UuidFactory uuidFactory;
+  private final InternalPropertiesDao internalPropertiesDao;
 
-  public QualityGateDao(UuidFactory uuidFactory) {
+  public QualityGateDao(UuidFactory uuidFactory, InternalPropertiesDao internalPropertiesDao) {
     this.uuidFactory = uuidFactory;
+    this.internalPropertiesDao = internalPropertiesDao;
   }
 
   public QualityGateDto insert(DbSession session, QualityGateDto newQualityGate) {
@@ -43,12 +47,30 @@ public class QualityGateDao implements Dao {
     return newQualityGate;
   }
 
+  /**
+   * @deprecated drop when org are dropped
+   */
+  @Deprecated
   public void associate(DbSession dbSession, String uuid, OrganizationDto organization, QualityGateDto qualityGate) {
     mapper(dbSession).insertOrgQualityGate(uuid, organization.getUuid(), qualityGate.getUuid());
   }
 
-  public Collection<QualityGateDto> selectAll(DbSession session, OrganizationDto organization) {
-    return mapper(session).selectAll(organization.getUuid());
+  public void associate(DbSession dbSession, String uuid, QualityGateDto qualityGate) {
+    String defaultOrganizationUuid = getDefaultOrganizationUuid(dbSession);
+    mapper(dbSession).insertOrgQualityGate(uuid, defaultOrganizationUuid, qualityGate.getUuid());
+  }
+
+  public Collection<QualityGateDto> selectAll(DbSession session) {
+    String defaultOrganizationUuid = getDefaultOrganizationUuid(session);
+    return selectAll(session, defaultOrganizationUuid);
+  }
+
+  /**
+   * @deprecated drop when org are dropped
+   */
+  @Deprecated
+  public Collection<QualityGateDto> selectAll(DbSession session, String organizationUuid) {
+    return mapper(session).selectAll(organizationUuid);
   }
 
   @CheckForNull
@@ -62,17 +84,24 @@ public class QualityGateDao implements Dao {
   }
 
   @CheckForNull
+  public QGateWithOrgDto selectByDefaultOrganizationAndUuid(DbSession dbSession, String qualityGateUuid) {
+    String defaultOrganizationUuid = getDefaultOrganizationUuid(dbSession);
+    return mapper(dbSession).selectByUuidAndOrganization(qualityGateUuid, defaultOrganizationUuid);
+  }
+
+  /**
+   * @deprecated drop when org are dropped
+   */
+  @CheckForNull
+  @Deprecated
   public QGateWithOrgDto selectByOrganizationAndUuid(DbSession dbSession, OrganizationDto organization, String qualityGateUuid) {
     return mapper(dbSession).selectByUuidAndOrganization(qualityGateUuid, organization.getUuid());
   }
 
   @CheckForNull
-  public QGateWithOrgDto selectByOrganizationAndName(DbSession session, OrganizationDto organization, String name) {
-    return mapper(session).selectByNameAndOrganization(name, organization.getUuid());
-  }
-
-  public QGateWithOrgDto selectDefault(DbSession dbSession, OrganizationDto organization) {
-    return mapper(dbSession).selectDefault(organization.getUuid());
+  public QGateWithOrgDto selectByDefaultOrganizationAndName(DbSession session, String name) {
+    String defaultOrganizationUuid = getDefaultOrganizationUuid(session);
+    return mapper(session).selectByNameAndOrganization(name, defaultOrganizationUuid);
   }
 
   public void delete(QualityGateDto qGate, DbSession session) {
@@ -107,5 +136,10 @@ public class QualityGateDao implements Dao {
 
   public QualityGateDto selectByProjectUuid(DbSession dbSession, String projectUuid) {
     return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  private String getDefaultOrganizationUuid(DbSession dbSession) {
+    return internalPropertiesDao.selectByKey(dbSession, DEFAULT_ORGANIZATION_PROPERTY_KEY)
+      .orElseThrow(() -> new IllegalStateException("Default organization does not exist."));
   }
 }

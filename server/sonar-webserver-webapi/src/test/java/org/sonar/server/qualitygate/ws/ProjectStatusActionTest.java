@@ -36,7 +36,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -55,7 +54,6 @@ import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_BRANCH;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PULL_REQUEST;
@@ -71,10 +69,10 @@ public class ProjectStatusActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
+  private final WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
   public void test_definition() {
@@ -91,8 +89,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void test_json_example() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto gateDetailsMetric = insertGateDetailMetric();
 
@@ -114,8 +111,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_past_status_when_project_is_referenced_by_past_analysis_id() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setLast(false)
       .setPeriodMode("last_version")
@@ -145,8 +141,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_id() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -167,8 +162,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_past_status_when_branch_is_referenced_by_past_analysis_id() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
       .setLast(false)
@@ -199,8 +193,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_key() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -221,8 +214,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
@@ -246,8 +238,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(pr)
@@ -271,8 +262,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_specified_analysis_is_not_found() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -287,8 +277,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_project_is_not_analyzed() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusResponse result = ws.newRequest()
@@ -301,8 +290,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void project_administrator_is_allowed_to_get_project_status() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.ADMIN, project);
@@ -314,8 +302,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void project_user_is_allowed_to_get_project_status() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
@@ -326,21 +313,7 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void default_organization_is_used_when_no_organization_parameter() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    ProjectStatusResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .executeProtobuf(ProjectStatusResponse.class);
-
-    assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
-  }
-
-  @Test
   public void fail_if_no_snapshot_id_found() {
-    OrganizationDto organization = db.organizations().insert();
     logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -353,8 +326,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.logIn();
@@ -368,8 +340,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
@@ -378,14 +349,12 @@ public class ProjectStatusActionTest {
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, "analysis-id")
       .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
   }
 
   @Test
   public void fail_if_branch_key_and_pull_request_id_provided() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
@@ -395,7 +364,6 @@ public class ProjectStatusActionTest {
       .setParam(PARAM_PROJECT_KEY, "key")
       .setParam(PARAM_BRANCH, "branch")
       .setParam(PARAM_PULL_REQUEST, "pr")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
   }
 
@@ -413,8 +381,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
@@ -424,14 +391,12 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);

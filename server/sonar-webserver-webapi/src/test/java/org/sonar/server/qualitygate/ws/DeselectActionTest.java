@@ -29,15 +29,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -56,23 +53,20 @@ public class DeselectActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
-  private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private DeselectAction underTest = new DeselectAction(dbClient, new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider, componentFinder));
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final DbClient dbClient = db.getDbClient();
+  private final ComponentFinder componentFinder = TestComponentFinder.from(db);
+  private final DeselectAction underTest = new DeselectAction(dbClient, new QualityGatesWsSupport(db.getDbClient(), userSession, componentFinder));
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void deselect_by_key() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     associateProjectToQualityGate(project, qualityGate);
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
 
     assertDeselected(project);
@@ -80,15 +74,13 @@ public class DeselectActionTest {
 
   @Test
   public void project_admin() {
-    OrganizationDto organization = db.organizations().insert();
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     associateProjectToQualityGate(project, qualityGate);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
 
     assertDeselected(project);
@@ -96,18 +88,16 @@ public class DeselectActionTest {
 
   @Test
   public void other_project_should_not_be_updated() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     associateProjectToQualityGate(project, qualityGate);
     // Another project
-    ProjectDto anotherProject = db.components().insertPrivateProjectDto(organization);
+    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
     associateProjectToQualityGate(anotherProject, qualityGate);
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
 
     assertDeselected(project);
@@ -115,11 +105,10 @@ public class DeselectActionTest {
   }
 
   @Test
-  public void default_organization_is_used_when_no_organization_parameter() {
-    OrganizationDto organization = db.getDefaultOrganization();
+  public void default_is_used() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     associateProjectToQualityGate(project, qualityGate);
 
     ws.newRequest()
@@ -130,66 +119,43 @@ public class DeselectActionTest {
   }
 
   @Test
-  public void fail_when_project_belongs_to_another_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void fail_when_no_project_key() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
       .setParam("projectKey", "unknown")
-      .setParam("organization", organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_anonymous() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous();
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_not_project_admin() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_not_quality_gates_admin() {
-    OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
 
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -197,14 +163,12 @@ public class DeselectActionTest {
 
     ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .setParam("organization", organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -213,7 +177,6 @@ public class DeselectActionTest {
 
     ws.newRequest()
       .setParam("projectKey", branch.getDbKey())
-      .setParam("organization", organization.getKey())
       .execute();
   }
 
@@ -231,8 +194,7 @@ public class DeselectActionTest {
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("projectKey", true),
-        tuple("organization", false));
+        tuple("projectKey", true));
   }
 
   private void associateProjectToQualityGate(ProjectDto project, QualityGateDto qualityGate) {
@@ -247,7 +209,7 @@ public class DeselectActionTest {
       .isEmpty();
   }
 
-  private void assertSelected(QGateWithOrgDto qualityGate, ProjectDto project) {
+  private void assertSelected(QualityGateDto qualityGate, ProjectDto project) {
     Optional<String> qGateUuid = db.qualityGates().selectQGateUuidByComponentUuid(project.getUuid());
     assertThat(qGateUuid)
       .isNotNull()

@@ -21,14 +21,11 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -38,16 +35,12 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 
 public class SetAsDefaultActionTest {
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
-  private WsActionTester ws = new WsActionTester(
-    new SetAsDefaultAction(db.getDbClient(), userSession, new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider, TestComponentFinder.from(db))));
+  private final WsActionTester ws = new WsActionTester(
+    new SetAsDefaultAction(db.getDbClient(), userSession, new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));
 
   @Test
   public void verify_definition() {
@@ -59,20 +52,19 @@ public class SetAsDefaultActionTest {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("id", false),
-        tuple("organization", false),
         tuple("name", false));
   }
 
   @Test
   public void set_default() {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("name"));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("name"));
 
     ws.newRequest()
       .setParam("name", "name")
       .execute();
 
-    assertThat(db.getDbClient().organizationDao().selectByKey(db.getSession(), db.getDefaultOrganization().getKey()).get()
-      .getDefaultQualityGateUuid()).isEqualTo(qualityGate.getUuid());
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), "qualitygate.default").getValue())
+      .isEqualTo(qualityGate.getUuid());
   }
 }

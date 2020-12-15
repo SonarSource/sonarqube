@@ -49,10 +49,10 @@ public class LoadQualityGateStepTest {
   @Rule
   public MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
 
-  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private QualityGateService qualityGateService = mock(QualityGateService.class);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private final QualityGateService qualityGateService = mock(QualityGateService.class);
 
-  private LoadQualityGateStep underTest = new LoadQualityGateStep(qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
+  private final LoadQualityGateStep underTest = new LoadQualityGateStep(qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
 
   @Before
   public void setUp() {
@@ -68,7 +68,7 @@ public class LoadQualityGateStepTest {
 
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     QualityGate defaultGate = new QualityGate("1", "qg", Arrays.asList(variation, condition));
-    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
+    when(qualityGateService.findDefaultQualityGate()).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -78,7 +78,7 @@ public class LoadQualityGateStepTest {
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
     QualityGate defaultGate = mock(QualityGate.class);
-    when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
+    when(qualityGateService.findDefaultQualityGate()).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
 

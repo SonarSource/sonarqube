@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
@@ -84,8 +83,6 @@ public class CopyAction implements QualityGatesWsAction {
       .setDescription("The name of the quality gate to create")
       .setRequired(true)
       .setExampleValue("My New Quality Gate");
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -98,15 +95,14 @@ public class CopyAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES);
       QualityGateDto qualityGate;
       if (uuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
+        qualityGate = wsSupport.getByUuid(dbSession, uuid);
       } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, sourceName);
+        qualityGate = wsSupport.getByName(dbSession, sourceName);
       }
-      QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
+      QualityGateDto copy = qualityGateUpdater.copy(dbSession, qualityGate, destinationName);
       dbSession.commit();
 
       writeProtobuf(newBuilder()

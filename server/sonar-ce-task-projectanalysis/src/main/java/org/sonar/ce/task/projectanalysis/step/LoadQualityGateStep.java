@@ -50,8 +50,8 @@ public class LoadQualityGateStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     Optional<QualityGate> qualityGate = getProjectQualityGate();
     if (!qualityGate.isPresent()) {
-      // No QG defined for the project, let's retrieve the QG on the organization
-      qualityGate = Optional.of(getOrganizationDefaultQualityGate());
+      // No QG defined for the project, let's retrieve the default QG
+      qualityGate = Optional.of(getDefaultQualityGate());
     }
 
     if (analysisMetadataHolder.isPullRequest()) {
@@ -71,8 +71,8 @@ public class LoadQualityGateStep implements ComputationStep {
     return qualityGateService.findQualityGate(project);
   }
 
-  private QualityGate getOrganizationDefaultQualityGate() {
-    return qualityGateService.findDefaultQualityGate(analysisMetadataHolder.getOrganization());
+  private QualityGate getDefaultQualityGate() {
+    return qualityGateService.findDefaultQualityGate();
   }
 
   @Override

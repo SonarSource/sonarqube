@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
@@ -43,14 +42,11 @@ public class CreateAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
-  private final QualityGatesWsSupport wsSupport;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
-    QualityGatesWsSupport wsSupport) {
+  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.qualityGateUpdater = qualityGateUpdater;
-    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -70,20 +66,16 @@ public class CreateAction implements QualityGatesWsAction {
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("The name of the quality gate to create")
       .setExampleValue("My Quality Gate");
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organizationDto = wsSupport.getOrganization(dbSession, request);
-
       userSession.checkPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
       String name = request.mandatoryParam(PARAM_NAME);
 
-      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, name);
+      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, name);
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
         .setId(newQualityGate.getUuid())
         .setName(newQualityGate.getName());

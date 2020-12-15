@@ -25,9 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
@@ -83,7 +82,6 @@ public class CreateConditionAction implements QualityGatesWsAction {
       .setExampleValue("SonarSource way");
 
     addConditionParams(createCondition);
-    wsSupport.createOrganizationParam(createCondition);
   }
 
   @Override
@@ -96,12 +94,11 @@ public class CreateConditionAction implements QualityGatesWsAction {
     checkArgument(gateName != null ^ gateUuid != null, "One of 'gateId' or 'gateName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate;
+      QualityGateDto qualityGate;
       if (gateUuid != null) {
-        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+        qualityGate = wsSupport.getByUuid(dbSession, gateUuid);
       } else {
-        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
+        qualityGate = wsSupport.getByName(dbSession, gateName);
       }
       wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
