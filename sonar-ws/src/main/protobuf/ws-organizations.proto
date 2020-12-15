@@ -26,16 +26,6 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Organizations";
 option optimize_for = SPEED;
 
-// WS api/organizations/create
-message CreateWsResponse {
-  optional Organization organization = 1;
-}
-
-// WS api/organizations/update
-message UpdateWsResponse {
-  optional Organization organization = 1;
-}
-
 // WS api/organizations/search
 message SearchWsResponse {
   repeated Organization organizations = 1;
@@ -46,21 +36,6 @@ message SearchWsResponse {
 message SearchMembersWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated User users = 2;
-}
-
-// WS api/organizations/add_member
-message AddMemberWsResponse {
-  optional User user = 1;
-}
-
-// WS api/organizations/prevent_user_deletion
-message PreventUserDeletionWsResponse {
-  repeated Organization organizations = 1;
-
-  message Organization {
-    optional string key = 1;
-    optional string name = 2;
-  }
 }
 
 message Organization {
