@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FormattedMessage } from 'react-intl';
-import * as ReactRedux from 'react-redux';
-import * as ReactRouter from 'react-router';
 import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
@@ -109,8 +107,6 @@ import Suggestions from '../embed-docs-modal/Suggestions';
 const exposeLibraries = () => {
   const global = window as any;
 
-  global.ReactRedux = ReactRedux;
-  global.ReactRouter = ReactRouter;
   global.SonarHelpers = {
     getBranchLikeQuery,
     isBranch,
