@@ -25,7 +25,6 @@ interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
   identityProviders: T.IdentityProvider[];
   onUpdateUsers: () => void;
-  organizationsEnabled?: boolean;
   updateTokensCount: (login: string, tokensCount: number) => void;
   users: T.User[];
 }
@@ -34,7 +33,6 @@ export default function UsersList({
   currentUser,
   identityProviders,
   onUpdateUsers,
-  organizationsEnabled,
   updateTokensCount,
   users
 }: Props) {
@@ -47,7 +45,7 @@ export default function UsersList({
             <th className="nowrap" />
             <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
             <th className="nowrap">{translate('users.last_connection')}</th>
-            {!organizationsEnabled && <th className="nowrap">{translate('my_profile.groups')}</th>}
+            <th className="nowrap">{translate('my_profile.groups')}</th>
             <th className="nowrap">{translate('users.tokens')}</th>
             <th className="nowrap">&nbsp;</th>
           </tr>
@@ -61,7 +59,6 @@ export default function UsersList({
               isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
               key={user.login}
               onUpdateUsers={onUpdateUsers}
-              organizationsEnabled={organizationsEnabled}
               updateTokensCount={updateTokensCount}
               user={user}
             />

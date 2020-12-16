@@ -255,10 +255,6 @@ export function getCodeUrl(
   };
 }
 
-export function getOrganizationUrl(organization: string) {
-  return `/organizations/${organization}`;
-}
-
 export function getHomePageUrl(homepage: T.HomePage) {
   switch (homepage.type) {
     case 'APPLICATION':
@@ -269,8 +265,6 @@ export function getHomePageUrl(homepage: T.HomePage) {
       return homepage.branch
         ? getBranchUrl(homepage.component, homepage.branch)
         : getProjectUrl(homepage.component);
-    case 'ORGANIZATION':
-      return getOrganizationUrl(homepage.organization);
     case 'PORTFOLIO':
       return getPortfolioUrl(homepage.component);
     case 'PORTFOLIOS':

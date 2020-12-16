@@ -99,7 +99,6 @@ function isSameHomePage(a: T.HomePage, b: T.HomePage) {
   return (
     a.type === b.type &&
     (a as any).branch === (b as any).branch &&
-    (a as any).component === (b as any).component &&
-    (a as any).organization === (b as any).organization
+    (a as any).component === (b as any).component
   );
 }

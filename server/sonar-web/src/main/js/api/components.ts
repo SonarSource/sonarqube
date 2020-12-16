@@ -189,7 +189,6 @@ export function getMyProjects(data: {
 }
 
 export interface Component {
-  organization: string;
   id: string;
   key: string;
   name: string;
@@ -212,7 +211,6 @@ export function searchProjects(
 ): Promise<{
   components: Component[];
   facets: Facet[];
-  organizations: Array<{ key: string; name: string }>;
   paging: T.Paging;
 }> {
   const url = '/api/components/search_projects';
@@ -232,7 +230,6 @@ export function changeKey(data: { from: string; to: string }) {
 }
 
 export interface SuggestionsResponse {
-  organizations: Array<{ key: string; name: string }>;
   projects: Array<{ key: string; name: string }>;
   results: Array<{
     items: Array<{
@@ -241,7 +238,6 @@ export interface SuggestionsResponse {
       key: string;
       match: string;
       name: string;
-      organization: string;
       project: string;
     }>;
     more: number;

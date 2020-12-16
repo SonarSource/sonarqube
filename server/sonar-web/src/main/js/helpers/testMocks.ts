@@ -36,21 +36,6 @@ export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T
   };
 }
 
-export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}): T.AlmOrganization {
-  return {
-    avatar: 'http://example.com/avatar',
-    almUrl: 'https://github.com/foo',
-    description: 'description-foo',
-    key: 'foo',
-    name: 'foo',
-    personal: false,
-    privateRepos: 0,
-    publicRepos: 3,
-    url: 'http://example.com/foo',
-    ...overrides
-  };
-}
-
 export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
   return {
     date: '2017-03-01T09:36:01+0100',
@@ -99,7 +84,6 @@ export function mockAnalysisEvent(overrides: Partial<T.AnalysisEvent> = {}): T.A
 
 export function mockAppState(overrides: Partial<T.AppState> = {}): T.AppState {
   return {
-    defaultOrganization: 'foo',
     edition: 'community',
     productionDatabase: true,
     qualifiers: ['TRK'],
@@ -490,33 +474,6 @@ export function mockMeasureEnhanced(overrides: Partial<T.MeasureEnhanced> = {}):
     value: '1.0',
     ...overrides
   };
-}
-
-export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
-  return { key: 'foo', name: 'Foo', ...overrides };
-}
-
-export function mockOrganizationWithAdminActions(
-  overrides: Partial<T.Organization> = {},
-  actionsOverrides: Partial<T.Organization['actions']> = {}
-) {
-  return mockOrganization({ actions: { admin: true, ...actionsOverrides }, ...overrides });
-}
-
-export function mockOrganizationWithAlm(
-  overrides: Partial<T.Organization> = {},
-  almOverrides: Partial<T.Organization['alm']> = {}
-): T.Organization {
-  return mockOrganization({
-    alm: {
-      key: 'github',
-      membersSync: false,
-      personal: false,
-      url: 'https://github.com/foo',
-      ...almOverrides
-    },
-    ...overrides
-  });
 }
 
 export function mockPeriod(overrides: Partial<T.Period> = {}): T.Period {

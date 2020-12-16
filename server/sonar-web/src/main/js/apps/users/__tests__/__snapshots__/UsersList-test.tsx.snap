@@ -27,6 +27,11 @@ exports[`should render correctly 1`] = `
         <th
           className="nowrap"
         >
+          my_profile.groups
+        </th>
+        <th
+          className="nowrap"
+        >
           users.tokens
         </th>
         <th
@@ -41,7 +46,6 @@ exports[`should render correctly 1`] = `
         isCurrentUser={true}
         key="luke"
         onUpdateUsers={[MockFunction]}
-        organizationsEnabled={true}
         updateTokensCount={[MockFunction]}
         user={
           Object {
@@ -57,7 +61,6 @@ exports[`should render correctly 1`] = `
         isCurrentUser={false}
         key="obi"
         onUpdateUsers={[MockFunction]}
-        organizationsEnabled={true}
         updateTokensCount={[MockFunction]}
         user={
           Object {

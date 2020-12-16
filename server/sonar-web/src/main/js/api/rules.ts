@@ -25,10 +25,7 @@ export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
 }
 
-export function searchRules(data: {
-  organization?: string;
-  [x: string]: any;
-}): Promise<SearchRulesResponse> {
+export function searchRules(data: { [x: string]: any }): Promise<SearchRulesResponse> {
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 
@@ -73,7 +70,7 @@ export function createRule(data: {
   );
 }
 
-export function deleteRule(parameters: { key: string; organization?: string }) {
+export function deleteRule(parameters: { key: string }) {
   return post('/api/rules/delete', parameters).catch(throwGlobalError);
 }
 

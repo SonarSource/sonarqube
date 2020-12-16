@@ -45,9 +45,7 @@ export function requireAuthorization() {
 const defaultValue: T.AppState = {
   authenticationError: false,
   authorizationError: false,
-  defaultOrganization: '',
   edition: undefined,
-  organizationsEnabled: false,
   productionDatabase: true,
   qualifiers: [],
   settings: {},

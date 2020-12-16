@@ -89,7 +89,6 @@ export default class PageHeader extends React.PureComponent<Props, State> {
               <ApplyTemplate
                 onApply={this.props.loadHolders}
                 onClose={this.handleApplyTemplateClose}
-                organization={component.organization}
                 project={component}
               />
             )}

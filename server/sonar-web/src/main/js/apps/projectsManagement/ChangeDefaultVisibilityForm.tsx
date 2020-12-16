@@ -53,7 +53,7 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
     return (
       <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>{translate('organization.change_visibility_form.header')}</h2>
+          <h2>{translate('settings.projects.change_visibility_form.header')}</h2>
         </header>
 
         <div className="modal-body">
@@ -74,13 +74,13 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
           ))}
 
           <Alert variant="warning">
-            {translate('organization.change_visibility_form.warning')}
+            {translate('settings.projects.change_visibility_form.warning')}
           </Alert>
         </div>
 
         <footer className="modal-foot">
           <Button className="js-confirm" onClick={this.handleConfirmClick}>
-            {translate('organization.change_visibility_form.submit')}
+            {translate('settings.projects.change_visibility_form.submit')}
           </Button>
           <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('cancel')}

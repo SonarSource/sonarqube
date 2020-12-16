@@ -75,7 +75,6 @@ export function getFacet(
 }
 
 export function searchIssueTags(data: {
-  organization?: string;
   project?: string;
   ps?: number;
   q?: string;
@@ -136,7 +135,6 @@ export function bulkChangeIssues(issueKeys: string[], query: RequestData): Promi
 }
 
 export function searchIssueAuthors(data: {
-  organization?: string;
   project?: string;
   ps?: number;
   q?: string;

@@ -26,7 +26,6 @@ const COMPONENTS = [
     key: 'foo',
     measures: [],
     name: 'Foo',
-    organization: 'foo',
     qualifier: 'TRK'
   }
 ];
@@ -46,7 +45,6 @@ it('should render with best values hidden', () => {
           key: 'bar',
           measures: [{ bestValue: true, metric: { key: 'coverage' } }],
           name: 'Bar',
-          organization: 'foo',
           qualifier: 'TRK'
         }
       ]
@@ -70,7 +68,6 @@ function getWrapper(props = {}) {
         key: 'parent',
         measures: [],
         name: 'Parent',
-        organization: 'foo',
         qualifier: 'TRK'
       }}
       view="tree"

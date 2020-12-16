@@ -46,13 +46,11 @@ jest.mock('../../../../api/issues', () => ({
         creationDate: '2016-08-15T15:25:38+0200',
         updateDate: '2018-10-25T10:23:08+0200',
         type: 'SECURITY_HOTSPOT',
-        organization: 'default-organization',
         fromHotspot: true
       }
     ],
     components: [
       {
-        organization: 'default-organization',
         key: 'org.sonarsource.java:java',
         enabled: true,
         qualifier: 'TRK',
@@ -60,7 +58,6 @@ jest.mock('../../../../api/issues', () => ({
         longName: 'SonarJava'
       },
       {
-        organization: 'default-organization',
         key: 'foo.java',
         enabled: true,
         qualifier: 'FIL',

@@ -43,7 +43,7 @@ jest.mock('../../../../api/webhooks', () => ({
   updateWebhook: jest.fn(() => Promise.resolve())
 }));
 
-const component = { key: 'bar', organization: 'foo', qualifier: 'TRK' };
+const component = { key: 'bar', qualifier: 'TRK' };
 
 beforeEach(() => {
   (createWebhook as jest.Mock<any>).mockClear();

@@ -81,7 +81,6 @@ function getWrapper(props: Partial<UsersApp['props']> = {}) {
     <UsersApp
       currentUser={currentUser}
       location={location}
-      organizationsEnabled={true}
       router={{ push: jest.fn() }}
       {...props}
     />

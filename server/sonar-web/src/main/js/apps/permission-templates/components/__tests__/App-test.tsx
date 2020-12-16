@@ -29,7 +29,7 @@ jest.mock('../../../../api/permissions', () => ({
       {
         id: '1',
         name: 'Default template',
-        description: 'Default permission template of organization test',
+        description: 'Default permission template',
         createdAt: '2019-02-07T17:23:26+0100',
         updatedAt: '2019-02-07T17:23:26+0100',
         permissions: [

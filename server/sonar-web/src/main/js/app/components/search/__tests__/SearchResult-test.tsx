@@ -35,8 +35,7 @@ it('renders match', () => {
     key: 'foo',
     name: 'foo',
     match: 'f<mark>o</mark>o',
-    qualifier: 'TRK',
-    organization: 'bar'
+    qualifier: 'TRK'
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -47,8 +46,7 @@ it('renders favorite', () => {
     isFavorite: true,
     key: 'foo',
     name: 'foo',
-    qualifier: 'TRK',
-    organization: 'bar'
+    qualifier: 'TRK'
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -59,8 +57,7 @@ it('renders recently browsed', () => {
     isRecentlyBrowsed: true,
     key: 'foo',
     name: 'foo',
-    qualifier: 'TRK',
-    organization: 'bar'
+    qualifier: 'TRK'
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -96,12 +93,10 @@ it('shows tooltip after delay', () => {
 function shallowRender(props: Partial<SearchResult['props']> = {}) {
   return shallow(
     <SearchResult
-      appState={{ organizationsEnabled: false }}
-      component={{ key: 'foo', name: 'foo', qualifier: 'TRK', organization: 'bar' }}
+      component={{ key: 'foo', name: 'foo', qualifier: 'TRK' }}
       innerRef={jest.fn()}
       onClose={jest.fn()}
       onSelect={jest.fn()}
-      organizations={{ bar: { name: 'bar' } }}
       projects={{ foo: { name: 'foo' } }}
       selected={false}
       {...props}

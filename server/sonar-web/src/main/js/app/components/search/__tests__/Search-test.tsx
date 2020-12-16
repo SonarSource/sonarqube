@@ -103,11 +103,7 @@ it('shows warning about short input', () => {
 function shallowRender(props: Partial<Search['props']> = {}) {
   return shallow<Search>(
     // @ts-ignore
-    <Search
-      appState={{ organizationsEnabled: false }}
-      currentUser={{ isLoggedIn: false }}
-      {...props}
-    />
+    <Search currentUser={{ isLoggedIn: false }} {...props} />
   );
 }
 

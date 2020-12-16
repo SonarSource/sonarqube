@@ -23,7 +23,7 @@ import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { searchProjects } from '../../../../api/components';
 import { getFacet } from '../../../../api/issues';
-import { mockAppState, mockCurrentUser, mockLocation } from '../../../../helpers/testMocks';
+import { mockCurrentUser, mockLocation } from '../../../../helpers/testMocks';
 import { AboutApp } from '../AboutApp';
 import EntryIssueTypes from '../EntryIssueTypes';
 
@@ -88,7 +88,6 @@ it('should not display issues if the WS return an http error', async () => {
 function shallowRender(props: Partial<AboutApp['props']> = {}) {
   return shallow(
     <AboutApp
-      appState={mockAppState()}
       currentUser={mockCurrentUser()}
       customText="Lorem ipsum"
       fetchAboutPageSettings={jest.fn().mockResolvedValue('')}

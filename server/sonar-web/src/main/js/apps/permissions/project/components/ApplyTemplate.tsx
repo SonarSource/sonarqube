@@ -29,7 +29,6 @@ import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/
 interface Props {
   onApply?: () => void;
   onClose: () => void;
-  organization?: string;
   project: { key: string; name: string };
 }
 
@@ -71,7 +70,6 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
   handleSubmit = () => {
     if (this.state.permissionTemplate) {
       return applyTemplateToProject({
-        organization: this.props.organization,
         projectKey: this.props.project.key,
         templateId: this.state.permissionTemplate
       }).then(() => {

@@ -30,14 +30,6 @@ declare namespace T {
     installationUrl: string;
   }
 
-  export interface AlmOrganization extends OrganizationBase {
-    almUrl: string;
-    key: string;
-    personal: boolean;
-    privateRepos: number;
-    publicRepos: number;
-  }
-
   export interface AlmRepository {
     label: string;
     installationKey: string;
@@ -96,12 +88,10 @@ declare namespace T {
     authorizationError?: boolean;
     branchesEnabled?: boolean;
     canAdmin?: boolean;
-    defaultOrganization: string;
     edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
     globalPages?: Extension[];
     multipleAlmEnabled?: boolean;
     needIssueSync?: boolean;
-    organizationsEnabled?: boolean;
     productionDatabase: boolean;
     qualifiers: string[];
     settings: T.Dict<string>;
@@ -167,7 +157,6 @@ declare namespace T {
     key: string;
     match?: string;
     name: string;
-    organization?: string;
     path?: string;
     project?: string;
     qualifier: string;
@@ -295,7 +284,6 @@ declare namespace T {
     | { type: 'ISSUES' }
     | { type: 'MY_ISSUES' }
     | { type: 'MY_PROJECTS' }
-    | { type: 'ORGANIZATION'; organization: string }
     | { type: 'PORTFOLIO'; component: string }
     | { type: 'PORTFOLIOS' }
     | { type: 'PROJECT'; branch: string | undefined; component: string }
@@ -306,7 +294,6 @@ declare namespace T {
     | 'ISSUES'
     | 'MY_ISSUES'
     | 'MY_PROJECTS'
-    | 'ORGANIZATION'
     | 'PORTFOLIO'
     | 'PORTFOLIOS'
     | 'PROJECT'
@@ -403,7 +390,6 @@ declare namespace T {
 
   export interface LightComponent {
     key: string;
-    organization?: string;
     qualifier: string;
   }
 
@@ -434,7 +420,6 @@ declare namespace T {
     homepage?: HomePage;
     isLoggedIn: true;
     local?: boolean;
-    personalOrganization?: string;
     scmAccounts: string[];
     settings?: CurrentUserSetting[];
   }
@@ -517,39 +502,6 @@ declare namespace T {
     project: string;
     projectName: string;
   }
-
-  export interface OrganizationActions {
-    admin?: boolean;
-    delete?: boolean;
-    provision?: boolean;
-    executeAnalysis?: boolean;
-  }
-
-  export interface Organization extends OrganizationBase {
-    actions?: OrganizationActions;
-    alm?: { key: string; membersSync: boolean; personal: boolean; url: string };
-    adminPages?: Extension[];
-    canUpdateProjectsVisibilityToPrivate?: boolean;
-    isDefault?: boolean;
-    key: string;
-    pages?: Extension[];
-    projectVisibility?: Visibility;
-    subscription?: OrganizationSubscription;
-  }
-
-  export interface OrganizationBase {
-    avatar?: string;
-    description?: string;
-    key?: string;
-    name: string;
-    url?: string;
-  }
-
-  export interface OrganizationMember extends UserActive {
-    groupCount?: number;
-  }
-
-  export type OrganizationSubscription = 'FREE' | 'PAID' | 'SONARQUBE';
 
   export interface Paging {
     pageIndex: number;

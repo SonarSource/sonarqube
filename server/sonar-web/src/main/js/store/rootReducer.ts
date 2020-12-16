@@ -25,7 +25,6 @@ import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
 import languages, * as fromLanguages from './languages';
 import metrics, * as fromMetrics from './metrics';
-import organizations, * as fromOrganizations from './organizations';
 import users, * as fromUsers from './users';
 
 export type Store = {
@@ -34,7 +33,6 @@ export type Store = {
   globalMessages: fromGlobalMessages.State;
   languages: T.Languages;
   metrics: fromMetrics.State;
-  organizations: fromOrganizations.State;
   users: fromUsers.State;
 
   // apps
@@ -47,7 +45,6 @@ export default combineReducers<Store>({
   globalMessages,
   languages,
   metrics,
-  organizations,
   users,
 
   // apps
@@ -84,18 +81,6 @@ export function getMetricsKey(state: Store) {
 
 export function getMetricByKey(state: Store, key: string) {
   return fromMetrics.getMetricByKey(state.metrics, key);
-}
-
-export function getOrganizationByKey(state: Store, key: string) {
-  return fromOrganizations.getOrganizationByKey(state.organizations, key);
-}
-
-export function getMyOrganizations(state: Store) {
-  return fromOrganizations.getMyOrganizations(state.organizations);
-}
-
-export function areThereCustomOrganizations(state: Store) {
-  return getAppState(state).organizationsEnabled;
 }
 
 export function getGlobalSettingValue(state: Store, key: string) {

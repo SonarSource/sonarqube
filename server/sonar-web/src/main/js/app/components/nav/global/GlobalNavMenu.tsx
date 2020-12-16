@@ -28,7 +28,7 @@ import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 
 interface Props {
-  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
+  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
   currentUser: T.CurrentUser;
   location: { pathname: string };
 }
@@ -156,16 +156,15 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     const governanceInstalled = this.props.appState.qualifiers.includes(
       ComponentQualifier.Portfolio
     );
-    const { organizationsEnabled } = this.props.appState;
 
     return (
       <ul className="global-navbar-menu">
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}
-        {!organizationsEnabled && this.renderRulesLink()}
-        {!organizationsEnabled && this.renderProfilesLink()}
-        {!organizationsEnabled && this.renderQualityGatesLink()}
+        {this.renderRulesLink()}
+        {this.renderProfilesLink()}
+        {this.renderQualityGatesLink()}
         {this.renderAdministrationLink()}
         {this.renderMore()}
       </ul>

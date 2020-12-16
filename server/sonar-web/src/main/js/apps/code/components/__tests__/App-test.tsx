@@ -95,7 +95,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
         breadcrumbs: [],
         name: 'foo',
         key: 'foo',
-        organization: 'foo',
         qualifier: 'FOO'
       }}
       fetchBranchStatus={jest.fn()}

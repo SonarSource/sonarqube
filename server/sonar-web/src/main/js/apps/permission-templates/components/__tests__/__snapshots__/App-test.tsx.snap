@@ -42,7 +42,7 @@ exports[`should render correctly 2`] = `
           "defaultFor": Array [
             "TRK",
           ],
-          "description": "Default permission template of organization test",
+          "description": "Default permission template",
           "id": "1",
           "name": "Default template",
           "permissions": Array [

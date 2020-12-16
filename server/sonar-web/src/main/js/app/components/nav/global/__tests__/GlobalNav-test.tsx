@@ -19,71 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import {
-  fetchPrismicFeatureNews,
-  fetchPrismicRefs,
-  PrismicFeatureNews
-} from '../../../../../api/news';
-import { isSonarCloud } from '../../../../../helpers/system';
-import { GlobalNav } from '../GlobalNav';
-
-jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { GlobalNav, GlobalNavProps } from '../GlobalNav';
 
 // Solve redux warning issue "No reducer provided for key":
 // https://stackoverflow.com/questions/43375079/redux-warning-only-appearing-in-tests
 jest.mock('../../../../../store/rootReducer');
 
-jest.mock('../../../../../api/news', () => {
-  const prismicResult: PrismicFeatureNews[] = [
-    {
-      notification: '10 Java rules, Github checks, Security Hotspots, BitBucket branch decoration',
-      publicationDate: '2018-04-06',
-      features: [
-        {
-          categories: [{ color: '#ff0000', name: 'Java' }],
-          description: '10 new Java rules'
-        }
-      ]
-    },
-    {
-      notification: 'Some other notification',
-      publicationDate: '2018-04-05',
-      features: [
-        {
-          categories: [{ color: '#0000ff', name: 'BitBucket' }],
-          description: 'BitBucket branch decoration',
-          readMore: 'http://example.com'
-        }
-      ]
-    }
-  ];
-
-  return {
-    fetchPrismicRefs: jest.fn().mockResolvedValue({ ref: 'master-ref' }),
-    fetchPrismicFeatureNews: jest.fn().mockResolvedValue({
-      news: prismicResult,
-      paging: { pageIndex: 1, pageSize: 10, total: 2 }
-    })
-  };
-});
-
-const appState: GlobalNav['props']['appState'] = {
+const appState: GlobalNavProps['appState'] = {
   globalPages: [],
   canAdmin: false,
-  organizationsEnabled: false,
   qualifiers: []
 };
 const location = { pathname: '' };
 
-beforeEach(() => {
-  (fetchPrismicRefs as jest.Mock).mockClear();
-  (fetchPrismicFeatureNews as jest.Mock).mockClear();
-});
-
 it('should render correctly', async () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => false);
-
   const wrapper = shallowRender();
 
   expect(wrapper).toMatchSnapshot('anonymous users');
@@ -93,28 +43,12 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
 });
 
-it('should render correctly if there are new features', async () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const wrapper = shallowRender();
-  wrapper.setProps({ currentUser: { isLoggedIn: true } });
-
-  await waitAndUpdate(wrapper);
-  expect(fetchPrismicRefs).toHaveBeenCalled();
-  expect(fetchPrismicFeatureNews).toHaveBeenCalled();
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('NavLatestNotification').exists()).toBe(true);
-  click(wrapper.find('NavLatestNotification'));
-  expect(wrapper.find('NotificationsSidebar').exists()).toBe(true);
-});
-
-function shallowRender(props: Partial<GlobalNav['props']> = {}) {
+function shallowRender(props: Partial<GlobalNavProps> = {}) {
   return shallow(
     <GlobalNav
-      accessToken="token"
       appState={appState}
       currentUser={{ isLoggedIn: false }}
       location={location}
-      setCurrentUserSetting={jest.fn()}
       {...props}
     />
   );

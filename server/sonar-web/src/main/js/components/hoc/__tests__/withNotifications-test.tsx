@@ -34,22 +34,19 @@ jest.mock('../../../api/notifications', () => ({
           channel: 'channel1',
           type: 'type-global',
           project: 'foo',
-          projectName: 'Foo',
-          organization: 'org'
+          projectName: 'Foo'
         },
         {
           channel: 'channel1',
           type: 'type-common',
           project: 'bar',
-          projectName: 'Bar',
-          organization: 'org'
+          projectName: 'Bar'
         },
         {
           channel: 'channel2',
           type: 'type-common',
           project: 'qux',
-          projectName: 'Qux',
-          organization: 'org'
+          projectName: 'Qux'
         }
       ],
       perProjectTypes: ['type-common']

@@ -19,19 +19,17 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { areThereCustomOrganizations, getCurrentUser, Store } from '../../../store/rootReducer';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import '../account.css';
 import Nav from './Nav';
 import UserCard from './UserCard';
 
 interface Props {
   currentUser: T.CurrentUser;
-  customOrganizations?: boolean;
 }
 
 export class Account extends React.PureComponent<Props> {
@@ -57,7 +55,7 @@ export class Account extends React.PureComponent<Props> {
         <header className="account-header">
           <div className="account-container clearfix">
             <UserCard user={currentUser as T.LoggedInUser} />
-            <Nav customOrganizations={this.props.customOrganizations} />
+            <Nav />
           </div>
         </header>
 
@@ -67,9 +65,4 @@ export class Account extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state),
-  customOrganizations: areThereCustomOrganizations(state)
-});
-
-export default connect(mapStateToProps)(Account);
+export default withCurrentUser(Account);

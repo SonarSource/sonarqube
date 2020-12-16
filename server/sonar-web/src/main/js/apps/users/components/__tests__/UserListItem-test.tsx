@@ -42,14 +42,6 @@ it('should render correctly without last connection date', () => {
   expect(shallowRender({})).toMatchSnapshot();
 });
 
-it('should display a change password button', () => {
-  expect(
-    shallowRender({ organizationsEnabled: true })
-      .find('UserGroups')
-      .exists()
-  ).toBe(false);
-});
-
 it('should open the correct forms', () => {
   const wrapper = shallowRender();
   click(wrapper.find('.js-user-tokens'));
@@ -61,7 +53,6 @@ function shallowRender(props: Partial<UserListItem['props']> = {}) {
     <UserListItem
       isCurrentUser={false}
       onUpdateUsers={jest.fn()}
-      organizationsEnabled={false}
       updateTokensCount={jest.fn()}
       user={user}
       {...props}

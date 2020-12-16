@@ -45,7 +45,6 @@ interface OwnProps {
   onLoadMore: () => void;
   onFilter: (filter: string) => void;
   onSearch: (query: string) => void;
-  organization?: T.Organization;
   query: string;
   revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
@@ -77,7 +76,7 @@ export class AllHoldersList extends React.PureComponent<Props> {
 
   render() {
     const { appState, filter, groups, groupsPaging, users, usersPaging } = this.props;
-    const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
+    const l10nPrefix = 'global_permissions';
 
     const hasPortfoliosEnabled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
     const hasApplicationsEnabled = appState.qualifiers.includes(ComponentQualifier.Application);

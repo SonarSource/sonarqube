@@ -22,7 +22,7 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import IssueTags from '../IssueTags';
 
-const issue = { key: 'issuekey', projectOrganization: 'foo', tags: ['mytag', 'test'] };
+const issue = { key: 'issuekey', tags: ['mytag', 'test'] };
 
 it('should render without the action when the correct rights are missing', () => {
   expect(shallowRender({ canSetTags: false, issue: { ...issue, tags: [] } })).toMatchSnapshot();

@@ -9,7 +9,7 @@ exports[`changes visibility 1`] = `
     className="modal-head"
   >
     <h2>
-      organization.change_visibility_form.header
+      settings.projects.change_visibility_form.header
     </h2>
   </header>
   <div
@@ -56,7 +56,7 @@ exports[`changes visibility 1`] = `
     <Alert
       variant="warning"
     >
-      organization.change_visibility_form.warning
+      settings.projects.change_visibility_form.warning
     </Alert>
   </div>
   <footer
@@ -66,7 +66,7 @@ exports[`changes visibility 1`] = `
       className="js-confirm"
       onClick={[Function]}
     >
-      organization.change_visibility_form.submit
+      settings.projects.change_visibility_form.submit
     </Button>
     <ResetButtonLink
       className="js-modal-close"
@@ -87,7 +87,7 @@ exports[`changes visibility 2`] = `
     className="modal-head"
   >
     <h2>
-      organization.change_visibility_form.header
+      settings.projects.change_visibility_form.header
     </h2>
   </header>
   <div
@@ -134,7 +134,7 @@ exports[`changes visibility 2`] = `
     <Alert
       variant="warning"
     >
-      organization.change_visibility_form.warning
+      settings.projects.change_visibility_form.warning
     </Alert>
   </div>
   <footer
@@ -144,7 +144,7 @@ exports[`changes visibility 2`] = `
       className="js-confirm"
       onClick={[Function]}
     >
-      organization.change_visibility_form.submit
+      settings.projects.change_visibility_form.submit
     </Button>
     <ResetButtonLink
       className="js-modal-close"

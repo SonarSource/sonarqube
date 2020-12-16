@@ -118,7 +118,7 @@ describe('#getComponentDrilldownUrl', () => {
 });
 
 describe('#getQualityGate(s)Url', () => {
-  it('should take organization key into account', () => {
+  it('should work as expected', () => {
     expect(getQualityGatesUrl()).toEqual({ pathname: '/quality_gates' });
     expect(getQualityGateUrl('bar')).toEqual({ pathname: '/quality_gates/show/bar' });
   });

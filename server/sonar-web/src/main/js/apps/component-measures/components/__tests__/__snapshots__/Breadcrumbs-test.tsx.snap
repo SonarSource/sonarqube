@@ -7,7 +7,6 @@ exports[`should display correctly for the list view 1`] = `
     Object {
       "key": "bar",
       "name": "Bar",
-      "organization": "bar",
       "qualifier": "TRK",
     }
   }
@@ -16,7 +15,6 @@ exports[`should display correctly for the list view 1`] = `
     Object {
       "key": "foo",
       "name": "Foo",
-      "organization": "bar",
       "qualifier": "TRK",
     }
   }
@@ -29,7 +27,6 @@ Object {
     Object {
       "key": "foo",
       "name": "Foo",
-      "organization": "bar",
       "qualifier": "TRK",
     },
   ],

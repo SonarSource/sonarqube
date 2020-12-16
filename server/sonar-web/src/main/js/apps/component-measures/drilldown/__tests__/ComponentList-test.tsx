@@ -26,7 +26,6 @@ const COMPONENTS = [
     key: 'foo',
     measures: [],
     name: 'Foo',
-    organization: 'foo',
     qualifier: 'TRK'
   }
 ];

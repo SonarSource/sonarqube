@@ -229,7 +229,6 @@ export function dissociateProject({ language, name: qualityProfile }: Profile, p
 
 export interface SearchUsersGroupsParameters {
   language: string;
-  organization?: string;
   qualityProfile: string;
   q?: string;
   selected?: 'all' | 'selected' | 'deselected';
@@ -272,7 +271,6 @@ export function removeUser(parameters: AddRemoveUserParameters): Promise<void | 
 export interface AddRemoveGroupParameters {
   group: string;
   language: string;
-  organization?: string;
   qualityProfile: string;
 }
 

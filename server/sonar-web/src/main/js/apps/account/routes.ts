@@ -37,10 +37,6 @@ const routes = [
       {
         path: 'notifications',
         component: lazyLoadComponent(() => import('./notifications/Notifications'))
-      },
-      {
-        path: 'organizations',
-        component: lazyLoadComponent(() => import('./organizations/UserOrganizations'))
       }
     ]
   }

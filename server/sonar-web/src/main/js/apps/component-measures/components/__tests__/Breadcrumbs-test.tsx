@@ -34,14 +34,12 @@ jest.mock('../../../../api/components', () => ({
 const componentFoo = {
   key: 'foo',
   name: 'Foo',
-  organization: 'bar',
   qualifier: 'TRK'
 };
 
 const componentBar = {
   key: 'bar',
   name: 'Bar',
-  organization: 'bar',
   qualifier: 'TRK'
 };
 

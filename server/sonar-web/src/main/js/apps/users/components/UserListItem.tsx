@@ -33,7 +33,6 @@ interface Props {
   identityProvider?: T.IdentityProvider;
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
-  organizationsEnabled?: boolean;
   updateTokensCount: (login: string, tokensCount: number) => void;
   user: T.User;
 }
@@ -49,7 +48,7 @@ export default class UserListItem extends React.PureComponent<Props, State> {
   handleCloseTokensForm = () => this.setState({ openTokenForm: false });
 
   render() {
-    const { identityProvider, onUpdateUsers, organizationsEnabled, user } = this.props;
+    const { identityProvider, onUpdateUsers, user } = this.props;
 
     return (
       <tr>
@@ -63,11 +62,9 @@ export default class UserListItem extends React.PureComponent<Props, State> {
         <td className="thin nowrap text-middle">
           <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
         </td>
-        {!organizationsEnabled && (
-          <td className="thin nowrap text-middle">
-            <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
-          </td>
-        )}
+        <td className="thin nowrap text-middle">
+          <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
+        </td>
         <td className="thin nowrap text-middle">
           {user.tokensCount}
           <ButtonIcon

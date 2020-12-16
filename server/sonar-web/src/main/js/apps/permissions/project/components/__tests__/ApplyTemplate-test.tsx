@@ -45,7 +45,7 @@ jest.mock('../../../../../api/permissions', () => ({
 
 it('render correctly', async () => {
   const wrapper = shallow(
-    <ApplyTemplate onClose={jest.fn()} organization="foo" project={{ key: 'foo', name: 'Foo' }} />
+    <ApplyTemplate onClose={jest.fn()} project={{ key: 'foo', name: 'Foo' }} />
   );
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);

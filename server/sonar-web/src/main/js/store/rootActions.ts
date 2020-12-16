@@ -22,7 +22,6 @@ import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
-import { getOrganization } from '../api/organizations';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
@@ -32,7 +31,6 @@ import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
 import { receiveLanguages } from './languages';
 import { receiveMetrics } from './metrics';
-import { receiveOrganizations } from './organizations';
 
 export function fetchLanguages() {
   return (dispatch: Dispatch) => {
@@ -55,13 +53,6 @@ export function fetchMetrics() {
     );
   };
 }
-
-export const fetchOrganization = (key: string) => async (dispatch: Dispatch) => {
-  const organization = await getOrganization(key);
-  if (organization) {
-    dispatch(receiveOrganizations([organization]));
-  }
-};
 
 export function fetchBranchStatus(branchLike: BranchLike, projectKey: string) {
   return (dispatch: Dispatch<any>) => {

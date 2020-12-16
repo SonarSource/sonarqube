@@ -55,7 +55,7 @@ export default class Header extends React.PureComponent<Props, State> {
         <div className="page-actions">
           <span className="big-spacer-right">
             <span className="text-middle">
-              {translate('organization.default_visibility_of_new_projects')}{' '}
+              {translate('settings.projects.default_visibility_of_new_projects')}{' '}
               <strong>
                 {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
               </strong>

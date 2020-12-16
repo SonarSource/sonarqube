@@ -48,7 +48,6 @@ import AboutStandards from './AboutStandards';
 import EntryIssueTypes from './EntryIssueTypes';
 
 interface Props {
-  appState: Pick<T.AppState, 'defaultOrganization' | 'organizationsEnabled'>;
   currentUser: T.CurrentUser;
   customText?: string;
   fetchAboutPageSettings: () => Promise<void>;

@@ -23,6 +23,7 @@ import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getIdentityProviders, searchUsers } from '../../api/users';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import Header from './Header';
 import Search from './Search';
@@ -32,7 +33,6 @@ import { parseQuery, Query, serializeQuery } from './utils';
 interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
   location: Pick<Location, 'query'>;
-  organizationsEnabled?: boolean;
   router: Pick<Router, 'push'>;
 }
 
@@ -70,14 +70,11 @@ export class UsersApp extends React.PureComponent<Props, State> {
   };
 
   fetchIdentityProviders = () =>
-    getIdentityProviders().then(
-      ({ identityProviders }) => {
-        if (this.mounted) {
-          this.setState({ identityProviders });
-        }
-      },
-      () => {}
-    );
+    getIdentityProviders().then(({ identityProviders }) => {
+      if (this.mounted) {
+        this.setState({ identityProviders });
+      }
+    });
 
   fetchUsers = ({ location } = this.props) => {
     this.setState({ loading: true });
@@ -127,7 +124,6 @@ export class UsersApp extends React.PureComponent<Props, State> {
           currentUser={this.props.currentUser}
           identityProviders={this.state.identityProviders}
           onUpdateUsers={this.fetchUsers}
-          organizationsEnabled={this.props.organizationsEnabled}
           updateTokensCount={this.updateTokensCount}
           users={users}
         />
@@ -144,4 +140,4 @@ export class UsersApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(UsersApp);
+export default withRouter(withCurrentUser(UsersApp));

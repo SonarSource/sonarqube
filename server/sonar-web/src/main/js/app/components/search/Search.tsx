@@ -41,7 +41,6 @@ const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
 const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
 
 interface OwnProps {
-  appState: Pick<T.AppState, 'organizationsEnabled'>;
   currentUser: T.CurrentUser;
 }
 
@@ -52,7 +51,6 @@ interface State {
   loadingMore?: string;
   more: More;
   open: boolean;
-  organizations: T.Dict<{ name: string }>;
   projects: T.Dict<{ name: string }>;
   query: string;
   results: Results;
@@ -74,7 +72,6 @@ export class Search extends React.PureComponent<Props, State> {
       loading: false,
       more: {},
       open: false,
-      organizations: {},
       projects: {},
       query: '',
       results: {},
@@ -142,7 +139,6 @@ export class Search extends React.PureComponent<Props, State> {
       this.setState({
         more: {},
         open: false,
-        organizations: {},
         projects: {},
         query: '',
         results: {},
@@ -187,7 +183,6 @@ export class Search extends React.PureComponent<Props, State> {
           this.setState(state => ({
             loading: false,
             more,
-            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
             projects: { ...state.projects, ...keyBy(response.projects, 'key') },
             results,
             selected: list.length > 0 ? list[0] : undefined,
@@ -216,7 +211,6 @@ export class Search extends React.PureComponent<Props, State> {
           loading: false,
           loadingMore: undefined,
           more: { ...state.more, [qualifier]: 0 },
-          organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
           projects: { ...state.projects, ...keyBy(response.projects, 'key') },
           results: {
             ...state.results,
@@ -326,13 +320,11 @@ export class Search extends React.PureComponent<Props, State> {
 
   renderResult = (component: ComponentResult) => (
     <SearchResult
-      appState={this.props.appState}
       component={component}
       innerRef={this.innerRef}
       key={component.key}
       onClose={this.closeSearch}
       onSelect={this.handleSelect}
-      organizations={this.state.organizations}
       projects={this.state.projects}
       selected={this.state.selected === component.key}
     />

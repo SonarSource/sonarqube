@@ -34,7 +34,6 @@ exports[`should render correctly 1`] = `
     }
     identityProviders={Array []}
     onUpdateUsers={[Function]}
-    organizationsEnabled={true}
     updateTokensCount={[Function]}
     users={Array []}
   />
@@ -84,7 +83,6 @@ exports[`should render correctly 2`] = `
       ]
     }
     onUpdateUsers={[Function]}
-    organizationsEnabled={true}
     updateTokensCount={[Function]}
     users={
       Array [

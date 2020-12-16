@@ -25,7 +25,6 @@ import ProjectModal from '../ProjectModal';
 
 jest.mock('../../../../api/components', () => ({
   getSuggestions: jest.fn().mockResolvedValue({
-    organizations: [{ key: 'org', name: 'Org' }],
     results: [
       {
         q: 'TRK',
@@ -63,7 +62,6 @@ it('should return an empty list when I search non-existent elements', async () =
       { q: 'TRK', items: [], more: 0 },
       { q: 'UTS', items: [], more: 0 }
     ],
-    organizations: [],
     projects: []
   });
 

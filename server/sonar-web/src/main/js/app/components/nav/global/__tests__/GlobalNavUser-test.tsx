@@ -19,64 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../../../helpers/testMocks';
 import { GlobalNavUser } from '../GlobalNavUser';
 
-const currentUser = { avatar: 'abcd1234', isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
-const organizations: T.Organization[] = [
-  { key: 'myorg', name: 'MyOrg', projectVisibility: 'public' },
-  { key: 'foo', name: 'Foo', projectVisibility: 'public' },
-  { key: 'bar', name: 'bar', projectVisibility: 'public' }
-];
-const appState = { organizationsEnabled: true };
-
 it('should render the right interface for anonymous user', () => {
-  const currentUser = { isLoggedIn: false };
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      organizations={[]}
-      router={{ push: jest.fn() }}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot();
 });
 
 it('should render the right interface for logged in user', () => {
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      organizations={[]}
-      router={{ push: jest.fn() }}
-    />
-  );
+  const wrapper = shallowRender();
   wrapper.setState({ open: true });
   expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
 
-it('should render user organizations', () => {
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      organizations={organizations}
-      router={{ push: jest.fn() }}
-    />
+function shallowRender(overrides: Partial<GlobalNavUser['props']> = {}) {
+  return shallow<GlobalNavUser>(
+    <GlobalNavUser currentUser={mockLoggedInUser()} router={mockRouter()} {...overrides} />
   );
-  wrapper.setState({ open: true });
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
-
-it('should not render user organizations when they are not activated', () => {
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={{ organizationsEnabled: false }}
-      currentUser={currentUser}
-      organizations={organizations}
-      router={{ push: jest.fn() }}
-    />
-  );
-  wrapper.setState({ open: true });
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+}

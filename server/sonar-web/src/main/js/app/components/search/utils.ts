@@ -39,7 +39,6 @@ export interface ComponentResult {
   key: string;
   match?: string;
   name: string;
-  organization?: string;
   project?: string;
   qualifier: string;
 }

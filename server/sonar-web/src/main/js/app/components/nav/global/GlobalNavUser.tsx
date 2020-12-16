@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
@@ -25,14 +24,11 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import Avatar from '../../../../components/ui/Avatar';
-import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
 import { isLoggedIn } from '../../../../helpers/users';
 import { rawSizes } from '../../../theme';
 
 interface Props {
-  appState: { organizationsEnabled?: boolean };
   currentUser: T.CurrentUser;
-  organizations: T.Organization[];
   router: Pick<Router, 'push'>;
 }
 
@@ -55,9 +51,7 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   };
 
   renderAuthenticated() {
-    const { organizations } = this.props;
     const currentUser = this.props.currentUser as T.LoggedInUser;
-    const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
       <Dropdown
         className="js-user-authenticated"
@@ -79,17 +73,6 @@ export class GlobalNavUser extends React.PureComponent<Props> {
             <li>
               <Link to="/account">{translate('my_account.page')}</Link>
             </li>
-            {hasOrganizations && <li className="divider" role="separator" />}
-            {hasOrganizations && (
-              <li>
-                <Link to="/account/organizations">{translate('my_organizations')}</Link>
-              </li>
-            )}
-            {hasOrganizations &&
-              sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
-                <OrganizationListItem key={organization.key} organization={organization} />
-              ))}
-            {hasOrganizations && <li className="divider" role="separator" />}
             <li>
               <a href="#" onClick={this.handleLogout}>
                 {translate('layout.logout')}

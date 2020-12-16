@@ -22,11 +22,7 @@ import { IndexLink, Link } from 'react-router';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
-  customOrganizations?: boolean;
-}
-
-export default function Nav({ customOrganizations }: Props) {
+export default function Nav() {
   return (
     <nav className="account-nav">
       <NavBarTabs>
@@ -45,20 +41,11 @@ export default function Nav({ customOrganizations }: Props) {
             {translate('my_account.notifications')}
           </Link>
         </li>
-        {!customOrganizations && (
-          <li>
-            <Link activeClassName="active" to="/account/projects/">
-              {translate('my_account.projects')}
-            </Link>
-          </li>
-        )}
-        {customOrganizations && (
-          <li>
-            <Link activeClassName="active" to="/account/organizations">
-              {translate('my_account.organizations')}
-            </Link>
-          </li>
-        )}
+        <li>
+          <Link activeClassName="active" to="/account/projects/">
+            {translate('my_account.projects')}
+          </Link>
+        </li>
       </NavBarTabs>
     </nav>
   );

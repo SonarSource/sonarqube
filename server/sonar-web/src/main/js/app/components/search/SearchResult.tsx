@@ -28,12 +28,10 @@ import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentResult } from './utils';
 
 interface Props {
-  appState: Pick<T.AppState, 'organizationsEnabled'>;
   component: ComponentResult;
   innerRef: (componentKey: string, node: HTMLElement | null) => void;
   onClose: () => void;
   onSelect: (componentKey: string) => void;
-  organizations: T.Dict<{ name: string }>;
   projects: T.Dict<{ name: string }>;
   selected: boolean;
 }
