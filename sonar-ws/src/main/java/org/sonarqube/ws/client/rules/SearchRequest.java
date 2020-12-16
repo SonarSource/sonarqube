@@ -43,7 +43,6 @@ public class SearchRequest {
   private List<String> inheritance;
   private String isTemplate;
   private List<String> languages;
-  private String organization;
   private List<String> owaspTop10;
   private String p;
   private String ps;
@@ -260,7 +259,7 @@ public class SearchRequest {
   public String getIsTemplate() {
     return isTemplate;
   }
-  
+
   /**
    * Possible values:
    * <ul>
@@ -289,19 +288,6 @@ public class SearchRequest {
 
   public List<String> getLanguages() {
     return languages;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

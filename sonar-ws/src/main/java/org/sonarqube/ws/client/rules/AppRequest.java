@@ -29,19 +29,4 @@ import javax.annotation.Generated;
  */
 @Generated("sonar-ws-generator")
 public class AppRequest {
-
-  private String organization;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public AppRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

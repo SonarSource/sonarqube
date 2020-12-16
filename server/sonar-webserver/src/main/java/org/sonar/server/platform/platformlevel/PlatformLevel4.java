@@ -110,8 +110,6 @@ import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
-import org.sonar.server.organization.BillingValidationsProxyImpl;
-import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -264,10 +262,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // update center
       UpdateCenterModule.class,
       UpdateCenterWsModule.class,
-
-      // organizations
-      OrganizationsWsModule.class,
-      BillingValidationsProxyImpl.class,
 
       // quality profile
       BuiltInQProfileDefinitionsBridge.class,

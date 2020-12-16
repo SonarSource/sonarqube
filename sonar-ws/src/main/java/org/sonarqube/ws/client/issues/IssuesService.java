@@ -89,7 +89,6 @@ public class IssuesService extends BaseService {
   public AuthorsResponse authors(AuthorsRequest request) {
     return call(
       new GetRequest(path("authors"))
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
@@ -145,8 +144,7 @@ public class IssuesService extends BaseService {
         .setParam("componentUuid", request.getComponentUuid())
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("ps", request.getPs())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -190,8 +188,7 @@ public class IssuesService extends BaseService {
       new PostRequest(path("edit_comment"))
         .setParam("comment", request.getComment())
         .setParam("text", request.getText())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -226,7 +223,6 @@ public class IssuesService extends BaseService {
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
         .setParam("moduleUuids", request.getModuleUuids() == null ? null : request.getModuleUuids().stream().collect(Collectors.joining(",")))
         .setParam("onComponentOnly", request.getOnComponentOnly())
-        .setParam("organization", request.getOrganization())
         .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
@@ -301,7 +297,6 @@ public class IssuesService extends BaseService {
   public TagsResponse tags(TagsRequest request) {
     return call(
       new GetRequest(path("tags"))
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),

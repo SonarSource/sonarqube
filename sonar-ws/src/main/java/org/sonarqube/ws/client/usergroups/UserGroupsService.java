@@ -22,13 +22,13 @@ package org.sonarqube.ws.client.usergroups;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.UserGroups.CreateWsResponse;
+import org.sonarqube.ws.UserGroups.SearchWsResponse;
+import org.sonarqube.ws.UserGroups.UpdateWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.UserGroups.CreateWsResponse;
-import org.sonarqube.ws.UserGroups.SearchWsResponse;
-import org.sonarqube.ws.UserGroups.UpdateWsResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups">Further information about this web service online</a>
@@ -53,9 +53,7 @@ public class UserGroupsService extends BaseService {
         .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -69,8 +67,7 @@ public class UserGroupsService extends BaseService {
     return call(
       new PostRequest(path("create"))
         .setParam("description", request.getDescription())
-        .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization()),
+        .setParam("name", request.getName()),
       CreateWsResponse.parser());
   }
 
@@ -86,9 +83,7 @@ public class UserGroupsService extends BaseService {
       new PostRequest(path("delete"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -104,9 +99,7 @@ public class UserGroupsService extends BaseService {
         .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -120,7 +113,6 @@ public class UserGroupsService extends BaseService {
     return call(
       new GetRequest(path("search"))
         .setParam("f", request.getF() == null ? null : request.getF().stream().collect(Collectors.joining(",")))
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
@@ -155,12 +147,10 @@ public class UserGroupsService extends BaseService {
       new GetRequest(path("users"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
         .setParam("selected", request.getSelected())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 }

@@ -35,7 +35,6 @@ public class UpdateRequest {
   private String markdownDescription;
   private String markdownNote;
   private String name;
-  private String organization;
   private List<String> params;
   private String remediationFnBaseEffort;
   private String remediationFnType;
@@ -91,19 +90,6 @@ public class UpdateRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public UpdateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

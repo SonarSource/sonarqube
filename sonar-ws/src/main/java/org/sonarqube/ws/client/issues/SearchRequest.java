@@ -53,7 +53,6 @@ public class SearchRequest {
   private List<String> languages;
   private List<String> moduleUuids;
   private String onComponentOnly;
-  private String organization;
   private List<String> owaspTop10;
   private String p;
   private List<String> projects;
@@ -399,19 +398,6 @@ public class SearchRequest {
 
   public String getOnComponentOnly() {
     return onComponentOnly;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

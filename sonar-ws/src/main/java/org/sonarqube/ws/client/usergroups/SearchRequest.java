@@ -32,7 +32,6 @@ import javax.annotation.Generated;
 public class SearchRequest {
 
   private List<String> f;
-  private String organization;
   private String p;
   private String ps;
   private String q;
@@ -52,19 +51,6 @@ public class SearchRequest {
 
   public List<String> getF() {
     return f;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**
