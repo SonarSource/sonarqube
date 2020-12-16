@@ -68,6 +68,15 @@ import Level from 'sonar-ui-common/components/ui/Level';
 import Rating from 'sonar-ui-common/components/ui/Rating';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import {
+  get,
+  getJSON,
+  getText,
+  post,
+  postJSON,
+  postJSONBody,
+  request
+} from 'sonar-ui-common/helpers/request';
 import NotFound from '../../../app/components/NotFound';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
@@ -96,7 +105,6 @@ import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../utils/throwGlobalError';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
 import Suggestions from '../embed-docs-modal/Suggestions';
-import request from './legacy/request-legacy';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -119,7 +127,13 @@ const exposeLibraries = () => {
   };
   global.SonarMeasures = { ...measures, formatMeasure };
   global.SonarRequest = {
-    ...request,
+    request,
+    get,
+    getJSON,
+    getText,
+    post,
+    postJSON,
+    postJSONBody,
     throwGlobalError,
     addGlobalSuccessMessage
   };
