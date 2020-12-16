@@ -24,14 +24,11 @@ import Header, { Props } from '../Header';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
 
-const organization: T.Organization = {
-  key: 'org',
-  name: 'org',
-  projectVisibility: 'public'
-};
-
 it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ defaultProjectVisibility: undefined })).toMatchSnapshot(
+    'undefined visibility'
+  );
 });
 
 it('creates project', () => {
@@ -42,15 +39,15 @@ it('creates project', () => {
 });
 
 it('changes default visibility', () => {
-  const onVisibilityChange = jest.fn();
-  const wrapper = shallowRender({ onVisibilityChange });
+  const onChangeDefaultProjectVisibility = jest.fn();
+  const wrapper = shallowRender({ onChangeDefaultProjectVisibility });
 
   click(wrapper.find('.js-change-visibility'));
 
   const modalWrapper = wrapper.find('ChangeDefaultVisibilityForm');
   expect(modalWrapper).toMatchSnapshot();
   modalWrapper.prop<Function>('onConfirm')('private');
-  expect(onVisibilityChange).toBeCalledWith('private');
+  expect(onChangeDefaultProjectVisibility).toBeCalledWith('private');
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();
@@ -60,10 +57,10 @@ it('changes default visibility', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <Header
+      defaultProjectVisibility="public"
       hasProvisionPermission={true}
+      onChangeDefaultProjectVisibility={jest.fn()}
       onProjectCreate={jest.fn()}
-      onVisibilityChange={jest.fn()}
-      organization={organization}
       {...props}
     />
   );

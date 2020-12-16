@@ -23,10 +23,10 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {
+  defaultProjectVisibility?: T.Visibility;
   hasProvisionPermission?: boolean;
   onProjectCreate: () => void;
-  onVisibilityChange: (visibility: T.Visibility) => void;
-  organization: Pick<T.Organization, 'canUpdateProjectsVisibilityToPrivate' | 'projectVisibility'>;
+  onChangeDefaultProjectVisibility: (visibility: T.Visibility) => void;
 }
 
 interface State {
@@ -45,26 +45,28 @@ export default class Header extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { organization } = this.props;
+    const { defaultProjectVisibility, hasProvisionPermission } = this.props;
+    const { visibilityForm } = this.state;
 
     return (
       <header className="page-header">
         <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
-          {organization.projectVisibility && (
-            <span className="big-spacer-right">
-              <span className="text-middle">
-                {translate('organization.default_visibility_of_new_projects')}{' '}
-                <strong>{translate('visibility', organization.projectVisibility)}</strong>
-              </span>
-              <EditButton
-                className="js-change-visibility spacer-left button-small"
-                onClick={this.handleChangeVisibilityClick}
-              />
+          <span className="big-spacer-right">
+            <span className="text-middle">
+              {translate('organization.default_visibility_of_new_projects')}{' '}
+              <strong>
+                {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
+              </strong>
             </span>
-          )}
-          {this.props.hasProvisionPermission && (
+            <EditButton
+              className="js-change-visibility spacer-left button-small"
+              onClick={this.handleChangeVisibilityClick}
+            />
+          </span>
+
+          {hasProvisionPermission && (
             <Button id="create-project" onClick={this.props.onProjectCreate}>
               {translate('qualifiers.create.TRK')}
             </Button>
@@ -73,11 +75,11 @@ export default class Header extends React.PureComponent<Props, State> {
 
         <p className="page-description">{translate('projects_management.page.description')}</p>
 
-        {this.state.visibilityForm && (
+        {visibilityForm && (
           <ChangeDefaultVisibilityForm
+            defaultVisibility={defaultProjectVisibility || 'public'}
             onClose={this.closeVisiblityForm}
-            onConfirm={this.props.onVisibilityChange}
-            organization={organization}
+            onConfirm={this.props.onChangeDefaultProjectVisibility}
           />
         )}
       </header>

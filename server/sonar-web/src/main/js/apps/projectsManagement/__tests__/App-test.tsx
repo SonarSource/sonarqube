@@ -19,8 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponents } from '../../../api/components';
-import App, { Props } from '../App';
+import { changeProjectDefaultVisibility } from '../../../api/permissions';
+import { getValues } from '../../../api/settings';
+import { mockAppState, mockLoggedInUser } from '../../../helpers/testMocks';
+import { App, Props } from '../App';
 import Search from '../Search';
 
 jest.mock('lodash', () => {
@@ -33,7 +37,13 @@ jest.mock('../../../api/components', () => ({
   getComponents: jest.fn().mockResolvedValue({ paging: { total: 0 }, components: [] })
 }));
 
-const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+jest.mock('../../../api/permissions', () => ({
+  changeProjectDefaultVisibility: jest.fn().mockResolvedValue({})
+}));
+
+jest.mock('../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([{ value: 'public' }])
+}));
 
 const defaultSearchParameters = {
   p: undefined,
@@ -45,9 +55,12 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('fetches all projects on mount', () => {
-  shallowRender();
+it('fetches all projects on mount', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
+  expect(getValues).toBeCalled();
+  expect(wrapper.state().defaultProjectVisibility).toBe('public');
 });
 
 it('selects provisioned', () => {
@@ -84,6 +97,19 @@ it('should handle date filtering', () => {
     qualifiers: 'TRK',
     analyzedBefore: '2019-11-14'
   });
+});
+
+it('should handle default project visibility change', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().defaultProjectVisibility).toBe('public');
+  wrapper.instance().handleDefaultProjectVisibilityChange('private');
+
+  expect(changeProjectDefaultVisibility).toBeCalledWith('private');
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().defaultProjectVisibility).toBe('private');
 });
 
 it('loads more', () => {
@@ -136,21 +162,11 @@ it('creates project', () => {
   expect(wrapper.find('CreateProjectForm').exists()).toBe(false);
 });
 
-it('changes default project visibility', () => {
-  const onVisibilityChange = jest.fn();
-  const wrapper = shallowRender({ onVisibilityChange });
-  wrapper.find('Header').prop<Function>('onVisibilityChange')('private');
-  expect(onVisibilityChange).toBeCalledWith('private');
-});
-
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow<App>(
     <App
-      currentUser={{ login: 'foo' }}
-      hasProvisionPermission={true}
-      onVisibilityChange={jest.fn()}
-      organization={organization}
-      topLevelQualifiers={['TRK', 'VW', 'APP']}
+      appState={mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })}
+      currentUser={mockLoggedInUser({ login: 'foo', permissions: { global: ['provisioning'] } })}
       {...props}
     />
   );

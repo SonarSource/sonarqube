@@ -73,6 +73,7 @@ exports[`creates project 1`] = `
           visibility
         </label>
         <VisibilitySelector
+          canTurnToPrivate={true}
           className="little-spacer-top"
           onChange={[Function]}
           visibility="public"
@@ -172,6 +173,7 @@ exports[`creates project 2`] = `
           visibility
         </label>
         <VisibilitySelector
+          canTurnToPrivate={true}
           className="little-spacer-top"
           onChange={[Function]}
           visibility="private"
@@ -271,6 +273,7 @@ exports[`creates project 3`] = `
           visibility
         </label>
         <VisibilitySelector
+          canTurnToPrivate={true}
           className="little-spacer-top"
           onChange={[Function]}
           visibility="private"

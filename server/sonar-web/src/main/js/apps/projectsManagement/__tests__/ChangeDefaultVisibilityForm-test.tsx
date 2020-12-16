@@ -21,21 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { mockOrganization } from '../../../helpers/testMocks';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
-
-const organization: T.Organization = mockOrganization({
-  canUpdateProjectsVisibilityToPrivate: true,
-  projectVisibility: 'public'
-});
-
-it('renders disabled', () => {
-  expect(
-    shallowRender({
-      organization: { ...organization, canUpdateProjectsVisibilityToPrivate: false }
-    })
-  ).toMatchSnapshot();
-});
 
 it('closes', () => {
   const onClose = jest.fn();
@@ -63,9 +49,9 @@ it('changes visibility', () => {
 function shallowRender(props: Partial<ChangeDefaultVisibilityForm['props']> = {}) {
   return shallow(
     <ChangeDefaultVisibilityForm
+      defaultVisibility="public"
       onClose={jest.fn()}
       onConfirm={jest.fn()}
-      organization={organization}
       {...props}
     />
   );

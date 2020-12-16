@@ -22,7 +22,7 @@ import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
-import { getOrganization, getOrganizationNavigation } from '../api/organizations';
+import { getOrganization } from '../api/organizations';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
@@ -38,7 +38,9 @@ export function fetchLanguages() {
   return (dispatch: Dispatch) => {
     getLanguages().then(
       languages => dispatch(receiveLanguages(languages)),
-      () => {}
+      () => {
+        /* do nothing */
+      }
     );
   };
 }
@@ -47,20 +49,18 @@ export function fetchMetrics() {
   return (dispatch: Dispatch) => {
     getAllMetrics().then(
       metrics => dispatch(receiveMetrics(metrics)),
-      () => {}
+      () => {
+        /* do nothing */
+      }
     );
   };
 }
 
-export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
-  return Promise.all([getOrganization(key), getOrganizationNavigation(key)]).then(
-    ([organization, navigation]) => {
-      if (organization) {
-        const organizationWithPermissions = { ...organization, ...navigation };
-        dispatch(receiveOrganizations([organizationWithPermissions]));
-      }
-    }
-  );
+export const fetchOrganization = (key: string) => async (dispatch: Dispatch) => {
+  const organization = await getOrganization(key);
+  if (organization) {
+    dispatch(receiveOrganizations([organization]));
+  }
 };
 
 export function fetchBranchStatus(branchLike: BranchLike, projectKey: string) {

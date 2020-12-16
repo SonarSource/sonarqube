@@ -36,18 +36,3 @@ export function getOrganization(key: string): Promise<T.Organization | undefined
     throwGlobalError
   );
 }
-
-interface GetOrganizationNavigation {
-  adminPages: T.Extension[];
-  alm?: { key: string; membersSync: boolean; personal: boolean; url: string };
-  canUpdateProjectsVisibilityToPrivate: boolean;
-  isDefault: boolean;
-  pages: T.Extension[];
-}
-
-export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {
-  return getJSON('/api/navigation/organization', { organization: key }).then(
-    r => r.organization,
-    throwGlobalError
-  );
-}

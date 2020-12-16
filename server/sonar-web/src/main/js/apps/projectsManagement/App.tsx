@@ -20,27 +20,31 @@
 import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { connect } from 'react-redux';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getComponents, Project } from '../../api/components';
+import { changeProjectDefaultVisibility } from '../../api/permissions';
+import { getValues } from '../../api/settings';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import { hasGlobalPermission } from '../../helpers/users';
+import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
+import { SettingsKey } from '../../types/settings';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
 import Search from './Search';
 
 export interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
-  hasProvisionPermission?: boolean;
-  onVisibilityChange: (visibility: T.Visibility) => void;
-  organization: T.Organization;
-  topLevelQualifiers: string[];
+  currentUser: T.LoggedInUser;
+  appState: Pick<T.AppState, 'qualifiers'>;
 }
 
 interface State {
   analyzedBefore?: Date;
   createProjectForm: boolean;
+  defaultProjectVisibility?: T.Visibility;
   page: number;
   projects: Project[];
   provisioned: boolean;
@@ -54,7 +58,7 @@ interface State {
 
 const PAGE_SIZE = 50;
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -76,11 +80,28 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.requestProjects();
+    this.fetchDefaultProjectVisibility();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  fetchDefaultProjectVisibility = async () => {
+    const results = await getValues({ keys: SettingsKey.DefaultProjectVisibility });
+
+    if (this.mounted && results.length > 0 && results[0].value) {
+      this.setState({ defaultProjectVisibility: results[0].value as T.Visibility });
+    }
+  };
+
+  handleDefaultProjectVisibilityChange = async (visibility: T.Visibility) => {
+    await changeProjectDefaultVisibility(visibility);
+
+    if (this.mounted) {
+      this.setState({ defaultProjectVisibility: visibility });
+    }
+  };
 
   requestProjects = () => {
     const { analyzedBefore } = this.state;
@@ -93,18 +114,15 @@ export default class App extends React.PureComponent<Props, State> {
       qualifiers: this.state.qualifiers,
       visibility: this.state.visibility
     };
-    getComponents(parameters).then(
-      r => {
-        if (this.mounted) {
-          let projects: Project[] = r.components;
-          if (this.state.page > 1) {
-            projects = [...this.state.projects, ...projects];
-          }
-          this.setState({ ready: true, projects, selection: [], total: r.paging.total });
+    return getComponents(parameters).then(r => {
+      if (this.mounted) {
+        let projects: Project[] = r.components;
+        if (this.state.page > 1) {
+          projects = [...this.state.projects, ...projects];
         }
-      },
-      () => {}
-    );
+        this.setState({ ready: true, projects, selection: [], total: r.paging.total });
+      }
+    });
   };
 
   loadMore = () => {
@@ -178,16 +196,18 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { appState, currentUser } = this.props;
+    const { defaultProjectVisibility } = this.state;
     return (
       <div className="page page-limited" id="projects-management-page">
         <Suggestions suggestions="projects_management" />
         <Helmet defer={false} title={translate('projects_management')} />
 
         <Header
-          hasProvisionPermission={this.props.hasProvisionPermission}
+          defaultProjectVisibility={defaultProjectVisibility}
+          hasProvisionPermission={hasGlobalPermission(currentUser, 'provisioning')}
+          onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
           onProjectCreate={this.openCreateProjectForm}
-          onVisibilityChange={this.props.onVisibilityChange}
-          organization={this.props.organization}
         />
 
         <Search
@@ -206,7 +226,7 @@ export default class App extends React.PureComponent<Props, State> {
           query={this.state.query}
           ready={this.state.ready}
           selection={this.state.selection}
-          topLevelQualifiers={this.props.topLevelQualifiers}
+          topLevelQualifiers={appState.qualifiers}
           total={this.state.total}
           visibility={this.state.visibility}
         />
@@ -229,12 +249,19 @@ export default class App extends React.PureComponent<Props, State> {
 
         {this.state.createProjectForm && (
           <CreateProjectForm
+            defaultProjectVisibility={defaultProjectVisibility}
             onClose={this.closeCreateProjectForm}
             onProjectCreated={this.requestProjects}
-            organization={this.props.organization}
           />
         )}
       </div>
     );
   }
 }
+
+const mapStateToProps = (state: Store) => ({
+  appState: getAppState(state),
+  currentUser: getCurrentUser(state) as T.LoggedInUser
+});
+
+export default connect(mapStateToProps)(App);

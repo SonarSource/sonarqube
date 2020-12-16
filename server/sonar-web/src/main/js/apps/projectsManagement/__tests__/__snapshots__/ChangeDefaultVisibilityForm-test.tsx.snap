@@ -21,7 +21,6 @@ exports[`changes visibility 1`] = `
     >
       <Radio
         checked={true}
-        disabled={false}
         onCheck={[Function]}
         value="public"
       >
@@ -41,7 +40,6 @@ exports[`changes visibility 1`] = `
     >
       <Radio
         checked={false}
-        disabled={false}
         onCheck={[Function]}
         value="private"
       >
@@ -101,7 +99,6 @@ exports[`changes visibility 2`] = `
     >
       <Radio
         checked={false}
-        disabled={false}
         onCheck={[Function]}
         value="public"
       >
@@ -121,7 +118,6 @@ exports[`changes visibility 2`] = `
     >
       <Radio
         checked={true}
-        disabled={false}
         onCheck={[Function]}
         value="private"
       >
@@ -140,81 +136,6 @@ exports[`changes visibility 2`] = `
     >
       organization.change_visibility_form.warning
     </Alert>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <Button
-      className="js-confirm"
-      onClick={[Function]}
-    >
-      organization.change_visibility_form.submit
-    </Button>
-    <ResetButtonLink
-      className="js-modal-close"
-      onClick={[MockFunction]}
-    >
-      cancel
-    </ResetButtonLink>
-  </footer>
-</Modal>
-`;
-
-exports[`renders disabled 1`] = `
-<Modal
-  contentLabel="modal form"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      organization.change_visibility_form.header
-    </h2>
-  </header>
-  <div
-    className="modal-body"
-  >
-    <div
-      className="big-spacer-bottom"
-      key="public"
-    >
-      <Radio
-        checked={true}
-        disabled={false}
-        onCheck={[Function]}
-        value="public"
-      >
-        <div>
-          visibility.public
-          <p
-            className="text-muted spacer-top"
-          >
-            visibility.public.description.short
-          </p>
-        </div>
-      </Radio>
-    </div>
-    <div
-      className="big-spacer-bottom"
-      key="private"
-    >
-      <Radio
-        checked={false}
-        disabled={true}
-        onCheck={[Function]}
-        value="private"
-      >
-        <div>
-          visibility.private
-          <p
-            className="text-muted spacer-top"
-          >
-            visibility.private.description.short
-          </p>
-        </div>
-      </Radio>
-    </div>
   </div>
   <footer
     className="modal-foot"

@@ -29,9 +29,9 @@ import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { getProjectUrl } from '../../helpers/urls';
 
 interface Props {
+  defaultProjectVisibility?: T.Visibility;
   onClose: () => void;
   onProjectCreated: () => void;
-  organization: Pick<T.Organization, 'canUpdateProjectsVisibilityToPrivate' | 'projectVisibility'>;
 }
 
 interface State {
@@ -54,7 +54,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
       key: '',
       loading: false,
       name: '',
-      visibility: props.organization.projectVisibility
+      visibility: props.defaultProjectVisibility
     };
   }
 
@@ -110,9 +110,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   };
 
   render() {
-    const {
-      organization: { canUpdateProjectsVisibilityToPrivate }
-    } = this.props;
+    const { defaultProjectVisibility } = this.props;
     const { createdProject } = this.state;
 
     return (
@@ -189,7 +187,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               <div className="modal-field">
                 <label>{translate('visibility')}</label>
                 <VisibilitySelector
-                  canTurnToPrivate={canUpdateProjectsVisibilityToPrivate}
+                  canTurnToPrivate={defaultProjectVisibility !== undefined}
                   className="little-spacer-top"
                   onChange={this.handleVisibilityChange}
                   visibility={this.state.visibility}

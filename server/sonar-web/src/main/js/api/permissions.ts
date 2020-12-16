@@ -216,10 +216,9 @@ export function changeProjectVisibility(
 }
 
 export function changeProjectDefaultVisibility(
-  organization: string,
   projectVisibility: T.Visibility
 ): Promise<void | Response> {
-  return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
+  return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
     throwGlobalError
   );
 }

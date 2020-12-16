@@ -31,19 +31,12 @@ import CreateProjectForm from '../CreateProjectForm';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 
-const organization: T.Organization = {
-  actions: { admin: true },
-  key: 'org',
-  name: 'org',
-  projectVisibility: 'public'
-};
-
 it('creates project', async () => {
   const wrapper = shallow(
     <CreateProjectForm
+      defaultProjectVisibility="public"
       onClose={jest.fn()}
       onProjectCreated={jest.fn()}
-      organization={organization}
     />
   );
   (wrapper.instance() as CreateProjectForm).mounted = true;
