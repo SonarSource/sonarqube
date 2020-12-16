@@ -71,9 +71,9 @@ public interface ComponentMapper {
    */
   int countComponentByOrganizationAndUuid(@Param("organizationUuid") String organizationUuid, @Param("componentUuid") String componentUuid);
 
-  List<ComponentDto> selectByQuery(@Nullable @Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query, RowBounds rowBounds);
+  List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
 
-  int countByQuery(@Nullable @Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query);
+  int countByQuery(@Param("query") ComponentQuery query);
 
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 
@@ -83,8 +83,6 @@ public interface ComponentMapper {
    * regular ones.
    */
   List<ComponentDto> selectProjects();
-
-  List<ComponentDto> selectProjectsByOrganization(@Param("organizationUuid") String organizationUuid);
 
   /**
    * Return all descendant modules (including itself) from a given component uuid and scope

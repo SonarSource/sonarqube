@@ -110,30 +110,42 @@ public class ComponentDbTester {
       projectDtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator) {
     return insertPrivateProject(organizationDto, componentDtoPopulator, defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator,
     Consumer<ProjectDto> projectDtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, defaults(),
       componentDtoPopulator, projectDtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator) {
     return insertPublicProject(organizationDto, componentDtoPopulator, defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator,
     Consumer<ProjectDto> projectDtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false, defaults(), componentDtoPopulator,
       projectDtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertPrivateProject(OrganizationDto organizationDto) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertPublicProject(OrganizationDto organizationDto) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false);
   }
@@ -148,6 +160,8 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ProjectDto insertPublicProjectDto(OrganizationDto organization) {
     ComponentDto componentDto = insertPublicProject(organization);
     return getProjectDto(componentDto);
@@ -158,11 +172,15 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ProjectDto insertPublicProjectDto(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     ComponentDto componentDto = insertPublicProject(organization, dtoPopulator);
     return getProjectDto(componentDto);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ProjectDto insertPrivateProjectDto(OrganizationDto organization) {
     ComponentDto componentDto = insertPrivateProject(organization);
     return getProjectDto(componentDto);
@@ -181,19 +199,27 @@ public class ComponentDbTester {
     return insertPrivateProject(db.getDefaultOrganization(), uuid, dtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ProjectDto insertPrivateProjectDto(OrganizationDto organization, Consumer<BranchDto> branchConsumer) {
     ComponentDto componentDto = insertPrivateProjectWithCustomBranch(organization, branchConsumer, defaults());
     return getProjectDto(componentDto);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertPublicProject(OrganizationDto organizationDto, String uuid) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto, uuid), false);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, defaults(), dtoPopulator);
   }
@@ -202,17 +228,15 @@ public class ComponentDbTester {
     return insertPrivateProjectWithCustomBranch(db.getDefaultOrganization(), b -> b.setBranchType(BRANCH).setKey(branchKey), defaults());
   }
 
-  public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator) {
-    return insertPrivateProjectWithCustomBranch(organizationDto, branchPopulator, defaults());
-  }
-
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator,
     Consumer<ComponentDto> componentPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, branchPopulator, componentPopulator);
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
   @Deprecated
@@ -221,7 +245,7 @@ public class ComponentDbTester {
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
@@ -229,23 +253,27 @@ public class ComponentDbTester {
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertView(OrganizationDto organizationDto) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto), false, defaults());
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto), false, dtoPopulator);
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(String uuid) {
@@ -253,9 +281,11 @@ public class ComponentDbTester {
   }
 
   /**
-   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
+   * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
     return insertComponentImpl(ComponentTesting.newView(organizationDto, uuid), false, defaults());
   }
@@ -264,18 +294,28 @@ public class ComponentDbTester {
     return insertPublicPortfolio(db.getDefaultOrganization(), defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPublicPortfolio(OrganizationDto organization) {
     return insertPublicPortfolio(organization, defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPublicPortfolio(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(false), false, dtoPopulator);
+  }
+
+  public final ComponentDto insertPublicPortfolio(Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView().setPrivate(false), false, dtoPopulator);
   }
 
   public final ComponentDto insertPrivatePortfolio() {
     return insertPrivatePortfolio(db.getDefaultOrganization());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivatePortfolio(OrganizationDto organization) {
     return insertPrivatePortfolio(organization, defaults());
   }
@@ -284,6 +324,8 @@ public class ComponentDbTester {
     return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(true), true, dtoPopulator);
   }
@@ -296,11 +338,13 @@ public class ComponentDbTester {
     return insertPublicApplication(db.getDefaultOrganization(), dtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
   @Deprecated
   public final ComponentDto insertPublicApplication(OrganizationDto organization) {
     return insertPublicApplication(organization, defaults());
   }
 
+  // TODO remove after getting rid of organization code
   @Deprecated
   public final ComponentDto insertPublicApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(false), false, defaults(), dtoPopulator);
@@ -330,14 +374,20 @@ public class ComponentDbTester {
     return insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     return insertPrivateApplication(db.getDefaultOrganization(), dtoPopulator, defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateApplication(OrganizationDto organization) {
     return insertPrivateApplication(organization, defaults(), defaults());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator, Consumer<ProjectDto> projectPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(true), true, defaults(), dtoPopulator, projectPopulator);
   }
@@ -486,6 +536,8 @@ public class ComponentDbTester {
     return branchDto;
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   @SafeVarargs
   public final ComponentDto insertProjectBranch(OrganizationDto organization, Consumer<BranchDto>... dtoPopulators) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(organization);

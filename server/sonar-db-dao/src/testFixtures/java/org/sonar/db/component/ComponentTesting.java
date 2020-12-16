@@ -125,13 +125,13 @@ public class ComponentTesting {
     return newProjectDto(Uuids.createFast(), true);
   }
 
-  // TODO remove
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto) {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
   }
 
-  // TODO remove
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ProjectDto createPrivateProjectDto(OrganizationDto organizationDto) {
     return createProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
@@ -141,7 +141,7 @@ public class ComponentTesting {
     return newProjectDto(uuid, true);
   }
 
-  // TODO remove
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, true);
@@ -151,7 +151,7 @@ public class ComponentTesting {
     return newProjectDto(Uuids.createFast(), false);
   }
 
-  // TODO remove
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto) {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), false);
@@ -161,13 +161,13 @@ public class ComponentTesting {
     return newProjectDto(uuid, false);
   }
 
-  // TODO remove
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, false);
   }
 
-  // TODO remove
+  // TODO remove organizationUuid parameter after getting rid of organization code
   @Deprecated
   private static ProjectDto createProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
     return new ProjectDto()
@@ -199,6 +199,11 @@ public class ComponentTesting {
       .setPrivate(isPrivate);
   }
 
+  /**
+   * use {@link org.sonar.db.component.ComponentTesting#newProjectDto(java.lang.String, boolean)} instead
+   */
+  // TODO remove after getting rid of organization code
+  @Deprecated
   private static ComponentDto newProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
     return new ComponentDto()
       .setOrganizationUuid(organizationUuid)
@@ -231,11 +236,13 @@ public class ComponentTesting {
       .setPrivate(false);
   }
 
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newView(OrganizationDto organizationDto) {
     return newView(organizationDto.getUuid(), Uuids.createFast());
   }
 
+  // TODO remove after getting rid of organization code
   @Deprecated
   public static ComponentDto newView(OrganizationDto organizationDto, String uuid) {
     return newPrivateProjectDto(organizationDto, uuid)
@@ -245,6 +252,8 @@ public class ComponentTesting {
       .setPrivate(false);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   private static ComponentDto newView(String organizationUuid, String uuid) {
     return newProjectDto(organizationUuid, uuid, false)
       .setUuid(uuid)
@@ -256,18 +265,26 @@ public class ComponentTesting {
     return newView(Uuids.createFast()).setQualifier(Qualifiers.APP);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public static ComponentDto newApplication(OrganizationDto organizationDto) {
     return newApplication(organizationDto.getUuid());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public static ComponentDto newApplication(OrganizationDto organizationDto, String uuid) {
     return newApplication(organizationDto.getUuid(), uuid);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public static ComponentDto newApplication(String organizationUuid) {
     return newApplication(organizationUuid, Uuids.createFast());
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public static ComponentDto newApplication(String organizationUuid, String uuid) {
     return newView(organizationUuid, uuid).setQualifier(Qualifiers.APP);
   }

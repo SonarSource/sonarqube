@@ -26,11 +26,6 @@ import javax.annotation.Nullable;
  * Allows to read and write internal properties.
  */
 public interface InternalProperties {
-  /**
-   * The UUID of the default organization.
-   * Can't be null unless SQ is strongly corrupted.
-   */
-  String DEFAULT_ORGANIZATION = "organization.default";
 
   String ORGANIZATION_ENABLED = "organization.enabled";
 

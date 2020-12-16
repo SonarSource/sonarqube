@@ -21,6 +21,8 @@ package org.sonar.server.organization;
 
 import org.picocontainer.Startable;
 
+//TODO remove together with the default organization concept
+@Deprecated
 public class DefaultOrganizationEnforcer implements Startable {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 

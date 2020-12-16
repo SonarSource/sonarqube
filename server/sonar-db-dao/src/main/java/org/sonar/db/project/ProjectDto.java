@@ -128,10 +128,14 @@ public class ProjectDto {
     return this;
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public String getOrganizationUuid() {
     return organizationUuid;
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ProjectDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;

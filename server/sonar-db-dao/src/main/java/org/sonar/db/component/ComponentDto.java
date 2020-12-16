@@ -156,10 +156,14 @@ public class ComponentDto {
     return buildLikeValue(formatUuidPathFromParent(this), WildcardPosition.AFTER);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public String getOrganizationUuid() {
     return organizationUuid;
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
   public ComponentDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;

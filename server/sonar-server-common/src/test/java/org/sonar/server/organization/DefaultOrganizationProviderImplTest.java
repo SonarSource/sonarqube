@@ -31,8 +31,8 @@ import org.sonar.db.organization.OrganizationDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.organization.OrganizationDao.DEFAULT_ORGANIZATION;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.server.property.InternalProperties.DEFAULT_ORGANIZATION;
 
 public class DefaultOrganizationProviderImplTest {
   private static final OrganizationDto ORGANIZATION_DTO_1 = newOrganizationDto()
@@ -41,17 +41,17 @@ public class DefaultOrganizationProviderImplTest {
     .setKey("the key 1");
   private static final long DATE_1 = 1_999_888L;
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
 
-  private DefaultOrganizationProviderImpl underTest = new DefaultOrganizationProviderImpl(dbClient);
+  private final DefaultOrganizationProviderImpl underTest = new DefaultOrganizationProviderImpl(dbClient);
 
   @Test
   public void get_fails_with_ISE_if_default_organization_internal_property_does_not_exist() {

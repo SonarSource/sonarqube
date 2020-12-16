@@ -30,19 +30,28 @@ import org.sonar.db.Pagination;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.permission.template.DefaultTemplates;
+import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.user.GroupDto;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class OrganizationDao implements Dao {
+  /**
+   * The UUID of the default organization.
+   * Can't be null unless SQ is strongly corrupted.
+   */
+  public static final String DEFAULT_ORGANIZATION = "organization.default";
 
   private final System2 system2;
+  private final InternalPropertiesDao internalPropertiesDao;
 
-  public OrganizationDao(System2 system2) {
+  public OrganizationDao(System2 system2, InternalPropertiesDao internalPropertiesDao) {
     this.system2 = system2;
+    this.internalPropertiesDao = internalPropertiesDao;
   }
 
   public void insert(DbSession dbSession, OrganizationDto organization, boolean newProjectPrivate) {
@@ -51,6 +60,13 @@ public class OrganizationDao implements Dao {
     organization.setCreatedAt(now);
     organization.setUpdatedAt(now);
     getMapper(dbSession).insert(organization, newProjectPrivate);
+  }
+
+  // TODO remove after getting rid of organization code
+  public OrganizationDto getDefaultOrganization(DbSession dbSession) {
+    Optional<String> uuid = internalPropertiesDao.selectByKey(dbSession, DEFAULT_ORGANIZATION);
+    checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");
+    return getMapper(dbSession).selectByUuid(uuid.get());
   }
 
   public int countByQuery(DbSession dbSession, OrganizationQuery organizationQuery) {

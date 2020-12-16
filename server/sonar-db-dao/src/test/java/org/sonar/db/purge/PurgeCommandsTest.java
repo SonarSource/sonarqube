@@ -533,8 +533,7 @@ public class PurgeCommandsTest {
 
   @Test
   public void deletePermissions_deletes_permissions_of_private_project() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
@@ -546,8 +545,7 @@ public class PurgeCommandsTest {
 
   @Test
   public void deletePermissions_deletes_permissions_of_view() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicPortfolio(organization);
+    ComponentDto project = dbTester.components().insertPublicPortfolio();
     addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);

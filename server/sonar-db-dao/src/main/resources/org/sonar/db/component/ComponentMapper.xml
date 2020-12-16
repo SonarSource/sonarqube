@@ -222,18 +222,6 @@
       AND p.main_branch_project_uuid IS NULL
   </select>
 
-  <select id="selectProjectsByOrganization" resultType="Component">
-    select
-      <include refid="componentColumns"/>
-    from components p
-    where
-      p.enabled=${_true}
-      and p.scope='PRJ'
-      and p.qualifier='TRK'
-      and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-      and p.main_branch_project_uuid IS NULL
-  </select>
-
   <select id="selectComponentsByQualifiers" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
@@ -285,9 +273,6 @@
       p.enabled=${_true}
       AND p.main_branch_project_uuid is null
       AND p.copy_component_uuid is null
-      <if test="organizationUuid!=null">
-        and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
-      </if>
       <if test="query.qualifiers!=null">
         and p.qualifier in
           <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">

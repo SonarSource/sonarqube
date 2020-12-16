@@ -93,9 +93,9 @@ public class CeTask {
     @Override
     public String toString() {
       return "User{" +
-              "uuid='" + uuid + '\'' +
-              ", login='" + login + '\'' +
-              '}';
+        "uuid='" + uuid + '\'' +
+        ", login='" + login + '\'' +
+        '}';
     }
 
     @Override

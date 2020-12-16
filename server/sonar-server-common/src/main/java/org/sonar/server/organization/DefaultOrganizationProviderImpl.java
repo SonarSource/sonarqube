@@ -23,9 +23,9 @@ import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.db.organization.OrganizationDao.DEFAULT_ORGANIZATION;
 
 public class DefaultOrganizationProviderImpl implements DefaultOrganizationProvider {
   private final DbClient dbClient;
@@ -46,7 +46,7 @@ public class DefaultOrganizationProviderImpl implements DefaultOrganizationProvi
 
   public static DefaultOrganization getDefaultOrganization(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<String> uuid = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_ORGANIZATION);
+      Optional<String> uuid = dbClient.internalPropertiesDao().selectByKey(dbSession, DEFAULT_ORGANIZATION);
       checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");
       Optional<OrganizationDto> dto = dbClient.organizationDao().selectByUuid(dbSession, uuid.get());
       checkState(dto.isPresent(), "Default organization with uuid '%s' does not exist", uuid.get());

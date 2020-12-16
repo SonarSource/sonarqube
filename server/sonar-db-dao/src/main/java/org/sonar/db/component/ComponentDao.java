@@ -41,7 +41,6 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
@@ -52,21 +51,20 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentDao implements Dao {
-
-  private static List<ComponentDto> selectByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query, int offset, int limit) {
+  private static List<ComponentDto> selectByQueryImpl(DbSession session, ComponentQuery query, int offset, int limit) {
     if (query.hasEmptySetOfComponents()) {
       return emptyList();
     }
     checkThatNotTooManyComponents(query);
-    return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
+    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
   }
 
-  private static int countByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query) {
+  private static int countByQueryImpl(DbSession session, ComponentQuery query) {
     if (query.hasEmptySetOfComponents()) {
       return 0;
     }
     checkThatNotTooManyComponents(query);
-    return mapper(session).countByQuery(organizationUuid, query);
+    return mapper(session).countByQuery(query);
   }
 
   private static ComponentMapper mapper(DbSession session) {
@@ -86,39 +84,21 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Same as {@link #selectByQuery(DbSession, String, ComponentQuery, int, int)} except
-   * that the filter on organization is disabled.
+   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
+   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    */
-  public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
-    return selectByQueryImpl(session, null, query, offset, limit);
+  public List<ComponentDto> selectByQuery(DbSession dbSession, ComponentQuery query, int offset, int limit) {
+    return selectByQueryImpl(dbSession, query, offset, limit);
   }
 
   /**
    * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   */
-  public List<ComponentDto> selectByQuery(DbSession dbSession, String organizationUuid, ComponentQuery query, int offset, int limit) {
-    requireNonNull(organizationUuid, "organizationUuid can't be null");
-    return selectByQueryImpl(dbSession, organizationUuid, query, offset, limit);
-  }
-
-  /**
-   * Same as {@link #countByQuery(DbSession, String, ComponentQuery)} except
-   * that the filter on organization is disabled.
    */
   public int countByQuery(DbSession session, ComponentQuery query) {
-    return countByQueryImpl(session, null, query);
-  }
-
-  /**
-   * @throws IllegalArgumentException if parameter query#getComponentIds() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
-   */
-  public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
-    requireNonNull(organizationUuid, "organizationUuid can't be null");
-    return countByQueryImpl(session, organizationUuid, query);
+    return countByQueryImpl(session, query);
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> uuids) {
@@ -282,15 +262,6 @@ public class ComponentDao implements Dao {
    */
   public List<ComponentDto> selectProjects(DbSession session) {
     return mapper(session).selectProjects();
-  }
-
-  /**
-   * Select all projects for a given organization.
-   * <p>
-   * Branches are not returned
-   */
-  public List<ComponentDto> selectProjectsByOrganization(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectProjectsByOrganization(organizationUuid);
   }
 
   /**

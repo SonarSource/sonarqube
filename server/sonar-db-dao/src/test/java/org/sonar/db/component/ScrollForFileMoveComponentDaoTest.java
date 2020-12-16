@@ -35,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -62,16 +61,14 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_has_no_effect_if_project_has_no_file() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
 
     underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultContext -> fail("handler should not be called"));
   }
 
   @Test
   public void scrollAllFilesForFileMove_ignores_files_with_null_path() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoPath = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
@@ -89,8 +86,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_ignores_files_without_source() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoSource = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
@@ -106,8 +102,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_files_of_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(module1));
     ComponentAndSource file1 = insertFileAndSource(project, FILE);
@@ -125,8 +120,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_large_number_of_files_and_uts() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     List<ComponentAndSource> files = IntStream.range(0, 300 + random.nextInt(500))
       .mapToObj(i -> {
         String qualifier = random.nextBoolean() ? FILE : UNIT_TEST_FILE;
@@ -145,8 +139,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_scrolls_unit_tests_of_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
@@ -159,8 +152,7 @@ public class ScrollForFileMoveComponentDaoTest {
   @Test
   @UseDataProvider("branchTypes")
   public void scrollAllFilesForFileMove_scrolls_files_and_unit_tests_of_branch(BranchType branchType) {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(branchType));
     ComponentAndSource file = insertFileAndSource(branch, FILE);
     ComponentAndSource ut = insertFileAndSource(branch, UNIT_TEST_FILE);
@@ -183,8 +175,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   @Test
   public void scrollAllFilesForFileMove_ignores_non_file_and_non_ut_component_with_source() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     db.fileSources().insertFileSource(project);
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     db.fileSources().insertFileSource(module);
@@ -192,11 +183,11 @@ public class ScrollForFileMoveComponentDaoTest {
     db.fileSources().insertFileSource(dir);
     ComponentAndSource file = insertFileAndSource(module, FILE);
     ComponentAndSource ut = insertFileAndSource(dir, UNIT_TEST_FILE);
-    ComponentDto portfolio = random.nextBoolean() ? db.components().insertPublicPortfolio(organization) : db.components().insertPrivatePortfolio(organization);
+    ComponentDto portfolio = random.nextBoolean() ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
     db.fileSources().insertFileSource(portfolio);
     ComponentDto subView = db.components().insertSubView(portfolio);
     db.fileSources().insertFileSource(subView);
-    ComponentDto application = random.nextBoolean() ? db.components().insertPrivateApplication(organization) : db.components().insertPublicApplication(organization);
+    ComponentDto application = random.nextBoolean() ? db.components().insertPrivateApplication() : db.components().insertPublicApplication();
     db.fileSources().insertFileSource(application);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
