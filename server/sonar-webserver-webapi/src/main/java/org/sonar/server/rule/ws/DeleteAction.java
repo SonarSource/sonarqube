@@ -70,7 +70,7 @@ public class DeleteAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
+    ruleWsSupport.checkQProfileAdminPermission();
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     delete(key);
   }

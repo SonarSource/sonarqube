@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -83,7 +82,6 @@ import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
 
@@ -96,26 +94,26 @@ public class SearchActionTest {
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
   @org.junit.Rule
   public EsTester es = EsTester.create();
 
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private Languages languages = LanguageTesting.newLanguages(JAVA, "js");
-  private ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(db.getDbClient(), languages);
-  private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
-  private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  private RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
-  private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
+  private final Languages languages = LanguageTesting.newLanguages(JAVA, "js");
+  private final ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(db.getDbClient(), languages);
+  private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
+  private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
+  private final SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
     new RuleWsSupport(db.getDbClient(), userSession));
-  private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void before() {
@@ -162,7 +160,6 @@ public class SearchActionTest {
 
   @Test
   public void return_note_login() {
-    OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser();
     RuleDefinitionDto rule1 = db.rules().insert();
     db.rules().insertOrUpdateMetadata(rule1, user1);
@@ -173,7 +170,6 @@ public class SearchActionTest {
 
     SearchResponse result = ws.newRequest()
       .setParam("f", "noteLogin")
-      .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
 
     assertThat(result.getRulesList())
@@ -390,7 +386,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void should_return_organization_specific_tags() {
+  public void should_return_specific_tags() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     RuleMetadataDto metadata = insertMetadata(rule, setTags("tag1", "tag2"));
     indexRules();
@@ -426,7 +422,6 @@ public class SearchActionTest {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() {
-    OrganizationDto organization = db.organizations().insert();
     String unknownLanguage = "unknown_" + randomAlphanumeric(5);
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(unknownLanguage));
 
@@ -434,7 +429,6 @@ public class SearchActionTest {
 
     SearchResponse result = ws.newRequest()
       .setParam("f", "langName")
-      .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isEqualTo(1);
     assertThat(result.getRulesCount()).isEqualTo(1);
@@ -603,7 +597,6 @@ public class SearchActionTest {
 
   @Test
   public void search_all_active_rules() {
-    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
@@ -614,7 +607,6 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("q", rule.getName())
       .setParam("activation", "true")
-      .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isEqualTo(1);
     assertThat(result.getRulesCount()).isEqualTo(1);
@@ -627,7 +619,6 @@ public class SearchActionTest {
 
   @Test
   public void search_profile_active_rules() {
-    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto waterproofProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
@@ -657,7 +648,6 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "actives")
       .setParam("q", rule.getName())
-      .setParam("organization", organization.getKey())
       .setParam("activation", "true")
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
@@ -686,7 +676,6 @@ public class SearchActionTest {
 
   @Test
   public void search_for_active_rules_when_parameter_value_is_null() {
-    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
 
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
@@ -711,7 +700,6 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "actives")
       .setParam("q", rule.getName())
-      .setParam("organization", organization.getKey())
       .setParam("activation", "true")
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
@@ -735,8 +723,6 @@ public class SearchActionTest {
    */
   @Test
   public void facet_filtering_when_searching_for_inactive_rules() {
-    OrganizationDto organization = db.organizations().insert();
-
     QProfileDto profile = db.qualityProfiles().insert(q -> q.setLanguage("language1"));
 
     // on same language, not activated => match
@@ -773,7 +759,6 @@ public class SearchActionTest {
 
     SearchResponse result = ws.newRequest()
       .setParam("facets", "languages,repositories,tags,severities,statuses,types")
-      .setParam("organization", organization.getKey())
       .setParam("activation", "false")
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
@@ -854,7 +839,6 @@ public class SearchActionTest {
 
   @Test
   public void compare_to_another_profile() {
-    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
     QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
     RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
@@ -874,7 +858,6 @@ public class SearchActionTest {
     indexActiveRules();
 
     SearchResponse result = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QPROFILE, profile.getKee())
       .setParam(PARAM_ACTIVATION, "false")
       .setParam(PARAM_COMPARE_TO_PROFILE, anotherProfile.getKee())

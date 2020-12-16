@@ -156,7 +156,7 @@ public class UpdateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
+      ruleWsSupport.checkQProfileAdminPermission();
       RuleUpdate update = readRequest(dbSession, request);
       ruleUpdater.update(dbSession, update, userSession);
       UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());

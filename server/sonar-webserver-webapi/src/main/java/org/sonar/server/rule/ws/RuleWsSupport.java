@@ -80,7 +80,7 @@ public class RuleWsSupport {
     this.userSession = userSession;
   }
 
-  public void checkQProfileAdminPermissionOnDefaultOrganization() {
+  public void checkQProfileAdminPermission() {
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES);

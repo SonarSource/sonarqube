@@ -46,7 +46,6 @@ public class ShowAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
-  public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
   private final RuleMapper mapper;
