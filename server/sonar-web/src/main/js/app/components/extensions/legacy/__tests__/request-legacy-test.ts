@@ -189,19 +189,6 @@ describe('checkStatus', () => {
     });
   });
 
-  it('should reload the page when version is changing', async () => {
-    const reload = jest.fn();
-    delete window.location;
-    (window as any).location = { reload };
-
-    await checkStatus(mockResponse({ 'Sonar-Version': '6.7' }));
-    expect(reload).not.toBeCalled();
-    await checkStatus(mockResponse({ 'Sonar-Version': '6.7' }));
-    expect(reload).not.toBeCalled();
-    checkStatus(mockResponse({ 'Sonar-Version': '7.9' }));
-    expect(reload).toBeCalled();
-  });
-
   function mockResponse(headers: T.Dict<string> = {}, status = 200): any {
     return {
       headers: { get: (prop: string) => headers[prop] },

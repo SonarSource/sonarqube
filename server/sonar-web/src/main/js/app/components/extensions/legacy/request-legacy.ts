@@ -34,9 +34,6 @@ import { getBaseUrl } from '../../../../helpers/system';
   Do not use these functions, but rather the ones from sonar-ui-common/helpers/request.ts
 */
 
-/** Current application version. Can be changed if a newer version is deployed. */
-let currentApplicationVersion: string | undefined;
-
 function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
 }
@@ -155,34 +152,19 @@ function corsRequest(url: string, mode: RequestMode = 'cors'): Request {
   return request;
 }
 
-function checkApplicationVersion(response: Response): boolean {
-  const version = response.headers.get('Sonar-Version');
-  if (version) {
-    if (currentApplicationVersion && currentApplicationVersion !== version) {
-      window.location.reload();
-      return false;
-    } else {
-      currentApplicationVersion = version;
-    }
-  }
-  return true;
-}
-
 /**
  * Check that response status is ok
  */
 function checkStatus(response: Response): Promise<Response> {
   return new Promise((resolve, reject) => {
-    if (checkApplicationVersion(response)) {
-      if (response.status === 401) {
-        import('sonar-ui-common/helpers/handleRequiredAuthentication')
-          .then(i => i.default())
-          .then(reject, reject);
-      } else if (response.status >= 200 && response.status < 300) {
-        resolve(response);
-      } else {
-        reject({ response });
-      }
+    if (response.status === 401) {
+      import('sonar-ui-common/helpers/handleRequiredAuthentication')
+        .then(i => i.default())
+        .then(reject, reject);
+    } else if (response.status >= 200 && response.status < 300) {
+      resolve(response);
+    } else {
+      reject({ response });
     }
   });
 }

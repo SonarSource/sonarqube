@@ -29,15 +29,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Version;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.WebServiceEngine;
 
@@ -61,7 +56,6 @@ public class WebServiceFilterTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
   private ServletOutputStream responseOutput = mock(ServletOutputStream.class);
-  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse(RUNTIME_VERSION), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private WebServiceFilter underTest;
 
   @Before
@@ -111,20 +105,11 @@ public class WebServiceFilterTest {
 
   @Test
   public void execute_ws() {
-    underTest = new WebServiceFilter(webServiceEngine, runtime);
+    underTest = new WebServiceFilter(webServiceEngine);
 
     underTest.doFilter(request, response, chain);
 
     verify(webServiceEngine).execute(any(), any());
-  }
-
-  @Test
-  public void add_version_to_response_headers() {
-    underTest = new WebServiceFilter(webServiceEngine, runtime);
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).setHeader("Sonar-Version", RUNTIME_VERSION);
   }
 
   private void initWebServiceEngine(WsUrl... wsUrls) {
@@ -147,7 +132,7 @@ public class WebServiceFilterTest {
       controllers.add(wsController);
     }
     when(webServiceEngine.controllers()).thenReturn(controllers);
-    underTest = new WebServiceFilter(webServiceEngine, runtime);
+    underTest = new WebServiceFilter(webServiceEngine);
   }
 
   static final class WsUrl {
