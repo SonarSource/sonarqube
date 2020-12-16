@@ -46,7 +46,6 @@ public class QualityGateUpdater {
       .setBuiltIn(false)
       .setUuid(uuidFactory.create());
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
-    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), newQualityGate);
     return newQualityGate;
   }
 

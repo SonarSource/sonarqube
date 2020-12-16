@@ -28,7 +28,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 
@@ -59,32 +58,19 @@ public class QualityGateDbTester {
   }
 
   @SafeVarargs
-  public final QGateWithOrgDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
-    return insertQualityGate(db.getDefaultOrganization(), dtoPopulators);
-  }
-
-  @Deprecated
-  @SafeVarargs
-  public final QGateWithOrgDto insertQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
+  public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto qualityGate = new QualityGateDto()
       .setName(randomAlphanumeric(30))
       .setUuid(Uuids.createFast())
       .setBuiltIn(false);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
     dbClient.qualityGateDao().insert(dbSession, qualityGate);
-    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
     db.commit();
-    return dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid());
+    return dbClient.qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid());
   }
 
   public void associateProjectToQualityGate(ProjectDto project, QualityGateDto qualityGate) {
     dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, project.getUuid(), qualityGate.getUuid());
-    db.commit();
-  }
-
-  @Deprecated
-  public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
-    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
     db.commit();
   }
 

@@ -54,8 +54,8 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSessionRule));
+  private final DbClient dbClient = db.getDbClient();
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSessionRule));
 
   @Test
   public void verify_definition() {
@@ -126,9 +126,9 @@ public class DeleteActionTest {
     loggedAsSystemAdministrator();
     MetricDto customMetric = insertCustomMetric("custom-key");
     MetricDto nonCustomMetric = insertMetric(newMetricDto().setEnabled(true).setUserManaged(false).setKey("non-custom"));
-    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     db.qualityGates().addCondition(qualityGate1, customMetric);
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
     db.qualityGates().addCondition(qualityGate2, customMetric);
     db.qualityGates().addCondition(qualityGate2, nonCustomMetric);
 

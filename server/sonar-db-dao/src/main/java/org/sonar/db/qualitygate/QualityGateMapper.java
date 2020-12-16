@@ -27,27 +27,15 @@ public interface QualityGateMapper {
 
   void insertQualityGate(QualityGateDto qualityGate);
 
-  void insertOrgQualityGate(@Param("uuid") String uuid, @Param("organizationUuid") String organizationUuid, @Param("qualityGateUuid") String qualityGateUuuid);
-
-  List<QualityGateDto> selectAll(@Param("organizationUuid") String organizationUuid);
+  List<QualityGateDto> selectAll();
 
   QualityGateDto selectByName(String name);
-
-  QGateWithOrgDto selectByUuidAndOrganization(@Param("qualityGateUuid") String qualityGateUuid, @Param("organizationUuid") String organizationUuid);
-
-  QGateWithOrgDto selectByNameAndOrganization(@Param("name") String name, @Param("organizationUuid") String organizationUuid);
-
-  QGateWithOrgDto selectDefault(@Param("organizationUuid") String organizationUuid);
 
   QualityGateDto selectBuiltIn();
 
   void delete(String uuid);
 
   void deleteByUuids(@Param("uuids") Collection<String> uuids);
-
-  void deleteOrgQualityGatesByQualityGateUuid(String uuid);
-
-  void deleteOrgQualityGatesByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void update(QualityGateDto qGate);
 

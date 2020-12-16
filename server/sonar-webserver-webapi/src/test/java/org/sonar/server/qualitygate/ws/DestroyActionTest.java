@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -118,7 +117,6 @@ public class DestroyActionTest {
   public void does_not_delete_built_in_quality_gate() {
     db.qualityGates().createDefaultQualityGate();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
-    db.getDbClient().qualityGateDao().associate(db.getSession(), Uuids.createFast(), builtInQualityGate);
     db.commit();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 

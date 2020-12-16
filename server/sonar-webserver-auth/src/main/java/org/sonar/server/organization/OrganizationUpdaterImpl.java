@@ -97,7 +97,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate);
     beforeCommit.accept(organization);
-    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
     GroupDto ownerGroup = insertOwnersGroup(dbSession);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession);
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);

@@ -7,31 +7,15 @@
       uuid, name, is_built_in as isBuiltIn, created_at as createdAt, updated_at as updatedAt
   </sql>
 
-  <sql id="qateWithOrgColumns">
-    qg.uuid as uuid,
-    qg.name as name,
-    qg.is_built_in as isBuiltIn,
-    oqg.organization_uuid as organizationUuid,
-    qg.created_at as createdAt,
-    qg.updated_at as updatedAd
-  </sql>
-
   <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
     insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
     values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 
-  <insert id="insertOrgQualityGate" parameterType="Map">
-    INSERT INTO org_quality_gates (uuid, organization_uuid, quality_gate_uuid)
-    VALUES (#{uuid, jdbcType=VARCHAR}, #{organizationUuid, jdbcType=VARCHAR}, #{qualityGateUuid, jdbcType=VARCHAR})
-  </insert>
-
-  <select id="selectAll" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
+  <select id="selectAll" resultType="QualityGate">
     SELECT
-      <include refid="qateWithOrgColumns"/>
+    <include refid="gateColumns"/>
     FROM quality_gates qg
-    INNER JOIN
-      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     ORDER BY qg.name ASC
   </select>
 
@@ -47,28 +31,6 @@
     <include refid="gateColumns"/>
     from quality_gates
     where uuid=#{uuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
-    SELECT
-      <include refid="qateWithOrgColumns"/>
-    FROM
-      quality_gates qg
-    INNER JOIN
-      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    WHERE
-      qg.uuid = #{qualityGateUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByNameAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
-    SELECT
-    <include refid="qateWithOrgColumns"/>
-    FROM
-      quality_gates qg
-    INNER JOIN
-      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    WHERE
-      qg.name = #{name, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByProjectUuid" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
@@ -96,15 +58,6 @@
     delete from quality_gates
     where uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
-  </update>
-
-  <update id="deleteOrgQualityGatesByQualityGateUuid" parameterType="String">
-    delete from org_quality_gates where quality_gate_uuid=#{uuid}
-  </update>
-
-  <update id="deleteOrgQualityGatesByOrganization" parameterType="String">
-    delete from org_quality_gates
-    where organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="update" parameterType="QualityGate">

@@ -29,18 +29,17 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateDaoTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
-  private DbSession dbSession = db.getSession();
-  private QualityGateDao underTest = db.getDbClient().qualityGateDao();
+  private final QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
+  private final DbSession dbSession = db.getSession();
+  private final QualityGateDao underTest = db.getDbClient().qualityGateDao();
 
   @Test
   public void insert() {
@@ -60,20 +59,6 @@ public class QualityGateDaoTest {
     assertThat(reloaded.getCreatedAt()).isNotNull();
     assertThat(reloaded.getUpdatedAt()).isNotNull();
   }
-
-  // TODO::
-  // @Test
-  // public void associate() {
-  // QualityGateDto qgate = db.qualityGates().(db.getDefaultOrganization());
-  // OrganizationDto org = db.organizations().insert();
-  //
-  // underTest.associate(dbSession, Uuids.createFast(), org, qgate);
-  //
-  // assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid())).isNotNull();
-  // assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid()))
-  // .extracting(QualityGateDto::getUuid, QualityGateDto::getUuid, QualityGateDto::getOrganizationUuid, QualityGateDto::getName)
-  // .containsExactly(qgate.getUuid(), qgate.getUuid(), org.getUuid(), qgate.getName());
-  // }
 
   @Test
   public void insert_built_in() {
@@ -117,28 +102,6 @@ public class QualityGateDaoTest {
   }
 
   @Test
-  public void select_by_organization_and_name() {
-    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate3 = db.qualityGates().insertQualityGate();
-
-    assertThat(underTest.selectByDefaultOrganizationAndName(dbSession, qualityGate1.getName()).getUuid()).isEqualTo(qualityGate1.getUuid());
-    assertThat(underTest.selectByDefaultOrganizationAndName(dbSession, qualityGate3.getName()).getUuid()).isEqualTo(qualityGate3.getUuid());
-    assertThat(underTest.selectByDefaultOrganizationAndName(dbSession, "Unknown")).isNull();
-  }
-
-  @Test
-  public void select_by_organization_and_id() {
-    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate3 = db.qualityGates().insertQualityGate();
-
-    assertThat(underTest.selectByDefaultOrganizationAndUuid(dbSession, qualityGate1.getUuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
-    assertThat(underTest.selectByDefaultOrganizationAndUuid(dbSession, qualityGate3.getUuid()).getUuid()).isEqualTo(qualityGate3.getUuid());
-    assertThat(underTest.selectByDefaultOrganizationAndUuid(dbSession, "123")).isNull();
-  }
-
-  @Test
   public void select_by_project_uuid() {
     ProjectDto project = db.components().insertPrivateProjectDto();
 
@@ -161,10 +124,8 @@ public class QualityGateDaoTest {
     underTest.delete(qualityGate, dbSession);
     dbSession.commit();
 
-    assertThat(underTest.selectByDefaultOrganizationAndUuid(dbSession, qualityGate.getUuid())).isNull();
-    assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", qualityGate.getUuid()))).isZero();
-    assertThat(underTest.selectByDefaultOrganizationAndUuid(dbSession, otherQualityGate.getUuid())).isNotNull();
-    assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", otherQualityGate.getUuid()))).isEqualTo(1);
+    assertThat(underTest.selectByUuid(dbSession, qualityGate.getUuid())).isNull();
+    assertThat(underTest.selectByUuid(dbSession, otherQualityGate.getUuid())).isNotNull();
   }
 
   @Test
@@ -189,22 +150,6 @@ public class QualityGateDaoTest {
     assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isEqualTo(nbOfQualityGates);
   }
 
-  // TODO::
-  // @Test
-  // public void deleteOrgQualityGatesByOrganization() {
-  // OrganizationDto organization = db.organizations().insert();
-  // qualityGateDbTester.insertQualityGate(organization);
-  // OrganizationDto otherOrganization = db.organizations().insert();
-  // qualityGateDbTester.insertQualityGate(otherOrganization);
-  //
-  // underTest.deleteOrgQualityGatesByOrganization(dbSession, organization);
-  // dbSession.commit();
-  //
-  // assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
-  // .extracting(row -> (String) row.get("organizationUuid"))
-  // .containsOnly(otherOrganization.getUuid());
-  // }
-
   @Test
   public void update() {
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("old name"));
@@ -212,8 +157,36 @@ public class QualityGateDaoTest {
     underTest.update(qualityGate.setName("Not so strict"), dbSession);
     dbSession.commit();
 
-    QualityGateDto reloaded = underTest.selectByDefaultOrganizationAndUuid(dbSession, qualityGate.getUuid());
+    QualityGateDto reloaded = underTest.selectByUuid(dbSession, qualityGate.getUuid());
     assertThat(reloaded.getName()).isEqualTo("Not so strict");
+  }
+
+  @Test
+  public void selectBuiltIn() {
+    QualityGateDto builtInQualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("Built in").setBuiltIn(true));
+    QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("Random quality gate").setBuiltIn(false));
+    dbSession.commit();
+
+    QualityGateDto result = underTest.selectBuiltIn(dbSession);
+
+    assertThat(result.getUuid()).isEqualTo(builtInQualityGate.getUuid());
+    assertThat(result.getName()).isEqualTo(builtInQualityGate.getName());
+  }
+
+  @Test
+  public void ensureOneBuiltInQualityGate() {
+    String builtInQgName = "Sonar Way";
+    QualityGateDto builtInQualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
+    QualityGateDto qualityGate1 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
+    QualityGateDto qualityGate2 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG2"));
+
+    underTest.ensureOneBuiltInQualityGate(dbSession, builtInQgName);
+    dbSession.commit();
+
+    QualityGateDto reloaded = underTest.selectByName(dbSession, builtInQgName);
+    assertThat(reloaded.getUuid()).isEqualTo(builtInQualityGate.getUuid());
+    assertThat(reloaded.getName()).isEqualTo(builtInQualityGate.getName());
+    assertThat(reloaded.isBuiltIn()).isTrue();
   }
 
   private void insertQualityGates() {
