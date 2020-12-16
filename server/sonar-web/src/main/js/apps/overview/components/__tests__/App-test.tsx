@@ -30,7 +30,6 @@ const component = {
   analysisDate: '2016-01-01',
   breadcrumbs: [],
   name: 'Foo',
-  organization: 'org',
   qualifier: 'TRK',
   version: '0.0.1'
 };

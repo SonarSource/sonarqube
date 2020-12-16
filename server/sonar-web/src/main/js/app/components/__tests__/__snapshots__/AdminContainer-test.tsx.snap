@@ -30,7 +30,6 @@ exports[`should render correctly 1`] = `
         "state": Object {},
       }
     }
-    organizationsEnabled={false}
     pendingPlugins={
       Object {
         "installing": Array [],

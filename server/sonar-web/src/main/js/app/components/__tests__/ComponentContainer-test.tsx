@@ -121,7 +121,7 @@ it('updates branches on change', async () => {
 
 it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { organization: 'org' }
+    component: {}
   });
 
   shallowRender();
@@ -293,7 +293,6 @@ it('should correctly reload last task warnings if anything got dismissed', async
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
   return shallow<ComponentContainer>(
     <ComponentContainer
-      fetchOrganization={jest.fn()}
       location={mockLocation({ query: { id: 'foo' } })}
       registerBranchStatus={jest.fn()}
       requireAuthorization={jest.fn()}

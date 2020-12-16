@@ -32,7 +32,7 @@ import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './Admi
 import SettingsNav from './nav/settings/SettingsNav';
 
 interface Props {
-  appState: Pick<T.AppState, 'adminPages' | 'canAdmin' | 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'adminPages' | 'canAdmin'>;
   location: {};
   setAdminPages: (adminPages: T.Extension[]) => void;
 }
@@ -109,7 +109,7 @@ export class AdminContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { adminPages, organizationsEnabled } = this.props.appState;
+    const { adminPages } = this.props.appState;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -127,7 +127,6 @@ export class AdminContainer extends React.PureComponent<Props, State> {
           fetchPendingPlugins={this.fetchPendingPlugins}
           fetchSystemStatus={this.fetchSystemStatus}
           location={this.props.location}
-          organizationsEnabled={organizationsEnabled}
           pendingPlugins={pendingPlugins}
           systemStatus={systemStatus}
         />

@@ -21,7 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Projects from '../Projects';
 
-const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 const projects = [
   { key: 'a', name: 'A', qualifier: 'TRK', visibility: 'public' },
   { key: 'b', name: 'B', qualifier: 'TRK', visibility: 'public' }
@@ -56,7 +55,6 @@ function shallowRender(props?: any) {
       currentUser={{ login: 'foo' }}
       onProjectDeselected={jest.fn()}
       onProjectSelected={jest.fn()}
-      organization={organization}
       selection={[]}
       {...props}
     />

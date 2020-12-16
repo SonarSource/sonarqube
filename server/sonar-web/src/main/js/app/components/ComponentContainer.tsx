@@ -32,11 +32,7 @@ import {
   isPullRequest
 } from '../../helpers/branch-like';
 import { getPortfolioUrl } from '../../helpers/urls';
-import {
-  fetchOrganization,
-  registerBranchStatus,
-  requireAuthorization
-} from '../../store/rootActions';
+import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../types/tasks';
@@ -47,7 +43,6 @@ import ComponentNav from './nav/component/ComponentNav';
 
 interface Props {
   children: React.ReactElement;
-  fetchOrganization: (organization: string) => void;
   location: Pick<Location, 'query' | 'pathname'>;
   registerBranchStatus: (branchLike: BranchLike, component: string, status: T.Status) => void;
   requireAuthorization: (router: Pick<Router, 'replace'>) => void;
@@ -379,6 +374,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { fetchOrganization, registerBranchStatus, requireAuthorization };
+const mapDispatchToProps = { registerBranchStatus, requireAuthorization };
 
 export default withRouter(connect(null, mapDispatchToProps)(ComponentContainer));

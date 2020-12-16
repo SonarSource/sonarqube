@@ -32,8 +32,7 @@ function shallowRender(props: Partial<AdminContainer['props']> = {}) {
     <AdminContainer
       appState={{
         adminPages: [{ key: 'foo', name: 'Foo' }],
-        canAdmin: true,
-        organizationsEnabled: false
+        canAdmin: true
       }}
       location={mockLocation()}
       setAdminPages={jest.fn()}

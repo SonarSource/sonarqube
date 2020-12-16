@@ -36,7 +36,6 @@ interface Props {
   fetchPendingPlugins: () => void;
   fetchSystemStatus: () => void;
   location: {};
-  organizationsEnabled?: boolean;
   pendingPlugins: PendingPluginResult;
   systemStatus: T.SysStatus;
 }
@@ -87,7 +86,6 @@ export default class SettingsNav extends React.PureComponent<Props> {
   };
 
   renderConfigurationTab() {
-    const { organizationsEnabled } = this.props;
     const extensionsWithoutSupport = this.props.extensions.filter(
       extension => extension.key !== 'license/support'
     );
@@ -110,13 +108,11 @@ export default class SettingsNav extends React.PureComponent<Props> {
                 {translate('custom_metrics.page')}
               </IndexLink>
             </li>
-            {!organizationsEnabled && (
-              <li>
-                <IndexLink activeClassName="active" to="/admin/webhooks">
-                  {translate('webhooks.page')}
-                </IndexLink>
-              </li>
-            )}
+            <li>
+              <IndexLink activeClassName="active" to="/admin/webhooks">
+                {translate('webhooks.page')}
+              </IndexLink>
+            </li>
             {extensionsWithoutSupport.map(this.renderExtension)}
           </ul>
         }
@@ -146,18 +142,15 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   renderProjectsTab() {
-    const { organizationsEnabled } = this.props;
     return (
       <Dropdown
         overlay={
           <ul className="menu">
-            {!organizationsEnabled && (
-              <li>
-                <IndexLink activeClassName="active" to="/admin/projects_management">
-                  {translate('management')}
-                </IndexLink>
-              </li>
-            )}
+            <li>
+              <IndexLink activeClassName="active" to="/admin/projects_management">
+                {translate('management')}
+              </IndexLink>
+            </li>
             <li>
               <IndexLink activeClassName="active" to="/admin/background_tasks">
                 {translate('background_tasks.page')}
@@ -182,7 +175,6 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   renderSecurityTab() {
-    const { organizationsEnabled } = this.props;
     return (
       <Dropdown
         overlay={
@@ -192,27 +184,21 @@ export default class SettingsNav extends React.PureComponent<Props> {
                 {translate('users.page')}
               </IndexLink>
             </li>
-            {!organizationsEnabled && (
-              <li>
-                <IndexLink activeClassName="active" to="/admin/groups">
-                  {translate('user_groups.page')}
-                </IndexLink>
-              </li>
-            )}
-            {!organizationsEnabled && (
-              <li>
-                <IndexLink activeClassName="active" to="/admin/permissions">
-                  {translate('global_permissions.page')}
-                </IndexLink>
-              </li>
-            )}
-            {!organizationsEnabled && (
-              <li>
-                <IndexLink activeClassName="active" to="/admin/permission_templates">
-                  {translate('permission_templates')}
-                </IndexLink>
-              </li>
-            )}
+            <li>
+              <IndexLink activeClassName="active" to="/admin/groups">
+                {translate('user_groups.page')}
+              </IndexLink>
+            </li>
+            <li>
+              <IndexLink activeClassName="active" to="/admin/permissions">
+                {translate('global_permissions.page')}
+              </IndexLink>
+            </li>
+            <li>
+              <IndexLink activeClassName="active" to="/admin/permission_templates">
+                {translate('permission_templates')}
+              </IndexLink>
+            </li>
           </ul>
         }
         tagName="li">

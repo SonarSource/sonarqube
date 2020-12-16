@@ -29,7 +29,6 @@ it('should work with extensions', () => {
 
 it('should display a pending plugin notif', () => {
   const wrapper = shallowRender({
-    organizationsEnabled: false,
     pendingPlugins: {
       installing: [
         {
@@ -58,7 +57,6 @@ function shallowRender(props: Partial<SettingsNav['props']> = {}) {
       fetchPendingPlugins={jest.fn()}
       fetchSystemStatus={jest.fn()}
       location={{}}
-      organizationsEnabled={false}
       pendingPlugins={{ installing: [], removing: [], updating: [] }}
       systemStatus="UP"
       {...props}
