@@ -23,10 +23,8 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import { getEdition } from '../../helpers/editions';
-import { isSonarCloud } from '../../helpers/system';
 import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
-import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 
 interface Props {
   hideLoggedInInfo?: boolean;
@@ -41,10 +39,6 @@ export default function GlobalFooter({
   sonarqubeEdition,
   sonarqubeVersion
 }: Props) {
-  if (isSonarCloud()) {
-    return <GlobalFooterSonarCloud />;
-  }
-
   const currentEdition = sonarqubeEdition && getEdition(sonarqubeEdition);
 
   return (
@@ -71,7 +65,7 @@ export default function GlobalFooter({
         )}
         <li className="page-footer-menu-item">
           <a
-            href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+            href="https://www.gnu.org/licenses/lgpl-3.0.txt"
             rel="noopener noreferrer"
             target="_blank">
             {translate('footer.license')}
