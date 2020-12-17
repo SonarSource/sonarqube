@@ -142,7 +142,7 @@ The user used to launch SonarQube must have read and write access to those direc
 The default port is "9000" and the context path is "/". These values can be changed in _$SONARQUBE-HOME/conf/sonar.properties_:
 
 ```
-sonar.web.host=192.0.0.1
+sonar.web.host=192.168.0.1
 sonar.web.port=80
 sonar.web.context=/sonarqube
 ```
