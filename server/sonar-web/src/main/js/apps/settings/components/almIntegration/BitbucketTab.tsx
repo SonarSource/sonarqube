@@ -75,7 +75,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
             </ul>
 
             <p className="big-spacer-top big-spacer-bottom">
-              <Link target="_blank" to="/documentation/analysis/pr-decoration/">
+              <Link target="_blank" to="/documentation/analysis/bitbucket-integration/">
                 {translate('learn_more')}
               </Link>
             </p>

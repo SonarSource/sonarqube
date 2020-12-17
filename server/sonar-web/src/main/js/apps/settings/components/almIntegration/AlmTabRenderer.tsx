@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
@@ -43,7 +42,7 @@ export interface AlmTabRendererProps<B> {
   defaultBinding: B;
   definitions: B[];
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
-  help?: React.ReactNode;
+  help: React.ReactNode;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
@@ -58,20 +57,6 @@ export interface AlmTabRendererProps<B> {
   success: boolean;
 }
 
-const renderDefaultHelp = (alm: AlmKeys) => (
-  <FormattedMessage
-    defaultMessage={translate(`settings.almintegration.${alm}.info`)}
-    id={`settings.almintegration.${alm}.info`}
-    values={{
-      link: (
-        <Link target="_blank" to="/documentation/analysis/pr-decoration/">
-          {translate('learn_more')}
-        </Link>
-      )
-    }}
-  />
-);
-
 export default function AlmTabRenderer<B extends AlmBindingDefinition>(
   props: AlmTabRendererProps<B>
 ) {
@@ -85,7 +70,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
     loadingProjectCount,
     multipleAlmEnabled,
     optionalFields,
-    help = renderDefaultHelp(alm)
+    help
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);

@@ -97,6 +97,7 @@ function shallowRender<B extends AlmBindingDefinition>(
       definitions={[]}
       definitionStatus={{}}
       form={jest.fn()}
+      help={<div />}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={true}

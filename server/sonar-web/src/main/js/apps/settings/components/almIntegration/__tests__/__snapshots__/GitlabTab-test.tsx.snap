@@ -25,6 +25,24 @@ exports[`should render correctly: with URL 1`] = `
       ]
     }
     form={[Function]}
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.gitlab.info"
+        id="settings.almintegration.gitlab.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/gitlab-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    }
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}
@@ -71,6 +89,24 @@ exports[`should render correctly: with branch support 1`] = `
       ]
     }
     form={[Function]}
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.gitlab.info"
+        id="settings.almintegration.gitlab.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/gitlab-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    }
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}
@@ -110,6 +146,24 @@ exports[`should render correctly: with no definitions 1`] = `
     definitionStatus={Object {}}
     definitions={Array []}
     form={[Function]}
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.gitlab.info"
+        id="settings.almintegration.gitlab.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/gitlab-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    }
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}

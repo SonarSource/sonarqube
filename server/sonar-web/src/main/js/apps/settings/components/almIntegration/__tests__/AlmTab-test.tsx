@@ -100,6 +100,7 @@ function shallowRender(props: Partial<AlmTab<AzureBindingDefinition>['props']> =
       definitions={[mockAzureBindingDefinition()]}
       definitionStatus={{}}
       form={jest.fn()}
+      help={<div />}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={true}

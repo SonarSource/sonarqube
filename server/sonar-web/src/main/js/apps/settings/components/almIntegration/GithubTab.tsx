@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/alm-settings';
 import {
   AlmKeys,
@@ -71,6 +74,19 @@ export default function GithubTab(props: GithubTabProps) {
             definitions={definitions}
             definitionStatus={definitionStatus}
             form={childProps => <GithubForm {...childProps} />}
+            help={
+              <FormattedMessage
+                defaultMessage={translate(`settings.almintegration.github.info`)}
+                id="settings.almintegration.github.info"
+                values={{
+                  link: (
+                    <Link target="_blank" to="/documentation/analysis/github-integration/">
+                      {translate('learn_more')}
+                    </Link>
+                  )
+                }}
+              />
+            }
             loadingAlmDefinitions={loadingAlmDefinitions}
             loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}

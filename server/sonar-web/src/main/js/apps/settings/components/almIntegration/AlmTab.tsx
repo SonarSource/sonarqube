@@ -33,7 +33,7 @@ interface Props<B> {
   definitions: B[];
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
-  help?: React.ReactNode;
+  help: React.ReactNode;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;

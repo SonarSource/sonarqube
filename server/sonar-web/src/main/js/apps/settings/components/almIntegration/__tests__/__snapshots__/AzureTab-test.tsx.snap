@@ -24,6 +24,24 @@ exports[`should render correctly 1`] = `
       ]
     }
     form={[Function]}
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.azure.info"
+        id="settings.almintegration.azure.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/azuredevops-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    }
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}

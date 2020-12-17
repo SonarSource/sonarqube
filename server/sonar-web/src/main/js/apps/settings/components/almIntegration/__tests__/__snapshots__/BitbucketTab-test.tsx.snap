@@ -52,7 +52,7 @@ exports[`should render correctly 1`] = `
             onlyActiveOnIndex={false}
             style={Object {}}
             target="_blank"
-            to="/documentation/analysis/pr-decoration/"
+            to="/documentation/analysis/bitbucket-integration/"
           >
             learn_more
           </Link>

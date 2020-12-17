@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createAzureConfiguration, updateAzureConfiguration } from '../../../../api/alm-settings';
 import {
   AlmKeys,
@@ -56,6 +59,19 @@ export default function AzureTab(props: AzureTabProps) {
         definitions={definitions}
         definitionStatus={definitionStatus}
         form={childProps => <AzureForm {...childProps} />}
+        help={
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.azure.info`)}
+            id="settings.almintegration.azure.info"
+            values={{
+              link: (
+                <Link target="_blank" to="/documentation/analysis/azuredevops-integration/">
+                  {translate('learn_more')}
+                </Link>
+              )
+            }}
+          />
+        }
         loadingAlmDefinitions={loadingAlmDefinitions}
         loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}

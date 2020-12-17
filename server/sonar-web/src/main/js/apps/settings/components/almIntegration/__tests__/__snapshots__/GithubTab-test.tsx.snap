@@ -31,6 +31,24 @@ exports[`should render correctly: with branch support 1`] = `
       ]
     }
     form={[Function]}
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.github.info"
+        id="settings.almintegration.github.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/github-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    }
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={true}

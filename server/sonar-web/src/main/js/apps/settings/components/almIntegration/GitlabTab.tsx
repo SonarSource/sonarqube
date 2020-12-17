@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createGitlabConfiguration, updateGitlabConfiguration } from '../../../../api/alm-settings';
 import {
   AlmKeys,
@@ -64,6 +67,19 @@ export default function GitlabTab(props: GitlabTabProps) {
             definitions={definitions}
             definitionStatus={definitionStatus}
             form={childProps => <GitlabForm {...childProps} />}
+            help={
+              <FormattedMessage
+                defaultMessage={translate(`settings.almintegration.gitlab.info`)}
+                id="settings.almintegration.gitlab.info"
+                values={{
+                  link: (
+                    <Link target="_blank" to="/documentation/analysis/gitlab-integration/">
+                      {translate('learn_more')}
+                    </Link>
+                  )
+                }}
+              />
+            }
             loadingAlmDefinitions={loadingAlmDefinitions}
             loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}
