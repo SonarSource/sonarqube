@@ -40,7 +40,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -106,14 +105,14 @@ public class ComponentTreeActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private I18nRule i18n = new I18nRule();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule()
+  private final I18nRule i18n = new I18nRule();
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule()
     .setRootQualifiers(PROJECT)
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(
+  private final WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(
       dbClient, new ComponentFinder(dbClient, resourceTypes), userSession,
       i18n, resourceTypes));
@@ -529,8 +528,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void branch() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -552,8 +550,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void pull_request() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -575,8 +572,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fix_pull_request_new_issue_count_metrics() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
@@ -604,8 +600,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void new_issue_count_measures_are_not_transformed_if_they_dont_exist_in_pr() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(pr);
     ComponentDto file = db.components().insertComponent(newFileDto(pr));
@@ -694,7 +689,7 @@ public class ComponentTreeActionTest {
   @Test
   public void project_reference_from_portfolio() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
+    ComponentDto view = db.components().insertPrivatePortfolio();
     SnapshotDto viewAnalysis = db.components().insertSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(project, view));
     MetricDto ncloc = insertNclocMetric();
@@ -978,9 +973,8 @@ public class ComponentTreeActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     insertNclocMetric();
@@ -996,8 +990,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     insertNclocMetric();

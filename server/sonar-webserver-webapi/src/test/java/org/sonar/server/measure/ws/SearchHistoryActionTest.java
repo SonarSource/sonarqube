@@ -38,7 +38,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -84,10 +83,10 @@ public class SearchHistoryActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession));
+  private final WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession));
 
   private ComponentDto project;
   private SnapshotDto analysis;
@@ -98,7 +97,7 @@ public class SearchHistoryActionTest {
 
   @Before
   public void setUp() {
-    project = newPrivateProjectDto(db.getDefaultOrganization());
+    project = newPrivateProjectDto();
     analysis = db.components().insertProjectAndSnapshot(project);
     userSession.addProjectPermission(UserRole.USER, project);
     nclocMetric = insertNclocMetric();
@@ -342,8 +341,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -396,7 +394,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void fail_when_component_is_removed() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
     userSession.addProjectPermission(UserRole.USER, project);
 

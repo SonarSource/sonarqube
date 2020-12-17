@@ -34,7 +34,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -55,9 +54,9 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
@@ -70,15 +69,13 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient()));
+  private final WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient()));
 
   @Test
   public void json_example() {
-    OrganizationDto organization = db.organizations().insert();
-
-    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_1").setName("Project 1"));
-    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_2").setName("Project 2"));
-    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_3").setName("Project 3"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_1").setName("Project 1"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_2").setName("Project 2"));
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT_3").setName("Project 3"));
 
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
@@ -112,7 +109,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures() {
-    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d));
@@ -128,7 +125,7 @@ public class SearchActionTest {
 
   @Test
   public void return_best_value() {
-    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto matchBestValue = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()).setBestValue(15.5d));
     db.measures().insertLiveMeasure(project, matchBestValue, m -> m.setValue(15.5d));
@@ -151,8 +148,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_new_code_period() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d).setVariation(10d));
@@ -173,10 +169,9 @@ public class SearchActionTest {
   public void sort_by_metric_key_then_project_name() {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey("coverage").setValueType(FLOAT.name()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setName("C"));
-    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setName("A"));
-    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setName("B"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setName("C"));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setName("A"));
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setName("B"));
     userSession.addProjectPermission(UserRole.USER, project1);
     userSession.addProjectPermission(UserRole.USER, project2);
     userSession.addProjectPermission(UserRole.USER, project3);
@@ -197,8 +192,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_view() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    ComponentDto view = db.components().insertPrivatePortfolio();
     userSession.addProjectPermission(UserRole.USER, view);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(view, coverage, m -> m.setValue(15.5d));
@@ -214,8 +208,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_application() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPrivateApplication(organization);
+    ComponentDto application = db.components().insertPrivateApplication();
     userSession.addProjectPermission(UserRole.USER, application);
     MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(application, coverage, m -> m.setValue(15.5d));
@@ -231,8 +224,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_sub_view() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertComponent(newSubView(view));
     userSession.addProjectPermission(UserRole.USER, subView);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
@@ -250,8 +242,8 @@ public class SearchActionTest {
   @Test
   public void only_returns_authorized_projects() {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization());
-    ComponentDto project2 = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
     db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
     Arrays.stream(new ComponentDto[] {project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
@@ -264,7 +256,7 @@ public class SearchActionTest {
   @Test
   public void do_not_verify_permissions_if_user_is_root() {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
     db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
 
     userSession.setNonRoot();

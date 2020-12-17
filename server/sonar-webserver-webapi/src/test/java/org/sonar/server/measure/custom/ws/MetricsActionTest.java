@@ -60,8 +60,8 @@ public class MetricsActionTest {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private ComponentDto defaultProject;
-  private MetricsAction underTest = new MetricsAction(dbClient, userSession, TestComponentFinder.from(db));
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final MetricsAction underTest = new MetricsAction(dbClient, userSession, TestComponentFinder.from(db));
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -217,11 +217,9 @@ public class MetricsActionTest {
   }
 
   private ComponentDto insertProject(String projectUuid, String projectKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), projectUuid)
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(projectUuid)
       .setDbKey(projectKey);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-
+    db.components().insertComponent(project);
     return project;
   }
 

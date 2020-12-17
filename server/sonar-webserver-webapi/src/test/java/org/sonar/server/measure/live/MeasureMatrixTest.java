@@ -30,18 +30,15 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class MeasureMatrixTest {
 
-  private static final OrganizationDto ORGANIZATION = newOrganizationDto();
-  private static final ComponentDto PROJECT = ComponentTesting.newPublicProjectDto(ORGANIZATION);
+  private static final ComponentDto PROJECT = ComponentTesting.newPublicProjectDto();
   private static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT);
   private static final MetricDto METRIC_1 = newMetricDto().setUuid("100");
   private static final MetricDto METRIC_2 = newMetricDto().setUuid("200");

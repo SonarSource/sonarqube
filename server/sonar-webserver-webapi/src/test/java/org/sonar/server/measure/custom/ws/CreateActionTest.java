@@ -31,7 +31,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -284,8 +283,7 @@ public class CreateActionTest {
   @Test
   public void create_custom_measure_on_a_view() {
     MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    ComponentDto view = db.components().insertPrivatePortfolio();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(ADMIN, view);
 
@@ -304,8 +302,7 @@ public class CreateActionTest {
   @Test
   public void create_custom_measure_on_a_sub_view() {
     MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true).setValueType(BOOL.name()));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertSubView(view);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(ADMIN, view);

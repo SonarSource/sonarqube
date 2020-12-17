@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -69,7 +68,7 @@ public class ComponentActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new ComponentAction(db.getDbClient(), TestComponentFinder.from(db), userSession));
+  private final WsActionTester ws = new WsActionTester(new ComponentAction(db.getDbClient(), TestComponentFinder.from(db), userSession));
 
   @Test
   public void definition() {
@@ -396,8 +395,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));

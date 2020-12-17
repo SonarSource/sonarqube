@@ -52,7 +52,6 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class LiveQualityGateComputerImplTest {
 
@@ -83,7 +82,7 @@ public class LiveQualityGateComputerImplTest {
   }
 
   @Test
-  public void loadQualityGate_on_branch_returns_organization_default_gate() {
+  public void loadQualityGate_on_branch_returns_default_gate() {
     ProjectDto project = db.components().insertPublicProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
 
@@ -117,7 +116,7 @@ public class LiveQualityGateComputerImplTest {
 
   @Test
   public void refreshGateStatus_generates_gate_related_measures() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPublicProjectDto();
     MetricDto conditionMetric = newMetricDto();
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
@@ -143,7 +142,7 @@ public class LiveQualityGateComputerImplTest {
 
   @Test
   public void refreshGateStatus_provides_measures_to_evaluator() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPublicProjectDto();
     MetricDto numericMetric = newMetricDto().setValueType(Metric.ValueType.FLOAT.name());
     MetricDto numericNewMetric = newMetricDto().setValueType(Metric.ValueType.FLOAT.name()).setKey("new_metric");
     MetricDto stringMetric = newMetricDto().setValueType(Metric.ValueType.STRING.name());

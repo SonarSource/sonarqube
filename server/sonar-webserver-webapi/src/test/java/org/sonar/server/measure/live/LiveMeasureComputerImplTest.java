@@ -49,7 +49,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
@@ -85,7 +84,6 @@ public class LiveMeasureComputerImplTest {
   private MetricDto intMetric;
   private MetricDto ratingMetric;
   private MetricDto alertStatusMetric;
-  private OrganizationDto organization;
   private ComponentDto project;
   private ProjectDto projectDto;
   private ComponentDto dir;
@@ -102,8 +100,7 @@ public class LiveMeasureComputerImplTest {
     intMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()));
     ratingMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()));
     alertStatusMetric = db.measures().insertMetric(m -> m.setKey(CoreMetrics.ALERT_STATUS_KEY));
-    organization = db.organizations().insert();
-    project = db.components().insertPublicProject(organization);
+    project = db.components().insertPublicProject();
     projectDto = db.components().getProjectDto(project);
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
