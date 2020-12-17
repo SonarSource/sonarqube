@@ -29,7 +29,6 @@ import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class QProfileCopierTest {
 
   private static final String BACKUP = "<backup/>";
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -53,9 +52,9 @@ public class QProfileCopierTest {
   @Rule
   public JUnitTempFolder temp = new JUnitTempFolder();
 
-  private DummyProfileFactory profileFactory = new DummyProfileFactory();
-  private QProfileBackuper backuper = mock(QProfileBackuper.class);
-  private QProfileCopier underTest = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
+  private final DummyProfileFactory profileFactory = new DummyProfileFactory();
+  private final QProfileBackuper backuper = mock(QProfileBackuper.class);
+  private final QProfileCopier underTest = new QProfileCopier(db.getDbClient(), profileFactory, backuper);
 
   @Test
   public void create_target_profile_and_copy_rules() {
@@ -99,7 +98,6 @@ public class QProfileCopierTest {
 
   @Test
   public void copy_to_existing_profile() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert(p -> p.setLanguage(profile1.getLanguage()));
 
@@ -125,7 +123,8 @@ public class QProfileCopierTest {
       throw new UnsupportedOperationException();
     }
 
-    @Override public QProfileDto createCustom(DbSession dbSession, QProfileName key, @Nullable String parentKey) {
+    @Override
+    public QProfileDto createCustom(DbSession dbSession, QProfileName key, @Nullable String parentKey) {
       createdProfile = QualityProfileTesting.newQualityProfileDto()
         .setLanguage(key.getLanguage())
         .setParentKee(parentKey)

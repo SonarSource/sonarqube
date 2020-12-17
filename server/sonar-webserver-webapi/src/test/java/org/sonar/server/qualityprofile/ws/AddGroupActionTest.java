@@ -58,9 +58,9 @@ public class AddGroupActionTest {
   public DbTester db = DbTester.create();
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  private WsActionTester ws = new WsActionTester(new AddGroupAction(db.getDbClient(), uuidFactory, wsSupport, LANGUAGES));
+  private final WsActionTester ws = new WsActionTester(new AddGroupAction(db.getDbClient(), uuidFactory, wsSupport, LANGUAGES));
 
   @Test
   public void test_definition() {
@@ -154,7 +154,7 @@ public class AddGroupActionTest {
   }
 
   @Test
-  public void uses_default_organization_when_no_organization() {
+  public void uses_global_permission() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);

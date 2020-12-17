@@ -29,7 +29,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -59,11 +58,11 @@ public class AddProjectActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
-  private AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final DbClient dbClient = db.getDbClient();
+  private final Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
+  private final AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void definition() {
@@ -84,7 +83,7 @@ public class AddProjectActionTest {
   @Test
   public void add_project_on_profile() {
     logInAsProfileAdmin();
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     TestResponse response = call(project, profile);
@@ -107,10 +106,10 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void change_association_in_default_organization() {
+  public void change_association() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     // two profiles on same language
     QProfileDto profile1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profile2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
@@ -125,7 +124,7 @@ public class AddProjectActionTest {
   @Test
   public void changing_association_does_not_change_other_language_associations() {
     logInAsProfileAdmin();
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile1Language1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profile2Language2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_2));
     QProfileDto profile3Language1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
@@ -139,7 +138,7 @@ public class AddProjectActionTest {
 
   @Test
   public void project_administrator_can_change_profile() {
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
 
@@ -149,9 +148,9 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
+  public void throw_ForbiddenException_if_not_project_nor_global_administrator() {
     userSession.logIn(db.users().insertUser());
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     expectedException.expect(ForbiddenException.class);
@@ -163,7 +162,7 @@ public class AddProjectActionTest {
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert();
 
     expectedException.expect(UnauthorizedException.class);
@@ -189,7 +188,7 @@ public class AddProjectActionTest {
   @Test
   public void throw_NotFoundException_if_profile_does_not_exist() {
     logInAsProfileAdmin();
-    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
@@ -233,15 +232,6 @@ public class AddProjectActionTest {
 
   private TestResponse call(ProjectDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("language", qualityProfile.getLanguage())
-      .setParam("qualityProfile", qualityProfile.getName());
-    return request.execute();
-  }
-
-  private TestResponse call(OrganizationDto organization, ProjectDto project, QProfileDto qualityProfile) {
-    TestRequest request = tester.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", project.getKey())
       .setParam("language", qualityProfile.getLanguage())
       .setParam("qualityProfile", qualityProfile.getName());

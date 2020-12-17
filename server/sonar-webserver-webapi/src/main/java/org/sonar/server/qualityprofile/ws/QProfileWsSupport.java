@@ -58,7 +58,7 @@ public class QProfileWsSupport {
   /**
    * Get the Quality profile specified by the reference {@code ref}.
    *
-   * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
+   * @throws org.sonar.server.exceptions.NotFoundException if the specified profile do not exist
    */
   public QProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
     QProfileDto profile;

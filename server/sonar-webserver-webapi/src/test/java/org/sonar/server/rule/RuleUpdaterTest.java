@@ -42,6 +42,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -49,7 +50,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -65,7 +65,7 @@ public class RuleUpdaterTest {
 
   static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
 
-  private System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
+  private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -79,11 +79,11 @@ public class RuleUpdaterTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private DbSession dbSession = db.getSession();
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private final DbSession dbSession = db.getSession();
 
-  private RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, system2);
+  private final RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, system2);
 
   @Test
   public void do_not_update_rule_with_removed_status() {
@@ -96,7 +96,7 @@ public class RuleUpdaterTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Rule with REMOVED status cannot be updated: squid:S001");
 
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
   }
 
   @Test
@@ -115,7 +115,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY);
     assertThat(update.isEmpty()).isTrue();
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
@@ -147,7 +147,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setMarkdownNote("my *note*");
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
@@ -173,7 +173,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setMarkdownNote(null);
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
@@ -194,7 +194,7 @@ public class RuleUpdaterTest {
     // java8 is a system tag -> ignore
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setTags(Sets.newHashSet("bug", "java8"));
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
@@ -217,7 +217,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setTags(null);
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
@@ -240,7 +240,7 @@ public class RuleUpdaterTest {
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(fn);
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
@@ -264,7 +264,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2d", null));
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
@@ -288,7 +288,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"));
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
@@ -317,7 +317,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(null);
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is coming from default values
@@ -357,7 +357,7 @@ public class RuleUpdaterTest {
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "b.*"));
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
 
@@ -405,7 +405,7 @@ public class RuleUpdaterTest {
       .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY);
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     dbSession.clearCache();
 
@@ -435,7 +435,7 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(customRule, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create a quality profile
-    QProfileDto profileDto = QProfileTesting.newXooP1();
+    QProfileDto profileDto = QualityProfileTesting.newQualityProfileDto();
     db.getDbClient().qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
@@ -455,7 +455,7 @@ public class RuleUpdaterTest {
     // Update custom rule parameter 'regex', add 'message' and remove 'format'
     RuleUpdate update = createForCustomRule(customRule.getKey())
       .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
 
     // Verify custom rule parameters has been updated
     List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRule.getKey());
@@ -503,7 +503,7 @@ public class RuleUpdaterTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The name is missing");
 
-    underTest.update(dbSession, update,  userSessionRule);
+    underTest.update(dbSession, update, userSessionRule);
   }
 
   @Test
@@ -523,7 +523,7 @@ public class RuleUpdaterTest {
 
     underTest.update(dbSession,
       createForCustomRule(customRule.getKey()).setName("New name").setMarkdownDescription(""),
-       userSessionRule);
+      userSessionRule);
   }
 
   @Test

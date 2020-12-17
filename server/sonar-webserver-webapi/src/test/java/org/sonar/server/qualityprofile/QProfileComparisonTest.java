@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -86,8 +87,8 @@ public class QProfileComparisonTest {
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
 
-    left = QProfileTesting.newXooP1();
-    right = QProfileTesting.newXooP2();
+    left = QualityProfileTesting.newQualityProfileDto().setLanguage("xoo");
+    right = QualityProfileTesting.newQualityProfileDto().setLanguage("xoo");
     db.qualityProfileDao().insert(dbSession, left, right);
 
     dbSession.commit();

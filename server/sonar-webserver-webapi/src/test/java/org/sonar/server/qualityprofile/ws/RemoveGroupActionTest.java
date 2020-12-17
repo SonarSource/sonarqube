@@ -57,7 +57,7 @@ public class RemoveGroupActionTest {
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
 
-  private WsActionTester ws = new WsActionTester(new RemoveGroupAction(db.getDbClient(), wsSupport, LANGUAGES));
+  private final WsActionTester ws = new WsActionTester(new RemoveGroupAction(db.getDbClient(), wsSupport, LANGUAGES));
 
   @Test
   public void test_definition() {
@@ -125,22 +125,6 @@ public class RemoveGroupActionTest {
     UserDto userAllowedToEditProfile = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, userAllowedToEditProfile);
     userSession.logIn(userAllowedToEditProfile);
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, group.getName())
-      .execute();
-
-    assertThat(db.getDbClient().qProfileEditGroupsDao().exists(db.getSession(), profile, group)).isFalse();
-  }
-
-  @Test
-  public void uses_default_organization_when_no_organization() {
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
-    GroupDto group = db.users().insertGroup();
-    db.qualityProfiles().addGroupPermission(profile, group);
-    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())

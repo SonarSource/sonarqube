@@ -47,10 +47,10 @@ public class BackupActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private QProfileBackuper backuper = new QProfileBackuperImpl(db.getDbClient(), null, null, null, new QProfileParser());
+  private final QProfileBackuper backuper = new QProfileBackuperImpl(db.getDbClient(), null, null, null, new QProfileParser());
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
-  private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private WsActionTester tester = new WsActionTester(new BackupAction(db.getDbClient(), backuper, wsSupport, languages));
+  private final Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
+  private final WsActionTester tester = new WsActionTester(new BackupAction(db.getDbClient(), backuper, wsSupport, languages));
 
   @Test
   public void returns_backup_of_profile_with_specified_key() {
@@ -66,7 +66,7 @@ public class BackupActionTest {
   }
 
   @Test
-  public void returns_backup_of_profile_with_specified_name_on_default_organization() {
+  public void returns_backup_of_profile_with_specified_name() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
 
     TestResponse response = tester.newRequest()

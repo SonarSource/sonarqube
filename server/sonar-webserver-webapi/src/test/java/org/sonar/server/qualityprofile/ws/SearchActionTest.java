@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -65,9 +64,9 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class SearchActionTest {
 
-  private static Language XOO1 = newLanguage("xoo1");
-  private static Language XOO2 = newLanguage("xoo2");
-  private static Languages LANGUAGES = new Languages(XOO1, XOO2);
+  private static final Language XOO1 = newLanguage("xoo1");
+  private static final Language XOO2 = newLanguage("xoo2");
+  private static final Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -75,8 +74,8 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private QualityProfileDbTester qualityProfileDb = db.qualityProfiles();
-  private DbClient dbClient = db.getDbClient();
+  private final QualityProfileDbTester qualityProfileDb = db.qualityProfiles();
+  private final DbClient dbClient = db.getDbClient();
 
   private SearchAction underTest = new SearchAction(userSession, LANGUAGES, dbClient, new ComponentFinder(dbClient, null));
   private WsActionTester ws = new WsActionTester(underTest);
@@ -96,17 +95,6 @@ public class SearchActionTest {
     SearchWsResponse result = call(ws.newRequest());
 
     assertThat(result.getProfilesList()).isEmpty();
-  }
-
-  @Test
-  public void default_organization() {
-    QProfileDto profile1OnDefaultOrg = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-    QProfileDto profile2OnDefaultOrg = db.qualityProfiles().insert(p -> p.setLanguage(XOO2.getKey()));
-
-    SearchWsResponse result = call(ws.newRequest());
-
-    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey)
-      .containsExactlyInAnyOrder(profile1OnDefaultOrg.getKee(), profile2OnDefaultOrg.getKee());
   }
 
   @Test
@@ -264,7 +252,6 @@ public class SearchActionTest {
 
   @Test
   public void actions_when_user_is_global_qprofile_administer() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto customProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     QProfileDto builtInProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()).setIsBuiltIn(true));
     QProfileDto defaultProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
@@ -286,7 +273,6 @@ public class SearchActionTest {
 
   @Test
   public void actions_when_user_can_edit_profile() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile1 = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     QProfileDto profile2 = db.qualityProfiles().insert(p -> p.setLanguage(XOO2.getKey()));
     QProfileDto profile3 = db.qualityProfiles().insert(p -> p.setLanguage(XOO2.getKey()));

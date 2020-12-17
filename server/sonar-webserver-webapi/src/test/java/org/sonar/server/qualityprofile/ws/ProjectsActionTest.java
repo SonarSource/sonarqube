@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -51,7 +50,7 @@ public class ProjectsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private WsActionTester ws = new WsActionTester(new ProjectsAction(db.getDbClient(), userSession));
+  private final WsActionTester ws = new WsActionTester(new ProjectsAction(db.getDbClient(), userSession));
 
   @Test
   public void list_authorized_projects_only() {
@@ -80,11 +79,10 @@ public class ProjectsActionTest {
 
   @Test
   public void paginate() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    ProjectDto project1 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project One"));
-    ProjectDto project2 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Two"));
-    ProjectDto project3 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Four"));
+    ProjectDto project1 = db.components().insertPublicProjectDto(p -> p.setName("Project One"));
+    ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
+    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
+    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2, project3, project4);
 

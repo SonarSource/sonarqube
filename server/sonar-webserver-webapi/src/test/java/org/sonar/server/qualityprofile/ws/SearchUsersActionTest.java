@@ -257,7 +257,7 @@ public class SearchUsersActionTest {
   }
 
   @Test
-  public void uses_default_organization_when_no_organization() {
+  public void uses_global_permission() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user1);

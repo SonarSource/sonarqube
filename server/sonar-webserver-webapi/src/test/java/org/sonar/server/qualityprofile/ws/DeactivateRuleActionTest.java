@@ -63,12 +63,12 @@ public class DeactivateRuleActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ArgumentCaptor<Collection<String>> ruleUuidsCaptor = ArgumentCaptor.forClass(Collection.class);
-  private DbClient dbClient = db.getDbClient();
-  private QProfileRules qProfileRules = mock(QProfileRules.class);
+  private final ArgumentCaptor<Collection<String>> ruleUuidsCaptor = ArgumentCaptor.forClass(Collection.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final QProfileRules qProfileRules = mock(QProfileRules.class);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
-  private DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, qProfileRules, userSession, wsSupport);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, qProfileRules, userSession, wsSupport);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void before() {
@@ -84,7 +84,7 @@ public class DeactivateRuleActionTest {
   }
 
   @Test
-  public void deactivate_rule_in_default_organization() {
+  public void deactivate_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());

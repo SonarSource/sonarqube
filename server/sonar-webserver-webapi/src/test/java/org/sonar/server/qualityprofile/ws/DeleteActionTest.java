@@ -63,18 +63,18 @@ public class DeleteActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
-  private DeleteAction underTest = new DeleteAction(
+  private final DeleteAction underTest = new DeleteAction(
     new Languages(LanguageTesting.newLanguage(A_LANGUAGE)),
     new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer), dbClient, userSession,
     new QProfileWsSupport(dbClient, userSession));
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void delete_profile_by_language_and_name_in_default_organization() {
+  public void delete_profile_by_language_and_name() {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile1 = createProfile();
     QProfileDto profile2 = createProfile();
@@ -88,25 +88,6 @@ public class DeleteActionTest {
       .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
 
-    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-
-    verifyProfileDoesNotExist(profile1);
-    verifyProfileExists(profile2);
-  }
-
-  @Test
-  public void delete_profile_by_language_and_name_in_specified_organization() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
-    QProfileDto profile1 = createProfile();
-    QProfileDto profile2 = createProfile();
-    db.qualityProfiles().associateWithProject(project, profile1);
-    logInAsQProfileAdministrator();
-
-    TestResponse response = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, profile1.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
-      .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
     verifyProfileDoesNotExist(profile1);

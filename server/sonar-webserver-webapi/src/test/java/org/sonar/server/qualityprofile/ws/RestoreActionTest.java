@@ -31,13 +31,10 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
@@ -61,10 +58,9 @@ public class RestoreActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private TestBackuper backuper = new TestBackuper();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, userSession));
+  private final TestBackuper backuper = new TestBackuper();
+  private final Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
+  private final WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, userSession));
 
   @Test
   public void test_definition() {
@@ -83,9 +79,9 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void profile_is_restored_on_default_organization_with_the_name_provided_in_backup() {
+  public void profile_is_restored_with_the_name_provided_in_backup() {
     logInAsQProfileAdministrator();
-    TestResponse response = restore("<backup/>", null);
+    TestResponse response = restore("<backup/>");
 
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
     assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
@@ -100,28 +96,6 @@ public class RestoreActionTest {
       "  \"ruleSuccesses\": 0," +
       "  \"ruleFailures\": 0" +
       "}");
-  }
-
-  @Test
-  public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() {
-    OrganizationDto org = db.organizations().insert();
-    logInAsQProfileAdministrator();
-    TestResponse response = restore("<backup/>", org.getKey());
-
-    assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
-    assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
-    JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
-      "  \"profile\": {" +
-      "    \"name\": \"the-name-in-backup\"," +
-      "    \"language\": \"xoo\"," +
-      "    \"languageName\": \"Xoo\"," +
-      "    \"isDefault\": false," +
-      "    \"isInherited\": false" +
-      "  }," +
-      "  \"ruleSuccesses\": 0," +
-      "  \"ruleFailures\": 0" +
-      "}");
-
   }
 
   @Test
@@ -143,7 +117,7 @@ public class RestoreActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    restore("<backup/>", null);
+    restore("<backup/>");
   }
 
   @Test
@@ -153,7 +127,7 @@ public class RestoreActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    restore("<backup/>", null);
+    restore("<backup/>");
   }
 
   private void logInAsQProfileAdministrator() {
@@ -162,13 +136,10 @@ public class RestoreActionTest {
       .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
-  private TestResponse restore(String backupContent, @Nullable String organizationKey) {
+  private TestResponse restore(String backupContent) {
     TestRequest request = tester.newRequest()
       .setMethod("POST")
       .setParam("backup", backupContent);
-    if (organizationKey != null) {
-      request.setParam("organization", organizationKey);
-    }
     return request.execute();
   }
 
@@ -206,7 +177,8 @@ public class RestoreActionTest {
       throw new UnsupportedOperationException();
     }
 
-    @Override public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
+    @Override
+    public QProfileRestoreSummary copy(DbSession dbSession, QProfileDto from, QProfileDto to) {
       throw new UnsupportedOperationException();
     }
   }

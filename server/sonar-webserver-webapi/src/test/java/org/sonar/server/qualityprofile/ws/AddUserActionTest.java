@@ -40,7 +40,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
@@ -125,21 +124,6 @@ public class AddUserActionTest {
     UserDto userAllowedToEditProfile = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, userAllowedToEditProfile);
     userSession.logIn(userAllowedToEditProfile);
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
-
-    assertThat(db.getDbClient().qProfileEditUsersDao().exists(db.getSession(), profile, user)).isTrue();
-  }
-
-  @Test
-  public void uses_default_organization_when_no_organization() {
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
-    UserDto user = db.users().insertUser();
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())

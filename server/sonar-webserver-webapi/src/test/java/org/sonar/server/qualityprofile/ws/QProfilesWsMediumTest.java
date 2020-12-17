@@ -35,15 +35,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
-import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -76,14 +75,14 @@ public class QProfilesWsMediumTest {
   @Rule
   public DbTester dbTester = DbTester.create();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
-  private TypeValidations typeValidations = new TypeValidations(emptyList());
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+  private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
+  private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
+  private final TypeValidations typeValidations = new TypeValidations(emptyList());
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
   private final QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);
 
@@ -397,8 +396,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() {
-    QProfileDto profile = QProfileTesting.newXooP1();
-    QProfileDto childProfile = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setLanguage("java");
+    QProfileDto childProfile = QualityProfileTesting.newQualityProfileDto().setParentKee(profile.getKee()).setLanguage("java");
     dbClient.qualityProfileDao().insert(dbSession, profile, childProfile);
 
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
@@ -432,7 +431,7 @@ public class QProfilesWsMediumTest {
   }
 
   private QProfileDto createProfile(String lang) {
-    QProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, "P" + lang), "p" + lang);
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setName("P" + lang).setLanguage(lang);
     dbClient.qualityProfileDao().insert(dbSession, profile);
     return profile;
   }

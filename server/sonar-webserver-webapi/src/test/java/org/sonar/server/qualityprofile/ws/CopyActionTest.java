@@ -139,7 +139,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void copy_rules_on_existing_profile_in_default_organization() {
+  public void copy_rules_on_existing_profile() {
     logInAsQProfileAdministrator();
     QProfileDto sourceProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     QProfileDto targetProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
@@ -213,7 +213,7 @@ public class CopyActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator_of_organization() {
+  public void throw_ForbiddenException_if_not_profile_global_administrator() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn().addPermission(GlobalPermission.SCAN);
 

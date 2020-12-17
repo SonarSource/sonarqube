@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -43,39 +44,38 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class QProfileExportersTest {
 
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
 
-  private RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
-  private ProfileExporter[] exporters = new ProfileExporter[] {
+  private final RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
+  private final ProfileExporter[] exporters = new ProfileExporter[] {
     new StandardExporter(), new XooExporter()};
-  private ProfileImporter[] importers = new ProfileImporter[] {
+  private final ProfileImporter[] importers = new ProfileImporter[] {
     new XooProfileImporter(), new XooProfileImporterWithMessages(), new XooProfileImporterWithError()};
   private RuleDefinitionDto rule;
-  private QProfileRules qProfileRules = mock(QProfileRules.class);
-  private QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, qProfileRules, exporters, importers);
+  private final QProfileRules qProfileRules = mock(QProfileRules.class);
+  private final QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, qProfileRules, exporters, importers);
 
   @Before
   public void setUp() {
@@ -100,7 +100,6 @@ public class QProfileExportersTest {
   @Test
   public void import_xml() {
     QProfileDto profile = createProfile();
-
 
     underTest.importXml(profile, "XooProfileImporter", toInputStream("<xml/>", UTF_8), db.getSession());
 
@@ -129,22 +128,23 @@ public class QProfileExportersTest {
 
   @Test
   public void fail_to_import_xml_when_error_in_importer() {
-    try {
-      underTest.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), db.getSession());
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("error!");
-    }
+    QProfileDto qProfileDto = newQualityProfileDto();
+    InputStream inputStream = toInputStream("<xml/>", UTF_8);
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.importXml(
+      qProfileDto, "XooProfileImporterWithError", inputStream, dbSession))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("error!");
   }
 
   @Test
   public void fail_to_import_xml_on_unknown_importer() {
-    try {
-      underTest.importXml(QProfileTesting.newXooP1(), "Unknown", toInputStream("<xml/>", UTF_8), db.getSession());
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("No such importer : Unknown");
-    }
+    QProfileDto qProfileDto = newQualityProfileDto();
+    InputStream inputStream = toInputStream("<xml/>", UTF_8);
+    DbSession dbSession = db.getSession();
+    assertThatThrownBy(() -> underTest.importXml(qProfileDto, "Unknown", inputStream, dbSession))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("No such importer : Unknown");
   }
 
   @Test

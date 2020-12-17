@@ -67,12 +67,12 @@ public class ActivateRuleActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(Collection.class);
-  private DbClient dbClient = db.getDbClient();
-  private QProfileRules qProfileRules = mock(QProfileRules.class);
+  private final ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(Collection.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final QProfileRules qProfileRules = mock(QProfileRules.class);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
-  private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSession, wsSupport));
+  private final WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSession, wsSupport));
 
   @Before
   public void before() {
@@ -100,7 +100,7 @@ public class ActivateRuleActionTest {
   }
 
   @Test
-  public void fail_if_not_organization_quality_profile_administrator() {
+  public void fail_if_not_global_quality_profile_administrator() {
     userSession.logIn(db.users().insertUser());
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     TestRequest request = ws.newRequest()

@@ -59,13 +59,13 @@ public class RemoveProjectActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
+  private final DbClient dbClient = db.getDbClient();
+  private final Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
-  private RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
+  private final RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
     new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void definition() {
@@ -88,7 +88,7 @@ public class RemoveProjectActionTest {
   public void remove_profile_from_project() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profileLang1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     QProfileDto profileLang2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_2));
     db.qualityProfiles().associateWithProject(project, profileLang1);
@@ -116,7 +116,7 @@ public class RemoveProjectActionTest {
 
   @Test
   public void project_administrator_can_remove_profile() {
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     db.qualityProfiles().associateWithProject(project, profile);
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
@@ -143,7 +143,7 @@ public class RemoveProjectActionTest {
   @Test
   public void fail_if_not_enough_permissions() {
     userSession.logIn(db.users().insertUser());
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     expectedException.expect(ForbiddenException.class);

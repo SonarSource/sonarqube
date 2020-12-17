@@ -38,7 +38,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
  * The two exclusive options to reference a profile are:
  * <ul>
  * <li>by its id (to be deprecated)</li>
- * <li>by the tuple {organizationKey, language, name}</li>
+ * <li>by the tuple {language, name}</li>
  * </ul>
  */
 public class QProfileReference {

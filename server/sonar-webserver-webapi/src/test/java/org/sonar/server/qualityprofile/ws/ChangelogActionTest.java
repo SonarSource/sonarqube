@@ -52,7 +52,7 @@ public class ChangelogActionTest {
 
   private static final String DATE = "2011-04-25T01:15:42+0100";
 
-  private TestSystem2 system2 = new TestSystem2().setNow(DateUtils.parseDateTime(DATE).getTime());
+  private final TestSystem2 system2 = new TestSystem2().setNow(DateUtils.parseDateTime(DATE).getTime());
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -61,8 +61,8 @@ public class ChangelogActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
-  private WsActionTester ws = new WsActionTester(new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
+  private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
+  private final WsActionTester ws = new WsActionTester(new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
 
   @Test
   public void return_change_with_all_fields() {
@@ -138,38 +138,6 @@ public class ChangelogActionTest {
 
   @Test
   public void find_changelog_by_language_and_name() {
-    QProfileDto qualityProfile = db.qualityProfiles().insert();
-    RuleDefinitionDto rule = db.rules().insert();
-    UserDto user = db.users().insertUser();
-    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
-      ImmutableMap.of(
-        "ruleUuid", rule.getUuid(),
-        "severity", "MINOR"));
-
-    String response = ws.newRequest()
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .execute()
-      .getInput();
-
-    assertJson(response).isSimilarTo("{\n" +
-      "  \"events\": [\n" +
-      "    {\n" +
-      "      \"date\": \"" + DATE + "\",\n" +
-      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
-      "      \"action\": \"ACTIVATED\",\n" +
-      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
-      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
-      "      \"params\": {\n" +
-      "        \"severity\": \"MINOR\"\n" +
-      "      }\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}");
-  }
-
-  @Test
-  public void find_changelog_by_organization_and_language_and_name() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();

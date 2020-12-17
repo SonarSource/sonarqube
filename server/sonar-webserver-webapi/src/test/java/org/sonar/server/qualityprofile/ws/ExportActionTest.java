@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -46,7 +45,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 
 public class ExportActionTest {
 
@@ -60,11 +58,11 @@ public class ExportActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private QProfileBackuper backuper = new TestBackuper();
+  private final DbClient dbClient = db.getDbClient();
+  private final QProfileBackuper backuper = new TestBackuper();
 
   @Test
-  public void export_profile_in_default_organization() {
+  public void export_profile() {
     QProfileDto profile = createProfile(false);
 
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
@@ -106,7 +104,7 @@ public class ExportActionTest {
   }
 
   @Test
-  public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist_in_default_organization() {
+  public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
     newWsActionTester().newRequest()

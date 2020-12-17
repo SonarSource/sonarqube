@@ -38,7 +38,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -64,18 +63,18 @@ public class QProfileBackuperImplTest {
     "<rules/>" +
     "</profile>";
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DummyReset reset = new DummyReset();
-  private QProfileFactory profileFactory = new DummyProfileFactory();
-  private RuleCreator ruleCreator = mock(RuleCreator.class);
+  private final DummyReset reset = new DummyReset();
+  private final QProfileFactory profileFactory = new DummyProfileFactory();
+  private final RuleCreator ruleCreator = mock(RuleCreator.class);
 
-  private QProfileBackuper underTest = new QProfileBackuperImpl(db.getDbClient(), reset, profileFactory, ruleCreator, new QProfileParser());
+  private final QProfileBackuper underTest = new QProfileBackuperImpl(db.getDbClient(), reset, profileFactory, ruleCreator, new QProfileParser());
 
   @Test
   public void backup_generates_xml_file() {
@@ -350,7 +349,6 @@ public class QProfileBackuperImplTest {
   @Test
   public void fail_to_restore_external_rule() {
     db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true));
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
       "<language>js</language>" +

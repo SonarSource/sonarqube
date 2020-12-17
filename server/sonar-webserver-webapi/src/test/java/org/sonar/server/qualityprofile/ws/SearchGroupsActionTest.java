@@ -64,7 +64,7 @@ public class SearchGroupsActionTest {
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
 
-  private WsActionTester ws = new WsActionTester(new SearchGroupsAction(db.getDbClient(), wsSupport, LANGUAGES));
+  private final WsActionTester ws = new WsActionTester(new SearchGroupsAction(db.getDbClient(), wsSupport, LANGUAGES));
 
   @Test
   public void test_definition() {
@@ -234,7 +234,7 @@ public class SearchGroupsActionTest {
   }
 
   @Test
-  public void uses_default_organization_when_no_organization() {
+  public void uses_global_permission() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group);
