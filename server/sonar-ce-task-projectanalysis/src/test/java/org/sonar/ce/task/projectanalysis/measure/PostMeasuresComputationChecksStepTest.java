@@ -43,7 +43,6 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class PostMeasuresComputationChecksStepTest {
 
@@ -72,7 +71,7 @@ public class PostMeasuresComputationChecksStepTest {
 
   @Test
   public void context_contains_project_uuid_from_analysis_metada_holder() {
-    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
+    Project project = Project.from(newPrivateProjectDto());
     analysisMetadataHolder.setProject(project);
     PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
 

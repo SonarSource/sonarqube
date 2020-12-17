@@ -37,8 +37,6 @@ import static org.junit.Assert.fail;
 
 public class ScmAccountToUserLoaderTest {
 
-  private static final String ORGANIZATION_UUID = "my-organization";
-
   @Rule
   public DbTester db = DbTester.create();
   @Rule

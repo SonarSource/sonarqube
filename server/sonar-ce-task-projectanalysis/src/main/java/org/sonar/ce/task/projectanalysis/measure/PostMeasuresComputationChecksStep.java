@@ -86,14 +86,5 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
       return nclocMeasure.map(Measure::getIntValue).orElse(0);
     }
 
-    @Override
-    public String getOrganizationUuid() {
-      return analysisMetadataHolder.getOrganization().getUuid();
-    }
-
-    @Override
-    public String getOrganizationKey() {
-      return analysisMetadataHolder.getOrganization().getKey();
-    }
   }
 }

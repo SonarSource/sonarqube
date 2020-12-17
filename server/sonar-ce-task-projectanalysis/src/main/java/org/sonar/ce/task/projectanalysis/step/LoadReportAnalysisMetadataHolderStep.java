@@ -22,11 +22,9 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Date;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
@@ -34,13 +32,10 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -55,23 +50,18 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final CeTask ceTask;
   private final BatchReportReader reportReader;
   private final MutableAnalysisMetadataHolder analysisMetadata;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final DbClient dbClient;
   private final BranchLoader branchLoader;
   private final PluginRepository pluginRepository;
-  private final OrganizationFlags organizationFlags;
 
   public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder analysisMetadata,
-    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository,
-    OrganizationFlags organizationFlags) {
+    DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.analysisMetadata = analysisMetadata;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.dbClient = dbClient;
     this.branchLoader = branchLoader;
     this.pluginRepository = pluginRepository;
-    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -79,8 +69,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
 
     loadMetadata(reportMetadata);
-    Organization organization = loadOrganization(reportMetadata);
-    Runnable projectValidation = loadProject(reportMetadata, organization);
+    Runnable projectValidation = loadProject(reportMetadata);
     loadQualityProfiles(reportMetadata);
     branchLoader.load(reportMetadata);
     projectValidation.run();
@@ -97,7 +86,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   /**
    * @return a {@link Runnable} to execute some checks on the project at the end of the step
    */
-  private Runnable loadProject(ScannerReport.Metadata reportMetadata, Organization organization) {
+  private Runnable loadProject(ScannerReport.Metadata reportMetadata) {
     CeTask.Component mainComponent = mandatoryComponent(ceTask.getMainComponent());
     String mainComponentKey = mainComponent.getKey()
       .orElseThrow(() -> MessageException.of(format(
@@ -119,25 +108,12 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
           reportMetadata.getProjectKey(),
           mainComponentKey));
       }
-      if (!dto.getOrganizationUuid().equals(organization.getUuid())) {
-        throw MessageException.of(format("Project is not in the expected organization: %s", organization.getKey()));
-      }
     };
   }
 
   private static CeTask.Component mandatoryComponent(Optional<CeTask.Component> mainComponent) {
     return mainComponent
       .orElseThrow(() -> new IllegalStateException("component missing on ce task"));
-  }
-
-  private Organization loadOrganization(ScannerReport.Metadata reportMetadata) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Organization organization = toOrganization(dbSession, ceTask.getOrganizationUuid());
-      checkOrganizationKeyConsistency(reportMetadata, organization);
-      analysisMetadata.setOrganization(organization);
-      analysisMetadata.setOrganizationsEnabled(organizationFlags.isEnabled(dbSession));
-      return organization;
-    }
   }
 
   private void loadQualityProfiles(ScannerReport.Metadata reportMetadata) {
@@ -159,41 +135,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       return null;
     }
     return pluginRepository.getPluginInfo(p.getKey()).getBasePlugin();
-  }
-
-  private void checkOrganizationKeyConsistency(ScannerReport.Metadata reportMetadata, Organization organization) {
-    String organizationKey = reportMetadata.getOrganizationKey();
-    String resolveReportOrganizationKey = resolveReportOrganizationKey(organizationKey);
-    if (!resolveReportOrganizationKey.equals(organization.getKey())) {
-      if (reportBelongsToDefaultOrganization(organizationKey)) {
-        throw MessageException.of(format(
-          "Report does not specify an OrganizationKey but it has been submitted to another organization (%s) than the default one (%s)",
-          organization.getKey(),
-          defaultOrganizationProvider.get().getKey()));
-      } else {
-        throw MessageException.of(format(
-          "OrganizationKey in report (%s) is not consistent with organizationKey under which the report as been submitted (%s)",
-          resolveReportOrganizationKey,
-          organization.getKey()));
-      }
-    }
-  }
-
-  private String resolveReportOrganizationKey(@Nullable String organizationKey) {
-    if (reportBelongsToDefaultOrganization(organizationKey)) {
-      return defaultOrganizationProvider.get().getKey();
-    }
-    return organizationKey;
-  }
-
-  private static boolean reportBelongsToDefaultOrganization(@Nullable String organizationKey) {
-    return organizationKey == null || organizationKey.isEmpty();
-  }
-
-  private Organization toOrganization(DbSession dbSession, String organizationUuid) {
-    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
-    checkState(organizationDto.isPresent(), "Organization with uuid '%s' can't be found", organizationUuid);
-    return Organization.from(organizationDto.get());
   }
 
   private ProjectDto toProject(String projectKey) {

@@ -173,20 +173,6 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  public void write_project_organization() throws Exception {
-    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
-
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
-
-    underTest.publish(writer);
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
-  }
-
-  @Test
   @UseDataProvider("projectVersions")
   public void write_project_version(@Nullable String projectVersion, String expected) throws Exception {
     when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(projectVersion));

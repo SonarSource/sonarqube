@@ -51,7 +51,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 
 import static java.util.Arrays.stream;
@@ -236,8 +235,7 @@ public class FileMoveDetectionStepTest {
 
   @Before
   public void setUp() throws Exception {
-    OrganizationDto organization = dbTester.organizations().insert();
-    project = dbTester.components().insertPrivateProject(organization);
+    project = dbTester.components().insertPrivateProject();
     treeRootHolder.setRoot(builder(Component.Type.PROJECT, ROOT_REF).setUuid(project.uuid()).build());
   }
 

@@ -46,7 +46,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static java.util.Collections.emptyList;
@@ -75,8 +74,7 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_by_issue_based_on_first_row() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -95,8 +93,7 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_with_null_line_if_first_row_has_no_line_diff() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -115,8 +112,7 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadClosedIssues_returns_only_closed_issues_with_close_date() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
@@ -184,8 +180,7 @@ public class ComponentIssuesLoaderTest {
   }
 
   private void loadClosedIssues_returns_only_closed_issues_with_close_date_is_from_30_days_ago(ComponentIssuesLoader underTest) {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date[] issueDates = new Date[] {

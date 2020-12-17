@@ -45,11 +45,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
 public class ComponentTreeBuilderTest {
 
@@ -70,7 +69,7 @@ public class ComponentTreeBuilderTest {
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
 
-  private Project projectInDb = Project.from(newPrivateProjectDto(newOrganizationDto(), UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
+  private Project projectInDb = Project.from(newPrivateProjectDto(UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
 
   @Test
   public void build_throws_IAE_for_all_types_except_PROJECT_and_FILE() {

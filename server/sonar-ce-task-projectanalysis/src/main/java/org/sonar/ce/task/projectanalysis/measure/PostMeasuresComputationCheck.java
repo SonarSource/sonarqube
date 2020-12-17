@@ -54,14 +54,5 @@ public interface PostMeasuresComputationCheck {
      */
     int getNcloc();
 
-    /**
-     * Return the organization
-     */
-    String getOrganizationUuid();
-
-    /**
-     * Return the organization
-     */
-    String getOrganizationKey();
   }
 }

@@ -41,7 +41,6 @@ public class IgnoreOrphanBranchStepTest {
 
   private CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");
   private CeTask ceTask = new CeTask.Builder()
-    .setOrganizationUuid("organizationUuid")
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
@@ -90,7 +89,6 @@ public class IgnoreOrphanBranchStepTest {
   @Test
   public void fail_if_missing_main_component_in_task() {
     CeTask ceTask = new CeTask.Builder()
-      .setOrganizationUuid("organizationUuid")
       .setType("type")
       .setUuid("uuid")
       .setComponent(null)

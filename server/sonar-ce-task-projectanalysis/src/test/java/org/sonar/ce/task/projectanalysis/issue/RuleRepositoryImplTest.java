@@ -59,8 +59,6 @@ public class RuleRepositoryImplTest {
   private static final RuleKey DEPRECATED_KEY_OF_NON_EXITING_RULE = RuleKey.of("some_rep", "some_key");
   private static final RuleKey AC_RULE_KEY = RuleKey.of("a", "c");
   private static final String AC_RULE_UUID = "uuid-684";
-  private static final String ORGANIZATION_UUID = "org-1";
-  private static final String QUALITY_GATE_UUID = "QUALITY_GATE_UUID";
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();

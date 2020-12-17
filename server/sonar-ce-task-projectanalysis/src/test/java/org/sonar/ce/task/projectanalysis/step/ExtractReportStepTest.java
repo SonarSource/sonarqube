@@ -59,7 +59,6 @@ public class ExtractReportStepTest {
 
   private MutableBatchReportDirectoryHolder reportDirectoryHolder = new BatchReportDirectoryHolderImpl();
   private CeTask ceTask = new CeTask.Builder()
-    .setOrganizationUuid("org1")
     .setType(CeTaskTypes.REPORT)
     .setUuid(TASK_UUID)
     .build();

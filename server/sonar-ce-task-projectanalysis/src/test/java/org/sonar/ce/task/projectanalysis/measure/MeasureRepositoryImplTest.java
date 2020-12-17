@@ -49,7 +49,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 
@@ -141,8 +140,7 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
     SnapshotDto lastAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(true));
     SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));

@@ -39,67 +39,8 @@ public class CeTaskTest {
   private CeTask.Builder underTest = new CeTask.Builder();
 
   @Test
-  public void build_fails_with_NPE_if_organizationUuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_organizationUuid_is_empty() {
-    underTest.setOrganizationUuid("");
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_uid_is_null() {
-    underTest.setOrganizationUuid("org1");
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_uuid_is_empty() {
-    underTest.setOrganizationUuid("org1").setUuid("");
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_type_is_null() {
-    underTest.setOrganizationUuid("org1").setUuid("uuid");
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("type can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_type_is_empty() {
-    underTest.setOrganizationUuid("org1").setUuid("uuid").setType("");
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("type can't be null nor empty");
-
-    underTest.build();
-  }
-
-  @Test
   @UseDataProvider("oneAndOnlyOneOfComponentAndMainComponent")
   public void build_fails_with_IAE_if_only_one_of_component_and_main_component_is_non_null(CeTask.Component component, CeTask.Component mainComponent) {
-    underTest.setOrganizationUuid("org1");
     underTest.setType("TYPE_1");
     underTest.setUuid("UUID_1");
     underTest.setComponent(component);
@@ -125,7 +66,6 @@ public class CeTaskTest {
     CeTask.Component component = new CeTask.Component("COMPONENT_UUID_1", "COMPONENT_KEY_1", "The component");
     CeTask.Component mainComponent = new CeTask.Component("MAIN_COMPONENT_UUID_1", "MAIN_COMPONENT_KEY_1", "The main component");
     CeTask.User submitter = new CeTask.User("UUID_USER_1", "LOGIN_1");
-    underTest.setOrganizationUuid("org1");
     underTest.setType("TYPE_1");
     underTest.setUuid("UUID_1");
     underTest.setSubmitter(submitter);
@@ -135,7 +75,6 @@ public class CeTaskTest {
 
     CeTask task = underTest.build();
 
-    assertThat(task.getOrganizationUuid()).isEqualTo("org1");
     assertThat(task.getUuid()).isEqualTo("UUID_1");
     assertThat(task.getType()).isEqualTo("TYPE_1");
     assertThat(task.getSubmitter()).isEqualTo(submitter);
@@ -148,7 +87,6 @@ public class CeTaskTest {
   public void verify_toString() {
     CeTask.Component component = new CeTask.Component("COMPONENT_UUID_1", "COMPONENT_KEY_1", "The component");
     CeTask.Component mainComponent = new CeTask.Component("MAIN_COMPONENT_UUID_1", "MAIN_COMPONENT_KEY_1", "The main component");
-    underTest.setOrganizationUuid("org1");
     underTest.setType("TYPE_1");
     underTest.setUuid("UUID_1");
     underTest.setComponent(component);
@@ -159,20 +97,18 @@ public class CeTaskTest {
     CeTask task = underTest.build();
     System.out.println(task.toString());
 
-    assertThat(task.toString()).isEqualTo("CeTask{" +
-            "organizationUuid=org1, " +
-            "type=TYPE_1, " +
-            "uuid=UUID_1, " +
-            "component=Component{uuid='COMPONENT_UUID_1', key='COMPONENT_KEY_1', name='The component'}, " +
-            "mainComponent=Component{uuid='MAIN_COMPONENT_UUID_1', key='MAIN_COMPONENT_KEY_1', name='The main component'}, " +
-            "submitter=User{uuid='UUID_USER_1', login='LOGIN_1'}" +
-            "}"
-    );
+    assertThat(task).hasToString("CeTask{" +
+      "type=TYPE_1, " +
+      "uuid=UUID_1, " +
+      "component=Component{uuid='COMPONENT_UUID_1', key='COMPONENT_KEY_1', name='The component'}, " +
+      "mainComponent=Component{uuid='MAIN_COMPONENT_UUID_1', key='MAIN_COMPONENT_KEY_1', name='The main component'}, " +
+      "submitter=User{uuid='UUID_USER_1', login='LOGIN_1'}" +
+      "}");
   }
 
   @Test
   public void empty_in_submitterLogin_is_considered_as_null() {
-    CeTask ceTask = underTest.setOrganizationUuid("org1").setUuid("uuid").setType("type")
+    CeTask ceTask = underTest.setUuid("uuid").setType("type")
       .setSubmitter(new CeTask.User("USER_ID", ""))
       .build();
 
@@ -181,10 +117,10 @@ public class CeTaskTest {
 
   @Test
   public void equals_and_hashCode_on_uuid() {
-    underTest.setOrganizationUuid("org1").setType("TYPE_1").setUuid("UUID_1");
+    underTest.setType("TYPE_1").setUuid("UUID_1");
     CeTask task1 = underTest.build();
     CeTask task1bis = underTest.build();
-    CeTask task2 = new CeTask.Builder().setOrganizationUuid("org1").setType("TYPE_1").setUuid("UUID_2").build();
+    CeTask task2 = new CeTask.Builder().setType("TYPE_1").setUuid("UUID_2").build();
 
     assertThat(task1.equals(task1)).isTrue();
     assertThat(task1.equals(task1bis)).isTrue();
@@ -195,7 +131,7 @@ public class CeTaskTest {
 
   @Test
   public void setCharacteristics_null_is_considered_as_empty() {
-    CeTask task = underTest.setOrganizationUuid("org1").setType("TYPE_1").setUuid("UUID_1")
+    CeTask task = underTest.setType("TYPE_1").setUuid("UUID_1")
       .setCharacteristics(null)
       .build();
     assertThat(task.getCharacteristics()).isEmpty();

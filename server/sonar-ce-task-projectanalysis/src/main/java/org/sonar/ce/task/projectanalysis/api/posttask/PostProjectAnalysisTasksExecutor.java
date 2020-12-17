@@ -166,7 +166,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private ProjectAnalysisImpl createProjectAnalysis(CeTask.Status status) {
     return new ProjectAnalysisImpl(
-      createOrganization(),
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
       getAnalysis().orElse(null),
@@ -175,15 +174,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       status == SUCCESS ? createQualityGate() : null,
       createBranch(),
       reportReader.readMetadata().getScmRevisionId());
-  }
-
-  @CheckForNull
-  private Organization createOrganization() {
-    if (!analysisMetadataHolder.isOrganizationsEnabled()) {
-      return null;
-    }
-    org.sonar.ce.task.projectanalysis.analysis.Organization organization = analysisMetadataHolder.getOrganization();
-    return new OrganizationImpl(organization.getName(), organization.getKey());
   }
 
   private Optional<Analysis> getAnalysis() {
@@ -254,8 +244,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private static class ProjectAnalysisImpl implements PostProjectAnalysisTask.ProjectAnalysis {
-    @Nullable
-    private final Organization organization;
     private final CeTask ceTask;
     private final Project project;
     private final long date;
@@ -268,10 +256,9 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     private final Analysis analysis;
     private final String scmRevisionId;
 
-    private ProjectAnalysisImpl(@Nullable Organization organization, CeTask ceTask, Project project,
+    private ProjectAnalysisImpl(CeTask ceTask, Project project,
       @Nullable Analysis analysis, long date,
       ScannerContext scannerContext, @Nullable QualityGate qualityGate, @Nullable Branch branch, String scmRevisionId) {
-      this.organization = organization;
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
       this.analysis = analysis;
@@ -284,7 +271,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     @Override
     public Optional<Organization> getOrganization() {
-      return Optional.ofNullable(organization);
+      return empty();
     }
 
     @Override
@@ -371,26 +358,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Override
     public Optional<String> getRevision() {
       return revision;
-    }
-  }
-
-  private static class OrganizationImpl implements Organization {
-    private final String name;
-    private final String key;
-
-    private OrganizationImpl(String name, String key) {
-      this.name = requireNonNull(name, "name can't be null");
-      this.key = requireNonNull(key, "key can't be null");
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String getKey() {
-      return key;
     }
   }
 }

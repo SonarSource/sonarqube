@@ -38,11 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class ConfigurationRepositoryTest {
 
-  private static Project PROJECT = Project.from(newPrivateProjectDto(newOrganizationDto()));
+  private static Project PROJECT = Project.from(newPrivateProjectDto());
 
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);

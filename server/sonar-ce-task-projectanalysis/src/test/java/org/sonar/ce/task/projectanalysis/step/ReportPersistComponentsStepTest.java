@@ -48,6 +48,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -69,21 +71,19 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String PROJECT_KEY = "PROJECT_KEY";
-  private static final String ORGANIZATION_UUID = "org1";
-  private static final String QUALITY_GATE_UUID = "gg1";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid(ORGANIZATION_UUID, QUALITY_GATE_UUID);
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private System2 system2 = mock(System2.class);
-  private DbClient dbClient = db.getDbClient();
+  private final System2 system2 = mock(System2.class);
+  private final DbClient dbClient = db.getDbClient();
   private Date now;
-  private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
+  private final MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
 
   @Before
@@ -91,10 +91,10 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    db.organizations().insertForUuid(ORGANIZATION_UUID);
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister,
+      defaultOrganizationProvider);
   }
 
   @Override
@@ -125,7 +125,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(db.countRowsOfTable("components")).isEqualTo(3);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(directoryDto.name()).isEqualTo("dir");
     assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
@@ -142,7 +142,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();
@@ -184,7 +184,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(db.countRowsOfTable("components")).isEqualTo(3);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(directoryDto.name()).isEqualTo("dir");
     assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
@@ -201,7 +201,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();
@@ -631,7 +631,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   }
 
   private ComponentDto prepareProject(Consumer<ComponentDto> populators) {
-    ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
+    ComponentDto dto = db.components().insertPrivateProject(populators);
     analysisMetadataHolder.setProject(Project.from(dto));
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     return dto;
@@ -642,7 +642,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   }
 
   private ComponentDto prepareBranch(String branchName, Consumer<ComponentDto> populators) {
-    ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
+    ComponentDto dto = db.components().insertPrivateProject(populators);
     analysisMetadataHolder.setProject(Project.from(dto));
     analysisMetadataHolder.setBranch(new TestBranch(branchName));
     return dto;

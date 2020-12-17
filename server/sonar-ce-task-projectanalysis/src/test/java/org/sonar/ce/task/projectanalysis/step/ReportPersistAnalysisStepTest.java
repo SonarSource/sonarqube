@@ -41,7 +41,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,15 +93,14 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_analysis() {
     String projectVersion = randomAlphabetic(10);
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setDbKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setDbKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
+    dbTester.components().insertComponent(moduleDto);
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setDbKey("MODULE_KEY:src/main/java/dir");
-    dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
+    dbTester.components().insertComponent(directoryDto);
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setDbKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(dbTester.getSession(), fileDto);
+    dbTester.components().insertComponent(fileDto);
     dbTester.getSession().commit();
 
     Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
@@ -136,9 +134,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_new_code_period() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setDbKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
@@ -159,20 +156,19 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   public void only_persist_snapshots_with_new_code_period_on_project_and_module() {
     periodsHolder.setPeriod(new Period("PREVIOUS_VERSION", null, analysisDate));
 
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setDbKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
 
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setDbKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
+    dbTester.components().insertComponent(moduleDto);
 
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setDbKey("MODULE_KEY:src/main/java/dir");
-    dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
+    dbTester.components().insertComponent(directoryDto);
 
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setDbKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(dbTester.getSession(), fileDto);
+    dbTester.components().insertComponent(fileDto);
 
     dbTester.getSession().commit();
 
@@ -189,8 +185,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void set_no_period_on_snapshots_when_no_period() {
-    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setDbKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();

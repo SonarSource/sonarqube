@@ -78,7 +78,7 @@ public class ProjectPersisterTest {
 
   @Test
   public void update_description() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(dbTester.getDefaultOrganization(),
+    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
       c -> c.setUuid("PROJECT_UUID").setDbKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC"));
 
     assertProject("OLD_DESC", ROOT.getName(), p1.getUpdatedAt());
@@ -88,7 +88,7 @@ public class ProjectPersisterTest {
 
   @Test
   public void update_name() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(dbTester.getDefaultOrganization(),
+    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
       c -> c.setUuid("PROJECT_UUID").setDbKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription()));
 
     assertProject(ROOT.getDescription(), "OLD_NAME", p1.getUpdatedAt());
@@ -98,7 +98,7 @@ public class ProjectPersisterTest {
 
   @Test
   public void dont_update() {
-    ProjectDto p1 = dbTester.components().insertPublicProjectDto(dbTester.getDefaultOrganization(),
+    ProjectDto p1 = dbTester.components().insertPublicProjectDto(
       c -> c.setUuid("PROJECT_UUID").setDbKey(ROOT.getKey()).setName(ROOT.getName()).setDescription(ROOT.getDescription()));
 
     assertProject(ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());

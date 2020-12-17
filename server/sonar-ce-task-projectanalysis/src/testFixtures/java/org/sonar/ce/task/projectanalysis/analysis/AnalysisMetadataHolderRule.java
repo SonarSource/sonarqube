@@ -27,19 +27,15 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.util.InitializedProperty;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
-  private final InitializedProperty<Boolean> organizationsEnabled = new InitializedProperty<>();
-  private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
   private final InitializedProperty<Long> forkDate = new InitializedProperty<>();
@@ -52,38 +48,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
-
-  @Override
-  public AnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
-    this.organizationsEnabled.setProperty(isOrganizationsEnabled);
-    return this;
-  }
-
-  @Override
-  public boolean isOrganizationsEnabled() {
-    checkState(organizationsEnabled.isInitialized(), "Organizations enabled flag has not been set");
-    return organizationsEnabled.getProperty();
-  }
-
-  @Override
-  public AnalysisMetadataHolderRule setOrganization(Organization organization) {
-    requireNonNull(organization, "organization can't be null");
-    this.organization.setProperty(organization);
-    return this;
-  }
-
-  public AnalysisMetadataHolderRule setOrganizationUuid(String uuid, String defaultQualityGateUuid) {
-    requireNonNull(uuid, "organization uuid can't be null");
-    this.organization
-      .setProperty(Organization.from(new OrganizationDto().setUuid(uuid).setKey("key_" + uuid).setName("name_" + uuid).setDefaultQualityGateUuid(defaultQualityGateUuid)));
-    return this;
-  }
-
-  @Override
-  public Organization getOrganization() {
-    checkState(organization.isInitialized(), "Organization has not been set");
-    return this.organization.getProperty();
-  }
 
   @Override
   public AnalysisMetadataHolderRule setUuid(String s) {
@@ -110,7 +74,8 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
     return this;
   }
 
-  @Override public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
+  @Override
+  public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
     forkDate.setProperty(date);
     return this;
   }

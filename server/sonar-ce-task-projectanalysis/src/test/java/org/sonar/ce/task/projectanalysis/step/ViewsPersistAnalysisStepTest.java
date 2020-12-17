@@ -38,7 +38,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -92,10 +91,9 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setDbKey("KEY_VIEW"));
+    ComponentDto viewDto = save(newView("UUID_VIEW").setDbKey("KEY_VIEW"));
     save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
-    save(newPrivateProjectDto(organizationDto, "proj"));
+    save(newPrivateProjectDto("proj"));
     dbTester.getSession().commit();
 
     Component projectView = ViewsComponent.builder(PROJECT_VIEW, "KEY_PROJECT_COPY").setUuid("UUID_PROJECT_COPY").build();
@@ -119,8 +117,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_new_code_period() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setDbKey("KEY_VIEW"));
+    ComponentDto viewDto = save(newView("UUID_VIEW").setDbKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 
@@ -139,8 +136,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   }
 
   private ComponentDto save(ComponentDto componentDto) {
-    dbClient.componentDao().insert(dbTester.getSession(), componentDto);
-    return componentDto;
+    return dbTester.components().insertComponent(componentDto);
   }
 
   private SnapshotDto getUnprocessedSnapshot(String componentUuid) {

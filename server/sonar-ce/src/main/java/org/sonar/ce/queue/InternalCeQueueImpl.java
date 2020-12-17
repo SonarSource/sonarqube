@@ -47,7 +47,6 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -65,8 +64,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   private final ComputeEngineStatus computeEngineStatus;
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
-    DefaultOrganizationProvider defaultOrganizationProvider, ComputeEngineStatus computeEngineStatus) {
-    super(system2, dbClient, uuidFactory, defaultOrganizationProvider);
+    ComputeEngineStatus computeEngineStatus) {
+    super(system2, dbClient, uuidFactory);
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
     this.computeEngineStatus = computeEngineStatus;

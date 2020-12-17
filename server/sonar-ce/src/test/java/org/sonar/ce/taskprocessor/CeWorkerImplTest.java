@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
-import org.sonar.server.organization.BillingValidations;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,10 +62,12 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -491,22 +491,6 @@ public class CeWorkerImplTest {
   }
 
   @Test
-  public void do_no_log_error_when_task_fails_with_BillingValidationsException() throws Exception {
-    CeTask ceTask = createCeTask(submitter);
-    when(queue.peek(anyString(), anyBoolean(), anyBoolean())).thenReturn(Optional.of(ceTask));
-    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
-    makeTaskProcessorFail(ceTask, new BillingValidations.BillingValidationsException("simulate MessageException thrown by TaskProcessor#process"));
-
-    underTest.call();
-
-    List<String> logs = logTester.logs(LoggerLevel.INFO);
-    assertThat(logs).hasSize(2);
-    assertThat(logs.get(1)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-  }
-
-  @Test
   public void log_error_when_task_was_successful_but_ending_state_can_not_be_persisted_to_db() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean(), anyBoolean())).thenReturn(Optional.of(ceTask));
@@ -772,7 +756,6 @@ public class CeWorkerImplTest {
     }
     CeTask.Component component = new CeTask.Component("PROJECT_1", null, null);
     return new CeTask.Builder()
-      .setOrganizationUuid("org1")
       .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
       .setComponent(component)
       .setMainComponent(component)

@@ -56,7 +56,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventTesting;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -92,7 +91,6 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver);
 
-  private OrganizationDto organization;
   private ComponentDto project;
 
   @Override
@@ -102,8 +100,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Before
   public void setUp() {
-    organization = dbTester.organizations().insert();
-    project = dbTester.components().insertPublicProject(organization);
+    project = dbTester.components().insertPublicProject();
 
     when(analysisMetadataHolder.isBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
@@ -267,8 +264,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_exist_in_DB() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto project = dbTester.components().insertPublicProject();
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
     setupRoot(project);
 
@@ -280,7 +276,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_belong_to_current_project() {
-    ComponentDto otherProject = dbTester.components().insertPublicProject(organization);
+    ComponentDto otherProject = dbTester.components().insertPublicProject();
     SnapshotDto otherProjectAnalysis = dbTester.components().insertSnapshot(otherProject);
     setBranchPeriod(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, otherProjectAnalysis.getUuid());
     setupRoot(project);

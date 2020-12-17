@@ -44,7 +44,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
@@ -54,7 +53,6 @@ import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateStatusHol
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -89,21 +87,17 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private String organizationUuid = "org1";
-  private String organizationKey = organizationUuid + "_key";
-  private String organizationName = organizationUuid + "_name";
-  private System2 system2 = mock(System2.class);
-  private ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.Context.class);
-  private CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
-  private CeTask ceTask = new CeTask.Builder()
-    .setOrganizationUuid(organizationUuid)
+  private final System2 system2 = mock(System2.class);
+  private final ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.Context.class);
+  private final CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
+  private final CeTask ceTask = new CeTask.Builder()
     .setType("type")
     .setUuid("uuid")
     .setComponent(component)
     .setMainComponent(component)
     .build();
-  private PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
-  private PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
+  private final PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
+  private final PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
     ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder,
     reportReader, system2,
     new PostProjectAnalysisTask[] {postProjectAnalysisTask});
@@ -117,10 +111,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.BRANCH);
     analysisMetadataHolder
-      .setBranch(branch)
-      .setOrganizationsEnabled(new Random().nextBoolean())
-      .setOrganization(Organization.from(
-        new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
+      .setBranch(branch);
 
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
   }
@@ -142,7 +133,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
-      .finished(allStepsExecuted);
+        .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());
     inOrder.verify(postProjectAnalysisTask1).getDescription();
@@ -165,31 +156,11 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void organization_is_null_when_organization_are_disabled(boolean allStepsExecuted) {
-    analysisMetadataHolder
-      .setOrganizationsEnabled(false)
-      .setOrganization(Organization.from(
-        new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
     underTest.finished(allStepsExecuted);
 
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
 
     assertThat(taskContextCaptor.getValue().getProjectAnalysis().getOrganization()).isEmpty();
-  }
-
-  @Test
-  @UseDataProvider("booleanValues")
-  public void organization_is_not_null_when_organization_are_enabled(boolean allStepsExecuted) {
-    analysisMetadataHolder
-      .setOrganizationsEnabled(true)
-      .setOrganization(Organization.from(
-        new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
-    underTest.finished(allStepsExecuted);
-
-    verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
-
-    org.sonar.api.ce.posttask.Organization organization = taskContextCaptor.getValue().getProjectAnalysis().getOrganization().get();
-    assertThat(organization.getKey()).isEqualTo(organizationKey);
-    assertThat(organization.getName()).isEqualTo(organizationName);
   }
 
   @Test
@@ -346,7 +317,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     org.sonar.api.ce.posttask.QualityGate qualityGate = taskContextCaptor.getValue().getProjectAnalysis().getQualityGate();
     assertThat(qualityGate.getStatus()).isEqualTo(org.sonar.api.ce.posttask.QualityGate.Status.OK);
-    assertThat(qualityGate.getId()).isEqualTo(String.valueOf(QUALITY_GATE_UUID));
+    assertThat(qualityGate.getId()).isEqualTo(QUALITY_GATE_UUID);
     assertThat(qualityGate.getName()).isEqualTo(QUALITY_GATE_NAME);
     assertThat(qualityGate.getConditions()).hasSize(2);
   }
@@ -430,7 +401,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {logStatisticsTask})
-      .finished(allStepsExecuted);
+        .finished(allStepsExecuted);
 
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
 
@@ -458,7 +429,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
-      .finished(allStepsExecuted);
+        .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());
     inOrder.verify(postProjectAnalysisTask1).getDescription();

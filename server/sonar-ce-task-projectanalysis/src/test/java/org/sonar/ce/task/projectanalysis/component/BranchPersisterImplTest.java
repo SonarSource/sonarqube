@@ -107,11 +107,10 @@ public class BranchPersisterImplTest {
     String branchName = "branch";
 
     // add project and branch in table PROJECTS
-    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(MAIN.getUuid()).setDbKey(MAIN.getKey());
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), mainComponent, component);
-    dbTester.commit();
+    dbTester.components().insertComponents(mainComponent, component);
     // set project in metadata
     treeRootHolder.setRoot(BRANCH1);
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, branchName, mergeBranchUuid));
@@ -259,11 +258,10 @@ public class BranchPersisterImplTest {
     String pullRequestId = "pr-123";
 
     // add project and branch in table PROJECTS
-    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(MAIN.getUuid()).setDbKey(MAIN.getKey());
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(PULL_REQUEST));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), mainComponent, component);
-    dbTester.commit();
+    dbTester.components().insertComponents(mainComponent, component);
     // set project in metadata
     treeRootHolder.setRoot(BRANCH1);
     analysisMetadataHolder.setBranch(createBranch(PULL_REQUEST, false, pullRequestId, "mergeBanchUuid"));

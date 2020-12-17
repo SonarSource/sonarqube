@@ -47,7 +47,6 @@ public class IssueSyncTaskProcessorTest {
   @Test
   public void newContainerPopulator() {
     CeTask task = new CeTask.Builder()
-      .setOrganizationUuid("ORGANIZATION_UUID")
       .setUuid("TASK_UUID")
       .setType("Type")
       .build();

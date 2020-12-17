@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +35,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
@@ -48,17 +45,12 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.project.Project;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,18 +69,16 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestPluginRepository pluginRepository = new TestPluginRepository();
-  private OrganizationFlags organizationFlags = mock(OrganizationFlags.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final TestPluginRepository pluginRepository = new TestPluginRepository();
   private ComponentDto project;
   private ComputationStep underTest;
 
   @Before
   public void setUp() {
-    CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY, db.getDefaultOrganization().getUuid());
+    CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY);
     underTest = createStep(defaultOrgCeTask);
-    project = db.components().insertPublicProject(db.getDefaultOrganization(), p -> p.setDbKey(PROJECT_KEY));
+    project = db.components().insertPublicProject(p -> p.setDbKey(PROJECT_KEY));
   }
 
   @Test
@@ -182,7 +172,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   public void execute_fails_with_ISE_if_component_is_null_in_CE_task() {
     CeTask res = mock(CeTask.class);
     when(res.getComponent()).thenReturn(Optional.empty());
-    when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = createStep(res);
@@ -199,7 +188,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     Optional<CeTask.Component> component = Optional.of(new CeTask.Component("main_prj_uuid", null, null));
     when(res.getComponent()).thenReturn(component);
     when(res.getMainComponent()).thenReturn(component);
-    when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = createStep(res);
@@ -217,7 +205,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     Optional<CeTask.Component> component = Optional.of(new CeTask.Component("prj_uuid", null, null));
     when(res.getComponent()).thenReturn(component);
     when(res.getMainComponent()).thenReturn(Optional.of(new CeTask.Component("main_prj_uuid", "main_prj_key", null)));
-    when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = createStep(res);
@@ -230,8 +217,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   @Test
   public void execute_fails_with_MessageException_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto otherProject = db.components().insertPublicProject(organization);
+    ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getDbKey())
@@ -246,8 +232,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   @Test
   public void execute_sets_branch_even_if_MessageException_is_thrown_because_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto otherProject = db.components().insertPublicProject(organization);
+    ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getDbKey())
@@ -262,8 +247,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   @Test
   public void execute_sets_analysis_date_even_if_MessageException_is_thrown_because_projectKey_is_different_from_componentKey_in_CE_task() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto otherProject = db.components().insertPublicProject(organization);
+    ComponentDto otherProject = db.components().insertPublicProject();
     reportReader.setMetadata(
       ScannerReport.Metadata.newBuilder()
         .setProjectKey(otherProject.getDbKey())
@@ -278,98 +262,15 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void execute_fails_with_MessageException_when_report_has_no_organizationKey_but_does_not_belong_to_the_default_organization() {
-    reportReader.setMetadata(
-      newBatchReportBuilder()
-        .build());
-    OrganizationDto nonDefaultOrganizationDto = db.organizations().insert();
-
-    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, nonDefaultOrganizationDto.getUuid()));
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Report does not specify an OrganizationKey but it has been submitted to another organization (" +
-      nonDefaultOrganizationDto.getKey() + ") than the default one (" + db.getDefaultOrganization().getKey() + ")");
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
-  public void execute_set_organization_from_ce_task_when_organizationKey_is_not_set_in_report() {
-    reportReader.setMetadata(
-      newBatchReportBuilder()
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    Organization organization = analysisMetadataHolder.getOrganization();
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    assertThat(organization.getUuid()).isEqualTo(defaultOrganization.getUuid());
-    assertThat(organization.getKey()).isEqualTo(defaultOrganization.getKey());
-    assertThat(organization.getName()).isEqualTo(defaultOrganization.getName());
-  }
-
-  @Test
-  @UseDataProvider("organizationEnabledFlags")
-  public void execute_set_organization_from_ce_task_when_organizationKey_is_set_in_report(boolean organizationEnabled) {
-    reportReader.setMetadata(
-      newBatchReportBuilder()
-        .setOrganizationKey(db.getDefaultOrganization().getKey())
-        .build());
-    when(organizationFlags.isEnabled(any())).thenReturn(organizationEnabled);
-
-    underTest.execute(new TestComputationStepContext());
-
-    Organization organization = analysisMetadataHolder.getOrganization();
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    assertThat(organization.getUuid()).isEqualTo(defaultOrganization.getUuid());
-    assertThat(organization.getKey()).isEqualTo(defaultOrganization.getKey());
-    assertThat(organization.getName()).isEqualTo(defaultOrganization.getName());
-    assertThat(analysisMetadataHolder.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
-  }
-
-  @Test
-  @UseDataProvider("organizationEnabledFlags")
-  public void execute_set_non_default_organization_from_ce_task(boolean organizationEnabled) {
-    OrganizationDto nonDefaultOrganizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(nonDefaultOrganizationDto);
-    reportReader.setMetadata(
-      newBatchReportBuilder()
-        .setOrganizationKey(nonDefaultOrganizationDto.getKey())
-        .setProjectKey(project.getDbKey())
-        .build());
-    when(organizationFlags.isEnabled(any())).thenReturn(organizationEnabled);
-
-    ComputationStep underTest = createStep(createCeTask(project.getDbKey(), nonDefaultOrganizationDto.getUuid()));
-
-    underTest.execute(new TestComputationStepContext());
-
-    Organization organization = analysisMetadataHolder.getOrganization();
-    assertThat(organization.getUuid()).isEqualTo(nonDefaultOrganizationDto.getUuid());
-    assertThat(organization.getKey()).isEqualTo(nonDefaultOrganizationDto.getKey());
-    assertThat(organization.getName()).isEqualTo(nonDefaultOrganizationDto.getName());
-    assertThat(analysisMetadataHolder.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
-  }
-
-  @DataProvider
-  public static Object[][] organizationEnabledFlags() {
-    return new Object[][] {
-      {true},
-      {false}
-    };
-  }
-
-  @Test
   public void execute_does_not_fail_when_report_has_a_quality_profile_that_does_not_exist_anymore() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
     metadataBuilder
-      .setOrganizationKey(organization.getKey())
       .setProjectKey(project.getDbKey());
     metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
     reportReader.setMetadata(metadataBuilder.build());
 
-    ComputationStep underTest = createStep(createCeTask(project.getDbKey(), organization.getUuid()));
+    ComputationStep underTest = createStep(createCeTask(project.getDbKey()));
 
     underTest.execute(new TestComputationStepContext());
   }
@@ -402,7 +303,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
     return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder,
-      defaultOrganizationProvider, dbClient, new BranchLoader(analysisMetadataHolder), pluginRepository, organizationFlags);
+      dbClient, new BranchLoader(analysisMetadataHolder), pluginRepository);
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
@@ -410,10 +311,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       .setProjectKey(PROJECT_KEY);
   }
 
-  private CeTask createCeTask(String projectKey, String organizationUuid) {
+  private CeTask createCeTask(String projectKey) {
     CeTask res = mock(CeTask.class);
     Optional<CeTask.Component> component = Optional.of(new CeTask.Component(projectKey + "_uuid", projectKey, projectKey + "_name"));
-    when(res.getOrganizationUuid()).thenReturn(organizationUuid);
     when(res.getComponent()).thenReturn(component);
     when(res.getMainComponent()).thenReturn(component);
     return res;

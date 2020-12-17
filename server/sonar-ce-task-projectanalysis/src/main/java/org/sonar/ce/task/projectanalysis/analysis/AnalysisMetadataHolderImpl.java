@@ -37,8 +37,6 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
   private static final String BRANCH_NOT_SET = "Branch has not been set";
-  private final InitializedProperty<Boolean> organizationsEnabled = new InitializedProperty<>();
-  private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
@@ -56,33 +54,6 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   public AnalysisMetadataHolderImpl(PlatformEditionProvider editionProvider) {
     this.editionProvider = editionProvider;
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolder setOrganizationsEnabled(boolean isOrganizationsEnabled) {
-    checkState(!this.organizationsEnabled.isInitialized(), "Organization enabled flag has already been set");
-    this.organizationsEnabled.setProperty(isOrganizationsEnabled);
-    return this;
-  }
-
-  @Override
-  public boolean isOrganizationsEnabled() {
-    checkState(organizationsEnabled.isInitialized(), "Organizations enabled flag has not been set");
-    return organizationsEnabled.getProperty();
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
-    checkState(!this.organization.isInitialized(), "Organization has already been set");
-    requireNonNull(organization, "Organization can't be null");
-    this.organization.setProperty(organization);
-    return this;
-  }
-
-  @Override
-  public Organization getOrganization() {
-    checkState(organization.isInitialized(), "Organization has not been set");
-    return organization.getProperty();
   }
 
   @Override

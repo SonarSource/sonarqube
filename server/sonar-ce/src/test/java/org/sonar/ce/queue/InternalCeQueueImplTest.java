@@ -47,10 +47,7 @@ import org.sonar.db.ce.CeQueueTesting;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -81,20 +78,11 @@ public class InternalCeQueueImplTest {
 
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient(), mock(System2.class));
-  private DefaultOrganizationProvider defaultOrganizationProvider = mock(DefaultOrganizationProvider.class);
   private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
-  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);
+  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, computeEngineStatus);
 
   @Before
   public void setUp() {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    when(defaultOrganizationProvider.get()).thenReturn(DefaultOrganization.newBuilder()
-      .setUuid(defaultOrganization.getUuid())
-      .setKey(defaultOrganization.getKey())
-      .setName(defaultOrganization.getName())
-      .setCreatedAt(defaultOrganization.getCreatedAt())
-      .setUpdatedAt(defaultOrganization.getUpdatedAt())
-      .build());
     when(computeEngineStatus.getStatus()).thenReturn(STARTED);
   }
 
@@ -259,7 +247,7 @@ public class InternalCeQueueImplTest {
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
 
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null);
 
     try {
       underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
@@ -276,7 +264,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null);
 
     try {
       underTest.remove(task, CeActivityDto.Status.FAILED, null, null);
@@ -293,7 +281,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.executeUpdateSql("update ce_queue set status = 'PENDING', started_at = 123 where uuid = '" + task.getUuid() + "'");
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null);
 
     underTest.cancelWornOuts();
 
@@ -325,7 +313,6 @@ public class InternalCeQueueImplTest {
     db.commit();
 
     underTest.remove(new CeTask.Builder()
-      .setOrganizationUuid("foo")
       .setUuid("uuid")
       .setType("bar")
       .build(), CeActivityDto.Status.SUCCESS, null, null);
@@ -623,11 +610,6 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, @Nullable UserDto userDto) {
-    if (componentDto == null) {
-      assertThat(task.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
-    } else {
-      assertThat(task.getOrganizationUuid()).isEqualTo(componentDto.getOrganizationUuid());
-    }
     assertThat(task.getUuid()).isEqualTo(taskSubmit.getUuid());
     assertThat(task.getType()).isEqualTo(taskSubmit.getType());
     if (componentDto != null) {
@@ -669,7 +651,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto newProjectDto(String uuid) {
-    return ComponentTesting.newPublicProjectDto(db.getDefaultOrganization(), uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
+    return ComponentTesting.newPublicProjectDto(uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, ComponentDto componentDto) {
@@ -698,9 +680,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {
-    db.getDbClient().componentDao().insert(session, componentDto);
-    session.commit();
-    return componentDto;
+    return db.components().insertComponent(componentDto);
   }
 
   private CeQueueDto makeInProgress(CeQueueDto ceQueueDto, String workerUuid) {

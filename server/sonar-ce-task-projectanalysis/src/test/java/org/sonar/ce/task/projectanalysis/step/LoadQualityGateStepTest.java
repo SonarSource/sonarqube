@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
@@ -56,7 +55,6 @@ public class LoadQualityGateStepTest {
 
   @Before
   public void setUp() {
-    when(analysisMetadataHolder.getOrganization()).thenReturn(mock(Organization.class));
   }
 
   @Test

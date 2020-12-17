@@ -311,13 +311,13 @@ public class IntegrateIssuesVisitorTest {
     assertThat(issues.get(0).isNew()).isFalse();
     assertThat(issues.get(0).isCopied()).isTrue();
     assertThat(issues.get(0).changes()).hasSize(1);
-    assertThat(issues.get(0).changes().get(0).diffs()).contains(entry(IssueFieldsSetter.FROM_BRANCH, new FieldDiffs.Diff("master",null)));
+    assertThat(issues.get(0).changes().get(0).diffs()).contains(entry(IssueFieldsSetter.FROM_BRANCH, new FieldDiffs.Diff("master", null)));
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID).setDbKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setDbKey(PROJECT_KEY);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
+    dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
     dbTester.rules().insertRule(ruleDto);
@@ -332,9 +332,9 @@ public class IntegrateIssuesVisitorTest {
   }
 
   private void addBaseIssueOnBranch(RuleKey ruleKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID_ON_BRANCH).setDbKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID_ON_BRANCH).setDbKey(PROJECT_KEY);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setDbKey(FILE_KEY);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
+    dbTester.components().insertComponents(project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);
     dbTester.rules().insertRule(ruleDto);

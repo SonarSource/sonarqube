@@ -51,7 +51,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -114,8 +113,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_copied_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
 
@@ -174,8 +172,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_copied_issue_with_minimal_info() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
 
@@ -218,8 +215,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_merged_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
 
@@ -275,8 +271,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void update_conflicting_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     IssueDto issue = db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_OPEN)
@@ -310,8 +305,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_new_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     session.commit();
 

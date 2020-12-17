@@ -105,7 +105,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.issue.IssueTesting.newIssue;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class SendIssueNotificationsStepTest extends BaseStepTest {
@@ -252,7 +251,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void send_global_new_issues_notification_on_branch() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = setUpBranch(project, BRANCH);
     protoIssueCache.newAppender().append(
       createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
@@ -273,7 +272,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void do_not_send_global_new_issues_notification_on_pull_request() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = setUpBranch(project, PULL_REQUEST);
     protoIssueCache.newAppender().append(
       createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
@@ -294,7 +293,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = setUpBranch(project, BRANCH);
     protoIssueCache.newAppender().append(
       createIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
@@ -498,7 +497,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void do_not_send_new_issues_notifications_for_hotspot() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
@@ -520,7 +519,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private void sendIssueChangeNotification(long issueCreatedAt) {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     analysisMetadataHolder.setProject(Project.from(project));
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(project.getDbKey()).setPublicKey(project.getKey()).setName(project.longName()).setUuid(project.uuid())
@@ -566,7 +565,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
@@ -600,7 +599,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void sends_one_issue_change_notification_every_1000_issues() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto project = newPrivateProjectDto().setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];

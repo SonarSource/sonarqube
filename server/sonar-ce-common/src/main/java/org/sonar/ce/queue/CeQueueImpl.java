@@ -49,7 +49,6 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.DeleteIf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -69,13 +68,11 @@ public class CeQueueImpl implements CeQueue {
   private final System2 system2;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -356,7 +353,6 @@ public class CeQueueImpl implements CeQueue {
     String componentUuid = taskDto.getComponentUuid();
     if (component != null) {
       builder.setComponent(new CeTask.Component(component.uuid(), component.getDbKey(), component.name()));
-      builder.setOrganizationUuid(component.getOrganizationUuid());
     } else if (componentUuid != null) {
       builder.setComponent(new CeTask.Component(componentUuid, null, null));
     }
@@ -366,11 +362,6 @@ public class CeQueueImpl implements CeQueue {
       builder.setMainComponent(new CeTask.Component(mainComponent.uuid(), mainComponent.getDbKey(), mainComponent.name()));
     } else if (mainComponentUuid != null) {
       builder.setMainComponent(new CeTask.Component(mainComponentUuid, null, null));
-    }
-
-    // FIXME this should be set from the CeQueueDto
-    if (!builder.hasOrganizationUuid()) {
-      builder.setOrganizationUuid(defaultOrganizationProvider.get().getUuid());
     }
 
     return builder.build();

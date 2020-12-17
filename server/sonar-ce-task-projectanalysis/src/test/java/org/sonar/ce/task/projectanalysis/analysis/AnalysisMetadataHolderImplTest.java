@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,57 +40,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.EditionProvider.Edition;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 @RunWith(DataProviderRunner.class)
 public class AnalysisMetadataHolderImplTest {
 
-  private static Analysis baseProjectAnalysis = new Analysis.Builder()
+  private static final Analysis baseProjectAnalysis = new Analysis.Builder()
     .setUuid("uuid_1")
     .setCreatedAt(123456789L)
     .build();
-  private static long SOME_DATE = 10000000L;
+  private static final long SOME_DATE = 10000000L;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
-  @Test
-  public void getOrganization_throws_ISE_if_organization_is_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization has not been set");
-
-    underTest.getOrganization();
-  }
-
-  @Test
-  public void setOrganization_throws_NPE_is_parameter_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Organization can't be null");
-
-    underTest.setOrganization(null);
-  }
-
-  @Test
-  public void setOrganization_throws_ISE_if_called_twice() {
-    Organization organization = Organization.from(new OrganizationDto().setUuid("uuid").setKey("key").setName("name").setDefaultQualityGateUuid("anyuuidr"));
-    underTest.setOrganization(organization);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization has already been set");
-
-    underTest.setOrganization(organization);
-  }
-
-  @Test
-  public void getUuid_throws_ISE_if_organization_uuid_is_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis uuid has not been set");
-
-    underTest.getUuid();
-  }
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
   @Test
   public void setUuid_throws_NPE_is_parameter_is_null() {
@@ -371,7 +334,7 @@ public class AnalysisMetadataHolderImplTest {
   public void set_and_get_project() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
-    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
+    Project project = Project.from(newPrivateProjectDto());
     underTest.setProject(project);
 
     assertThat(underTest.getProject()).isSameAs(project);
@@ -388,12 +351,12 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setProject_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setProject(Project.from(newPrivateProjectDto(newOrganizationDto())));
+    underTest.setProject(Project.from(newPrivateProjectDto()));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Project has already been set");
 
-    underTest.setProject(Project.from(newPrivateProjectDto(newOrganizationDto())));
+    underTest.setProject(Project.from(newPrivateProjectDto()));
   }
 
   @Test

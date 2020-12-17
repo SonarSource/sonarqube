@@ -58,7 +58,6 @@ public class CeTaskMessagesImplTest {
 
   private CeTask ceTask = new CeTask.Builder()
     .setUuid(taskUuid)
-    .setOrganizationUuid(randomAlphabetic(10))
     .setType(randomAlphabetic(5))
     .build();
 

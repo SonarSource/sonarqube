@@ -32,34 +32,12 @@ import static org.mockito.Mockito.mock;
 
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl(editionProvider);
 
   @Override
   protected void after() {
     delegate = new AnalysisMetadataHolderImpl(editionProvider);
-  }
-
-  @Override
-  public boolean isOrganizationsEnabled() {
-    return delegate.isOrganizationsEnabled();
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
-    delegate.setOrganizationsEnabled(isOrganizationsEnabled);
-    return this;
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolderRule setOrganization(Organization organization) {
-    delegate.setOrganization(organization);
-    return this;
-  }
-
-  @Override
-  public Organization getOrganization() {
-    return delegate.getOrganization();
   }
 
   public MutableAnalysisMetadataHolderRule setUuid(String s) {
@@ -77,7 +55,8 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return this;
   }
 
-  @Override public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
+  @Override
+  public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
     return delegate.setForkDate(date);
   }
 

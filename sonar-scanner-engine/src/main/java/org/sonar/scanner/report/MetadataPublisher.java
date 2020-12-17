@@ -91,8 +91,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     projectInfo.getProjectVersion().ifPresent(builder::setProjectVersion);
     projectInfo.getBuildString().ifPresent(builder::setBuildString);
 
-    properties.organizationKey().ifPresent(builder::setOrganizationKey);
-
     if (branchConfiguration.branchName() != null) {
       addBranchInformation(builder);
     }

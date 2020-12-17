@@ -48,7 +48,6 @@ public class SubmitActionTest {
   private static final String PROJECT_UUID = "PROJECT_1";
   private static final CeTask.Component COMPONENT = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
   private static final CeTask A_CE_TASK = new CeTask.Builder()
-    .setOrganizationUuid("org1")
     .setUuid("TASK_1")
     .setType(CeTaskTypes.REPORT)
     .setComponent(COMPONENT)

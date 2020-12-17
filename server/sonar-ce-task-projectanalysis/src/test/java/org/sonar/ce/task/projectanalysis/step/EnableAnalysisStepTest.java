@@ -33,7 +33,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,9 +55,8 @@ public class EnableAnalysisStepTest {
 
   @Test
   public void switch_islast_flag_and_mark_analysis_as_processed() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization, REPORT_PROJECT.getUuid());
-    db.getDbClient().componentDao().insert(db.getSession(), project);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(REPORT_PROJECT.getUuid());
+    db.components().insertComponent(project);
     insertAnalysis(project, PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
     db.commit();
@@ -73,8 +71,8 @@ public class EnableAnalysisStepTest {
 
   @Test
   public void set_islast_flag_and_mark_as_processed_if_no_previous_analysis() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), REPORT_PROJECT.getUuid());
-    db.getDbClient().componentDao().insert(db.getSession(), project);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(REPORT_PROJECT.getUuid());
+    db.components().insertComponent(project);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
     db.commit();
     treeRootHolder.setRoot(REPORT_PROJECT);

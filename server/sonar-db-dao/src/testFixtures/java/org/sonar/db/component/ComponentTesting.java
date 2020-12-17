@@ -279,6 +279,7 @@ public class ComponentTesting {
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     return newChildComponent(uuid, view, view)
       .setDbKey(view.getDbKey() + project.getDbKey())
+      .setOrganizationUuid(project.getOrganizationUuid())
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())

@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -37,8 +37,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -54,9 +52,8 @@ public class CancelActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private System2 system2 = new TestSystem2();
-  private CeQueue queue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance(), defaultOrganizationProvider);
+  private CeQueue queue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance());
 
   private CancelAction underTest = new CancelAction(userSession, db.getDbClient(), queue);
   private WsActionTester tester = new WsActionTester(underTest);

@@ -43,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
@@ -59,7 +58,6 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 
@@ -233,8 +231,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void return_existing_uuids() {
     setAnalysisMetadataHolder();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
     ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
     insertComponent(directory.setDbKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
     insertComponent(newFileDto(project, directory, "DEFG")
@@ -260,7 +257,7 @@ public class BuildComponentTreeStepTest {
     when(branch.generateKey(any(), any())).thenReturn("generated");
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
-      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
+      .setProject(Project.from(newPrivateProjectDto().setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
     BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
@@ -349,8 +346,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_no_base_project_snapshot_when_no_last_snapshot() {
     setAnalysisMetadataHolder();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setLast(false));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -362,8 +358,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void set_base_project_snapshot_when_last_snapshot_exist() {
     setAnalysisMetadataHolder();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setLast(true));
 
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -386,8 +381,7 @@ public class BuildComponentTreeStepTest {
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_projectVersion_to_previous_analysis_when_not_set(@Nullable String previousAnalysisProjectVersion) {
     setAnalysisMetadataHolder();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
@@ -420,8 +414,7 @@ public class BuildComponentTreeStepTest {
     String scannerProjectVersion = randomAlphabetic(12);
     setAnalysisMetadataHolder();
     reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setDbKey(REPORT_PROJECT_KEY));
     insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
@@ -559,9 +552,7 @@ public class BuildComponentTreeStepTest {
   }
 
   private ComponentDto insertComponent(ComponentDto component) {
-    dbClient.componentDao().insert(dbTester.getSession(), component);
-    dbTester.getSession().commit();
-    return component;
+    return dbTester.components().insertComponent(component);
   }
 
   private SnapshotDto insertSnapshot(SnapshotDto snapshot) {
@@ -579,7 +570,7 @@ public class BuildComponentTreeStepTest {
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setBranch(branch)
-      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY).setName(REPORT_PROJECT_KEY)));
+      .setProject(Project.from(newPrivateProjectDto().setDbKey(REPORT_PROJECT_KEY).setName(REPORT_PROJECT_KEY)));
   }
 
   public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String buildString) {

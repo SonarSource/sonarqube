@@ -44,8 +44,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
@@ -72,9 +70,8 @@ public class CeQueueImplTest {
   private DbSession session = db.getSession();
 
   private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, defaultOrganizationProvider);
+  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -91,7 +88,7 @@ public class CeQueueImplTest {
 
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert(), "PROJECT_1"));
+    ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto), null);
 
     CeTask task = underTest.submit(taskSubmit);
@@ -226,7 +223,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_project_exists() {
-    ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_1"));
+    ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(componentDto1), null);
     CeTaskSubmit taskSubmit2 = createTaskSubmit("something", newComponent(randomAlphabetic(12)), null);
 
@@ -239,7 +236,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_project_and_branch_exists() {
-    ComponentDto project = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_1"));
+    ComponentDto project = insertComponent(ComponentTesting.newPrivateProjectDto("PROJECT_1"));
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(branch1), null);
@@ -510,11 +507,6 @@ public class CeQueueImplTest {
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, @Nullable ComponentDto mainComponentDto, @Nullable UserDto userDto) {
-    if (componentDto == null) {
-      assertThat(task.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
-    } else {
-      assertThat(task.getOrganizationUuid()).isEqualTo(componentDto.getOrganizationUuid());
-    }
     assertThat(task.getUuid()).isEqualTo(taskSubmit.getUuid());
     if (componentDto != null) {
       CeTask.Component component = task.getComponent().get();
@@ -582,9 +574,7 @@ public class CeQueueImplTest {
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {
-    db.getDbClient().componentDao().insert(session, componentDto);
-    session.commit();
-    return componentDto;
+    return db.components().insertComponent(componentDto);
   }
 
   private UserDto insertUser(UserDto userDto) {

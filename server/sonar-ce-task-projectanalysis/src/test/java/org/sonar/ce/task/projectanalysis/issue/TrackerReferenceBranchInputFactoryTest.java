@@ -56,7 +56,7 @@ public class TrackerReferenceBranchInputFactoryTest {
     DefaultIssue issue1 = new DefaultIssue();
     when(referenceBranchComponentUuids.getComponentUuid(COMPONENT_KEY)).thenReturn(COMPONENT_UUID);
     when(componentIssuesLoader.loadOpenIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
-    ComponentDto fileDto = ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization())).setUuid(COMPONENT_UUID);
+    ComponentDto fileDto = ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto()).setUuid(COMPONENT_UUID);
     db.fileSources().insertFileSource(fileDto, 3);
 
     Component component = mock(Component.class);

@@ -45,8 +45,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
@@ -151,15 +149,14 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   @Test
   public void onEnd_fails_with_IAE_if_component_is_not_a_project() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(module, randomAlphanumeric(12)));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newView(organization));
+    ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newView());
     ComponentDto subView = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project, subView));
-    ComponentDto application = dbTester.components().insertComponent(ComponentTesting.newApplication(organization));
+    ComponentDto application = dbTester.components().insertComponent(ComponentTesting.newApplication());
 
     Arrays.asList(module, directory, file, view, subView, projectCopy, application)
       .forEach(component -> {
