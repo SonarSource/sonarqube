@@ -32,7 +32,6 @@ public class OrganizationsWsModule extends Module {
   protected void configureModule() {
     add(
       OrganizationsWs.class,
-      OrganizationsWsSupport.class,
       MemberUpdater.class,
       // actions
       SearchAction.class,

@@ -54,10 +54,10 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchMembersAction implements OrganizationsWsAction {
+  private static final String ORGANIZATION_PARAM = "organization";
 
   private final DbClient dbClient;
   private final UserIndex userIndex;
@@ -94,7 +94,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
       .setDefaultValue(SELECTED.value())
       .setPossibleValues(SELECTED.value(), SelectionMode.DESELECTED.value());
 
-    action.createParam(PARAM_ORGANIZATION)
+    action.createParam(ORGANIZATION_PARAM)
       .setDescription("Organization key")
       .setInternal(true)
       .setRequired(false);

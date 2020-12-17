@@ -111,8 +111,6 @@ import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
-import org.sonar.server.organization.OrganizationUpdaterImpl;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -268,8 +266,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UpdateCenterWsModule.class,
 
       // organizations
-      OrganizationValidationImpl.class,
-      OrganizationUpdaterImpl.class,
       OrganizationsWsModule.class,
       BillingValidationsProxyImpl.class,
 
