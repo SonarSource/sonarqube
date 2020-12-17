@@ -42,7 +42,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
-import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 @ServerSide
@@ -122,9 +121,6 @@ public class PageRepository implements Startable {
     return getPages(GLOBAL, isAdmin, null);
   }
 
-  public List<Page> getOrganizationPages(boolean isAdmin) {
-    return getPages(ORGANIZATION, isAdmin, null);
-  }
 
   public List<Page> getComponentPages(boolean isAdmin, String qualifierKey) {
     Qualifier qualifier = Qualifier.fromKey(qualifierKey);

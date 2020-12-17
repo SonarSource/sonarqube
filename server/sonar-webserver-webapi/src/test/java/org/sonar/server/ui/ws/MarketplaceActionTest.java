@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -45,7 +44,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.test.JsonAssert.assertJson;
 
-
 @RunWith(DataProviderRunner.class)
 public class MarketplaceActionTest {
 
@@ -56,11 +54,11 @@ public class MarketplaceActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private Server server = mock(Server.class);
-  private DbClient dbClient = db.getDbClient();
-  private MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient);
+  private final Server server = mock(Server.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient);
 
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void definition() {

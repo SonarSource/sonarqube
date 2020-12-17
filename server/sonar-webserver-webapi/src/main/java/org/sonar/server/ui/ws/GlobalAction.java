@@ -42,7 +42,6 @@ import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.branch.BranchFeatureProxy;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
@@ -79,7 +78,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final Server server;
   private final WebServer webServer;
   private final DbClient dbClient;
-  private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
@@ -89,7 +87,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-    WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
+    WebServer webServer, DbClient dbClient,
     DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
     MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker) {
     this.pageRepository = pageRepository;
@@ -98,7 +96,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.server = server;
     this.webServer = webServer;
     this.dbClient = dbClient;
-    this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.branchFeature = branchFeature;
     this.userSession = userSession;
@@ -201,11 +198,10 @@ public class GlobalAction implements NavigationWsAction, Startable {
     json.prop("productionDatabase", !dbClient.getDatabase().getDialect().getId().equals(H2.ID));
   }
 
+  // TODO:: drop
   private void writeOrganizationSupport(JsonWriter json) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      json.prop("organizationsEnabled", organizationFlags.isEnabled(dbSession));
-      json.prop("defaultOrganization", defaultOrganizationProvider.get().getKey());
-    }
+    json.prop("organizationsEnabled", false);
+    json.prop("defaultOrganization", defaultOrganizationProvider.get().getKey());
   }
 
   private void writeBranchSupport(JsonWriter json) {

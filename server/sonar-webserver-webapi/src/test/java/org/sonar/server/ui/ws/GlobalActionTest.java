@@ -41,7 +41,6 @@ import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
@@ -61,18 +60,17 @@ public class GlobalActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings();
 
-  private Server server = mock(Server.class);
-  private WebServer webServer = mock(WebServer.class);
-  private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
-  private IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
-  private BranchFeatureRule branchFeature = new BranchFeatureRule();
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
-  private WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
+  private final Server server = mock(Server.class);
+  private final WebServer webServer = mock(WebServer.class);
+  private final DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
+  private final IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
+  private final BranchFeatureRule branchFeature = new BranchFeatureRule();
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
 
   private WsActionTester ws;
 
@@ -239,10 +237,9 @@ public class GlobalActionTest {
   @Test
   public void organization_support() {
     init();
-    organizationFlags.setEnabled(true);
 
     assertJson(call()).isSimilarTo("{" +
-      "  \"organizationsEnabled\": true," +
+      "  \"organizationsEnabled\": false," +
       "  \"defaultOrganization\": \"key_foo\"" +
       "}");
   }
@@ -389,7 +386,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
+      webServer, dbClient, defaultOrganizationProvider, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
       indexSyncProgressChecker);
     ws = new WsActionTester(wsAction);
     wsAction.start();

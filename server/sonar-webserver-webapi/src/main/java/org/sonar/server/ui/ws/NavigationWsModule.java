@@ -26,7 +26,6 @@ public class NavigationWsModule extends Module {
   protected void configureModule() {
     add(
       NavigationWs.class,
-      OrganizationAction.class,
       ComponentAction.class,
       GlobalAction.class,
       MarketplaceAction.class,

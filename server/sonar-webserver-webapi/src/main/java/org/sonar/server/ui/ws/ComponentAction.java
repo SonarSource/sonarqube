@@ -285,7 +285,7 @@ public class ComponentAction implements NavigationWsAction {
     boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
     boolean isQualityProfileAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     boolean isQualityGateAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
-    boolean isOrganizationAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER);
+    boolean isGlobalAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER);
     boolean canBrowseProject = userSession.hasComponentPermission(USER, component);
 
     json.prop("showSettings", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
@@ -297,7 +297,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showHistory", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showBackgroundTasks", showBackgroundTasks);
-    json.prop("canApplyPermissionTemplate", isOrganizationAdmin);
+    json.prop("canApplyPermissionTemplate", isGlobalAdmin);
     json.prop("canBrowseProject", canBrowseProject);
     json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin);
   }
