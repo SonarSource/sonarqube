@@ -28,7 +28,7 @@ exports[`should render ALM integration correctly 1`] = `
     <div
       className="side-tabs-main"
     >
-      <Connect(withAppState(AlmIntegration))
+      <withRouter(Connect(withAppState(AlmIntegration)))
         selectedCategory="almintegration"
       />
     </div>

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { WithRouterProps } from 'react-router';
 import {
   countBindedProjects,
   deleteConfiguration,
@@ -25,6 +26,7 @@ import {
   validateAlmSettings
 } from '../../../../api/alm-settings';
 import { withAppState } from '../../../../components/hoc/withAppState';
+import { withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinition,
   AlmKeys,
@@ -35,7 +37,7 @@ import {
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 import { ALM_KEY_LIST } from './utils';
 
-interface Props {
+interface Props extends Pick<WithRouterProps, 'location'> {
   appState: Pick<T.AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
   component?: T.Component;
 }
@@ -52,18 +54,23 @@ interface State {
 
 export class AlmIntegration extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    currentAlm: AlmKeys.GitHub,
-    definitions: {
-      [AlmKeys.Azure]: [],
-      [AlmKeys.Bitbucket]: [],
-      [AlmKeys.GitHub]: [],
-      [AlmKeys.GitLab]: []
-    },
-    definitionStatus: {},
-    loadingAlmDefinitions: true,
-    loadingProjectCount: false
-  };
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      currentAlm: props.location.query.alm || AlmKeys.GitHub,
+      definitions: {
+        [AlmKeys.Azure]: [],
+        [AlmKeys.Bitbucket]: [],
+        [AlmKeys.GitHub]: [],
+        [AlmKeys.GitLab]: []
+      },
+      definitionStatus: {},
+      loadingAlmDefinitions: true,
+      loadingProjectCount: false
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -205,4 +212,4 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppState(AlmIntegration);
+export default withRouter(withAppState(AlmIntegration));

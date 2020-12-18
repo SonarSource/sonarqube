@@ -59,7 +59,7 @@ exports[`should render additional categories component correctly 3`] = `
 `;
 
 exports[`should render additional categories component correctly 4`] = `
-<Connect(withAppState(AlmIntegration))
+<withRouter(Connect(withAppState(AlmIntegration)))
   component={
     Object {
       "breadcrumbs": Array [],

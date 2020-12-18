@@ -26,6 +26,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../../api/alm-settings';
+import { mockLocation } from '../../../../../helpers/testMocks';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
 
@@ -158,5 +159,7 @@ it('should fetch settings', async () => {
 });
 
 function shallowRender() {
-  return shallow<AlmIntegration>(<AlmIntegration appState={{ branchesEnabled: true }} />);
+  return shallow<AlmIntegration>(
+    <AlmIntegration appState={{ branchesEnabled: true }} location={mockLocation()} />
+  );
 }
