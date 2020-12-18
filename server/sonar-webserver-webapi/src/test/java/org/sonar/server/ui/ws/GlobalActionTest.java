@@ -39,8 +39,6 @@ import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
@@ -66,7 +64,6 @@ public class GlobalActionTest {
   private final WebServer webServer = mock(WebServer.class);
   private final DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
   private final IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
   private final BranchFeatureRule branchFeature = new BranchFeatureRule();
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
@@ -235,16 +232,6 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void organization_support() {
-    init();
-
-    assertJson(call()).isSimilarTo("{" +
-      "  \"organizationsEnabled\": false," +
-      "  \"defaultOrganization\": \"key_foo\"" +
-      "}");
-  }
-
-  @Test
   public void branch_support() {
     init();
     branchFeature.setEnabled(true);
@@ -386,7 +373,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, defaultOrganizationProvider, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
+      webServer, dbClient, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
       indexSyncProgressChecker);
     ws = new WsActionTester(wsAction);
     wsAction.start();
