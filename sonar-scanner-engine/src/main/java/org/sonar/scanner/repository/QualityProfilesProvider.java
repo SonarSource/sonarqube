@@ -23,7 +23,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 
 public class QualityProfilesProvider extends ProviderAdapter {
@@ -31,7 +31,7 @@ public class QualityProfilesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load quality profiles";
   private QualityProfiles profiles = null;
 
-  public QualityProfiles provide(QualityProfileLoader loader, ProcessedScannerProperties props) {
+  public QualityProfiles provide(QualityProfileLoader loader, ScannerProperties props) {
     if (this.profiles == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       profiles = new QualityProfiles(loader.load(props.getProjectKey()));

@@ -41,7 +41,6 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ForkDateSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
-import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
@@ -51,7 +50,6 @@ public class MetadataPublisher implements ReportPublisherStep {
 
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);
 
-  private final ScanProperties properties;
   private final QualityProfiles qProfiles;
   private final ProjectInfo projectInfo;
   private final InputModuleHierarchy moduleHierarchy;
@@ -63,12 +61,11 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final InputComponentStore componentStore;
   private final ScmConfiguration scmConfiguration;
 
-  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
-    QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
+  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, QualityProfiles qProfiles,
+    CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
     ScmRevision scmRevision, ForkDateSupplier forkDateSupplier, InputComponentStore componentStore, ScmConfiguration scmConfiguration) {
     this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
-    this.properties = properties;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
     this.pluginRepository = pluginRepository;

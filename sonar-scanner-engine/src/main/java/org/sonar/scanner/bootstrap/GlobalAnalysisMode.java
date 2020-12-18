@@ -30,7 +30,7 @@ public class GlobalAnalysisMode {
 
   protected boolean mediumTestMode;
 
-  public GlobalAnalysisMode(RawScannerProperties props) {
+  public GlobalAnalysisMode(ScannerProperties props) {
     mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
     if (mediumTestMode) {
       LOG.info("Medium test mode");

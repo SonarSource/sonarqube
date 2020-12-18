@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.RawScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
@@ -35,11 +35,11 @@ public class ScmRevisionImpl implements ScmRevision {
   private static final Logger LOG = Loggers.get(ScmRevisionImpl.class);
 
   private final CiConfiguration ciConfiguration;
-  private final RawScannerProperties scannerConfiguration;
+  private final ScannerProperties scannerConfiguration;
   private final ScmConfiguration scmConfiguration;
   private final InputModuleHierarchy moduleHierarchy;
 
-  public ScmRevisionImpl(CiConfiguration ciConfiguration, RawScannerProperties scannerConfiguration, ScmConfiguration scmConfiguration, InputModuleHierarchy moduleHierarchy) {
+  public ScmRevisionImpl(CiConfiguration ciConfiguration, ScannerProperties scannerConfiguration, ScmConfiguration scmConfiguration, InputModuleHierarchy moduleHierarchy) {
     this.ciConfiguration = ciConfiguration;
     this.scannerConfiguration = scannerConfiguration;
     this.scmConfiguration = scmConfiguration;

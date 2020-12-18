@@ -21,7 +21,7 @@ package org.sonar.scanner.scan.branch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,13 +32,13 @@ public class ProjectPullRequestsProviderTest {
   private ProjectPullRequestsProvider provider = new ProjectPullRequestsProvider();
   private ProjectPullRequestsLoader mockLoader;
   private ProjectPullRequests pullRequests;
-  private ProcessedScannerProperties scannerProperties;
+  private ScannerProperties scannerProperties;
 
   @Before
   public void setUp() {
     mockLoader = mock(ProjectPullRequestsLoader.class);
     pullRequests = new ProjectPullRequests(emptyList());
-    scannerProperties = mock(ProcessedScannerProperties.class);
+    scannerProperties = mock(ScannerProperties.class);
   }
 
   @Test

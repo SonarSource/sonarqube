@@ -73,7 +73,7 @@ public class PluginFilesTest {
   @Before
   public void setUp() throws Exception {
     HttpConnector connector = HttpConnector.newBuilder().url(server.url("/").toString()).build();
-    GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new RawScannerProperties(Collections.emptyMap()));
+    GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()));
     DefaultScannerWsClient wsClient = new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connector), false, analysisMode);
 
     userHome = temp.newFolder();

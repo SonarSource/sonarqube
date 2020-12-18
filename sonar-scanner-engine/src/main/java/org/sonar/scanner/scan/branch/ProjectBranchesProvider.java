@@ -25,7 +25,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 public class ProjectBranchesProvider extends ProviderAdapter {
 
@@ -34,7 +34,7 @@ public class ProjectBranchesProvider extends ProviderAdapter {
 
   private ProjectBranches branches = null;
 
-  public ProjectBranches provide(@Nullable ProjectBranchesLoader loader, ProcessedScannerProperties scannerProperties) {
+  public ProjectBranches provide(@Nullable ProjectBranchesLoader loader, ScannerProperties scannerProperties) {
     if (this.branches != null) {
       return this.branches;
     }

@@ -23,20 +23,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.Encryption;
+
+import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.CoreProperties.PROJECT_KEY_PROPERTY;
 
 /**
  * Properties that are coming from scanner.
  */
 @Immutable
-public class RawScannerProperties {
+public class ScannerProperties {
 
   private final Map<String, String> properties;
   private final Encryption encryption;
 
-  public RawScannerProperties(Map<String, String> properties) {
-    encryption = new Encryption(properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+  public ScannerProperties(Map<String, String> properties) {
+    encryption = new Encryption(properties.get(ENCRYPTION_SECRET_KEY_PATH));
     Map<String, String> decryptedProps = new HashMap<>(properties.size());
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       String value = entry.getValue();
@@ -62,5 +64,9 @@ public class RawScannerProperties {
 
   public String property(String key) {
     return properties.get(key);
+  }
+
+  public String getProjectKey() {
+    return properties.get(PROJECT_KEY_PROPERTY);
   }
 }

@@ -31,8 +31,6 @@ public class ScannerProperties {
 
   public static final String BRANCHES_DOC_LINK = "https://redirect.sonarsource.com/doc/branches.html";
 
-  public static final String ORGANIZATION = "sonar.organization";
-
   public static final String BRANCH_NAME = "sonar.branch.name";
   @Deprecated
   public static final String BRANCH_TARGET = "sonar.branch.target";
@@ -63,11 +61,6 @@ public class ScannerProperties {
         .description("Force the provider to be used to get SCM information for this project. By default auto-detection is done. Example: svn, git.")
         .category(CoreProperties.CATEGORY_SCM)
         .onlyOnQualifiers(Qualifiers.PROJECT)
-        .build(),
-      PropertyDefinition.builder(ORGANIZATION)
-        .name("Organization key")
-        .description("Key of the organization that contains the project being analyzed. If unset, then the organization marked as default is used.")
-        .hidden()
         .build(),
       PropertyDefinition.builder(BRANCH_NAME)
         .name("Optional name of SonarQube/SCM branch")

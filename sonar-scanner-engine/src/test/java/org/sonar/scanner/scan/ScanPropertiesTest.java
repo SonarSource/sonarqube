@@ -27,18 +27,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ScanPropertiesTest {
-  private MapSettings settings = new MapSettings();
-  private DefaultInputProject project = mock(DefaultInputProject.class);
-  private ScanProperties underTest = new ScanProperties(settings.asConfig(), project);
+  private final MapSettings settings = new MapSettings();
+  private final DefaultInputProject project = mock(DefaultInputProject.class);
+  private final ScanProperties underTest = new ScanProperties(settings.asConfig(), project);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -55,17 +55,10 @@ public class ScanPropertiesTest {
   @Test
   public void defaults_if_no_setting_defined() {
     assertThat(underTest.branch()).isEmpty();
-    assertThat(underTest.organizationKey()).isEmpty();
     assertThat(underTest.preloadFileMetadata()).isFalse();
     assertThat(underTest.shouldKeepReport()).isFalse();
     assertThat(underTest.metadataFilePath()).isEqualTo(project.getWorkDir().resolve("report-task.txt"));
     underTest.validate();
-  }
-
-  @Test
-  public void should_define_organization_key() {
-    settings.setProperty("sonar.organization", "org");
-    assertThat(underTest.organizationKey()).isEqualTo(Optional.of("org"));
   }
 
   @Test

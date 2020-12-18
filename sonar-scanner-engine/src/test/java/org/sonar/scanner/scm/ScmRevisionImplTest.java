@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.RawScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
@@ -65,7 +65,7 @@ public class ScmRevisionImplTest {
     when(scmConfiguration.provider().revisionId(any())).thenThrow(new UnsupportedOperationException("BOOM"));
     InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class, RETURNS_DEEP_STUBS);
 
-    ScmRevisionImpl underTest = new ScmRevisionImpl(ciConfiguration, new RawScannerProperties(scannerConfiguration), scmConfiguration, moduleHierarchy);
+    ScmRevisionImpl underTest = new ScmRevisionImpl(ciConfiguration, new ScannerProperties(scannerConfiguration), scmConfiguration, moduleHierarchy);
 
     assertThat(underTest.get()).isEmpty();
   }
@@ -79,7 +79,7 @@ public class ScmRevisionImplTest {
     when(scmConfiguration.provider().revisionId(any())).thenReturn(scmValue);
     InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class, RETURNS_DEEP_STUBS);
 
-    ScmRevisionImpl underTest = new ScmRevisionImpl(ciConfiguration, new RawScannerProperties(scannerConfiguration), scmConfiguration, moduleHierarchy);
+    ScmRevisionImpl underTest = new ScmRevisionImpl(ciConfiguration, new ScannerProperties(scannerConfiguration), scmConfiguration, moduleHierarchy);
     return underTest.get();
   }
 }

@@ -23,19 +23,19 @@ import java.util.function.Supplier;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class ProjectRepositoriesSupplier implements Supplier<ProjectRepositories> {
   private static final Logger LOG = Loggers.get(ProjectRepositoriesSupplier.class);
   private static final String LOG_MSG = "Load project repositories";
   private final ProjectRepositoriesLoader loader;
-  private final ProcessedScannerProperties scannerProperties;
+  private final ScannerProperties scannerProperties;
   private final BranchConfiguration branchConfig;
 
   private ProjectRepositories project = null;
 
-  public ProjectRepositoriesSupplier(ProjectRepositoriesLoader loader, ProcessedScannerProperties scannerProperties, BranchConfiguration branchConfig) {
+  public ProjectRepositoriesSupplier(ProjectRepositoriesLoader loader, ScannerProperties scannerProperties, BranchConfiguration branchConfig) {
     this.loader = loader;
     this.scannerProperties = scannerProperties;
     this.branchConfig = branchConfig;

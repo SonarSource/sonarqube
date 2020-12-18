@@ -37,8 +37,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
-import org.sonar.scanner.bootstrap.RawScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -391,8 +390,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
-      new RawScannerProperties(emptyMap()), new EmptyExternalProjectKeyAndOrganization()),
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(emptyMap()),
       mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
@@ -404,9 +402,7 @@ public class ProjectReactorBuilderTest {
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = singletonMap("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
-      new RawScannerProperties(props),
-      new EmptyExternalProjectKeyAndOrganization()),
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props),
       mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
@@ -418,8 +414,7 @@ public class ProjectReactorBuilderTest {
   @Test
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = singletonMap("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
-      new RawScannerProperties(props), new EmptyExternalProjectKeyAndOrganization()),
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props),
       mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
@@ -475,9 +470,7 @@ public class ProjectReactorBuilderTest {
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
-    ProcessedScannerProperties bootstrapProps = new ProcessedScannerProperties(
-      new RawScannerProperties(props),
-      new EmptyExternalProjectKeyAndOrganization());
+    ScannerProperties bootstrapProps = new ScannerProperties(props);
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mock(AnalysisWarnings.class)).execute();
     return projectReactor.getRoot();
   }

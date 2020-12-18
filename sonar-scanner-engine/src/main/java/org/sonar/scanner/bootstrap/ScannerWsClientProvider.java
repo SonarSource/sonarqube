@@ -38,7 +38,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
   private DefaultScannerWsClient wsClient;
 
-  public synchronized DefaultScannerWsClient provide(final RawScannerProperties scannerProps,
+  public synchronized DefaultScannerWsClient provide(final ScannerProperties scannerProps,
     final EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
     if (wsClient == null) {
       String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");

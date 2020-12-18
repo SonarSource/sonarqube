@@ -22,7 +22,7 @@ package org.sonar.scanner.repository;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.util.Collections.emptyMap;
@@ -39,7 +39,7 @@ public class ProjectRepositoriesSupplierTest {
   private ProjectRepositories project;
 
   private ProjectRepositoriesLoader loader = mock(ProjectRepositoriesLoader.class);
-  private ProcessedScannerProperties props = mock(ProcessedScannerProperties.class);
+  private ScannerProperties props = mock(ScannerProperties.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
 
   @Before

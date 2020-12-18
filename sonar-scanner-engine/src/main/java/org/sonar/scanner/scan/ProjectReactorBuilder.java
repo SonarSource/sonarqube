@@ -45,7 +45,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.config.IssueExclusionProperties;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 
@@ -104,12 +104,12 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Stream.concat(Stream.of(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).collect(toList());
 
-  private final ProcessedScannerProperties scannerProps;
+  private final ScannerProperties scannerProps;
   private final AnalysisWarnings analysisWarnings;
   private File rootProjectWorkDir;
   private boolean warnExclusionsAlreadyLogged;
 
-  public ProjectReactorBuilder(ProcessedScannerProperties props, AnalysisWarnings analysisWarnings) {
+  public ProjectReactorBuilder(ScannerProperties props, AnalysisWarnings analysisWarnings) {
     this.scannerProps = props;
     this.analysisWarnings = analysisWarnings;
   }

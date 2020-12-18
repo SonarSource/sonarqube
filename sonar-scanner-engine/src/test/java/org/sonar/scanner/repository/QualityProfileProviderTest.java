@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
@@ -46,7 +46,7 @@ public class QualityProfileProviderTest {
   private QualityProfilesProvider qualityProfileProvider;
 
   private QualityProfileLoader loader = mock(QualityProfileLoader.class);
-  private ProcessedScannerProperties props = mock(ProcessedScannerProperties.class);
+  private ScannerProperties props = mock(ScannerProperties.class);
 
   private List<QualityProfile> response;
 

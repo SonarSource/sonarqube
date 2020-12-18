@@ -53,7 +53,6 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ForkDateSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
-import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -75,7 +74,6 @@ public class MetadataPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MetadataPublisher underTest;
-  private final ScanProperties properties = mock(ScanProperties.class);
   private final QualityProfiles qProfiles = mock(QualityProfiles.class);
   private final ProjectInfo projectInfo = mock(ProjectInfo.class);
   private final CpdSettings cpdSettings = mock(CpdSettings.class);
@@ -117,7 +115,7 @@ public class MetadataPublisherTest {
     branches = mock(BranchConfiguration.class);
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
-    underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
+    underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, qProfiles, cpdSettings,
       pluginRepository, branches, scmRevision, forkDateSupplier, componentStore, scmConfiguration);
   }
 
@@ -176,7 +174,6 @@ public class MetadataPublisherTest {
   @UseDataProvider("projectVersions")
   public void write_project_version(@Nullable String projectVersion, String expected) throws Exception {
     when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(projectVersion));
-    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
@@ -203,7 +200,6 @@ public class MetadataPublisherTest {
   @UseDataProvider("buildStrings")
   public void write_buildString(@Nullable String buildString, String expected) throws Exception {
     when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(buildString));
-    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

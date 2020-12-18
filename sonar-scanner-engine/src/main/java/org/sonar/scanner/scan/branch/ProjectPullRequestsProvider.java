@@ -24,7 +24,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 public class ProjectPullRequestsProvider extends ProviderAdapter {
 
@@ -33,7 +33,7 @@ public class ProjectPullRequestsProvider extends ProviderAdapter {
 
   private ProjectPullRequests pullRequests = null;
 
-  public ProjectPullRequests provide(@org.picocontainer.annotations.Nullable ProjectPullRequestsLoader loader, ProcessedScannerProperties scannerProperties) {
+  public ProjectPullRequests provide(@org.picocontainer.annotations.Nullable ProjectPullRequestsLoader loader, ScannerProperties scannerProperties) {
     if (pullRequests != null) {
       return pullRequests;
     }

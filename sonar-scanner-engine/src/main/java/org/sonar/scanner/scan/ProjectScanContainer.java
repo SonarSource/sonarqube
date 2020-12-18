@@ -44,7 +44,6 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
 import org.sonar.scanner.ci.vendors.AzureDevops;
@@ -159,8 +158,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addScannerComponents() {
     add(
-      new ExternalProjectKeyAndOrganizationProvider(),
-      ProcessedScannerProperties.class,
       ScanProperties.class,
       ProjectReactorBuilder.class,
       WorkDirectoriesInitializer.class,
@@ -336,7 +333,6 @@ public class ProjectScanContainer extends ComponentContainer {
     ScanProperties properties = getComponentByType(ScanProperties.class);
     properties.validate();
 
-    properties.organizationKey().ifPresent(k -> LOG.info("Organization key: {}", k));
     properties.get("sonar.branch").ifPresent(deprecatedBranch -> {
       throw MessageException.of("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
         "Branch analysis is available in Developer Edition and above. See https://redirect.sonarsource.com/editions/developer.html for more information.");

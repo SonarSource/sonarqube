@@ -56,7 +56,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
     this.system = system;
   }
 
-  public TempFolder provide(RawScannerProperties scannerProps) {
+  public TempFolder provide(ScannerProperties scannerProps) {
     if (tempFolder == null) {
 
       String workingPathName = StringUtils.defaultIfBlank(scannerProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
@@ -95,7 +95,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
     }
   }
 
-  private Path findSonarHome(RawScannerProperties props) {
+  private Path findSonarHome(ScannerProperties props) {
     String home = props.property("sonar.userHome");
     if (home != null) {
       return Paths.get(home).toAbsolutePath();

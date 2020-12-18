@@ -21,7 +21,7 @@ package org.sonar.scanner.scan.branch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,13 +31,13 @@ public class ProjectBranchesProviderTest {
   private ProjectBranchesProvider provider = new ProjectBranchesProvider();
   private ProjectBranchesLoader mockLoader;
   private ProjectBranches mockBranches;
-  private ProcessedScannerProperties scannerProperties;
+  private ScannerProperties scannerProperties;
 
   @Before
   public void setUp() {
     mockLoader = mock(ProjectBranchesLoader.class);
     mockBranches = mock(ProjectBranches.class);
-    scannerProperties = mock(ProcessedScannerProperties.class);
+    scannerProperties = mock(ScannerProperties.class);
 
   }
 

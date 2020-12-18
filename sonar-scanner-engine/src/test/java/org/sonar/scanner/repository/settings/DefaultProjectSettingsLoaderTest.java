@@ -25,7 +25,7 @@ import java.io.PipedOutputStream;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class DefaultProjectSettingsLoaderTest {
 
   private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
-  private ProcessedScannerProperties properties = mock(ProcessedScannerProperties.class);
+  private ScannerProperties properties = mock(ScannerProperties.class);
   private DefaultProjectSettingsLoader underTest = new DefaultProjectSettingsLoader(wsClient, properties);
 
   @Test

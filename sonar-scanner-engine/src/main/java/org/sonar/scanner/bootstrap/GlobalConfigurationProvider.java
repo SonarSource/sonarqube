@@ -28,7 +28,7 @@ public class GlobalConfigurationProvider extends ProviderAdapter {
 
   private GlobalConfiguration globalConfig;
 
-  public GlobalConfiguration provide(GlobalServerSettings globalServerSettings, RawScannerProperties scannerProps,
+  public GlobalConfiguration provide(GlobalServerSettings globalServerSettings, ScannerProperties scannerProps,
     PropertyDefinitions propertyDefinitions) {
     if (globalConfig == null) {
       Map<String, String> mergedSettings = new LinkedHashMap<>();

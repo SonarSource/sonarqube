@@ -29,7 +29,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
@@ -43,10 +42,8 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
   private final DefaultScannerWsClient wsClient;
-  private final ScanProperties properties;
 
-  public DefaultQualityProfileLoader(ScanProperties properties, DefaultScannerWsClient wsClient) {
-    this.properties = properties;
+  public DefaultQualityProfileLoader(DefaultScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 
@@ -81,7 +78,6 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   private List<QualityProfile> doLoad(StringBuilder url) throws IOException {
-    properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     Map<String, QualityProfile> result = call(url.toString());
 
     if (result.isEmpty()) {

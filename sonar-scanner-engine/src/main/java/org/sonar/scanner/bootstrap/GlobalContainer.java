@@ -74,7 +74,7 @@ public class GlobalContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    RawScannerProperties rawScannerProperties = new RawScannerProperties(scannerProperties);
+    ScannerProperties rawScannerProperties = new ScannerProperties(scannerProperties);
     GlobalAnalysisMode globalMode = new GlobalAnalysisMode(rawScannerProperties);
     add(rawScannerProperties);
     add(globalMode);
