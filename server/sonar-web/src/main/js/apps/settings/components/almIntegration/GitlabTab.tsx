@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createGitlabConfiguration, updateGitlabConfiguration } from '../../../../api/alm-settings';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import {
   AlmKeys,
   AlmSettingsBindingStatus,
@@ -73,7 +74,7 @@ export default function GitlabTab(props: GitlabTabProps) {
                 id="settings.almintegration.gitlab.info"
                 values={{
                   link: (
-                    <Link target="_blank" to="/documentation/analysis/gitlab-integration/">
+                    <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
                       {translate('learn_more')}
                     </Link>
                   )

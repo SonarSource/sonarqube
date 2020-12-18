@@ -24,6 +24,7 @@ import {
   createBitbucketConfiguration,
   updateBitbucketConfiguration
 } from '../../../../api/alm-settings';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import {
   AlmKeys,
   AlmSettingsBindingStatus,
@@ -75,7 +76,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
             </ul>
 
             <p className="big-spacer-top big-spacer-bottom">
-              <Link target="_blank" to="/documentation/analysis/bitbucket-integration/">
+              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.Bitbucket]}>
                 {translate('learn_more')}
               </Link>
             </p>

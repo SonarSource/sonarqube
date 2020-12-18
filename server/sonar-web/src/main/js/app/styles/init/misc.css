@@ -348,6 +348,10 @@ th.huge-spacer-right {
   width: 600px !important;
 }
 
+.abs-height-50 {
+  height: 50px !important;
+}
+
 .abs-height-100 {
   height: 100% !important;
 }

@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createAzureConfiguration, updateAzureConfiguration } from '../../../../api/alm-settings';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import {
   AlmKeys,
   AlmSettingsBindingStatus,
@@ -65,7 +66,7 @@ export default function AzureTab(props: AzureTabProps) {
             id="settings.almintegration.azure.info"
             values={{
               link: (
-                <Link target="_blank" to="/documentation/analysis/azuredevops-integration/">
+                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
                   {translate('learn_more')}
                 </Link>
               )

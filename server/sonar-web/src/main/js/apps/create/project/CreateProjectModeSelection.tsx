@@ -19,14 +19,18 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
+import { withAppState } from '../../../components/hoc/withAppState';
+import { ALM_DOCUMENTATION_PATHS } from '../../../helpers/constants';
 import { AlmKeys } from '../../../types/alm-settings';
+import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
   almCounts: { [key in AlmKeys]: number };
+  appState: Pick<T.AppState, 'canAdmin'>;
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
 }
@@ -36,58 +40,86 @@ function renderAlmOption(
   alm: AlmKeys,
   mode: CreateProjectModes
 ) {
-  const { almCounts, loadingBindings } = props;
+  const {
+    almCounts,
+    appState: { canAdmin },
+    loadingBindings
+  } = props;
 
   const count = almCounts[alm];
   const disabled = count !== 1 || loadingBindings;
 
+  const tooltipLinks = [];
+  if (count === 0) {
+    if (canAdmin) {
+      tooltipLinks.push({
+        href: `/admin/settings?category=${ALM_INTEGRATION}&alm=${alm}`,
+        label: translateWithParameters(
+          'onboarding.create_project.set_up_x',
+          translate('alm', alm, 'short')
+        )
+      });
+    }
+
+    tooltipLinks.push({
+      href: ALM_DOCUMENTATION_PATHS[alm],
+      label: translateWithParameters(
+        'onboarding.create_project.help_set_up_x',
+        translate('alm', alm, 'short')
+      )
+    });
+  }
+
   return (
-    <button
-      className={classNames(
-        'button button-huge big-spacer-left display-flex-column create-project-mode-type-alm',
-        { disabled }
-      )}
-      disabled={disabled}
-      onClick={() => props.onSelectMode(mode)}
-      type="button">
-      <img
-        alt="" // Should be ignored by screen readers
-        height={80}
-        src={`${getBaseUrl()}/images/alm/${alm}.svg`}
-      />
-      <div className="medium big-spacer-top">
-        {translate('onboarding.create_project.select_method', alm)}
-      </div>
-
-      {loadingBindings && (
-        <span>
-          {translate('onboarding.create_project.check_alm_supported')}
-          <i className="little-spacer-left spinner" />
-        </span>
-      )}
-
-      {!loadingBindings && disabled && (
-        <div className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
-          {translate('onboarding.create_project.alm_not_configured')}
-          <HelpTooltip
-            className="little-spacer-left"
-            overlay={
-              count === 0
-                ? translate('onboarding.create_project.zero_alm_instances', alm)
-                : `${translate('onboarding.create_project.too_many_alm_instances', alm)} 
-                  ${translateWithParameters(
-                    'onboarding.create_project.alm_instances_count_X',
-                    count
-                  )}`
-            }
-          />
+    <div className="big-spacer-left display-flex-column">
+      <button
+        className={classNames(
+          'button button-huge display-flex-column create-project-mode-type-alm',
+          { disabled }
+        )}
+        disabled={disabled}
+        onClick={() => props.onSelectMode(mode)}
+        type="button">
+        <img
+          alt="" // Should be ignored by screen readers
+          height={80}
+          src={`${getBaseUrl()}/images/alm/${alm}.svg`}
+        />
+        <div className="medium big-spacer-top abs-height-50 display-flex-center">
+          {translate('onboarding.create_project.select_method', alm)}
         </div>
-      )}
-    </button>
+
+        {loadingBindings && (
+          <span>
+            {translate('onboarding.create_project.check_alm_supported')}
+            <i className="little-spacer-left spinner" />
+          </span>
+        )}
+
+        {!loadingBindings && disabled && (
+          <div className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
+            {translate('onboarding.create_project.alm_not_configured')}
+            <DocumentationTooltip
+              className="little-spacer-left"
+              content={
+                count === 0
+                  ? translate('onboarding.create_project.zero_alm_instances', alm)
+                  : `${translate('onboarding.create_project.too_many_alm_instances', alm)} 
+                ${translateWithParameters(
+                  'onboarding.create_project.alm_instances_count_X',
+                  count
+                )}`
+              }
+              links={count === 0 ? tooltipLinks : undefined}
+            />
+          </div>
+        )}
+      </button>
+    </div>
   );
 }
 
-export default function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
+export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
   return (
     <>
       <header className="huge-spacer-top big-spacer-bottom padded">
@@ -120,3 +152,5 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
     </>
   );
 }
+
+export default withAppState(CreateProjectModeSelection);

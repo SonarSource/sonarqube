@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
     className="page page-limited huge-spacer-bottom position-relative"
     id="create-project"
   >
-    <CreateProjectModeSelection
+    <Connect(withAppState(CreateProjectModeSelection))
       almCounts={
         Object {
           "azure": 0,

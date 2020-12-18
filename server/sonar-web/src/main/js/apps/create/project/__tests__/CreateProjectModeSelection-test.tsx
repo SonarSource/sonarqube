@@ -22,7 +22,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
-import CreateProjectModeSelection, {
+import {
+  CreateProjectModeSelection,
   CreateProjectModeSelectionProps
 } from '../CreateProjectModeSelection';
 import { CreateProjectModes } from '../types';
@@ -31,8 +32,11 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading instances');
   expect(shallowRender({}, { [AlmKeys.Bitbucket]: 0, [AlmKeys.GitHub]: 2 })).toMatchSnapshot(
-    'invalid configs'
+    'invalid configs, not admin'
   );
+  expect(
+    shallowRender({ appState: { canAdmin: true } }, { [AlmKeys.Bitbucket]: 0, [AlmKeys.GitHub]: 2 })
+  ).toMatchSnapshot('invalid configs, admin');
 });
 
 it('should correctly pass the selected mode up', () => {
@@ -76,6 +80,7 @@ function shallowRender(
   return shallow<CreateProjectModeSelectionProps>(
     <CreateProjectModeSelection
       almCounts={almCounts}
+      appState={{ canAdmin: false }}
       loadingBindings={false}
       onSelectMode={jest.fn()}
       {...props}

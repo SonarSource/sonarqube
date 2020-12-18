@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { colors } from '../app/theme';
+import { AlmKeys } from '../types/alm-settings';
 import { ComponentQualifier } from '../types/component';
 import { IssueScope, IssueType } from '../types/issues';
 
@@ -61,3 +62,10 @@ export const RATING_COLORS = [
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;
+
+export const ALM_DOCUMENTATION_PATHS = {
+  [AlmKeys.Azure]: '/documentation/analysis/azuredevops-integration/',
+  [AlmKeys.Bitbucket]: '/documentation/analysis/bitbucket-integration/',
+  [AlmKeys.GitHub]: '/documentation/analysis/github-integration/',
+  [AlmKeys.GitLab]: '/documentation/analysis/gitlab-integration/'
+};
