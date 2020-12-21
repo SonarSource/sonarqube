@@ -30,7 +30,6 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
@@ -121,21 +120,13 @@ public class IssueDbTester {
 
   /**
    * Inserts an issue.
-   */
-  @SafeVarargs
-  public final IssueDto insertIssue(Consumer<IssueDto>... populateIssueDto) {
-    return insertIssue(db.getDefaultOrganization(), populateIssueDto);
-  }
-
-  /**
-   * Inserts an issue.
    *
    * @throws AssertionError if rule is not Security Hotspot
    */
   @SafeVarargs
-  public final IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+  public final IssueDto insertIssue(Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)
       .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
@@ -190,17 +181,9 @@ public class IssueDbTester {
    * Inserts a Security Hotspot.
    */
   @SafeVarargs
-  public final IssueDto insertHotspot(Consumer<IssueDto>... populateIssueDto) {
-    return insertHotspot(db.getDefaultOrganization(), populateIssueDto);
-  }
-
-  /**
-   * Inserts a Security Hotspot.
-   */
-  @SafeVarargs
-  public final IssueDto insertHotspot(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+  public final IssueDto insertHotspot(Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insertHotspotRule();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file)
       .setType(SECURITY_HOTSPOT)
@@ -231,7 +214,7 @@ public class IssueDbTester {
 
   public void insertFieldDiffs(IssueDto issueDto, FieldDiffs... diffs) {
     Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff, issueDto.getProjectUuid())
-    .setUuid(Uuids.createFast())));
+      .setUuid(Uuids.createFast())));
     db.commit();
   }
 

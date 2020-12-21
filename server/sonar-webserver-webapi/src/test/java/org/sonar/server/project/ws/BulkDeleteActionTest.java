@@ -189,7 +189,7 @@ public class BulkDeleteActionTest {
   public void projects_and_views() {
     userSession.logIn().addPermission(ADMINISTER);
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
 
     ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getKey() + "," + view.getKey())

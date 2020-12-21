@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -133,7 +132,6 @@ public class UsersActionTest {
 
   @Test
   public void references_group_by_its_name() {
-    OrganizationDto org = db.organizations().insert();
     GroupDto group = db.users().insertGroup("the-group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
@@ -141,7 +139,6 @@ public class UsersActionTest {
     loginAsAdmin();
 
     String result = newUsersRequest()
-      .setParam("organization", org.getKey())
       .setParam("name", group.getName())
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()

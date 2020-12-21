@@ -63,17 +63,16 @@ public class PropertiesDaoTest {
   private static final String VALUE_SIZE_4001 = VALUE_SIZE_4000 + "P";
   private static final long INITIAL_DATE = 1_444_000L;
 
-  private AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
+  private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-
-  private PropertiesDao underTest = db.getDbClient().propertiesDao();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession session = db.getSession();
+  private final PropertiesDao underTest = db.getDbClient().propertiesDao();
 
   @Test
   public void shouldFindUsersForNotification() {
@@ -121,7 +120,7 @@ public class PropertiesDaoTest {
     String userUuid1 = db.users().insertUser(u -> u.setLogin("user1")).getUuid();
     String userUuid2 = db.users().insertUser(u -> u.setLogin("user2")).getUuid();
     String projectUuid = randomAlphabetic(8);
-    db.components().insertPrivateProject(db.getDefaultOrganization(), projectUuid);
+    db.components().insertPrivateProject(projectUuid);
 
     // global subscription
     insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userUuid2);
@@ -1240,7 +1239,7 @@ public class PropertiesDaoTest {
   }
 
   private ComponentDto insertPrivateProject(String projectKey) {
-    return db.components().insertPrivateProject(db.getDefaultOrganization(), t -> t.setDbKey(projectKey));
+    return db.components().insertPrivateProject(t -> t.setDbKey(projectKey));
   }
 
   private static Consumer<UserDto> withEmail(String login) {

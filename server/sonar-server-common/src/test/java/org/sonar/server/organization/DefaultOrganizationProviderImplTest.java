@@ -28,17 +28,24 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.organization.OrganizationDao.DEFAULT_ORGANIZATION;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 
 public class DefaultOrganizationProviderImplTest {
-  private static final OrganizationDto ORGANIZATION_DTO_1 = newOrganizationDto()
+  private static final OrganizationDto ORGANIZATION_DTO_1 = new OrganizationDto()
     .setUuid("uuid1")
     .setName("the name of 1")
-    .setKey("the key 1");
+    .setKey("the key 1")
+    .setDescription(randomAlphanumeric(256))
+    .setAvatarUrl(randomAlphanumeric(256))
+    // Default quality gate should be set explicitly when needed in tests
+    .setDefaultQualityGateUuid("_NOT_SET_")
+    .setSubscription(FREE)
+    .setUrl(randomAlphanumeric(256));
   private static final long DATE_1 = 1_999_888L;
 
   private final System2 system2 = mock(System2.class);

@@ -37,7 +37,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -89,8 +88,8 @@ public class ResetActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
-  public void setUp() throws Exception {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+  public void setUp() {
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
   }
 
   @Test
@@ -343,29 +342,28 @@ public class ResetActionTest {
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_view_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     succeedForPropertyWithoutDefinitionAndValidComponent(view, view);
   }
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_subview_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
     succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
   }
 
   @Test
   public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject(), view));
 
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+  public void fail_when_using_branch_db_key() {
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());

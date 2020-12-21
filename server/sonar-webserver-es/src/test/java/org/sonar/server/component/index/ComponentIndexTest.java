@@ -24,14 +24,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.api.ListAssert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRule;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -59,12 +56,6 @@ public abstract class ComponentIndexTest {
   protected ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
   protected ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
-  private OrganizationDto organization;
-
-  @Before
-  public void setUp() {
-    organization = OrganizationTesting.newOrganizationDto();
-  }
 
   protected void assertFileMatches(String query, String... fileNames) {
     ComponentDto[] files = Arrays.stream(fileNames)
@@ -99,7 +90,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected ListAssert<String> assertSearch(SuggestionQuery query) {
-    return (ListAssert<String>)assertThat(index.searchSuggestions(query, features.get()).getQualifiers())
+    return (ListAssert<String>) assertThat(index.searchSuggestions(query, features.get()).getQualifiers())
       .flatExtracting(ComponentHitsPerQualifier::getHits)
       .extracting(ComponentHit::getUuid);
   }
@@ -122,13 +113,13 @@ public abstract class ComponentIndexTest {
 
   protected ComponentDto indexProject(String key, String name) {
     return index(
-      ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
+      ComponentTesting.newPrivateProjectDto("UUID_" + key)
         .setDbKey(key)
         .setName(name));
   }
 
   protected ComponentDto newProject(String key, String name) {
-    return ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
+    return ComponentTesting.newPrivateProjectDto("UUID_" + key)
       .setDbKey(key)
       .setName(name);
   }

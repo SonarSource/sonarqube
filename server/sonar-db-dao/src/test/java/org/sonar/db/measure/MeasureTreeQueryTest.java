@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,10 +77,10 @@ public class MeasureTreeQueryTest {
   @Test
   public void test_getUuidPath() {
     assertThat(MeasureTreeQuery.builder().setStrategy(CHILDREN)
-      .build().getUuidPath(ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
+      .build().getUuidPath(ComponentTesting.newPrivateProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
     assertThat(MeasureTreeQuery.builder().setStrategy(LEAVES)
-      .build().getUuidPath(ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
+      .build().getUuidPath(ComponentTesting.newPrivateProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
   }
 
   @Test

@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.ProjectIndexer.Cause;
 
 import static java.util.Collections.singletonList;
@@ -38,8 +36,7 @@ public class ProjectIndexersImplTest {
 
   @Test
   public void commitAndIndex_indexes_project() {
-    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
+    ComponentDto project = ComponentTesting.newPublicProjectDto();
 
     FakeIndexers underTest = new FakeIndexers();
     underTest.commitAndIndexComponents(mock(DbSession.class), singletonList(project), Cause.PROJECT_CREATION);
@@ -49,8 +46,7 @@ public class ProjectIndexersImplTest {
 
   @Test
   public void commitAndIndex_of_module_indexes_the_project() {
-    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
+    ComponentDto project = ComponentTesting.newPublicProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
 
     FakeIndexers underTest = new FakeIndexers();

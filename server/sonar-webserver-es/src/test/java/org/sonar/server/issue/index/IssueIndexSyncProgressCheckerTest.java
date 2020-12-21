@@ -307,7 +307,9 @@ public class IssueIndexSyncProgressCheckerTest {
 
   private ProjectDto insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {
     ProjectDto projectDto = db.components()
-      .insertPrivateProjectDto(db.getDefaultOrganization(), branchDto -> branchDto.setNeedIssueSync(needIssueSync));
+      .insertPrivateProjectDto(branchDto -> branchDto.setNeedIssueSync(needIssueSync), c -> {
+      }, p -> {
+      });
     IntStream.range(0, numberOfBranches).forEach(
       i -> db.components().insertProjectBranch(projectDto, branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
     return projectDto;

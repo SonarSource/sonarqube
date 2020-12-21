@@ -27,7 +27,6 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class RekeyedProjectTest {
   @Rule
@@ -97,6 +96,6 @@ public class RekeyedProjectTest {
   }
 
   private static Project newRandomProject() {
-    return Project.from(newPrivateProjectDto(newOrganizationDto()));
+    return Project.from(newPrivateProjectDto());
   }
 }

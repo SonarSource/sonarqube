@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -241,8 +240,7 @@ public class ShowActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -256,8 +254,7 @@ public class ShowActionTest {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

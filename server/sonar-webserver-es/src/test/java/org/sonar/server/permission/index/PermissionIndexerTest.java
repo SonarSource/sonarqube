@@ -28,7 +28,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -237,17 +236,14 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void public_projects_are_visible_to_anybody_whatever_the_organization() {
-    ComponentDto projectOnOrg1 = createAndIndexPublicProject(db.organizations().insert());
-    ComponentDto projectOnOrg2 = createAndIndexPublicProject(db.organizations().insert());
+  public void public_projects_are_visible_to_anybody() {
+    ComponentDto projectOnOrg1 = createAndIndexPublicProject();
     UserDto user = db.users().insertUser();
 
     indexOnStartup();
 
     verifyAnyoneAuthorized(projectOnOrg1);
-    verifyAnyoneAuthorized(projectOnOrg2);
     verifyAuthorized(projectOnOrg1, user);
-    verifyAuthorized(projectOnOrg2, user);
   }
 
   @Test
@@ -420,15 +416,9 @@ public class PermissionIndexerTest {
   }
 
   private ComponentDto createAndIndexView() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     fooIndexer.indexOnAnalysis(view.uuid());
     return view;
-  }
-
-  private ComponentDto createAndIndexPublicProject(OrganizationDto org) {
-    ComponentDto project = db.components().insertPublicProject(org);
-    fooIndexer.indexOnAnalysis(project.uuid());
-    return project;
   }
 
   private IndexingResult recover() {

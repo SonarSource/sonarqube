@@ -34,7 +34,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.singletonList;
@@ -46,14 +45,12 @@ public class DuplicationDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
-
-  private DuplicationDao dao = db.getDbClient().duplicationDao();
+  private final DbSession dbSession = db.getSession();
+  private final DuplicationDao dao = db.getDbClient().duplicationDao();
 
   @Test
   public void selectCandidates_returns_block_from_last_snapshot_only_of_component_with_language_and_if_not_specified_analysis() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto fooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
     ComponentDto fooFile1 = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
     ComponentDto disabledFooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(false));
@@ -74,12 +71,10 @@ public class DuplicationDaoTest {
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "foo", singletonList(hash)))
         .containsOnly(
           tuple(fooFile.uuid(), fooFile.getKey(), lastAnalysis.getUuid(), hash),
-          tuple(fooFile1.uuid(), fooFile1.getKey(), lastAnalysis.getUuid(), hash)
-        );
+          tuple(fooFile1.uuid(), fooFile1.getKey(), lastAnalysis.getUuid(), hash));
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "bar", singletonList(hash)))
         .containsOnly(
-          tuple(barFile.uuid(), barFile.getKey(), lastAnalysis.getUuid(), hash)
-        );
+          tuple(barFile.uuid(), barFile.getKey(), lastAnalysis.getUuid(), hash));
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "donut", singletonList(hash)))
         .isEmpty();
     }
@@ -89,13 +84,11 @@ public class DuplicationDaoTest {
           tuple(fooFile.uuid(), fooFile.getKey(), lastAnalysis.getUuid(), "aa"),
           tuple(fooFile.uuid(), fooFile.getKey(), lastAnalysis.getUuid(), "bb"),
           tuple(fooFile1.uuid(), fooFile1.getKey(), lastAnalysis.getUuid(), "aa"),
-          tuple(fooFile1.uuid(), fooFile1.getKey(), lastAnalysis.getUuid(), "bb")
-        );
+          tuple(fooFile1.uuid(), fooFile1.getKey(), lastAnalysis.getUuid(), "bb"));
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "bar", hashes))
         .containsOnly(
           tuple(barFile.uuid(), barFile.getKey(), lastAnalysis.getUuid(), "aa"),
-          tuple(barFile.uuid(), barFile.getKey(), lastAnalysis.getUuid(), "bb")
-        );
+          tuple(barFile.uuid(), barFile.getKey(), lastAnalysis.getUuid(), "bb"));
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "donut", hashes))
         .isEmpty();
     }
@@ -116,14 +109,13 @@ public class DuplicationDaoTest {
 
   @Test
   public void select_component() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject();
     SnapshotDto analysis2 = db.components().insertSnapshot(project2);
-    ComponentDto project3 = db.components().insertPrivateProject(organization);
+    ComponentDto project3 = db.components().insertPrivateProject();
     SnapshotDto analysis3 = db.components().insertSnapshot(project3);
-    ComponentDto project4 = db.components().insertPrivateProject(organization);
+    ComponentDto project4 = db.components().insertPrivateProject();
     insert(project1, analysis1, "bb", 0, 0, 0);
     insert(project2, analysis2, "aa", 0, 1, 2);
     insert(project3, analysis3, "bb", 0, 0, 0);
@@ -146,8 +138,7 @@ public class DuplicationDaoTest {
 
   @Test
   public void insert() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = newPrivateProjectDto(organization);
+    ComponentDto project = newPrivateProjectDto();
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
 
     insert(project, analysis, "bb", 0, 1, 2);

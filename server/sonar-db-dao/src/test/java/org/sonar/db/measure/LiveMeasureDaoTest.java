@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -54,7 +53,7 @@ public class LiveMeasureDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
+  private final LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
   private MetricDto metric;
 
   @Before
@@ -303,19 +302,18 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void countNcloc() {
-    OrganizationDto organization = db.organizations().insert();
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertPublicProject(organization);
+    ComponentDto simpleProject = db.components().insertPublicProject();
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject(organization);
+    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject();
     ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject(organization);
+    ComponentDto projectWithLinesButNoLoc = db.components().insertPublicProject();
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
@@ -341,18 +339,17 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void countNcloc_and_exclude_project() {
-    OrganizationDto organization = db.organizations().insert();
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
 
-    ComponentDto simpleProject = db.components().insertPublicProject(organization);
+    ComponentDto simpleProject = db.components().insertPublicProject();
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
-    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject(organization);
+    ComponentDto projectWithBiggerBranch = db.components().insertPublicProject();
     ComponentDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
-    ComponentDto projectToExclude = db.components().insertPublicProject(organization);
+    ComponentDto projectToExclude = db.components().insertPublicProject();
     ComponentDto projectToExcludeBranch = db.components().insertProjectBranch(projectToExclude, b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectToExclude, ncloc, m -> m.setValue(300d));
     db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));

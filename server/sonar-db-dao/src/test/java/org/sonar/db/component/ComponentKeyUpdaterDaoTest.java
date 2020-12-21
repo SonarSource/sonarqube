@@ -34,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentKeyUpdaterDao.RekeyedResource;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,9 +80,8 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_updates_disabled_components() {
-    OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(
-      newPrivateProjectDto(organizationDto, "A")
+      newPrivateProjectDto("A")
         .setDbKey("my_project"));
     ComponentDto directory = db.components().insertComponent(
       newDirectory(project, "B")
@@ -133,7 +131,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void update_application_branch_key_will_fail_if_newKey_exist(){
+  public void update_application_branch_key_will_fail_if_newKey_exist() {
     ComponentDto app = db.components().insertPublicProject();
     ComponentDto appBranch = db.components().insertProjectBranch(app);
     db.components().insertProjectBranch(app, b -> b.setKey("newName"));
@@ -368,15 +366,14 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void shouldNotUpdateAllSubmodules() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization, t1 -> t1.setDbKey("org.struts:struts").setUuid("A"));
+    ComponentDto project1 = db.components().insertPrivateProject(t1 -> t1.setDbKey("org.struts:struts").setUuid("A"));
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
     ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
     db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
     ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("foo:struts-ui").setUuid("E"));
     ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
     db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("foo:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
-    ComponentDto project2 = db.components().insertPublicProject(organization, t1 -> t1.setDbKey("foo:struts-core").setUuid("H"));
+    ComponentDto project2 = db.components().insertPublicProject(t1 -> t1.setDbKey("foo:struts-core").setUuid("H"));
 
     underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
     dbSession.commit();
@@ -396,8 +393,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setDbKey("old-project-key");
+    ComponentDto project = newPrivateProjectDto("project-uuid").setDbKey("old-project-key");
     db.components().insertComponent(project);
     db.components().insertComponent(newFileDto(project, null).setDbKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
@@ -430,9 +426,8 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void check_component_keys_checks_inactive_components() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("my-project"));
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("your-project").setEnabled(false));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("my-project"));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("your-project").setEnabled(false));
 
     Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("my-project", "your-project", "new-project"));
 
@@ -454,10 +449,10 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key_does_not_return_disable_components() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setDbKey("project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "D").setDbKey("other-project"));
+    db.components().insertComponent(newPrivateProjectDto("D").setDbKey("other-project"));
 
     Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "project", "new-project");
 
@@ -468,8 +463,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setDbKey("project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
 
@@ -489,14 +483,13 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   private void populateSomeData() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization, t -> t.setDbKey("org.struts:struts").setUuid("A"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setDbKey("org.struts:struts").setUuid("A"));
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
     ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
     db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
     ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-ui").setUuid("E"));
     ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
     db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("org.struts:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
-    ComponentDto project2 = db.components().insertPublicProject(organization, t -> t.setDbKey("foo:struts-core").setUuid("H"));
+    ComponentDto project2 = db.components().insertPublicProject(t -> t.setDbKey("foo:struts-core").setUuid("H"));
   }
 }

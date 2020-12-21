@@ -68,11 +68,15 @@ public class ProjectMeasuresQuery {
     return Optional.ofNullable(qualityGateStatus);
   }
 
+  //TODO remove in organization removal
+  @Deprecated
   public ProjectMeasuresQuery setOrganizationUuid(@Nullable String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
   }
 
+  //TODO remove in organization removal
+  @Deprecated
   public Optional<String> getOrganizationUuid() {
     return Optional.ofNullable(organizationUuid);
   }

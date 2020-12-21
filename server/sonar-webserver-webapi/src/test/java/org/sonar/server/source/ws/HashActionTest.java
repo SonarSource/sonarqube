@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -49,12 +48,11 @@ public class HashActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private WsActionTester tester = new WsActionTester(new HashAction(db.getDbClient(), userSessionRule, TestComponentFinder.from(db)));
+  private final WsActionTester tester = new WsActionTester(new HashAction(db.getDbClient(), userSessionRule, TestComponentFinder.from(db)));
 
   @Test
   public void show_hashes() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource = db.fileSources().insertFileSource(file, f -> f.setLineHashes(singletonList("ABC")));
     loginAsProjectViewer(project);
@@ -66,8 +64,7 @@ public class HashActionTest {
 
   @Test
   public void hashes_empty_if_no_source() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     loginAsProjectViewer(project);
 
@@ -97,8 +94,7 @@ public class HashActionTest {
 
   @Test
   public void fail_on_missing_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource = db.fileSources().insertFileSource(file);
     userSessionRule.logIn(db.users().insertUser());

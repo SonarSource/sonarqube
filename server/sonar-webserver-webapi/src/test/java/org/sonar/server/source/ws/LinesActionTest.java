@@ -30,10 +30,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDto;
@@ -64,26 +62,23 @@ public class LinesActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private ComponentDao componentDao = new ComponentDao();
-  private SnapshotDao snapshotDao = new SnapshotDao();
-  private ComponentDto privateProject;
-  private OrganizationDto organization;
-  private HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
-  private SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
-  private LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
-  private LinesAction underTest = new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter, userSession);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final ComponentDao componentDao = new ComponentDao();
+  private final SnapshotDao snapshotDao = new SnapshotDao();
+  private final HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
+  private final SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
+  private final LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
+  private final LinesAction underTest = new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter, userSession);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString()))
       .then((Answer<String>) invocationOnMock -> "<p>" + invocationOnMock.getArguments()[0] + "</p>");
-    organization = db.organizations().insert();
-    privateProject = ComponentTesting.newPrivateProjectDto(organization);
   }
 
   @Test
   public void show_source() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
     setUserWithValidPermission(file);
 
@@ -96,6 +91,7 @@ public class LinesActionTest {
 
   @Test
   public void fail_to_show_source_if_no_source_found() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFile(privateProject);
     setUserWithValidPermission(file);
 
@@ -109,6 +105,7 @@ public class LinesActionTest {
 
   @Test
   public void show_paginated_lines() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(3).build(), privateProject);
     setUserWithValidPermission(file);
 
@@ -193,8 +190,9 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_file_is_removed() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = newFileDto(privateProject).setDbKey("file-key").setEnabled(false);
-    db.components().insertComponents(privateProject, file);
+    db.components().insertComponents(file);
     setUserWithValidPermission(file);
 
     expectedException.expect(NotFoundException.class);
@@ -205,6 +203,7 @@ public class LinesActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void check_permission() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
 
     userSession.logIn("login");
@@ -216,6 +215,7 @@ public class LinesActionTest {
 
   @Test
   public void display_deprecated_fields() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
     setUserWithValidPermission(file);
 
@@ -245,6 +245,7 @@ public class LinesActionTest {
 
   @Test
   public void use_deprecated_overall_coverage_fields_if_exists() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedOverallLineHits(1)
@@ -266,6 +267,7 @@ public class LinesActionTest {
 
   @Test
   public void use_deprecated_ut_coverage_fields_if_exists() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedUtLineHits(1)
@@ -284,6 +286,7 @@ public class LinesActionTest {
 
   @Test
   public void use_deprecated_it_coverage_fields_if_exists() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     ComponentDto file = insertFileWithData(dataBuilder.addLines(newLineBuilder()
       .setDeprecatedItLineHits(1)
@@ -358,9 +361,8 @@ public class LinesActionTest {
   }
 
   @Test
-  public void hide_scmAuthors_if_not_member_of_organization() {
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto publicProject = db.components().insertPublicProject(org);
+  public void hide_scmAuthors() {
+    ComponentDto publicProject = db.components().insertPublicProject();
     userSession.registerComponents(publicProject);
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
@@ -376,9 +378,8 @@ public class LinesActionTest {
   }
 
   @Test
-  public void show_scmAuthors_if_member_of_organization() {
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto publicProject = db.components().insertPublicProject(org);
+  public void show_scmAuthors() {
+    ComponentDto publicProject = db.components().insertPublicProject();
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
       .registerComponents(publicProject);
@@ -407,6 +408,7 @@ public class LinesActionTest {
   }
 
   private void setUserWithValidPermission(ComponentDto file) {
+    ComponentDto privateProject = db.components().insertPrivateProject();
     userSession.logIn("login")
       .addProjectPermission(UserRole.CODEVIEWER, privateProject, file);
   }

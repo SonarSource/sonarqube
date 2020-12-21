@@ -103,10 +103,9 @@ public class SearchActionTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = db.getDbClient();
-
-  private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
-  private UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
+  private final DbClient dbClient = db.getDbClient();
+  private final WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
+  private final UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
 
   @DataProvider
   public static Object[][] changedBranches() {
@@ -413,7 +412,7 @@ public class SearchActionTest {
 
   @Test
   public void return_analyses_of_portfolio() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     userSession.registerComponents(view);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(view).setCreatedAt(2_000_000L));

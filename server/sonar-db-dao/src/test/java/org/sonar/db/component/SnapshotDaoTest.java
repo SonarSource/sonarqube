@@ -43,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
@@ -70,10 +69,9 @@ public class SnapshotDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private SnapshotDao underTest = dbClient.snapshotDao();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final SnapshotDao underTest = dbClient.snapshotDao();
 
   @Test
   public void test_selectByUuid() {
@@ -155,12 +153,12 @@ public class SnapshotDaoTest {
 
   @Test
   public void selectLastSnapshotsByRootComponentUuids_returns_snapshots_flagged_as_last() {
-    ComponentDto firstProject = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_1"));
+    ComponentDto firstProject = db.components().insertComponent(newPrivateProjectDto("PROJECT_UUID_1"));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(false));
     SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true));
-    ComponentDto secondProject = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_2"));
+    ComponentDto secondProject = db.components().insertComponent(newPrivateProjectDto("PROJECT_UUID_2"));
     SnapshotDto lastSnapshotOfSecondProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(secondProject).setLast(true));
-    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto());
 
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 
@@ -259,9 +257,7 @@ public class SnapshotDaoTest {
 
   @Test
   public void select_first_snapshots() {
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization());
-    db.getDbClient().componentDao().insert(dbSession, project);
-
+    ComponentDto project = db.components().insertPrivateProject();
     db.getDbClient().snapshotDao().insert(dbSession,
       newAnalysis(project).setCreatedAt(5L),
       newAnalysis(project).setCreatedAt(2L),
@@ -493,7 +489,7 @@ public class SnapshotDaoTest {
   }
 
   private SnapshotDto insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {
-    SnapshotDto snapshot = newAnalysis(newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid))
+    SnapshotDto snapshot = newAnalysis(newPrivateProjectDto(projectUuid))
       .setLast(isLastFlag)
       .setStatus(status)
       .setUuid(uuid);

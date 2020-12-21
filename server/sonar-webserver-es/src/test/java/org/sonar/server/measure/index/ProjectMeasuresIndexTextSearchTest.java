@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -54,8 +52,6 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   private static final String NCLOC = "ncloc";
 
-  private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
-
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -70,8 +66,8 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_exact_case_insensitive_name() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Apache Struts")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("sonarqube").setName("SonarQube")));
+      newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts")),
+      newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube")));
 
     assertTextQueryResults("Apache Struts", "struts");
     assertTextQueryResults("APACHE STRUTS", "struts");
@@ -80,7 +76,7 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   @Test
   public void match_from_sub_name() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Apache Struts")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts")));
 
     assertTextQueryResults("truts", "struts");
     assertTextQueryResults("pache", "struts");
@@ -90,70 +86,70 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   @Test
   public void match_name_with_dot() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Apache.Struts")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache.Struts")));
 
     assertTextQueryResults("apache struts", "struts");
   }
 
   @Test
   public void match_partial_name() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("XstrutsxXjavax")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("XstrutsxXjavax")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_partial_name_prefix_word1() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("MyStruts.java")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("MyStruts.java")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_partial_name_suffix_word1() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("StrutsObject.java")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("StrutsObject.java")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_partial_name_prefix_word2() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("MyStruts.xjava")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("MyStruts.xjava")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_partial_name_suffix_word2() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("MyStrutsObject.xjavax")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("MyStrutsObject.xjavax")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_subset_of_document_terms() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Some.Struts.Project.java.old")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Some.Struts.Project.java.old")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void match_partial_match_prefix_and_suffix_everywhere() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("MyStruts.javax")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("MyStruts.javax")));
 
     assertTextQueryResults("struts java", "struts");
   }
 
   @Test
   public void ignore_empty_words() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Struts")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Struts")));
 
     assertTextQueryResults("            struts   \n     \n\n", "struts");
   }
 
   @Test
   public void match_name_from_prefix() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Apache Struts")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts")));
 
     assertTextQueryResults("apach", "struts");
     assertTextQueryResults("ApA", "struts");
@@ -162,7 +158,7 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   @Test
   public void match_name_from_two_words() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("project").setName("ApacheStrutsFoundation")));
+    index(newDoc(newPrivateProjectDto().setUuid("project").setName("ApacheStrutsFoundation")));
 
     assertTextQueryResults("apache struts", "project");
     assertTextQueryResults("struts apache", "project");
@@ -174,15 +170,15 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_long_name() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("project1").setName("LongNameLongNameLongNameLongNameSonarQube")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("project2").setName("LongNameLongNameLongNameLongNameSonarQubeX")));
+      newDoc(newPrivateProjectDto().setUuid("project1").setName("LongNameLongNameLongNameLongNameSonarQube")),
+      newDoc(newPrivateProjectDto().setUuid("project2").setName("LongNameLongNameLongNameLongNameSonarQubeX")));
 
     assertTextQueryResults("LongNameLongNameLongNameLongNameSonarQube", "project1", "project2");
   }
 
   @Test
   public void match_name_with_two_characters() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("struts").setName("Apache Struts")));
+    index(newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts")));
 
     assertTextQueryResults("st", "struts");
     assertTextQueryResults("tr", "struts");
@@ -191,8 +187,8 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_exact_case_insensitive_key() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("project1").setName("Windows").setDbKey("project1")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("project2").setName("apachee").setDbKey("project2")));
+      newDoc(newPrivateProjectDto().setUuid("project1").setName("Windows").setDbKey("project1")),
+      newDoc(newPrivateProjectDto().setUuid("project2").setName("apachee").setDbKey("project2")));
 
     assertTextQueryResults("project1", "project1");
     assertTextQueryResults("PROJECT1", "project1");
@@ -202,8 +198,8 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_key_with_dot() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("sonarqube").setName("SonarQube").setDbKey("org.sonarqube")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("sq").setName("SQ").setDbKey("sonarqube")));
+      newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube").setDbKey("org.sonarqube")),
+      newDoc(newPrivateProjectDto().setUuid("sq").setName("SQ").setDbKey("sonarqube")));
 
     assertTextQueryResults("org.sonarqube", "sonarqube");
     assertNoResults("orgsonarqube");
@@ -215,8 +211,8 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_key_with_dash() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("sonarqube").setName("SonarQube").setDbKey("org-sonarqube")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("sq").setName("SQ").setDbKey("sonarqube")));
+      newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube").setDbKey("org-sonarqube")),
+      newDoc(newPrivateProjectDto().setUuid("sq").setName("SQ").setDbKey("sonarqube")));
 
     assertTextQueryResults("org-sonarqube", "sonarqube");
     assertNoResults("orgsonarqube");
@@ -228,8 +224,8 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void match_key_with_colon() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("sonarqube").setName("SonarQube").setDbKey("org:sonarqube")),
-      newDoc(newPrivateProjectDto(ORG).setUuid("sq").setName("SQ").setDbKey("sonarqube")));
+      newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube").setDbKey("org:sonarqube")),
+      newDoc(newPrivateProjectDto().setUuid("sq").setName("SQ").setDbKey("sonarqube")));
 
     assertTextQueryResults("org:sonarqube", "sonarqube");
     assertNoResults("orgsonarqube");
@@ -240,14 +236,14 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   @Test
   public void match_key_having_all_special_characters() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("sonarqube").setName("SonarQube").setDbKey("org.sonarqube:sonar-sérvèr_ç")));
+    index(newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube").setDbKey("org.sonarqube:sonar-sérvèr_ç")));
 
     assertTextQueryResults("org.sonarqube:sonar-sérvèr_ç", "sonarqube");
   }
 
   @Test
   public void does_not_match_partial_key() {
-    index(newDoc(newPrivateProjectDto(ORG).setUuid("project").setName("some name").setDbKey("theKey")));
+    index(newDoc(newPrivateProjectDto().setUuid("project").setName("some name").setDbKey("theKey")));
 
     assertNoResults("theke");
     assertNoResults("hekey");
@@ -257,12 +253,12 @@ public class ProjectMeasuresIndexTextSearchTest {
   public void facets_take_into_account_text_search() {
     index(
       // docs with ncloc<1K
-      newDoc(newPrivateProjectDto(ORG).setName("Windows").setDbKey("project1"), NCLOC, 0d),
-      newDoc(newPrivateProjectDto(ORG).setName("apachee").setDbKey("project2"), NCLOC, 999d),
+      newDoc(newPrivateProjectDto().setName("Windows").setDbKey("project1"), NCLOC, 0d),
+      newDoc(newPrivateProjectDto().setName("apachee").setDbKey("project2"), NCLOC, 999d),
       // docs with ncloc>=1K and ncloc<10K
-      newDoc(newPrivateProjectDto(ORG).setName("Apache").setDbKey("project3"), NCLOC, 1_000d),
+      newDoc(newPrivateProjectDto().setName("Apache").setDbKey("project3"), NCLOC, 1_000d),
       // docs with ncloc>=100K and ncloc<500K
-      newDoc(newPrivateProjectDto(ORG).setName("Apache Foundation").setDbKey("project4"), NCLOC, 100_000d));
+      newDoc(newPrivateProjectDto().setName("Apache Foundation").setDbKey("project4"), NCLOC, 100_000d));
 
     assertNclocFacet(new ProjectMeasuresQuery().setQueryText("apache"), 1L, 1L, 0L, 1L, 0L);
     assertNclocFacet(new ProjectMeasuresQuery().setQueryText("PAch"), 1L, 1L, 0L, 1L, 0L);
@@ -274,10 +270,10 @@ public class ProjectMeasuresIndexTextSearchTest {
   @Test
   public void filter_by_metric_take_into_account_text_search() {
     index(
-      newDoc(newPrivateProjectDto(ORG).setUuid("project1").setName("Windows").setDbKey("project1"), NCLOC, 30_000d),
-      newDoc(newPrivateProjectDto(ORG).setUuid("project2").setName("apachee").setDbKey("project2"), NCLOC, 40_000d),
-      newDoc(newPrivateProjectDto(ORG).setUuid("project3").setName("Apache").setDbKey("project3"), NCLOC, 50_000d),
-      newDoc(newPrivateProjectDto(ORG).setUuid("project4").setName("Apache").setDbKey("project4"), NCLOC, 60_000d));
+      newDoc(newPrivateProjectDto().setUuid("project1").setName("Windows").setDbKey("project1"), NCLOC, 30_000d),
+      newDoc(newPrivateProjectDto().setUuid("project2").setName("apachee").setDbKey("project2"), NCLOC, 40_000d),
+      newDoc(newPrivateProjectDto().setUuid("project3").setName("Apache").setDbKey("project3"), NCLOC, 50_000d),
+      newDoc(newPrivateProjectDto().setUuid("project4").setName("Apache").setDbKey("project4"), NCLOC, 60_000d));
 
     assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(MetricCriterion.create(NCLOC, GT, 20_000d)), "project3", "project4", "project2");
     assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(MetricCriterion.create(NCLOC, LT, 55_000d)), "project3", "project2");

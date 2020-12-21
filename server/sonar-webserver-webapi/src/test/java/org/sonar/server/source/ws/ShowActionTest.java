@@ -31,7 +31,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
@@ -54,7 +53,7 @@ public class ShowActionTest {
   private DbClient dbClient = mock(DbClient.class);
   private DbSession session = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
-  private ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
+  private ComponentDto project = ComponentTesting.newPrivateProjectDto();
   private ComponentDto file = ComponentTesting.newFileDto(project, null);
   private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
     new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)));

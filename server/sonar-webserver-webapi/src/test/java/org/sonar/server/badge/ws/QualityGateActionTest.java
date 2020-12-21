@@ -36,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -61,7 +60,7 @@ public class QualityGateActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
+  private final MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
 
   private WsActionTester ws = new WsActionTester(
     new QualityGateAction(db.getDbClient(),
@@ -163,8 +162,7 @@ public class QualityGateActionTest {
 
   @Test
   public void quality_gate_on_application() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(application, metric, m -> m.setData(ERROR.name()));

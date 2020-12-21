@@ -134,7 +134,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void remove_with_view_uuid() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, view);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, view);

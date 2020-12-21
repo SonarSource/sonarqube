@@ -37,7 +37,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
@@ -703,8 +702,7 @@ public class QualityProfileDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"));
     ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"));
     ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"));
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name").setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"));
     ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
@@ -796,7 +794,6 @@ public class QualityProfileDaoTest {
 
   @Test
   public void renameAndCommit_updates_name_of_specified_profiles() {
-    OrganizationDto org1 = db.organizations().insert();
     QProfileDto fooInOrg1 = db.qualityProfiles().insert(p -> p.setName("foo"));
     QProfileDto bar = db.qualityProfiles().insert(p -> p.setName("bar"));
 

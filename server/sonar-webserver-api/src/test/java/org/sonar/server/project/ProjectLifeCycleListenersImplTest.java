@@ -39,20 +39,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectLifeCycleListenersImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ProjectLifeCycleListener listener1 = mock(ProjectLifeCycleListener.class);
-  private ProjectLifeCycleListener listener2 = mock(ProjectLifeCycleListener.class);
-  private ProjectLifeCycleListener listener3 = mock(ProjectLifeCycleListener.class);
-  private ProjectLifeCycleListenersImpl underTestNoListeners = new ProjectLifeCycleListenersImpl();
-  private ProjectLifeCycleListenersImpl underTestWithListeners = new ProjectLifeCycleListenersImpl(
+  private final ProjectLifeCycleListener listener1 = mock(ProjectLifeCycleListener.class);
+  private final ProjectLifeCycleListener listener2 = mock(ProjectLifeCycleListener.class);
+  private final ProjectLifeCycleListener listener3 = mock(ProjectLifeCycleListener.class);
+  private final ProjectLifeCycleListenersImpl underTestNoListeners = new ProjectLifeCycleListenersImpl();
+  private final ProjectLifeCycleListenersImpl underTestWithListeners = new ProjectLifeCycleListenersImpl(
     new ProjectLifeCycleListener[] {listener1, listener2, listener3});
 
   @Test
@@ -76,7 +75,7 @@ public class ProjectLifeCycleListenersImplTest {
     underTestNoListeners.onProjectsDeleted(Collections.emptySet());
 
     underTestWithListeners.onProjectsDeleted(Collections.emptySet());
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
@@ -151,7 +150,7 @@ public class ProjectLifeCycleListenersImplTest {
     underTestNoListeners.onProjectBranchesDeleted(Collections.emptySet());
 
     underTestWithListeners.onProjectBranchesDeleted(Collections.emptySet());
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
@@ -235,7 +234,7 @@ public class ProjectLifeCycleListenersImplTest {
     underTestNoListeners.onProjectsRekeyed(Collections.emptySet());
 
     underTestWithListeners.onProjectsRekeyed(Collections.emptySet());
-    verifyZeroInteractions(listener1, listener2, listener3);
+    verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
@@ -298,14 +297,14 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   private static Project newUniqueProject() {
-    return Project.from(newPrivateProjectDto(newOrganizationDto()));
+    return Project.from(newPrivateProjectDto());
   }
 
   private static int counter = 3_989;
 
   private static RekeyedProject newUniqueRekeyedProject() {
     int base = counter++;
-    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
+    Project project = Project.from(newPrivateProjectDto());
     return new RekeyedProject(project, base + "_old_key");
   }
 }

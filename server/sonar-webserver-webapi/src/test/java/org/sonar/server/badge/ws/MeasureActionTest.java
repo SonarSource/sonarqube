@@ -40,7 +40,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.component.ComponentFinder;
@@ -245,8 +244,7 @@ public class MeasureActionTest {
 
   @Test
   public void measure_on_application() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertPublicApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication();
     userSession.registerComponents(application);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(application, metric, m -> m.setValue(10_000d));

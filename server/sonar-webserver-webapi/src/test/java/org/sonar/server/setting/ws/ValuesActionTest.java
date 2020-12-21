@@ -41,7 +41,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.process.ProcessProperties;
@@ -93,7 +92,7 @@ public class ValuesActionTest {
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
   }
 
   @Test
@@ -745,8 +744,7 @@ public class ValuesActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

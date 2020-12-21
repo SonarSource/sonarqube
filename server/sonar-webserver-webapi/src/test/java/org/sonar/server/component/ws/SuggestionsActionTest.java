@@ -553,7 +553,7 @@ public class SuggestionsActionTest {
     String query = randomAlphabetic(10);
 
     ComponentDto app = db.components().insertPublicApplication(v -> v.setName(query));
-    ComponentDto view = db.components().insertView(v -> v.setName(query));
+    ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view).setName(query));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query));
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setName(query));

@@ -33,7 +33,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -52,7 +51,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -79,9 +77,8 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
-    ComponentDto another = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto another = newPrivateProjectDto();
     indexIssues(
       newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
       newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
@@ -97,8 +94,7 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getOwaspTop10Report_dont_count_closed_vulnerabilities() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openvul1", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
       newDoc("notopenvul", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
@@ -114,8 +110,7 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getOwaspTop10Report_dont_count_old_vulnerabilities() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(
       // Previous vulnerabilities in projects that are not reanalyzed will have no owasp nor cwe attributes (not even 'unknown')
       newDoc("openvulNotReindexed", project).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
@@ -130,9 +125,8 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getOwaspTop10Report_dont_count_hotspots_from_other_projects() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
-    ComponentDto another = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto another = newPrivateProjectDto();
     indexIssues(
       newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
       newDoc("anotherProject", another).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
@@ -146,8 +140,7 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getOwaspTop10Report_dont_count_closed_hotspots() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
       newDoc("closedHotspot", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
@@ -193,8 +186,7 @@ public class IssueIndexSecurityReportsTest {
   }
 
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
@@ -229,8 +221,7 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getSansTop25Report_aggregation() {
-    OrganizationDto org = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openvul1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
         .setSeverity(Severity.MAJOR),
@@ -265,8 +256,8 @@ public class IssueIndexSecurityReportsTest {
 
   @Test
   public void getSansTop25Report_aggregation_on_portfolio() {
-    ComponentDto portfolio1 = db.components().insertPrivateApplication(db.getDefaultOrganization());
-    ComponentDto portfolio2 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto portfolio1 = db.components().insertPrivateApplication();
+    ComponentDto portfolio2 = db.components().insertPrivateApplication();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
 

@@ -23,11 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class PermissionQueryTest {
 
@@ -36,8 +34,7 @@ public class PermissionQueryTest {
 
   @Test
   public void create_query() {
-    OrganizationDto organization = newOrganizationDto();
-    ComponentDto project = newPublicProjectDto(organization);
+    ComponentDto project = newPublicProjectDto();
     PermissionQuery query = PermissionQuery.builder()
       .setComponent(project)
       .setPermission("user")

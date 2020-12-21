@@ -73,7 +73,6 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -446,7 +445,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses_does_not_return_the_baseline() {
-    ComponentDto project1 = db.components().insertPublicProject(db.getDefaultOrganization(), "master");
+    ComponentDto project1 = db.components().insertPublicProject("master");
     SnapshotDto analysis1 = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(project1.uuid())
       .setStatus(STATUS_PROCESSED)
@@ -472,7 +471,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses_does_not_return_the_baseline_of_specific_branch() {
-    ComponentDto project = db.components().insertPublicProject(db.getDefaultOrganization(), "master");
+    ComponentDto project = db.components().insertPublicProject("master");
     SnapshotDto analysisProject = db.components().insertSnapshot(newSnapshot()
       .setComponentUuid(project.uuid())
       .setStatus(STATUS_PROCESSED)
@@ -624,11 +623,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_webhooks_from_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project1 = db.components().insertPrivateProjectDto(organization);
+    ProjectDto project1 = db.components().insertPrivateProjectDto();
     WebhookDto webhook = db.webhooks().insertWebhook(project1);
     db.webhookDelivery().insert(webhook);
-    ProjectDto projectNotToBeDeleted = db.components().insertPrivateProjectDto(organization);
+    ProjectDto projectNotToBeDeleted = db.components().insertPrivateProjectDto();
     WebhookDto webhookNotDeleted = db.webhooks().insertWebhook(projectNotToBeDeleted);
     WebhookDeliveryLiteDto webhookDeliveryNotDeleted = db.webhookDelivery().insert(webhookNotDeleted);
 
@@ -1058,10 +1056,10 @@ public class PurgeDaoTest {
   @Test
   public void delete_view_and_child() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertComponent(newSubView(view));
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(project, subView));
-    ComponentDto otherView = db.components().insertView();
+    ComponentDto otherView = db.components().insertPrivatePortfolio();
     ComponentDto otherSubView = db.components().insertComponent(newSubView(otherView));
     ComponentDto otherProjectCopy = db.components().insertComponent(newProjectCopy(project, otherSubView));
 
@@ -1363,8 +1361,8 @@ public class PurgeDaoTest {
 
     verifyNoEffect(componentDbTester.insertPrivateProject());
     verifyNoEffect(componentDbTester.insertPublicProject());
-    verifyNoEffect(componentDbTester.insertView());
-    verifyNoEffect(componentDbTester.insertView(), componentDbTester.insertPrivateProject(), componentDbTester.insertPublicProject());
+    verifyNoEffect(componentDbTester.insertPrivatePortfolio());
+    verifyNoEffect(componentDbTester.insertPrivatePortfolio(), componentDbTester.insertPrivateProject(), componentDbTester.insertPublicProject());
   }
 
   @Test
@@ -1429,7 +1427,7 @@ public class PurgeDaoTest {
       db.components().insertPrivateProject()
     };
 
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview1 = db.components().insertComponent(newSubView(view));
     ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
     List<ComponentDto> components = asList(
@@ -1475,7 +1473,7 @@ public class PurgeDaoTest {
       db.components().insertPrivateProject()
     };
 
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview1 = db.components().insertComponent(newSubView(view));
     ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
     ComponentDto pc1 = db.components().insertComponent(newProjectCopy("a", projects[0], view));
@@ -1495,7 +1493,7 @@ public class PurgeDaoTest {
 
   @Test
   public void deleteNonRootComponents_deletes_measures_of_any_non_root_component_of_a_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(newSubView(view));
     ComponentDto pc = db.components().insertComponent(newProjectCopy("a", db.components().insertPrivateProject(), view));
     insertMeasureFor(view, subview, pc);
@@ -1512,7 +1510,7 @@ public class PurgeDaoTest {
 
   @Test
   public void deleteNonRootComponents_deletes_properties_of_subviews_of_a_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview1 = db.components().insertComponent(newSubView(view));
     ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
     ComponentDto subview3 = db.components().insertComponent(newSubView(view));
@@ -1531,7 +1529,7 @@ public class PurgeDaoTest {
 
   @Test
   public void deleteNonRootComponentsInView_deletes_manual_measures_of_subviews_of_a_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview1 = db.components().insertComponent(newSubView(view));
     ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
     ComponentDto subview3 = db.components().insertComponent(newSubView(view));

@@ -35,7 +35,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
@@ -98,10 +97,9 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexOnStartup_indexes_all_projects() {
-    OrganizationDto organization = db.organizations().insert();
-    SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
-    SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
-    SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+    SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
+    SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
+    SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
 
     underTest.indexOnStartup(emptySet());
 
@@ -111,10 +109,9 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexAll_indexes_all_projects() {
-    OrganizationDto organization = db.organizations().insert();
-    SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
-    SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
-    SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto(organization));
+    SnapshotDto project1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
+    SnapshotDto project2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
+    SnapshotDto project3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
 
     underTest.indexAll();
 
@@ -146,10 +143,9 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexOnStartup_indexes_all_applications() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto application1 = db.components().insertPrivateApplication(organization);
-    ComponentDto application2 = db.components().insertPrivateApplication(organization);
-    ComponentDto application3 = db.components().insertPrivateApplication(organization);
+    ComponentDto application1 = db.components().insertPrivateApplication();
+    ComponentDto application2 = db.components().insertPrivateApplication();
+    ComponentDto application3 = db.components().insertPrivateApplication();
 
     underTest.indexOnStartup(emptySet());
 
@@ -159,15 +155,13 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexOnStartup_indexes_projects_and_applications() {
-    OrganizationDto organization = db.organizations().insert();
-
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
 
-    ComponentDto application1 = db.components().insertPrivateApplication(organization);
-    ComponentDto application2 = db.components().insertPrivateApplication(organization);
-    ComponentDto application3 = db.components().insertPrivateApplication(organization);
+    ComponentDto application1 = db.components().insertPrivateApplication();
+    ComponentDto application2 = db.components().insertPrivateApplication();
+    ComponentDto application3 = db.components().insertPrivateApplication();
 
     underTest.indexOnStartup(emptySet());
 

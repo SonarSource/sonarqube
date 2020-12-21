@@ -58,19 +58,19 @@ public class ScmActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()),
+    userSessionRule, TestComponentFinder.from(dbTester));
+  private final WsActionTester tester = new WsActionTester(underTest);
   private ComponentDto project;
   private ComponentDto file;
-  private ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()),
-    userSessionRule, TestComponentFinder.from(dbTester));
-  private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
+    project = dbTester.components().insertPrivateProject(PROJECT_UUID);
     file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), project, file);
+    dbClient.componentDao().insert(dbTester.getSession(), file);
     dbTester.getSession().commit();
   }
 
@@ -135,7 +135,7 @@ public class ScmActionTest {
 
     tester.newRequest()
       .setParam("key", FILE_KEY)
-      .setParam("commits_by_line","true")
+      .setParam("commits_by_line", "true")
       .execute()
       .assertJson(getClass(), "not_group_lines_by_commit.json");
   }
@@ -159,7 +159,7 @@ public class ScmActionTest {
 
     tester.newRequest()
       .setParam("key", FILE_KEY)
-      .setParam("commits_by_line","false")
+      .setParam("commits_by_line", "false")
       .execute()
       .assertJson(getClass(), "group_lines_by_commit.json");
   }
@@ -182,7 +182,7 @@ public class ScmActionTest {
 
     tester.newRequest()
       .setParam("key", FILE_KEY)
-      .setParam("from","-2")
+      .setParam("from", "-2")
       .setParam("to", "3")
       .execute()
       .assertJson(getClass(), "accept_negative_value_in_from_parameter.json");

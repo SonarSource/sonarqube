@@ -42,9 +42,7 @@ import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.measure.MeasureDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.notification.NotificationDbTester;
-import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.plugin.PluginDbTester;
 import org.sonar.db.property.InternalComponentPropertyDbTester;
@@ -60,6 +58,7 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 
 /**
  * This class should be called using @Rule.
@@ -82,7 +81,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final ProjectLinkDbTester componentLinkTester;
   private final FavoriteDbTester favoriteTester;
   private final EventDbTester eventTester;
-  private final OrganizationDbTester organizationTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
   private final PropertyDbTester propertyTester;
   private final QualityGateDbTester qualityGateDbTester;
@@ -111,7 +109,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.componentLinkTester = new ProjectLinkDbTester(this);
     this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
-    this.organizationTester = new OrganizationDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
     this.propertyTester = new PropertyDbTester(this);
     this.qualityGateDbTester = new QualityGateDbTester(this);
@@ -159,7 +156,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
   }
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public DbTester setDisableDefaultOrganization(boolean b) {
     checkState(!started, "DbTester is already started");
@@ -167,7 +164,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return this;
   }
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public DbTester setDefaultOrganizationUuid(String uuid) {
     checkState(!started, "DbTester is already started");
@@ -175,7 +172,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return this;
   }
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public DbTester setDefaultOrganizationKey(String key) {
     checkState(!started, "DbTester is already started");
@@ -194,10 +191,20 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     started = true;
   }
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   private void insertDefaultOrganization() {
-    defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid).setKey(defaultOrganizationKey);
+    defaultOrganization = new OrganizationDto()
+      .setName(randomAlphanumeric(64))
+      .setDescription(randomAlphanumeric(256))
+      .setAvatarUrl(randomAlphanumeric(256))
+      // Default quality gate should be set explicitly when needed in tests
+      .setDefaultQualityGateUuid("_NOT_SET_")
+      .setSubscription(FREE)
+      .setUrl(randomAlphanumeric(256))
+      .setUuid(defaultOrganizationUuid)
+      .setKey(defaultOrganizationKey);
+
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
       client.organizationDao().insert(dbSession, defaultOrganization, false);
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
@@ -205,7 +212,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     }
   }
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public OrganizationDto getDefaultOrganization() {
     checkState(defaultOrganization != null, "Default organization has not been created");
@@ -230,10 +237,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public EventDbTester events() {
     return eventTester;
-  }
-
-  public OrganizationDbTester organizations() {
-    return organizationTester;
   }
 
   public PermissionTemplateDbTester permissionTemplates() {
@@ -300,7 +303,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return almSettingsDbTester;
   }
 
-  public AlmPatsDbTester almPats(){
+  public AlmPatsDbTester almPats() {
     return almPatsDbtester;
   }
 

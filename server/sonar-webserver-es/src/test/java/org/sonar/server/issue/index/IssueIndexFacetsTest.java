@@ -32,7 +32,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
@@ -71,7 +70,6 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
@@ -95,9 +93,8 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_projectUuids() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto, "ABCD");
-    ComponentDto project2 = newPrivateProjectDto(organizationDto, "EFGH");
+    ComponentDto project = newPrivateProjectDto("ABCD");
+    ComponentDto project2 = newPrivateProjectDto("EFGH");
 
     indexIssues(
       newDoc("I1", newFileDto(project, null)),
@@ -109,10 +106,10 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_projectUuids_return_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newPrivateProjectDto(organizationDto, "a" + i))).toArray(IssueDoc[]::new));
-    IssueDoc issue1 = newDoc(newPrivateProjectDto(organizationDto, "project1"));
-    IssueDoc issue2 = newDoc(newPrivateProjectDto(organizationDto, "project2"));
+
+    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newPrivateProjectDto("a" + i))).toArray(IssueDoc[]::new));
+    IssueDoc issue1 = newDoc(newPrivateProjectDto("project1"));
+    IssueDoc issue2 = newDoc(newPrivateProjectDto("project2"));
     indexIssues(issue1, issue2);
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "projects", 100);
@@ -121,7 +118,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_files() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto(), "A");
+    ComponentDto project = newPrivateProjectDto("A");
     ComponentDto dir = newDirectory(project, "src");
     ComponentDto file1 = newFileDto(project, dir, "ABCD");
     ComponentDto file2 = newFileDto(project, dir, "BCDE");
@@ -139,8 +136,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_files_return_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null, "a" + i))).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, null, "file1"));
     IssueDoc issue2 = newDoc(newFileDto(project, null, "file2"));
@@ -152,7 +148,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_directories() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = newFileDto(project, null).setPath("F2.xoo");
 
@@ -165,8 +161,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_directories_return_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i))).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, newDirectory(project, "path1"))).setDirectoryPath("directory1");
     IssueDoc issue2 = newDoc(newFileDto(project, newDirectory(project, "path2"))).setDirectoryPath("directory2");
@@ -178,7 +173,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_cwe() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -195,7 +190,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_owaspTop10() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -211,7 +206,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_sansTop25() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -227,7 +222,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_sonarSourceSecurity() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -242,7 +237,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_severities() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -255,7 +250,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_severities_return_5_entries_max() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -271,7 +266,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_statuses() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -284,7 +279,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facet_on_statuses_return_5_entries_max() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -300,7 +295,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_resolutions() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -313,7 +308,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_resolutions_return_5_entries_max() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -328,7 +323,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_languages() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
     RuleDefinitionDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
@@ -340,8 +335,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_languages_return_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project, null)).setLanguage("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, null)).setLanguage("language1");
     IssueDoc issue2 = newDoc(newFileDto(project, null)).setLanguage("language2");
@@ -353,7 +347,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_assignees() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -367,8 +361,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_assignees_return_only_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null)).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, null)).setAssigneeUuid("user1");
     IssueDoc issue2 = newDoc(newFileDto(project, null)).setAssigneeUuid("user2");
@@ -380,7 +373,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_assignees_supports_dashes() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -395,7 +388,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_author() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -409,7 +402,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_deprecated_authors() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -423,8 +416,7 @@ public class IssueIndexFacetsTest {
 
   @Test
   public void facets_on_authors_return_100_entries_plus_selected_values() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = newPrivateProjectDto(organizationDto);
+    ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null)).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, null)).setAuthorLogin("user1");
     IssueDoc issue2 = newDoc(newFileDto(project, null)).setAuthorLogin("user2");
@@ -460,7 +452,6 @@ public class IssueIndexFacetsTest {
     // Use timezones very far from each other in order to see some issues moving to a different calendar day
     final ZoneId plus14 = ZoneId.of("Pacific/Kiritimati");
     final ZoneId minus11 = ZoneId.of("Pacific/Pago_Pago");
-
 
     SearchOptions options = fixtureForCreatedAtFacet();
 
@@ -613,7 +604,7 @@ public class IssueIndexFacetsTest {
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));

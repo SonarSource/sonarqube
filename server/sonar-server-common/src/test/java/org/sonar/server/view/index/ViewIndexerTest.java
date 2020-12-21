@@ -20,6 +20,7 @@
 package org.sonar.server.view.index;
 
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
@@ -52,9 +53,9 @@ public class ViewIndexerTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
 
   @Test
   public void index_nothing() {
@@ -66,19 +67,19 @@ public class ViewIndexerTest {
   public void index_on_startup() {
     // simple view
     ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto view1 = db.components().insertView();
+    ComponentDto view1 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view1, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project1, view1));
     // view with subview
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto view2 = db.components().insertView();
+    ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
     ComponentDto subView = db.components().insertComponent(newSubView(view2));
     db.components().insertComponent(newProjectCopy(project3, subView));
     // view without project
-    ComponentDto view3 = db.components().insertView();
+    ComponentDto view3 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view3, t -> t.setLast(true));
 
     underTest.indexOnStartup(emptySet());
@@ -98,19 +99,19 @@ public class ViewIndexerTest {
   public void index_root_view() {
     // simple view
     ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto view1 = db.components().insertView();
+    ComponentDto view1 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view1, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project1, view1));
     // view with subview
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto view2 = db.components().insertView();
+    ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
     ComponentDto subView = db.components().insertComponent(newSubView(view2));
     db.components().insertComponent(newProjectCopy(project3, subView));
     // view without project
-    ComponentDto view3 = db.components().insertView();
+    ComponentDto view3 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view3, t -> t.setLast(true));
 
     underTest.index(view2.uuid());
@@ -138,7 +139,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application() {
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
@@ -153,7 +154,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_on_startup() {
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
@@ -168,7 +169,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_with_indexAll() {
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
@@ -208,7 +209,7 @@ public class ViewIndexerTest {
 
   @Test
   public void delete_should_delete_the_view() {
-    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(Collections.singletonList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
     es.putDocuments(TYPE_VIEW, view1);

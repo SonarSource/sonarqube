@@ -62,11 +62,11 @@ public class SettingsUpdaterTest {
   PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   ComponentDto project;
 
-  SettingsUpdater underTest= new SettingsUpdater(dbClient, definitions);
+  SettingsUpdater underTest = new SettingsUpdater(dbClient, definitions);
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
   }
 
   @Test
@@ -215,9 +215,9 @@ public class SettingsUpdaterTest {
 
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey(key)
+      .setKey(key)
       .setUserUuid(user.getUuid())
-        .build(),
+      .build(),
       dbSession)).isNotEmpty();
   }
 }

@@ -83,7 +83,7 @@ public class PurgeMapperTest {
 
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_returns_view_with_specified_uuid() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
@@ -91,7 +91,7 @@ public class PurgeMapperTest {
 
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_returns_application_with_specified_uuid() {
-    ComponentDto view = db.components().insertPublicApplication(db.getDefaultOrganization());
+    ComponentDto view = db.components().insertPublicApplication();
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
@@ -99,7 +99,7 @@ public class PurgeMapperTest {
 
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto subview2 = db.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto subview3 = db.components().insertComponent(ComponentTesting.newSubView(view));
@@ -111,7 +111,7 @@ public class PurgeMapperTest {
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
@@ -147,7 +147,7 @@ public class PurgeMapperTest {
 
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_subview_with_specified_uuid() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(subview.uuid()))
@@ -157,7 +157,7 @@ public class PurgeMapperTest {
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto technicalCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(technicalCopy.uuid()))

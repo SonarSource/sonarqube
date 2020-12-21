@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
@@ -69,8 +68,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
 
     expectedException.expect(NotFoundException.class);
@@ -83,8 +81,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void return_file_data_from_single_project() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
@@ -102,8 +99,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void return_file_data_from_multi_modules() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     // File on project
@@ -124,8 +120,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void return_file_data_from_branch() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
     ComponentDto moduleBranch = db.components().insertComponent(newModuleDto(branch));
@@ -180,14 +175,13 @@ public class ProjectDataLoaderTest {
       {Scopes.DIRECTORY, null}
     };
 
-    OrganizationDto organizationDto = db.organizations().insert();
     for (String[] scopeAndQualifier : allScopesAndQualifierButProjectAndModule) {
       String scope = scopeAndQualifier[0];
       String moduleUuid = scopeAndQualifier[1];
       String key = "theKey_" + scope + "_" + moduleUuid;
       String uuid = "uuid_" + uuidCounter++;
       dbClient.componentDao().insert(dbSession, new ComponentDto()
-        .setOrganizationUuid(organizationDto.getUuid())
+        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)

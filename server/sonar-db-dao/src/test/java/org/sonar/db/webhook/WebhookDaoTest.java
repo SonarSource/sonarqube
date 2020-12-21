@@ -29,8 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.organization.OrganizationDbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +45,6 @@ public class WebhookDaoTest {
   private final WebhookDao underTest = dbClient.webhookDao();
   private final WebhookDbTester webhookDbTester = dbTester.webhooks();
   private final ComponentDbTester componentDbTester = dbTester.components();
-  private final OrganizationDbTester organizationDbTester = dbTester.organizations();
 
   @Test
   public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
@@ -113,7 +110,7 @@ public class WebhookDaoTest {
     assertThat(stored.getUuid()).isEqualTo(dto.getUuid());
     assertThat(stored.getName()).isEqualTo(dto.getName());
     assertThat(stored.getUrl()).isEqualTo(dto.getUrl());
-    assertThat(stored.getOrganizationUuid()).isEqualTo(organizationDbTester.getDefaultOrganization().getUuid());
+    assertThat(stored.getOrganizationUuid()).isEqualTo(dbTester.getDefaultOrganization().getUuid());
     assertThat(stored.getProjectUuid()).isNull();
     assertThat(stored.getSecret()).isEqualTo(dto.getSecret());
     assertThat(new Date(stored.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
@@ -189,8 +186,7 @@ public class WebhookDaoTest {
 
   @Test
   public void cleanWebhooksOfAProject() {
-    OrganizationDto organization = organizationDbTester.insert();
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(organization);
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
@@ -223,7 +219,7 @@ public class WebhookDaoTest {
 
     Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(reloaded).isPresent();
-    assertThat(reloaded.get().getOrganizationUuid()).isEqualTo(organizationDbTester.getDefaultOrganization().getUuid());
+    assertThat(reloaded.get().getOrganizationUuid()).isEqualTo(dbTester.getDefaultOrganization().getUuid());
   }
 
   @Test

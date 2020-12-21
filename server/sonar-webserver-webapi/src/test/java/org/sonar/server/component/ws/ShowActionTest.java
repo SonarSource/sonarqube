@@ -224,9 +224,9 @@ public class ShowActionTest {
   }
 
   @Test
-  public void should_return_visibility_for_view() {
+  public void should_return_visibility_for_portfolio() {
     userSession.logIn().setRoot();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
 
     ShowWsResponse result = newRequest(view.getDbKey());
     assertThat(result.getComponent().hasVisibility()).isTrue();

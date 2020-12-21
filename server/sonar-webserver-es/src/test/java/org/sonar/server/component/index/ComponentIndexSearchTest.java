@@ -30,7 +30,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -53,10 +52,9 @@ public class ComponentIndexSearchTest {
   @Rule
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
-  private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
-
-  private ComponentIndex underTest = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
+  private final ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
+  private final ComponentIndex underTest = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   @Test
   public void filter_by_name() {
@@ -89,19 +87,6 @@ public class ComponentIndexSearchTest {
     index(portfolio);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(Qualifiers.PROJECT)).build(), new SearchOptions());
-
-    assertThat(result.getUuids()).containsExactlyInAnyOrder(project.uuid());
-  }
-
-  @Test
-  public void filter_by_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
-    index(project, anotherProject);
-
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setOrganization(organization.getUuid()).build(), new SearchOptions());
 
     assertThat(result.getUuids()).containsExactlyInAnyOrder(project.uuid());
   }

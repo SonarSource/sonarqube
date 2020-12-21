@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
@@ -40,7 +38,7 @@ public class DefaultGroupCreatorImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultGroupCreator underTest = new DefaultGroupCreatorImpl(db.getDbClient(), new SequenceUuidFactory(), TestDefaultOrganizationProvider.from(db));
+  private final DefaultGroupCreator underTest = new DefaultGroupCreatorImpl(db.getDbClient(), new SequenceUuidFactory(), TestDefaultOrganizationProvider.from(db));
 
   @Test
   public void create_default_group() {
@@ -55,9 +53,7 @@ public class DefaultGroupCreatorImplTest {
 
   @Test
   public void fail_with_IAE_when_default_group_already_exist() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
-    db.organizations().setDefaultTemplates(permissionTemplate.getUuid(), null, null);
+    db.permissionTemplates().insertTemplate();
     db.users().insertGroup("Members");
 
     expectedException.expect(IllegalArgumentException.class);

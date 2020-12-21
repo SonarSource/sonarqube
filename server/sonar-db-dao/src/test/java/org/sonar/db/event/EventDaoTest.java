@@ -33,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
@@ -48,14 +47,13 @@ public class EventDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-
-  private EventDao underTest = dbTester.getDbClient().eventDao();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession dbSession = dbTester.getSession();
+  private final EventDao underTest = dbTester.getDbClient().eventDao();
 
   @Test
   public void select_by_uuid() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto());
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A3"));
@@ -68,9 +66,8 @@ public class EventDaoTest {
 
   @Test
   public void select_by_component_uuid() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organization);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organization);
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto();
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis1 = dbTester.components().insertProjectAndSnapshot(project1);
     SnapshotDto analysis2 = dbTester.components().insertProjectAndSnapshot(project2);
     String[] eventUuids1 = IntStream.range(0, 1 + new Random().nextInt(10))
@@ -112,7 +109,7 @@ public class EventDaoTest {
 
   @Test
   public void select_by_analysis_uuid() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbTester.commit();
@@ -154,8 +151,7 @@ public class EventDaoTest {
 
   @Test
   public void return_different_categories() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     List<EventDto> events = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> dbTester.events().insertEvent(newEvent(analysis).setCategory("cat_" + i)))
@@ -197,7 +193,7 @@ public class EventDaoTest {
 
   @Test
   public void update_name_and_description() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto());
     dbTester.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     underTest.update(dbSession, "E1", "New Name", "New Description");
@@ -209,7 +205,7 @@ public class EventDaoTest {
 
   @Test
   public void delete_by_uuid() {
-    dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()))).setUuid("E1"));
+    dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto())).setUuid("E1"));
 
     underTest.delete(dbTester.getSession(), "E1");
     dbTester.commit();

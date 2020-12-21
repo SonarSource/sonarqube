@@ -33,7 +33,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
@@ -47,11 +46,11 @@ import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexSortTest {
@@ -62,18 +61,18 @@ public class IssueIndexSortTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = none();
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
+  private final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+  private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
+  private final PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private final IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
 
   @Test
   public void sort_by_status() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -90,7 +89,7 @@ public class IssueIndexSortTest {
 
   @Test
   public void sort_by_severity() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -109,7 +108,7 @@ public class IssueIndexSortTest {
 
   @Test
   public void sort_by_creation_date() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -126,7 +125,7 @@ public class IssueIndexSortTest {
 
   @Test
   public void sort_by_update_date() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -143,7 +142,7 @@ public class IssueIndexSortTest {
 
   @Test
   public void sort_by_close_date() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -161,7 +160,7 @@ public class IssueIndexSortTest {
 
   @Test
   public void sort_by_file_and_line() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = newFileDto(project, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
 
@@ -188,12 +187,11 @@ public class IssueIndexSortTest {
 
   @Test
   public void default_sort_is_by_creation_date_then_project_then_file_then_line_then_issue_key() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project1 = newPrivateProjectDto(organizationDto, "P1");
+    ComponentDto project1 = newPrivateProjectDto("P1");
     ComponentDto file1 = newFileDto(project1, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = newFileDto(project1, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
 
-    ComponentDto project2 = newPrivateProjectDto(organizationDto, "P2");
+    ComponentDto project2 = newPrivateProjectDto("P2");
     ComponentDto file3 = newFileDto(project2, null, "F3").setPath("src/main/xoo/org/sonar/samples/File3.xoo");
 
     indexIssues(

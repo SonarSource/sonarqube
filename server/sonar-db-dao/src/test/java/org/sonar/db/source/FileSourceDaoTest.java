@@ -41,7 +41,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.emptyList;
@@ -56,14 +55,13 @@ public class FileSourceDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
+  private final DbSession dbSession = dbTester.getSession();
 
-  private FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
+  private final FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
   @Test
   public void select() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
@@ -82,8 +80,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void select_line_hashes() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
@@ -95,8 +92,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void no_line_hashes_on_unknown_file() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     dbTester.fileSources().insertFileSource(file);
 
@@ -253,8 +249,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void scrollLineHashes_scrolls_hashes_of_specific_keys() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project));
@@ -279,8 +274,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void scrollLineHashes_does_not_scroll_hashes_of_component_without_path() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath(null));
@@ -293,8 +287,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void scrollLineHashes_handles_scrolling_more_than_1000_files() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
+    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
     List<ComponentDto> files = IntStream.range(0, 1001 + new Random().nextInt(5))
       .mapToObj(i -> {
         ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -340,8 +333,7 @@ public class FileSourceDaoTest {
 
   @Test
   public void update() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 

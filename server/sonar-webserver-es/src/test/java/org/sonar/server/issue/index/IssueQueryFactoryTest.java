@@ -34,7 +34,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
@@ -75,8 +74,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void create_from_parameters() {
     UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
@@ -259,9 +257,9 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void param_componentUuids_enables_search_in_view_tree_if_user_has_permission_on_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPublicPortfolio();
     SearchRequest request = new SearchRequest()
-      .setComponentUuids(asList(view.uuid()));
+      .setComponentUuids(singletonList(view.uuid()));
     userSession.registerComponents(view);
 
     IssueQuery query = underTest.create(request);
@@ -274,7 +272,7 @@ public class IssueQueryFactoryTest {
   public void application_search_project_issues() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     userSession.registerComponents(application, project1, project2);
@@ -293,7 +291,7 @@ public class IssueQueryFactoryTest {
     ComponentDto project2 = db.components().insertPublicProject();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
     ComponentDto project3 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
@@ -311,10 +309,10 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void return_empty_results_if_not_allowed_to_search_for_subview() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subView = db.components().insertComponent(newSubView(view));
     SearchRequest request = new SearchRequest()
-      .setComponentUuids(asList(subView.uuid()));
+      .setComponentUuids(singletonList(subView.uuid()));
 
     IssueQuery query = underTest.create(request);
 
@@ -474,7 +472,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void search_by_application_key() {
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     db.components().insertComponents(newProjectCopy(project1, application));

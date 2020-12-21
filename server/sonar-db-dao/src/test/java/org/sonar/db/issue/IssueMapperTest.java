@@ -47,7 +47,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -64,20 +63,16 @@ public class IssueMapperTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
-
-  private IssueMapper underTest = dbSession.getMapper(IssueMapper.class);
-
+  private final DbSession dbSession = dbTester.getSession();
+  private final IssueMapper underTest = dbSession.getMapper(IssueMapper.class);
+  private final Random random = new Random();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
   private ComponentDto project, file, file2;
   private RuleDto rule;
-  private Random random = new Random();
-  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Before
   public void setUp() {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    project = ComponentTesting.newPrivateProjectDto(organizationDto);
-    dbTester.getDbClient().componentDao().insert(dbSession, project);
+    project = dbTester.components().insertPrivateProject();
     file = ComponentTesting.newFileDto(project, null);
     dbTester.getDbClient().componentDao().insert(dbSession, file);
     file2 = ComponentTesting.newFileDto(project, null).setUuid("file2 uuid");
@@ -252,8 +247,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_returns_closed_issues_with_at_least_one_diff_to_CLOSED(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto expected = insertNewClosedIssue(component, ruleType);
     IssueChangeDto changeDto = insertToClosedDiff(expected);
 
@@ -269,8 +263,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_non_existing_rule(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issueWithRule = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issueWithRule);
     IssueDto issueWithoutRule = insertNewClosedIssue(component, new RuleDefinitionDto().setType(ruleType).setUuid("uuid-50"));
@@ -287,8 +280,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_orphan_component(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issue);
     IssueDto issueMissingComponent = insertNewClosedIssue(component, ruleType, t -> t.setComponentUuid("does_not_exist"));
@@ -307,8 +299,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_any_status_diff_to_CLOSED(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issueWithLineDiff = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issueWithLineDiff);
     insertNewClosedIssue(component, ruleType);
@@ -324,8 +315,7 @@ public class IssueMapperTest {
   @Test
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_type_SECURITY_HOTSPOT() {
     RuleType ruleType = randomSupportedRuleType();
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto securityHotspotIssue = insertNewClosedIssue(component, RuleType.SECURITY_HOTSPOT);
     insertToClosedDiff(securityHotspotIssue);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
@@ -342,8 +332,7 @@ public class IssueMapperTest {
   @Test
   public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_close_date() {
     RuleType ruleType = randomSupportedRuleType();
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issueWithoutCloseDate = insertNewClosedIssue(component, ruleType, t -> t.setIssueCloseDate(null));
     insertToClosedDiff(issueWithoutCloseDate);
     IssueDto issueCloseDate = insertNewClosedIssue(component, ruleType);
@@ -361,8 +350,7 @@ public class IssueMapperTest {
   @Test
   public void scrollClosedByComponentUuid_returns_closed_issues_which_close_date_is_greater_or_equal_to_requested() {
     RuleType ruleType = randomSupportedRuleType();
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     RuleDefinitionDto rule1 = dbTester.rules().insert(t -> t.setType(ruleType));
     IssueDto[] issues = new IssueDto[] {
       insertNewClosedIssue(component, rule1, 1_999_999L),
@@ -409,8 +397,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_return_one_row_per_status_diff_to_CLOSED_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
     IssueChangeDto[] changes = new IssueChangeDto[] {
@@ -436,8 +423,7 @@ public class IssueMapperTest {
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
   public void scrollClosedByComponentUuid_does_not_return_row_for_status_change_from_close(RuleType ruleType) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto component = randomComponent(organization);
+    ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
     IssueChangeDto[] changes = new IssueChangeDto[] {
@@ -526,8 +512,8 @@ public class IssueMapperTest {
     return SUPPORTED_RULE_TYPES[new Random().nextInt(SUPPORTED_RULE_TYPES.length)];
   }
 
-  private ComponentDto randomComponent(OrganizationDto organization) {
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
+  private ComponentDto randomComponent() {
+    ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));

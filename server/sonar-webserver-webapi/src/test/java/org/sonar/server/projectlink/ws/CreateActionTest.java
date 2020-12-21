@@ -215,7 +215,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_view() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     failIfNotAProjectWithKey(view, view);
     failIfNotAProjectWithUuid(view, view);
 

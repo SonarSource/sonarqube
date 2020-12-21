@@ -228,7 +228,7 @@ public class ComponentActionTest {
   public void reference_uuid_in_the_response() {
     userSession.logIn().setRoot();
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", project, view));
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));

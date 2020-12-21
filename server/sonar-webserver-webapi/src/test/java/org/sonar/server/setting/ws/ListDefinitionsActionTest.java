@@ -90,7 +90,7 @@ public class ListDefinitionsActionTest {
 
   @Before
   public void setUp() {
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto());
   }
 
   @Test

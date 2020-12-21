@@ -217,57 +217,8 @@ public class ComponentTesting {
       .setPrivate(false);
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newView(OrganizationDto organizationDto) {
-    return newView(organizationDto.getUuid(), Uuids.createFast());
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newView(OrganizationDto organizationDto, String uuid) {
-    return newPrivateProjectDto(organizationDto, uuid)
-      .setUuid(uuid)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.VIEW)
-      .setPrivate(false);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  private static ComponentDto newView(String organizationUuid, String uuid) {
-    return newProjectDto(organizationUuid, uuid, false)
-      .setUuid(uuid)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.VIEW);
-  }
-
   public static ComponentDto newApplication() {
     return newView(Uuids.createFast()).setQualifier(Qualifiers.APP);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newApplication(OrganizationDto organizationDto) {
-    return newApplication(organizationDto.getUuid());
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newApplication(OrganizationDto organizationDto, String uuid) {
-    return newApplication(organizationDto.getUuid(), uuid);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newApplication(String organizationUuid) {
-    return newApplication(organizationUuid, Uuids.createFast());
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newApplication(String organizationUuid, String uuid) {
-    return newView(organizationUuid, uuid).setQualifier(Qualifiers.APP);
   }
 
   public static ComponentDto newProjectCopy(ComponentDto project, ComponentDto view) {

@@ -43,7 +43,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -558,7 +557,7 @@ public class SetActionTest {
       .defaultValue("default")
       .onQualifiers(Qualifiers.PROJECT)
       .build());
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid"));
+    ComponentDto view = db.components().insertComponent(newView("view-uuid"));
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
@@ -619,20 +618,20 @@ public class SetActionTest {
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_view_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     succeedForPropertyWithoutDefinitionAndValidComponent(view, view);
   }
 
   @Test
   public void succeed_for_property_without_definition_when_set_on_subview_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
     succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
   }
 
   @Test
   public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject(), view));
 
     failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
@@ -907,8 +906,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.TestProjectIndexers;
@@ -150,7 +149,7 @@ public class SetActionTest {
 
   @Test
   public void fail_if_component_is_a_view() {
-    ComponentDto view = db.components().insertView(v -> v.setDbKey("VIEW_KEY"));
+    ComponentDto view = db.components().insertPrivatePortfolio(v -> v.setDbKey("VIEW_KEY"));
 
     String viewKey = view.getKey();
     assertThatThrownBy(() -> call(viewKey, "point-of-view"))
@@ -182,8 +181,7 @@ public class SetActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

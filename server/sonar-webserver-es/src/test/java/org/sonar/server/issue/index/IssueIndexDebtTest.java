@@ -25,13 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -48,16 +46,16 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 
 public class IssueIndexDebtTest {
 
-  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
+  private final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
 
   @Rule
   public EsTester es = EsTester.create();
@@ -66,15 +64,15 @@ public class IssueIndexDebtTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
-  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
-  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
+  private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
+  private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), asyncIssueIndexing);
+  private final PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private final IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
 
   @Test
   public void facets_on_projects() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD");
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto, "EFGH");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto("ABCD");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto("EFGH");
 
     indexIssues(
       IssueDocTesting.newDoc("I1", ComponentTesting.newFileDto(project, null)).setEffort(10L),
@@ -89,7 +87,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_components() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto(), "A");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto("A");
     ComponentDto file1 = ComponentTesting.newFileDto(project, null, "ABCD");
     ComponentDto file2 = ComponentTesting.newFileDto(project, null, "BCDE");
     ComponentDto file3 = ComponentTesting.newFileDto(project, null, "CDEF");
@@ -110,7 +108,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_directories() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project, null).setPath("F2.xoo");
 
@@ -126,7 +124,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_severities() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -142,7 +140,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_statuses() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -158,7 +156,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_resolutions() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -174,9 +172,8 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_languages() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
-    RuleKey ruleKey = RuleKey.of("repo", "X1");
 
     indexIssues(IssueDocTesting.newDoc("I1", file).setLanguage("xoo").setEffort(10L));
 
@@ -188,7 +185,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_assignees() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -197,7 +194,7 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I3", file).setAssigneeUuid("uuid-simon").setEffort(10L),
       IssueDocTesting.newDoc("I4", file).setAssigneeUuid(null).setEffort(10L));
 
-    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("assignees"))), system2.getDefaultTimeZone().toZoneId());
+    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList("assignees"))), system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly("assignees", FACET_MODE_EFFORT);
     assertThat(facets.get("assignees")).containsOnly(entry("uuid-steph", 10L), entry("uuid-simon", 20L), entry("", 10L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
@@ -205,7 +202,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_authors() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -214,7 +211,7 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I3", file).setAuthorLogin("simon").setEffort(10L),
       IssueDocTesting.newDoc("I4", file).setAuthorLogin(null).setEffort(10L));
 
-    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList("authors"))), system2.getDefaultTimeZone().toZoneId());
+    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList("authors"))), system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly("authors", FACET_MODE_EFFORT);
     assertThat(facets.get("authors")).containsOnly(entry("steph", 10L), entry("simon", 20L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
@@ -235,7 +232,7 @@ public class IssueIndexDebtTest {
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setEffort(10L).setFuncCreationDate(parseDateTime("2011-04-25T01:05:13+0100"));

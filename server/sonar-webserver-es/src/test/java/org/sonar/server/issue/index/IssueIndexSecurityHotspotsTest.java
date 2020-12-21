@@ -58,7 +58,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexSecurityHotspotsTest {
@@ -80,7 +79,7 @@ public class IssueIndexSecurityHotspotsTest {
 
   @Test
   public void filter_by_security_hotspots_type() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -98,7 +97,7 @@ public class IssueIndexSecurityHotspotsTest {
 
   @Test
   public void filter_by_severities_ignore_hotspots() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
@@ -116,7 +115,7 @@ public class IssueIndexSecurityHotspotsTest {
 
   @Test
   public void facet_on_severities_ignore_hotspots() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(

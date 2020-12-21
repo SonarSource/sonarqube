@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
@@ -95,8 +94,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void map_fields() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
 
     underTest.indexOnStartup(emptySet());
 

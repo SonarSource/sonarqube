@@ -89,9 +89,9 @@ public class ActivityActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
+  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void get_all_past_activity() {
@@ -309,7 +309,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_views() {
-    ComponentDto apacheView = db.components().insertView(v -> v.setName("Apache View"));
+    ComponentDto apacheView = db.components().insertPrivatePortfolio(v -> v.setName("Apache View"));
     db.components().insertSnapshot(apacheView);
     logInAsSystemAdministrator();
     insertActivity("T2", apacheView, SUCCESS);
@@ -321,7 +321,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_application() {
-    ComponentDto apacheApp = db.components().insertPublicApplication(db.getDefaultOrganization(), a -> a.setName("Apache App"));
+    ComponentDto apacheApp = db.components().insertPublicApplication(a -> a.setName("Apache App"));
     db.components().insertSnapshot(apacheApp);
     logInAsSystemAdministrator();
     insertActivity("T2", apacheApp, SUCCESS);
@@ -363,7 +363,7 @@ public class ActivityActionTest {
     // WS api/ce/task must be used in order to search by task id.
     // Here it's a convenient feature of search by text query, which
     // is reserved to roots
-    ComponentDto view = db.components().insertView();
+    ComponentDto view = db.components().insertPrivatePortfolio();
     insertActivity("T1", view, SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, view);
 

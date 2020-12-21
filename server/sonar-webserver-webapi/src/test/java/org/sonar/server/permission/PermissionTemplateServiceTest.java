@@ -322,7 +322,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_project_default_template_on_view_when_no_view_default_template() {
-    ComponentDto view = dbTester.components().insertView();
+    ComponentDto view = dbTester.components().insertPrivatePortfolio();
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate();
     GroupDto group = dbTester.users().insertGroup();
     dbTester.permissionTemplates().addGroupToTemplate(projectPermissionTemplate, group, PROVISION_PROJECTS.getKey());

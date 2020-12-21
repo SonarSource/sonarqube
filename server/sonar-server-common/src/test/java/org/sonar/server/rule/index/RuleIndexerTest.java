@@ -40,7 +40,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -235,7 +234,6 @@ public class RuleIndexerTest {
         "bar\n" +
         "<h2>Recommended Secure Coding Practices</h2>\n" +
         "foo"));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
@@ -252,7 +250,6 @@ public class RuleIndexerTest {
       .setDescription("bar\n" +
         "<h2>Recommended Secure Coding Practices</h2>\n" +
         "foo"));
-    OrganizationDto organization = dbTester.organizations().insert();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);

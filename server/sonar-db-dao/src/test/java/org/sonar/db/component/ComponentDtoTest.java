@@ -22,10 +22,8 @@ package org.sonar.db.component;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class ComponentDtoTest {
 
@@ -87,15 +85,13 @@ public class ComponentDtoTest {
 
   @Test
   public void formatUuidPathFromParent() {
-    ComponentDto parent = ComponentTesting.newPrivateProjectDto(newOrganizationDto(), "123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    ComponentDto parent = ComponentTesting.newPrivateProjectDto("123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(ComponentDto.formatUuidPathFromParent(parent)).isEqualTo(".123.");
   }
 
   @Test
   public void getUuidPathLikeIncludingSelf() {
-    OrganizationDto organizationDto = newOrganizationDto();
-
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto).setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto().setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(project.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + ".%");
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
