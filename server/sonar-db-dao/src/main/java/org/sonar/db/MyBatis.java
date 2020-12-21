@@ -34,8 +34,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.sonar.api.Startable;
-import org.sonar.db.alm.AlmAppInstallMapper;
-import org.sonar.db.alm.OrganizationAlmBindingMapper;
 import org.sonar.db.alm.pat.AlmPatMapper;
 import org.sonar.db.alm.setting.AlmSettingMapper;
 import org.sonar.db.alm.setting.ProjectAlmSettingMapper;
@@ -225,7 +223,6 @@ public class MyBatis implements Startable {
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
-      AlmAppInstallMapper.class,
       AlmPatMapper.class,
       AlmSettingMapper.class,
       AnalysisPropertiesMapper.class,
@@ -260,7 +257,6 @@ public class MyBatis implements Startable {
       MetricMapper.class,
       NewCodePeriodMapper.class,
       NotificationQueueMapper.class,
-      OrganizationAlmBindingMapper.class,
       OrganizationMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,

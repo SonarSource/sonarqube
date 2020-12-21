@@ -32,7 +32,6 @@ import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.alm.AlmDbTester;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -98,7 +97,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final PluginDbTester pluginDbTester;
   private final WebhookDbTester webhookDbTester;
   private final WebhookDeliveryDbTester webhookDeliveryDbTester;
-  private final AlmDbTester almDbTester;
   private final InternalComponentPropertyDbTester internalComponentPropertyTester;
   private final AlmSettingsDbTester almSettingsDbTester;
   private final AlmPatsDbTester almPatsDbtester;
@@ -127,7 +125,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.pluginDbTester = new PluginDbTester(this);
     this.webhookDbTester = new WebhookDbTester(this);
     this.webhookDeliveryDbTester = new WebhookDeliveryDbTester(this);
-    this.almDbTester = new AlmDbTester(this);
     this.internalComponentPropertyTester = new InternalComponentPropertyDbTester(this);
     this.newCodePeriodTester = new NewCodePeriodDbTester(this);
     this.almSettingsDbTester = new AlmSettingsDbTester(this);
@@ -293,10 +290,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public WebhookDeliveryDbTester webhookDelivery() {
     return webhookDeliveryDbTester;
-  }
-
-  public AlmDbTester alm() {
-    return almDbTester;
   }
 
   public InternalComponentPropertyDbTester internalComponentProperties() {

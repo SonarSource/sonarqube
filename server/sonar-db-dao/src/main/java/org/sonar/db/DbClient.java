@@ -21,8 +21,6 @@ package org.sonar.db;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import org.sonar.db.alm.AlmAppInstallDao;
-import org.sonar.db.alm.OrganizationAlmBindingDao;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
@@ -103,7 +101,6 @@ public class DbClient {
   private final QualityProfileDao qualityProfileDao;
   private final QualityProfileExportDao qualityProfileExportDao;
   private final PropertiesDao propertiesDao;
-  private final AlmAppInstallDao almAppInstallDao;
   private final AlmSettingDao almSettingDao;
   private final AlmPatDao almPatDao;
   private final ProjectAlmSettingDao projectAlmSettingDao;
@@ -159,7 +156,6 @@ public class DbClient {
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final ProjectMappingsDao projectMappingsDao;
-  private final OrganizationAlmBindingDao organizationAlmBindingDao;
   private final NewCodePeriodDao newCodePeriodDao;
   private final ProjectDao projectDao;
   private final SessionTokensDao sessionTokensDao;
@@ -176,7 +172,6 @@ public class DbClient {
     for (Dao dao : daos) {
       map.put(dao.getClass(), dao);
     }
-    almAppInstallDao = getDao(map, AlmAppInstallDao.class);
     almSettingDao = getDao(map, AlmSettingDao.class);
     almPatDao = getDao(map, AlmPatDao.class);
     projectAlmSettingDao = getDao(map, ProjectAlmSettingDao.class);
@@ -237,7 +232,6 @@ public class DbClient {
     webhookDao = getDao(map, WebhookDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     projectMappingsDao = getDao(map, ProjectMappingsDao.class);
-    organizationAlmBindingDao = getDao(map, OrganizationAlmBindingDao.class);
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
     projectDao = getDao(map, ProjectDao.class);
@@ -253,10 +247,6 @@ public class DbClient {
 
   public Database getDatabase() {
     return database;
-  }
-
-  public AlmAppInstallDao almAppInstallDao() {
-    return almAppInstallDao;
   }
 
   public AlmSettingDao almSettingDao() {
@@ -515,10 +505,6 @@ public class DbClient {
 
   public ProjectMappingsDao projectMappingsDao() {
     return projectMappingsDao;
-  }
-
-  public OrganizationAlmBindingDao organizationAlmBindingDao() {
-    return organizationAlmBindingDao;
   }
 
   public InternalComponentPropertiesDao internalComponentPropertiesDao() {
