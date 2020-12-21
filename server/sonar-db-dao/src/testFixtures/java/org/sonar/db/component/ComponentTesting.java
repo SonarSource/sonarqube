@@ -131,12 +131,6 @@ public class ComponentTesting {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ProjectDto createPrivateProjectDto(OrganizationDto organizationDto) {
-    return createProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
-  }
-
   public static ComponentDto newPrivateProjectDto(String uuid) {
     return newProjectDto(uuid, true);
   }
@@ -165,19 +159,6 @@ public class ComponentTesting {
   @Deprecated
   public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid, false);
-  }
-
-  // TODO remove organizationUuid parameter after getting rid of organization code
-  @Deprecated
-  private static ProjectDto createProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
-    return new ProjectDto()
-      .setOrganizationUuid(organizationUuid)
-      .setUuid(uuid)
-      .setKey("KEY_" + uuid)
-      .setQualifier(Qualifiers.PROJECT)
-      .setName("NAME_" + uuid)
-      .setDescription("DESCRIPTION_" + uuid)
-      .setPrivate(isPrivate);
   }
 
   private static ComponentDto newProjectDto(String uuid, boolean isPrivate) {

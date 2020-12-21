@@ -66,21 +66,10 @@
       p.qualifier='TRK'
   </select>
 
-  <select id="selectByOrganizationUuid" parameterType="String" resultType="Project">
+  <select id="selectAll" resultType="Project">
     select
       <include refid="projectColumns"/>
     from projects p
-    where
-      p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectProjectsByOrganizationUuid" parameterType="String" resultType="Project">
-    select
-      <include refid="projectColumns"/>
-    from projects p
-    where
-      p.qualifier='TRK' and
-      p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectAllApplications" resultType="Project">

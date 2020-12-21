@@ -248,6 +248,7 @@ public class ComponentDbTester {
    * @see #insertPublicPortfolio(java.util.function.Consumer)
    * @deprecated since 6.6
    */
+  @Deprecated
   public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()), false, dtoPopulator);
   }
@@ -306,28 +307,30 @@ public class ComponentDbTester {
     return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(false), false, dtoPopulator);
   }
 
+  // TODO remove after getting rid of organization code
+  @Deprecated
+  public final ComponentDto insertPublicPortfolio(OrganizationDto organization, String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView(organization, uuid).setPrivate(false), false, dtoPopulator);
+  }
+
+  public final ComponentDto insertPublicPortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView(uuid).setPrivate(false), false, dtoPopulator);
+  }
+
   public final ComponentDto insertPublicPortfolio(Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(ComponentTesting.newView().setPrivate(false), false, dtoPopulator);
   }
 
   public final ComponentDto insertPrivatePortfolio() {
-    return insertPrivatePortfolio(db.getDefaultOrganization());
+    return insertComponentImpl(ComponentTesting.newView().setPrivate(true), true, defaults());
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization) {
-    return insertPrivatePortfolio(organization, defaults());
+  public final ComponentDto insertPrivatePortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView(uuid).setPrivate(true), true, dtoPopulator);
   }
 
   public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulator);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(true), true, dtoPopulator);
+    return insertComponentImpl(ComponentTesting.newView().setPrivate(true), true, dtoPopulator);
   }
 
   public final ComponentDto insertPublicApplication() {

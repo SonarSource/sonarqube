@@ -27,24 +27,22 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ProjectDaoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = new AlwaysIncreasingSystem2(1000L);
+  private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private ProjectDao projectDao = new ProjectDao(system2);
+  private final ProjectDao projectDao = new ProjectDao(system2);
 
   @Test
   public void should_insert_and_select_by_uuid() {
@@ -82,7 +80,7 @@ public class ProjectDaoTest {
   }
 
   @Test
-  public void select_by_organization_uuid() {
+  public void select_all() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");
     ProjectDto dto3 = createProject("o2", "p1");
@@ -91,10 +89,14 @@ public class ProjectDaoTest {
     projectDao.insert(db.getSession(), dto2);
     projectDao.insert(db.getSession(), dto3);
 
-    List<ProjectDto> projectsByOrg = projectDao.selectByOrganizationUuid(db.getSession(), "org_o1");
-    assertThat(projectsByOrg).hasSize(2);
-    assertProject(projectsByOrg.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
-    assertProject(projectsByOrg.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    List<ProjectDto> projectsByOrg = projectDao.selectAll(db.getSession());
+    assertThat(projectsByOrg)
+      .extracting(ProjectDto::getName, ProjectDto::getKey, ProjectDto::getOrganizationUuid, ProjectDto::getUuid, ProjectDto::getDescription,
+        ProjectDto::getTagsString, ProjectDto::isPrivate)
+      .containsExactlyInAnyOrder(
+        tuple("projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false),
+        tuple("projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false),
+        tuple("projectName_p1", "projectKee_o2_p1", "org_o2", "uuid_o2_p1", "desc_p1", "tag1,tag2", false));
   }
 
   @Test
