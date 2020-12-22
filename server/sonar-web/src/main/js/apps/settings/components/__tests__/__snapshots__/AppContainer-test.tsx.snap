@@ -2,7 +2,6 @@
 
 exports[`should render ALM integration correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -15,22 +14,27 @@ exports[`should render ALM integration correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
   >
-    <div
-      className="side-tabs-side"
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
     >
-      <Connect(CategoriesList)
-        defaultCategory="general"
-        selectedCategory="almintegration"
-      />
-    </div>
+      <Component />
+    </ScreenPositionHelper>
     <div
-      className="side-tabs-main"
+      className="layout-page-main"
     >
-      <withRouter(Connect(withAppState(AlmIntegration)))
-        selectedCategory="almintegration"
-      />
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <withRouter(Connect(withAppState(AlmIntegration)))
+            selectedCategory="almintegration"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -38,7 +42,6 @@ exports[`should render ALM integration correctly 1`] = `
 
 exports[`should render analysis scope correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -51,22 +54,27 @@ exports[`should render analysis scope correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
   >
-    <div
-      className="side-tabs-side"
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
     >
-      <Connect(CategoriesList)
-        defaultCategory="general"
-        selectedCategory="exclusions"
-      />
-    </div>
+      <Component />
+    </ScreenPositionHelper>
     <div
-      className="side-tabs-main"
+      className="layout-page-main"
     >
-      <AnalysisScope
-        selectedCategory="exclusions"
-      />
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <AnalysisScope
+            selectedCategory="exclusions"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -74,7 +82,6 @@ exports[`should render analysis scope correctly 1`] = `
 
 exports[`should render default view correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -87,21 +94,50 @@ exports[`should render default view correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <Connect(SubCategoryDefinitionsList)
+            category="general"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render default view correctly 2`] = `
+<div
+  className="layout-page-side-outer"
+>
+  <div
+    className="layout-page-side"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
   >
     <div
-      className="side-tabs-side"
+      className="layout-page-side-inner"
     >
       <Connect(CategoriesList)
         defaultCategory="general"
         selectedCategory="general"
-      />
-    </div>
-    <div
-      className="side-tabs-main"
-    >
-      <Connect(SubCategoryDefinitionsList)
-        category="general"
       />
     </div>
   </div>
@@ -110,7 +146,6 @@ exports[`should render default view correctly 1`] = `
 
 exports[`should render languages correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -123,22 +158,27 @@ exports[`should render languages correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
   >
-    <div
-      className="side-tabs-side"
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
     >
-      <Connect(CategoriesList)
-        defaultCategory="general"
-        selectedCategory="languages"
-      />
-    </div>
+      <Component />
+    </ScreenPositionHelper>
     <div
-      className="side-tabs-main"
+      className="layout-page-main"
     >
-      <withRouter(Connect(Languages))
-        selectedCategory="languages"
-      />
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <withRouter(Connect(Languages))
+            selectedCategory="languages"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -146,7 +186,6 @@ exports[`should render languages correctly 1`] = `
 
 exports[`should render newCodePeriod correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -159,20 +198,25 @@ exports[`should render newCodePeriod correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
   >
-    <div
-      className="side-tabs-side"
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
     >
-      <Connect(CategoriesList)
-        defaultCategory="general"
-        selectedCategory="new_code_period"
-      />
-    </div>
+      <Component />
+    </ScreenPositionHelper>
     <div
-      className="side-tabs-main"
+      className="layout-page-main"
     >
-      <NewCodePeriod />
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <NewCodePeriod />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -180,7 +224,6 @@ exports[`should render newCodePeriod correctly 1`] = `
 
 exports[`should render pull request decoration binding correctly 1`] = `
 <div
-  className="page page-limited"
   id="settings-page"
 >
   <Suggestions
@@ -193,22 +236,27 @@ exports[`should render pull request decoration binding correctly 1`] = `
   />
   <PageHeader />
   <div
-    className="side-tabs-layout settings-layout"
+    className="layout-page"
   >
-    <div
-      className="side-tabs-side"
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
     >
-      <Connect(CategoriesList)
-        defaultCategory="general"
-        selectedCategory="pull_request_decoration_binding"
-      />
-    </div>
+      <Component />
+    </ScreenPositionHelper>
     <div
-      className="side-tabs-main"
+      className="layout-page-main"
     >
-      <Connect(SubCategoryDefinitionsList)
-        category="pull_request_decoration_binding"
-      />
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <Connect(SubCategoryDefinitionsList)
+            category="pull_request_decoration_binding"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>

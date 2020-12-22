@@ -27,11 +27,6 @@ import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import CATEGORY_OVERRIDES from './CategoryOverrides';
 
-interface Category {
-  key: string;
-  name: string;
-}
-
 export interface CategoriesListProps {
   branchesEnabled?: boolean;
   categories: string[];
@@ -40,55 +35,51 @@ export interface CategoriesListProps {
   selectedCategory: string;
 }
 
-export class CategoriesList extends React.PureComponent<CategoriesListProps> {
-  renderLink(category: Category) {
-    const { component, defaultCategory, selectedCategory } = this.props;
-    const pathname = this.props.component ? '/project/settings' : '/settings';
-    const query = {
-      category: category.key !== defaultCategory ? category.key.toLowerCase() : undefined,
-      id: component && component.key
-    };
-    return (
-      <IndexLink
-        className={classNames({
-          active: category.key.toLowerCase() === selectedCategory.toLowerCase()
-        })}
-        title={category.name}
-        to={{ pathname, query }}>
-        {category.name}
-      </IndexLink>
-    );
-  }
+export function CategoriesList(props: CategoriesListProps) {
+  const { branchesEnabled, categories, component, defaultCategory, selectedCategory } = props;
+  const pathname = component ? '/project/settings' : '/settings';
 
-  render() {
-    const { branchesEnabled } = this.props;
-
-    const categoriesWithName = this.props.categories
-      .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
-      .map(key => ({
-        key,
-        name: getCategoryName(key)
-      }))
-      .concat(
-        ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
-          .filter(c =>
-            this.props.component
-              ? // Project settings
-                c.availableForProject
-              : // Global settings
-                c.availableGlobally
-          )
-          .filter(c => branchesEnabled || !c.requiresBranchesEnabled)
-      );
-    const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
-    return (
-      <ul className="side-tabs-menu">
-        {sortedCategories.map(category => (
-          <li key={category.key}>{this.renderLink(category)}</li>
-        ))}
-      </ul>
+  const categoriesWithName = categories
+    .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
+    .map(key => ({
+      key,
+      name: getCategoryName(key)
+    }))
+    .concat(
+      ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
+        .filter(c =>
+          component
+            ? // Project settings
+              c.availableForProject
+            : // Global settings
+              c.availableGlobally
+        )
+        .filter(c => branchesEnabled || !c.requiresBranchesEnabled)
     );
-  }
+  const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
+
+  return (
+    <ul className="side-tabs-menu">
+      {sortedCategories.map(category => (
+        <li key={category.key}>
+          <IndexLink
+            className={classNames({
+              active: category.key.toLowerCase() === selectedCategory.toLowerCase()
+            })}
+            title={category.name}
+            to={{
+              pathname,
+              query: {
+                category: category.key !== defaultCategory ? category.key.toLowerCase() : undefined,
+                id: component && component.key
+              }
+            }}>
+            {category.name}
+          </IndexLink>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 const mapStateToProps = (state: Store) => ({

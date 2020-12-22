@@ -23,9 +23,15 @@ import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
-import '../side-tabs.css';
 import { fetchSettings } from '../store/actions';
 import '../styles.css';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
@@ -50,6 +56,8 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
 
   componentDidMount() {
     this.mounted = true;
+    addSideBarClass();
+    addWhitePageClass();
     this.fetchSettings();
   }
 
@@ -61,6 +69,8 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+    removeSideBarClass();
+    removeWhitePageClass();
   }
 
   fetchSettings = () => {
@@ -91,32 +101,42 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
         (!isProjectSettings && foundAdditionalCategory.availableGlobally));
 
     return (
-      <div className="page page-limited" id="settings-page">
+      <div id="settings-page">
         <Suggestions suggestions="settings" />
         <Helmet defer={false} title={translate('settings.page')} />
-
         <PageHeader component={this.props.component} />
 
-        <div className="side-tabs-layout settings-layout">
-          <div className="side-tabs-side">
-            <AllCategoriesList
-              component={this.props.component}
-              defaultCategory={this.props.defaultCategory}
-              selectedCategory={selectedCategory}
-            />
-          </div>
-          <div className="side-tabs-main">
-            {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
-              foundAdditionalCategory.renderComponent({
-                component: this.props.component,
-                selectedCategory: originalCategory
-              })
-            ) : (
-              <CategoryDefinitionsList
-                category={selectedCategory}
-                component={this.props.component}
-              />
+        <div className="layout-page">
+          <ScreenPositionHelper className="layout-page-side-outer">
+            {({ top }) => (
+              <div className="layout-page-side" style={{ top }}>
+                <div className="layout-page-side-inner">
+                  <AllCategoriesList
+                    component={this.props.component}
+                    defaultCategory={this.props.defaultCategory}
+                    selectedCategory={selectedCategory}
+                  />
+                </div>
+              </div>
             )}
+          </ScreenPositionHelper>
+
+          <div className="layout-page-main">
+            <div className="layout-page-main-inner">
+              <div className="big-padded">
+                {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
+                  foundAdditionalCategory.renderComponent({
+                    component: this.props.component,
+                    selectedCategory: originalCategory
+                  })
+                ) : (
+                  <CategoryDefinitionsList
+                    category={selectedCategory}
+                    component={this.props.component}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

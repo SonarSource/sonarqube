@@ -19,7 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import {
   ALM_INTEGRATION,
@@ -30,11 +37,27 @@ import {
 } from '../AdditionalCategoryKeys';
 import { App } from '../AppContainer';
 
+jest.mock('sonar-ui-common/helpers/pages', () => ({
+  addSideBarClass: jest.fn(),
+  addWhitePageClass: jest.fn(),
+  removeSideBarClass: jest.fn(),
+  removeWhitePageClass: jest.fn()
+}));
+
 it('should render default view correctly', async () => {
   const wrapper = shallowRender();
 
+  expect(addSideBarClass).toBeCalled();
+  expect(addWhitePageClass).toBeCalled();
+
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot();
+
+  wrapper.unmount();
+
+  expect(removeSideBarClass).toBeCalled();
+  expect(removeWhitePageClass).toBeCalled();
 });
 
 it('should render newCodePeriod correctly', async () => {

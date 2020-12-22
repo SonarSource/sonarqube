@@ -61,25 +61,18 @@ jest.mock('../AdditionalCategories', () => ({
   ] as AdditionalCategory[]
 }));
 
-it('should render correctly in global mode', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should render correctly in project mode', () => {
-  expect(shallowRender({ component: mockComponent() })).toMatchSnapshot();
-});
-
-it('should render correctly when branches are disabled', () => {
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('global mode');
+  expect(shallowRender({ selectedCategory: 'CAT_2' })).toMatchSnapshot('selected category');
+  expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('project mode');
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('branches disabled');
 });
 
 function shallowRender(props?: Partial<CategoriesListProps>) {
-  const categories = ['general'];
-
-  return shallow(
+  return shallow<CategoriesListProps>(
     <CategoriesList
       branchesEnabled={true}
-      categories={categories}
+      categories={['general']}
       defaultCategory="general"
       selectedCategory=""
       {...props}

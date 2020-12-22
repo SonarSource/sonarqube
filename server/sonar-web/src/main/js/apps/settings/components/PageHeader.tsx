@@ -21,11 +21,11 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 
-interface Props {
+export interface PageHeaderProps {
   component?: T.Component;
 }
 
-export default function PageHeader({ component }: Props) {
+export default function PageHeader({ component }: PageHeaderProps) {
   const title = component ? translate('project_settings.page') : translate('settings.page');
 
   const description = component ? (
@@ -35,9 +35,13 @@ export default function PageHeader({ component }: Props) {
   );
 
   return (
-    <header className="page-header">
-      <h1 className="page-title">{title}</h1>
-      <div className="page-description">{description}</div>
+    <header className="top-bar-outer">
+      <div className="top-bar">
+        <div className="top-bar-inner bordered-bottom big-padded-top padded-bottom">
+          <h1 className="page-title">{title}</h1>
+          <div className="page-description spacer-top">{description}</div>
+        </div>
+      </div>
     </header>
   );
 }
