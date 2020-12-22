@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
-import { mockComponent } from '../../../../../helpers/testMocks';
+import { mockComponent, mockLocation } from '../../../../../helpers/testMocks';
 import { TaskStatuses } from '../../../../../types/tasks';
-import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
+import { ComponentNavBgTaskNotif } from '../ComponentNavBgTaskNotif';
 
 jest.mock('sonar-ui-common/helpers/l10n', () => ({
   ...jest.requireActual('sonar-ui-common/helpers/l10n'),
@@ -56,6 +56,13 @@ it('renders correctly', () => {
   ).toMatchSnapshot('branch');
   expect(
     shallowRender({
+      currentTask: mockTask({ branch: 'my/branch', status: TaskStatuses.Failed }),
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot('branch for admins');
+  expect(
+    shallowRender({
+      component: mockComponent({ configuration: { showBackgroundTasks: true } }),
       currentTask: mockTask({
         pullRequest: '650',
         pullRequestTitle: 'feature/my_pr',
@@ -63,7 +70,32 @@ it('renders correctly', () => {
       }),
       currentTaskOnSameBranch: false
     })
-  ).toMatchSnapshot('pul request');
+  ).toMatchSnapshot('pull request');
+  expect(
+    shallowRender({
+      component: mockComponent({ configuration: { showBackgroundTasks: true } }),
+      currentTask: mockTask({
+        pullRequest: '650',
+        pullRequestTitle: 'feature/my_pr',
+        status: TaskStatuses.Failed
+      }),
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot('pull request for admins');
+  expect(
+    shallowRender({
+      component: mockComponent({ configuration: { showBackgroundTasks: true } }),
+      location: mockLocation({ pathname: '/project/background_tasks' })
+    })
+  ).toMatchSnapshot('on background task page');
+  expect(
+    shallowRender({
+      component: mockComponent({ configuration: { showBackgroundTasks: true } }),
+      currentTask: mockTask({ branch: 'my/branch', status: TaskStatuses.Failed }),
+      currentTaskOnSameBranch: false,
+      location: mockLocation({ pathname: '/project/background_tasks' })
+    })
+  ).toMatchSnapshot('on background task page for branch');
   expect(shallowRender({ currentTask: undefined })).toMatchSnapshot('no current task');
 });
 
@@ -72,6 +104,7 @@ function shallowRender(props: Partial<ComponentNavBgTaskNotif['props']> = {}) {
     <ComponentNavBgTaskNotif
       component={mockComponent()}
       currentTask={mockTask({ status: TaskStatuses.Failed })}
+      location={mockLocation()}
       {...props}
     />
   );

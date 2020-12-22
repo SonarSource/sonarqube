@@ -11,6 +11,27 @@ exports[`renders correctly: branch 1`] = `
     values={
       Object {
         "branch": "my/branch",
+        "stacktrace": undefined,
+        "type": "background_task.type.REPORT",
+        "url": undefined,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`renders correctly: branch for admins 1`] = `
+<Alert
+  display="banner"
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_branch_X"
+    id="component_navigation.status.failed_branch_X"
+    values={
+      Object {
+        "branch": "my/branch",
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
         "url": undefined,
       }
@@ -30,6 +51,7 @@ exports[`renders correctly: default 1`] = `
     values={
       Object {
         "branch": undefined,
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
         "url": undefined,
       }
@@ -49,6 +71,7 @@ exports[`renders correctly: in progress 1`] = `
     values={
       Object {
         "branch": undefined,
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
         "url": undefined,
       }
@@ -78,6 +101,46 @@ exports[`renders correctly: license issue 1`] = `
 
 exports[`renders correctly: no current task 1`] = `""`;
 
+exports[`renders correctly: on background task page 1`] = `
+<Alert
+  display="banner"
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_X.admin.help"
+    id="component_navigation.status.failed_X.admin.help"
+    values={
+      Object {
+        "branch": undefined,
+        "stacktrace": "background_tasks.show_stacktrace",
+        "type": "background_task.type.REPORT",
+        "url": undefined,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`renders correctly: on background task page for branch 1`] = `
+<Alert
+  display="banner"
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_branch_X.admin.help"
+    id="component_navigation.status.failed_branch_X.admin.help"
+    values={
+      Object {
+        "branch": "my/branch",
+        "stacktrace": "background_tasks.show_stacktrace",
+        "type": "background_task.type.REPORT",
+        "url": undefined,
+      }
+    }
+  />
+</Alert>
+`;
+
 exports[`renders correctly: pending 1`] = `
 <Alert
   display="banner"
@@ -89,6 +152,7 @@ exports[`renders correctly: pending 1`] = `
     values={
       Object {
         "branch": undefined,
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
         "url": undefined,
       }
@@ -103,11 +167,12 @@ exports[`renders correctly: pending for admins 1`] = `
   variant="info"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.pending_X.admin"
-    id="component_navigation.status.pending_X.admin"
+    defaultMessage="component_navigation.status.pending_X.admin.link"
+    id="component_navigation.status.pending_X.admin.link"
     values={
       Object {
         "branch": undefined,
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
         "url": <Link
           onlyActiveOnIndex={false}
@@ -130,19 +195,68 @@ exports[`renders correctly: pending for admins 1`] = `
 </Alert>
 `;
 
-exports[`renders correctly: pul request 1`] = `
+exports[`renders correctly: pull request 1`] = `
 <Alert
   display="banner"
   variant="error"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.failed_branch_X"
-    id="component_navigation.status.failed_branch_X"
+    defaultMessage="component_navigation.status.failed_branch_X.admin.link"
+    id="component_navigation.status.failed_branch_X.admin.link"
     values={
       Object {
         "branch": "650 - feature/my_pr",
+        "stacktrace": undefined,
         "type": "background_task.type.REPORT",
-        "url": undefined,
+        "url": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/background_tasks",
+              "query": Object {
+                "id": "my-project",
+                "status": undefined,
+              },
+            }
+          }
+        >
+          background_tasks.page
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`renders correctly: pull request for admins 1`] = `
+<Alert
+  display="banner"
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_branch_X.admin.link"
+    id="component_navigation.status.failed_branch_X.admin.link"
+    values={
+      Object {
+        "branch": "650 - feature/my_pr",
+        "stacktrace": undefined,
+        "type": "background_task.type.REPORT",
+        "url": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/background_tasks",
+              "query": Object {
+                "id": "my-project",
+                "status": undefined,
+              },
+            }
+          }
+        >
+          background_tasks.page
+        </Link>,
       }
     }
   />

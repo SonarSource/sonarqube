@@ -151,7 +151,7 @@ exports[`renders correctly: has failed notification 1`] = `
   height={102}
   id="context-navigation"
   notif={
-    <ComponentNavBgTaskNotif
+    <withRouter(ComponentNavBgTaskNotif)
       component={
         Object {
           "breadcrumbs": Array [
@@ -343,7 +343,7 @@ exports[`renders correctly: has in progress notification 1`] = `
   height={102}
   id="context-navigation"
   notif={
-    <ComponentNavBgTaskNotif
+    <withRouter(ComponentNavBgTaskNotif)
       component={
         Object {
           "breadcrumbs": Array [
@@ -523,7 +523,7 @@ exports[`renders correctly: has pending notification 1`] = `
   height={102}
   id="context-navigation"
   notif={
-    <ComponentNavBgTaskNotif
+    <withRouter(ComponentNavBgTaskNotif)
       component={
         Object {
           "breadcrumbs": Array [
