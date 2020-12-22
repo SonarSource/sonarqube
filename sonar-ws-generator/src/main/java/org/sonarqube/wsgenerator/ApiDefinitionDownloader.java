@@ -43,6 +43,7 @@ public class ApiDefinitionDownloader {
     Orchestrator orchestrator = builder
       // Enable organizations ws
       .setServerProperty("sonar.sonarcloud.enabled", "true")
+      .setServerProperty("sonar.forceAuthentication", "false")
       .build();
 
     orchestrator.start();

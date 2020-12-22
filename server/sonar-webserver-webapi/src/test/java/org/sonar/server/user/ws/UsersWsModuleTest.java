@@ -34,7 +34,7 @@ public class UsersWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new UsersWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(2 + 14);
+    assertThat(container.size()).isEqualTo(2 + 15);
   }
 
   @Test
@@ -43,6 +43,6 @@ public class UsersWsModuleTest {
 
     ComponentContainer container = new ComponentContainer();
     new UsersWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(2 + 15);
+    assertThat(container.size()).isEqualTo(2 + 16);
   }
 }

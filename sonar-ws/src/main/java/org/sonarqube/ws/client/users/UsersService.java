@@ -227,4 +227,21 @@ public class UsersService extends BaseService {
         .setParam("newLogin", request.getNewLogin())
         .setMediaType(MediaTypes.JSON)).content();
   }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/update_identity_provider">Further information about this action online (including a response example)</a>
+   * @since 8.7
+   */
+  public void updateIdentityProvider(UpdateIdentityProviderRequest request) {
+    call(
+        new PostRequest(path("update_identity_provider"))
+            .setParam("login", request.getLogin())
+            .setParam("newExternalIdentity", request.getNewExternalIdentity())
+            .setParam("newExternalProvider", request.getNewExternalProvider())
+            .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
 }

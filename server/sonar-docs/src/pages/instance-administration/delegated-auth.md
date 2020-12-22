@@ -230,6 +230,9 @@ Authentication will be tried on each server, in the order they are listed in the
 
 Note that all the LDAP servers must be available while (re)starting the SonarQube server.
 
+### Migrate users to a new authentication method
+If you are changing your delegated authentication method and migrating existing users from your previous authentication method, you can use the `api/users/update_identity_provider` web API to update your users' identity provider.
+
 ### Troubleshooting
 * Detailed connection logs (and potential error codes received from LDAP server) are output to SonarQube's _$SONARQUBE_HOME/logs/web.log_, when logging is in `DEBUG` mode.
 
