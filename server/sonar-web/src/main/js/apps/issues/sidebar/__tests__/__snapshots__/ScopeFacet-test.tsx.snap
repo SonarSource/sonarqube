@@ -97,7 +97,7 @@ exports[`should render correctly: disabled facet 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={true}
+      disabled={false}
       halfWidth={false}
       key="MAIN"
       loading={false}

@@ -83,7 +83,6 @@ export default class TypeFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        disabled={stat === 0 && !active}
         key={type}
         name={
           <span className="display-flex-center">

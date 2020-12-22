@@ -314,10 +314,6 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   renderSearch() {
-    if (!this.props.stats || !Object.keys(this.props.stats).length) {
-      return null;
-    }
-
     return (
       <SearchBox
         autoFocus={this.state.autoFocus}
@@ -370,11 +366,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     const key = this.props.getSearchResultKey(result);
     const active = this.props.values.includes(key);
     const stat = this.getStat(key) || this.state.searchResultsCounts[key];
-    const disabled = !active && stat === 0;
     return (
       <FacetItem
         active={active}
-        disabled={disabled}
         key={key}
         name={this.props.renderSearchResult(result, this.state.query)}
         onClick={this.handleItemClick}

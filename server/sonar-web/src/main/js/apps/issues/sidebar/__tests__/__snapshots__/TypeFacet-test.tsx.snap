@@ -20,7 +20,7 @@ exports[`should render open by default 1`] = `
   <FacetItemsList>
     <FacetItem
       active={false}
-      disabled={true}
+      disabled={false}
       halfWidth={false}
       key="BUG"
       loading={false}

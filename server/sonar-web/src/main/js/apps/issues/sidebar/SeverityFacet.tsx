@@ -80,7 +80,6 @@ export default class SeverityFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        disabled={stat === 0 && !active}
         halfWidth={true}
         key={severity}
         name={<SeverityHelper severity={severity} />}

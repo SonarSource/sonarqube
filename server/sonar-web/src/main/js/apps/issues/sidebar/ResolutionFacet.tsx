@@ -95,7 +95,6 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        disabled={stat === 0 && !active}
         halfWidth={true}
         key={resolution}
         name={this.getFacetItemName(resolution)}

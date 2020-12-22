@@ -81,7 +81,6 @@ export default class Facet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        disabled={stat === 0 && !active}
         halfWidth={this.props.halfWidth}
         key={value}
         name={renderName(value)}

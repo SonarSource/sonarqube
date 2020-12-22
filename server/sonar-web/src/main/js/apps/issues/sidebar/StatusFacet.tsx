@@ -78,7 +78,6 @@ export default class StatusFacet extends React.PureComponent<Props> {
     return (
       <FacetItem
         active={active}
-        disabled={stat === 0 && !active}
         halfWidth={true}
         key={status}
         name={<StatusHelper resolution={undefined} status={status} />}

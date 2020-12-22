@@ -63,7 +63,6 @@ export default function ScopeFacet(props: ScopeFacetProps) {
               return (
                 <FacetItem
                   active={active}
-                  disabled={stat === 0 && !active}
                   key={scope}
                   name={
                     <span className="display-flex-center">
