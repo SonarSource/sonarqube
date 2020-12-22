@@ -434,6 +434,41 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
   }
 
   @Test
+  public void migration_is_resilient() throws SQLException {
+    setupProjectsAndApps();
+    insertViewsDefInternalProperty(COMPLEX_XML_BEFORE);
+
+    // first attempt
+    underTest.execute();
+
+    // xml stays the same (stopped during migration)
+    updateViewsDefInternalProperty(COMPLEX_XML_BEFORE);
+
+    // second attempt should not fail
+    underTest.execute();
+
+    assertThat(db.select("select uuid from projects"))
+      .extracting(r -> r.get("UUID"))
+      .containsExactlyInAnyOrder(PROJECT_1_UUID, PROJECT_2_UUID, APP_1_UUID, APP_2_UUID);
+    assertThat(db.select("select application_uuid, project_uuid from app_projects"))
+      .extracting(r -> r.get("APPLICATION_UUID"), r -> r.get("PROJECT_UUID"))
+      .containsExactlyInAnyOrder(
+        tuple(APP_1_UUID, PROJECT_1_UUID),
+        tuple(APP_1_UUID, PROJECT_2_UUID),
+        tuple(APP_2_UUID, PROJECT_1_UUID),
+        tuple(APP_2_UUID, PROJECT_2_UUID));
+    assertThat(db.select("select application_uuid, project_uuid, application_branch_uuid, project_branch_uuid from app_branch_project_branch"))
+      .extracting(r -> r.get("APPLICATION_UUID"), r -> r.get("PROJECT_UUID"), r -> r.get("APPLICATION_BRANCH_UUID"), r -> r.get("PROJECT_BRANCH_UUID"))
+      .containsExactlyInAnyOrder(
+        tuple(APP_1_UUID, PROJECT_1_UUID, APP_1_BRANCH_1_UUID, PROJECT_1_BRANCH_1_UUID),
+        tuple(APP_1_UUID, PROJECT_2_UUID, APP_1_BRANCH_1_UUID, PROJECT_2_BRANCH_1_UUID),
+        tuple(APP_1_UUID, PROJECT_1_UUID, APP_1_BRANCH_2_UUID, PROJECT_1_BRANCH_2_UUID),
+        tuple(APP_1_UUID, PROJECT_2_UUID, APP_1_BRANCH_2_UUID, PROJECT_2_BRANCH_1_UUID),
+        tuple(APP_2_UUID, PROJECT_1_UUID, APP_2_BRANCH_1_UUID, PROJECT_1_BRANCH_1_UUID),
+        tuple(APP_2_UUID, PROJECT_2_UUID, APP_2_BRANCH_1_UUID, PROJECT_2_BRANCH_1_UUID));
+  }
+
+  @Test
   public void migrates_applications_without_application_branches_to_new_tables() throws SQLException {
     setupFullProject1();
     setupProject2();
@@ -679,6 +714,11 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
       "is_empty", "false",
       valueColumn, xml,
       "created_at", system2.now());
+  }
+
+  private void updateViewsDefInternalProperty(@Nullable String xml) {
+    db.executeUpdateSql("update internal_properties set text_value = ? where kee = 'views.def'",
+      xml);
   }
 
   private void insertProject(String uuid, String key, String qualifier) {

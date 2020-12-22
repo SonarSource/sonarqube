@@ -74,6 +74,7 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
   static final int TEXT_VALUE_MAX_LENGTH = 4000;
   private static final String SELECT_APPLICATION_UUID_BY_KEY = "select uuid from projects where kee = ? and qualifier = 'APP'";
   private static final String SELECT_PROJECTS_BY_KEYS = "select kee,uuid from projects where kee in (%s) and qualifier = 'TRK'";
+  private static final String SELECT_PROJECTS_BY_APP = "select project_uuid from app_projects where application_uuid = ?";
   private static final String UPDATE_INTERNAL_PROP_TEXT_VALUE = "update internal_properties set text_value = ?, clob_value = NULL where kee = ?";
   private static final String UPDATE_INTERNAL_PROP_CLOB_VALUE = "update internal_properties set clob_value = ?, text_value = NULL where kee = ?";
   private static final String VIEWS_DEF_KEY = "views.def";
@@ -126,13 +127,19 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
       return;
     }
 
+    List<String> alreadyAddedProjects = context.prepareSelect(SELECT_PROJECTS_BY_APP).setString(1, applicationUuid)
+      .list(r -> r.getString(1));
+
     String queryParam = projects.stream().map(uuid -> "'" + uuid + "'").collect(Collectors.joining(","));
     Map<String, String> projectUuidsByKeys = context.prepareSelect(format(SELECT_PROJECTS_BY_KEYS, queryParam))
       .list(r -> new AbstractMap.SimpleEntry<>(r.getString(1), r.getString(2)))
       .stream()
+      .filter(project -> !alreadyAddedProjects.contains(project.getValue()))
       .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
-    insertApplicationProjects(context, app, applicationUuid, projectUuidsByKeys, now);
+    if (!projectUuidsByKeys.isEmpty()) {
+      insertApplicationProjects(context, app, applicationUuid, projectUuidsByKeys, now);
+    }
     if (!app.getApplicationBranches().isEmpty()) {
       insertApplicationBranchesProjects(context, app, applicationUuid, projectUuidsByKeys, now);
     }
