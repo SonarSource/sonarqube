@@ -64,11 +64,12 @@ message AnalysisStatusWsResponse {
   optional Component component = 1;
 
   message Component {
-    optional string key = 1;
-    optional string name = 2;
-    repeated Warning warnings = 3;
-    optional string branch = 4;
-    optional string pullRequest = 5;
+    reserved 1; //drop organization
+    optional string key = 2;
+    optional string name = 3;
+    repeated Warning warnings = 4;
+    optional string branch = 5;
+    optional string pullRequest = 6;
   }
 
   message Warning {
@@ -107,6 +108,7 @@ message WorkerCountResponse {
 }
 
 message Task {
+  reserved 20; //drop organization
   optional string id = 1;
   optional string type = 2;
   optional string componentId = 3;
@@ -126,13 +128,13 @@ message Task {
   optional string errorStacktrace = 17;
   optional string scannerContext = 18;
   optional bool hasScannerContext = 19;
-  optional string branch = 20;
-  optional sonarqube.ws.commons.BranchType branchType = 21;
-  optional string errorType = 22;
-  optional string pullRequest = 23;
-  optional string pullRequestTitle = 24;
-  optional int32 warningCount = 25;
-  repeated string warnings = 26;
+  optional string branch = 21;
+  optional sonarqube.ws.commons.BranchType branchType = 22;
+  optional string errorType = 23;
+  optional string pullRequest = 24;
+  optional string pullRequestTitle = 25;
+  optional int32 warningCount = 26;
+  repeated string warnings = 27;
 }
 
 enum TaskStatus {

@@ -33,6 +33,7 @@ message ListResponse {
 }
 
 message Notification {
+  reserved 5; //drop organization
   optional string channel = 1;
   optional string type = 2;
   optional string project = 3;

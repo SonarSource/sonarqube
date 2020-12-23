@@ -48,17 +48,19 @@ message ShowWsResponse {
 
 // WS api/components/suggestions
 message SuggestionsWsResponse {
+  reserved 3; //drop organization
   repeated Category results = 1;
   optional string warning = 2;
-  repeated Project projects = 3;
+  repeated Project projects = 4;
 
   message Category {
-  	optional string q = 1;
-  	repeated Suggestion items = 2;
+    optional string q = 1;
+    repeated Suggestion items = 2;
     optional int64 more = 3;
   }
 
   message Suggestion {
+    reserved 4; //drop organization
     optional string key = 1;
     optional string name = 2;
     optional string match = 3;
@@ -75,9 +77,10 @@ message SuggestionsWsResponse {
 
 // WS api/components/search_projects
 message SearchProjectsWsResponse {
+  reserved 2; //drop organization
   optional sonarqube.ws.commons.Paging paging = 1;
-  repeated Component components = 2;
-  optional sonarqube.ws.commons.Facets facets = 3;
+  repeated Component components = 3;
+  optional sonarqube.ws.commons.Facets facets = 4;
 }
 
 // WS api/components/provisioned
@@ -95,6 +98,7 @@ message ProvisionedWsResponse {
 }
 
 message Component {
+  reserved 12; //drop organization
   optional string key = 2;
   optional string refId = 3;
   optional string refKey = 4;
@@ -120,7 +124,4 @@ message Component {
     repeated string tags = 1;
   }
 }
-
-
-
 

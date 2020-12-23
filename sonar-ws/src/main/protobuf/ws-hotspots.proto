@@ -72,13 +72,14 @@ message ShowWsResponse {
 }
 
 message Component {
-  optional string key = 1;
-  optional string qualifier = 2;
-  optional string name = 3;
-  optional string longName = 4;
-  optional string path = 5;
-  optional string branch = 6;
-  optional string pullRequest = 7;
+  reserved 1; //drop organization
+  optional string key = 2;
+  optional string qualifier = 3;
+  optional string name = 4;
+  optional string longName = 5;
+  optional string path = 6;
+  optional string branch = 7;
+  optional string pullRequest = 8;
 }
 
 message Rule {
