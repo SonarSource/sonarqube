@@ -19,6 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import { AlmBindingDefinition } from '../../../../../types/alm-settings';
 import {
   AlmBindingDefinitionFormField,
@@ -30,6 +32,7 @@ it('should render correctly', () => {
   expect(shallowRender({ help: 'help' })).toMatchSnapshot('with help');
   expect(shallowRender({ isTextArea: true })).toMatchSnapshot('textarea');
   expect(shallowRender({ optional: true })).toMatchSnapshot('optional');
+  expect(shallowRender({ overwriteOnly: true })).toMatchSnapshot('secret');
 });
 
 it('should call onFieldChange', () => {
@@ -44,6 +47,16 @@ it('should call onFieldChange', () => {
     .find('textarea')
     .simulate('change', { currentTarget: { value: '' } });
   expect(onTextAreaChange).toBeCalled();
+});
+
+it('should correctly toggle visibility for secret fields', () => {
+  const onFieldChange = jest.fn();
+  const wrapper = shallowRender({ onFieldChange, overwriteOnly: true });
+  expect(wrapper.find('input').exists()).toBe(false);
+
+  click(wrapper.find(ButtonLink));
+  expect(onFieldChange).toHaveBeenCalledWith('key', '');
+  expect(wrapper.find('input').exists()).toBe(true);
 });
 
 function shallowRender(

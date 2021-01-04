@@ -51,6 +51,7 @@ exports[`should render correctly 1`] = `
     id="client_secret"
     maxLength={80}
     onFieldChange={[MockFunction]}
+    overwriteOnly={false}
     propKey="clientSecret"
     value=""
   />
@@ -58,6 +59,7 @@ exports[`should render correctly 1`] = `
     id="private_key"
     isTextArea={true}
     onFieldChange={[MockFunction]}
+    overwriteOnly={false}
     propKey="privateKey"
     value=""
   />
@@ -115,6 +117,7 @@ exports[`should render correctly 2`] = `
     id="client_secret"
     maxLength={80}
     onFieldChange={[MockFunction]}
+    overwriteOnly={true}
     propKey="clientSecret"
     value="**clientsecret**"
   />
@@ -122,6 +125,7 @@ exports[`should render correctly 2`] = `
     id="private_key"
     isTextArea={true}
     onFieldChange={[MockFunction]}
+    overwriteOnly={true}
     propKey="privateKey"
     value="asdf1234"
   />

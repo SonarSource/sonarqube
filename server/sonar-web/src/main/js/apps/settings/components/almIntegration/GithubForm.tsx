@@ -85,6 +85,7 @@ export default function GithubForm(props: GithubFormProps) {
         id="client_secret"
         maxLength={80}
         onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         readOnly={readOnly}
         value={formData.clientSecret}
@@ -93,6 +94,7 @@ export default function GithubForm(props: GithubFormProps) {
         id="private_key"
         isTextArea={true}
         onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
         propKey="privateKey"
         readOnly={readOnly}
         value={formData.privateKey}

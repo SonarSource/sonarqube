@@ -31,6 +31,7 @@ exports[`should render correctly: create 1`] = `
     id="personal_access_token"
     isTextArea={true}
     onFieldChange={[MockFunction]}
+    overwriteOnly={false}
     propKey="personalAccessToken"
     value=""
   />
@@ -68,6 +69,7 @@ exports[`should render correctly: edit 1`] = `
     id="personal_access_token"
     isTextArea={true}
     onFieldChange={[MockFunction]}
+    overwriteOnly={true}
     propKey="personalAccessToken"
     value="asdf1234"
   />

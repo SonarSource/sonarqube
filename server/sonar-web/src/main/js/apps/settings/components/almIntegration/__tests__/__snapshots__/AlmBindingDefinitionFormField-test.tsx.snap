@@ -53,6 +53,34 @@ exports[`should render correctly: optional 1`] = `
 </div>
 `;
 
+exports[`should render correctly: secret 1`] = `
+<div
+  className="modal-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="key"
+  >
+    settings.almintegration.form.key
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <div>
+    <p>
+      settings.almintegration.form.secret_field
+    </p>
+    <ButtonLink
+      onClick={[Function]}
+    >
+      settings.almintegration.form.update_secret_field
+    </ButtonLink>
+  </div>
+</div>
+`;
+
 exports[`should render correctly: textarea 1`] = `
 <div
   className="modal-field"

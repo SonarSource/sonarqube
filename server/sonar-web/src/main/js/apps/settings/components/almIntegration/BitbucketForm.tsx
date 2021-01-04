@@ -66,6 +66,7 @@ export default function BitbucketForm(props: BitbucketFormProps) {
         id="personal_access_token"
         isTextArea={true}
         onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         readOnly={readOnly}
         value={formData.personalAccessToken}
