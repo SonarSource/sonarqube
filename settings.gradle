@@ -50,13 +50,13 @@ include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
 
+ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
+
 // use Settings.getRootDir() so that it doesn't matter which directory you are executing from
 File extraSettings = new File(rootDir, 'private/settings.gradle')
 if (extraSettings.exists()) {
   apply from: extraSettings
 }
-
-ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
 
 buildCache {
   local {
