@@ -38,10 +38,10 @@ This is a generic guide for upgrading across versions of SonarQube. Carefully re
 
 ### Upgrading from the ZIP file
 
-1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONARQUBE_HOME`
+1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONAR_HOME`
 2. Manually install additional plugins that are compatible with your version of SonarQube. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that the versions you install are compatible with your server version. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors. Analysis of all languages provided by your edition is available by default without plugins.
-3. Update the contents of `sonar.properties` and `wrapper.conf` files (in `$NEW_SONARQUBE_HOME/conf`) with the settings of the related files in the `$OLD_SONARQUBE_HOME/conf` directory (web server URL, database, ldap settings, etc.). Do not copy-paste the old files.
-If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/extensions/jdbc-driver/oracle`
+3. Update the contents of `sonar.properties` and `wrapper.conf` files (in `$NEW_SONAR_HOME/conf`) with the settings of the related files in the `$OLD_SONAR_HOME/conf` directory (web server URL, database, ldap settings, etc.). Do not copy-paste the old files.
+If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONAR_HOME/extensions/jdbc-driver/oracle`
 4. Stop your old SonarQube Server
 5. Start your new SonarQube Server
 6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions
@@ -108,9 +108,12 @@ When upgrading SonarQube, you should also make sure you’re using the latest ve
 
 ### SonarQube as a Linux or Windows Service
 
-If you use external configuration, such as a script or Windows Service to control your server, you'll need to update it to point to `$NEW_SONARQUBE_HOME`.
-
-In case you used the InstallNTService.bat to install SonarQube as a Windows Service, run the $OLD_SONARQUBE_HOME/bin/.../UninstallNTService.bat before running the InstallNTService.bat of the $NEW_SONARQUBE_HOME.
+If you use external configuration, such as a script or Windows Service to control your server, you'll need to update it to point to `$NEW_SONAR_HOME`.
+- For Linux it depends how you implemented the service
+- For Windows you can update your service by running:
+```
+sc config SonarQube binPath= "\"$NEW_SONAR_HOME\bin\windows-x86-64\wrapper.exe\" -s \"$NEW_SONAR_HOME\conf\wrapper.conf\""
+```
 
 ### Rebuilding Indexes
 If your upgrade requires the rebuild of Elasticsearch indexes, your projects and Applications will become available as they are reindexed. Portfolios won't be available until all projects are indexed.
