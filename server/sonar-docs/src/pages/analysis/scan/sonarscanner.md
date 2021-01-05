@@ -66,6 +66,9 @@ docker run \
     sonarsource/sonar-scanner-cli
 ```
 
+## Scanning C, C++, or ObjectiveC Projects
+Scanning projects that contain C, C++, or ObjectiveC code requires some additional analysis steps. You can find full details on the [C/C++/Objective-C](/analysis/languages/cfamily/) language page.
+
 ## Sample Projects
 To help you get started, simple project samples are available for most languages on GitHub. They can be [browsed](https://github.com/SonarSource/sonar-scanning-examples) or [downloaded](https://github.com/SonarSource/sonar-scanning-examples/archive/master.zip). You'll find them filed under sonarqube-scanner/src.
 
