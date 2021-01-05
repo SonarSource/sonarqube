@@ -108,8 +108,8 @@ validate_task: &VALIDATE_TASK
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 2
-    memory: 12Gb
+    cpu: 6.5
+    memory: 16Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   script:
