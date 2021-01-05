@@ -2,7 +2,14 @@
 set +x
 
 VERSION="\[RELEASE\]"
-HTTP_CODE=`curl  --write-out %{http_code} -O --user $ARTIFACTORY_PRIVATE_USERNAME:$ARTIFACTORY_API_KEY $ARTIFACTORY_URL/sonarsource-private-releases/com/sonarsource/iris/iris/$VERSION/iris-$VERSION-jar-with-dependencies.jar`
+HTTP_CODE=$(\
+  curl \
+    --write-out '%{http_code}' \
+    --location \
+    --remote-name \
+    --user "$ARTIFACTORY_PRIVATE_USERNAME:$ARTIFACTORY_API_KEY" \
+    "$ARTIFACTORY_URL/sonarsource-private-releases/com/sonarsource/iris/iris/$VERSION/iris-$VERSION-jar-with-dependencies.jar"\
+)
 
 if [ "$HTTP_CODE" != "200" ]; then
   echo "Download $VERSION failed -> $HTTP_CODE"
