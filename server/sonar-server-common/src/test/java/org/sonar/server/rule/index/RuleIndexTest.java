@@ -876,7 +876,7 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void tags_facet_should_find_tags_of_specified_organization() {
+  public void tags_facet_should_find_tags() {
     RuleDefinitionDto rule = createRule(setSystemTags());
     createRuleMetadata(rule, setTags("bla"));
     index();
@@ -924,7 +924,7 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void tags_facet_should_be_available_if_organization_is_specified() {
+  public void tags_facet_should_be_available() {
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 

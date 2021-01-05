@@ -206,8 +206,7 @@ public class PropertiesDao implements Dao {
     save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
   }
 
-  private void save(PropertiesMapper mapper, String key,
-    @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
+  private void save(PropertiesMapper mapper, String key, @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();

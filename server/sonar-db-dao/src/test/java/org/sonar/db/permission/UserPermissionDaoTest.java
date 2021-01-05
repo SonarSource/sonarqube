@@ -79,7 +79,7 @@ public class UserPermissionDaoTest {
     PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), global2, global3, global1);
 
-    // default query returns all users, whatever their permissions nor organizations
+    // default query returns all users, whatever their permissions
     // (that's a non-sense, but still this is required for api/permissions/groups
     // when filtering users by name)
     query = PermissionQuery.builder().build();
@@ -148,7 +148,7 @@ public class UserPermissionDaoTest {
     expectPermissions(query, emptyList());
 
     // permissions of unknown project
-    query = PermissionQuery.builder().setComponent(newPrivateProjectDto(db.getDefaultOrganization())).withAtLeastOnePermission().build();
+    query = PermissionQuery.builder().setComponent(newPrivateProjectDto()).withAtLeastOnePermission().build();
     expectPermissions(query, emptyList());
   }
 
@@ -268,7 +268,7 @@ public class UserPermissionDaoTest {
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).isEmpty();
 
     // on a project without permissions
-    query = PermissionQuery.builder().setComponent(newPrivateProjectDto(db.getDefaultOrganization())).withAtLeastOnePermission().build();
+    query = PermissionQuery.builder().setComponent(newPrivateProjectDto()).withAtLeastOnePermission().build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).isEmpty();
 
     // search all users whose name matches "mar", whatever the permissions
@@ -285,7 +285,7 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void selectUserUuidsByQueryAndScope_with_organization_scope() {
+  public void selectUserUuidsByQueryAndScope_with_global_scope() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ComponentDto project1 = db.components().insertPrivateProject();

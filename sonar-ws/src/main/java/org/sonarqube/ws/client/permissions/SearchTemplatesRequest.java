@@ -30,21 +30,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class SearchTemplatesRequest {
 
-  private String organization;
   private String q;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchTemplatesRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * Example value: "defau"

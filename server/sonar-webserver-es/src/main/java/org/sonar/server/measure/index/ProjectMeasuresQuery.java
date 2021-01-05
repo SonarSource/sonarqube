@@ -38,7 +38,6 @@ public class ProjectMeasuresQuery {
 
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus = null;
-  private String organizationUuid = null;
   private Set<String> projectUuids = null;
   private Set<String> languages = null;
   private Set<String> tags = null;
@@ -66,19 +65,6 @@ public class ProjectMeasuresQuery {
 
   public Optional<Metric.Level> getQualityGateStatus() {
     return Optional.ofNullable(qualityGateStatus);
-  }
-
-  //TODO remove in organization removal
-  @Deprecated
-  public ProjectMeasuresQuery setOrganizationUuid(@Nullable String organizationUuid) {
-    this.organizationUuid = organizationUuid;
-    return this;
-  }
-
-  //TODO remove in organization removal
-  @Deprecated
-  public Optional<String> getOrganizationUuid() {
-    return Optional.ofNullable(organizationUuid);
   }
 
   public ProjectMeasuresQuery setProjectUuids(@Nullable Set<String> projectUuids) {

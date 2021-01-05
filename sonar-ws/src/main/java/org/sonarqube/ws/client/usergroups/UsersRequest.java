@@ -32,7 +32,6 @@ public class UsersRequest {
 
   private String id;
   private String name;
-  private String organization;
   private String p;
   private String ps;
   private String q;
@@ -60,19 +59,6 @@ public class UsersRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public UsersRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

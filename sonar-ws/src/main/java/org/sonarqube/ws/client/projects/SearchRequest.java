@@ -33,7 +33,6 @@ public class SearchRequest {
 
   private String analyzedBefore;
   private String onProvisionedOnly;
-  private String organization;
   private String p;
   private List<String> projectIds;
   private List<String> projects;
@@ -70,18 +69,6 @@ public class SearchRequest {
 
   public String getOnProvisionedOnly() {
     return onProvisionedOnly;
-  }
-
-  /**
-   * This is part of the internal API.
-   */
-  public SearchRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

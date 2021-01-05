@@ -34,7 +34,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Arrays.asList;
@@ -476,30 +475,6 @@ public class UserDaoTest {
     assertThat(userReloaded.getHomepageParameter()).isNull();
     assertThat(userReloaded.getLastConnectionDate()).isNull();
     assertThat(underTest.selectByUuid(session, otherUser.getUuid())).isNotNull();
-  }
-
-  @Test
-  public void clean_users_homepage_when_deleting_organization() {
-
-    UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter("dummy-organization-UUID");
-    underTest.insert(session, userUnderTest);
-
-    UserDto untouchedUser = newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter("not-so-dummy-organization-UUID");
-    underTest.insert(session, untouchedUser);
-
-    session.commit();
-
-    underTest.cleanHomepage(session, new OrganizationDto().setUuid("dummy-organization-UUID"));
-
-    UserDto userWithAHomepageReloaded = underTest.selectByUuid(session, userUnderTest.getUuid());
-    assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
-    assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
-    assertThat(userWithAHomepageReloaded.getHomepageParameter()).isNull();
-
-    UserDto untouchedUserReloaded = underTest.selectByUuid(session, untouchedUser.getUuid());
-    assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
-    assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
-    assertThat(untouchedUserReloaded.getHomepageParameter()).isEqualTo(untouchedUser.getHomepageParameter());
   }
 
   @Test

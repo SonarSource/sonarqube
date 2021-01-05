@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class SearchRequest {
 
   private String gateId;
-  private String organization;
   private String page;
   private String pageSize;
   private String query;
@@ -48,18 +47,6 @@ public class SearchRequest {
 
   public String getGateId() {
     return gateId;
-  }
-
-  /**
-   * Example value: "my-org"
-   */
-  public SearchRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

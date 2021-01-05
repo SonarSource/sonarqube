@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class SubmitRequest {
 
   private String characteristic;
-  private String organization;
   private String projectBranch;
   private String projectKey;
   private String projectName;
@@ -47,19 +46,6 @@ public class SubmitRequest {
 
   public String getCharacteristic() {
     return characteristic;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SubmitRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

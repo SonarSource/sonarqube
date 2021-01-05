@@ -53,7 +53,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -167,15 +166,6 @@ public class IssueQueryFactory {
           .toInstant());
     }
     builder.createdAfter(actualCreatedAfter, createdAfterInclusive);
-  }
-
-  @CheckForNull
-  private String convertOrganizationKeyToUuid(DbSession dbSession, @Nullable String organizationKey) {
-    if (organizationKey == null) {
-      return null;
-    }
-    Optional<OrganizationDto> organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-    return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
   private void setCreatedAfterFromRequest(DbSession dbSession, IssueQuery.Builder builder, SearchRequest request, List<ComponentDto> componentUuids, ZoneId timeZone) {

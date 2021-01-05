@@ -51,10 +51,6 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertViewAndSnapshot(ComponentDto component) {
-    if (component.getOrganizationUuid() == null) {
-      component.setOrganizationUuid(db.getDefaultOrganization().getUuid());
-    }
-
     dbClient.componentDao().insert(dbSession, component);
     return insertSnapshot(component);
   }
@@ -282,27 +278,13 @@ public class ComponentDbTester {
   private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto> dtoPopulator) {
     dtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
-    if (component.getOrganizationUuid() == null) {
-      component.setOrganizationUuid(db.getDefaultOrganization().getUuid());
-    }
     dbClient.componentDao().insert(dbSession, component);
     db.commit();
 
     return component;
   }
 
-  private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate) {
-    return insertComponentImpl(component, isPrivate, defaults());
-  }
-
   public void insertComponents(ComponentDto... components) {
-    String defaultOrgUuid = db.getDefaultOrganization().getUuid();
-    Arrays.stream(components).forEach(c -> {
-      if (c.getOrganizationUuid() == null) {
-        c.setOrganizationUuid(defaultOrgUuid);
-      }
-    });
-
     dbClient.componentDao().insert(dbSession, asList(components));
     db.commit();
   }
@@ -397,8 +379,7 @@ public class ComponentDbTester {
       .setUpdatedAt(createTime)
       .setPrivate(componentDto.isPrivate())
       .setDescription(componentDto.description())
-      .setName(componentDto.name())
-      .setOrganizationUuid(componentDto.getOrganizationUuid());
+      .setName(componentDto.name());
   }
 
   private static <T> Consumer<T> defaults() {

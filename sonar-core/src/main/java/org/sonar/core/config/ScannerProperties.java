@@ -80,8 +80,8 @@ public class ScannerProperties {
         .hidden()
         .build(),
       PropertyDefinition.builder(DISABLE_PROJECT_AND_ORG_AUTODETECTION)
-        .name("Disables project and organization auto-detection")
-        .description("Disables auto-detection of project and organization keys from scanner execution environment.")
+        .name("Disables project auto-detection")
+        .description("Disables auto-detection of project keys from scanner execution environment.")
         .type(BOOLEAN)
         .hidden()
         .build());

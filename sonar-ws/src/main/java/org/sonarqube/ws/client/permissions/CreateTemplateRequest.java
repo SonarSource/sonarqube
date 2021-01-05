@@ -32,7 +32,6 @@ public class CreateTemplateRequest {
 
   private String description;
   private String name;
-  private String organization;
   private String projectKeyPattern;
 
   /**
@@ -58,19 +57,6 @@ public class CreateTemplateRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public CreateTemplateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

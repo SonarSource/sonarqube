@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -125,69 +124,20 @@ public class ComponentTesting {
     return newProjectDto(Uuids.createFast(), true);
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto) {
-    return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), true);
-  }
-
   public static ComponentDto newPrivateProjectDto(String uuid) {
     return newProjectDto(uuid, true);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newPrivateProjectDto(OrganizationDto organizationDto, String uuid) {
-    return newProjectDto(organizationDto.getUuid(), uuid, true);
   }
 
   public static ComponentDto newPublicProjectDto() {
     return newProjectDto(Uuids.createFast(), false);
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto) {
-    return newProjectDto(organizationDto.getUuid(), Uuids.createFast(), false);
-  }
-
   public static ComponentDto newPublicProjectDto(String uuid) {
     return newProjectDto(uuid, false);
   }
 
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public static ComponentDto newPublicProjectDto(OrganizationDto organizationDto, String uuid) {
-    return newProjectDto(organizationDto.getUuid(), uuid, false);
-  }
-
   private static ComponentDto newProjectDto(String uuid, boolean isPrivate) {
     return new ComponentDto()
-      .setUuid(uuid)
-      .setUuidPath(UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
-      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
-      .setRootUuid(uuid)
-      .setDbKey("KEY_" + uuid)
-      .setName("NAME_" + uuid)
-      .setLongName("LONG_NAME_" + uuid)
-      .setDescription("DESCRIPTION_" + uuid)
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT)
-      .setPath(null)
-      .setLanguage(null)
-      .setEnabled(true)
-      .setPrivate(isPrivate);
-  }
-
-  /**
-   * use {@link org.sonar.db.component.ComponentTesting#newProjectDto(java.lang.String, boolean)} instead
-   */
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  private static ComponentDto newProjectDto(String organizationUuid, String uuid, boolean isPrivate) {
-    return new ComponentDto()
-      .setOrganizationUuid(organizationUuid)
       .setUuid(uuid)
       .setUuidPath(UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -228,7 +178,6 @@ public class ComponentTesting {
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     return newChildComponent(uuid, view, view)
       .setDbKey(view.getDbKey() + project.getDbKey())
-      .setOrganizationUuid(project.getOrganizationUuid())
       .setName(project.name())
       .setLongName(project.longName())
       .setCopyComponentUuid(project.uuid())
@@ -243,7 +192,6 @@ public class ComponentTesting {
       "private flag inconsistent between moduleOrProject (%s) and parent (%s)",
       moduleOrProject.isPrivate(), parent.isPrivate());
     return new ComponentDto()
-      .setOrganizationUuid(parent.getOrganizationUuid())
       .setUuid(uuid)
       .setUuidPath(formatUuidPathFromParent(parent))
       .setProjectUuid(moduleOrProject.projectUuid())
@@ -288,7 +236,6 @@ public class ComponentTesting {
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)
-      .setOrganizationUuid(project.getOrganizationUuid())
       .setUuidPath(UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
@@ -315,7 +262,6 @@ public class ComponentTesting {
     String uuid = branchDto.getUuid();
     return new ComponentDto()
       .setUuid(uuid)
-      .setOrganizationUuid(project.getOrganizationUuid())
       .setUuidPath(UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
       .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)

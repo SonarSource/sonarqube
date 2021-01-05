@@ -30,21 +30,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ListRequest {
 
-  private String organization;
   private String project;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public ListRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * Example value: "my_project"

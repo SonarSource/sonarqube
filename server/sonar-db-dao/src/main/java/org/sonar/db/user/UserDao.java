@@ -35,7 +35,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Locale.ENGLISH;
@@ -119,10 +118,6 @@ public class UserDao implements Dao {
 
   public void deactivateUser(DbSession dbSession, UserDto user) {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
-  }
-
-  public void cleanHomepage(DbSession dbSession, OrganizationDto organization) {
-    mapper(dbSession).clearHomepages("ORGANIZATION", organization.getUuid(), system2.now());
   }
 
   public void cleanHomepage(DbSession dbSession, ProjectDto project) {

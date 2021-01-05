@@ -222,7 +222,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void checkRatingGreaterThanOperator(@Nullable String value, List<String> errors) {
-    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)", value);
+    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)"  , value);
   }
 
   private static Rating toRating(String value) {

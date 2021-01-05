@@ -135,7 +135,7 @@ public class DeleteActionTest {
     addAdmin();
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = componentTester.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentTester.insertPrivateProject();
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
     loginAsAdmin();
 

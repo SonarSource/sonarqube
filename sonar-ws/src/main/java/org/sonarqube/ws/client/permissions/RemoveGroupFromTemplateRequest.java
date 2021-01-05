@@ -32,7 +32,6 @@ public class RemoveGroupFromTemplateRequest {
 
   private String groupId;
   private String groupName;
-  private String organization;
   private String permission;
   private String templateId;
   private String templateName;
@@ -59,19 +58,6 @@ public class RemoveGroupFromTemplateRequest {
 
   public String getGroupName() {
     return groupName;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RemoveGroupFromTemplateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

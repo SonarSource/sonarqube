@@ -49,7 +49,7 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * Loads all the permissions granted to anonymous user for the specified organization
+   * Loads all the permissions granted to anonymous user
    */
   public Set<String> selectGlobalPermissionsOfAnonymous(DbSession dbSession) {
     return mapper(dbSession).selectGlobalPermissionsOfAnonymous();

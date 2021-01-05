@@ -181,7 +181,6 @@ public class ProjectDataLoaderTest {
       String key = "theKey_" + scope + "_" + moduleUuid;
       String uuid = "uuid_" + uuidCounter++;
       dbClient.componentDao().insert(dbSession, new ComponentDto()
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)

@@ -30,26 +30,12 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class TemplateGroupsRequest {
 
-  private String organization;
   private String p;
   private String permission;
   private String ps;
   private String q;
   private String templateId;
   private String templateName;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public TemplateGroupsRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * Example value: "42"

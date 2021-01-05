@@ -40,7 +40,7 @@ public class WebhookDeliveryDaoTest {
   private static final long BEFORE = NOW - 1_000L;
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE).setDisableDefaultOrganization(true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

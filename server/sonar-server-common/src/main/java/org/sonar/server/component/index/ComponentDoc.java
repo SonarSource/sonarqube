@@ -26,7 +26,6 @@ import org.sonar.server.permission.index.AuthorizationDoc;
 
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_PROJECT_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_UUID;
@@ -86,15 +85,6 @@ public class ComponentDoc extends BaseDoc {
 
   public ComponentDoc setQualifier(String s) {
     setField(FIELD_QUALIFIER, s);
-    return this;
-  }
-
-  public String getOrganization() {
-    return getField(FIELD_ORGANIZATION_UUID);
-  }
-
-  public ComponentDoc setOrganization(String s) {
-    setField(FIELD_ORGANIZATION_UUID, s);
     return this;
   }
 }

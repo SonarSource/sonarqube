@@ -50,7 +50,6 @@ public class SetHomepageRequest {
    * Possible values:
    * <ul>
    *   <li>"PROJECT"</li>
-   *   <li>"ORGANIZATION"</li>
    *   <li>"MY_PROJECTS"</li>
    *   <li>"MY_ISSUES"</li>
    * </ul>

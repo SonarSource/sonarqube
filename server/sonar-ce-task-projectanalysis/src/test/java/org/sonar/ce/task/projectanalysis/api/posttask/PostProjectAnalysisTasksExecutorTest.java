@@ -155,7 +155,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Test
   @UseDataProvider("booleanValues")
-  public void organization_is_null_when_organization_are_disabled(boolean allStepsExecuted) {
+  public void organization_is_null(boolean allStepsExecuted) {
     underTest.finished(allStepsExecuted);
 
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());

@@ -796,13 +796,13 @@ public class ValuesActionTest {
     ValuesWsResponse response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 
-    // organization administrator but not system administrator
+    // only scan global permission
     userSession.logIn()
       .addPermission(GlobalPermission.SCAN);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 
-    // organization administrator
+    // global administrator
     userSession.logIn()
       .addPermission(GlobalPermission.ADMINISTER);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());

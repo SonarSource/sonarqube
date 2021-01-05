@@ -36,7 +36,6 @@ public class ProjectsWsParameters {
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_BRANCH = "branch";
-  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_FROM = "from";
   public static final String PARAM_TO = "to";

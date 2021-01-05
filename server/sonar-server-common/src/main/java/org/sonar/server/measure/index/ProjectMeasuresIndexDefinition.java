@@ -41,7 +41,6 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final IndexRelationType TYPE_PROJECT_MEASURES = IndexType.relation(TYPE_AUTHORIZATION, "projectmeasure");
 
   public static final String FIELD_UUID = "uuid";
-  public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
 
   /**
    * Project key. Only projects and applications (qualifier=TRK, APP)
@@ -96,7 +95,6 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
     TypeMapping mapping = index.createTypeMapping(TYPE_PROJECT_MEASURES);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
-    mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_QUALIFIER).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();

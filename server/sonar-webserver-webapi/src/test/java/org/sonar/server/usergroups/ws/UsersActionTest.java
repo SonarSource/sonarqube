@@ -132,28 +132,6 @@ public class UsersActionTest {
 
   @Test
   public void references_group_by_its_name() {
-    GroupDto group = db.users().insertGroup("the-group");
-    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
-    db.users().insertMember(group, lovelace);
-    loginAsAdmin();
-
-    String result = newUsersRequest()
-      .setParam("name", group.getName())
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .getInput();
-
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}\n");
-  }
-
-  @Test
-  public void references_group_in_default_organization_by_its_name() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));

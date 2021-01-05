@@ -30,23 +30,9 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class AddProjectCreatorToTemplateRequest {
 
-  private String organization;
   private String permission;
   private String templateId;
   private String templateName;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public AddProjectCreatorToTemplateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * This is a mandatory parameter.

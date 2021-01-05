@@ -42,7 +42,6 @@ import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.measure.MeasureDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
 import org.sonar.db.notification.NotificationDbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.plugin.PluginDbTester;
 import org.sonar.db.property.InternalComponentPropertyDbTester;
@@ -56,10 +55,6 @@ import org.sonar.db.user.UserDbTester;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
-
 /**
  * This class should be called using @Rule.
  * Data is truncated between each tests. The schema is created between each test.
@@ -70,12 +65,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final System2 system2;
   private DbClient client;
   private DbSession session = null;
-  private boolean disableDefaultOrganization = false;
-  private boolean started = false;
-  private String defaultOrganizationUuid = randomAlphanumeric(40);
-  private String defaultOrganizationKey = randomAlphanumeric(40);
-  private OrganizationDto defaultOrganization;
-
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester componentLinkTester;
@@ -136,10 +125,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return new DbTester(system2, null);
   }
 
-  public static DbTester createWithExtensionMappers(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(System2.INSTANCE, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
-  }
-
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
     return new DbTester(system2, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
@@ -156,67 +141,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
   }
 
-  // TODO remove
-  @Deprecated
-  public DbTester setDisableDefaultOrganization(boolean b) {
-    checkState(!started, "DbTester is already started");
-    this.disableDefaultOrganization = b;
-    return this;
-  }
-
-  // TODO remove
-  @Deprecated
-  public DbTester setDefaultOrganizationUuid(String uuid) {
-    checkState(!started, "DbTester is already started");
-    this.defaultOrganizationUuid = uuid;
-    return this;
-  }
-
-  // TODO remove
-  @Deprecated
-  public DbTester setDefaultOrganizationKey(String key) {
-    checkState(!started, "DbTester is already started");
-    this.defaultOrganizationKey = key;
-    return this;
-  }
-
   @Override
   protected void before() {
     db.start();
     db.truncateTables();
     initDbClient();
-    if (!disableDefaultOrganization) {
-      insertDefaultOrganization();
-    }
-    started = true;
-  }
-
-  // TODO remove
-  @Deprecated
-  private void insertDefaultOrganization() {
-    defaultOrganization = new OrganizationDto()
-      .setName(randomAlphanumeric(64))
-      .setDescription(randomAlphanumeric(256))
-      .setAvatarUrl(randomAlphanumeric(256))
-      // Default quality gate should be set explicitly when needed in tests
-      .setDefaultQualityGateUuid("_NOT_SET_")
-      .setSubscription(FREE)
-      .setUrl(randomAlphanumeric(256))
-      .setUuid(defaultOrganizationUuid)
-      .setKey(defaultOrganizationKey);
-
-    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
-      client.organizationDao().insert(dbSession, defaultOrganization, false);
-      client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
-      dbSession.commit();
-    }
-  }
-
-  // TODO remove
-  @Deprecated
-  public OrganizationDto getDefaultOrganization() {
-    checkState(defaultOrganization != null, "Default organization has not been created");
-    return defaultOrganization;
   }
 
   public UserDbTester users() {
@@ -314,7 +243,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
       session.close();
     }
     db.stop();
-    started = false;
   }
 
   public DbSession getSession() {

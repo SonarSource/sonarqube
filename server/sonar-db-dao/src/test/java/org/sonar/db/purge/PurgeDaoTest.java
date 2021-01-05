@@ -331,7 +331,7 @@ public class PurgeDaoTest {
 
   @Test
   public void deleteAnalyses_deletes_rows_in_events_and_event_component_changes() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
     SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
@@ -644,8 +644,8 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto();
+    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
 
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
@@ -663,10 +663,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeActivityDto projectTask = insertCeActivity(project);
@@ -695,10 +695,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeActivityDto projectTask = insertCeActivity(project);
@@ -727,10 +727,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeActivityDto projectTask = insertCeActivity(project);
@@ -759,10 +759,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeActivityDto projectTask = insertCeActivity(project);
@@ -829,10 +829,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeQueueDto projectTask = insertCeQueue(project);
@@ -861,10 +861,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeQueueDto projectTask = insertCeQueue(project);
@@ -894,10 +894,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeQueueDto projectTask = insertCeQueue(project);
@@ -927,10 +927,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
     CeQueueDto projectTask = insertCeQueue(project);
@@ -960,10 +960,10 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_events_and_event_component_changes_when_deleting_project() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
     ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
     dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
     SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
     SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);

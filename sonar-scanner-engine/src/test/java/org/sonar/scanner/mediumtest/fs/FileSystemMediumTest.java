@@ -128,25 +128,6 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void dontLogInvalidOrganization() throws IOException {
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .build())
-      .execute();
-
-    assertThat(logTester.logs()).contains("Project key: com.foo.project");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Organization key");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Branch key");
-  }
-
-  @Test
   public void onlyGenerateMetadataIfNeeded() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();

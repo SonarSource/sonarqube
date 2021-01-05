@@ -30,24 +30,10 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ApplyTemplateRequest {
 
-  private String organization;
   private String projectId;
   private String projectKey;
   private String templateId;
   private String templateName;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public ApplyTemplateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"

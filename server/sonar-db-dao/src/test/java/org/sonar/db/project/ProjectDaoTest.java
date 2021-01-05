@@ -52,7 +52,7 @@ public class ProjectDaoTest {
 
     Optional<ProjectDto> projectByUuid = projectDao.selectByUuid(db.getSession(), "uuid_o1_p1");
     assertThat(projectByUuid).isPresent();
-    assertProject(projectByUuid.get(), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectByUuid.get(), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
     assertThat(projectByUuid.get().isPrivate()).isFalse();
   }
 
@@ -64,7 +64,7 @@ public class ProjectDaoTest {
 
     Optional<ProjectDto> projectByKee = projectDao.selectProjectByKey(db.getSession(), "projectKee_o1_p1");
     assertThat(projectByKee).isPresent();
-    assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
   }
 
   @Test
@@ -91,12 +91,12 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByOrg = projectDao.selectAll(db.getSession());
     assertThat(projectsByOrg)
-      .extracting(ProjectDto::getName, ProjectDto::getKey, ProjectDto::getOrganizationUuid, ProjectDto::getUuid, ProjectDto::getDescription,
+      .extracting(ProjectDto::getName, ProjectDto::getKey, ProjectDto::getUuid, ProjectDto::getDescription,
         ProjectDto::getTagsString, ProjectDto::isPrivate)
       .containsExactlyInAnyOrder(
-        tuple("projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false),
-        tuple("projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false),
-        tuple("projectName_p1", "projectKee_o2_p1", "org_o2", "uuid_o2_p1", "desc_p1", "tag1,tag2", false));
+        tuple("projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false),
+        tuple("projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false),
+        tuple("projectName_p1", "projectKee_o2_p1", "uuid_o2_p1", "desc_p1", "tag1,tag2", false));
   }
 
   @Test
@@ -109,8 +109,8 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", null, false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", null, false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
     dto1.setTags(Collections.singletonList("tag3"));
     dto2.setTagsString("");
@@ -119,8 +119,8 @@ public class ProjectDaoTest {
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag3", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", null, false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag3", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", null, false);
 
     assertThat(projectsByUuids.get(0).getTags()).containsOnly("tag3");
   }
@@ -135,16 +135,16 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
     projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false);
     projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true);
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", true);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", true);
   }
 
   @Test
@@ -159,8 +159,8 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
-    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1", "org_o1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
-    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2", "org_o1", "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+    assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
   }
 
   @Test
@@ -177,9 +177,9 @@ public class ProjectDaoTest {
     assertThat(projectsByUuids).isEmpty();
   }
 
-  private void assertProject(ProjectDto dto, String name, String kee, String org, String uuid, String desc, @Nullable String tags, boolean isPrivate) {
-    assertThat(dto).extracting("name", "kee", "key", "organizationUuid", "uuid", "description", "tagsString", "private")
-      .containsExactly(name, kee, kee, org, uuid, desc, tags, isPrivate);
+  private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {
+    assertThat(dto).extracting("name", "kee", "key","uuid", "description", "tagsString", "private")
+      .containsExactly(name, kee, kee, uuid, desc, tags, isPrivate);
   }
 
   private ProjectDto createProject(String org, String name) {
@@ -187,7 +187,6 @@ public class ProjectDaoTest {
       .setName("projectName_" + name)
       .setKey("projectKee_" + org + "_" + name)
       .setQualifier(Qualifiers.PROJECT)
-      .setOrganizationUuid("org_" + org)
       .setUuid("uuid_" + org + "_" + name)
       .setTags(Arrays.asList("tag1", "tag2"))
       .setDescription("desc_" + name)

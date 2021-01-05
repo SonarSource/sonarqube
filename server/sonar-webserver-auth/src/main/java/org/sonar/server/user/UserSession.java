@@ -148,7 +148,7 @@ public interface UserSession {
 
   /**
    * Whether the user has root privileges. If {@code true}, then user automatically
-   * benefits from all the permissions on all organizations and projects.
+   * benefits from all the permissions on all projects.
    */
   boolean isRoot();
 
@@ -164,12 +164,9 @@ public interface UserSession {
   UserSession checkLoggedIn();
 
   /**
-   * Returns {@code true} if the permission is granted on the organization, otherwise {@code false}.
+   * Returns {@code true} if the permission is granted, otherwise {@code false}.
    *
-   * If the organization does not exist, then returns {@code false}.
-   *
-   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
-   * organization does not exist.
+   * Always returns {@code true} if {@link #isRoot()} is {@code true}.
    */
   boolean hasPermission(GlobalPermission permission);
 
@@ -187,8 +184,6 @@ public interface UserSession {
    *
    * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
    * component does not exist.
-   *
-   * If the permission is not granted, then the organization permission is _not_ checked.
    *
    * @param component non-null component.
    * @param permission project permission as defined by {@link org.sonar.server.permission.PermissionService}
@@ -246,7 +241,7 @@ public interface UserSession {
    * Returns {@code true} if:
    * <ul>
    *   <li>{@link #isRoot()} is {@code true}</li>
-   *   <li>organization feature is disabled and user is administrator of the (single) default organization</li>
+   *   <li>user is administrator</li>
    * </ul>
    */
   boolean isSystemAdministrator();

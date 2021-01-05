@@ -48,8 +48,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -74,7 +72,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -93,8 +90,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister,
-      defaultOrganizationProvider);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
   }
 
   @Override
@@ -125,7 +121,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(db.countRowsOfTable("components")).isEqualTo(3);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(directoryDto.name()).isEqualTo("dir");
     assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
@@ -142,7 +137,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();
@@ -184,7 +178,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(db.countRowsOfTable("components")).isEqualTo(3);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(directoryDto.name()).isEqualTo("dir");
     assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
@@ -201,7 +194,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();

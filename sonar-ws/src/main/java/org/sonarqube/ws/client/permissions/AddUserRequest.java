@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class AddUserRequest {
 
   private String login;
-  private String organization;
   private String permission;
   private String projectId;
   private String projectKey;
@@ -47,19 +46,6 @@ public class AddUserRequest {
 
   public String getLogin() {
     return login;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public AddUserRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

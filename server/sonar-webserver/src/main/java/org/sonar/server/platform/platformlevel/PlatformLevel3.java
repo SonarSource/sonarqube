@@ -24,8 +24,6 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.async.AsyncExecutionModule;
-import org.sonar.server.organization.DefaultOrganizationProviderImpl;
-import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataPersister;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
@@ -53,8 +51,6 @@ public class PlatformLevel3 extends PlatformLevel {
       DatabaseSettingsEnabler.class,
       UriReader.class,
       DefaultHttpDownloader.class,
-      DefaultOrganizationProviderImpl.class,
-      OrganizationFlagsImpl.class,
       AsyncExecutionModule.class);
   }
 

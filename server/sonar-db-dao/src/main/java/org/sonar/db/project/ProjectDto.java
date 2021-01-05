@@ -39,7 +39,6 @@ public class ProjectDto {
   private String tags;
   private long createdAt;
   private long updatedAt;
-  private String organizationUuid;
 
   public ProjectDto() {
     // nothing to do here
@@ -125,19 +124,6 @@ public class ProjectDto {
 
   public ProjectDto setTagsString(@Nullable String tags) {
     this.tags = trimToNull(tags);
-    return this;
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public ProjectDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
     return this;
   }
 

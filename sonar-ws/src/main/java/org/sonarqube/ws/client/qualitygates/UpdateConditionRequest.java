@@ -34,7 +34,6 @@ public class UpdateConditionRequest {
   private String id;
   private String metric;
   private String op;
-  private String organization;
 
   /**
    * Example value: "10"
@@ -91,15 +90,4 @@ public class UpdateConditionRequest {
     return op;
   }
 
-  /**
-   * Example value: "my-org"
-   */
-  public UpdateConditionRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

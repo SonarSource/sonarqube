@@ -27,8 +27,6 @@ import javax.annotation.Nullable;
  */
 public interface InternalProperties {
 
-  String ORGANIZATION_ENABLED = "organization.enabled";
-
   String SERVER_ID_CHECKSUM = "server.idChecksum";
 
   /**

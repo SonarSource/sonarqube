@@ -183,7 +183,7 @@ public class IssueDaoTest {
       .extracting(IssueDto::getKey)
       .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
 
-    ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto();
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), notPersisted)).isEmpty();
   }
 

@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class SetAsDefaultRequest {
 
   private String id;
-  private String organization;
 
   /**
    * This is a mandatory parameter.
@@ -44,17 +43,5 @@ public class SetAsDefaultRequest {
 
   public String getId() {
     return id;
-  }
-
-  /**
-   * Example value: "my-org"
-   */
-  public SetAsDefaultRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 }

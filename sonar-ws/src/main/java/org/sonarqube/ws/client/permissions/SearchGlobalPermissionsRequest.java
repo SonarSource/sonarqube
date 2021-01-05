@@ -30,18 +30,4 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class SearchGlobalPermissionsRequest {
 
-  private String organization;
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchGlobalPermissionsRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

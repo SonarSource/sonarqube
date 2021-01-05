@@ -29,9 +29,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexerTest {
@@ -68,7 +66,6 @@ public class UserIndexerTest {
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
     assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
-    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -86,7 +83,6 @@ public class UserIndexerTest {
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
     assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
-    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -100,7 +96,6 @@ public class UserIndexerTest {
     UserDoc doc = docs.get(0);
     assertThat(doc.uuid()).isEqualTo(user.getUuid());
     assertThat(doc.login()).isEqualTo(user.getLogin());
-    assertThat(doc.organizationUuids()).containsExactly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -126,10 +121,10 @@ public class UserIndexerTest {
 
     List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs)
-      .extracting(UserDoc::login, UserDoc::organizationUuids)
+      .extracting(UserDoc::login)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), singletonList(db.getDefaultOrganization().getUuid())),
-        tuple(user2.getLogin(), singletonList(db.getDefaultOrganization().getUuid())));
+        user1.getLogin(),
+        user2.getLogin());
     assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(2);
   }
 }

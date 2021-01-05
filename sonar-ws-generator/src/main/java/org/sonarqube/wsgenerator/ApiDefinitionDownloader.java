@@ -40,10 +40,7 @@ public class ApiDefinitionDownloader {
     builder.setEdition(COMMUNITY);
     builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
       .setOrchestratorProperty("orchestrator.workspaceDir", "build");
-    Orchestrator orchestrator = builder
-      // Enable organizations ws
-      .setServerProperty("sonar.sonarcloud.enabled", "true")
-      .setServerProperty("sonar.forceAuthentication", "false")
+    Orchestrator orchestrator = builder.setServerProperty("sonar.forceAuthentication", "false")
       .build();
 
     orchestrator.start();

@@ -33,7 +33,6 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -70,7 +69,6 @@ public class PersistComponentsStepTest {
       mock(MutableDisabledComponentsHolder.class),
       mock(AnalysisMetadataHolder.class),
       mock(BranchPersister.class),
-      mock(ProjectPersister.class),
-      mock(DefaultOrganizationProvider.class)).execute(new TestComputationStepContext());
+      mock(ProjectPersister.class)).execute(new TestComputationStepContext());
   }
 }

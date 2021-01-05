@@ -65,8 +65,6 @@ public interface PropertiesMapper {
 
   int delete(@Param("key") String key, @Nullable @Param("userUuid") String userUuid, @Nullable @Param("componentUuid") String componentUuid);
 
-  int deleteById(long id);
-
   int deleteProjectProperty(@Param("key") String key, @Param("componentUuid") String componentUuid);
 
   int deleteProjectProperties(@Param("key") String key, @Param("value") String value);

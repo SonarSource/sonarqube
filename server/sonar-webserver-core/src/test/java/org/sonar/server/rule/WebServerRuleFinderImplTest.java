@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.db.DbClient;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

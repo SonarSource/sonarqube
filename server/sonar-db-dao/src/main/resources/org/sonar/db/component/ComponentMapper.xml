@@ -3,7 +3,6 @@
 <mapper namespace="org.sonar.db.component.ComponentMapper">
 
   <sql id="componentColumns">
-    p.organization_uuid as organizationUuid,
     p.uuid as uuid,
     p.uuid_path as uuidPath,
     p.project_uuid as projectUuid,
@@ -67,7 +66,7 @@
     select
     <include refid="componentColumns"/>
     from components root
-    inner join components p on p.project_uuid=root.uuid and p.organization_uuid=root.organization_uuid
+    inner join components p on p.project_uuid=root.uuid
     where
       root.uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
@@ -140,7 +139,6 @@
     INNER JOIN components child ON
       child.root_uuid=p.uuid
       and child.enabled=${_true}
-      and child.organization_uuid=p.organization_uuid
     where
       p.enabled=${_true}
       and p.scope='PRJ'
@@ -160,7 +158,6 @@
   <sql id="modulesTreeQuery">
     INNER JOIN components module ON
       module.project_uuid = p.project_uuid
-      and module.organization_uuid = p.organization_uuid
       and module.uuid = #{moduleUuid}
       and module.scope='PRJ' AND module.enabled = ${_true}
     where
@@ -189,7 +186,6 @@
     FROM components root
     INNER JOIN components p on
       p.project_uuid=root.uuid
-      and p.organization_uuid=root.organization_uuid
       and p.enabled=${_true}
       and p.scope='FIL'
     INNER JOIN file_sources fs ON
@@ -240,15 +236,6 @@
       p.enabled=${_true}
       and p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       and p.qualifier = 'BRC'
-  </select>
-
-  <select id="countComponentByOrganizationAndUuid" resultType="int">
-    select
-      count(1)
-    from components p
-    where
-      p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-      and p.uuid = #{componentUuid,jdbcType=BIGINT}
   </select>
 
   <select id="selectByQuery" resultType="Component">
@@ -516,7 +503,6 @@
 
   <insert id="insert" parameterType="Component">
     INSERT INTO components (
-      organization_uuid,
       kee,
       uuid,
       uuid_path,
@@ -550,7 +536,6 @@
       b_qualifier
     )
     VALUES (
-    #{organizationUuid,jdbcType=VARCHAR},
     #{kee,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},
     #{uuidPath,jdbcType=VARCHAR},
@@ -719,7 +704,6 @@
     and p.scope = 'PRJ'
     and p.qualifier = 'TRK'
     and p.copy_component_uuid is null
-    and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     group by p.kee, p.name
     order by ncloc desc
   </select>

@@ -120,7 +120,6 @@ public class ComponentDaoTest {
 
     ComponentDto result = underTest.selectByUuid(dbSession, project.uuid()).get();
     assertThat(result).isNotNull();
-    assertThat(result.getOrganizationUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
     assertThat(result.uuid()).isEqualTo(project.uuid());
     assertThat(result.getUuidPath()).isEqualTo(".");
     assertThat(result.moduleUuid()).isNull();
@@ -198,7 +197,6 @@ public class ComponentDaoTest {
     Optional<ComponentDto> optional = underTest.selectByKey(dbSession, file.getDbKey());
 
     ComponentDto result = optional.get();
-    assertThat(result.getOrganizationUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
     assertThat(result.uuid()).isEqualTo(file.uuid());
     assertThat(result.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/RequestContext.java");
@@ -1246,9 +1244,9 @@ public class ComponentDaoTest {
 
   @Test
   public void updateBEnabledToFalse() {
-    ComponentDto dto1 = newPrivateProjectDto(db.getDefaultOrganization(), "U1");
-    ComponentDto dto2 = newPrivateProjectDto(db.getDefaultOrganization(), "U2");
-    ComponentDto dto3 = newPrivateProjectDto(db.getDefaultOrganization(), "U3");
+    ComponentDto dto1 = newPrivateProjectDto("U1");
+    ComponentDto dto2 = newPrivateProjectDto("U2");
+    ComponentDto dto3 = newPrivateProjectDto("U3");
     underTest.insert(dbSession, dto1, dto2, dto3);
 
     underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
@@ -1708,7 +1706,6 @@ public class ComponentDaoTest {
 
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
-    assertThat(components).extracting("organizationUuid").containsOnly(db.getDefaultOrganization().getUuid());
   }
 
   @Test
@@ -1774,7 +1771,7 @@ public class ComponentDaoTest {
     // public project - not returned
     insertMeasure(11d, db.components().insertPublicProject(b -> b.setName("other")), metric);
 
-    List<ProjectNclocDistributionDto> result = underTest.selectPrivateProjectsWithNcloc(db.getSession(), db.getDefaultOrganization().getUuid());
+    List<ProjectNclocDistributionDto> result = underTest.selectPrivateProjectsWithNcloc(db.getSession());
 
     assertThat(result).extracting(ProjectNclocDistributionDto::getName).containsExactly("foo", "bar");
     assertThat(result).extracting(ProjectNclocDistributionDto::getNcloc).containsExactly(30L, 10L);

@@ -99,7 +99,7 @@ public class RuleIndexer implements ResilientIndexer {
   }
 
   /**
-   * Commit a change on a rule and its extension on the given organization
+   * Commit a change on a rule and its extension
    */
   public void commitAndIndex(DbSession dbSession, String ruleUuid) {
     List<EsQueueDto> items = asList(createQueueDtoForRule(ruleUuid));

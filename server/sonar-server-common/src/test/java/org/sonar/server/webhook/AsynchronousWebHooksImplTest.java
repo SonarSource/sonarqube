@@ -29,7 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
 
@@ -63,9 +62,7 @@ public class AsynchronousWebHooksImplTest {
 
   @Test
   public void send_global_webhooks() {
-
-    OrganizationDto organizationDto = db.getDefaultOrganization();
-    ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setOrganizationUuid(organizationDto.getUuid()));
+    ComponentDto project = componentDbTester.insertPrivateProject();
     webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"));
     webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"));
 

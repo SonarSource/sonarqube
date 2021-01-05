@@ -269,7 +269,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       this.scmRevisionId = scmRevisionId;
     }
 
+    /**
+     *
+     * @deprecated since 8.7. No longer used - it's always empty.
+     */
     @Override
+    @Deprecated
     public Optional<Organization> getOrganization() {
       return empty();
     }

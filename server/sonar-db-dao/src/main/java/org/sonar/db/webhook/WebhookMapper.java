@@ -32,13 +32,7 @@ public interface WebhookMapper {
 
   List<WebhookDto> selectGlobalWebhooksOrderedByName();
 
-  // TODO remove
-  @Deprecated
   List<WebhookDto> selectForProjectUuidOrderedByName(@Param("projectUuid") String projectUuid);
-
-  // TODO remove
-  @Deprecated
-  List<WebhookDto> selectForOrganizationUuidOrderedByName(@Param("organizationUuid") String organizationUuid);
 
   void insert(WebhookDto dto);
 
@@ -46,5 +40,5 @@ public interface WebhookMapper {
 
   void delete(@Param("uuid") String uuid);
 
-  void deleteForProjectUuid(@Param("projectUuid") String organizationUuid);
+  void deleteForProjectUuid(@Param("projectUuid") String projectUuid);
 }

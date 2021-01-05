@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class GroupsRequest {
 
   private String login;
-  private String organization;
   private String p;
   private String ps;
   private String q;

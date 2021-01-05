@@ -52,7 +52,7 @@ public class PermissionServiceImpl implements PermissionService {
   }
 
   /**
-   * Return an immutable Set of all organization permissions
+   * Return an immutable Set of all permissions
    */
   @Override
   public List<GlobalPermission> getGlobalPermissions() {

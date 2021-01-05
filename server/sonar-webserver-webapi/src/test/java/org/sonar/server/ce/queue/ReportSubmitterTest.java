@@ -45,8 +45,6 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -84,14 +82,13 @@ public class ReportSubmitterTest {
   @Rule
   public final DbTester db = DbTester.create();
 
-  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
 
   private final CeQueue queue = mock(CeQueueImpl.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultOrganizationProvider);
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory());
   private final BranchSupport ossEditionBranchSupport = new BranchSupport();
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
@@ -287,7 +284,7 @@ public class ReportSubmitterTest {
       .extracting(throwable -> ((BadRequestException) throwable).errors())
       .asList()
       .contains(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-        "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         module.getKey(), project.getKey(), project.getKey(), module.getKey()));
   }
 

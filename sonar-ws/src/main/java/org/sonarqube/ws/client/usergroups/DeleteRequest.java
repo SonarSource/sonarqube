@@ -32,7 +32,6 @@ public class DeleteRequest {
 
   private String id;
   private String name;
-  private String organization;
 
   /**
    * Example value: "42"
@@ -58,16 +57,4 @@ public class DeleteRequest {
     return name;
   }
 
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public DeleteRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

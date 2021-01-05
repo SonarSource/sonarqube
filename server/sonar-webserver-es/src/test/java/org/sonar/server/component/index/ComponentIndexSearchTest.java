@@ -120,7 +120,7 @@ public class ComponentIndexSearchTest {
     userSession.logIn().setRoot();
 
     index(IntStream.range(0, 12_000)
-      .mapToObj(i -> newDoc(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization())))
+      .mapToObj(i -> newDoc(ComponentTesting.newPrivateProjectDto()))
       .toArray(ComponentDoc[]::new));
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
@@ -144,7 +144,7 @@ public class ComponentIndexSearchTest {
 
   private void index(ComponentDto... components) {
     indexer.indexAll();
-    Arrays.stream(components).forEach(c -> authorizationIndexerTester.allowOnlyAnyone(c));
+    Arrays.stream(components).forEach(authorizationIndexerTester::allowOnlyAnyone);
   }
 
   private void index(ComponentDoc... componentDocs) {
@@ -157,7 +157,6 @@ public class ComponentIndexSearchTest {
       .setKey(componentDoc.getKey())
       .setName(componentDoc.name())
       .setProjectUuid(componentDoc.projectUuid())
-      .setOrganization(componentDoc.getOrganizationUuid())
       .setQualifier(componentDoc.qualifier());
   }
 }

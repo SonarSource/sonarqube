@@ -27,7 +27,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;

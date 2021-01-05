@@ -289,7 +289,6 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
     return new ProjectMeasuresDoc()
-      .setOrganizationUuid(project.getOrganizationUuid())
       .setId(project.uuid())
       .setKey(project.getDbKey())
       .setName(project.name())

@@ -359,8 +359,8 @@ public class ComponentDao implements Dao {
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");
   }
 
-  public List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectPrivateProjectsWithNcloc(organizationUuid);
+  public List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(DbSession dbSession) {
+    return mapper(dbSession).selectPrivateProjectsWithNcloc();
   }
 
   public boolean existAnyOfComponentsWithQualifiers(DbSession session, Collection<String> componentKeys, Set<String> qualifiers) {

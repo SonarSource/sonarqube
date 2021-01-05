@@ -31,7 +31,7 @@ public class PermissionServiceImplTest {
   private PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule);
 
   @Test
-  public void organizationPermissions_must_be_ordered() {
+  public void globalPermissions_must_be_ordered() {
     assertThat(underTest.getGlobalPermissions())
       .extracting(GlobalPermission::getKey)
       .containsExactly("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");

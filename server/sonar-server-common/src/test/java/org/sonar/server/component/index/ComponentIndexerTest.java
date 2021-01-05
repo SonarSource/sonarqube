@@ -104,7 +104,6 @@ public class ComponentIndexerTest {
     assertThat(doc.getKey()).isEqualTo(project.getDbKey());
     assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
     assertThat(doc.getName()).isEqualTo(project.name());
-    assertThat(doc.getOrganization()).isEqualTo(project.getOrganizationUuid());
   }
 
   @Test

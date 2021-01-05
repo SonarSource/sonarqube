@@ -48,7 +48,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -379,7 +378,6 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
 
@@ -408,7 +406,6 @@ public class RegisterRulesTest {
       repo.done();
     });
 
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getSecurityStandards()).containsOnly("cwe:123", "owaspTop10:a1");
 

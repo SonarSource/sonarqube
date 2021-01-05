@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class CreateRequest {
 
   private String name;
-  private String organization;
   private String project;
   private String secret;
   private String url;
@@ -47,19 +46,6 @@ public class CreateRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public CreateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

@@ -40,12 +40,10 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 public class QualityProfileDbTester {
   private final DbClient dbClient;
   private final DbSession dbSession;
-  private final DbTester dbTester;
 
   public QualityProfileDbTester(DbTester dbTester) {
     this.dbClient = dbTester.getDbClient();
     this.dbSession = dbTester.getSession();
-    this.dbTester = dbTester;
   }
 
   public Optional<QProfileDto> selectByUuid(String uuid) {
@@ -53,7 +51,7 @@ public class QualityProfileDbTester {
   }
 
   /**
-   * Create a profile with random field values on the specified organization.
+   * Create a profile with random field values.
    */
   public QProfileDto insert() {
     return insert(c -> {

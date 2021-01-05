@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -305,7 +304,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void does_not_return_hidden_properties() {
-    logInAsAdmin(db.getDefaultOrganization());
+    logInAsAdmin();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
 
     ListDefinitionsWsResponse result = executeRequest();
@@ -315,7 +314,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_license_type() {
-    logInAsAdmin(db.getDefaultOrganization());
+    logInAsAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
       PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
@@ -351,7 +350,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_settings_when_system_admin() {
-    logInAsAdmin(db.getDefaultOrganization());
+    logInAsAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
@@ -474,7 +473,7 @@ public class ListDefinitionsActionTest {
     userSession.logIn().addProjectPermission(USER, project);
   }
 
-  private void logInAsAdmin(OrganizationDto org) {
+  private void logInAsAdmin() {
     userSession.logIn().addPermission(ADMINISTER);
   }
 

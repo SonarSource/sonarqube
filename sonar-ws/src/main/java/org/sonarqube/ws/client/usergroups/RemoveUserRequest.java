@@ -33,7 +33,6 @@ public class RemoveUserRequest {
   private String id;
   private String login;
   private String name;
-  private String organization;
 
   /**
    * Example value: "42"
@@ -69,18 +68,5 @@ public class RemoveUserRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RemoveUserRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 }

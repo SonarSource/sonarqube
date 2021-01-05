@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;

@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class RemoveUserFromTemplateRequest {
 
   private String login;
-  private String organization;
   private String permission;
   private String templateId;
   private String templateName;
@@ -47,19 +46,6 @@ public class RemoveUserFromTemplateRequest {
 
   public String getLogin() {
     return login;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RemoveUserFromTemplateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

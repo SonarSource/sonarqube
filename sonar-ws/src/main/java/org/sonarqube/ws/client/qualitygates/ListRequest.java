@@ -30,17 +30,4 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ListRequest {
 
-  private String organization;
-
-  /**
-   * Example value: "my-org"
-   */
-  public ListRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

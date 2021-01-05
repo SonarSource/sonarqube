@@ -50,7 +50,6 @@ import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
-import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.UserPermissionDao;
@@ -97,7 +96,6 @@ public class DbClient {
 
   private final SchemaMigrationDao schemaMigrationDao;
   private final AuthorizationDao authorizationDao;
-  private final OrganizationDao organizationDao;
   private final QualityProfileDao qualityProfileDao;
   private final QualityProfileExportDao qualityProfileExportDao;
   private final PropertiesDao propertiesDao;
@@ -177,7 +175,6 @@ public class DbClient {
     projectAlmSettingDao = getDao(map, ProjectAlmSettingDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
-    organizationDao = getDao(map, OrganizationDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
     qualityProfileExportDao = getDao(map, QualityProfileExportDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
@@ -271,10 +268,6 @@ public class DbClient {
 
   public AuthorizationDao authorizationDao() {
     return authorizationDao;
-  }
-
-  public OrganizationDao organizationDao() {
-    return organizationDao;
   }
 
   public IssueDao issueDao() {

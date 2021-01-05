@@ -32,7 +32,6 @@ public class AddGroupRequest {
 
   private String groupId;
   private String groupName;
-  private String organization;
   private String permission;
   private String projectId;
   private String projectKey;
@@ -59,19 +58,6 @@ public class AddGroupRequest {
 
   public String getGroupName() {
     return groupName;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public AddGroupRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

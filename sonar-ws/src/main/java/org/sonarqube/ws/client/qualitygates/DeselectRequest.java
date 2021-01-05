@@ -30,21 +30,8 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeselectRequest {
 
-  private String organization;
   private String projectId;
   private String projectKey;
-
-  /**
-   * Example value: "my-org"
-   */
-  public DeselectRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * Example value: "AU-Tpxb--iU5OvuD2FLy"

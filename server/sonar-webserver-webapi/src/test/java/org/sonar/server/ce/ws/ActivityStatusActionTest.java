@@ -94,10 +94,10 @@ public class ActivityStatusActionTest {
   public void status_for_a_project_as_project_admin() {
     String projectUuid = "project-uuid";
     String anotherProjectUuid = "another-project-uuid";
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), projectUuid);
-    ComponentDto anotherProject = newPrivateProjectDto(db.getDefaultOrganization(), anotherProjectUuid);
+    ComponentDto project = newPrivateProjectDto(projectUuid);
+    ComponentDto anotherProject = newPrivateProjectDto(anotherProjectUuid);
     db.components().insertComponent(project);
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), anotherProjectUuid));
+    db.components().insertComponent(newPrivateProjectDto(anotherProjectUuid));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -122,7 +122,7 @@ public class ActivityStatusActionTest {
   @Test
   public void add_pending_time() {
     String projectUuid = "project-uuid";
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), projectUuid);
+    ComponentDto project = newPrivateProjectDto(projectUuid);
     db.components().insertComponent(project);
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

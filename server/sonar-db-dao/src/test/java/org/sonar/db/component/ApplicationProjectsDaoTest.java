@@ -126,7 +126,6 @@ public class ApplicationProjectsDaoTest {
       "uuid", projectUuid,
       "kee", projectUuid,
       "qualifier", "TRK",
-      "ORGANIZATION_UUID", "ORGANIZATION_UUID",
       "private", true,
       "updated_at", 1000L,
       "created_at", 1000L);
@@ -137,7 +136,6 @@ public class ApplicationProjectsDaoTest {
       "uuid", appUuid,
       "kee", appUuid,
       "qualifier", "APP",
-      "ORGANIZATION_UUID", "ORGANIZATION_UUID",
       "private", true,
       "updated_at", 1000L,
       "created_at", 1000L);

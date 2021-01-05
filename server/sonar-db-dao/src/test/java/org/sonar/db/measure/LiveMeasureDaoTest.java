@@ -278,7 +278,7 @@ public class LiveMeasureDaoTest {
   @Test
   public void selectTreeByQuery_with_empty_results() {
     List<LiveMeasureDto> results = new ArrayList<>();
-    underTest.selectTreeByQuery(db.getSession(), newPrivateProjectDto(db.getDefaultOrganization()),
+    underTest.selectTreeByQuery(db.getSession(), newPrivateProjectDto(),
       MeasureTreeQuery.builder().setStrategy(MeasureTreeQuery.Strategy.LEAVES).build(),
       context -> results.add(context.getResultObject()));
 

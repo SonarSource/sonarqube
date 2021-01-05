@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 public class TestWebhookCaller implements WebhookCaller {
 
   private final Queue<Item> deliveries = new LinkedList<>();
-  private final AtomicInteger countSent = new AtomicInteger(0);
+  private int countSent = 0;
 
   public TestWebhookCaller enqueueSuccess(long at, int httpCode, int durationMs) {
     deliveries.add(new Item(at, httpCode, durationMs, null));
@@ -44,7 +44,7 @@ public class TestWebhookCaller implements WebhookCaller {
   @Override
   public WebhookDelivery call(Webhook webhook, WebhookPayload payload) {
     Item item = requireNonNull(deliveries.poll(), "Queue is empty");
-    countSent.incrementAndGet();
+    countSent++;
     return new WebhookDelivery.Builder()
       .setAt(item.at)
       .setHttpStatus(item.httpCode)
@@ -56,7 +56,7 @@ public class TestWebhookCaller implements WebhookCaller {
   }
 
   public int countSent() {
-    return countSent.get();
+    return countSent;
   }
 
   private static class Item {

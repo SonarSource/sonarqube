@@ -83,8 +83,6 @@ import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMapper;
 import org.sonar.db.permission.AuthorizationMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.GroupPermissionMapper;
@@ -191,7 +189,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
-    confBuilder.loadAlias("Organization", OrganizationDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
@@ -257,7 +254,6 @@ public class MyBatis implements Startable {
       MetricMapper.class,
       NewCodePeriodMapper.class,
       NotificationQueueMapper.class,
-      OrganizationMapper.class,
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,

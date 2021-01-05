@@ -51,7 +51,6 @@ public class WebhooksService extends BaseService {
     return call(
       new PostRequest(path("create"))
         .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("secret", request.getSecret())
         .setParam("url", request.getUrl()),
@@ -114,7 +113,6 @@ public class WebhooksService extends BaseService {
   public ListResponse list(ListRequest request) {
     return call(
       new GetRequest(path("list"))
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject()),
       ListResponse.parser());
   }

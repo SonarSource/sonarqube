@@ -28,25 +28,13 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @Immutable
 public class UserQuery {
   private final String textQuery;
-  private final String organizationUuid;
-  private final String excludedOrganizationUuid;
 
   private UserQuery(Builder builder) {
     this.textQuery = builder.textQuery;
-    this.organizationUuid = builder.organizationUuid;
-    this.excludedOrganizationUuid = builder.excludedOrganizationUuid;
   }
 
   public Optional<String> getTextQuery() {
     return Optional.ofNullable(textQuery);
-  }
-
-  public Optional<String> getOrganizationUuid() {
-    return Optional.ofNullable(organizationUuid);
-  }
-
-  public Optional<String> getExcludedOrganizationUuid() {
-    return Optional.ofNullable(excludedOrganizationUuid);
   }
 
   public static Builder builder() {
@@ -55,8 +43,6 @@ public class UserQuery {
 
   public static class Builder {
     private String textQuery;
-    private String organizationUuid;
-    private String excludedOrganizationUuid;
 
     private Builder() {
       // enforce factory method
@@ -68,22 +54,6 @@ public class UserQuery {
 
     public Builder setTextQuery(@Nullable String textQuery) {
       this.textQuery = isBlank(textQuery) ? null : textQuery;
-      return this;
-    }
-
-    /**
-     * Include only users that are members of the organizationUuid
-     */
-    public Builder setOrganizationUuid(@Nullable String organizationUuid) {
-      this.organizationUuid = organizationUuid;
-      return this;
-    }
-
-    /**
-     * Include only users that are not members of the excludedOrganizationUuid
-     */
-    public Builder setExcludedOrganizationUuid(@Nullable String excludedOrganizationUuid) {
-      this.excludedOrganizationUuid = excludedOrganizationUuid;
       return this;
     }
   }

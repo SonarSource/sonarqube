@@ -32,7 +32,6 @@ public class CreateRequest {
 
   private String branch;
   private String name;
-  private String organization;
   private String project;
   private String visibility;
 
@@ -59,18 +58,6 @@ public class CreateRequest {
 
   public String getName() {
     return name;
-  }
-
-  /**
-   * This is part of the internal API.
-   */
-  public CreateRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

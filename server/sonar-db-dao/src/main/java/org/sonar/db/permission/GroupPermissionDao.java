@@ -38,7 +38,7 @@ public class GroupPermissionDao implements Dao {
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
   /**
-   * Returns the names of the groups that match the given query, for the given organization.
+   * Returns the names of the groups that match the given query.
    * The virtual group "Anyone" may be returned as the value {@link DefaultGroups#ANYONE}.
    * @return group names, sorted in alphabetical order
    */
@@ -55,7 +55,7 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Select global or project permission of given groups and organization. Anyone virtual group is supported
+   * Select global or project permission of given groups. Anyone virtual group is supported
    * through the value "zero" (0L) in {@code groupUuids}.
    */
   public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, List<String> groupUuids, @Nullable String projectUuid) {

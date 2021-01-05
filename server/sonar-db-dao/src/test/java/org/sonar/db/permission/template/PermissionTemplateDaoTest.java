@@ -32,7 +32,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -391,20 +390,5 @@ public class PermissionTemplateDaoTest {
     assertThat(db.select("select template_uuid as \"templateUuid\", user_uuid as \"userUuid\", permission_reference as \"permission\" from perm_templates_users"))
       .extracting((row) -> row.get("templateUuid"), (row) -> row.get("userUuid"), (row) -> row.get("permission"))
       .containsOnly(tuple(template.getUuid(), anotherUser.getUuid(), permission));
-  }
-
-  private PermissionTemplateDto createTemplate(OrganizationDto organization) {
-    UserDto user = db.users().insertUser();
-    GroupDto group = db.users().insertGroup();
-    db.users().insertMember(group, user);
-    PermissionTemplateDto template = templateDb.insertTemplate();
-    templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN_EXECUTION);
-    templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN);
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER);
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.ADMIN);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
-    templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
-    return template;
   }
 }

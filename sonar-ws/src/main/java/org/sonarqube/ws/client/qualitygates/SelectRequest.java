@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class SelectRequest {
 
   private String gateId;
-  private String organization;
   private String projectId;
   private String projectKey;
 
@@ -46,18 +45,6 @@ public class SelectRequest {
 
   public String getGateId() {
     return gateId;
-  }
-
-  /**
-   * Example value: "my-org"
-   */
-  public SelectRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

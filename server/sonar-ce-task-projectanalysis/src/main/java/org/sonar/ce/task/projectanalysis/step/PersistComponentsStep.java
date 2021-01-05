@@ -49,7 +49,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -68,11 +67,10 @@ public class PersistComponentsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final BranchPersister branchPersister;
   private final ProjectPersister projectPersister;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, System2 system2,
     MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    BranchPersister branchPersister, ProjectPersister projectPersister, DefaultOrganizationProvider defaultOrganizationProvider) {
+    BranchPersister branchPersister, ProjectPersister projectPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.system2 = system2;
@@ -80,7 +78,6 @@ public class PersistComponentsStep implements ComputationStep {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.branchPersister = branchPersister;
     this.projectPersister = projectPersister;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -364,7 +361,6 @@ public class PersistComponentsStep implements ComputationStep {
       String componentUuid = component.getUuid();
 
       ComponentDto componentDto = new ComponentDto();
-      componentDto.setOrganizationUuid(defaultOrganizationProvider.get().getUuid());
       componentDto.setUuid(componentUuid);
       componentDto.setDbKey(componentKey);
       componentDto.setMainBranchProjectUuid(mainBranchProjectUuid);

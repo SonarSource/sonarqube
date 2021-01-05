@@ -82,18 +82,6 @@ public class DefaultQualityProfileLoaderTest {
     verifyNoMoreInteractions(wsClient);
   }
 
-  @Test
-  public void load_throws_MessageException_if_organization_is_not_found_after_trying_default() {
-    HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
-    WsTestUtil.mockException(wsClient, e);
-
-    exception.expect(MessageException.class);
-    exception.expectMessage("Failed to load the default quality profiles: No organization with key 'myorg'");
-
-    underTest.load("project");
-    verifyNoMoreInteractions(wsClient);
-  }
-
   private void verifyCalledPath(String expectedPath) {
     WsTestUtil.verifyCall(wsClient, expectedPath);
   }

@@ -261,7 +261,7 @@ public class CeQueueDaoTest {
   @Test
   public void test_delete_with_expected_status() {
     insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    insertInProgress(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
+    insertInProgress(TASK_UUID_2);
 
     int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN", null);
     assertThat(deletedCount).isZero();
@@ -704,7 +704,6 @@ public class CeQueueDaoTest {
     view.setQualifier("VW");
     view.setDbKey(view_uuid + "_key");
     view.setUuid(view_uuid);
-    view.setOrganizationUuid("org_uuid");
     view.setPrivate(false);
     view.setRootUuid(view_uuid);
     view.setUuidPath("uuid_path");
@@ -718,7 +717,6 @@ public class CeQueueDaoTest {
     branch.setQualifier("TRK");
     branch.setDbKey(uuid + "_key");
     branch.setUuid(uuid);
-    branch.setOrganizationUuid("org_uuid");
     branch.setPrivate(false);
     branch.setRootUuid(uuid);
     branch.setUuidPath("uuid_path");
@@ -765,7 +763,7 @@ public class CeQueueDaoTest {
     return dto;
   }
 
-  private CeQueueDto insertInProgress(String uuid, String componentUuid) {
+  private CeQueueDto insertInProgress(String uuid) {
     CeQueueDto ceQueueDto = insertPending(uuid);
     CeQueueTesting.makeInProgress(db.getSession(), "workerUuid", System2.INSTANCE.now(), ceQueueDto);
     return underTest.selectByUuid(db.getSession(), uuid).get();

@@ -30,6 +30,15 @@ public class DbVersion87 implements DbVersion {
       .add(4200, "Move default project visibility to global properties", MoveDefaultProjectVisibilityToGlobalProperties.class)
       .add(4201, "Move default quality gate to global properties", MoveDefaultQualityGateToGlobalProperties.class)
 
+      .add(4202, "Drop organization_uuid in table 'components'", DropOrganizationInComponents.class)
+      .add(4203, "Drop organization_uuid in table 'projects'", DropOrganizationInProjects.class)
+      .add(4204, "Drop organizations in table 'webhooks'", DropOrganizationInWebhooks.class)
+
+      .add(4205, "Drop table 'org_quality_gates'", DropOrgQualityGatesTable.class)
+      .add(4206, "Drop table 'organization_alm_bindings'", DropOrganizationAlmBindingsTable.class)
+      .add(4207, "Drop table 'alm_app_installs'", DropAlmAppInstallsTable.class)
+      .add(4208, "Drop table 'organizations'", DropOrganizationsTable.class)
+      .add(4209, "Drop table 'organization_members'", DropOrgMembersTable.class)
     ;
   }
 }

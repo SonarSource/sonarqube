@@ -63,14 +63,6 @@ public interface ComponentMapper {
 
   int countEnabledModulesByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  /**
-   * Counts the number of components with the specified id belonging to the specified organization.
-   *
-   * @return 1 or 0. Either because the organization uuid is not the one of the component or because the component does
-   * not exist.
-   */
-  int countComponentByOrganizationAndUuid(@Param("organizationUuid") String organizationUuid, @Param("componentUuid") String componentUuid);
-
   List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
 
   int countByQuery(@Param("query") ComponentQuery query);
@@ -149,7 +141,7 @@ public interface ComponentMapper {
   List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
     @Param("currentBranchUuid") String currentBranchUuid);
 
-  List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(@Param("organizationUuid") String organizationUuid);
+  List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc();
 
   List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(String projectKey);
 

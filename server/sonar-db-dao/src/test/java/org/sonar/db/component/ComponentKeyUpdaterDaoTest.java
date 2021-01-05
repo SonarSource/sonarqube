@@ -300,7 +300,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void bulk_update_key_updates_disabled_components() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setDbKey("my_project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("my_project"));
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:inactive_module").setEnabled(false));
 

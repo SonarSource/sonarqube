@@ -562,7 +562,7 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void deleteParamsByRuleParamOfAllOrganizations() {
+  public void deleteParamsByRuleParam() {
     ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
     underTest.insert(dbSession, activeRule1);
     ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("foo");

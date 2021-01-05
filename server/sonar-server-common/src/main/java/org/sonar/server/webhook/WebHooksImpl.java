@@ -73,12 +73,13 @@ public class WebHooksImpl implements WebHooks {
 
       WebhookDao dao = dbClient.webhookDao();
       List<WebhookDto> projectWebhooks = dao.selectByProject(dbSession, projectDto);
-      List<WebhookDto> organizationWebhooks = dao.selectByOrganizationUuid(dbSession, projectDto.getOrganizationUuid());
+      List<WebhookDto> globalWebhooks = dao.selectGlobalWebhooks(dbSession);
+
       if (taskLogStatistics != null) {
-        taskLogStatistics.add("globalWebhooks", organizationWebhooks.size());
+        taskLogStatistics.add("globalWebhooks", globalWebhooks.size());
         taskLogStatistics.add("projectWebhooks", projectWebhooks.size());
       }
-      return Stream.concat(projectWebhooks.stream(), organizationWebhooks.stream());
+      return Stream.concat(projectWebhooks.stream(), globalWebhooks.stream());
     }
   }
 

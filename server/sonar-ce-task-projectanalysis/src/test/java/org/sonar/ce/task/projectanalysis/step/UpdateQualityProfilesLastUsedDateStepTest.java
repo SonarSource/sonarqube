@@ -50,7 +50,7 @@ import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class UpdateQualityProfilesLastUsedDateStepTest {
-  static final long ANALYSIS_DATE = 1_123_456_789L;
+  private static final long ANALYSIS_DATE = 1_123_456_789L;
   private static final Component PROJECT = ReportComponent.DUMB_PROJECT;
   private QProfileDto sonarWayJava = newProfile("sonar-way-java");
   private QProfileDto sonarWayPhp = newProfile("sonar-way-php");

@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -53,11 +54,6 @@ public class ComponentDto {
   public static final String UUID_PATH_SEPARATOR = ".";
   public static final String UUID_PATH_OF_ROOT = UUID_PATH_SEPARATOR;
   private static final Splitter UUID_PATH_SPLITTER = Splitter.on(UUID_PATH_SEPARATOR).omitEmptyStrings();
-
-  /**
-   * The UUID of the organization the component belongs to. Can't be null in DB.
-   */
-  private String organizationUuid;
 
   /**
    * Non-empty and unique functional key. Do not rename, used by MyBatis.
@@ -154,19 +150,6 @@ public class ComponentDto {
 
   public String getUuidPathLikeIncludingSelf() {
     return buildLikeValue(formatUuidPathFromParent(this), WildcardPosition.AFTER);
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  // TODO remove after getting rid of organization code
-  @Deprecated
-  public ComponentDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
-    return this;
   }
 
   public String uuid() {
@@ -409,7 +392,7 @@ public class ComponentDto {
       return false;
     }
     ComponentDto that = (ComponentDto) o;
-    return uuid != null ? uuid.equals(that.uuid) : (that.uuid == null);
+    return Objects.equals(uuid, that.uuid);
 
   }
 
@@ -444,7 +427,6 @@ public class ComponentDto {
   public ComponentDto copy() {
     ComponentDto copy = new ComponentDto();
     copy.projectUuid = projectUuid;
-    copy.organizationUuid = organizationUuid;
     copy.kee = kee;
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;

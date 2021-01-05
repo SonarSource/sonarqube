@@ -167,7 +167,7 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void require_admin_permission_on_organization() {
+  public void require_admin_permission() {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");

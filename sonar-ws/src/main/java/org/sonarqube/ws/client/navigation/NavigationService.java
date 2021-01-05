@@ -70,21 +70,6 @@ public class NavigationService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/navigation/organization">Further information about this action online (including a response example)</a>
-   * @since 6.3
-   */
-  public String organization(OrganizationRequest request) {
-    return call(
-      new GetRequest(path("organization"))
-        .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/navigation/settings">Further information about this action online (including a response example)</a>
    * @since 5.2
    */

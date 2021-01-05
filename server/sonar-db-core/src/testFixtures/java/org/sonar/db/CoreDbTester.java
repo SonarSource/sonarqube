@@ -26,11 +26,9 @@ import org.apache.commons.lang.StringUtils;
  * Data is truncated between each tests. The schema is created between each test.
  */
 public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
-  private final DefaultOrganizationTesting defaultOrganizationTesting;
 
   private CoreDbTester(CoreTestDb testDb) {
     super(testDb);
-    this.defaultOrganizationTesting = new DefaultOrganizationTesting(this);
   }
 
   public static CoreDbTester createForSchema(Class testClass, String filename) {
@@ -56,9 +54,5 @@ public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   @Override
   protected void after() {
     db.stop();
-  }
-
-  public DefaultOrganizationTesting defaultOrganization() {
-    return defaultOrganizationTesting;
   }
 }

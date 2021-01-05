@@ -321,7 +321,7 @@ public class UserDbTester {
   }
 
   public List<GlobalPermission> selectPermissionsOfUser(UserDto user) {
-    return toListOfOrganizationPermissions(db.getDbClient().userPermissionDao()
+    return toListOfGlobalPermissions(db.getDbClient().userPermissionDao()
       .selectGlobalPermissionsOfUser(db.getSession(), user.getUuid()));
   }
 
@@ -329,7 +329,7 @@ public class UserDbTester {
     return db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getUuid(), project.uuid());
   }
 
-  private static List<GlobalPermission> toListOfOrganizationPermissions(List<String> keys) {
+  private static List<GlobalPermission> toListOfGlobalPermissions(List<String> keys) {
     return keys
       .stream()
       .map(GlobalPermission::fromKey)

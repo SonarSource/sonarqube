@@ -47,7 +47,7 @@ public class GroupDao implements Dao {
   /**
    * @param dbSession
    * @param name non-null group name
-   * @return the group with the given organization key and name
+   * @return the group with the given name
    */
   public Optional<GroupDto> selectByName(DbSession dbSession, String name) {
     return Optional.ofNullable(mapper(dbSession).selectByName(name));

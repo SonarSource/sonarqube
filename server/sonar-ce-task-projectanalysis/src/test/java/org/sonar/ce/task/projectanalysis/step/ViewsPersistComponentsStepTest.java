@@ -48,8 +48,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -81,8 +79,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -103,8 +99,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister,
-      defaultOrganizationProvider);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
   }
 
   @Override
@@ -485,7 +480,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   private ComponentDto newViewDto() {
     return ComponentTesting.newView(VIEW_UUID)
-      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setDbKey(VIEW_KEY)
       .setName(VIEW_NAME);
   }
@@ -499,7 +493,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
    * Assertions to verify the DTO created from {@link #createViewBuilder(ViewAttributes.Type)} ()}
    */
   private void assertDtoIsView(ComponentDto dto) {
-    assertThat(dto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(dto.name()).isEqualTo(VIEW_NAME);
     assertThat(dto.longName()).isEqualTo(VIEW_NAME);
     assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
@@ -519,7 +512,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
    * Assertions to verify the DTO created from {@link #createViewBuilder(ViewAttributes.Type)} ()}
    */
   private void assertDtoIsApplication(ComponentDto dto) {
-    assertThat(dto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(dto.name()).isEqualTo(VIEW_NAME);
     assertThat(dto.longName()).isEqualTo(VIEW_NAME);
     assertThat(dto.description()).isEqualTo(VIEW_DESCRIPTION);
@@ -539,7 +531,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
    * Assertions to verify the DTO created from {@link #createProjectView1Builder(ComponentDto, Long)}
    */
   private void assertDtoIsSubView1(ComponentDto viewDto, ComponentDto sv1Dto) {
-    assertThat(sv1Dto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(sv1Dto.name()).isEqualTo(SUBVIEW_1_NAME);
     assertThat(sv1Dto.longName()).isEqualTo(SUBVIEW_1_NAME);
     assertThat(sv1Dto.description()).isEqualTo(SUBVIEW_1_DESCRIPTION);
@@ -556,7 +547,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private void assertDtoIsProjectView1(ComponentDto pv1Dto, ComponentDto viewDto, ComponentDto parentViewDto, ComponentDto project) {
-    assertThat(pv1Dto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(pv1Dto.name()).isEqualTo(PROJECT_VIEW_1_NAME);
     assertThat(pv1Dto.longName()).isEqualTo(PROJECT_VIEW_1_NAME);
     assertThat(pv1Dto.description()).isNull();
