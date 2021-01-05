@@ -159,7 +159,7 @@ qa_task:
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
   on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 qa_bitbucket_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
@@ -186,7 +186,7 @@ qa_bitbucket_task:
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
   on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 qa_ha_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
@@ -247,13 +247,7 @@ qa_gitlab_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    screenshots_artifacts:
-      path: "**/build/screenshots/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 # Azure QA is executed in a dedicated task in order to not slow down the pipeline.
 qa_azure_task:
@@ -275,13 +269,7 @@ qa_azure_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    screenshots_artifacts:
-      path: "**/build/screenshots/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
