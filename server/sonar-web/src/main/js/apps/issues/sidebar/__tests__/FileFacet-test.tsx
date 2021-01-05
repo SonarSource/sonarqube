@@ -36,12 +36,14 @@ beforeEach(() => jest.clearAllMocks());
 const branch = mockBranch();
 const component = mockComponent();
 
+const PATH = 'foo/bar.js';
+
 it('should render correctly', () => {
   const wrapper = shallowRender();
   const instance = wrapper.instance();
   expect(wrapper).toMatchSnapshot();
   expect(
-    instance.renderSearchResult({ path: 'foo/bar.js' } as TreeComponentWithPath, 'foo')
+    instance.renderSearchResult({ path: PATH } as TreeComponentWithPath, 'bar')
   ).toMatchSnapshot();
   expect(instance.renderFacetItem('fooUuid')).toMatchSnapshot();
 });
@@ -70,7 +72,7 @@ describe("ListStyleFacet's callback props", () => {
   const instance = wrapper.instance();
 
   it('#getSearchResultText()', () => {
-    expect(instance.getSearchResultText({ path: 'foo/bar.js' } as TreeComponentWithPath)).toBe(
+    expect(instance.getSearchResultText({ path: PATH } as TreeComponentWithPath)).toBe(
       'foo/bar.js'
     );
   });

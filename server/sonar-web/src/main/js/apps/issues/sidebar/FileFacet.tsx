@@ -21,7 +21,7 @@ import { omit } from 'lodash';
 import * as React from 'react';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { collapsePath } from 'sonar-ui-common/helpers/path';
+import { collapsePath, splitPath } from 'sonar-ui-common/helpers/path';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import { getFiles } from '../../../api/components';
@@ -45,6 +45,7 @@ interface Props {
   stats: Facet | undefined;
 }
 
+const MAX_PATH_LENGTH = 15;
 export default class FileFacet extends React.PureComponent<Props> {
   getFacetItemText = (path: string) => {
     return path;
@@ -95,7 +96,13 @@ export default class FileFacet extends React.PureComponent<Props> {
   };
 
   renderSearchResult = (file: TreeComponentWithPath, term: string) => {
-    return this.renderFile(highlightTerm(collapsePath(file.path, 15), term));
+    const { head, tail } = splitPath(collapsePath(file.path, MAX_PATH_LENGTH));
+
+    return this.renderFile(
+      <>
+        {head}/{highlightTerm(tail, term)}
+      </>
+    );
   };
 
   render() {

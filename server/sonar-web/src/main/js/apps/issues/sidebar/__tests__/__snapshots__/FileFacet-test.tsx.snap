@@ -36,10 +36,13 @@ exports[`should render correctly 2`] = `
     qualifier="FIL"
   />
   <React.Fragment>
-    <mark>
-      foo
-    </mark>
-    /bar.js
+    foo
+    <React.Fragment>
+      <mark>
+        bar
+      </mark>
+      .js
+    </React.Fragment>
   </React.Fragment>
 </React.Fragment>
 `;
