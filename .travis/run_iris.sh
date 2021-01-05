@@ -13,7 +13,7 @@ HTTP_CODE=$(\
 
 if [ "$HTTP_CODE" != "200" ]; then
   echo "Download $VERSION failed -> $HTTP_CODE"
-  exit -1
+  exit 1
 else
   echo "Downloaded $VERSION"
 fi
@@ -24,4 +24,4 @@ java -Diris.projectKey=org.sonarsource.sonarqube:sonarqube \
   -Diris.destination.url=$SONAR_HOST_URL \
   -Diris.destination.token=$SONAR_TOKEN \
   -Diris.maxcountposts=50 \
-  -jar iris-[RELEASE]-jar-with-dependencies.jar
+  -jar iris-\[RELEASE\]-jar-with-dependencies.jar
