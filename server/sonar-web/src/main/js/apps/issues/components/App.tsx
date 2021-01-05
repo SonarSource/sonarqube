@@ -407,7 +407,6 @@ export default class App extends React.PureComponent<Props, State> {
 
     const facets = requestFacets
       ? Object.keys(openFacets)
-          .filter(facet => openFacets[facet])
           .filter(facet => facet !== STANDARDS)
           .map(mapFacet)
           .join(',')
