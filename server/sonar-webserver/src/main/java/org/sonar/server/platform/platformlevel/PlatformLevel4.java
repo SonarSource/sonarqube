@@ -72,6 +72,7 @@ import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
+import org.sonar.server.developers.ws.DevelopersWsModule;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
@@ -387,6 +388,8 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentIndexer.class,
       LiveMeasureModule.class,
       ComponentViewerJsonWriter.class,
+
+      DevelopersWsModule.class,
 
       FavoriteModule.class,
       FavoriteWsModule.class,

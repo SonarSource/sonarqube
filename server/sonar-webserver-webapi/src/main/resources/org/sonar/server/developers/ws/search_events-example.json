@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "category": "QUALITY_GATE",
+      "message": "Quality Gate status of project 'My Project' changed to 'Failed'",
+      "link": "https://sonarcloud.io/dashboard?id=my_project",
+      "project": "my_project"
+    },
+    {
+      "category": "NEW_ISSUES",
+      "message": "You have 15 new issues on project 'My Project'",
+      "link": "https://sonarcloud.io/project/issues?id=my_project&createdAfter=2017-03-01T00%3A00%3A00%2B0100&assignees=me%40github&resolved=false",
+      "project": "my_project"
+    }
+  ]
+}

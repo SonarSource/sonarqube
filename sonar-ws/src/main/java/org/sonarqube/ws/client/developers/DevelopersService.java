@@ -49,6 +49,6 @@ public class DevelopersService extends BaseService {
         .setParam("from", request.getFrom() == null ? null : request.getFrom().stream().collect(Collectors.joining(",")))
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 }

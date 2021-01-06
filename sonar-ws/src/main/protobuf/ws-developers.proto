@@ -1,0 +1,24 @@
+// Copyright (C) 2017-2017 SonarSource SA
+// All rights reserved
+// mailto:info AT sonarsource DOT com
+
+syntax = "proto2";
+
+package sonarqube.ws.component;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Developers";
+option optimize_for = SPEED;
+
+// WS api/developers/search_events
+message SearchEventsWsResponse {
+  repeated Event events = 1;
+
+  message Event {
+    optional string category = 1;
+    optional string message = 2;
+    optional string link = 3;
+    optional string project = 4;
+    optional string date = 5;
+  }
+}
