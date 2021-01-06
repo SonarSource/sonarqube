@@ -25,7 +25,9 @@ With this configuration, one application node and one search node can be lost wi
 
 ### Network
 
-All servers, including the database server, must be located within the same region and have static IP addresses (reference via hostname is not supported). Network traffic should not be restricted between application and search nodes.
+All servers, including the database server, must be located within the same region. 
+
+All application and search nodes should have static IP addresses (reference via hostname is not supported). Network traffic should not be restricted between application and search nodes.
 
 ### Servers
 
