@@ -351,6 +351,30 @@ public class DatabaseUtils {
     }
   }
 
+  public static boolean tableColumnExists(Connection connection, String tableName, String columnName) {
+    try {
+      return columnExists(connection, tableName.toLowerCase(Locale.US), columnName)
+        || columnExists(connection, tableName.toUpperCase(Locale.US), columnName);
+    } catch (SQLException e) {
+      throw wrapSqlException(e, "Can not check that column %s exists", columnName);
+    }
+  }
+
+  private static boolean columnExists(Connection connection, String tableName, String columnName) throws SQLException {
+    String schema = getSchema(connection);
+    try (ResultSet rs = connection.getMetaData().getColumns(connection.getCatalog(), schema, tableName, null)) {
+      while (rs.next()) {
+        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+          String name = rs.getString(i);
+          if (columnName.equalsIgnoreCase(name)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+  }
+
   @CheckForNull
   private static String getSchema(Connection connection) {
     String schema = null;

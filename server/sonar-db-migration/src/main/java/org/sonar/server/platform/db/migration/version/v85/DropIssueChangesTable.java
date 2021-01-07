@@ -19,34 +19,24 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static java.sql.Types.VARCHAR;
-
-public class MakeUuidNotNullOnIssueChangesTableTest {
-
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(MakeUuidNotNullOnIssueChangesTableTest.class, "schema.sql");
-
-  private MigrationStep underTest = new MakeUuidNotNullOnIssueChangesTable(db.database());
-
-  @Test
-  public void uuid_column_is_not_null() throws SQLException {
-    underTest.execute();
-
-    db.assertColumnDefinition("issue_changes", "uuid", VARCHAR, 40, false);
+public class DropIssueChangesTable extends DdlChange {
+  public DropIssueChangesTable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migration_is_reentrant() throws SQLException {
-    underTest.execute();
-    underTest.execute();
-
-    db.assertColumnDefinition("issue_changes", "uuid", VARCHAR, 40, false);
+  @Override
+  public void execute(Context context) throws SQLException {
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableExists("tmp_issue_changes", connection)) {
+        context.execute(new DropTableBuilder(getDialect(), "issue_changes").build());
+      }
+    }
   }
-
 }

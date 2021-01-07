@@ -19,9 +19,11 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class AddPrimaryKeyOnUuidForIssueChangesTable extends DdlChange {
@@ -34,6 +36,10 @@ public class AddPrimaryKeyOnUuidForIssueChangesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddPrimaryKeyBuilder(TABLE, "uuid").build());
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      if (!DatabaseUtils.indexExistsIgnoreCase(TABLE, "issue_changes_project_uuid", connection)) {
+        context.execute(new AddPrimaryKeyBuilder(TABLE, "uuid").build());
+      }
+    }
   }
 }

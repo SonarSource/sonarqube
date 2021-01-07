@@ -25,28 +25,34 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static java.sql.Types.VARCHAR;
-
-public class MakeUuidNotNullOnIssueChangesTableTest {
-
+public class DropIssueChangesTableTest {
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(MakeUuidNotNullOnIssueChangesTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIssueChangesTableTest.class, "schema.sql");
 
-  private MigrationStep underTest = new MakeUuidNotNullOnIssueChangesTable(db.database());
+  private MigrationStep underTest = new DropIssueChangesTable(db.database());
 
   @Test
-  public void uuid_column_is_not_null() throws SQLException {
+  public void dont_drop_if_tmp_table_doesnt_exist() throws SQLException {
+    db.executeDdl("drop table tmp_issue_changes");
     underTest.execute();
-
-    db.assertColumnDefinition("issue_changes", "uuid", VARCHAR, 40, false);
+    db.assertTableExists("issue_changes");
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  public void execute() throws SQLException {
+    db.assertTableExists("issue_changes");
     underTest.execute();
-    underTest.execute();
-
-    db.assertColumnDefinition("issue_changes", "uuid", VARCHAR, 40, false);
+    db.assertTableDoesNotExist("issue_changes");
   }
 
+  @Test
+  public void migration_is_re_entrant() throws SQLException {
+    db.assertTableExists("issue_changes");
+
+    underTest.execute();
+
+    // re-entrant
+    underTest.execute();
+    db.assertTableDoesNotExist("issue_changes");
+  }
 }

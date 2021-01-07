@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -32,23 +34,28 @@ public class CreateTmpIssueChangesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableColumnExists(connection, "issue_changes", "project_uuid")) {
+        // This migration might already have been done in v84 (#3476) if using SQ >= 8.7.
+        return;
+      }
+      String query;
+      if (getDatabase().getDialect().getId().equals(MsSql.ID)) {
+        query = "SELECT ic.uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, " +
+          "ic.change_data, ic.created_at, ic.updated_at, ic.issue_change_creation_date, i.project_uuid " +
+          "INTO tmp_issue_changes " +
+          "FROM issue_changes AS ic inner join issues i on i.kee = ic.issue_key";
+      } else {
+        query = "create table tmp_issue_changes " +
+          "(uuid, kee, issue_key, user_login, change_type, change_data, created_at, updated_at, issue_change_creation_date, project_uuid)" +
+          "as (" +
+          "SELECT ic.uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, ic.change_data, ic.created_at, ic.updated_at, ic.issue_change_creation_date, i.project_uuid " +
+          "FROM issue_changes ic " +
+          "inner join issues i on i.kee = ic.issue_key " +
+          ")";
+      }
 
-    String query;
-    if (getDatabase().getDialect().getId().equals(MsSql.ID)) {
-      query = "SELECT ic.uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, " +
-        "ic.change_data, ic.created_at, ic.updated_at, ic.issue_change_creation_date, i.project_uuid " +
-        "INTO tmp_issue_changes " +
-        "FROM issue_changes AS ic inner join issues i on i.kee = ic.issue_key";
-    } else {
-      query = "create table tmp_issue_changes " +
-        "(uuid, kee, issue_key, user_login, change_type, change_data, created_at, updated_at, issue_change_creation_date, project_uuid)" +
-        "as (" +
-        "SELECT ic.uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, ic.change_data, ic.created_at, ic.updated_at, ic.issue_change_creation_date, i.project_uuid " +
-        "FROM issue_changes ic " +
-        "inner join issues i on i.kee = ic.issue_key " +
-        ")";
+      context.execute(query);
     }
-
-    context.execute(query);
   }
 }

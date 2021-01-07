@@ -40,4 +40,12 @@ public class MakeProjectUuidNotNullOnIssueChangesTableTest {
 
     db.assertColumnDefinition("issue_changes", "project_uuid", VARCHAR, 50, false);
   }
+
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+    underTest.execute();
+
+    db.assertColumnDefinition("issue_changes", "project_uuid", VARCHAR, 50, false);
+  }
 }

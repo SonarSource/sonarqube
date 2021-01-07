@@ -86,6 +86,46 @@ public class DatabaseUtilsTest {
   }
 
   @Test
+  public void find_column_with_lower_case_table_name_and_upper_case_column_name() throws SQLException {
+    String tableName = "tablea";
+    String columnName = "COLUMNA";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName.toLowerCase(Locale.US), columnName)).isTrue();
+    }
+  }
+  @Test
+  public void find_column_with_upper_case_table_name_and_upper_case_column_name() throws SQLException {
+    String tableName = "TABLEA";
+    String columnName = "COLUMNA";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName.toLowerCase(Locale.US), columnName)).isTrue();
+    }
+  }
+
+  @Test
+  public void find_column_with_lower_case_table_name_and_lower_case_column_name() throws SQLException {
+    String tableName = "tablea";
+    String columnName = "columna";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName.toLowerCase(Locale.US), columnName)).isTrue();
+    }
+  }
+
+  @Test
+  public void find_column_with_upper_case_table_name_and_lower_case_column_name() throws SQLException {
+    String tableName = "TABLEA";
+    String columnName = "columna";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName.toLowerCase(Locale.US))).isTrue();
+      assertThat(DatabaseUtils.tableColumnExists(connection, tableName.toLowerCase(Locale.US), columnName.toLowerCase(Locale.US))).isTrue();
+    }
+  }
+
+  @Test
   public void should_close_connection() throws Exception {
     try (Connection connection = dbTester.openConnection()) {
       assertThat(isClosed(connection)).isFalse();

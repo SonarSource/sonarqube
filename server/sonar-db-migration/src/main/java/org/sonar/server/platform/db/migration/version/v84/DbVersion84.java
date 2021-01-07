@@ -331,6 +331,7 @@ import org.sonar.server.platform.db.migration.version.v84.usertokens.DropIdColum
 import org.sonar.server.platform.db.migration.version.v84.usertokens.DropPrimaryKeyOnIdColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v84.usertokens.MakeUserTokensUuidNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.usertokens.PopulateUserTokensUuid;
+import org.sonar.server.platform.db.migration.version.v85.AddIndexOnProjectUuidOnIssueChangesTable;
 
 public class DbVersion84 implements DbVersion {
   @Override
@@ -446,6 +447,7 @@ public class DbVersion84 implements DbVersion {
       .add(3479, "Add index on 'ISSUE_KEY' of 'ISSUE_CHANGES' table", AddIndexOnIssueKeyOfIssueChangesTable.class)
       .add(3480, "Add index on 'KEE' of 'ISSUE_CHANGES' table", AddIndexOnKeeOfIssueChangesTable.class)
       .add(3481, "Add primary key on 'UUID' column of 'ISSUE_CHANGES' table", AddPrimaryKeyOnUuidColumnOfIssueChangesTable.class)
+      .add(3482, "Add index on 'project_uuid' for table 'ISSUE_CHANGES'", AddIndexOnProjectUuidOnIssueChangesTable.class)
 
       // Migration of QUALITY_GATE_CONDITIONS table
       .add(3483, "Add 'UUID' column on 'QUALITY_GATE_CONDITIONS' table", AddUuidColumnToQualityGateConditionsTable.class)
@@ -782,7 +784,7 @@ public class DbVersion84 implements DbVersion {
       .add(3804, "Populate 'need_issue_sync' of 'project_branches'", PopulateProjectBranchesNeedIssueSync.class)
       .add(3805, "Make 'need_issue_sync' of 'project_branches' not null", MakeProjectBranchesNeedIssueSyncNonNull.class)
 
-      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)  
+      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)
 
       // Migration of ALM_SETTINGS table
       .add(3807, "Add columns 'CLIENT_ID' and 'CLIENT_SECRET' to 'ALM_SETTINGS' table", AddClientIdAndClientSecretColumns.class)

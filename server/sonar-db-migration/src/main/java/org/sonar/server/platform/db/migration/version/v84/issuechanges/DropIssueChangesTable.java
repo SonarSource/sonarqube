@@ -29,7 +29,8 @@ public class DropIssueChangesTable extends DdlChange {
     super(db);
   }
 
-  @Override public void execute(Context context) throws SQLException {
+  @Override
+  public void execute(Context context) throws SQLException {
     context.execute(new DropTableBuilder(getDialect(), "issue_changes").build());
   }
 }

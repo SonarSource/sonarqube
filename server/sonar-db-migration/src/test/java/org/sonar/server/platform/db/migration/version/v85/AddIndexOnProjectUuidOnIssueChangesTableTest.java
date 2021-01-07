@@ -40,4 +40,11 @@ public class AddIndexOnProjectUuidOnIssueChangesTableTest {
     db.assertIndex(TABLE_NAME, INDEX_NAME, "project_uuid");
   }
 
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+    underTest.execute();
+    db.assertIndex(TABLE_NAME, INDEX_NAME, "project_uuid");
+  }
+
 }

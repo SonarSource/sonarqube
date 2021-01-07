@@ -42,6 +42,14 @@ public class CreateTmpIssueChangesTableTest {
   private CreateTmpIssueChangesTable underTest = new CreateTmpIssueChangesTable(dbTester.database());
 
   @Test
+  public void skip_if_project_uuid_column_exists() throws SQLException {
+    dbTester.executeDdl("ALTER TABLE issue_changes ADD project_uuid VARCHAR");
+
+    underTest.execute();
+    dbTester.assertTableDoesNotExist(TABLE_NAME);
+  }
+
+  @Test
   public void table_has_been_created() throws SQLException {
     underTest.execute();
 

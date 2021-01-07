@@ -42,6 +42,15 @@ public class AddPrimaryKeyOnUuidForIssueChangesTableTest {
   }
 
   @Test
+  public void skip_if_project_uuid_index_exists() throws SQLException {
+    db.executeDdl("create index issue_changes_project_uuid on issue_changes ( issue_key)");
+
+    underTest.execute();
+
+    db.assertNoPrimaryKey("issue_changes");
+  }
+
+  @Test
   public void migration_is_not_re_entrant() throws SQLException {
     underTest.execute();
 

@@ -21,42 +21,61 @@ package org.sonar.server.platform.db.migration.version.v84.issuechanges;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.CreateTableAsBuilder;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CopyIssueChangesTable extends DdlChange {
+  private static final String COPY_NAME = "issue_changes_copy";
+
   public CopyIssueChangesTable(Database db) {
     super(db);
   }
 
-  @Override public void execute(Context context) throws SQLException {
-    CreateTableAsBuilder builder = new CreateTableAsBuilder(getDialect(), "issue_changes_copy", "issue_changes")
-      // this will cause the following changes:
-      // * Add UUID with values in ID casted to varchar
-      .addColumnWithCast(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(40).setIsNullable(false).build(), "id")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(50).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("issue_key").setLimit(50).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_login").setLimit(255).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("change_type").setLimit(20).build())
-      .addColumn(newClobColumnDefBuilder().setColumnName("change_data").build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("issue_change_creation_date").build());
-    context.execute(builder.build());
-       /*
-        "UUID VARCHAR(40) NOT NULL",
-        "KEE VARCHAR(50)",
-        "ISSUE_KEY VARCHAR(50) NOT NULL",
-        "USER_LOGIN VARCHAR(255)",
-        "CHANGE_TYPE VARCHAR(20)",
-        "CHANGE_DATA CLOB(2147483647)",
-        "CREATED_AT BIGINT",
-        "UPDATED_AT BIGINT",
-        "ISSUE_CHANGE_CREATION_DATE BIGINT"
-        */
+  @Override
+  public void execute(Context context) throws SQLException {
+
+    String query;
+    if (getDatabase().getDialect().getId().equals(MsSql.ID)) {
+      query = "select cast (ic.id AS VARCHAR(40)) AS uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, " +
+        "ic.change_data, ic.created_at, ic.updated_at, ic.issue_change_creation_date, i.project_uuid " +
+        "INTO issue_changes_copy " +
+        "FROM issue_changes AS ic inner join issues i on i.kee = ic.issue_key";
+    } else {
+      query = "create table issue_changes_copy " +
+        "(uuid, kee, issue_key, user_login, change_type, change_data, created_at, updated_at, issue_change_creation_date, project_uuid)" +
+        "as (" +
+        "SELECT cast (ic.id AS VARCHAR(40)) AS uuid, ic.kee, ic.issue_key, ic.user_login, ic.change_type, ic.change_data, ic.created_at, ic.updated_at, "
+        + "ic.issue_change_creation_date, i.project_uuid " +
+        "FROM issue_changes ic " +
+        "inner join issues i on i.kee = ic.issue_key " +
+        ")";
+    }
+
+    context.execute(query);
+    context.execute(new AlterColumnsBuilder(getDialect(), COPY_NAME).updateColumn(
+      newVarcharColumnDefBuilder()
+        .setColumnName("project_uuid")
+        .setIsNullable(false)
+        .setDefaultValue(null)
+        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
+        .build()).build());
+    context.execute(new AlterColumnsBuilder(getDialect(), COPY_NAME).updateColumn(
+      newVarcharColumnDefBuilder()
+        .setColumnName("issue_key")
+        .setIsNullable(false)
+        .setDefaultValue(null)
+        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
+        .build()).build());
+    context.execute(new AlterColumnsBuilder(getDialect(), COPY_NAME).updateColumn(
+      newVarcharColumnDefBuilder()
+        .setColumnName("uuid")
+        .setIsNullable(false)
+        .setDefaultValue(null)
+        .setLimit(VarcharColumnDef.UUID_SIZE)
+        .build()).build());
   }
 }

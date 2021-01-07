@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v85;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.DropIssueChangesTable;
 
 public class DbVersion85 implements DbVersion {
 
@@ -34,6 +33,7 @@ public class DbVersion85 implements DbVersion {
       .add(4003, "Drop unused variation values columns in 'project_measures' table", DropUnusedVariationsInProjectMeasures.class)
       .add(4004, "Drop unused periods in 'snapshots' table", DropUnusedPeriodsInSnapshots.class)
       .add(4005, "Drop orphan favorites from 'properties' table", DropOrphanFavoritesFromProperties.class)
+
       .add(4006, "create 'tmp_issue_changes' table", CreateTmpIssueChangesTable.class)
       .add(4007, "drop 'issue_changes' table", DropIssueChangesTable.class)
       .add(4008, "rename 'tmp_issue_changes' table to 'issue_changes'", RenameTmpIssueChangesToIssueChanges.class)
@@ -44,6 +44,7 @@ public class DbVersion85 implements DbVersion {
       .add(4013, "add index on 'issue_key' for table 'issue_changes'", AddIndexOnIssueKeyForIssueChangesTable.class)
       .add(4014, "add index on 'kee' for table 'issue_changes'", AddIndexOnKeeForIssueChangesTable.class)
       .add(4015, "add index on 'project_uuid' for table 'issue_changes'", AddIndexOnProjectUuidOnIssueChangesTable.class)
+
       .add(4016, "Add 'type' column to 'plugins' table", AddTypeToPlugins.class)
       .add(4017, "Populate 'type' column in 'plugins' table", PopulateTypeInPlugins.class)
       .add(4018, "Alter 'type' column in 'plugins' to not nullable", AlterTypeInPluginNotNullable.class)

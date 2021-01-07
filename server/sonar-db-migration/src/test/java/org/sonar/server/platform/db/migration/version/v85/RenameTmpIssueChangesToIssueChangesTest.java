@@ -39,6 +39,15 @@ public class RenameTmpIssueChangesToIssueChangesTest {
   private final RenameTmpIssueChangesToIssueChanges underTest = new RenameTmpIssueChangesToIssueChanges(dbTester.database());
 
   @Test
+  public void only_rename_if_tmp_table_exists() throws SQLException {
+    dbTester.executeDdl("drop table " + OLD_TABLE_NAME);
+    underTest.execute();
+
+    dbTester.assertTableDoesNotExist(OLD_TABLE_NAME);
+    dbTester.assertTableDoesNotExist(NEW_TABLE_NAME);
+  }
+
+  @Test
   public void table_has_been_renamed() throws SQLException {
     underTest.execute();
 

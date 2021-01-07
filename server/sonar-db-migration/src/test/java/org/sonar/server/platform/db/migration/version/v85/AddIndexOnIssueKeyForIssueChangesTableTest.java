@@ -39,4 +39,11 @@ public class AddIndexOnIssueKeyForIssueChangesTableTest {
     underTest.execute();
     db.assertIndex(TABLE_NAME, INDEX_NAME, "issue_key");
   }
+
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+    underTest.execute();
+    db.assertIndex(TABLE_NAME, INDEX_NAME, "issue_key");
+  }
 }
