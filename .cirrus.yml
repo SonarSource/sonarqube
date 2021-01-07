@@ -38,7 +38,8 @@ task_only_default_depending_on_build_template: &TASK_ONLY_DEFAUT_DEPENDING_ON_BU
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
            $CIRRUS_BRANCH != "branch-nightly-build" &&
-           $CIRRUS_CRON == ""
+           $CIRRUS_CRON == "" &&
+           $CIRRUS_CHANGE_MESSAGE !=~ '.*\[update headers\].*'
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -115,7 +116,7 @@ deploy_docs_task:
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
-validate_task:
+validate_task: &VALIDATE_TASK
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   timeout_in: 90m
   gke_container:
@@ -128,6 +129,17 @@ validate_task:
     - ./private/cirrus/cirrus-validate.sh postgres106
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+
+validate_license_change_task:
+  <<: *VALIDATE_TASK
+  name: validate # Give it the same name as its counterpart, so we can reference it on GitHub.
+  only_if: >- # Only execute if the commit message has the "[update headers]" tag.
+           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
+           $CIRRUS_BRANCH != "public_master" &&
+           $CIRRUS_BRANCH != "branch-nightly-build" &&
+           $CIRRUS_CRON == "" &&
+           $CIRRUS_CHANGE_MESSAGE =~ '.*\[update headers\].*'
+  timeout_in: 180m # Increase timeout, as license changes impact all files, which slows down the analysis considerably.
 
 qa_task:
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
@@ -324,7 +336,7 @@ qa_ldap_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
-promote_task:
+promote_task: &PROMOTE_TASK
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on:
     - build
@@ -342,6 +354,19 @@ promote_task:
     CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-promote.sh
+
+promote_license_change_task:
+  <<: *PROMOTE_TASK
+  name: promote # Give it the same name as its counterpart, so we can reference it on GitHub.
+  only_if: >- # Only execute if the commit message has the "[update headers]" tag.
+           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
+           $CIRRUS_BRANCH != "public_master" &&
+           $CIRRUS_BRANCH != "branch-nightly-build" &&
+           $CIRRUS_CRON == "" &&
+           $CIRRUS_CHANGE_MESSAGE =~ '.*\[update headers\].*'
+  depends_on:
+    - build
+    - validate
 
 sql_mssql2017_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
