@@ -37,6 +37,7 @@ exports[`should render correctly 2`] = `
   />
   <React.Fragment>
     foo
+    /
     <React.Fragment>
       <mark>
         bar

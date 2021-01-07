@@ -34,6 +34,29 @@ exports[`should render correctly 1`] = `
       }
     />
     <PluginChangeLogItem
+      key="0.11"
+      release={
+        Object {
+          "changeLogUrl": "https://my.change.log/url",
+          "date": "2018-06-08",
+          "description": "Change version description",
+          "version": "0.11",
+        }
+      }
+      update={
+        Object {
+          "release": Object {
+            "changeLogUrl": "https://my.change.log/url",
+            "date": "2018-06-08",
+            "description": "Change version description",
+            "version": "0.11",
+          },
+          "requires": Array [],
+          "status": "COMPATIBLE",
+        }
+      }
+    />
+    <PluginChangeLogItem
       release={
         Object {
           "changeLogUrl": "https://my.change.log/url",
@@ -45,6 +68,16 @@ exports[`should render correctly 1`] = `
       update={
         Object {
           "previousUpdates": Array [
+            Object {
+              "release": Object {
+                "changeLogUrl": "https://my.change.log/url",
+                "date": "2018-06-08",
+                "description": "Change version description",
+                "version": "0.11",
+              },
+              "requires": Array [],
+              "status": "COMPATIBLE",
+            },
             Object {
               "release": Object {
                 "changeLogUrl": "https://my.change.log/url",

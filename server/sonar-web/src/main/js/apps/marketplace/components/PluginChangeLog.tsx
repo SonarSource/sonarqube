@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Release, Update } from '../../../types/plugins';
@@ -33,7 +34,10 @@ export default function PluginChangeLog({ release, update }: Props) {
       <h6>{translate('changelog')}</h6>
       <ul className="js-plugin-changelog-list">
         {update.previousUpdates &&
-          update.previousUpdates.map(previousUpdate =>
+          sortBy(
+            update.previousUpdates,
+            prevUpdate => prevUpdate.release?.date
+          ).map(previousUpdate =>
             previousUpdate.release ? (
               <PluginChangeLogItem
                 key={previousUpdate.release.version}

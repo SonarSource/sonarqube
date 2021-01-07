@@ -39,6 +39,16 @@ function shallowRender(props: Partial<Props> = {}) {
         previousUpdates: [
           {
             release: {
+              version: '0.11',
+              date: '2018-06-08',
+              description: 'Change version description',
+              changeLogUrl: 'https://my.change.log/url'
+            },
+            requires: [],
+            status: 'COMPATIBLE'
+          },
+          {
+            release: {
               version: '0.10',
               date: '2018-06-05',
               description: 'Change version description',
