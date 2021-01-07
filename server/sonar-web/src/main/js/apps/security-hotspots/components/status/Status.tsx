@@ -37,7 +37,7 @@ export interface StatusProps {
   currentUser: T.CurrentUser;
   hotspot: Hotspot;
 
-  onStatusChange: () => void;
+  onStatusChange: () => Promise<void>;
 }
 
 export function Status(props: StatusProps) {
@@ -79,9 +79,9 @@ export function Status(props: StatusProps) {
         <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
           <StatusSelection
             hotspot={hotspot}
-            onStatusOptionChange={() => {
+            onStatusOptionChange={async () => {
+              await props.onStatusChange();
               setIsOpen(false);
-              props.onStatusChange();
             }}
           />
         </DropdownOverlay>

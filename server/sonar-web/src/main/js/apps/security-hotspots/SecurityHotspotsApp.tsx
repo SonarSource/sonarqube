@@ -337,12 +337,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
         const nextHotspot = allHotspots[Math.min(index, allHotspots.length - 1)];
 
-        this.setState({
+        this.setState(({ selectedHotspot }) => ({
           hotspots: allHotspots,
           hotspotsPageIndex: paging.pageIndex,
           hotspotsTotal: paging.total,
-          selectedHotspot: nextHotspot
-        });
+          selectedHotspot: selectedHotspot?.key === hotspotKey ? nextHotspot : selectedHotspot
+        }));
       })
       .then(this.fetchSecurityHotspotsReviewed);
   };

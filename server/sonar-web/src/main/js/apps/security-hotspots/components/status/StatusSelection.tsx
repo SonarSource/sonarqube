@@ -30,7 +30,7 @@ import StatusSelectionRenderer from './StatusSelectionRenderer';
 
 interface Props {
   hotspot: Hotspot;
-  onStatusOptionChange: (statusOption: HotspotStatusOption) => void;
+  onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
 }
 
 interface State {
@@ -84,9 +84,9 @@ export default class StatusSelection extends React.PureComponent<Props, State> {
         ...getStatusAndResolutionFromStatusOption(selectedStatus),
         comment: comment || undefined
       })
-        .then(() => {
+        .then(async () => {
+          await this.props.onStatusOptionChange(selectedStatus);
           this.setState({ loading: false });
-          this.props.onStatusOptionChange(selectedStatus);
         })
         .then(() =>
           addGlobalSuccessMessage(

@@ -51,12 +51,11 @@ it('should render correctly', async () => {
   expect(getSecurityHotspotDetails).toHaveBeenCalledWith(newHotspotKey);
 });
 
-it('should update refresh hotspot on update', () => {
-  const wrapper = shallowRender();
-  const mockGetHostpot = getSecurityHotspotDetails as jest.Mock;
-  mockGetHostpot.mockClear();
+it('should refresh hotspot on update', () => {
+  const onUpdateHotspot = jest.fn();
+  const wrapper = shallowRender({ onUpdateHotspot });
   wrapper.find(HotspotViewerRenderer).simulate('updateHotspot');
-  expect(mockGetHostpot).toHaveBeenCalledTimes(1);
+  expect(onUpdateHotspot).toHaveBeenCalled();
 });
 
 it('should open comment form when scroll to comment', () => {

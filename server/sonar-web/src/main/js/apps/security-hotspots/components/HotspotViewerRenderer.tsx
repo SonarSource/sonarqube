@@ -74,7 +74,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
   );
 
   return (
-    <DeferredSpinner loading={loading}>
+    <DeferredSpinner className="big-spacer-left big-spacer-top" loading={loading}>
       {hotspot && (
         <div className="big-padded hotspot-content">
           <div className="huge-spacer-bottom display-flex-space-between">

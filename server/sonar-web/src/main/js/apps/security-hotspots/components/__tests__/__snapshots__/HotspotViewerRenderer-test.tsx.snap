@@ -2,6 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 >
   <div
@@ -646,6 +647,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly: anonymous user 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 >
   <div
@@ -1290,6 +1292,7 @@ exports[`should render correctly: anonymous user 1`] = `
 
 exports[`should render correctly: assignee without name 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 >
   <div
@@ -1934,6 +1937,7 @@ exports[`should render correctly: assignee without name 1`] = `
 
 exports[`should render correctly: deleted assignee 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 >
   <div
@@ -2578,12 +2582,14 @@ exports[`should render correctly: deleted assignee 1`] = `
 
 exports[`should render correctly: no hotspot 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 />
 `;
 
 exports[`should render correctly: unassigned 1`] = `
 <DeferredSpinner
+  className="big-spacer-left big-spacer-top"
   loading={false}
 >
   <div

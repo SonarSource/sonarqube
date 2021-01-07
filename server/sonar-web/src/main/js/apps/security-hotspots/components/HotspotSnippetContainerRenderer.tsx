@@ -70,7 +70,7 @@ export default function HotspotSnippetContainerRenderer(
           onExpand={noop}
           sourceViewerFile={sourceViewerFile}
         />
-        <DeferredSpinner loading={loading}>
+        <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
             <SourceViewerContext.Provider /* Used by LineOptionsPopup */
               value={{ branchLike, file: sourceViewerFile }}>
