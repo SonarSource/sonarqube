@@ -103,19 +103,6 @@ build_task:
     reports_artifacts:
       path: "**/build/reports/**/*"
 
-deploy_docs_task:
-  depends_on: build
-  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-  env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
-  script:
-    - ./private/cirrus/cirrus-trigger-deploy-docs.sh
-
 validate_task: &VALIDATE_TASK
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   timeout_in: 90m
@@ -367,6 +354,19 @@ promote_license_change_task:
   depends_on:
     - build
     - validate
+
+deploy_docs_task:
+  depends_on: promote
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+  env:
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
+  script:
+    - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
 sql_mssql2017_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
