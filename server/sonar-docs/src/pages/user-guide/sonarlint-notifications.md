@@ -3,8 +3,6 @@ title: SonarLint Smart Notifications
 url: /user-guide/sonarlint-notifications/
 ---
 
-_SonarLint Smart Notifications are available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
-
 Smart notifications allow developers using Connected Mode in SonarLint to receive in-IDE notifications from SonarQube when:
 
 * the Quality Gate status (failed / success) of a project /solution _open in the IDE_ changes
