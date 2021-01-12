@@ -26,5 +26,8 @@ For GitLab CI/CD configuration, see the [GitLab ALM integration](/analysis/gitla
 ## Azure Pipelines
 For Azure Pipelines configuration, see the [Azure DevOps Server integration](/analysis/azuredevops-integration/) page.
 
+## Bitbucket Pipelines
+For Bitbucket Pipelines configuration, see the [Bitbucket Cloud integration](/analysis/bitbucket-cloud-integration/) page.
+
 ## Jenkins
 For Jenkins configuration, see [Jenkins](/analysis/jenkins/).

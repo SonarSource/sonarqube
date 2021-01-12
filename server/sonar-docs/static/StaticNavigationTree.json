@@ -107,9 +107,10 @@
     "title": "ALM Integration",
     "children": [
       "/analysis/github-integration/",
-	  "/analysis/gitlab-integration/",
-	  "/analysis/bitbucket-integration/",
-	  "/analysis/azuredevops-integration/"
+      "/analysis/gitlab-integration/",
+      "/analysis/bitbucket-integration/",
+      "/analysis/bitbucket-cloud-integration/",
+      "/analysis/azuredevops-integration/"
 	 ]
   },
   {
