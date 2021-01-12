@@ -23,6 +23,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -236,8 +237,17 @@ public class SearchAction implements RulesWsAction {
 
   private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
     SearchIdResult<String> result = ruleIndex.search(query, context);
-    List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, result.getUuids());
-    List<String> ruleUuids = rules.stream().map(RuleDto::getUuid).collect(Collectors.toList());
+    List<String> ruleUuids = result.getUuids();
+    // rule order is managed by ES, this order by must be kept when fetching rule details
+    Map<String, RuleDto> rulesByRuleKey = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession, ruleUuids), RuleDto::getUuid);
+    List<RuleDto> rules = new ArrayList<>();
+    for (String ruleUuid : ruleUuids) {
+      RuleDto rule = rulesByRuleKey.get(ruleUuid);
+      if (rule != null) {
+        rules.add(rule);
+      }
+    }
+
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
