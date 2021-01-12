@@ -34,6 +34,7 @@ module.exports = {
     orange: '#ed7d20',
     red: '#d4333f',
     purple: '#9139d4',
+    white: '#ffffff',
 
     gray94: '#efefef',
     gray80: '#cdcdcd',
@@ -44,6 +45,7 @@ module.exports = {
 
     transparentWhite: 'rgba(255,255,255,0.62)',
     transparentGray: 'rgba(200, 200, 200, 0.5)',
+    transparentBlack: 'rgba(0, 0, 0, 0.25)',
 
     disableGrayText: '#bbb',
     disableGrayBorder: '#ddd',
