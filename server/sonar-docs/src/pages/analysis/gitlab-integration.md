@@ -9,7 +9,7 @@ With this integration, you'll be able to:
 
 - **Authenticate with GitLab** - (starting in Community Edition) Sign in to SonarQube with your GitLab credentials.
 - **Import your GitLab projects** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitLab Projects into SonarQube to easily set up SonarQube projects.  
-- **Analyze projects with GitLab CI/CD** - Integrate analysis into your build pipeline. SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html).
+- **Analyze projects with GitLab CI/CD** - Integrate analysis into your build pipeline. SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
 - **Add merge request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitLab so you know if it's safe to merge your changes.
 
 ## Prerequisites
