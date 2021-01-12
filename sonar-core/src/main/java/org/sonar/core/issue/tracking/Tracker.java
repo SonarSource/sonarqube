@@ -22,8 +22,8 @@ package org.sonar.core.issue.tracking;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.scanner.ScannerSide;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
@@ -59,7 +59,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     ClosedTracking<RAW, BASE> closedTracking = ClosedTracking.of(nonClosedTracking, baseInput);
     match(closedTracking, LineAndLineHashAndMessage::new);
 
-    return new MergedTracking<>(nonClosedTracking, closedTracking);
+    return mergedTracking(nonClosedTracking, closedTracking);
   }
 
   private void detectCodeMoves(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
@@ -86,20 +86,17 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     }
   }
 
-  private static class MergedTracking<RAW extends Trackable, BASE extends Trackable> extends Tracking<RAW, BASE> {
-    private MergedTracking(NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
-      super(
-        nonClosedTracking.getRawInput().getIssues(),
-        concatIssues(nonClosedTracking, closedTracking),
-        closedTracking.rawToBase, closedTracking.baseToRaw);
-    }
+  private Tracking<RAW, BASE> mergedTracking(NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
+    return new Tracking<>(nonClosedTracking.getRawInput().getIssues(),
+      concatIssues(nonClosedTracking, closedTracking),
+      closedTracking.rawToBase, closedTracking.baseToRaw);
+  }
 
-    private static <RAW extends Trackable, BASE extends Trackable> List<BASE> concatIssues(
-      NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
-      Collection<BASE> nonClosedIssues = nonClosedTracking.getBaseInput().getIssues();
-      Collection<BASE> closeIssues = closedTracking.getBaseInput().getIssues();
-      return Stream.concat(nonClosedIssues.stream(), closeIssues.stream())
-        .collect(toList(nonClosedIssues.size() + closeIssues.size()));
-    }
+  private static <RAW extends Trackable, BASE extends Trackable> List<BASE> concatIssues(
+    NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
+    Collection<BASE> nonClosedIssues = nonClosedTracking.getBaseInput().getIssues();
+    Collection<BASE> closeIssues = closedTracking.getBaseInput().getIssues();
+    return Stream.concat(nonClosedIssues.stream(), closeIssues.stream())
+      .collect(toList(nonClosedIssues.size() + closeIssues.size()));
   }
 }

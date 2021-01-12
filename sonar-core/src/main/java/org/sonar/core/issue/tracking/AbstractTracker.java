@@ -76,9 +76,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndLineHashKey that = (LineAndLineHashKey) o;
       // start with most discriminant field
-      return Objects.equals(line, that.line)
-        && lineHash.equals(that.lineHash)
-        && ruleKey.equals(that.ruleKey);
+      return Objects.equals(line, that.line) && lineHash.equals(that.lineHash) && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -110,10 +108,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndLineHashAndMessage that = (LineAndLineHashAndMessage) o;
       // start with most discriminant field
-      return Objects.equals(line, that.line)
-        && lineHash.equals(that.lineHash)
-        && message.equals(that.message)
-        && ruleKey.equals(that.ruleKey);
+      return Objects.equals(line, that.line) && lineHash.equals(that.lineHash) && message.equals(that.message) && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -143,9 +138,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineHashAndMessageKey that = (LineHashAndMessageKey) o;
       // start with most discriminant field
-      return lineHash.equals(that.lineHash)
-        && message.equals(that.message)
-        && ruleKey.equals(that.ruleKey);
+      return lineHash.equals(that.lineHash) && message.equals(that.message) && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -175,9 +168,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndMessageKey that = (LineAndMessageKey) o;
       // start with most discriminant field
-      return Objects.equals(line, that.line)
-        && message.equals(that.message)
-        && ruleKey.equals(that.ruleKey);
+      return Objects.equals(line, that.line) && message.equals(that.message) && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -205,8 +196,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineHashKey that = (LineHashKey) o;
       // start with most discriminant field
-      return lineHash.equals(that.lineHash)
-        && ruleKey.equals(that.ruleKey);
+      return lineHash.equals(that.lineHash) && ruleKey.equals(that.ruleKey);
     }
 
     @Override

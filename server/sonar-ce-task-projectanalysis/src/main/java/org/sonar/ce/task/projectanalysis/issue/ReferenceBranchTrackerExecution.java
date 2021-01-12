@@ -29,8 +29,7 @@ public class ReferenceBranchTrackerExecution {
   private final TrackerReferenceBranchInputFactory referenceBranchInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public ReferenceBranchTrackerExecution(TrackerReferenceBranchInputFactory referenceBranchInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker) {
+  public ReferenceBranchTrackerExecution(TrackerReferenceBranchInputFactory referenceBranchInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker) {
     this.referenceBranchInputFactory = referenceBranchInputFactory;
     this.tracker = tracker;
   }

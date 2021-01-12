@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
@@ -36,23 +37,40 @@ public class PullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
+  private final TrackerTargetBranchInputFactory targetInputFactory;
 
-  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker,
-    NewLinesRepository newLinesRepository) {
+  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerTargetBranchInputFactory targetInputFactory,
+    Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
     this.baseInputFactory = baseInputFactory;
+    this.targetInputFactory = targetInputFactory;
     this.tracker = tracker;
     this.newLinesRepository = newLinesRepository;
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput) {
-    Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
-
     // Step 1: only keep issues on changed lines
     List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
-    Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
+    Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering = createInput(rawInput, filteredRaws);
 
-    // Step 2: track issues with previous analysis of the current PR
-    return tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, previousAnalysisInput);
+    // Step 2: remove issues that are resolved in the target branch
+    Input<DefaultIssue> unmatchedRawsAfterTargetResolvedTracking;
+    if (targetInputFactory.hasTargetBranchAnalysis()) {
+      Input<DefaultIssue> targetInput = targetInputFactory.createForTargetBranch(component);
+      List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream().filter(i -> Issue.STATUS_RESOLVED.equals(i.status())).collect(Collectors.toList());
+      Input<DefaultIssue> resolvedTargetInput = createInput(targetInput, resolvedTargetIssues);
+      Tracking<DefaultIssue, DefaultIssue> prResolvedTracking = tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, resolvedTargetInput);
+      unmatchedRawsAfterTargetResolvedTracking = createInput(rawInput, prResolvedTracking.getUnmatchedRaws().collect(Collectors.toList()));
+    } else {
+      unmatchedRawsAfterTargetResolvedTracking = unmatchedRawsAfterChangedLineFiltering;
+    }
+
+    // Step 3: track issues with previous analysis of the current PR
+    Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
+    return tracker.trackNonClosed(unmatchedRawsAfterTargetResolvedTracking, previousAnalysisInput);
+  }
+
+  private static Input<DefaultIssue> createInput(Input<DefaultIssue> input, Collection<DefaultIssue> issues) {
+    return new DefaultTrackingInput(issues, input.getLineHashSequence(), input.getBlockHashSequence());
   }
 
   private List<DefaultIssue> keepIssuesHavingAtLeastOneLocationOnChangedLines(Component component, Collection<DefaultIssue> issues) {

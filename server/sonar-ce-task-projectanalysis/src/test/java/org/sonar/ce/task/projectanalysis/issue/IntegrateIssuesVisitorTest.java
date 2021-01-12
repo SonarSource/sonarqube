@@ -127,7 +127,7 @@ public class IntegrateIssuesVisitorTest {
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
-
+  private TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   private final ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
@@ -153,11 +153,12 @@ public class IntegrateIssuesVisitorTest {
       issueFilter, ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
       new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
+    TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient);
     TrackerReferenceBranchInputFactory mergeInputFactory = new TrackerReferenceBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, new Tracker<>(), newLinesRepository);
     mergeBranchTracker = new ReferenceBranchTrackerExecution(mergeInputFactory, new Tracker<>());
+    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository);
     trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);

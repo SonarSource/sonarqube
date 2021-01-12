@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
@@ -60,26 +61,26 @@ public class PullRequestTrackerExecutionTest {
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
   private final List<DefaultIssue> rawIssues = new ArrayList<>();
   private final List<DefaultIssue> baseIssues = new ArrayList<>();
+  private final List<DefaultIssue> targetIssues = new ArrayList<>();
 
   private PullRequestTrackerExecution underTest;
+
+  private TrackerTargetBranchInputFactory targetFactory = mock(TrackerTargetBranchInputFactory.class);
 
   @Before
   public void setUp() {
     when(baseFactory.create(FILE)).thenReturn(createInput(baseIssues));
+    when(targetFactory.createForTargetBranch(FILE)).thenReturn(createInput(targetIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new PullRequestTrackerExecution(baseFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, targetFactory, tracker, newLinesRepository);
   }
 
   @Test
   public void simple_tracking_keep_only_issues_having_location_on_changed_lines() {
-    final DefaultIssue issue1 = createIssue(2, RuleTesting.XOO_X1);
-    issue1.setLocations(DbIssues.Locations.newBuilder()
-      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(3)).build());
+    final DefaultIssue issue1 = createIssue(2, 3, RuleTesting.XOO_X1);
     rawIssues.add(issue1);
-    final DefaultIssue issue2 = createIssue(2, RuleTesting.XOO_X1);
-    issue2.setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2)).build());
-    rawIssues.add(issue2);
+    rawIssues.add(createIssue(2, RuleTesting.XOO_X1));
 
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 3))));
 
@@ -127,16 +128,36 @@ public class PullRequestTrackerExecutionTest {
   }
 
   @Test
+  public void track_and_ignore_resolved_issues_from_target_branch() {
+    when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 2, 3))));
+
+    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
+    rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
+    rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
+
+    when(targetFactory.hasTargetBranchAnalysis()).thenReturn(true);
+    DefaultIssue resolvedIssue = createIssue(1, RuleTesting.XOO_X1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
+    // will cause rawIssue0 to be ignored
+    targetIssues.add(resolvedIssue);
+    // not ignored since it's not resolved
+    targetIssues.add(rawIssues.get(1));
+
+    baseIssues.add(rawIssues.get(0));
+    // should be matched
+    baseIssues.add(rawIssues.get(1));
+
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
+    assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(1), rawIssues.get(1)));
+    assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
+  }
+
+  @Test
   public void track_and_ignore_issues_from_previous_analysis() {
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 2, 3))));
 
-    rawIssues.add(createIssue(1, RuleTesting.XOO_X1)
-      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(1).setEndLine(1)).build()));
-    rawIssues.add(createIssue(2, RuleTesting.XOO_X2)
-      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2)).build()));
-    rawIssues.add(createIssue(3, RuleTesting.XOO_X3)
-      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(3).setEndLine(3)).build()));
-
+    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
+    rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
+    rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
     baseIssues.add(rawIssues.get(0));
 
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
@@ -145,13 +166,18 @@ public class PullRequestTrackerExecutionTest {
   }
 
   private DefaultIssue createIssue(int line, RuleKey ruleKey) {
-    return new DefaultIssue()
-      .setRuleKey(ruleKey)
-      .setLine(line)
-      .setMessage("msg" + line);
+    return createIssue(line, line, ruleKey);
   }
 
-  private Input<DefaultIssue> createInput(Collection<DefaultIssue> issues) {
+  private DefaultIssue createIssue(int startLine, int endLine, RuleKey ruleKey) {
+    return new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setLine(startLine)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine)).build())
+      .setMessage("msg" + startLine);
+  }
+
+  private static Input<DefaultIssue> createInput(Collection<DefaultIssue> issues) {
     return new Input<DefaultIssue>() {
       @Override
       public LineHashSequence getLineHashSequence() {

@@ -81,11 +81,13 @@ import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssueMerger;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.SourceBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.issue.TargetBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerSourceBranchInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.CommentDensityRule;
@@ -273,9 +275,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewSecurityReviewMeasuresVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
-
+      TargetBranchComponentUuids.class,
       UpdateConflictResolver.class,
       TrackerBaseInputFactory.class,
+      TrackerTargetBranchInputFactory.class,
       TrackerRawInputFactory.class,
       TrackerReferenceBranchInputFactory.class,
       TrackerSourceBranchInputFactory.class,
