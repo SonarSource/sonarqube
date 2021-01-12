@@ -34,6 +34,7 @@ public class DropOrganizationInWebhooksTest {
   @Test
   public void column_has_been_dropped() throws SQLException {
     underTest.execute();
+    dbTester.assertIndexDoesNotExist("webhooks", "organization_webhook");
     dbTester.assertIndexDoesNotExist("webhooks", "project_webhook");
     dbTester.assertColumnDoesNotExist("webhooks", "organization_uuid");
   }

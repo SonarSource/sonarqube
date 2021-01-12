@@ -34,6 +34,7 @@ public class DropOrganizationInWebhooks extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("organization_webhook").build());
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("project_webhook").build());
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
 
