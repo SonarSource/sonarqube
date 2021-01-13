@@ -19,17 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import CreateFormShim from '../CreateFormShim';
+import { AlmKeys } from '../../../../types/alm-settings';
+import ProjectCreationMenuItem, { ProjectCreationMenuItemProps } from '../ProjectCreationMenuItem';
 
-afterAll(() => delete (window as any).SonarGovernance);
-
-it('should call SonarGovernance createFormBuilder to build CreateForm component', () => {
-  const builderMock = jest.fn();
-  (window as any).SonarGovernance = { createFormBuilder: builderMock };
-  shallowRender();
-  expect(builderMock).toHaveBeenCalled();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('bitbucket');
+  expect(shallowRender({ alm: 'manual' })).toMatchSnapshot('manual');
 });
 
-function shallowRender() {
-  return shallow(<CreateFormShim onClose={jest.fn()} onCreate={jest.fn()} />);
+function shallowRender(overrides: Partial<ProjectCreationMenuItemProps> = {}) {
+  return shallow(<ProjectCreationMenuItem alm={AlmKeys.Bitbucket} {...overrides} />);
 }

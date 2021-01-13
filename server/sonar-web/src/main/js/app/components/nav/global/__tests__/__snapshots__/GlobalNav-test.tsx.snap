@@ -85,20 +85,6 @@ exports[`should render correctly: logged in users 1`] = `
         }
       }
     />
-    <GlobalNavPlus
-      appState={
-        Object {
-          "canAdmin": false,
-          "globalPages": Array [],
-          "qualifiers": Array [],
-        }
-      }
-      currentUser={
-        Object {
-          "isLoggedIn": true,
-        }
-      }
-    />
     <withRouter(GlobalNavUser)
       currentUser={
         Object {

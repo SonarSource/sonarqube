@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.projects-topbar-items {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
+.projects-page .layout-page-header-panel-inner,
+.projects-page .layout-page-header-panel {
+  height: 98px;
+  line-height: normal;
 }
 
 .projects-topbar-item + .projects-topbar-item {

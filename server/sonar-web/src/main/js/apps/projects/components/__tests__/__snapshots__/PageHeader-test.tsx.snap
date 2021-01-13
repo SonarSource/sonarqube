@@ -2,150 +2,232 @@
 
 exports[`should render correctly 1`] = `
 <header
-  className="page-header projects-topbar-items"
+  className="page-header"
 >
-  <PerspectiveSelect
-    className="projects-topbar-item js-projects-perspective-select"
-    onChange={[MockFunction]}
-    view="overall"
-  />
-  <ProjectsSortingSelect
-    className="projects-topbar-item js-projects-sorting-select"
-    defaultOption="analysis_date"
-    onChange={[MockFunction]}
-    selectedSort="size"
-    view="overall"
-  />
-  <SearchFilterContainer
-    onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "search": "test",
-      }
-    }
-  />
   <div
-    className="projects-topbar-item is-last"
+    className="display-flex-space-between spacer-top"
   >
-    <span>
-      <strong
-        id="projects-total"
-      >
-        12
-      </strong>
-       
-      projects._projects
-    </span>
-  </div>
-  <Connect(HomePageSelect)
-    className="huge-spacer-left"
-    currentPage={
-      Object {
-        "type": "PROJECTS",
+    <SearchFilterContainer
+      onQueryChange={[MockFunction]}
+      query={
+        Object {
+          "search": "test",
+        }
       }
-    }
-  />
+    />
+    <div
+      className="display-flex-center"
+    >
+      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+        className="little-spacer-right"
+      />
+      <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
+        className="little-spacer-right"
+      />
+      <Connect(HomePageSelect)
+        className="spacer-left little-spacer-right"
+        currentPage={
+          Object {
+            "type": "PROJECTS",
+          }
+        }
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top display-flex-space-between"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="projects-total-label"
+      >
+        <strong
+          id="projects-total"
+        >
+          12
+        </strong>
+         
+        projects._projects
+      </span>
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <PerspectiveSelect
+        className="projects-topbar-item js-projects-perspective-select"
+        onChange={[MockFunction]}
+        view="overall"
+      />
+      <Tooltip>
+        <div
+          className="projects-topbar-item"
+        >
+          <ProjectsSortingSelect
+            className="js-projects-sorting-select"
+            defaultOption="analysis_date"
+            onChange={[MockFunction]}
+            selectedSort="size"
+            view="overall"
+          />
+        </div>
+      </Tooltip>
+    </div>
+  </div>
 </header>
 `;
 
 exports[`should render correctly while loading 1`] = `
 <header
-  className="page-header projects-topbar-items"
+  className="page-header"
 >
-  <PerspectiveSelect
-    className="projects-topbar-item js-projects-perspective-select"
-    onChange={[MockFunction]}
-    view="overall"
-  />
-  <ProjectsSortingSelect
-    className="projects-topbar-item js-projects-sorting-select"
-    defaultOption="analysis_date"
-    onChange={[MockFunction]}
-    selectedSort="size"
-    view="overall"
-  />
-  <SearchFilterContainer
-    onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "search": "test",
-      }
-    }
-  />
   <div
-    className="projects-topbar-item is-last is-loading"
+    className="display-flex-space-between spacer-top"
   >
-    <span>
-      <strong
-        id="projects-total"
-      >
-        2
-      </strong>
-       
-      projects._projects
-    </span>
-  </div>
-  <Connect(HomePageSelect)
-    className="huge-spacer-left"
-    currentPage={
-      Object {
-        "type": "PROJECTS",
+    <SearchFilterContainer
+      onQueryChange={[MockFunction]}
+      query={
+        Object {
+          "search": "test",
+        }
       }
-    }
-  />
+    />
+    <div
+      className="display-flex-center"
+    >
+      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+        className="little-spacer-right"
+      />
+      <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
+        className="little-spacer-right"
+      />
+      <Connect(HomePageSelect)
+        className="spacer-left little-spacer-right"
+        currentPage={
+          Object {
+            "type": "PROJECTS",
+          }
+        }
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top display-flex-space-between"
+  >
+    <div
+      className="display-flex-center is-loading"
+    >
+      <span
+        className="projects-total-label"
+      >
+        <strong
+          id="projects-total"
+        >
+          2
+        </strong>
+         
+        projects._projects
+      </span>
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <PerspectiveSelect
+        className="projects-topbar-item js-projects-perspective-select"
+        onChange={[MockFunction]}
+        view="overall"
+      />
+      <Tooltip>
+        <div
+          className="projects-topbar-item"
+        >
+          <ProjectsSortingSelect
+            className="js-projects-sorting-select"
+            defaultOption="analysis_date"
+            onChange={[MockFunction]}
+            selectedSort="size"
+            view="overall"
+          />
+        </div>
+      </Tooltip>
+    </div>
+  </div>
 </header>
 `;
 
 exports[`should render disabled sorting options for visualizations 1`] = `
 <header
-  className="page-header projects-topbar-items"
+  className="page-header"
 >
-  <PerspectiveSelect
-    className="projects-topbar-item js-projects-perspective-select"
-    onChange={[MockFunction]}
-    view="visualizations"
-    visualization="coverage"
-  />
-  <Tooltip
-    overlay="projects.sort.disabled"
+  <div
+    className="display-flex-space-between spacer-top"
   >
+    <SearchFilterContainer
+      onQueryChange={[MockFunction]}
+      query={
+        Object {
+          "search": "test",
+        }
+      }
+    />
     <div
-      className="projects-topbar-item disabled"
+      className="display-flex-center"
     >
-      <ProjectsSortingSelect
-        className="js-projects-sorting-select"
-        defaultOption="analysis_date"
-        onChange={[MockFunction]}
-        selectedSort="size"
-        view="visualizations"
+      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+        className="little-spacer-right"
+      />
+      <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
+        className="little-spacer-right"
+      />
+      <Connect(HomePageSelect)
+        className="spacer-left little-spacer-right"
+        currentPage={
+          Object {
+            "type": "PROJECTS",
+          }
+        }
       />
     </div>
-  </Tooltip>
-  <SearchFilterContainer
-    onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "search": "test",
-      }
-    }
-  />
+  </div>
   <div
-    className="projects-topbar-item is-last"
-  />
-  <Connect(HomePageSelect)
-    className="huge-spacer-left"
-    currentPage={
-      Object {
-        "type": "PROJECTS",
-      }
-    }
-  />
+    className="big-spacer-top display-flex-space-between"
+  >
+    <div
+      className="display-flex-center"
+    />
+    <div
+      className="display-flex-center"
+    >
+      <PerspectiveSelect
+        className="projects-topbar-item js-projects-perspective-select"
+        onChange={[MockFunction]}
+        view="visualizations"
+        visualization="coverage"
+      />
+      <Tooltip
+        overlay="projects.sort.disabled"
+      >
+        <div
+          className="projects-topbar-item disabled"
+        >
+          <ProjectsSortingSelect
+            className="js-projects-sorting-select"
+            defaultOption="analysis_date"
+            onChange={[MockFunction]}
+            selectedSort="size"
+            view="visualizations"
+          />
+        </div>
+      </Tooltip>
+    </div>
+  </div>
 </header>
 `;
 
 exports[`should render switch the default sorting option for anonymous users 1`] = `
 <ProjectsSortingSelect
-  className="projects-topbar-item js-projects-sorting-select"
+  className="js-projects-sorting-select"
   defaultOption="name"
   onChange={[MockFunction]}
   selectedSort="size"
@@ -155,7 +237,7 @@ exports[`should render switch the default sorting option for anonymous users 1`]
 
 exports[`should render switch the default sorting option for anonymous users 2`] = `
 <ProjectsSortingSelect
-  className="projects-topbar-item js-projects-sorting-select"
+  className="js-projects-sorting-select"
   defaultOption="analysis_date"
   onChange={[MockFunction]}
   selectedSort="size"

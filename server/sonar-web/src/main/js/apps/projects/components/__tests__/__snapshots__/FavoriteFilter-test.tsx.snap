@@ -5,7 +5,7 @@ exports[`renders for logged in user 1`] = `
   className="page-header text-center"
 >
   <div
-    className="button-group"
+    className="button-group little-spacer-top"
   >
     <Link
       activeClassName="button-active"

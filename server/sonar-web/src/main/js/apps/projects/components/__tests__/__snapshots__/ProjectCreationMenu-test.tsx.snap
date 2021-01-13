@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Dropdown
+  onOpen={[Function]}
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <ProjectCreationMenuItem
+          alm="manual"
+        />
+      </li>
+    </ul>
+  }
+>
+  <Button
+    className="button-primary"
+  >
+    projects.add
+    <DropdownIcon
+      className="spacer-left "
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`should render correctly: not allowed 1`] = `""`;

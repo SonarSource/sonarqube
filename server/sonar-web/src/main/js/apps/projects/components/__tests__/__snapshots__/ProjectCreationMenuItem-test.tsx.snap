@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: bitbucket 1`] = `
+<Link
+  className="display-flex-center"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/projects/create",
+      "query": Object {
+        "mode": "bitbucket",
+      },
+    }
+  }
+>
+  <img
+    alt="bitbucket"
+    className="spacer-right"
+    src="/images/alm/bitbucket.svg"
+    width={16}
+  />
+  my_account.add_project.bitbucket
+</Link>
+`;
+
+exports[`should render correctly: manual 1`] = `
+<Link
+  className="display-flex-center"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/projects/create",
+      "query": Object {
+        "mode": "manual",
+      },
+    }
+  }
+>
+  <ChevronsIcon
+    className="spacer-right"
+  />
+  my_account.add_project.manual
+</Link>
+`;

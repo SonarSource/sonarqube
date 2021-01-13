@@ -255,7 +255,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <div className="layout-page-main-inner">
           <PageHeader
             currentUser={this.props.currentUser}
-            isFavorite={this.props.isFavorite}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}

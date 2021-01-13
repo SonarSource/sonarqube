@@ -19,9 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import NavBar from 'sonar-ui-common/components/ui/NavBar';
-import { isLoggedIn } from '../../../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../../../store/rootReducer';
 import { rawSizes } from '../../../theme';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
@@ -30,8 +28,6 @@ import './GlobalNav.css';
 import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUser from './GlobalNavUser';
-
-const GlobalNavPlus = lazyLoadComponent(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
 
 export interface GlobalNavProps {
   appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
@@ -50,7 +46,6 @@ export function GlobalNav(props: GlobalNavProps) {
       <ul className="global-navbar-menu global-navbar-menu-right">
         <EmbedDocsPopupHelper />
         <Search currentUser={currentUser} />
-        {isLoggedIn(currentUser) && <GlobalNavPlus appState={appState} currentUser={currentUser} />}
         <GlobalNavUser currentUser={currentUser} />
       </ul>
     </NavBar>

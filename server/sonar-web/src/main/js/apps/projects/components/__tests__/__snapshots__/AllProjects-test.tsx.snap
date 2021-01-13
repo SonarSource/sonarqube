@@ -66,7 +66,6 @@ exports[`renders 1`] = `
                 "isLoggedIn": true,
               }
             }
-            isFavorite={false}
             loading={false}
             onPerspectiveChange={[Function]}
             onQueryChange={[Function]}
@@ -220,7 +219,6 @@ exports[`renders 2`] = `
                 "isLoggedIn": true,
               }
             }
-            isFavorite={false}
             loading={false}
             onPerspectiveChange={[Function]}
             onQueryChange={[Function]}

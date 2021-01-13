@@ -18,24 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getCurrentL10nBundle } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
-import { ComponentQualifier } from '../../../types/component';
+import { Link } from 'react-router';
+import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: ComponentQualifier }) => void;
+export interface ProjectCreationMenuItemProps {
+  alm: string;
 }
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, {
-      theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle()
-    });
-  }
+export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemProps) {
+  const { alm } = props;
+  return (
+    <Link
+      className="display-flex-center"
+      to={{ pathname: '/projects/create', query: { mode: alm } }}>
+      {alm === 'manual' ? (
+        <ChevronsIcon className="spacer-right" />
+      ) : (
+        <img
+          alt={alm}
+          className="spacer-right"
+          width={16}
+          src={`${getBaseUrl()}/images/alm/${alm}.svg`}
+        />
+      )}
+      {translate('my_account.add_project', alm)}
+    </Link>
+  );
 }

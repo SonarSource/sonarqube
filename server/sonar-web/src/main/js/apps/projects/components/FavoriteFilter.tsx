@@ -48,7 +48,7 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
 
     return (
       <header className="page-header text-center">
-        <div className="button-group">
+        <div className="button-group little-spacer-top">
           <Link
             activeClassName="button-active"
             className="button"
