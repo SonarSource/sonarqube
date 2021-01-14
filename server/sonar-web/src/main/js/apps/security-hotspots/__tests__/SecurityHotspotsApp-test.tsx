@@ -233,12 +233,16 @@ it('should handle loading more', async () => {
 it('should handle hotspot update', async () => {
   const key = 'hotspotKey';
   const hotspots = [mockRawHotspot(), mockRawHotspot({ key })];
+  const fetchBranchStatusMock = jest.fn();
+  const branchLike = mockPullRequest();
+  const componentKey = 'test';
+
   (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots,
     paging: { pageIndex: 1, total: 1252 }
   });
 
-  const wrapper = shallowRender();
+  let wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.setState({ hotspotsPageIndex: 2 });
 
@@ -272,6 +276,22 @@ it('should handle hotspot update', async () => {
   ).toBe(selectedHotspotIndex);
 
   expect(getMeasures).toBeCalled();
+
+  (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
+    hotspots,
+    paging: { pageIndex: 1, total: 1252 }
+  });
+
+  wrapper = shallowRender({
+    branchLike,
+    fetchBranchStatus: fetchBranchStatusMock,
+    component: mockComponent({ key: componentKey })
+  });
+  await wrapper
+    .find(SecurityHotspotsAppRenderer)
+    .props()
+    .onUpdateHotspot(key);
+  expect(fetchBranchStatusMock).toBeCalledWith(branchLike, componentKey);
 });
 
 it('should handle status filter change', async () => {
@@ -369,6 +389,7 @@ describe('keyboard navigation', () => {
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
   return shallow<SecurityHotspotsApp>(
     <SecurityHotspotsApp
+      fetchBranchStatus={jest.fn()}
       branchLike={branch}
       component={mockComponent()}
       currentUser={mockCurrentUser()}

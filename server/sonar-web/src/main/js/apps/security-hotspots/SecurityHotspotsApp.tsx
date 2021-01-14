@@ -21,6 +21,7 @@ import { Location } from 'history';
 import * as key from 'keymaster';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
@@ -30,6 +31,7 @@ import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
+import { fetchBranchStatus } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
@@ -45,14 +47,19 @@ import { SECURITY_STANDARDS } from './utils';
 
 const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
 const PAGE_SIZE = 500;
+interface DispatchProps {
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
+}
 
-interface Props {
+interface OwnProps {
   branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   component: T.Component;
   location: Location;
   router: Router;
 }
+
+type Props = DispatchProps & OwnProps;
 
 interface State {
   filterByCategory?: { standard: SecurityStandard; category: string };
@@ -325,7 +332,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   handleHotspotUpdate = (hotspotKey: string) => {
     const { hotspots, hotspotsPageIndex } = this.state;
+    const { branchLike, component } = this.props;
     const index = hotspots.findIndex(h => h.key === hotspotKey);
+
+    if (isPullRequest(branchLike)) {
+      this.props.fetchBranchStatus(branchLike, component.key);
+    }
 
     return Promise.all(
       range(hotspotsPageIndex).map(p => this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */))
@@ -424,4 +436,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(SecurityHotspotsApp);
+const mapDispatchToProps = { fetchBranchStatus };
+
+export default withCurrentUser(connect(null, mapDispatchToProps)(SecurityHotspotsApp));
