@@ -25,7 +25,7 @@ import Sidebar from '../Sidebar';
 
 jest.mock('../navTreeUtils', () => {
   return {
-    ...require.requireActual('../navTreeUtils'),
+    ...jest.requireActual('../navTreeUtils'),
     getNavTree: jest.fn().mockReturnValue([
       '/foo/',
       {

@@ -25,7 +25,7 @@ import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks'
 import MeasureContent from '../MeasureContent';
 
 jest.mock('../../../../api/components', () => {
-  const { mockComponentMeasure } = require.requireActual('../../../../helpers/testMocks');
+  const { mockComponentMeasure } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getComponentTree: jest.fn().mockResolvedValue({
       paging: { pageIndex: 1, pageSize: 500, total: 2 },

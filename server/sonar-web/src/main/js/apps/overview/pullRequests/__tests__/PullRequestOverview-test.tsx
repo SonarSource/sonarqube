@@ -28,7 +28,7 @@ import { PR_METRICS } from '../../utils';
 import { PullRequestOverview } from '../PullRequestOverview';
 
 jest.mock('../../../../api/measures', () => {
-  const { mockMeasure, mockMetric } = require.requireActual('../../../../helpers/testMocks');
+  const { mockMeasure, mockMetric } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getMeasuresWithMetrics: jest.fn().mockResolvedValue({
       component: {

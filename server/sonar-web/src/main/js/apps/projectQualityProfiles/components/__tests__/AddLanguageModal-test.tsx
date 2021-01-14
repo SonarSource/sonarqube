@@ -29,39 +29,37 @@ it('should render correctly', () => {
 });
 
 it('should correctly handle changes', () => {
-  return new Promise(resolve => {
-    const onSubmit = jest.fn();
-    const wrapper = shallowRender({ onSubmit });
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit });
 
-    const langSelect = getLanguageSelect(wrapper);
-    let profileSelect = getProfileSelect(wrapper);
+  const langSelect = getLanguageSelect(wrapper);
+  let profileSelect = getProfileSelect(wrapper);
 
-    // Language select should only have 2; JS is not available. Profile Select
-    // should have none, as no language is selected yet.
-    expect(langSelect.props().options).toHaveLength(2);
-    expect(profileSelect.props().options).toHaveLength(0);
+  // Language select should only have 2; JS is not available. Profile Select
+  // should have none, as no language is selected yet.
+  expect(langSelect.props().options).toHaveLength(2);
+  expect(profileSelect.props().options).toHaveLength(0);
 
-    // Choose CSS.
-    const langChange = langSelect.props().onChange;
-    if (langChange) {
-      langChange({ value: 'css' });
+  // Choose CSS.
+  const langChange = langSelect.props().onChange;
 
-      // Should now show 2 available profiles.
-      profileSelect = getProfileSelect(wrapper);
-      expect(profileSelect.props().options).toHaveLength(2);
+  expect(langChange).toBeDefined();
 
-      // Choose 1 profile.
-      const profileChange = profileSelect.props().onChange;
-      if (profileChange) {
-        profileChange({ value: 'css2' });
+  langChange!({ value: 'css' });
 
-        submitSimpleModal(wrapper);
-        expect(onSubmit).toHaveBeenLastCalledWith('css2');
+  // Should now show 2 available profiles.
+  profileSelect = getProfileSelect(wrapper);
+  expect(profileSelect.props().options).toHaveLength(2);
 
-        resolve();
-      }
-    }
-  });
+  // Choose 1 profile.
+  const profileChange = profileSelect.props().onChange;
+
+  expect(profileChange).toBeDefined();
+
+  profileChange!({ value: 'css2' });
+
+  submitSimpleModal(wrapper);
+  expect(onSubmit).toHaveBeenLastCalledWith('css2');
 });
 
 function diveIntoSimpleModal(wrapper: ShallowWrapper) {

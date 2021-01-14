@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable sonarjs/no-duplicate-string */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
@@ -45,7 +45,7 @@ jest.mock('sonar-ui-common/helpers/dates', () => ({
 }));
 
 jest.mock('../../../../api/measures', () => {
-  const { mockMeasure, mockMetric } = require.requireActual('../../../../helpers/testMocks');
+  const { mockMeasure, mockMetric } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getMeasuresWithPeriodAndMetrics: jest.fn((_, metricKeys: string[]) => {
       const metrics: T.Metric[] = [];
@@ -83,10 +83,10 @@ jest.mock('../../../../api/measures', () => {
 });
 
 jest.mock('../../../../api/quality-gates', () => {
-  const { mockQualityGateProjectStatus, mockQualityGateApplicationStatus } = require.requireActual(
+  const { mockQualityGateProjectStatus, mockQualityGateApplicationStatus } = jest.requireActual(
     '../../../../helpers/mocks/quality-gates'
   );
-  const { MetricKey } = require.requireActual('../../../../types/metrics');
+  const { MetricKey } = jest.requireActual('../../../../types/metrics');
   return {
     getQualityGateProjectStatus: jest.fn().mockResolvedValue(
       mockQualityGateProjectStatus({
@@ -124,7 +124,7 @@ jest.mock('../../../../api/quality-gates', () => {
 });
 
 jest.mock('../../../../api/time-machine', () => {
-  const { MetricKey } = require.requireActual('../../../../types/metrics');
+  const { MetricKey } = jest.requireActual('../../../../types/metrics');
   return {
     getAllTimeMachineData: jest.fn().mockResolvedValue({
       measures: [
@@ -143,7 +143,7 @@ jest.mock('../../../../api/time-machine', () => {
 });
 
 jest.mock('../../../../api/projectActivity', () => {
-  const { mockAnalysis } = require.requireActual('../../../../helpers/testMocks');
+  const { mockAnalysis } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getProjectActivity: jest.fn().mockResolvedValue({
       analyses: [mockAnalysis(), mockAnalysis(), mockAnalysis(), mockAnalysis(), mockAnalysis()]
@@ -175,8 +175,8 @@ jest.mock('../../../../api/application', () => ({
 }));
 
 jest.mock('../../../../components/activity-graph/utils', () => {
-  const { MetricKey } = require.requireActual('../../../../types/metrics');
-  const { GraphType } = require.requireActual('../../../../types/project-activity');
+  const { MetricKey } = jest.requireActual('../../../../types/metrics');
+  const { GraphType } = jest.requireActual('../../../../types/project-activity');
   return {
     getActivityGraph: jest.fn(() => ({ graph: GraphType.coverage })),
     saveActivityGraph: jest.fn(),

@@ -50,20 +50,18 @@ interface Props {
   type?: string;
 }
 
-function renderFirstLine(props: Props) {
+function renderFirstLine(project: Props['project'], handleFavorite: Props['handleFavorite']) {
   const {
-    project: {
-      analysisDate,
-      tags,
-      qualifier,
-      isFavorite,
-      key,
-      name,
-      measures,
-      needIssueSync,
-      visibility
-    }
-  } = props;
+    analysisDate,
+    tags,
+    qualifier,
+    isFavorite,
+    key,
+    name,
+    measures,
+    needIssueSync,
+    visibility
+  } = project;
 
   return (
     <div className="display-flex-center">
@@ -73,7 +71,7 @@ function renderFirstLine(props: Props) {
             className="spacer-right"
             component={key}
             favorite={isFavorite}
-            handleFavorite={props.handleFavorite}
+            handleFavorite={handleFavorite}
             qualifier={qualifier}
           />
         )}
@@ -134,10 +132,12 @@ function renderFirstLine(props: Props) {
   );
 }
 
-function renderSecondLine(props: Props, isNewCode: boolean) {
-  const {
-    project: { measures }
-  } = props;
+function renderSecondLine(
+  currentUser: Props['currentUser'],
+  project: Props['project'],
+  isNewCode: boolean
+) {
+  const { measures } = project;
 
   return (
     <div
@@ -145,7 +145,7 @@ function renderSecondLine(props: Props, isNewCode: boolean) {
         'project-card-leak': isNewCode
       })}>
       <div className="project-card-main big-padded-left big-padded-right big-padded-bottom">
-        {renderMeasures(props, isNewCode)}
+        {renderMeasures(currentUser, project, isNewCode)}
       </div>
       <div className="project-card-meta display-flex-end big-padded-left big-padded-right big-padded-bottom">
         {isNewCode
@@ -187,11 +187,12 @@ function renderSecondLine(props: Props, isNewCode: boolean) {
   );
 }
 
-function renderMeasures(props: Props, isNewCode: boolean) {
-  const {
-    currentUser,
-    project: { measures, needIssueSync, analysisDate, leakPeriodDate, qualifier, key }
-  } = props;
+function renderMeasures(
+  currentUser: Props['currentUser'],
+  project: Props['project'],
+  isNewCode: boolean
+) {
+  const { measures, needIssueSync, analysisDate, leakPeriodDate, qualifier, key } = project;
 
   if (analysisDate && (!isNewCode || leakPeriodDate)) {
     return (
@@ -202,44 +203,40 @@ function renderMeasures(props: Props, isNewCode: boolean) {
         newCodeStartingDate={leakPeriodDate}
       />
     );
-  } else {
-    return (
-      <div className="spacer-top spacer-bottom">
-        <span className="note">
-          {isNewCode && analysisDate
-            ? translate('projects.no_new_code_period', qualifier)
-            : translate('projects.not_analyzed', qualifier)}
-        </span>
-        {qualifier !== ComponentQualifier.Application &&
-          !analysisDate &&
-          isLoggedIn(currentUser) &&
-          !needIssueSync && (
-            <Link className="button spacer-left" to={getProjectUrl(key)}>
-              {translate('projects.configure_analysis')}
-            </Link>
-          )}
-      </div>
-    );
   }
+
+  return (
+    <div className="spacer-top spacer-bottom">
+      <span className="note">
+        {isNewCode && analysisDate
+          ? translate('projects.no_new_code_period', qualifier)
+          : translate('projects.not_analyzed', qualifier)}
+      </span>
+      {qualifier !== ComponentQualifier.Application &&
+        !analysisDate &&
+        isLoggedIn(currentUser) &&
+        !needIssueSync && (
+          <Link className="button spacer-left" to={getProjectUrl(key)}>
+            {translate('projects.configure_analysis')}
+          </Link>
+        )}
+    </div>
+  );
 }
 
 export default function ProjectCard(props: Props) {
-  const {
-    height,
-    type,
-    project: { needIssueSync, key }
-  } = props;
+  const { currentUser, height, type, project } = props;
   const isNewCode = type === 'leak';
 
   return (
     <div
       className={classNames('display-flex-column boxed-group it_project_card', {
-        'project-card-disabled': needIssueSync
+        'project-card-disabled': project.needIssueSync
       })}
-      data-key={key}
+      data-key={project.key}
       style={{ height }}>
-      {renderFirstLine(props)}
-      {renderSecondLine(props, isNewCode)}
+      {renderFirstLine(project, props.handleFavorite)}
+      {renderSecondLine(currentUser, project, isNewCode)}
     </div>
   );
 }

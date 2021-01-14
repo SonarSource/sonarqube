@@ -43,7 +43,6 @@ exports[`should render 1`] = `
       onClick={[MockFunction]}
     />
     <IssuesCounter
-      className="spacer-left"
       current={5}
       total={12345}
     />

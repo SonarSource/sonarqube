@@ -84,7 +84,7 @@ jest.mock('sonar-ui-common/helpers/pages', () => ({
 }));
 
 jest.mock('sonar-ui-common/helpers/request', () => {
-  const { mockDocumentationMarkdown } = require.requireActual('../../../../helpers/testMocks');
+  const { mockDocumentationMarkdown } = jest.requireActual('../../../../helpers/testMocks');
   return {
     request: jest.fn(() => ({
       submit: jest.fn().mockResolvedValue({
@@ -96,7 +96,7 @@ jest.mock('sonar-ui-common/helpers/request', () => {
 });
 
 jest.mock('../../pages', () => {
-  const { mockDocumentationEntry } = require.requireActual('../../../../helpers/testMocks');
+  const { mockDocumentationEntry } = jest.requireActual('../../../../helpers/testMocks');
   return {
     default: jest
       .fn()

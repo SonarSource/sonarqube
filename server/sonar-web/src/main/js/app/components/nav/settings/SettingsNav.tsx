@@ -120,7 +120,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', {
               active:
                 open ||
@@ -162,7 +163,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
             href="#"
             onClick={onToggleClick}>
@@ -205,7 +207,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
             href="#"
             onClick={onToggleClick}>

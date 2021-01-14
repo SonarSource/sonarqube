@@ -50,7 +50,7 @@ jest.mock('../PageSidebar', () => ({
 }));
 
 jest.mock('../../utils', () => {
-  const utils = require.requireActual('../../utils');
+  const utils = jest.requireActual('../../utils');
   utils.fetchProjects = jest.fn(() => Promise.resolve({ projects: [] }));
   return utils;
 });

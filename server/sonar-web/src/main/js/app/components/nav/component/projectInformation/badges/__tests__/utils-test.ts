@@ -21,7 +21,7 @@ import { Location } from 'sonar-ui-common/helpers/urls';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
 jest.mock('sonar-ui-common/helpers/urls', () => ({
-  ...require.requireActual('sonar-ui-common/helpers/urls'),
+  ...jest.requireActual('sonar-ui-common/helpers/urls'),
   getHostUrl: () => 'host',
   getPathUrlAsString: (o: Location) =>
     `host${o.pathname}?id=${o.query ? o.query.id : ''}&branch=${o.query ? o.query.branch : ''}`

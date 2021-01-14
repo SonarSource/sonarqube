@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/first */
 jest.mock('../../../../api/report', () => {
-  const report = require.requireActual('../../../../api/report');
+  const report = jest.requireActual('../../../../api/report');
   report.subscribe = jest.fn(() => Promise.resolve());
   report.unsubscribe = jest.fn(() => Promise.resolve());
   return report;

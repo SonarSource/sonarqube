@@ -110,7 +110,8 @@ export default class App extends React.PureComponent<{}, State> {
     // reload all pages in order
     if (paging && paging.pageIndex > 1) {
       for (let p = 1; p < paging.pageIndex; p++) {
-        await this.fetchMoreGroups();
+        // eslint-disable-next-line no-await-in-loop
+        await this.fetchMoreGroups(); // This is a intentional promise chain
       }
     }
   };

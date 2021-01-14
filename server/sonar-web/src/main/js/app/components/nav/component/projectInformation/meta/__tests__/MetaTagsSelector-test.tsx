@@ -28,7 +28,7 @@ jest.mock('../../../../../../../api/components', () => ({
 }));
 
 jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
+  const lodash = jest.requireActual('lodash');
   lodash.debounce = jest.fn(fn => fn);
   return lodash;
 });

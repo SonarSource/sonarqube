@@ -87,7 +87,10 @@ const DEFAULT_HEADERS = {
 class Request {
   private data?: RequestData;
 
-  constructor(private readonly url: string, private readonly options: { method?: string } = {}) {}
+  constructor(private readonly url: string, private readonly options: { method?: string } = {}) {
+    this.url = url;
+    this.options = options;
+  }
 
   getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
     let { url } = this;
@@ -257,7 +260,9 @@ function requestDelete(url: string, data?: RequestData): Promise<any> {
  * Delay promise for testing purposes
  */
 function delay(response: any): Promise<any> {
-  return new Promise(resolve => setTimeout(() => resolve(response), 1200));
+  return new Promise(resolve => {
+    setTimeout(() => resolve(response), 1200);
+  });
 }
 
 function tryRequestAgain<T>(

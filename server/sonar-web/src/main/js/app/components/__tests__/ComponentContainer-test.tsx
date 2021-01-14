@@ -33,7 +33,7 @@ import { ComponentContainer } from '../ComponentContainer';
 import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
 jest.mock('../../../api/branches', () => {
-  const { mockMainBranch, mockPullRequest } = require.requireActual(
+  const { mockMainBranch, mockPullRequest } = jest.requireActual(
     '../../../helpers/mocks/branch-like'
   );
   return {

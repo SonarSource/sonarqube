@@ -23,13 +23,16 @@ import Level from 'sonar-ui-common/components/ui/Level';
 import { getBranchStatusByBranchLike, Store } from '../../store/rootReducer';
 import { BranchLike } from '../../types/branch-like';
 
-interface Props {
+interface ExposedProps {
   branchLike: BranchLike;
   component: string;
+}
+
+interface BranchStatusProps {
   status?: string;
 }
 
-export function BranchStatus({ status }: Props) {
+export function BranchStatus({ status }: BranchStatusProps) {
   if (!status) {
     return null;
   }
@@ -37,7 +40,8 @@ export function BranchStatus({ status }: Props) {
   return <Level level={status} small={true} />;
 }
 
-const mapStateToProps = (state: Store, { branchLike, component }: Props) => {
+const mapStateToProps = (state: Store, props: ExposedProps) => {
+  const { branchLike, component } = props;
   const { status } = getBranchStatusByBranchLike(state, component, branchLike);
   return { status };
 };

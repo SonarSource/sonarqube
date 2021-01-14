@@ -32,6 +32,7 @@ export interface RenderOptionsProps {
 
 export default function RenderOptions({
   checked,
+  name,
   onCheck,
   optionLabelKey,
   options,

@@ -6,7 +6,7 @@ exports[`should render correctly: default 1`] = `
 >
   <RadioToggle
     disabled={false}
-    name=""
+    name="bar"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -31,7 +31,7 @@ exports[`should render correctly: option checked 1`] = `
 >
   <RadioToggle
     disabled={false}
-    name=""
+    name="bar"
     onCheck={[MockFunction]}
     options={
       Array [
@@ -61,7 +61,7 @@ exports[`should render correctly: with title 1`] = `
   </h4>
   <RadioToggle
     disabled={false}
-    name=""
+    name="bar"
     onCheck={[MockFunction]}
     options={
       Array [

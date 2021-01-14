@@ -12,6 +12,7 @@ exports[`should render a collapsible block 1`] = `
     className="link-no-underline"
     href="#"
     onClick={[Function]}
+    role="button"
   >
     <OpenCloseIcon
       className="text-middle little-spacer-right"
@@ -32,6 +33,7 @@ exports[`should render a collapsible block 2`] = `
     className="link-no-underline"
     href="#"
     onClick={[Function]}
+    role="button"
   >
     <OpenCloseIcon
       className="text-middle little-spacer-right"

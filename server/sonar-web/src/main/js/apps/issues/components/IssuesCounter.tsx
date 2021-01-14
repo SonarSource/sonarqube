@@ -22,7 +22,6 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import PageCounter from '../../../components/common/PageCounter';
 
 interface Props {
-  className?: string;
   current: number | undefined;
   total: number;
 }

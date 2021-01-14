@@ -61,7 +61,7 @@ class App extends React.PureComponent<Props> {
     const outer = document.createElement('div');
     outer.style.visibility = 'hidden';
     outer.style.width = '100px';
-    outer.style.msOverflowStyle = 'scrollbar';
+    outer.style.setProperty('msOverflowStyle', 'scrollbar');
 
     document.body.appendChild(outer);
 

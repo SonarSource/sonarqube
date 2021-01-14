@@ -27,9 +27,7 @@ import { ChangelogContainer } from '../ChangelogContainer';
 beforeEach(() => jest.clearAllMocks());
 
 jest.mock('../../../../api/quality-profiles', () => {
-  const { mockQualityProfileChangelogEvent } = require.requireActual(
-    '../../../../helpers/testMocks'
-  );
+  const { mockQualityProfileChangelogEvent } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getProfileChangelog: jest.fn().mockResolvedValue({
       events: [

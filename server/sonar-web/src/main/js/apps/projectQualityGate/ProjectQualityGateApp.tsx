@@ -76,22 +76,21 @@ export default class ProjectQualityGateApp extends React.PureComponent<Props, St
 
     if (!qualityGate.isDefault) {
       return false;
-    } else {
-      // If this is the default Quality Gate, check if it was explicitly
-      // selected, or if we're inheriting the system default.
-      /* eslint-disable-next-line sonarjs/prefer-immediate-return */
-      const selected = await searchProjects({
-        gateName: qualityGate.name,
-        query: component.key
-      })
-        .then(({ results }) => {
-          return Boolean(results.find(r => r.key === component.key)?.selected);
-        })
-        .catch(() => false);
-
-      // If it's NOT selected, it means we're following the system default.
-      return !selected;
     }
+
+    // If this is the default Quality Gate, check if it was explicitly
+    // selected, or if we're inheriting the system default.
+    const selected = await searchProjects({
+      gateName: qualityGate.name,
+      query: component.key
+    })
+      .then(({ results }) => {
+        return Boolean(results.find(r => r.key === component.key)?.selected);
+      })
+      .catch(() => false);
+
+    // If it's NOT selected, it means we're following the system default.
+    return !selected;
   };
 
   fetchQualityGates = async () => {

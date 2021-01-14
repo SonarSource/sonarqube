@@ -32,48 +32,43 @@ it('should render correctly', () => {
 });
 
 it('should render select options correctly', () => {
-  return new Promise(resolve => {
-    const wrapper = shallowRender();
-    const render = wrapper.find(Select).props().optionRenderer;
-    if (render) {
-      expect(render({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
-      resolve();
-    }
-  });
+  const wrapper = shallowRender();
+  const render = wrapper.find(Select).props().optionRenderer;
+
+  expect(render).toBeDefined();
+
+  expect(render!({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
 });
 
 it('should correctly handle changes', () => {
-  return new Promise(resolve => {
-    const onSubmit = jest.fn();
-    const wrapper = shallowRender({ onSubmit }, false);
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit }, false);
 
-    diveIntoSimpleModal(wrapper)
-      .find(Radio)
-      .at(0)
-      .props()
-      .onCheck('');
-    submitSimpleModal(wrapper);
-    expect(onSubmit).toHaveBeenLastCalledWith(undefined, 'foo');
+  diveIntoSimpleModal(wrapper)
+    .find(Radio)
+    .at(0)
+    .props()
+    .onCheck('');
+  submitSimpleModal(wrapper);
+  expect(onSubmit).toHaveBeenLastCalledWith(undefined, 'foo');
 
-    diveIntoSimpleModal(wrapper)
-      .find(Radio)
-      .at(1)
-      .props()
-      .onCheck('');
-    submitSimpleModal(wrapper);
-    expect(onSubmit).toHaveBeenLastCalledWith('foo', 'foo');
+  diveIntoSimpleModal(wrapper)
+    .find(Radio)
+    .at(1)
+    .props()
+    .onCheck('');
+  submitSimpleModal(wrapper);
+  expect(onSubmit).toHaveBeenLastCalledWith('foo', 'foo');
 
-    const change = diveIntoSimpleModal(wrapper)
-      .find(Select)
-      .props().onChange;
-    if (change) {
-      change({ value: 'bar' });
-      submitSimpleModal(wrapper);
-      expect(onSubmit).toHaveBeenLastCalledWith('bar', 'foo');
+  const change = diveIntoSimpleModal(wrapper)
+    .find(Select)
+    .props().onChange;
 
-      resolve();
-    }
-  });
+  expect(change).toBeDefined();
+
+  change!({ value: 'bar' });
+  submitSimpleModal(wrapper);
+  expect(onSubmit).toHaveBeenLastCalledWith('bar', 'foo');
 });
 
 function diveIntoSimpleModal(wrapper: ShallowWrapper) {

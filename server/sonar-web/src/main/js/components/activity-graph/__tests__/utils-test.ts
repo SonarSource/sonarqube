@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable sonarjs/no-duplicate-string */
+
 import * as dates from 'sonar-ui-common/helpers/dates';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, Serie } from '../../../types/project-activity';

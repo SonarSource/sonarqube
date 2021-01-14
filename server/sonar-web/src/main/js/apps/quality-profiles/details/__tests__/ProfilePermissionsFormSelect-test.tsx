@@ -22,7 +22,7 @@ import * as React from 'react';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
 jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
+  const lodash = jest.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(...args);
   return lodash;
 });

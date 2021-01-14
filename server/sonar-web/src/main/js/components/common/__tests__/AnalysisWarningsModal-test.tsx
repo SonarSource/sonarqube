@@ -59,29 +59,24 @@ it('should fetch task warnings if it has to', async () => {
   expect(getTask).toBeCalledWith('abcd1234', ['warnings']);
 });
 
-it('should correctly handle dismissing warnings', () => {
-  return new Promise(resolve => {
-    const onWarningDismiss = jest.fn();
-    const wrapper = shallowRender({
-      componentKey: 'foo',
-      onWarningDismiss,
-      warnings: [mockTaskWarning({ key: 'bar', dismissable: true })]
-    });
-
-    const click = wrapper.find('ButtonLink.link-base-color').props().onClick;
-    if (click) {
-      click(mockEvent());
-
-      waitAndUpdate(wrapper).then(
-        () => {
-          expect(dismissAnalysisWarning).toBeCalledWith('foo', 'bar');
-          expect(onWarningDismiss).toBeCalled();
-          resolve();
-        },
-        () => {}
-      );
-    }
+it('should correctly handle dismissing warnings', async () => {
+  const onWarningDismiss = jest.fn();
+  const wrapper = shallowRender({
+    componentKey: 'foo',
+    onWarningDismiss,
+    warnings: [mockTaskWarning({ key: 'bar', dismissable: true })]
   });
+
+  const click = wrapper.find('ButtonLink.link-base-color').props().onClick;
+
+  expect(click).toBeDefined();
+
+  click!(mockEvent());
+
+  await waitAndUpdate(wrapper);
+
+  expect(dismissAnalysisWarning).toBeCalledWith('foo', 'bar');
+  expect(onWarningDismiss).toBeCalled();
 });
 
 it('should correctly handle updates', async () => {

@@ -31,7 +31,7 @@ jest.mock('date-fns/start_of_day', () => (date: Date) => {
 });
 
 jest.mock('sonar-ui-common/helpers/dates', () => {
-  const actual = require.requireActual('sonar-ui-common/helpers/dates');
+  const actual = jest.requireActual('sonar-ui-common/helpers/dates');
   return { ...actual, toShortNotSoISOString: (date: string) => `ISO.${date}` };
 });
 

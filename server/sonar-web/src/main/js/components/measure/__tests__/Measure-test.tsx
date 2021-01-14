@@ -22,7 +22,7 @@ import * as React from 'react';
 import Measure from '../Measure';
 
 jest.mock('../../../helpers/measures', () => {
-  const measures = require.requireActual('../../../helpers/measures');
+  const measures = jest.requireActual('../../../helpers/measures');
   measures.getRatingTooltip = jest.fn(() => 'tooltip');
   return measures;
 });

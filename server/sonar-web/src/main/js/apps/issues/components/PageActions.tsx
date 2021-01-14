@@ -61,9 +61,7 @@ export default class PageActions extends React.PureComponent<Props> {
 
         <div className="issues-page-actions">
           <ReloadButton onClick={this.props.onReload} />
-          {paging != null && (
-            <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />
-          )}
+          {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
           {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
         </div>
 

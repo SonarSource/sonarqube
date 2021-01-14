@@ -87,7 +87,7 @@ it('should have valid links in suggestions file', () => {
   expect(hasErrors).toBe(false);
 });
 
-it('should have valid and uniq links in url metadata field', () => {
+function collectErrors() {
   let urlLists = [];
   let hasErrors = false;
   parsedFiles.forEach(file => {
@@ -103,6 +103,11 @@ it('should have valid and uniq links in url metadata field', () => {
 
     urlLists = [...urlLists, file.frontmatter.url];
   });
+  return hasErrors;
+}
+
+it('should have valid and uniq links in url metadata field', () => {
+  const hasErrors = collectErrors();
   expect(hasErrors).toBe(false);
 });
 

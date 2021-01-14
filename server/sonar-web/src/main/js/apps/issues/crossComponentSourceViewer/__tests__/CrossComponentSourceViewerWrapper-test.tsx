@@ -32,7 +32,7 @@ import {
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 
 jest.mock('../../../../api/issues', () => {
-  const { mockSnippetsByComponent } = require.requireActual('../../../../helpers/testMocks');
+  const { mockSnippetsByComponent } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getIssueFlowSnippets: jest.fn().mockResolvedValue({ 'main.js': mockSnippetsByComponent() })
   };

@@ -52,13 +52,14 @@ it('should render correctly', () => {
 });
 
 it('should render select options correctly', () => {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     const wrapper = shallowRender();
     const render = wrapper.find(Select).props().optionRenderer;
-    if (render) {
-      expect(render({ value: '1', label: 'Gate 1' })).toMatchSnapshot('default');
-      resolve();
-    }
+
+    expect(render).toBeDefined();
+
+    expect(render!({ value: '1', label: 'Gate 1' })).toMatchSnapshot('default');
+    resolve();
   });
 });
 

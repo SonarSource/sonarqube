@@ -20,12 +20,20 @@
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import request from '../request-legacy';
 
-const { checkStatus, parseError, requestTryAndRepeatUntil } = request;
+const { checkStatus, delay, parseError, requestTryAndRepeatUntil } = request;
 
 jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({ default: jest.fn() }));
 jest.mock('sonar-ui-common/helpers/cookies', () => ({
   getCookie: jest.fn().mockReturnValue('qwerasdf')
 }));
+
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -91,6 +99,7 @@ describe('requestTryAndRepeatUntil', () => {
     for (let i = 1; i < 5; i++) {
       jest.runAllTimers();
       expect(apiCall).toBeCalledTimes(i);
+      // eslint-disable-next-line no-await-in-loop
       await new Promise(setImmediate);
       expect(stopRepeat).toBeCalledTimes(i);
     }
@@ -115,6 +124,7 @@ describe('requestTryAndRepeatUntil', () => {
     for (let i = 1; i < 5; i++) {
       jest.runAllTimers();
       expect(apiCall).toBeCalledTimes(i);
+      // eslint-disable-next-line no-await-in-loop
       await new Promise(setImmediate);
     }
     apiCall.mockResolvedValue('Success');
@@ -141,6 +151,7 @@ describe('requestTryAndRepeatUntil', () => {
     for (let i = 1; i < 3; i++) {
       jest.runAllTimers();
       expect(apiCall).toBeCalledTimes(i);
+      // eslint-disable-next-line no-await-in-loop
       await new Promise(setImmediate);
     }
     apiCall.mockResolvedValue('Success');
@@ -156,6 +167,7 @@ describe('requestTryAndRepeatUntil', () => {
     for (let i = 1; i < 3; i++) {
       jest.advanceTimersByTime(500);
       expect(apiCall).toBeCalledTimes(i);
+      // eslint-disable-next-line no-await-in-loop
       await new Promise(setImmediate);
     }
 
@@ -282,5 +294,16 @@ describe('request functions', () => {
       .catch(error => {
         expect(error.response).toBe(response);
       });
+  });
+});
+
+describe('delay', () => {
+  it('should work as expected', async () => {
+    const param = { some: 'response' };
+
+    const promise = delay(param);
+    jest.runAllTimers();
+
+    expect(await promise).toBe(param);
   });
 });

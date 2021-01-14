@@ -28,7 +28,6 @@ import {
 } from '../../../../../../components/hoc/withNotifications';
 
 interface Props {
-  className?: string;
   component: T.Component;
 }
 

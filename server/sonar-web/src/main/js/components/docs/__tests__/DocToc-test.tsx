@@ -45,17 +45,17 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
 `;
 
 jest.mock('remark', () => {
-  const remark = require.requireActual('remark');
+  const remark = jest.requireActual('remark');
   return { default: remark };
 });
 
 jest.mock('remark-react', () => {
-  const remarkReact = require.requireActual('remark-react');
+  const remarkReact = jest.requireActual('remark-react');
   return { default: remarkReact };
 });
 
 jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
+  const lodash = jest.requireActual('lodash');
   lodash.debounce = (fn: any) => fn;
   return lodash;
 });

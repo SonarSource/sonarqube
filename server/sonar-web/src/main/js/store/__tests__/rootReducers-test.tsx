@@ -23,7 +23,7 @@ import { getBranchStatusByBranchLike, Store } from '../rootReducer';
 
 jest.mock('../branches', () => {
   return {
-    ...require.requireActual('../branches'),
+    ...jest.requireActual('../branches'),
     getBranchStatusByBranchLike: jest.fn()
   };
 });

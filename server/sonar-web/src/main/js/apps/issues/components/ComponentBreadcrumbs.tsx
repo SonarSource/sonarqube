@@ -25,7 +25,6 @@ import { getSelectedLocation } from '../utils';
 interface Props {
   component?: T.Component;
   issue: T.Issue;
-  link?: boolean;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
 }

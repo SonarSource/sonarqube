@@ -266,7 +266,8 @@ export class Menu extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
             href="#"
             id="component-navigation-admin"
@@ -558,7 +559,8 @@ export class Menu extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', { active: open })}
             href="#"
             id="component-navigation-more"

@@ -223,9 +223,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       const firstLine = sources[0];
       const lastList = sources[sources.length - 1];
       return lineNumber < firstLine.line || lineNumber > lastList.line;
-    } else {
-      return true;
     }
+
+    return true;
   }
 
   fetchComponent() {
@@ -383,10 +383,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       // request one additional line to define `hasSourcesAfter`
       to++;
 
-      return this.propsLoadSources(this.props.component, from, to, this.props.branchLike).then(
-        sources => resolve(sources),
-        onFailLoadSources
-      );
+      this.propsLoadSources(this.props.component, from, to, this.props.branchLike).then(sources => {
+        resolve(sources);
+      }, onFailLoadSources);
     });
   };
 

@@ -46,11 +46,15 @@ if (isMainApp()) {
 } else {
   // login, maintenance or setup pages
 
-  const appStatePromise: Promise<T.AppState> = new Promise(resolve =>
+  const appStatePromise: Promise<T.AppState | undefined> = new Promise(resolve => {
     loadAppState()
-      .then(data => resolve(data))
-      .catch(() => resolve(undefined))
-  );
+      .then(data => {
+        resolve(data);
+      })
+      .catch(() => {
+        resolve(undefined);
+      });
+  });
 
   Promise.all([loadL10nBundle(), appStatePromise, loadApp()]).then(
     ([l10nBundle, appState, startReactApp]) => {

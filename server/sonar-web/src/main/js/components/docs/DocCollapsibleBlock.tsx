@@ -38,6 +38,7 @@ export default class DocCollapsibleBlock extends React.PureComponent<{}, State> 
       <a
         aria-expanded={this.state.open}
         aria-haspopup={true}
+        role="button"
         className="link-no-underline"
         href="#"
         onClick={this.handleClick}>

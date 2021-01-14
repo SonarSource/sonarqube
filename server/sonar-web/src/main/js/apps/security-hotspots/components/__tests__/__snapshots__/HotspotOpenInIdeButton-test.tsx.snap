@@ -6,7 +6,7 @@ exports[`HotspotOpenInIdeButton should handle several IDE 1`] = `
   open={false}
   overlay={
     <DropdownOverlay>
-      <Unknown
+      <HotspotOpenInIdeOverlay
         ides={Array []}
         onIdeSelected={[Function]}
       />
@@ -31,7 +31,7 @@ exports[`HotspotOpenInIdeButton should handle several IDE: dropdown open 1`] = `
   open={true}
   overlay={
     <DropdownOverlay>
-      <Unknown
+      <HotspotOpenInIdeOverlay
         ides={
           Array [
             Object {
@@ -69,7 +69,7 @@ exports[`HotspotOpenInIdeButton should render correctly 1`] = `
   open={false}
   overlay={
     <DropdownOverlay>
-      <Unknown
+      <HotspotOpenInIdeOverlay
         ides={Array []}
         onIdeSelected={[Function]}
       />

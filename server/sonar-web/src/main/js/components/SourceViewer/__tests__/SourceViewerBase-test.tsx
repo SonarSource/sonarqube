@@ -146,6 +146,13 @@ it('should load sources after', async () => {
   expect(wrapper.state().issues).toHaveLength(2);
 });
 
+it('should handle no sources when checking ranges', () => {
+  const wrapper = shallowRender();
+
+  wrapper.setState({ sources: undefined });
+  expect(wrapper.instance().isLineOutsideOfRange(12)).toBe(true);
+});
+
 function shallowRender(overrides: Partial<SourceViewerBase['props']> = {}) {
   return shallow<SourceViewerBase>(
     <SourceViewerBase branchLike={mockMainBranch()} component="my-component" {...overrides} />

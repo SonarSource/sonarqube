@@ -29,8 +29,11 @@ it('should render correctly', () => {
 
 it('should not refresh the page once the indexation is complete if there were failures', () => {
   const reload = jest.fn();
-  delete window.location;
-  (window as any).location = { reload };
+
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: { reload }
+  });
 
   const wrapper = shallowRender();
 
@@ -46,8 +49,11 @@ it('should not refresh the page once the indexation is complete if there were fa
 
 it('should refresh the page once the indexation is complete if there were NO failures', () => {
   const reload = jest.fn();
-  delete window.location;
-  (window as any).location = { reload };
+
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: { reload }
+  });
 
   const wrapper = shallowRender();
 

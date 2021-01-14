@@ -139,7 +139,8 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
-            aria-haspopup="true"
+            aria-haspopup="menu"
+            role="button"
             className={classNames('dropdown-toggle', { active: open })}
             href="#"
             id="global-navigation-more"
