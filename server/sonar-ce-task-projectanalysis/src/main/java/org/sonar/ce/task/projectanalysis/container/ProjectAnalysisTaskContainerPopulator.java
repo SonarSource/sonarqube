@@ -70,6 +70,7 @@ import org.sonar.ce.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssue
 import org.sonar.ce.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.ce.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
+import org.sonar.ce.task.projectanalysis.issue.PullRequestSourceBranchMerger;
 import org.sonar.ce.task.projectanalysis.issue.PullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.ReferenceBranchTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
@@ -79,10 +80,12 @@ import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssueMerger;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
+import org.sonar.ce.task.projectanalysis.issue.SourceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TrackerSourceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.CommentDensityRule;
@@ -275,10 +278,13 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       TrackerReferenceBranchInputFactory.class,
+      TrackerSourceBranchInputFactory.class,
+      SourceBranchComponentUuids.class,
       ClosedIssuesInputFactory.class,
       Tracker.class,
       TrackerExecution.class,
       PullRequestTrackerExecution.class,
+      PullRequestSourceBranchMerger.class,
       ReferenceBranchTrackerExecution.class,
       ComponentIssuesLoader.class,
       BaseIssuesLoader.class,

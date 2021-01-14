@@ -56,22 +56,19 @@ public class PullRequestTrackerExecutionTest {
     .setUuid(FILE_UUID)
     .build();
 
-  private TrackerRawInputFactory rawFactory = mock(TrackerRawInputFactory.class);
-  private TrackerBaseInputFactory baseFactory = mock(TrackerBaseInputFactory.class);
-  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
+  private final TrackerBaseInputFactory baseFactory = mock(TrackerBaseInputFactory.class);
+  private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
+  private final List<DefaultIssue> rawIssues = new ArrayList<>();
+  private final List<DefaultIssue> baseIssues = new ArrayList<>();
 
   private PullRequestTrackerExecution underTest;
 
-  private List<DefaultIssue> rawIssues = new ArrayList<>();
-  private List<DefaultIssue> baseIssues = new ArrayList<>();
-
   @Before
   public void setUp() {
-    when(rawFactory.create(FILE)).thenReturn(createInput(rawIssues));
     when(baseFactory.create(FILE)).thenReturn(createInput(baseIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new PullRequestTrackerExecution(baseFactory, rawFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, tracker, newLinesRepository);
   }
 
   @Test
@@ -86,7 +83,7 @@ public class PullRequestTrackerExecutionTest {
 
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 3))));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
 
     assertThat(tracking.getUnmatchedBases()).isEmpty();
     assertThat(tracking.getMatchedRaws()).isEmpty();
@@ -122,7 +119,7 @@ public class PullRequestTrackerExecutionTest {
 
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(7, 10))));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
 
     assertThat(tracking.getUnmatchedBases()).isEmpty();
     assertThat(tracking.getMatchedRaws()).isEmpty();
@@ -142,7 +139,7 @@ public class PullRequestTrackerExecutionTest {
 
     baseIssues.add(rawIssues.get(0));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
     assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(0), rawIssues.get(0)));
     assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
   }

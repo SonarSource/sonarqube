@@ -109,7 +109,15 @@ public class IssueLifecycle {
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, from, to);
   }
 
-  private void copyAttributesOfIssueFromAnotherBranch(DefaultIssue to, DefaultIssue from) {
+  public void copyExistingIssueFromSourceBranchToPullRequest(DefaultIssue raw, DefaultIssue base) {
+    Preconditions.checkState(analysisMetadataHolder.isPullRequest(), "This operation should be done only on pull request analysis");
+    copyAttributesOfIssueFromAnotherBranch(raw, base);
+    String from = analysisMetadataHolder.getBranch().getName();
+    String to = "#" + analysisMetadataHolder.getPullRequestKey();
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, from, to);
+  }
+
+  public void copyAttributesOfIssueFromAnotherBranch(DefaultIssue to, DefaultIssue from) {
     to.setCopied(true);
     copyFields(to, from);
     if (from.manualSeverity()) {

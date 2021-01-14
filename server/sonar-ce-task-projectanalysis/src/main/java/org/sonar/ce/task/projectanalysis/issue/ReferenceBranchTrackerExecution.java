@@ -21,22 +21,21 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
 
 public class ReferenceBranchTrackerExecution {
-  private final TrackerRawInputFactory rawInputFactory;
   private final TrackerReferenceBranchInputFactory referenceBranchInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public ReferenceBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerReferenceBranchInputFactory referenceBranchInputFactory,
+  public ReferenceBranchTrackerExecution(TrackerReferenceBranchInputFactory referenceBranchInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {
-    this.rawInputFactory = rawInputFactory;
     this.referenceBranchInputFactory = referenceBranchInputFactory;
     this.tracker = tracker;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.trackNonClosed(rawInputFactory.create(component), referenceBranchInputFactory.create(component));
+  public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput) {
+    return tracker.trackNonClosed(rawInput, referenceBranchInputFactory.create(component));
   }
 }

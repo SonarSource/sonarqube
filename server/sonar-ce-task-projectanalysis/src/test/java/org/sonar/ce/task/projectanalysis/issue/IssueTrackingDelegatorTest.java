@@ -27,12 +27,13 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.db.component.BranchType;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class IssueTrackingDelegatorTest {
@@ -48,6 +49,8 @@ public class IssueTrackingDelegatorTest {
   private Component component;
   @Mock
   private Tracking<DefaultIssue, DefaultIssue> trackingResult;
+  @Mock
+  private Input<DefaultIssue> rawInput;
 
   private IssueTrackingDelegator underTest;
 
@@ -55,20 +58,20 @@ public class IssueTrackingDelegatorTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     underTest = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
-    when(tracker.track(component)).thenReturn(trackingResult);
-    when(mergeBranchTracker.track(component)).thenReturn(trackingResult);
-    when(prBranchTracker.track(component)).thenReturn(trackingResult);
+    when(tracker.track(component, rawInput)).thenReturn(trackingResult);
+    when(mergeBranchTracker.track(component, rawInput)).thenReturn(trackingResult);
+    when(prBranchTracker.track(component, rawInput)).thenReturn(trackingResult);
   }
 
   @Test
   public void delegate_regular_tracker() {
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
 
-    underTest.track(component);
+    underTest.track(component, rawInput);
 
-    verify(tracker).track(component);
-    verifyZeroInteractions(prBranchTracker);
-    verifyZeroInteractions(mergeBranchTracker);
+    verify(tracker).track(component, rawInput);
+    verifyNoInteractions(prBranchTracker);
+    verifyNoInteractions(mergeBranchTracker);
   }
 
   @Test
@@ -79,11 +82,11 @@ public class IssueTrackingDelegatorTest {
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
 
-    underTest.track(component);
+    underTest.track(component, rawInput);
 
-    verify(mergeBranchTracker).track(component);
-    verifyZeroInteractions(tracker);
-    verifyZeroInteractions(prBranchTracker);
+    verify(mergeBranchTracker).track(component, rawInput);
+    verifyNoInteractions(tracker);
+    verifyNoInteractions(prBranchTracker);
 
   }
 
@@ -94,10 +97,10 @@ public class IssueTrackingDelegatorTest {
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
 
-    underTest.track(component);
+    underTest.track(component, rawInput);
 
-    verify(prBranchTracker).track(component);
-    verifyZeroInteractions(tracker);
-    verifyZeroInteractions(mergeBranchTracker);
+    verify(prBranchTracker).track(component, rawInput);
+    verifyNoInteractions(tracker);
+    verifyNoInteractions(mergeBranchTracker);
   }
 }

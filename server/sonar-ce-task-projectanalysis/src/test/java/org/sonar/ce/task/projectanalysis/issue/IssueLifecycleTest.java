@@ -31,6 +31,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -38,12 +39,13 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -59,18 +61,18 @@ public class IssueLifecycleTest {
   private static final Date DEFAULT_DATE = new Date();
   private static final Duration DEFAULT_DURATION = Duration.create(10);
 
-  private DumbRule rule = new DumbRule(XOO_X1);
+  private final DumbRule rule = new DumbRule(XOO_X1);
 
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private IssueChangeContext issueChangeContext = IssueChangeContext.createUser(DEFAULT_DATE, "default_user_uuid");
-  private IssueWorkflow workflow = mock(IssueWorkflow.class);
-  private IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
-  private DebtCalculator debtCalculator = mock(DebtCalculator.class);
-  private IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator, ruleRepository);
+  private final IssueChangeContext issueChangeContext = IssueChangeContext.createUser(DEFAULT_DATE, "default_user_uuid");
+  private final IssueWorkflow workflow = mock(IssueWorkflow.class);
+  private final IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
+  private final DebtCalculator debtCalculator = mock(DebtCalculator.class);
+  private final IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator, ruleRepository);
 
   @Test
   public void initNewOpenIssue() {
@@ -162,6 +164,79 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void copyExistingIssuesFromSourceBranchOfPullRequest() {
+    String pullRequestKey = "1";
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    when(branch.getName()).thenReturn("sourceBranch-1");
+    when(branch.getPullRequestKey()).thenReturn(pullRequestKey);
+    analysisMetadataHolder.setBranch(branch);
+    analysisMetadataHolder.setPullRequestKey(pullRequestKey);
+    DefaultIssue raw = new DefaultIssue()
+      .setKey("raw");
+    DefaultIssue fromShort = new DefaultIssue()
+      .setKey("short");
+    fromShort.setResolution("resolution");
+    fromShort.setStatus("status");
+
+    Date commentDate = new Date();
+    fromShort.addComment(new DefaultIssueComment()
+      .setIssueKey("short")
+      .setCreatedAt(commentDate)
+      .setUserUuid("user_uuid")
+      .setMarkdownText("A comment"));
+
+    Date diffDate = new Date();
+    // file diff alone
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("file", "uuidA1", "uuidB1"));
+    // file diff with another field
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("severity", "MINOR", "MAJOR")
+      .setDiff("file", "uuidA2", "uuidB2"));
+
+    underTest.copyExistingIssueFromSourceBranchToPullRequest(raw, fromShort);
+
+    assertThat(raw.resolution()).isEqualTo("resolution");
+    assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.defaultIssueComments())
+      .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
+      .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
+    assertThat(raw.changes()).hasSize(2);
+    assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
+    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
+    assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
+    assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
+    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
+    assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_BRANCH);
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).oldValue()).isEqualTo("sourceBranch-1");
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_BRANCH).newValue()).isEqualTo("#1");
+  }
+
+  @Test
+  public void copyExistingIssuesFromSourceBranchOfPullRequest_only_works_for_pull_requests() {
+    DefaultIssue raw = new DefaultIssue()
+      .setKey("raw");
+    DefaultIssue from = new DefaultIssue()
+      .setKey("short");
+    from.setResolution("resolution");
+    from.setStatus("status");
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
+    analysisMetadataHolder.setBranch(branch);
+
+    assertThatThrownBy(() -> underTest.copyExistingIssueFromSourceBranchToPullRequest(raw, from))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("This operation should be done only on pull request analysis");
+  }
+
+  @Test
   public void copiedIssue() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
@@ -222,7 +297,7 @@ public class IssueLifecycleTest {
     assertThat(raw.changes().get(0).get(IssueFieldsSetter.FROM_BRANCH).oldValue()).isEqualTo("master");
     assertThat(raw.changes().get(0).get(IssueFieldsSetter.FROM_BRANCH).newValue()).isEqualTo("release-2.x");
 
-    verifyZeroInteractions(updater);
+    verifyNoInteractions(updater);
   }
 
   @Test
@@ -290,9 +365,9 @@ public class IssueLifecycleTest {
     assertThat(raw.isChanged()).isFalse();
     assertThat(raw.changes()).hasSize(2);
     assertThat(raw.changes().get(0).diffs())
-      .containsOnly(entry("foo", new FieldDiffs.Diff("bar", "donut")));
+      .containsOnly(entry("foo", new FieldDiffs.Diff<>("bar", "donut")));
     assertThat(raw.changes().get(1).diffs())
-      .containsOnly(entry("file", new FieldDiffs.Diff("A", "B")));
+      .containsOnly(entry("file", new FieldDiffs.Diff<>("A", "B")));
 
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);

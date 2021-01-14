@@ -35,8 +35,6 @@ import static org.mockito.Mockito.when;
 
 public class ReferenceBranchTrackerExecutionTest {
   @Mock
-  private TrackerRawInputFactory rawInputFactory;
-  @Mock
   private TrackerReferenceBranchInputFactory mergeInputFactory;
   @Mock
   private Tracker<DefaultIssue, DefaultIssue> tracker;
@@ -48,7 +46,7 @@ public class ReferenceBranchTrackerExecutionTest {
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    underTest = new ReferenceBranchTrackerExecution(rawInputFactory, mergeInputFactory, tracker);
+    underTest = new ReferenceBranchTrackerExecution(mergeInputFactory, tracker);
   }
 
   @Test
@@ -56,10 +54,9 @@ public class ReferenceBranchTrackerExecutionTest {
     Input<DefaultIssue> rawInput = mock(Input.class);
     Input<DefaultIssue> mergeInput = mock(Input.class);
     NonClosedTracking<DefaultIssue, DefaultIssue> result = mock(NonClosedTracking.class);
-    when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(mergeInputFactory.create(component)).thenReturn(mergeInput);
     when(tracker.trackNonClosed(rawInput, mergeInput)).thenReturn(result);
 
-    assertThat(underTest.track(component)).isEqualTo(result);
+    assertThat(underTest.track(component, rawInput)).isEqualTo(result);
   }
 }

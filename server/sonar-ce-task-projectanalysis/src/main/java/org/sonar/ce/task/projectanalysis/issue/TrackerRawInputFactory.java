@@ -54,7 +54,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
 public class TrackerRawInputFactory {
-  private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0l;
+  private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0L;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final CommonRuleEngine commonRuleEngine;

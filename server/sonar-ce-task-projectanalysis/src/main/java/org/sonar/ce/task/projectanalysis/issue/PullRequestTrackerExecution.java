@@ -34,20 +34,17 @@ import org.sonar.core.issue.tracking.Tracking;
 
 public class PullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
-  private final TrackerRawInputFactory rawInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
 
-  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker,
+  public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker,
     NewLinesRepository newLinesRepository) {
     this.baseInputFactory = baseInputFactory;
-    this.rawInputFactory = rawInputFactory;
     this.tracker = tracker;
     this.newLinesRepository = newLinesRepository;
   }
 
-  public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    Input<DefaultIssue> rawInput = rawInputFactory.create(component);
+  public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput) {
     Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
 
     // Step 1: only keep issues on changed lines

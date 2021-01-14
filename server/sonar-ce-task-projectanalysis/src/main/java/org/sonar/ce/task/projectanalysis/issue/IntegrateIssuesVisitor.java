@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -35,29 +36,41 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private final ProtoIssueCache protoIssueCache;
+  private final TrackerRawInputFactory rawInputFactory;
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
   private final SiblingsIssueMerger issueStatusCopier;
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
+  private final PullRequestSourceBranchMerger pullRequestSourceBranchMerger;
 
-  public IntegrateIssuesVisitor(ProtoIssueCache protoIssueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, IssueTrackingDelegator issueTracking,
-    SiblingsIssueMerger issueStatusCopier, ReferenceBranchComponentUuids referenceBranchComponentUuids) {
+  public IntegrateIssuesVisitor(
+    ProtoIssueCache protoIssueCache,
+    TrackerRawInputFactory rawInputFactory,
+    IssueLifecycle issueLifecycle,
+    IssueVisitors issueVisitors,
+    IssueTrackingDelegator issueTracking,
+    SiblingsIssueMerger issueStatusCopier,
+    ReferenceBranchComponentUuids referenceBranchComponentUuids,
+    PullRequestSourceBranchMerger pullRequestSourceBranchMerger) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.protoIssueCache = protoIssueCache;
+    this.rawInputFactory = rawInputFactory;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
     this.issueTracking = issueTracking;
     this.issueStatusCopier = issueStatusCopier;
     this.referenceBranchComponentUuids = referenceBranchComponentUuids;
+    this.pullRequestSourceBranchMerger = pullRequestSourceBranchMerger;
   }
 
   @Override
   public void visitAny(Component component) {
     try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
-      TrackingResult tracking = issueTracking.track(component);
-      fillNewOpenIssues(component, tracking.newIssues(), cacheAppender);
+      Input<DefaultIssue> rawInput = rawInputFactory.create(component);
+      TrackingResult tracking = issueTracking.track(component, rawInput);
+      fillNewOpenIssues(component, tracking.newIssues(), rawInput, cacheAppender);
       fillExistingOpenIssues(component, tracking.issuesToMerge(), cacheAppender);
       closeIssues(component, tracking.issuesToClose(), cacheAppender);
       copyIssues(component, tracking.issuesToCopy(), cacheAppender);
@@ -67,7 +80,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, CacheAppender<DefaultIssue> cacheAppender) {
+  private void fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, Input<DefaultIssue> rawInput, CacheAppender<DefaultIssue> cacheAppender) {
     List<DefaultIssue> newIssuesList = newIssues
       .peek(issueLifecycle::initNewOpenIssue)
       .collect(MoreCollectors.toList());
@@ -76,6 +89,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       return;
     }
 
+    pullRequestSourceBranchMerger.tryMergeIssuesFromSourceBranchOfPullRequest(component, newIssuesList, rawInput);
     issueStatusCopier.tryMerge(component, newIssuesList);
 
     for (DefaultIssue issue : newIssuesList) {

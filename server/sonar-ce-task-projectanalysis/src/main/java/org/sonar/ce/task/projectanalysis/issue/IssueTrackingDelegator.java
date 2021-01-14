@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracking;
 
 import static java.util.Collections.emptyMap;
@@ -41,14 +42,14 @@ public class IssueTrackingDelegator {
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
-  public TrackingResult track(Component component) {
+  public TrackingResult track(Component component, Input<DefaultIssue> rawInput) {
     if (analysisMetadataHolder.isPullRequest()) {
-      return standardResult(pullRequestTracker.track(component));
+      return standardResult(pullRequestTracker.track(component, rawInput));
     } else if (isFirstAnalysisSecondaryBranch()) {
-      Tracking<DefaultIssue, DefaultIssue> tracking = referenceBranchTracker.track(component);
+      Tracking<DefaultIssue, DefaultIssue> tracking = referenceBranchTracker.track(component, rawInput);
       return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), empty(), tracking.getUnmatchedRaws());
     } else {
-      return standardResult(tracker.track(component));
+      return standardResult(tracker.track(component, rawInput));
     }
   }
 

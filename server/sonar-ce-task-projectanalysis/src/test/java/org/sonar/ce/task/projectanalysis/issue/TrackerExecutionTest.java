@@ -45,25 +45,24 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class TrackerExecutionTest {
-  private final TrackerRawInputFactory rawInputFactory = mock(TrackerRawInputFactory.class);
   private final TrackerBaseInputFactory baseInputFactory = mock(TrackerBaseInputFactory.class);
   private final ClosedIssuesInputFactory closedIssuesInputFactory = mock(ClosedIssuesInputFactory.class);
   private final Tracker<DefaultIssue, DefaultIssue> tracker = mock(Tracker.class);
   private final ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
 
-  private TrackerExecution underTest = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, tracker, componentIssuesLoader, analysisMetadataHolder);
+  private final TrackerExecution underTest = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, tracker, componentIssuesLoader,
+    analysisMetadataHolder);
 
-  private Input<DefaultIssue> rawInput = mock(Input.class);
-  private Input<DefaultIssue> openIssuesInput = mock(Input.class);
-  private Input<DefaultIssue> closedIssuesInput = mock(Input.class);
-  private NonClosedTracking<DefaultIssue, DefaultIssue> nonClosedTracking = mock(NonClosedTracking.class);
-  private Tracking<DefaultIssue, DefaultIssue> closedTracking = mock(Tracking.class);
+  private final Input<DefaultIssue> rawInput = mock(Input.class);
+  private final Input<DefaultIssue> openIssuesInput = mock(Input.class);
+  private final Input<DefaultIssue> closedIssuesInput = mock(Input.class);
+  private final NonClosedTracking<DefaultIssue, DefaultIssue> nonClosedTracking = mock(NonClosedTracking.class);
+  private final Tracking<DefaultIssue, DefaultIssue> closedTracking = mock(Tracking.class);
 
   @Test
   public void track_tracks_only_nonClosed_issues_if_tracking_returns_complete_from_Tracker() {
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).build();
-    when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(any())).thenThrow(new IllegalStateException("closedIssuesInputFactory should not be called"));
     when(nonClosedTracking.isComplete()).thenReturn(true);
@@ -71,7 +70,7 @@ public class TrackerExecutionTest {
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(any(), any())).thenThrow(new IllegalStateException("trackClosed should not be called"));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component, rawInput);
 
     assertThat(tracking).isSameAs(nonClosedTracking);
     verify(tracker).trackNonClosed(rawInput, openIssuesInput);
@@ -81,7 +80,6 @@ public class TrackerExecutionTest {
   @Test
   public void track_does_not_track_nonClosed_issues_if_tracking_returns_incomplete_but_this_is_first_analysis() {
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).build();
-    when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(any())).thenThrow(new IllegalStateException("closedIssuesInputFactory should not be called"));
     when(nonClosedTracking.isComplete()).thenReturn(false);
@@ -89,7 +87,7 @@ public class TrackerExecutionTest {
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(any(), any())).thenThrow(new IllegalStateException("trackClosed should not be called"));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component, rawInput);
 
     assertThat(tracking).isSameAs(nonClosedTracking);
     verify(tracker).trackNonClosed(rawInput, openIssuesInput);
@@ -99,7 +97,6 @@ public class TrackerExecutionTest {
   @Test
   public void track_tracks_nonClosed_issues_and_then_closedOnes_if_tracking_returns_incomplete() {
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).build();
-    when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(component)).thenReturn(closedIssuesInput);
     when(nonClosedTracking.isComplete()).thenReturn(false);
@@ -107,7 +104,7 @@ public class TrackerExecutionTest {
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(nonClosedTracking, closedIssuesInput)).thenReturn(closedTracking);
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component, rawInput);
 
     assertThat(tracking).isSameAs(closedTracking);
     verify(tracker).trackNonClosed(rawInput, openIssuesInput);
@@ -118,7 +115,6 @@ public class TrackerExecutionTest {
   @Test
   public void track_loadChanges_on_matched_closed_issues() {
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).build();
-    when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(component)).thenReturn(closedIssuesInput);
     when(nonClosedTracking.isComplete()).thenReturn(false);
@@ -134,7 +130,7 @@ public class TrackerExecutionTest {
     Collections.shuffle(mappedBaseIssues);
     when(closedTracking.getMatchedRaws()).thenReturn(mappedBaseIssues.stream().collect(uniqueIndex(i -> new DefaultIssue().setKey("raw_for_" + i.key()), i -> i)));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component);
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component, rawInput);
 
     assertThat(tracking).isSameAs(closedTracking);
     verify(tracker).trackNonClosed(rawInput, openIssuesInput);
