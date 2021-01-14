@@ -93,7 +93,7 @@ public class DefaultScannerWsClientTest {
   public void fail_if_requires_credentials() {
     expectedException.expect(MessageException.class);
     expectedException
-      .expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
+      .expectMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other credentials in sonar.login and sonar.password.");
 
     WsRequest request = newRequest();
     WsResponse response = newResponse().setCode(401);
