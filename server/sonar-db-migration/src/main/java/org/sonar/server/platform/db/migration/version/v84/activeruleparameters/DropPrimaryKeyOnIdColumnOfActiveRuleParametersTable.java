@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v84.activeruleparameters;
 
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.version.v84.common.DropPrimaryKeyOnIdColumn;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public class DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable extends DropPrimaryKeyOnIdColumn {
   private static final String TABLE_NAME = "active_rule_parameters";

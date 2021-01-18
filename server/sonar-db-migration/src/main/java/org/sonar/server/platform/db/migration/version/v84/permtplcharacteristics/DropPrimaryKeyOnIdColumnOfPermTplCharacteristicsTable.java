@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v84.permtplcharacteristics;
 
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.version.v84.common.DropPrimaryKeyOnIdColumn;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public class DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable extends DropPrimaryKeyOnIdColumn {
   private static final String TABLE_NAME = "perm_tpl_characteristics";

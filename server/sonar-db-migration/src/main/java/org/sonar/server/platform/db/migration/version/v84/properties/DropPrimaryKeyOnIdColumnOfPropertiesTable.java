@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v84.properties;
 
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.version.v84.common.DropPrimaryKeyOnIdColumn;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public class DropPrimaryKeyOnIdColumnOfPropertiesTable extends DropPrimaryKeyOnIdColumn {
 

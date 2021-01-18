@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v84.users.fk.organization
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public class DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable extends DdlChange {
   private static final String TABLE_NAME = "organization_members";

@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v84.util.AddPrimaryKeyBuilder;
 
 public class AddPKeyOnUuidOfLiveMeasuresTable extends DdlChange {
   private static final String TABLE_NAME = "live_measures";
