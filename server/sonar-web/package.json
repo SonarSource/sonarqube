@@ -132,7 +132,8 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage",
+    "validate-ci": "yarn lint-report && yarn test --coverage",
+    "check-ci": "yarn ts-check && yarn format-check",
     "precommit": "yarn ts-check && lint-staged"
   },
   "engines": {

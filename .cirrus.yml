@@ -128,6 +128,19 @@ validate_license_change_task:
            $CIRRUS_CHANGE_MESSAGE =~ '.*\[update headers\].*'
   timeout_in: 180m # Increase timeout, as license changes impact all files, which slows down the analysis considerably.
 
+yarn_check-ci_task:
+  <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 4
+    memory: 8Gb
+  script: |
+    ./private/cirrus/cirrus-env.sh YARN
+    gradle yarn_check-ci
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+
 qa_task:
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:

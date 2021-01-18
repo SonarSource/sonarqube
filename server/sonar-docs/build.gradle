@@ -70,6 +70,18 @@ yarn_run {
 // To clean outputs outside of "build" directory:
 clean.dependsOn(cleanYarn_run)
 
+"yarn_check-ci" {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'src'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json'].each {
+    inputs.file(it)
+  }
+
+  dependsOn(yarn)
+}
+
 "yarn_validate-ci" {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
