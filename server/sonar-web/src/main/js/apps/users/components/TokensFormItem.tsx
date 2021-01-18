@@ -43,6 +43,8 @@ interface State {
   showConfirmation: boolean;
 }
 
+const MAX_TOKEN_NAME_FIELD = 20;
+
 export default class TokensFormItem extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: false, showConfirmation: false };
@@ -86,7 +88,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
       <tr>
         <td>
           <Tooltip overlay={token.name}>
-            <span>{limitComponentName(token.name)}</span>
+            <span>{limitComponentName(token.name, MAX_TOKEN_NAME_FIELD)}</span>
           </Tooltip>
         </td>
         <td className="nowrap">
