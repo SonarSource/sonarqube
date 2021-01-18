@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.util;
+package org.sonar.server.platform.db.migration.sql;
 
 import org.junit.Test;
 
@@ -37,7 +37,14 @@ public class AddPrimaryKeyBuilderTest {
 
   @Test
   public void fail_when_table_name_is_invalid() {
-    assertThatThrownBy(() -> new AddPrimaryKeyBuilder("abcdefghijklmnopqrstuvwxyz", "id").build())
+    assertThatThrownBy(() -> new AddPrimaryKeyBuilder("abcdefghijklmnopqrstuvwxyz", "id"))
       .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void fail_when_primary_key_column_is_invalid() {
+    AddPrimaryKeyBuilder builder = new AddPrimaryKeyBuilder("my_table", null);
+    assertThatThrownBy(builder::build)
+        .isInstanceOf(IllegalStateException.class);
   }
 }

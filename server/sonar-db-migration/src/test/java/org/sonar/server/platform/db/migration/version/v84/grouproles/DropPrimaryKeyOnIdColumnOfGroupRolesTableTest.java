@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v84.util.SqlHelper;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -34,9 +34,9 @@ public class DropPrimaryKeyOnIdColumnOfGroupRolesTableTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfGroupRolesTableTest.class, "schema.sql");
 
-  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new SqlHelper(db.database()));
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database()));
 
-  private DropPrimaryKeyOnIdColumnOfGroupRolesTable underTest = new DropPrimaryKeyOnIdColumnOfGroupRolesTable(db.database(), dropPrimaryKeySqlGenerator);
+  private final DropPrimaryKeyOnIdColumnOfGroupRolesTable underTest = new DropPrimaryKeyOnIdColumnOfGroupRolesTable(db.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void execute() throws SQLException {

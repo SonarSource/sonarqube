@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.util;
+package org.sonar.server.platform.db.migration.sql;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -34,11 +36,11 @@ public class AddPrimaryKeyBuilder {
 
   public AddPrimaryKeyBuilder(String tableName, String column, String... moreColumns) {
     this.tableName = validateTableName(tableName);
-    this.primaryKey = Lists.asList(column, moreColumns);
+    this.primaryKey = Lists.asList(column, moreColumns).stream().filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   public String build() {
-    checkState(primaryKey != null, "Primary key is missing");
+    checkState(!primaryKey.isEmpty(), "Primary key is missing");
     return format("ALTER TABLE %s ADD CONSTRAINT %s%s PRIMARY KEY (%s)", tableName, PRIMARY_KEY_PREFIX, tableName,
       String.join(",", this.primaryKey));
   }

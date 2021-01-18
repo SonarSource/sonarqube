@@ -21,10 +21,10 @@ package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v84.util.AddPrimaryKeyBuilder;
 
 public class DropOrganizationInRulesMetadata extends DdlChange {
   private static final String TABLE_NAME = "rules_metadata";

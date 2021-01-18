@@ -21,12 +21,12 @@ package org.sonar.server.platform.db.migration.version.v84.common;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public abstract class DropPrimaryKeyOnIdColumn extends DdlChange {
   private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
-  private String tableName;
+  private final String tableName;
 
   protected DropPrimaryKeyOnIdColumn(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator, String tableName) {
     super(db);

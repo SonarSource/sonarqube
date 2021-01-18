@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v84.util.SqlHelper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -34,8 +34,8 @@ public class DropPrimaryKeyOnIdColumnOfRulesMetadataTableTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfRulesMetadataTableTest.class, "schema.sql");
 
-  private MigrationStep underTest = new DropPrimaryKeyOnIdColumnOfRulesMetadataTable(db.database(),
-    new DropPrimaryKeySqlGenerator(db.database(), new SqlHelper(db.database())));
+  private final MigrationStep underTest = new DropPrimaryKeyOnIdColumnOfRulesMetadataTable(db.database(),
+    new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database())));
 
   @Test
   public void execute() throws SQLException {

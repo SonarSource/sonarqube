@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v84.util.AddPrimaryKeyBuilder;
 
 public class AddPkToApplicationBranchProjs extends DdlChange {
   private static final String TABLE = "app_branch_project_branch";

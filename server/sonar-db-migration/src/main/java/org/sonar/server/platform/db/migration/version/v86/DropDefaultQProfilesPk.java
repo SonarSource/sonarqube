@@ -21,16 +21,21 @@ package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropDefaultQProfilesPk extends DdlChange {
-  public DropDefaultQProfilesPk(Database db) {
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+  private static final String TABLE_NAME = "default_qprofiles";
+  private static final String COLUMN_NAME = "language";
+
+  public DropDefaultQProfilesPk(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setName("pk_default_qprofiles").setTable("default_qprofiles").build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, COLUMN_NAME, false));
   }
 }

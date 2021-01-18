@@ -24,8 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v84.util.SqlHelper;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 
 import static java.sql.Types.INTEGER;
 import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.COLUMN_NAME;
@@ -37,8 +37,8 @@ public class DropIdFromComponentsTableTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(dbTester.database(), new SqlHelper(dbTester.database()));
-  private DropIdFromComponentsTable underTest = new DropIdFromComponentsTable(dbTester.database(), dropPrimaryKeySqlGenerator);
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(dbTester.database(), new DbPrimaryKeyConstraintFinder(dbTester.database()));
+  private final DropIdFromComponentsTable underTest = new DropIdFromComponentsTable(dbTester.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void column_has_been_dropped() throws SQLException {

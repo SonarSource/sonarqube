@@ -23,13 +23,15 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class DropDefaultQProfilesPkTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropDefaultQProfilesPkTest.class, "schema.sql");
 
-  private MigrationStep underTest = new DropDefaultQProfilesPk(db.database());
+  private final MigrationStep underTest = new DropDefaultQProfilesPk(db.database(), new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database())));
 
   @Test
   public void execute() throws SQLException {
