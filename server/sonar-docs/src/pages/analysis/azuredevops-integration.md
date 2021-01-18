@@ -225,17 +225,6 @@ Select your build technology below to expand the instructions for configuring br
 | 4. Add a **Run Code Analysis** task to run the code analysis and make the results available to SonarQube. Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis.
 | 5. Add a **Publish Quality Gate Result** task.
 
-### Maintaining pull request code quality and security 
-Using pull requests allows your to prevent unsafe or substandard code from being merged with your main branch. The following branch policies can help you maintain your code quality and safety by analyzing code and identifying issues in all of the pull requests on your project. These policies are optional, but they're highly recommended so you can quickly track, identify, and remediate issues in your code.
-
-#### **Ensuring your pull requests are automatically analyzed**
-Ensure all of your pull requests get automatically analyzed by adding a [build validation branch policy](https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#pr-triggers) on the target branch.
-
-#### **Preventing pull request merges when the Quality Gate fails**
-Prevent the merge of pull requests with a failed Quality Gate by adding a `SonarQube/quality gate` [status check branch policy](https://docs.microsoft.com/en-us/azure/devops/repos/git/pr-status-policy) on the target branch.
-
-Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
-
 ### Running your pipeline
 Commit and push your code to trigger the pipeline execution and SonarQube analysis. New pushes on your branches (and pull requests if you set up pull request analysis) trigger a new analysis in SonarQube.
 
@@ -246,13 +235,45 @@ After you've set up SonarQube to import your Azure DevOps Server repositories as
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
-### Adding pull request decoration to a manually created or existing project
-To add pull request decoration to a manually created or existing project, after you've updated your global ALM Integration settings as shown in the **Importing your Azure DevOps repositories into SonarQube** above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
+To set up a manually created or existing project or a project that's part of a mono repository, see the instructions in the following sections.
+
+### Adding pull request decoration to a manually created or existing project 
+To add pull request decoration to a manually created or existing project, after you've updated your global ALM Integration settings as shown in the **Importing your Azure DevOps repositories into SonarQube** section above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
 
 From here, set your: 
 
 - **Project name**
 - **Repository name**
+
+### Adding pull request decoration to projects that are part of a mono repository
+
+In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up pull request decoration for each SonarQube project.
+
+In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
+
+In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
+
+To do this, set your global ALM Integration settings as shown in the **Importing your Azure DevOps repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
+
+From here:
+
+- Set your **Project name**
+- Set your **Repository name**
+- (_Enterprise Edition and above only_) Set the **Enable mono repository support** to true 
+
+### Maintaining pull request code quality and security 
+Using pull requests allows you to prevent unsafe or substandard code from being merged with your main branch. The following branch policies can help you maintain your code quality and safety by analyzing code and identifying issues in all of the pull requests on your project. These policies are optional, but they're highly recommended so you can quickly track, identify, and remediate issues in your code.
+
+#### **Ensuring your pull requests are automatically analyzed**
+Ensure all of your pull requests get automatically analyzed by adding a [build validation branch policy](https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#pr-triggers) on the target branch.
+
+#### **Preventing pull request merges when the Quality Gate fails**
+Prevent the merge of pull requests with a failed Quality Gate by adding a `SonarQube/quality gate` [status check branch policy](https://docs.microsoft.com/en-us/azure/devops/repos/git/pr-status-policy) on the target branch.
+
+[[info]]
+|If your SonarQube project is configured as a mono repository in Enterprise Edition or above, you need to use a status check branch policy that uses a SonarQube project key (`SonarQube/quality_gate_[SQ_project_key]`) instead of `SonarQube/quality gate`.
+
+Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
 
 ### Advanced pull request decoration configuration
 
