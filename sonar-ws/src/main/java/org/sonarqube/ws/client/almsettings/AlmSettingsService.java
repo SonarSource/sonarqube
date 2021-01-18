@@ -198,6 +198,7 @@ public class AlmSettingsService extends BaseService {
         .setParam("project", request.getProject())
         .setParam("projectName", request.getProjectName())
         .setParam("repositoryName", request.getRepositoryName())
+        .setParam("monorepo", request.getMonorepo())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

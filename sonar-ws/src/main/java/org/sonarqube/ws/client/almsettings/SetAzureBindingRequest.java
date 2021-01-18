@@ -33,6 +33,7 @@ public class SetAzureBindingRequest {
   private String project;
   private String repositoryName;
   private String projectName;
+  private String monorepo;
 
   /**
    * This is a mandatory parameter.
@@ -81,6 +82,15 @@ public class SetAzureBindingRequest {
    */
   public SetAzureBindingRequest setProjectName(String projectName) {
     this.projectName = projectName;
+    return this;
+  }
+
+  public String getMonorepo() {
+    return monorepo;
+  }
+
+  public SetAzureBindingRequest setMonorepo(String monorepo) {
+    this.monorepo = monorepo;
     return this;
   }
 }

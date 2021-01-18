@@ -72,6 +72,10 @@ public class AlmSettingsDbTester {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project));
   }
 
+  public ProjectAlmSettingDto insertAzureMonoRepoProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project) {
+    return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project), d -> d.setMonorepo(true));
+  }
+
   public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project));
   }

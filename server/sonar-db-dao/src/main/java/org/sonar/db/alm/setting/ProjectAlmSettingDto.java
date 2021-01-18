@@ -62,6 +62,13 @@ public class ProjectAlmSettingDto {
    */
   private Boolean summaryCommentEnabled;
 
+  /**
+   * Boolean to know if this SonarQube project is part of a monorepo
+   * Only valid for Azure
+   * It will be null when the ALM is other than Azure
+   */
+  private Boolean monorepo;
+
   private long updatedAt;
   private long createdAt;
 
@@ -117,6 +124,15 @@ public class ProjectAlmSettingDto {
 
   public ProjectAlmSettingDto setSummaryCommentEnabled(@Nullable Boolean summaryCommentEnabled) {
     this.summaryCommentEnabled = summaryCommentEnabled;
+    return this;
+  }
+
+  public Boolean getMonorepo() {
+    return monorepo;
+  }
+
+  public ProjectAlmSettingDto setMonorepo(Boolean monorepo) {
+    this.monorepo = monorepo;
     return this;
   }
 
