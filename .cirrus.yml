@@ -238,7 +238,7 @@ qa_gitlab_task:
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
-    QA_CATEGORY: AZURE
+    QA_CATEGORY: GITLAB
   gradle_cache:
     folder: ~/.gradle/caches
   script:
