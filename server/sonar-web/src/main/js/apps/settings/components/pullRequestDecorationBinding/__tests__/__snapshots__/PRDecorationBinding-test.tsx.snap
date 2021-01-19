@@ -12,6 +12,7 @@ exports[`should render correctly 1`] = `
   isConfigured={false}
   isValid={false}
   loading={true}
+  monorepoEnabled={false}
   onFieldChange={[Function]}
   onReset={[Function]}
   onSubmit={[Function]}

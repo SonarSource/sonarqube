@@ -41,6 +41,7 @@ export interface PRDecorationBindingRendererProps {
   onSubmit: () => void;
   saving: boolean;
   success: boolean;
+  monorepoEnabled: boolean;
 }
 
 function optionRenderer(instance: AlmSettingsInstance) {
@@ -55,7 +56,17 @@ function optionRenderer(instance: AlmSettingsInstance) {
 }
 
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
-  const { formData, instances, isChanged, isConfigured, isValid, loading, saving, success } = props;
+  const {
+    formData,
+    instances,
+    isChanged,
+    isConfigured,
+    isValid,
+    loading,
+    saving,
+    success,
+    monorepoEnabled
+  } = props;
 
   if (loading) {
     return <DeferredSpinner />;
@@ -124,7 +135,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
         </div>
 
         {alm && (
-          <AlmSpecificForm alm={alm} formData={formData} onFieldChange={props.onFieldChange} />
+          <AlmSpecificForm
+            alm={alm}
+            formData={formData}
+            onFieldChange={props.onFieldChange}
+            monorepoEnabled={monorepoEnabled}
+          />
         )}
 
         <div className="display-flex-center">

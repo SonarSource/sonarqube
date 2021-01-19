@@ -19,7 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import InputForBoolean from '../inputs/InputForBoolean';
@@ -28,6 +30,7 @@ export interface AlmSpecificFormProps {
   alm: AlmKeys;
   formData: T.Omit<ProjectAlmBindingResponse, 'alm'>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
+  monorepoEnabled: boolean;
 }
 
 interface LabelProps {
@@ -68,18 +71,22 @@ function renderLabel(props: LabelProps) {
 function renderBooleanField(
   props: Omit<CommonFieldProps, 'optional'> & {
     value: boolean;
+    inputExtra?: React.ReactNode;
   }
 ) {
-  const { id, value, onFieldChange, propKey } = props;
+  const { id, value, onFieldChange, propKey, inputExtra } = props;
   return (
     <div className="form-field">
       {renderLabel({ ...props, optional: true })}
-      <InputForBoolean
-        isDefault={true}
-        name={id}
-        onChange={v => onFieldChange(propKey, v)}
-        value={value}
-      />
+      <div className="display-flex-center">
+        <InputForBoolean
+          isDefault={true}
+          name={id}
+          onChange={v => onFieldChange(propKey, v)}
+          value={value}
+        />
+        {inputExtra}
+      </div>
     </div>
   );
 }
@@ -109,7 +116,8 @@ function renderField(
 export default function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
-    formData: { repository, slug, summaryCommentEnabled }
+    formData: { repository, slug, summaryCommentEnabled, monorepo },
+    monorepoEnabled
   } = props;
 
   switch (alm) {
@@ -130,6 +138,26 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
+          {monorepoEnabled &&
+            renderBooleanField({
+              help: true,
+              helpParams: {
+                doc_link: (
+                  <Link to="/documentation/analysis/azuredevops-integration/" target="_blank">
+                    {translate('learn_more')}
+                  </Link>
+                )
+              },
+              id: 'azure.monorepo',
+              onFieldChange: props.onFieldChange,
+              propKey: 'monorepo',
+              value: monorepo ?? false,
+              inputExtra: monorepo && (
+                <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
+                  {translate('settings.pr_decoration.binding.form.azure.monorepo.warning')}
+                </Alert>
+              )
+            })}
         </>
       );
     case AlmKeys.Bitbucket:

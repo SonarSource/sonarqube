@@ -38,6 +38,7 @@ exports[`should render correctly: azure pipelines tutorial 1`] = `
       Object {
         "alm": "azure",
         "key": "foo",
+        "monorepo": false,
         "repository": "REPOSITORY_NAME",
         "slug": "PROJECT_NAME",
         "url": "https://ado.my_company.com/mycollection",

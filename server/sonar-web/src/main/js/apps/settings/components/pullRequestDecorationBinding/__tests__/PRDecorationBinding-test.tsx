@@ -29,8 +29,8 @@ import {
   setProjectGithubBinding
 } from '../../../../../api/alm-settings';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import { AlmKeys } from '../../../../../types/alm-settings';
-import PRDecorationBinding from '../PRDecorationBinding';
+import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
+import { PRDecorationBinding } from '../PRDecorationBinding';
 
 jest.mock('../../../../../api/alm-settings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([]),
@@ -88,7 +88,7 @@ it('should handle reset', async () => {
 });
 
 describe('handleSubmit', () => {
-  const instances = [
+  const instances: AlmSettingsInstance[] = [
     { key: 'github', alm: AlmKeys.GitHub },
     { key: 'azure', alm: AlmKeys.Azure },
     { key: 'bitbucket', alm: AlmKeys.Bitbucket }
@@ -122,8 +122,9 @@ describe('handleSubmit', () => {
     const azureKey = 'azure';
     const repository = 'az-rep';
     const slug = 'az-project';
+    const monorepo = true;
     wrapper.setState({
-      formData: { key: azureKey, repository, slug },
+      formData: { key: azureKey, repository, slug, monorepo },
       instances
     });
     wrapper.instance().handleSubmit();
@@ -133,7 +134,8 @@ describe('handleSubmit', () => {
       almSetting: azureKey,
       project: PROJECT_KEY,
       projectName: slug,
-      repositoryName: repository
+      repositoryName: repository,
+      monorepo
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -188,10 +190,10 @@ describe.each([[500], [404]])('For status %i', status => {
 it('should handle field changes', async () => {
   const url = 'git.enterprise.com';
   const repository = 'my/repo';
-  const instances = [
-    { key: 'instance1', url, alm: 'github' },
-    { key: 'instance2', url, alm: 'github' },
-    { key: 'instance3', url: 'otherurl', alm: 'github' }
+  const instances: AlmSettingsInstance[] = [
+    { key: 'instance1', url, alm: AlmKeys.GitHub },
+    { key: 'instance2', url, alm: AlmKeys.GitHub },
+    { key: 'instance3', url: 'otherurl', alm: AlmKeys.GitHub }
   ];
   (getAlmSettings as jest.Mock).mockResolvedValueOnce(instances);
   const wrapper = shallowRender();
@@ -216,6 +218,15 @@ it('should handle field changes', async () => {
     key: 'instance2',
     repository,
     summaryCommentEnabled: true
+  });
+
+  wrapper.instance().handleFieldChange('monorepo', true);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().formData).toEqual({
+    key: 'instance2',
+    repository,
+    summaryCommentEnabled: true,
+    monorepo: true
   });
 });
 
@@ -242,7 +253,8 @@ it('should accept submit azure settings', async () => {
     almSetting: 'azure',
     project: PROJECT_KEY,
     repositoryName: 'az-repo',
-    projectName: 'az-project'
+    projectName: 'az-project',
+    monorepo: false
   });
 });
 
@@ -299,7 +311,9 @@ it('should validate form', async () => {
   expect(wrapper.instance().validateForm({ key: 'azure', repository: 'rep' })).toBe(false);
   expect(wrapper.instance().validateForm({ key: 'azure', slug: 'project' })).toBe(false);
   expect(
-    wrapper.instance().validateForm({ key: 'azure', repository: 'repo', slug: 'project' })
+    wrapper
+      .instance()
+      .validateForm({ key: 'azure', repository: 'repo', slug: 'project', monorepo: true })
   ).toBe(true);
 
   expect(wrapper.instance().validateForm({ key: 'github', repository: '' })).toBe(false);
@@ -316,6 +330,10 @@ it('should validate form', async () => {
 
 function shallowRender(props: Partial<PRDecorationBinding['props']> = {}) {
   return shallow<PRDecorationBinding>(
-    <PRDecorationBinding component={mockComponent({ key: PROJECT_KEY })} {...props} />
+    <PRDecorationBinding
+      component={mockComponent({ key: PROJECT_KEY })}
+      monorepoEnabled={false}
+      {...props}
+    />
   );
 }

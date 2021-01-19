@@ -600,3 +600,7 @@ th.huge-spacer-right {
 .break-word {
   word-break: break-word;
 }
+
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}

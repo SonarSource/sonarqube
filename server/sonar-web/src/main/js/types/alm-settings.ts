@@ -58,6 +58,7 @@ export interface ProjectAlmBindingResponse {
   repository?: string;
   slug?: string;
   summaryCommentEnabled?: boolean;
+  monorepo?: boolean;
 }
 
 export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
@@ -65,6 +66,7 @@ export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
   repository: string;
   slug: string;
   url: string;
+  monorepo: boolean;
 }
 
 export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
@@ -92,6 +94,7 @@ export interface ProjectAlmBindingParams {
 export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {
   projectName: string;
   repositoryName: string;
+  monorepo: boolean;
 }
 
 export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParams {

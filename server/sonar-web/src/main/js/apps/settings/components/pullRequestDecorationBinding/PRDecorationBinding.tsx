@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { HttpStatus } from 'sonar-ui-common/helpers/request';
 import {
   deleteProjectAlmBinding,
@@ -29,14 +30,20 @@ import {
   setProjectGitlabBinding
 } from '../../../../api/alm-settings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
+import { getAppState, Store } from '../../../../store/rootReducer';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
+import { EditionKey } from '../../../../types/editions';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 type FormData = T.Omit<ProjectAlmBindingResponse, 'alm'>;
+
+interface StateProps {
+  monorepoEnabled: boolean;
+}
 
 interface Props {
   component: T.Component;
@@ -63,7 +70,7 @@ const REQUIRED_FIELDS_BY_ALM: {
   [AlmKeys.GitLab]: ['repository']
 };
 
-export default class PRDecorationBinding extends React.PureComponent<Props, State> {
+export class PRDecorationBinding extends React.PureComponent<Props & StateProps, State> {
   mounted = false;
   state: State = {
     formData: { key: '' },
@@ -138,6 +145,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
               repository: '',
               slug: ''
             },
+            orignalData: undefined,
             isChanged: false,
             isConfigured: false,
             saving: false,
@@ -160,6 +168,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       case AlmKeys.Azure: {
         const projectName = almSpecificFields?.slug;
         const repositoryName = almSpecificFields?.repository;
+        const monorepo = almSpecificFields?.monorepo ?? false;
         if (!projectName || !repositoryName) {
           return Promise.reject();
         }
@@ -167,7 +176,8 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
           almSetting,
           project,
           projectName,
-          repositoryName
+          repositoryName,
+          monorepo
         });
       }
       case AlmKeys.Bitbucket: {
@@ -240,19 +250,21 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   };
 
   isDataSame(
-    { key, repository = '', slug = '', summaryCommentEnabled = false }: FormData,
+    { key, repository = '', slug = '', summaryCommentEnabled = false, monorepo = false }: FormData,
     {
       key: oKey = '',
       repository: oRepository = '',
       slug: oSlug = '',
-      summaryCommentEnabled: osummaryCommentEnabled = false
+      summaryCommentEnabled: osummaryCommentEnabled = false,
+      monorepo: omonorepo = false
     }: FormData
   ) {
     return (
       key === oKey &&
       repository === oRepository &&
       slug === oSlug &&
-      summaryCommentEnabled === osummaryCommentEnabled
+      summaryCommentEnabled === osummaryCommentEnabled &&
+      monorepo === omonorepo
     );
   }
 
@@ -262,6 +274,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         ...formData,
         [id]: value
       };
+
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
@@ -284,13 +297,25 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   };
 
   render() {
+    const { monorepoEnabled } = this.props;
+
     return (
       <PRDecorationBindingRenderer
         onFieldChange={this.handleFieldChange}
         onReset={this.handleReset}
         onSubmit={this.handleSubmit}
+        monorepoEnabled={monorepoEnabled}
         {...this.state}
       />
     );
   }
 }
+
+const mapStateToProps = (state: Store): StateProps => ({
+  // This feature trigger will be replaced when SONAR-14349 is implemented
+  monorepoEnabled: [EditionKey.enterprise, EditionKey.datacenter].includes(
+    getAppState(state).edition as EditionKey
+  )
+});
+
+export default connect(mapStateToProps)(PRDecorationBinding);

@@ -142,6 +142,7 @@ export function mockProjectAzureBindingResponse(
     slug: 'PROJECT_NAME',
     repository: 'REPOSITORY_NAME',
     url: 'https://ado.my_company.com/mycollection',
+    monorepo: false,
     ...overrides
   };
 }

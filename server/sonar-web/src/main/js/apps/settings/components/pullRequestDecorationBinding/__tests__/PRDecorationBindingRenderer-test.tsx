@@ -146,6 +146,7 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
       onSubmit={jest.fn()}
       saving={false}
       success={false}
+      monorepoEnabled={false}
       {...props}
     />
   );

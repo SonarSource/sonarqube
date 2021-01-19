@@ -419,6 +419,7 @@ exports[`should render multiple instances correctly 2`] = `
           "repository": "account/repo",
         }
       }
+      monorepoEnabled={false}
       onFieldChange={[MockFunction]}
     />
     <div
