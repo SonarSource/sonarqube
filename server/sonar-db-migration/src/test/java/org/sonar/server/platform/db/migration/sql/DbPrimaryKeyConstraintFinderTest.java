@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
@@ -92,5 +93,16 @@ public class DbPrimaryKeyConstraintFinderTest {
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
       .isEqualTo("SELECT constraint_name FROM information_schema.constraints WHERE table_name = 'MY_TABLE' and constraint_type = 'PRIMARY KEY'");
+  }
+
+  @Test
+  public void getDbVendorSpecificQuery_unknown() {
+    Dialect mockDialect = mock(Dialect.class);
+    when(mockDialect.getId()).thenReturn("unknown");
+    when(dbMock.getDialect()).thenReturn(mockDialect);
+
+    assertThatThrownBy(() -> underTest.getDbVendorSpecificQuery("my_table"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unsupported database 'unknown'");
   }
 }

@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.function.Supplier;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -44,8 +44,7 @@ public class DbPrimaryKeyConstraintFinder {
 
   public String findConstraintName(String tableName) throws SQLException {
     String constraintQuery = getDbVendorSpecificQuery(tableName);
-    return executeQuery(constraintQuery)
-      .orElseThrow(() -> constraintNotFoundException(tableName));
+    return executeQuery(constraintQuery, () -> constraintNotFoundException(tableName));
   }
 
   String getDbVendorSpecificQuery(String tableName) {
@@ -70,15 +69,15 @@ public class DbPrimaryKeyConstraintFinder {
     return constraintQuery;
   }
 
-  private Optional<String> executeQuery(String query) throws SQLException {
+  private String executeQuery(String query, Supplier<? extends RuntimeException> exceptionSupplier) throws SQLException {
     try (Connection connection = db.getDataSource().getConnection();
       PreparedStatement pstmt = connection
         .prepareStatement(query);
       ResultSet rs = pstmt.executeQuery()) {
       if (rs.next()) {
-        return Optional.ofNullable(rs.getString(1));
+        return rs.getString(1);
       }
-      return Optional.empty();
+      throw exceptionSupplier.get();
     }
   }
 
@@ -117,14 +116,8 @@ public class DbPrimaryKeyConstraintFinder {
 
   // FIXME:: this method should be moved somewhere else
   String getPostgresSqlSequence(String tableName, String columnName) throws SQLException {
-    try (Connection connection = db.getDataSource().getConnection();
-      PreparedStatement pstmt = connection.prepareStatement(format("SELECT pg_get_serial_sequence('%s', '%s')", tableName, columnName));
-      ResultSet rs = pstmt.executeQuery()) {
-      if (rs.next()) {
-        return rs.getString(1);
-      }
-      throw new IllegalStateException(format("Cannot find sequence for table '%s' on column '%s'", tableName, columnName));
-    }
+    return executeQuery(format("SELECT pg_get_serial_sequence('%s', '%s')", tableName, columnName),
+      () -> new IllegalStateException(format("Cannot find sequence for table '%s' on column '%s'", tableName, columnName)));
   }
 
 }
