@@ -56,6 +56,7 @@
     "graphql-code-generator": "0.5.2",
     "jest": "25.1.0",
     "jest-fetch-mock": "2.1.2",
+    "jest-junit": "12.0.0",
     "prettier": "1.19.1",
     "react-test-renderer": "16.8.5",
     "remark": "11.0.2",
@@ -74,7 +75,7 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn test --coverage",
+    "validate-ci": "yarn lint-report && yarn test --coverage --ci --reporters=default --reporters=jest-junit",
     "check-ci": "yarn ts-check && yarn format-check"
   },
   "prettier": {
@@ -110,5 +111,13 @@
       "\\.js$": "babel-jest",
       "\\.(ts|tsx)$": "ts-jest"
     }
+  },
+  "jest-junit": {
+    "outputDirectory": "build/test-results/test-jest",
+    "outputName": "junit.xml",
+    "ancestorSeparator": " > ",
+    "suiteNameTemplate": "{filename}",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{title}"
   }
 }
