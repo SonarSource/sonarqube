@@ -275,6 +275,9 @@ qa_azure_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: AZURE
+    AZURE_USERNAME_LOGIN: ENCRYPTED[dcdf19769c1501408ebc22670c76d5e375cd739de2df5dfa3f215aa795296dfb257dbbcbe9bdfd33135feb04421fea1f]
+    AZURE_CODE_READ_AND_WRITE_TOKEN: ENCRYPTED[eddc3448b40e72310f24f21241bdc1243860139d1a5aad593b016baedf03e4bba3f9e3d8d9f6329fe3b587966a8112d2]
+    AZURE_FULL_ACCESS_TOKEN: ENCRYPTED[58779d6588e2e10d1b6f98fcc58a46957f8ef3a18e29d79abc6aa8d69ea55c23d8708e1f1af626464d309b1c7c087985]
   gradle_cache:
     folder: ~/.gradle/caches
   script:
