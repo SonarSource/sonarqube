@@ -230,6 +230,7 @@ qa_gitlab_task:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
+    use_in_memory_disk: true
     additional_containers:
       - name: gitlab
         image: gitlab/gitlab-ce:latest
