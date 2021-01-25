@@ -27,7 +27,7 @@ export interface GradleProps {
 }
 
 const buildGradleSnippet = (key: string) => `plugins {
-  id "org.sonarqube" version "2.7"
+  id "org.sonarqube" version "3.1.1"
 }
 
 sonarqube {
