@@ -96,6 +96,8 @@ public class ValidateAction implements AlmSettingsWsAction {
         case BITBUCKET:
           validateBitbucketServer(almSettingDto);
           break;
+        case BITBUCKET_CLOUD:
+          validateBitbucketCloud(almSettingDto);
         case AZURE_DEVOPS:
           validateAzure(almSettingDto);
           break;
@@ -138,6 +140,12 @@ public class ValidateAction implements AlmSettingsWsAction {
   }
 
   private void validateBitbucketServer(AlmSettingDto almSettingDto) {
+    bitbucketServerRestClient.validateUrl(almSettingDto.getUrl());
+    bitbucketServerRestClient.validateToken(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
+    bitbucketServerRestClient.validateReadPermission(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
+  }
+
+  private void validateBitbucketCloud(AlmSettingDto almSettingDto) {
     bitbucketServerRestClient.validateUrl(almSettingDto.getUrl());
     bitbucketServerRestClient.validateToken(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
     bitbucketServerRestClient.validateReadPermission(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());

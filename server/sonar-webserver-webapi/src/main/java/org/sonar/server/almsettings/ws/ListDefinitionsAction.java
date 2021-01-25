@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.AlmSettings.AlmSettingBitbucketCloud;
 import org.sonarqube.ws.AlmSettings.AlmSettingGithub;
 
