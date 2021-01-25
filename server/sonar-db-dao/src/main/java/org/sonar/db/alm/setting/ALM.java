@@ -24,6 +24,7 @@ import java.util.Locale;
 public enum ALM {
   GITHUB,
   BITBUCKET,
+  BITBUCKET_CLOUD,
   AZURE_DEVOPS,
   GITLAB;
 

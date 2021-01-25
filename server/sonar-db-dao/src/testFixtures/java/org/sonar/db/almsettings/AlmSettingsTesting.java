@@ -62,6 +62,14 @@ public class AlmSettingsTesting {
       .setAlm(ALM.BITBUCKET);
   }
 
+  public static AlmSettingDto newBitbucketCloudAlmSettingDto() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(200))
+      .setClientId(randomAlphanumeric(50))
+      .setClientSecret(randomAlphanumeric(50))
+      .setAlm(ALM.BITBUCKET_CLOUD);
+  }
+
   public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())

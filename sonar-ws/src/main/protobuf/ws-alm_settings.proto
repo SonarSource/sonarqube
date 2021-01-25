@@ -30,6 +30,7 @@ message ListDefinitionsWsResponse {
   repeated AlmSettingAzure azure = 2;
   repeated AlmSettingBitbucket bitbucket = 3;
   repeated AlmSettingGitlab gitlab = 4;
+  repeated AlmSettingBitbucketCloud bitbucketCloud = 5;
 }
 
 message AlmSettingGithub {
@@ -51,6 +52,12 @@ message AlmSettingBitbucket {
   optional string key = 1;
   optional string url = 2;
   optional string personalAccessToken = 3;
+}
+
+message AlmSettingBitbucketCloud {
+  optional string key = 1;
+  optional string clientId = 2;
+  optional string clientSecret = 3;
 }
 
 message AlmSettingGitlab {
@@ -75,6 +82,7 @@ enum Alm {
   azure = 1;
   bitbucket = 2;
   gitlab = 3;
+  bitbucketcloud = 4;
 }
 
 // WS api/alm_settings/list

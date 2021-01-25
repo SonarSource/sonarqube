@@ -29,6 +29,7 @@ import static java.util.Arrays.stream;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketCloudAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
@@ -61,6 +62,11 @@ public class AlmSettingsDbTester {
   @SafeVarargs
   public final AlmSettingDto insertBitbucketAlmSetting(Consumer<AlmSettingDto>... populators) {
     return insert(newBitbucketAlmSettingDto(), populators);
+  }
+
+  @SafeVarargs
+  public final AlmSettingDto insertBitbucketCloudAlmSetting(Consumer<AlmSettingDto>... populators) {
+    return insert(newBitbucketCloudAlmSettingDto(), populators);
   }
 
   @SafeVarargs
