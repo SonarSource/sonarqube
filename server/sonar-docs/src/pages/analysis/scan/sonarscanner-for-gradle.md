@@ -28,7 +28,7 @@ First, include the scanner in your build in `build.gradle`:
 
 ```
 plugins {
-  id "org.sonarqube" version "3.0"
+  id "org.sonarqube" version "3.1.1"
 }
 ```
 
