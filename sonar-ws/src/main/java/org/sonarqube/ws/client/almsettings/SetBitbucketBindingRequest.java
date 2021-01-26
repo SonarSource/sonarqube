@@ -33,6 +33,7 @@ public class SetBitbucketBindingRequest {
   private String project;
   private String repositoryKey;
   private String repositorySlug;
+  private Boolean monorepo;
 
   /**
    * This is a mandatory parameter.
@@ -80,5 +81,14 @@ public class SetBitbucketBindingRequest {
 
   public String getRepositorySlug() {
     return repositorySlug;
+  }
+
+  public Boolean getMonorepo() {
+    return monorepo;
+  }
+
+  public SetBitbucketBindingRequest setMonorepo(Boolean monorepo) {
+    this.monorepo = monorepo;
+    return this;
   }
 }

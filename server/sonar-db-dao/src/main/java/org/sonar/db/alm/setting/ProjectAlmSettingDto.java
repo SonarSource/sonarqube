@@ -64,8 +64,7 @@ public class ProjectAlmSettingDto {
 
   /**
    * Boolean to know if this SonarQube project is part of a monorepo
-   * Only valid for Azure
-   * It will be null when the ALM is other than Azure
+   * default value is false
    */
   private Boolean monorepo;
 
