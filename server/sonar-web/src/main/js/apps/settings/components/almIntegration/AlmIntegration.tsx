@@ -62,7 +62,8 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       currentAlm: props.location.query.alm || AlmKeys.GitHub,
       definitions: {
         [AlmKeys.Azure]: [],
-        [AlmKeys.Bitbucket]: [],
+        [AlmKeys.BitbucketServer]: [],
+        [AlmKeys.BitbucketCloud]: [],
         [AlmKeys.GitHub]: [],
         [AlmKeys.GitLab]: []
       },

@@ -24,6 +24,7 @@ import {
   AlmSettingsInstance,
   AzureBindingDefinition,
   BitbucketBindingDefinition,
+  BitbucketCloudBindingDefinition,
   GithubBindingDefinition,
   GitlabBindingDefinition,
   ProjectAlmBindingResponse,
@@ -60,6 +61,18 @@ export function mockBitbucketBindingDefinition(
     key: 'key',
     personalAccessToken: 'asdf1234',
     url: 'http://bbs.enterprise.com',
+    ...overrides
+  };
+}
+
+export function mockBitbucketCloudBindingDefinition(
+  overrides: Partial<BitbucketCloudBindingDefinition> = {}
+): BitbucketCloudBindingDefinition {
+  return {
+    key: 'key',
+    clientId: 'client1',
+    clientSecret: '**clientsecret**',
+    workspace: 'workspace',
     ...overrides
   };
 }
@@ -102,7 +115,7 @@ export function mockProjectBitbucketBindingResponse(
   overrides: Partial<ProjectBitbucketBindingResponse> = {}
 ): ProjectBitbucketBindingResponse {
   return {
-    alm: AlmKeys.Bitbucket,
+    alm: AlmKeys.BitbucketServer,
     key: 'foo',
     repository: 'PROJECT_KEY',
     slug: 'repo-slug',

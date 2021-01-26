@@ -24,7 +24,8 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   AlmBindingDefinition,
   AlmKeys,
-  AlmSettingsBindingStatus
+  AlmSettingsBindingStatus,
+  isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm, {
@@ -93,7 +94,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
         </div>
         {definitions.map(def => (
           <AlmBindingDefinitionBox
-            alm={alm}
+            alm={isBitbucketCloudBindingDefinition(def) ? AlmKeys.BitbucketCloud : alm}
             branchesEnabled={branchesEnabled}
             definition={def}
             key={def.key}

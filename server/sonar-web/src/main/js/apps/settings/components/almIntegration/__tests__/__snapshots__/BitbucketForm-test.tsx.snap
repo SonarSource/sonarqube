@@ -1,81 +1,255 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<Fragment>
-  <AlmBindingDefinitionFormField
-    autoFocus={true}
-    help="settings.almintegration.form.name.bitbucket.help"
-    id="name.bitbucket"
-    maxLength={100}
-    onFieldChange={[MockFunction]}
-    propKey="key"
-    value=""
-  />
-  <AlmBindingDefinitionFormField
-    help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.form.url.bitbucket.help"
-        id="settings.almintegration.form.url.bitbucket.help"
-        values={
-          Object {
-            "example": "https://bitbucket-server.your-company.com",
+exports[`should render correctly: bitbucket cloud, edit 1`] = `
+<div>
+  <div>
+    <AlmBindingDefinitionFormField
+      autoFocus={true}
+      help="settings.almintegration.form.name.bitbucketcloud.help"
+      id="name.bitbucket"
+      maxLength={100}
+      onFieldChange={[MockFunction]}
+      propKey="key"
+      value="key"
+    />
+    <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
+          id="settings.almintegration.form.workspace.bitbucketcloud.help"
+          values={
+            Object {
+              "example": <React.Fragment>
+                https://bitbucket.org/
+                <strong>
+                  {workspace}
+                </strong>
+                /{repository}
+              </React.Fragment>,
+            }
           }
-        }
-      />
-    }
-    id="url.bitbucket"
-    maxLength={2000}
-    onFieldChange={[MockFunction]}
-    propKey="url"
-    value=""
-  />
-  <AlmBindingDefinitionFormField
-    id="personal_access_token"
-    isTextArea={true}
-    onFieldChange={[MockFunction]}
-    overwriteOnly={false}
-    propKey="personalAccessToken"
-    value=""
-  />
-</Fragment>
+        />
+      }
+      id="workspace.bitbucketcloud"
+      maxLength={2000}
+      onFieldChange={[MockFunction]}
+      propKey="workspace"
+      value="workspace"
+    />
+    <AlmBindingDefinitionFormField
+      id="client_id.bitbucketcloud"
+      onFieldChange={[MockFunction]}
+      propKey="clientId"
+      value="client1"
+    />
+    <AlmBindingDefinitionFormField
+      id="client_secret.bitbucketcloud"
+      onFieldChange={[MockFunction]}
+      overwriteOnly={true}
+      propKey="clientSecret"
+      value="**clientsecret**"
+    />
+  </div>
+</div>
 `;
 
-exports[`should render correctly 2`] = `
-<Fragment>
-  <AlmBindingDefinitionFormField
-    autoFocus={true}
-    help="settings.almintegration.form.name.bitbucket.help"
-    id="name.bitbucket"
-    maxLength={100}
-    onFieldChange={[MockFunction]}
-    propKey="key"
-    value="key"
-  />
-  <AlmBindingDefinitionFormField
-    help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.form.url.bitbucket.help"
-        id="settings.almintegration.form.url.bitbucket.help"
-        values={
-          Object {
-            "example": "https://bitbucket-server.your-company.com",
+exports[`should render correctly: bitbucket cloud, empty 1`] = `
+<div>
+  <div>
+    <AlmBindingDefinitionFormField
+      autoFocus={true}
+      help="settings.almintegration.form.name.bitbucketcloud.help"
+      id="name.bitbucket"
+      maxLength={100}
+      onFieldChange={[MockFunction]}
+      propKey="key"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
+          id="settings.almintegration.form.workspace.bitbucketcloud.help"
+          values={
+            Object {
+              "example": <React.Fragment>
+                https://bitbucket.org/
+                <strong>
+                  {workspace}
+                </strong>
+                /{repository}
+              </React.Fragment>,
+            }
           }
-        }
-      />
+        />
+      }
+      id="workspace.bitbucketcloud"
+      maxLength={2000}
+      onFieldChange={[MockFunction]}
+      propKey="workspace"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      id="client_id.bitbucketcloud"
+      onFieldChange={[MockFunction]}
+      propKey="clientId"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      id="client_secret.bitbucketcloud"
+      onFieldChange={[MockFunction]}
+      overwriteOnly={false}
+      propKey="clientSecret"
+      value=""
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: bitbucket server, edit 1`] = `
+<div>
+  <div>
+    <AlmBindingDefinitionFormField
+      autoFocus={true}
+      help="settings.almintegration.form.name.bitbucket.help"
+      id="name.bitbucket"
+      maxLength={100}
+      onFieldChange={[MockFunction]}
+      propKey="key"
+      value="key"
+    />
+    <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.url.bitbucket.help"
+          id="settings.almintegration.form.url.bitbucket.help"
+          values={
+            Object {
+              "example": "https://bitbucket-server.your-company.com",
+            }
+          }
+        />
+      }
+      id="url.bitbucket"
+      maxLength={2000}
+      onFieldChange={[MockFunction]}
+      propKey="url"
+      value="http://bbs.enterprise.com"
+    />
+    <AlmBindingDefinitionFormField
+      id="personal_access_token"
+      isTextArea={true}
+      onFieldChange={[MockFunction]}
+      overwriteOnly={true}
+      propKey="personalAccessToken"
+      value="asdf1234"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: bitbucket server, empty 1`] = `
+<div>
+  <div>
+    <AlmBindingDefinitionFormField
+      autoFocus={true}
+      help="settings.almintegration.form.name.bitbucket.help"
+      id="name.bitbucket"
+      maxLength={100}
+      onFieldChange={[MockFunction]}
+      propKey="key"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.url.bitbucket.help"
+          id="settings.almintegration.form.url.bitbucket.help"
+          values={
+            Object {
+              "example": "https://bitbucket-server.your-company.com",
+            }
+          }
+        />
+      }
+      id="url.bitbucket"
+      maxLength={2000}
+      onFieldChange={[MockFunction]}
+      propKey="url"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      id="personal_access_token"
+      isTextArea={true}
+      onFieldChange={[MockFunction]}
+      overwriteOnly={false}
+      propKey="personalAccessToken"
+      value=""
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: variant select 1`] = `
+<div>
+  <strong>
+    settings.almintegration.form.choose_bitbucket_variant
+  </strong>
+  <RadioToggle
+    className="little-spacer-top big-spacer-bottom"
+    disabled={false}
+    name="variant"
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "Bitbucket Server",
+          "value": "bitbucket",
+        },
+        Object {
+          "label": "Bitbucket Cloud",
+          "value": "bitbucketcloud",
+        },
+      ]
     }
-    id="url.bitbucket"
-    maxLength={2000}
-    onFieldChange={[MockFunction]}
-    propKey="url"
-    value="http://bbs.enterprise.com"
+    value="bitbucket"
   />
-  <AlmBindingDefinitionFormField
-    id="personal_access_token"
-    isTextArea={true}
-    onFieldChange={[MockFunction]}
-    overwriteOnly={true}
-    propKey="personalAccessToken"
-    value="asdf1234"
-  />
-</Fragment>
+  <div>
+    <AlmBindingDefinitionFormField
+      autoFocus={true}
+      help="settings.almintegration.form.name.bitbucket.help"
+      id="name.bitbucket"
+      maxLength={100}
+      onFieldChange={[MockFunction]}
+      propKey="key"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.url.bitbucket.help"
+          id="settings.almintegration.form.url.bitbucket.help"
+          values={
+            Object {
+              "example": "https://bitbucket-server.your-company.com",
+            }
+          }
+        />
+      }
+      id="url.bitbucket"
+      maxLength={2000}
+      onFieldChange={[MockFunction]}
+      propKey="url"
+      value=""
+    />
+    <AlmBindingDefinitionFormField
+      id="personal_access_token"
+      isTextArea={true}
+      onFieldChange={[MockFunction]}
+      overwriteOnly={false}
+      propKey="personalAccessToken"
+      value=""
+    />
+  </div>
+</div>
 `;

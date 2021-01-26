@@ -30,11 +30,14 @@ import { CreateProjectModes } from '../types';
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading instances');
-  expect(shallowRender({}, { [AlmKeys.Bitbucket]: 0, [AlmKeys.GitHub]: 2 })).toMatchSnapshot(
+  expect(shallowRender({}, { [AlmKeys.BitbucketServer]: 0, [AlmKeys.GitHub]: 2 })).toMatchSnapshot(
     'invalid configs, not admin'
   );
   expect(
-    shallowRender({ appState: { canAdmin: true } }, { [AlmKeys.Bitbucket]: 0, [AlmKeys.GitHub]: 2 })
+    shallowRender(
+      { appState: { canAdmin: true } },
+      { [AlmKeys.BitbucketServer]: 0, [AlmKeys.GitHub]: 2 }
+    )
   ).toMatchSnapshot('invalid configs, admin');
 });
 
@@ -71,7 +74,7 @@ function shallowRender(
 ) {
   const almCounts = {
     [AlmKeys.Azure]: 0,
-    [AlmKeys.Bitbucket]: 1,
+    [AlmKeys.BitbucketServer]: 1,
     [AlmKeys.GitHub]: 0,
     [AlmKeys.GitLab]: 0,
     ...almCountOverrides

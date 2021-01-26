@@ -46,7 +46,7 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
   const { almBinding, branchesEnabled, projectBinding } = props;
 
   switch (projectBinding.alm) {
-    case AlmKeys.Bitbucket:
+    case AlmKeys.BitbucketServer:
       return (
         <WebhookStepBitbucket
           almBinding={isBitbucketBindingDefinition(almBinding) ? almBinding : undefined}

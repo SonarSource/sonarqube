@@ -29,7 +29,12 @@ import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKey
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
-  almCounts: { [key in AlmKeys]: number };
+  almCounts: {
+    [AlmKeys.Azure]: number;
+    [AlmKeys.BitbucketServer]: number;
+    [AlmKeys.GitLab]: number;
+    [AlmKeys.GitHub]: number;
+  };
   appState: Pick<T.AppState, 'canAdmin'>;
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
@@ -37,7 +42,7 @@ export interface CreateProjectModeSelectionProps {
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
-  alm: AlmKeys,
+  alm: AlmKeys.Azure | AlmKeys.BitbucketServer | AlmKeys.GitHub | AlmKeys.GitLab,
   mode: CreateProjectModes
 ) {
   const {
@@ -145,7 +150,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
         </button>
 
         {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-        {renderAlmOption(props, AlmKeys.Bitbucket, CreateProjectModes.BitbucketServer)}
+        {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
         {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
         {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
       </div>

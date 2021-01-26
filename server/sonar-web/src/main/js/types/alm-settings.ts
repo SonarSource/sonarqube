@@ -19,7 +19,8 @@
  */
 export const enum AlmKeys {
   Azure = 'azure',
-  Bitbucket = 'bitbucket',
+  BitbucketServer = 'bitbucket',
+  BitbucketCloud = 'bitbucketcloud',
   GitHub = 'github',
   GitLab = 'gitlab'
 }
@@ -37,6 +38,12 @@ export interface AzureBindingDefinition extends AlmBindingDefinition {
 export interface BitbucketBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
   url: string;
+}
+
+export interface BitbucketCloudBindingDefinition extends AlmBindingDefinition {
+  clientId: string;
+  clientSecret: string;
+  workspace: string;
 }
 
 export interface GithubBindingDefinition extends AlmBindingDefinition {
@@ -70,7 +77,7 @@ export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
 }
 
 export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
-  alm: AlmKeys.Bitbucket;
+  alm: AlmKeys.BitbucketServer;
   repository: string;
   slug: string;
   monorepo: boolean;
@@ -125,7 +132,8 @@ export interface AlmSettingsInstance {
 
 export interface AlmSettingsBindingDefinitions {
   [AlmKeys.Azure]: AzureBindingDefinition[];
-  [AlmKeys.Bitbucket]: BitbucketBindingDefinition[];
+  [AlmKeys.BitbucketServer]: BitbucketBindingDefinition[];
+  [AlmKeys.BitbucketCloud]: BitbucketCloudBindingDefinition[];
   [AlmKeys.GitHub]: GithubBindingDefinition[];
   [AlmKeys.GitLab]: GitlabBindingDefinition[];
 }
@@ -146,7 +154,7 @@ export enum AlmSettingsBindingStatusType {
 export function isProjectBitbucketBindingResponse(
   binding: ProjectAlmBindingResponse
 ): binding is ProjectBitbucketBindingResponse {
-  return binding.alm === AlmKeys.Bitbucket;
+  return binding.alm === AlmKeys.BitbucketServer;
 }
 
 export function isProjectGitHubBindingResponse(
@@ -168,20 +176,19 @@ export function isProjectAzureBindingResponse(
 }
 
 export function isBitbucketBindingDefinition(
-  binding?: AlmBindingDefinition & { url?: string; personalAccessToken?: string }
+  binding?: AlmBindingDefinition & { url?: string }
 ): binding is BitbucketBindingDefinition {
-  return (
-    binding !== undefined && binding.url !== undefined && binding.personalAccessToken !== undefined
-  );
+  return binding !== undefined && binding.url !== undefined;
+}
+
+export function isBitbucketCloudBindingDefinition(
+  binding?: AlmBindingDefinition & { clientId?: string; workspace?: string }
+): binding is BitbucketCloudBindingDefinition {
+  return binding !== undefined && binding.clientId !== undefined && binding.workspace !== undefined;
 }
 
 export function isGithubBindingDefinition(
-  binding?: AlmBindingDefinition & { appId?: string; privateKey?: string; url?: string }
+  binding?: AlmBindingDefinition & { appId?: string; url?: string }
 ): binding is GithubBindingDefinition {
-  return (
-    binding !== undefined &&
-    binding.appId !== undefined &&
-    binding.privateKey !== undefined &&
-    binding.url !== undefined
-  );
+  return binding !== undefined && binding.appId !== undefined && binding.url !== undefined;
 }

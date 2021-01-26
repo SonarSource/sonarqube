@@ -24,6 +24,7 @@ import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAlmSettings } from '../../../api/alm-settings';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
@@ -38,14 +39,11 @@ interface State {
 }
 
 const PROJECT_CREATION_PERMISSION = 'provisioning';
-/*
- * ALMs for which the import feature has been implemented
- */
-const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Azure, AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
 
 const almSettingsValidators = {
   [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
-  [AlmKeys.Bitbucket]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => false,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url
 };

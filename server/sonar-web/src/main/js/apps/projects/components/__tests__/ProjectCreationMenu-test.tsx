@@ -55,8 +55,8 @@ it('should not fetch alm bindings if user cannot create projects', async () => {
 it('should filter alm bindings appropriately', async () => {
   (getAlmSettings as jest.Mock).mockResolvedValueOnce([
     { alm: AlmKeys.Azure },
-    { alm: AlmKeys.Bitbucket, url: 'b1' },
-    { alm: AlmKeys.Bitbucket, url: 'b2' },
+    { alm: AlmKeys.BitbucketServer, url: 'b1' },
+    { alm: AlmKeys.BitbucketServer, url: 'b2' },
     { alm: AlmKeys.GitHub },
     { alm: AlmKeys.GitLab, url: 'gitlab.com' }
   ]);

@@ -50,7 +50,7 @@ it('should select manual if project is not bound', async () => {
 });
 
 it('should not select anything if project is bound', async () => {
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.Bitbucket });
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.BitbucketServer });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().forceManual).toBe(false);
@@ -59,9 +59,9 @@ it('should not select anything if project is bound', async () => {
 it('should correctly find the global ALM binding definition', async () => {
   const key = 'foo';
   const almBinding = mockBitbucketBindingDefinition({ key });
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.Bitbucket, key });
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.BitbucketServer, key });
   (getAlmDefinitionsNoCatch as jest.Mock).mockResolvedValueOnce({
-    [AlmKeys.Bitbucket]: [almBinding]
+    [AlmKeys.BitbucketServer]: [almBinding]
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);

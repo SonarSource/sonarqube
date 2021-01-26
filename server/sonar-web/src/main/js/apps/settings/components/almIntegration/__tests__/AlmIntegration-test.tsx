@@ -35,7 +35,7 @@ jest.mock('../../../../../api/alm-settings', () => ({
   deleteConfiguration: jest.fn().mockResolvedValue(undefined),
   getAlmDefinitions: jest
     .fn()
-    .mockResolvedValue({ azure: [], bitbucket: [], github: [], gitlab: [] }),
+    .mockResolvedValue({ azure: [], bitbucket: [], bitbucketcloud: [], github: [], gitlab: [] }),
   validateAlmSettings: jest.fn().mockResolvedValue('')
 }));
 
@@ -50,7 +50,8 @@ it('should render correctly', () => {
 it('should validate existing configurations', async () => {
   (getAlmDefinitions as jest.Mock).mockResolvedValueOnce({
     [AlmKeys.Azure]: [{ key: 'a1' }],
-    [AlmKeys.Bitbucket]: [{ key: 'b1' }],
+    [AlmKeys.BitbucketServer]: [{ key: 'b1' }],
+    [AlmKeys.BitbucketCloud]: [{ key: 'bc1' }],
     [AlmKeys.GitHub]: [{ key: 'gh1' }, { key: 'gh2' }],
     [AlmKeys.GitLab]: [{ key: 'gl1' }]
   });
@@ -59,9 +60,10 @@ it('should validate existing configurations', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(validateAlmSettings).toBeCalledTimes(5);
+  expect(validateAlmSettings).toBeCalledTimes(6);
   expect(validateAlmSettings).toBeCalledWith('a1');
   expect(validateAlmSettings).toBeCalledWith('b1');
+  expect(validateAlmSettings).toBeCalledWith('bc1');
   expect(validateAlmSettings).toBeCalledWith('gh1');
   expect(validateAlmSettings).toBeCalledWith('gh2');
   expect(validateAlmSettings).toBeCalledWith('gl1');
@@ -111,6 +113,7 @@ it('should validate a configuration', async () => {
   (validateAlmSettings as jest.Mock)
     .mockRejectedValueOnce(undefined)
     .mockResolvedValueOnce(failureMessage)
+    .mockResolvedValueOnce('')
     .mockResolvedValueOnce('');
 
   await wrapper.instance().handleCheck(definitionKey);
@@ -141,7 +144,8 @@ it('should validate a configuration', async () => {
 it('should fetch settings', async () => {
   const definitions = {
     [AlmKeys.Azure]: [{ key: 'a1' }],
-    [AlmKeys.Bitbucket]: [{ key: 'b1' }],
+    [AlmKeys.BitbucketServer]: [{ key: 'b1' }],
+    [AlmKeys.BitbucketCloud]: [{ key: 'bc1' }],
     [AlmKeys.GitHub]: [{ key: 'gh1' }],
     [AlmKeys.GitLab]: [{ key: 'gl1' }]
   };

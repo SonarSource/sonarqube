@@ -28,6 +28,9 @@ exports[`should render correctly 1`] = `
         >
           <Component />
         </div>
+        <div
+          className="flex-1"
+        />
       </div>
     </div>
     <div
@@ -86,6 +89,9 @@ exports[`should render correctly: second instance 1`] = `
         >
           <Component />
         </div>
+        <div
+          className="flex-1"
+        />
       </div>
     </div>
     <div

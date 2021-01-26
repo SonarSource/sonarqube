@@ -48,7 +48,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<BitbucketProjectCreateRendererProps> = {}) {
   return shallow<BitbucketProjectCreateRendererProps>(
     <BitbucketProjectCreateRenderer
-      bitbucketSetting={mockAlmSettingsInstance({ alm: AlmKeys.Bitbucket })}
+      bitbucketSetting={mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer })}
       importing={false}
       loading={false}
       onImportRepository={jest.fn()}

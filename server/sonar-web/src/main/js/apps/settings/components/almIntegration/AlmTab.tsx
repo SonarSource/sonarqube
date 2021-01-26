@@ -67,10 +67,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
   }
 
   handleCancel = () => {
-    this.setState({
-      editedDefinition: undefined,
-      success: false
-    });
+    this.setState({ editedDefinition: undefined, success: false });
   };
 
   handleCreate = () => {
@@ -93,7 +90,11 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
     return call
       .then(() => {
         if (this.mounted) {
-          this.setState({ editedDefinition: undefined, submitting: false, success: true });
+          this.setState({
+            editedDefinition: undefined,
+            submitting: false,
+            success: true
+          });
         }
       })
       .then(this.props.onUpdateDefinitions)

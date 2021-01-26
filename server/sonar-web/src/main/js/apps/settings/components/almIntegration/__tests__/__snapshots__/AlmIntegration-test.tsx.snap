@@ -9,6 +9,7 @@ exports[`should render correctly 1`] = `
     Object {
       "azure": Array [],
       "bitbucket": Array [],
+      "bitbucketcloud": Array [],
       "github": Array [],
       "gitlab": Array [],
     }

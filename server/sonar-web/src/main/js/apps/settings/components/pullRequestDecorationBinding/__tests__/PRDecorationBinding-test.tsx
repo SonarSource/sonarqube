@@ -93,7 +93,7 @@ describe('handleSubmit', () => {
   const instances: AlmSettingsInstance[] = [
     { key: 'github', alm: AlmKeys.GitHub },
     { key: 'azure', alm: AlmKeys.Azure },
-    { key: 'bitbucket', alm: AlmKeys.Bitbucket },
+    { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
     { key: 'gitlab', alm: AlmKeys.GitLab }
   ];
 
@@ -263,9 +263,9 @@ it.each([
   [AlmKeys.Azure, {}],
   [AlmKeys.Azure, { slug: 'test' }],
   [AlmKeys.Azure, { repository: 'test' }],
-  [AlmKeys.Bitbucket, {}],
-  [AlmKeys.Bitbucket, { slug: 'test' }],
-  [AlmKeys.Bitbucket, { repository: 'test' }],
+  [AlmKeys.BitbucketServer, {}],
+  [AlmKeys.BitbucketServer, { slug: 'test' }],
+  [AlmKeys.BitbucketServer, { repository: 'test' }],
   [AlmKeys.GitHub, {}],
   [AlmKeys.GitLab, {}]
 ])('should properly reject promise for %s & %s', async (almKey: AlmKeys, params: {}) => {
@@ -289,7 +289,7 @@ it('should validate form', async () => {
   wrapper.setState({
     instances: [
       { key: 'azure', alm: AlmKeys.Azure },
-      { key: 'bitbucket', alm: AlmKeys.Bitbucket },
+      { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
       { key: 'github', alm: AlmKeys.GitHub },
       { key: 'gitlab', alm: AlmKeys.GitLab }
     ]

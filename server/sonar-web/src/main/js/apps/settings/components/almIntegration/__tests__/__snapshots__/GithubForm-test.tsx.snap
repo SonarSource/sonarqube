@@ -41,14 +41,14 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
-    id="client_id"
+    id="client_id.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
     propKey="clientId"
     value=""
   />
   <AlmBindingDefinitionFormField
-    id="client_secret"
+    id="client_secret.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
     overwriteOnly={false}
@@ -107,14 +107,14 @@ exports[`should render correctly 2`] = `
     value="123456"
   />
   <AlmBindingDefinitionFormField
-    id="client_id"
+    id="client_id.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
     propKey="clientId"
     value="client1"
   />
   <AlmBindingDefinitionFormField
-    id="client_secret"
+    id="client_secret.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}

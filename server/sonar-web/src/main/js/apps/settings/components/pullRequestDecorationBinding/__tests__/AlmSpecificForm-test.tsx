@@ -25,8 +25,8 @@ import AlmSpecificForm, { AlmSpecificFormProps } from '../AlmSpecificForm';
 it.each([
   [AlmKeys.Azure, false],
   [AlmKeys.Azure, true],
-  [AlmKeys.Bitbucket, false],
-  [AlmKeys.Bitbucket, true],
+  [AlmKeys.BitbucketServer, false],
+  [AlmKeys.BitbucketServer, true],
   [AlmKeys.GitHub, false],
   [AlmKeys.GitHub, true],
   [AlmKeys.GitLab, false],

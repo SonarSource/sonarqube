@@ -65,7 +65,8 @@ const REQUIRED_FIELDS_BY_ALM: {
   [almKey in AlmKeys]: Array<keyof T.Omit<FormData, 'key'>>;
 } = {
   [AlmKeys.Azure]: ['repository', 'slug'],
-  [AlmKeys.Bitbucket]: ['repository', 'slug'],
+  [AlmKeys.BitbucketServer]: ['repository', 'slug'],
+  [AlmKeys.BitbucketCloud]: ['repository'],
   [AlmKeys.GitHub]: ['repository'],
   [AlmKeys.GitLab]: ['repository']
 };
@@ -180,7 +181,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
           monorepo
         });
       }
-      case AlmKeys.Bitbucket: {
+      case AlmKeys.BitbucketServer: {
         if (!repository || !slug) {
           return Promise.reject();
         }

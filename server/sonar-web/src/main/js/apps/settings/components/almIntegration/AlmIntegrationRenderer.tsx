@@ -68,7 +68,7 @@ const tabs = [
     requiresBranchesEnabled: false
   },
   {
-    key: AlmKeys.Bitbucket,
+    key: AlmKeys.BitbucketServer,
     label: (
       <>
         <img
@@ -77,7 +77,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
         />
-        Bitbucket Server
+        Bitbucket
       </>
     ),
     requiresBranchesEnabled: false
@@ -156,10 +156,10 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
           onUpdateDefinitions={props.onUpdateDefinitions}
         />
       )}
-      {currentAlm === AlmKeys.Bitbucket && (
+      {currentAlm === AlmKeys.BitbucketServer && (
         <BitbucketTab
           branchesEnabled={branchesEnabled}
-          definitions={definitions.bitbucket}
+          definitions={[...definitions.bitbucket, ...definitions.bitbucketcloud]}
           definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
           loadingProjectCount={loadingProjectCount}

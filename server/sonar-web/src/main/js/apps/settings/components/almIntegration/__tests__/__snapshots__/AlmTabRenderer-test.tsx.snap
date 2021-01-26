@@ -350,52 +350,6 @@ exports[`should render correctly for single-ALM binding 3`] = `
 </div>
 `;
 
-exports[`should render correctly with validation 1`] = `
-<div
-  className="big-padded"
->
-  <DeferredSpinner
-    loading={false}
-  >
-    <div
-      className="spacer-bottom text-right"
-    >
-      <Connect(withAppState(CreationTooltip))
-        alm="github"
-        preventCreation={false}
-      >
-        <Button
-          data-test="settings__alm-create"
-          disabled={false}
-          onClick={[MockFunction]}
-        >
-          settings.almintegration.create
-        </Button>
-      </Connect(withAppState(CreationTooltip))>
-    </div>
-    <AlmBindingDefinitionBox
-      alm="github"
-      branchesEnabled={true}
-      definition={
-        Object {
-          "appId": "123456",
-          "clientId": "client1",
-          "clientSecret": "**clientsecret**",
-          "key": "key",
-          "privateKey": "asdf1234",
-          "url": "http://github.enterprise.com",
-        }
-      }
-      key="key"
-      multipleDefinitions={false}
-      onCheck={[MockFunction]}
-      onDelete={[MockFunction]}
-      onEdit={[MockFunction]}
-    />
-  </DeferredSpinner>
-</div>
-`;
-
 exports[`should render correctly with validation: create a first 1`] = `
 <div
   className="big-padded"
@@ -510,6 +464,52 @@ exports[`should render correctly with validation: create a second 1`] = `
 </div>
 `;
 
+exports[`should render correctly with validation: default 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Connect(withAppState(CreationTooltip))
+        alm="github"
+        preventCreation={false}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Connect(withAppState(CreationTooltip))>
+    </div>
+    <AlmBindingDefinitionBox
+      alm="github"
+      branchesEnabled={true}
+      definition={
+        Object {
+          "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
 exports[`should render correctly with validation: empty 1`] = `
 <div
   className="big-padded"
@@ -538,6 +538,50 @@ exports[`should render correctly with validation: empty 1`] = `
         </Button>
       </Connect(withAppState(CreationTooltip))>
     </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly with validation: pass the correct key for bitbucket cloud 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <div
+      className="spacer-bottom text-right"
+    >
+      <Connect(withAppState(CreationTooltip))
+        alm="bitbucket"
+        preventCreation={false}
+      >
+        <Button
+          data-test="settings__alm-create"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          settings.almintegration.create
+        </Button>
+      </Connect(withAppState(CreationTooltip))>
+    </div>
+    <AlmBindingDefinitionBox
+      alm="bitbucketcloud"
+      branchesEnabled={true}
+      definition={
+        Object {
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "workspace": "workspace",
+        }
+      }
+      key="key"
+      multipleDefinitions={false}
+      onCheck={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
   </DeferredSpinner>
 </div>
 `;

@@ -36,7 +36,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {
   return shallow<PreRequisitesStepProps>(
     <PreRequisitesStep
-      alm={AlmKeys.Bitbucket}
+      alm={AlmKeys.BitbucketServer}
       branchesEnabled={true}
       onChangeSkipNextTime={jest.fn()}
       onDone={jest.fn()}

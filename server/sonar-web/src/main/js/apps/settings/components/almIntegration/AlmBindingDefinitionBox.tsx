@@ -29,6 +29,7 @@ import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
+import { IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import {
   AlmBindingDefinition,
   AlmKeys,
@@ -140,12 +141,12 @@ function getImportFeatureStatus(
 export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxProps) {
   const { alm, branchesEnabled, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
 
-  const importFeatureTitle =
+  const prDecoFeatureTitle =
     alm === AlmKeys.GitLab
       ? translate('settings.almintegration.feature.mr_decoration.title')
       : translate('settings.almintegration.feature.pr_decoration.title');
 
-  const importFeatureDescription =
+  const prDecoFeatureDescription =
     alm === AlmKeys.GitLab
       ? translate('settings.almintegration.feature.mr_decoration.description')
       : translate('settings.almintegration.feature.pr_decoration.description');
@@ -178,20 +179,24 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
           {status.type !== AlmSettingsBindingStatusType.Warning && (
             <div className="display-flex-row spacer-bottom">
               <div className="huge-spacer-right">
-                <Tooltip overlay={importFeatureDescription}>
-                  <span>{importFeatureTitle}</span>
+                <Tooltip overlay={prDecoFeatureDescription}>
+                  <span>{prDecoFeatureTitle}</span>
                 </Tooltip>
                 {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
               </div>
-              <div>
-                <Tooltip
-                  overlay={translate(
-                    'settings.almintegration.feature.alm_repo_import.description'
-                  )}>
-                  <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
-                </Tooltip>
-                {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
-              </div>
+              {IMPORT_COMPATIBLE_ALMS.includes(alm) && (
+                <div>
+                  <Tooltip
+                    overlay={translate(
+                      'settings.almintegration.feature.alm_repo_import.description'
+                    )}>
+                    <span>
+                      {translate('settings.almintegration.feature.alm_repo_import.title')}
+                    </span>
+                  </Tooltip>
+                  {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
+                </div>
+              )}
             </div>
           )}
 

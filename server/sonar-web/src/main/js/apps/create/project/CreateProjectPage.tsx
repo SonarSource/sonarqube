@@ -75,7 +75,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({
             azureSettings: almSettings.filter(s => s.alm === AlmKeys.Azure),
-            bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.Bitbucket),
+            bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.BitbucketServer),
             githubSettings: almSettings.filter(s => s.alm === AlmKeys.GitHub),
             gitlabSettings: almSettings.filter(s => s.alm === AlmKeys.GitLab),
             loading: false
@@ -171,7 +171,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       default: {
         const almCounts = {
           [AlmKeys.Azure]: azureSettings.length,
-          [AlmKeys.Bitbucket]: bitbucketSettings.length,
+          [AlmKeys.BitbucketServer]: bitbucketSettings.length,
           [AlmKeys.GitHub]: githubSettings.length,
           [AlmKeys.GitLab]: gitlabSettings.length
         };

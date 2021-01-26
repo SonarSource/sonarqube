@@ -163,7 +163,7 @@ function shallowRender(props: Partial<BitbucketProjectCreate['props']> = {}) {
   return shallow<BitbucketProjectCreate>(
     <BitbucketProjectCreate
       canAdmin={false}
-      bitbucketSettings={[mockAlmSettingsInstance({ alm: AlmKeys.Bitbucket, key: 'foo' })]}
+      bitbucketSettings={[mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, key: 'foo' })]}
       loadingBindings={false}
       location={mockLocation()}
       onProjectCreate={jest.fn()}

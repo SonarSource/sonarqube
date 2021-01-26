@@ -19,19 +19,41 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
+import {
+  mockBitbucketBindingDefinition,
+  mockBitbucketCloudBindingDefinition
+} from '../../../../../helpers/mocks/alm-settings';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockBitbucketBindingDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ isCreating: true })).toMatchSnapshot('variant select');
+  expect(shallowRender()).toMatchSnapshot('bitbucket server, empty');
+  expect(shallowRender({ formData: mockBitbucketBindingDefinition() })).toMatchSnapshot(
+    'bitbucket server, edit'
+  );
+  expect(
+    shallowRender({
+      formData: { key: '', clientId: '', clientSecret: '', workspace: '' },
+      variant: AlmKeys.BitbucketCloud
+    })
+  ).toMatchSnapshot('bitbucket cloud, empty');
+  expect(
+    shallowRender({
+      variant: AlmKeys.BitbucketCloud,
+      formData: mockBitbucketCloudBindingDefinition()
+    })
+  ).toMatchSnapshot('bitbucket cloud, edit');
 });
 
 function shallowRender(props: Partial<BitbucketFormProps> = {}) {
   return shallow(
     <BitbucketForm
       formData={{ key: '', personalAccessToken: '', url: '' }}
+      isCreating={false}
       onFieldChange={jest.fn()}
+      onSelectVariant={jest.fn()}
+      variant={AlmKeys.BitbucketServer}
       {...props}
     />
   );

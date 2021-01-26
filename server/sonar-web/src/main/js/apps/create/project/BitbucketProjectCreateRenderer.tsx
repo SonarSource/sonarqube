@@ -101,7 +101,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
       {loading && <i className="spinner" />}
 
       {!loading && !bitbucketSetting && (
-        <WrongBindingCountAlert alm={AlmKeys.Bitbucket} canAdmin={!!canAdmin} />
+        <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&

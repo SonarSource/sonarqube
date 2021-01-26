@@ -22,7 +22,9 @@ import * as React from 'react';
 import {
   mockAlmSettingsBindingStatus,
   mockAzureBindingDefinition,
-  mockGithubBindingDefinition
+  mockBitbucketCloudBindingDefinition,
+  mockGithubBindingDefinition,
+  mockGitlabBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionBox, { AlmBindingDefinitionBoxProps } from '../AlmBindingDefinitionBox';
@@ -66,6 +68,26 @@ it('should render correctly', () => {
   expect(
     shallowRender({ alm: AlmKeys.Azure, definition: mockAzureBindingDefinition() })
   ).toMatchSnapshot('Azure DevOps');
+
+  expect(
+    shallowRender({
+      status: mockAlmSettingsBindingStatus({
+        type: AlmSettingsBindingStatusType.Success
+      }),
+      alm: AlmKeys.GitLab,
+      definition: mockGitlabBindingDefinition()
+    })
+  ).toMatchSnapshot('success for GitLab');
+
+  expect(
+    shallowRender({
+      status: mockAlmSettingsBindingStatus({
+        type: AlmSettingsBindingStatusType.Success
+      }),
+      alm: AlmKeys.BitbucketCloud,
+      definition: mockBitbucketCloudBindingDefinition()
+    })
+  ).toMatchSnapshot('success for Bitbucket Cloud');
 
   expect(
     shallowRender({

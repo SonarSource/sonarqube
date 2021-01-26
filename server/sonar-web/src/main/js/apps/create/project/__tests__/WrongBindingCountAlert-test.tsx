@@ -24,10 +24,12 @@ import WrongBindingCountAlert, { WrongBindingCountAlertProps } from '../WrongBin
 
 it('should render correctly', () => {
   expect(shallowRender({ canAdmin: true })).toMatchSnapshot('for admin');
-  expect(shallowRender({ alm: AlmKeys.Bitbucket })).toMatchSnapshot('bitbucket');
+  expect(shallowRender({ alm: AlmKeys.BitbucketServer })).toMatchSnapshot('bitbucket');
   expect(shallowRender({ alm: AlmKeys.GitLab })).toMatchSnapshot('gitlab');
 });
 
 function shallowRender(props: Partial<WrongBindingCountAlertProps> = {}) {
-  return shallow(<WrongBindingCountAlert alm={AlmKeys.Bitbucket} canAdmin={false} {...props} />);
+  return shallow(
+    <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={false} {...props} />
+  );
 }

@@ -58,10 +58,12 @@ export default function AlmBindingDefinitionFormModalRenderer(
             <div className="display-flex-start">
               <div className="flex-1">{children}</div>
 
-              {help && (
+              {help ? (
                 <Alert className="huge-spacer-left flex-1" variant="info">
                   {help}
                 </Alert>
+              ) : (
+                <div className="flex-1" />
               )}
             </div>
           </div>

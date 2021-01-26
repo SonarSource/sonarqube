@@ -59,7 +59,7 @@ it('should render multiple instances correctly', () => {
       url: urls[0]
     },
     {
-      alm: AlmKeys.Bitbucket,
+      alm: AlmKeys.BitbucketServer,
       key: 'i3',
       url: urls[1]
     },

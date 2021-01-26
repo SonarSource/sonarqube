@@ -283,6 +283,152 @@ exports[`should render correctly: success 1`] = `
 </div>
 `;
 
+exports[`should render correctly: success for Bitbucket Cloud 1`] = `
+<div
+  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
+>
+  <div
+    className="actions pull-right"
+  >
+    <Button
+      onClick={[Function]}
+    >
+      <EditIcon
+        className="spacer-right"
+      />
+      edit
+    </Button>
+    <Button
+      className="button-red spacer-left"
+      onClick={[Function]}
+    >
+      <DeleteIcon
+        className="spacer-right"
+      />
+      delete
+    </Button>
+  </div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <h3>
+      key
+    </h3>
+  </div>
+  <div
+    className="display-flex-row spacer-bottom"
+  >
+    <div
+      className="huge-spacer-right"
+    >
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
+      >
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
+  </div>
+  <div
+    className="width-50"
+  />
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: success for GitLab 1`] = `
+<div
+  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
+>
+  <div
+    className="actions pull-right"
+  >
+    <Button
+      onClick={[Function]}
+    >
+      <EditIcon
+        className="spacer-right"
+      />
+      edit
+    </Button>
+    <Button
+      className="button-red spacer-left"
+      onClick={[Function]}
+    >
+      <DeleteIcon
+        className="spacer-right"
+      />
+      delete
+    </Button>
+  </div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <h3>
+      foo
+    </h3>
+  </div>
+  <div
+    className="display-flex-row spacer-bottom"
+  >
+    <div
+      className="huge-spacer-right"
+    >
+      <Tooltip
+        overlay="settings.almintegration.feature.mr_decoration.description"
+      >
+        <span>
+          settings.almintegration.feature.mr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <div
+        className="display-inline-flex-center"
+      >
+        <strong
+          className="spacer-left"
+        >
+          settings.almintegration.feature.alm_repo_import.disabled
+        </strong>
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="settings.almintegration.feature.alm_repo_import.disabled.no_url"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="width-50"
+  />
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
+</div>
+`;
+
 exports[`should render correctly: success with alert 1`] = `
 <div
   className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"

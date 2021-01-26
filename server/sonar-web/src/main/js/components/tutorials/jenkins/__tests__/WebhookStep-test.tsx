@@ -38,7 +38,11 @@ it.each([
     mockAzureBindingDefinition(),
     mockProjectAlmBindingResponse({ alm: AlmKeys.Azure })
   ],
-  [AlmKeys.Bitbucket, mockBitbucketBindingDefinition(), mockProjectBitbucketBindingResponse()],
+  [
+    AlmKeys.BitbucketServer,
+    mockBitbucketBindingDefinition(),
+    mockProjectBitbucketBindingResponse()
+  ],
   [AlmKeys.GitHub, mockGithubBindingDefinition(), mockProjectGithubBindingResponse()],
   [
     AlmKeys.GitLab,

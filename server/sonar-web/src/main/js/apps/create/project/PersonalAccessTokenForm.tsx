@@ -36,7 +36,7 @@ export interface PersonalAccessTokenFormProps {
 }
 
 function getPatUrl(alm: AlmKeys, url: string) {
-  if (alm === AlmKeys.Bitbucket) {
+  if (alm === AlmKeys.BitbucketServer) {
     return `${url.replace(/\/$/, '')}/plugins/servlet/access-tokens/add`;
   } else {
     // GitLab
@@ -132,7 +132,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
         </p>
 
         <ul>
-          {alm === AlmKeys.Bitbucket && (
+          {alm === AlmKeys.BitbucketServer && (
             <>
               <li>
                 <FormattedMessage

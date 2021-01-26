@@ -71,7 +71,7 @@ function shallowRender(props: Partial<PersonalAccessTokenFormProps> = {}) {
   return shallow<PersonalAccessTokenFormProps>(
     <PersonalAccessTokenForm
       almSetting={mockAlmSettingsInstance({
-        alm: AlmKeys.Bitbucket,
+        alm: AlmKeys.BitbucketServer,
         url: 'http://www.example.com'
       })}
       onPersonalAccessTokenCreate={jest.fn()}

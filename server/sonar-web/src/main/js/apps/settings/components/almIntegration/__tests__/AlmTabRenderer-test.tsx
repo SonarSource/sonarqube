@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAzureBindingDefinition,
+  mockBitbucketCloudBindingDefinition,
   mockGithubBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
 import {
@@ -60,7 +61,7 @@ it('should render correctly with validation', () => {
     defaultBinding: mockGithubBindingDefinition(),
     definitions: [mockGithubBindingDefinition()]
   };
-  expect(shallowRender(githubProps)).toMatchSnapshot();
+  expect(shallowRender(githubProps)).toMatchSnapshot('default');
   expect(shallowRender({ ...githubProps, definitions: [] })).toMatchSnapshot('empty');
 
   expect(
@@ -77,6 +78,13 @@ it('should render correctly with validation', () => {
       editedDefinition: mockGithubBindingDefinition()
     })
   ).toMatchSnapshot('create a first');
+
+  expect(
+    shallowRender({
+      alm: AlmKeys.BitbucketServer, // BitbucketServer will be passed for both Bitbucket variants.
+      definitions: [mockBitbucketCloudBindingDefinition()]
+    })
+  ).toMatchSnapshot('pass the correct key for bitbucket cloud');
 });
 
 function shallowRenderAzure(props: Partial<AlmTabRendererProps<AzureBindingDefinition>> = {}) {

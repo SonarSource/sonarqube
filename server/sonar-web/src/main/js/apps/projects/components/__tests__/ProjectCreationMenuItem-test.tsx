@@ -28,5 +28,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(overrides: Partial<ProjectCreationMenuItemProps> = {}) {
-  return shallow(<ProjectCreationMenuItem alm={AlmKeys.Bitbucket} {...overrides} />);
+  return shallow(<ProjectCreationMenuItem alm={AlmKeys.BitbucketServer} {...overrides} />);
 }

@@ -26,7 +26,7 @@ import { CreateProjectPage } from '../CreateProjectPage';
 import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-settings', () => ({
-  getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.Bitbucket, key: 'foo' }])
+  getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.BitbucketServer, key: 'foo' }])
 }));
 
 beforeEach(jest.clearAllMocks);

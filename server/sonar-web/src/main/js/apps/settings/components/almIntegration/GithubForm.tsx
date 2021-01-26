@@ -74,7 +74,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.appId}
       />
       <AlmBindingDefinitionFormField
-        id="client_id"
+        id="client_id.github"
         maxLength={80}
         onFieldChange={onFieldChange}
         propKey="clientId"
@@ -82,7 +82,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.clientId}
       />
       <AlmBindingDefinitionFormField
-        id="client_secret"
+        id="client_secret.github"
         maxLength={80}
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}

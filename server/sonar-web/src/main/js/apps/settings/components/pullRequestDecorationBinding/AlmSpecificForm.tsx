@@ -182,7 +182,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
           {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}
         </>
       );
-    case AlmKeys.Bitbucket:
+    case AlmKeys.BitbucketServer:
       return (
         <>
           {renderField({

@@ -19,4 +19,10 @@
  */
 import { AlmKeys } from '../../../../types/alm-settings';
 
-export const ALM_KEY_LIST = [AlmKeys.Azure, AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
+export const ALM_KEY_LIST = [
+  AlmKeys.Azure,
+  AlmKeys.BitbucketServer,
+  AlmKeys.BitbucketCloud,
+  AlmKeys.GitHub,
+  AlmKeys.GitLab
+];

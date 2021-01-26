@@ -65,7 +65,15 @@ export const PROJECT_KEY_MAX_LEN = 400;
 
 export const ALM_DOCUMENTATION_PATHS = {
   [AlmKeys.Azure]: '/documentation/analysis/azuredevops-integration/',
-  [AlmKeys.Bitbucket]: '/documentation/analysis/bitbucket-integration/',
+  [AlmKeys.BitbucketServer]: '/documentation/analysis/bitbucket-integration/',
+  [AlmKeys.BitbucketCloud]: '/documentation/analysis/bitbucket-cloud-integration/',
   [AlmKeys.GitHub]: '/documentation/analysis/github-integration/',
   [AlmKeys.GitLab]: '/documentation/analysis/gitlab-integration/'
 };
+
+export const IMPORT_COMPATIBLE_ALMS = [
+  AlmKeys.Azure,
+  AlmKeys.BitbucketServer,
+  AlmKeys.GitHub,
+  AlmKeys.GitLab
+];

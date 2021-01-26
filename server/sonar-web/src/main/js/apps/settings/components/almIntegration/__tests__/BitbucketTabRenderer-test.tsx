@@ -19,39 +19,44 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../../types/alm-settings';
-import AlmIntegrationRenderer, { AlmIntegrationRendererProps } from '../AlmIntegrationRenderer';
+import { mockBitbucketBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { AlmKeys, BitbucketBindingDefinition } from '../../../../../types/alm-settings';
+import AlmTabRenderer, { AlmTabRendererProps } from '../AlmTabRenderer';
+import BitbucketTabRenderer, { BitbucketTabRendererProps } from '../BitbucketTabRenderer';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ loadingAlmDefinitions: true, loadingProjectCount: true })).toMatchSnapshot(
-    'loading'
+  expect(shallowRender({ variant: AlmKeys.BitbucketServer })).toMatchSnapshot('bitbucket server');
+  expect(shallowRender({ variant: AlmKeys.BitbucketCloud })).toMatchSnapshot('bitbucket cloud');
+
+  const almTab = shallowRender().find<AlmTabRendererProps<BitbucketBindingDefinition>>(
+    AlmTabRenderer
   );
-  expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot(
-    'delete modal'
-  );
-  expect(shallowRender({ currentAlm: AlmKeys.Azure })).toMatchSnapshot('azure');
-  expect(shallowRender({ currentAlm: AlmKeys.BitbucketServer })).toMatchSnapshot('bitbucket');
-  expect(shallowRender({ currentAlm: AlmKeys.BitbucketCloud })).toMatchSnapshot('bitbucketcloud');
-  expect(shallowRender({ currentAlm: AlmKeys.GitLab })).toMatchSnapshot('gitlab');
+  expect(
+    almTab.props().form({ formData: mockBitbucketBindingDefinition(), onFieldChange: jest.fn() })
+  ).toMatchSnapshot('bitbucket form');
 });
 
-function shallowRender(props: Partial<AlmIntegrationRendererProps> = {}) {
-  return shallow(
-    <AlmIntegrationRenderer
+function shallowRender(props: Partial<BitbucketTabRendererProps> = {}) {
+  return shallow<BitbucketTabRendererProps>(
+    <BitbucketTabRenderer
       branchesEnabled={true}
-      currentAlm={AlmKeys.GitHub}
-      definitions={{ azure: [], bitbucket: [], bitbucketcloud: [], github: [], gitlab: [] }}
+      definitions={[]}
       definitionStatus={{}}
+      isCreating={false}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
-      multipleAlmEnabled={false}
+      multipleAlmEnabled={true}
       onCancel={jest.fn()}
       onCheck={jest.fn()}
-      onConfirmDelete={jest.fn()}
+      onCreate={jest.fn()}
       onDelete={jest.fn()}
-      onSelectAlm={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
+      onEdit={jest.fn()}
+      onSelectVariant={jest.fn()}
+      onSubmit={jest.fn()}
+      submitting={true}
+      success={false}
+      variant={undefined}
       {...props}
     />
   );
