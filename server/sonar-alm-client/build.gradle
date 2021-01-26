@@ -8,6 +8,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp'
 
     testCompile project(':sonar-plugin-api-impl')
+
     testCompile 'junit:junit'
     testCompile 'com.tngtech.java:junit-dataprovider'
     testCompile 'org.assertj:assertj-core'

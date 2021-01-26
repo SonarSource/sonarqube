@@ -20,6 +20,9 @@
 package org.sonar.server.almintegration.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.almintegration.ws.bitbucketserver.ImportBitbucketServerProjectAction;
+import org.sonar.server.almintegration.ws.bitbucketserver.ListBitbucketServerProjectsAction;
+import org.sonar.server.almintegration.ws.bitbucketserver.SearchBitbucketServerReposAction;
 import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
 import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
 
@@ -27,6 +30,9 @@ public class AlmIntegrationsWSModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ImportBitbucketServerProjectAction.class,
+      ListBitbucketServerProjectsAction.class,
+      SearchBitbucketServerReposAction.class,
       ImportGitLabProjectAction.class,
       SearchGitlabReposAction.class,
       AlmIntegrationsWs.class);

@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -491,6 +492,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // ALM integrations
       TimeoutConfigurationImpl.class,
       ImportHelper.class,
+      BitbucketServerRestClient.class,
       GitlabHttpClient.class,
       AlmIntegrationsWSModule.class,
 
