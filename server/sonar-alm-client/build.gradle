@@ -6,6 +6,7 @@ dependencies {
     compile 'com.google.code.gson:gson'
     compile 'com.google.guava:guava'
     compile 'com.squareup.okhttp3:okhttp'
+    compile 'commons-codec:commons-codec'
 
     testCompile project(':sonar-plugin-api-impl')
 
