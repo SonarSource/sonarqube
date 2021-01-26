@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { renderStepContent } from '../../jenkins/test-utils';
 import { BuildTools } from '../types';
-import YmlFileStep, { YmlFileStepProps } from '../YmlFileStep';
+import { YmlFileStep, YmlFileStepProps } from '../YmlFileStep';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -37,5 +38,7 @@ it.each([[BuildTools.Maven], [BuildTools.Gradle], [BuildTools.Other]])(
 );
 
 function shallowRender(props: Partial<YmlFileStepProps> = {}) {
-  return shallow<YmlFileStepProps>(<YmlFileStep open={true} {...props} />);
+  return shallow<YmlFileStepProps>(
+    <YmlFileStep appState={mockAppState({ branchesEnabled: true })} open={true} {...props} />
+  );
 }

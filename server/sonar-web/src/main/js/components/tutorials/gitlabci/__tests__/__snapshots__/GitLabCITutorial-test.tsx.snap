@@ -77,7 +77,7 @@ exports[`should render correctly 1`] = `
     onOpen={[Function]}
     open={false}
   />
-  <YmlFileStep
+  <Connect(withAppState(YmlFileStep))
     open={false}
   />
 </Fragment>

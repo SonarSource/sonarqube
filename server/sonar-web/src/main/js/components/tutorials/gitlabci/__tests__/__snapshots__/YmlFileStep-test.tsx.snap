@@ -37,7 +37,10 @@ exports[`should render correctly for build tool gradle 1`] = `
         <div
           className="big-spacer-bottom"
         >
-          <PipeCommandGradle />
+          <PipeCommand
+            branchesEnabled={true}
+            buildTool="gradle"
+          />
         </div>
         <p
           className="little-spacer-bottom"
@@ -145,7 +148,10 @@ exports[`should render correctly for build tool maven 1`] = `
         <div
           className="big-spacer-bottom"
         >
-          <PipeCommandMaven />
+          <PipeCommand
+            branchesEnabled={true}
+            buildTool="maven"
+          />
         </div>
         <p
           className="little-spacer-bottom"
@@ -253,7 +259,10 @@ exports[`should render correctly for build tool other 1`] = `
         <div
           className="big-spacer-bottom"
         >
-          <PipeCommandOther />
+          <PipeCommand
+            branchesEnabled={true}
+            buildTool="other"
+          />
         </div>
         <p
           className="little-spacer-bottom"

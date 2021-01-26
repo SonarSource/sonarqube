@@ -22,18 +22,18 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { withAppState } from '../../hoc/withAppState';
 import Step from '../components/Step';
-import PipeCommandGradle from './commands/PipeCommandGradle';
-import PipeCommandMaven from './commands/PipeCommandMaven';
-import PipeCommandOther from './commands/PipeCommandOther';
+import PipeCommand from './commands/PipeCommand';
 import { BuildTools } from './types';
 
 export interface YmlFileStepProps {
+  appState: T.AppState;
   buildTool?: BuildTools;
   open: boolean;
 }
 
-export default function YmlFileStep({ buildTool, open }: YmlFileStepProps) {
+export function YmlFileStep({ appState: { branchesEnabled }, buildTool, open }: YmlFileStepProps) {
   const renderForm = () => (
     <div className="boxed-group-inner">
       <div className="flex-columns">
@@ -61,13 +61,13 @@ export default function YmlFileStep({ buildTool, open }: YmlFileStepProps) {
               </div>
 
               <div className="big-spacer-bottom">
-                {buildTool === BuildTools.Maven && <PipeCommandMaven />}
-                {buildTool === BuildTools.Gradle && <PipeCommandGradle />}
-                {buildTool === BuildTools.Other && <PipeCommandOther />}
+                <PipeCommand buildTool={buildTool} branchesEnabled={branchesEnabled} />
               </div>
 
               <p className="little-spacer-bottom">
-                {translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig')}
+                {branchesEnabled
+                  ? translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig')
+                  : translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches')}
               </p>
 
               <p className="huge-spacer-bottom">
@@ -134,3 +134,5 @@ export default function YmlFileStep({ buildTool, open }: YmlFileStepProps) {
     />
   );
 }
+
+export default withAppState(YmlFileStep);

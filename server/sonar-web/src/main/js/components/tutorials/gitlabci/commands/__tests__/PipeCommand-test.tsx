@@ -19,8 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import PipeCommandMaven from '../PipeCommandMaven';
+import { BuildTools } from '../../types';
+import PipeCommand from '../PipeCommand';
 
-it('should render correctly', () => {
-  expect(shallow(<PipeCommandMaven />)).toMatchSnapshot();
-});
+it.each([[BuildTools.Gradle], [BuildTools.Maven], [BuildTools.Other]])(
+  'should render correctly for %s',
+  buildTool => {
+    expect(shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} />)).toMatchSnapshot(
+      'branches enabled'
+    );
+    expect(shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} />)).toMatchSnapshot(
+      'branches not enabled'
+    );
+  }
+);

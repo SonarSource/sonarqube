@@ -19,10 +19,40 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
+import { BuildTools } from '../types';
 
-export default function PipeCommandGradle() {
+export interface PipeCommandProps {
+  branchesEnabled?: boolean;
+  buildTool: BuildTools;
+}
+
+const BUILD_TOOL_SPECIFIC = {
+  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: 'gradle sonarqube' },
+  [BuildTools.Maven]: {
+    image: 'maven:3.6.3-jdk-11',
+    script: `
+    - mvn verify sonar:sonar`
+  },
+  [BuildTools.Other]: {
+    image: `
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]`,
+    script: `
+    - sonar-scanner`
+  }
+};
+
+export default function PipeCommand({ branchesEnabled, buildTool }: PipeCommandProps) {
+  const onlyBlock = branchesEnabled
+    ? `- merge_requests
+    - master
+    - develop`
+    : '- master # or the name of your main branch';
+
+  const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
+
   const command = `sonarqube-check:
-  image: gradle:jre11-slim
+  image: ${image}
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -30,12 +60,10 @@ export default function PipeCommandGradle() {
     key: "\${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: gradle sonarqube
+  script: ${script}
   allow_failure: true
   only:
-    - merge_requests
-    - master
-    - develop
+    ${onlyBlock}
 `;
 
   return <CodeSnippet snippet={command} />;
