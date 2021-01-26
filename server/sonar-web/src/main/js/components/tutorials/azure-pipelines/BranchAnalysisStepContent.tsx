@@ -24,10 +24,12 @@ import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboa
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../common/CodeSnippet';
+import { withAppState } from '../../hoc/withAppState';
 import RenderOptions from '../components/RenderOptions';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
 export interface BranchesAnalysisStepProps {
+  appState: T.AppState;
   component: T.Component;
   onStepValidationChange: (isValid: boolean) => void;
 }
@@ -39,8 +41,12 @@ export enum BuildTechnology {
   Other = 'other'
 }
 
-export default function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
-  const { component, onStepValidationChange } = props;
+export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
+  const {
+    appState: { branchesEnabled },
+    component,
+    onStepValidationChange
+  } = props;
 
   const [buildTechnology, setBuildTechnology] = React.useState<BuildTechnology | undefined>();
 
@@ -179,29 +185,39 @@ sonar.projectKey=${component.key}`;
             </li>
             <li>
               <SentenceWithHighlights
-                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration"
+                translationKey={
+                  branchesEnabled
+                    ? 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration'
+                    : 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.continous_integration.no_branches'
+                }
                 highlightKeys={['tab', 'continuous_integration']}
               />
             </li>
-            <hr />
-            <FormattedMessage
-              id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
-              defaultMessage={translate(
-                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection'
-              )}
-              values={{
-                link: (
-                  <Link to="/documentation/analysis/azuredevops-integration/" target="_blank">
-                    {translate(
-                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
-                    )}
-                  </Link>
-                )
-              }}
-            />
+            {branchesEnabled && (
+              <>
+                <hr />
+                <FormattedMessage
+                  id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
+                  defaultMessage={translate(
+                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection'
+                  )}
+                  values={{
+                    link: (
+                      <Link to="/documentation/analysis/azuredevops-integration/" target="_blank">
+                        {translate(
+                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
+                        )}
+                      </Link>
+                    )
+                  }}
+                />
+              </>
+            )}
           </>
         )}
       </ol>
     </>
   );
 }
+
+export default withAppState(BranchAnalysisStepContent);

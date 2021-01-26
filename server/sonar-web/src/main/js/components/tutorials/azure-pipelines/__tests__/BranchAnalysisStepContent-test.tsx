@@ -19,16 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockAppState, mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
-import BranchAnalysisStepContent, {
+import {
+  BranchAnalysisStepContent,
   BranchesAnalysisStepProps,
   BuildTechnology
 } from '../BranchAnalysisStepContent';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('branches enabled');
+  expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
+    'branches not enabled'
+  );
 });
 
 it.each([
@@ -49,6 +52,7 @@ it.each([
 function shallowRender(props: Partial<BranchesAnalysisStepProps> = {}) {
   return shallow(
     <BranchAnalysisStepContent
+      appState={mockAppState({ branchesEnabled: true })}
       component={mockComponent()}
       onStepValidationChange={jest.fn()}
       {...props}

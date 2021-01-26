@@ -1,6 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: branches enabled 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: branches not enabled 1`] = `
 <Fragment>
   <span>
     onboarding.build
