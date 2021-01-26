@@ -17,18 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.ws;
+package org.sonar.alm.client.gitlab;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
-import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
+import java.util.List;
 
-public class AlmIntegrationsWSModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ImportGitLabProjectAction.class,
-      SearchGitlabReposAction.class,
-      AlmIntegrationsWs.class);
+public class ProjectList {
+
+  private final List<Project> projects;
+  private final int pageNumber;
+  private final int pageSize;
+  private final int total;
+
+  public ProjectList(List<Project> projects, int pageNumber, int pageSize, int total) {
+    this.projects = projects;
+    this.pageNumber = pageNumber;
+    this.pageSize = pageSize;
+    this.total = total;
+  }
+
+  public List<Project> getProjects() {
+    return projects;
+  }
+
+  public int getPageNumber() {
+    return pageNumber;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public int getTotal() {
+    return total;
   }
 }

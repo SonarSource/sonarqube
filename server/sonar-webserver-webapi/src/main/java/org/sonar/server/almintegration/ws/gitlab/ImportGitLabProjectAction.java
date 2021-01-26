@@ -1,0 +1,149 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.almintegration.ws.gitlab;
+
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Optional;
+import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.alm.pat.AlmPatDto;
+import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
+import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Projects.CreateWsResponse;
+
+import static java.util.Objects.requireNonNull;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+
+public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
+
+  public static final String PARAM_GITLAB_PROJECT_ID = "gitlabProjectId";
+
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final ProjectDefaultVisibility projectDefaultVisibility;
+  private final GitlabHttpClient gitlabHttpClient;
+  private final ComponentUpdater componentUpdater;
+  private final UuidFactory uuidFactory;
+  private final ImportHelper importHelper;
+
+  public ImportGitLabProjectAction(DbClient dbClient, UserSession userSession,
+    ProjectDefaultVisibility projectDefaultVisibility, GitlabHttpClient gitlabHttpClient,
+    ComponentUpdater componentUpdater, UuidFactory uuidFactory, ImportHelper importHelper) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.projectDefaultVisibility = projectDefaultVisibility;
+    this.gitlabHttpClient = gitlabHttpClient;
+    this.componentUpdater = componentUpdater;
+    this.uuidFactory = uuidFactory;
+    this.importHelper = importHelper;
+  }
+
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context.createAction("import_gitlab_project")
+      .setDescription("Import a GitLab project to SonarQube, creating a new project and configuring MR decoration<br/>" +
+        "Requires the 'Create Projects' permission")
+      .setPost(true)
+      .setSince("8.5")
+      .setHandler(this);
+
+    action.createParam(ImportHelper.PARAM_ALM_SETTING)
+      .setRequired(true)
+      .setDescription("ALM setting key");
+    action.createParam(PARAM_GITLAB_PROJECT_ID)
+      .setRequired(true)
+      .setDescription("GitLab project ID");
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    CreateWsResponse createResponse = doHandle(request);
+    writeProtobuf(createResponse, request, response);
+  }
+
+  private CreateWsResponse doHandle(Request request) {
+    importHelper.checkProvisionProjectPermission();
+    AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
+    String userUuid = importHelper.getUserUuid();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
+      String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken)
+        .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
+
+      long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);
+
+      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
+      Project gitlabProject = gitlabHttpClient.getProject(url, pat, gitlabProjectId);
+
+      ComponentDto componentDto = createProject(dbSession, gitlabProject);
+      populateMRSetting(dbSession, gitlabProjectId, componentDto, almSettingDto);
+
+      return ImportHelper.toCreateResponse(componentDto);
+    }
+  }
+
+  private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ComponentDto componentDto, AlmSettingDto almSettingDto) {
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
+      .setProjectUuid(componentDto.projectUuid())
+      .setAlmSettingUuid(almSettingDto.getUuid())
+      .setAlmRepo(gitlabProjectId.toString())
+      .setAlmSlug(null)
+      .setMonorepo(false));
+    dbSession.commit();
+  }
+
+  private ComponentDto createProject(DbSession dbSession, Project gitlabProject) {
+    boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
+    String sqProjectKey = generateProjectKey(gitlabProject.getPathWithNamespace(), uuidFactory.create());
+
+    return componentUpdater.create(dbSession, newComponentBuilder()
+      .setKey(sqProjectKey)
+      .setName(gitlabProject.getName())
+      .setPrivate(visibility)
+      .setQualifier(PROJECT)
+      .build(),
+      userSession.getUuid());
+  }
+
+  @VisibleForTesting
+  String generateProjectKey(String pathWithNamespace, String uuid) {
+    String sqProjectKey = pathWithNamespace + "_" + uuid;
+
+    if (sqProjectKey.length() > 250) {
+      sqProjectKey = sqProjectKey.substring(sqProjectKey.length() - 250);
+    }
+
+    return sqProjectKey.replace("/", "_");
+  }
+}

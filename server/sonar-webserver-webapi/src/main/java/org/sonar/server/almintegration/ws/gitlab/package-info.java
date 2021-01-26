@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.almintegration.ws.gitlab;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
-import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
-
-public class AlmIntegrationsWSModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ImportGitLabProjectAction.class,
-      SearchGitlabReposAction.class,
-      AlmIntegrationsWs.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,0 +1,33 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 3,
+    "total": 10
+  },
+  "repositories": [
+    {
+      "id": 1,
+      "name": "Gitlab repo name 1",
+      "pathName": "Group",
+      "slug": "gitlab-repo-name-1",
+      "pathSlug": "group",
+      "url": "https://example.gitlab.com/group/gitlab-repo-name-1"
+    },
+    {
+      "id": 2,
+      "name": "Gitlab repo name 2",
+      "pathName": "Group",
+      "slug": "gitlab-repo-name-2",
+      "pathSlug": "group",
+      "url": "https://example.gitlab.com/group/gitlab-repo-name-2"
+    },
+    {
+      "id": 3,
+      "name": "Gitlab repo name 3",
+      "pathName": "Group",
+      "slug": "gitlab-repo-name-3",
+      "pathSlug": "group",
+      "url": "https://example.gitlab.com/group/gitlab-repo-name-3"
+    }
+  ]
+}

@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.ws;
+package org.sonar.alm.client;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
-import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
-public class AlmIntegrationsWSModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ImportGitLabProjectAction.class,
-      SearchGitlabReposAction.class,
-      AlmIntegrationsWs.class);
-  }
+/**
+ * Holds the configuration of timeouts when connecting to ALMs.
+ */
+@ServerSide
+@ComputeEngineSide
+public interface TimeoutConfiguration {
+  /**
+   * @return connect timeout in milliseconds
+   */
+  long getConnectTimeout();
+
+  /**
+   * @return read timeout in milliseconds
+   */
+  long getReadTimeout();
 }

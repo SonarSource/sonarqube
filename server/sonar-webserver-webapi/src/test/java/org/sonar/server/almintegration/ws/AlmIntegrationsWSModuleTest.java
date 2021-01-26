@@ -19,16 +19,18 @@
  */
 package org.sonar.server.almintegration.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction;
-import org.sonar.server.almintegration.ws.gitlab.SearchGitlabReposAction;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class AlmIntegrationsWSModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ImportGitLabProjectAction.class,
-      SearchGitlabReposAction.class,
-      AlmIntegrationsWs.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class AlmIntegrationsWSModuleTest {
+
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new AlmIntegrationsWSModule().configure(container);
+    assertThat(container.size()).isPositive();
   }
+
 }

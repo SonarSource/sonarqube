@@ -20,6 +20,8 @@
 package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
+import org.sonar.alm.client.TimeoutConfigurationImpl;
+import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -40,6 +42,7 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
+import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -486,6 +489,9 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginsWs.class,
 
       // ALM integrations
+      TimeoutConfigurationImpl.class,
+      ImportHelper.class,
+      GitlabHttpClient.class,
       AlmIntegrationsWSModule.class,
 
       // Branch

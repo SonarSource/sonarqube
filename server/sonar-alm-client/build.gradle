@@ -1,5 +1,18 @@
 description = 'SonarQube :: ALM integrations :: Clients'
 
 dependencies {
-    testCompile group: 'junit', name: 'junit'
+    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+    compile project(':sonar-ws')
+    compile 'com.google.code.gson:gson'
+    compile 'com.google.guava:guava'
+    compile 'com.squareup.okhttp3:okhttp'
+
+    testCompile project(':sonar-plugin-api-impl')
+    testCompile 'junit:junit'
+    testCompile 'com.tngtech.java:junit-dataprovider'
+    testCompile 'org.assertj:assertj-core'
+    testCompile 'org.assertj:assertj-guava'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+
 }
