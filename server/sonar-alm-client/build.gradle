@@ -1,0 +1,5 @@
+description = 'SonarQube :: ALM integrations :: Clients'
+
+dependencies {
+    testCompile group: 'junit', name: 'junit'
+}

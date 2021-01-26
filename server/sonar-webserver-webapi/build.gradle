@@ -14,7 +14,9 @@ dependencies {
   compile project(':server:sonar-process')
   compile project(':server:sonar-webserver-es')
   compile project(':server:sonar-webserver-ws')
+  compile project(':server:sonar-alm-client')
   compile project(':sonar-scanner-protocol')
+
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
