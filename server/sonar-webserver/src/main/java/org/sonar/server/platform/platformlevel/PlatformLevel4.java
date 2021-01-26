@@ -39,6 +39,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -61,6 +62,7 @@ import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.component.ws.ComponentsWsModule;
+import org.sonar.server.developers.ws.DevelopersWsModule;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.duplication.ws.ShowResponseBuilder;
@@ -72,7 +74,6 @@ import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
-import org.sonar.server.developers.ws.DevelopersWsModule;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
@@ -483,6 +484,9 @@ public class PlatformLevel4 extends PlatformLevel {
       UninstallAction.class,
       CancelAllAction.class,
       PluginsWs.class,
+
+      // ALM integrations
+      AlmIntegrationsWSModule.class,
 
       // Branch
       BranchFeatureProxyImpl.class,
