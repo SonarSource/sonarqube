@@ -94,7 +94,7 @@ Starting with version 6.6, there's an additional step you may want to perform if
 
 ### Additional Database Maintenance
 
-Refreshing your database's statistics and rebuilding your database's indices are recommended once the technical upgrade is done (just before the very last step).
+We recommend refreshing your database's statistics and rebuilding your database's indices once you've finished the technical upgrade, but before you reanalyze your projects.
 
 For PostgreSQL, that means executing `VACUUM FULL`. According to the PostgreSQL documentation:
 
