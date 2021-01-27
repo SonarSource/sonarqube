@@ -48,6 +48,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.almsettings.ws.AlmSettingsWs;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationTemplate;
@@ -501,6 +502,9 @@ public class PlatformLevel4 extends PlatformLevel {
       GitlabHttpClient.class,
       AzureDevOpsHttpClient.class,
       AlmIntegrationsWSModule.class,
+
+      // ALM settings
+      AlmSettingsWs.class,
 
       // Branch
       BranchFeatureProxyImpl.class,
