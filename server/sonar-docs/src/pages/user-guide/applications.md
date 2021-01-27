@@ -3,11 +3,11 @@ title: Applications
 url: /user-guide/applications/
 ---
 
-*Applications are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
+*Applications are available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html).*
 
 ## Using Applications
 
-An Application is an aggregation of projects into a synthetic project. Assume you have a set of projects which has been split for technical reasons, but which shares a lifecycle; they interact directly in production and are always released together. With an Application, they can be treated as a single entity in {instance} with a unified Project Homepage, Issues list, Measures space, and most importantly: Quality Gate.
+An Application aggregates projects into a synthetic project. Assume you have a set of projects which has been split for technical reasons, but which shares a life cycle; they interact directly in production and are always released together. With an Application, they can be treated as a single entity in {instance} with a unified Project Homepage, Issues list, Measures space, and most importantly: Quality Gate.
 
 ### Applications vs. Portfolios
 
@@ -15,11 +15,20 @@ Applications and Portfolios are both aggregations of projects, but they have dif
 
 ## Application Setup
 
-Applications are created and edited in the global Portfolio administration interface: **Administration > Configuration > Portfolios**. For more, see [Managing Applications](/project-administration/managing-applications/). Applications must be created initially by a user with global administration rights, but after set-up, administration of an individual Application can be delegated to other users.
+You can create an Application by clicking the **Create Application** button in the upper-right corner of the **Projects** homepage. 
+
+Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can also create and edit applications in the global Portfolio administration interface at **Administration > Configuration > Portfolios**. 
+
+For more information on setting up Applications, see [Managing Applications](/project-administration/managing-applications/). 
+
+[[info]]
+|Applications must be created initially by a user with global administration rights, but after set-up, administration of an individual Application can be delegated to other users.
 
 ### Populating Application Data
 
-An Application is automatically re-calculated after each analysis of one of its projects. If you want immediate (re)calculation, a user with administration rights on the Application can use the **Recompute** button in the Application-level **Application Settings > Edit Definition** interface. The global Portfolio administration interface: **Administration > Configuration > Portfolios** offers the ability to queue re-computation of all Applications and Portfolios at once.
+An Application is automatically re-calculated after each analysis of one of its projects. If you want immediate (re)calculation, a user with administration rights on the Application can use the **Recompute** button in the Application-level **Application Settings > Edit Definition** interface. 
+
+Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), the global Portfolio administration interface: **Administration > Configuration > Portfolios** offers the ability to queue re-computation of all Applications and Portfolios at once.
 
 ## Applications and Branch Analysis
 
@@ -27,4 +36,4 @@ Branches are available for Applications. They allow you to aggregate branches fr
 
 **Note:** Avoid adding branches to your application that will be deleted to prevent issues with your Application status.
 
-Once an Application has been set up, anyone with administration rights on the Application can manually create a new branch in the **Application Settings > Edit Definition** interface. Branches can also be managed from the global **Administration > Configuration > Portfolios** interface. For each Application branch you can choose which project branch should be included, or whether the project should be represented in the branch at all.
+Once an Application has been set up, anyone with administration rights on the Application can manually create a new branch in the **Application Settings > Edit Definition** interface. In Enterprise Edition and above, you can also manage branches from the global **Administration > Configuration > Portfolios** interface. For each Application branch you can choose which project branch should be included, or whether the project should be represented in the branch at all.
