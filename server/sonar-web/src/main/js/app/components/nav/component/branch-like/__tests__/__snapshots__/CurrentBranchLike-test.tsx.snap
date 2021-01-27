@@ -199,6 +199,11 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when ther
           "href": "/documentation/analysis/pull-request/",
           "label": "branch_like_navigation.only_one_branch.pr_analysis",
         },
+        Object {
+          "href": "/tutorials?id=my-project",
+          "inPlace": true,
+          "label": "branch_like_navigation.tutorial_for_ci",
+        },
       ]
     }
     title="branch_like_navigation.only_one_branch.title"

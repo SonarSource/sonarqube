@@ -59,6 +59,7 @@ import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
+import tutorialsRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
@@ -189,6 +190,7 @@ function renderComponentRoutes() {
         path="project/quality_profiles"
         childRoutes={projectQualityProfilesRoutes}
       />
+      <RouteWithChildRoutes path="tutorials" childRoutes={tutorialsRoutes} />
       <Route component={lazyLoadComponent(() => import('../components/ProjectAdminContainer'))}>
         <RouteWithChildRoutes path="custom_measures" childRoutes={customMeasuresRoutes} />
         <Route

@@ -17,25 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import DocumentationTooltip, { DocumentationTooltipProps } from '../DocumentationTooltip';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import TutorialSelection from '../../../components/tutorials/TutorialSelection';
+import { isLoggedIn } from '../../../helpers/users';
 
-it('renders correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('basic');
-  expect(
-    shallowRender({
-      links: [
-        { href: 'http://link.tosome.place', label: 'external link' },
-        { href: '/documentation/guide', label: 'internal link' },
-        { href: '/projects', label: 'in place', inPlace: true }
-      ]
-    })
-  ).toMatchSnapshot('with links');
-  expect(shallowRender({ title: undefined })).toMatchSnapshot('no title');
-  expect(shallowRender({ content: undefined })).toMatchSnapshot('no content');
-});
-
-function shallowRender(props: Partial<DocumentationTooltipProps> = {}) {
-  return shallow(<DocumentationTooltip content="content" title="title" {...props} />);
+export interface TutorialsAppProps {
+  component: T.Component;
+  currentUser: T.CurrentUser;
 }
+
+export function TutorialsApp(props: TutorialsAppProps) {
+  const { component, currentUser } = props;
+
+  if (!isLoggedIn(currentUser)) {
+    handleRequiredAuthentication();
+    return null;
+  }
+
+  return (
+    <div className="page page-limited">
+      <TutorialSelection component={component} currentUser={currentUser} />
+    </div>
+  );
+}
+
+export default withCurrentUser(TutorialsApp);

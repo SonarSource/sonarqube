@@ -51,7 +51,7 @@ export default class ProjectAnalysisStep extends React.PureComponent<Props, Stat
     return (
       <div className="boxed-group-inner">
         <div className="display-flex-column">
-          <BuildToolForm component={this.props.component} onDone={this.handleBuildToolSelect} />
+          <BuildToolForm onDone={this.handleBuildToolSelect} />
 
           {this.state.config && (
             <div className="huge-spacer-top">

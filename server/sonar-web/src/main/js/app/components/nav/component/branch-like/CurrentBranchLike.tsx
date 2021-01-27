@@ -106,6 +106,11 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
               {
                 href: '/documentation/analysis/pull-request/',
                 label: translate('branch_like_navigation.only_one_branch.pr_analysis')
+              },
+              {
+                href: `/tutorials?id=${component.key}`,
+                label: translate('branch_like_navigation.tutorial_for_ci'),
+                inPlace: true
               }
             ]}
             title={translate('branch_like_navigation.only_one_branch.title')}>

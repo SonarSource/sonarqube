@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import { isWebUri } from 'valid-url';
@@ -26,7 +27,7 @@ export interface DocumentationTooltipProps {
   children?: React.ReactNode;
   className?: string;
   content?: React.ReactNode;
-  links?: Array<{ href: string; label: string }>;
+  links?: Array<{ href: string; label: string; inPlace?: boolean }>;
   title?: string;
 }
 
@@ -50,16 +51,22 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
             <>
               <hr className="big-spacer-top big-spacer-bottom" />
 
-              {links.map(({ href, label }) => (
+              {links.map(({ href, label, inPlace }) => (
                 <div className="little-spacer-bottom" key={label}>
-                  <a
-                    className="display-inline-flex-center link-with-icon"
-                    href={href}
-                    rel="noopener noreferrer"
-                    target="_blank">
-                    {isWebUri(href) && <DetachIcon size={14} className="spacer-right" />}
-                    <span>{label}</span>
-                  </a>
+                  {inPlace ? (
+                    <Link to={href}>
+                      <span>{label}</span>
+                    </Link>
+                  ) : (
+                    <a
+                      className="display-inline-flex-center link-with-icon"
+                      href={href}
+                      rel="noopener noreferrer"
+                      target="_blank">
+                      {isWebUri(href) && <DetachIcon size={14} className="spacer-right" />}
+                      <span>{label}</span>
+                    </a>
+                  )}
                 </div>
               ))}
             </>

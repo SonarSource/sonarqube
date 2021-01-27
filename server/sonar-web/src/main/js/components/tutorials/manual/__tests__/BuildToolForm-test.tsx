@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
 import { BuildTools, OSs } from '../../types';
 import BuildToolForm from '../BuildToolForm';
 
@@ -47,7 +46,5 @@ it('correctly calls the onDone prop', () => {
 });
 
 function shallowRender(props: Partial<BuildToolForm['props']> = {}) {
-  return shallow<BuildToolForm>(
-    <BuildToolForm component={mockComponent()} onDone={jest.fn()} {...props} />
-  );
+  return shallow<BuildToolForm>(<BuildToolForm onDone={jest.fn()} {...props} />);
 }

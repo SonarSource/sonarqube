@@ -24,7 +24,6 @@ import RenderOptions from '../components/RenderOptions';
 import { BuildTools, ManualTutorialConfig, OSs } from '../types';
 
 interface Props {
-  component: T.Component;
   config?: ManualTutorialConfig;
   onDone: (config: ManualTutorialConfig) => void;
 }

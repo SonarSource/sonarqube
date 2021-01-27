@@ -105,6 +105,19 @@ exports[`renders correctly: with links 1`] = `
             </span>
           </a>
         </div>
+        <div
+          className="little-spacer-bottom"
+        >
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/projects"
+          >
+            <span>
+              in place
+            </span>
+          </Link>
+        </div>
       </React.Fragment>
     </div>
   }

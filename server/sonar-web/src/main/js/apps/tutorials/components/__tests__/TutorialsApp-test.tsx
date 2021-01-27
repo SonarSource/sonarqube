@@ -19,23 +19,23 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import DocumentationTooltip, { DocumentationTooltipProps } from '../DocumentationTooltip';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { TutorialsApp, TutorialsAppProps } from '../TutorialsApp';
 
-it('renders correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('basic');
-  expect(
-    shallowRender({
-      links: [
-        { href: 'http://link.tosome.place', label: 'external link' },
-        { href: '/documentation/guide', label: 'internal link' },
-        { href: '/projects', label: 'in place', inPlace: true }
-      ]
-    })
-  ).toMatchSnapshot('with links');
-  expect(shallowRender({ title: undefined })).toMatchSnapshot('no title');
-  expect(shallowRender({ content: undefined })).toMatchSnapshot('no content');
+jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({ default: jest.fn() }));
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<DocumentationTooltipProps> = {}) {
-  return shallow(<DocumentationTooltip content="content" title="title" {...props} />);
+it('should redirect if user is not logged in', () => {
+  shallowRender({ currentUser: mockCurrentUser() });
+  expect(handleRequiredAuthentication).toHaveBeenCalled();
+});
+
+function shallowRender(overrides: Partial<TutorialsAppProps> = {}) {
+  return shallow(
+    <TutorialsApp component={mockComponent()} currentUser={mockLoggedInUser()} {...overrides} />
+  );
 }
