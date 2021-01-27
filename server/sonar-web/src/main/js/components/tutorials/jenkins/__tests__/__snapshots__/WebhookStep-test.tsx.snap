@@ -79,6 +79,7 @@ exports[`it should render correctly for bitbucket: content 1`] = `
         Object {
           "alm": "bitbucket",
           "key": "foo",
+          "monorepo": true,
           "repository": "PROJECT_KEY",
           "slug": "repo-slug",
         }

@@ -26,8 +26,11 @@ it.each([
   [AlmKeys.Azure, false],
   [AlmKeys.Azure, true],
   [AlmKeys.Bitbucket, false],
+  [AlmKeys.Bitbucket, true],
   [AlmKeys.GitHub, false],
-  [AlmKeys.GitLab, false]
+  [AlmKeys.GitHub, true],
+  [AlmKeys.GitLab, false],
+  [AlmKeys.GitLab, true]
 ])('it should render correctly for %s and monorepo=%s', (alm, monorepoEnabled) => {
   expect(shallowRender(alm, { monorepoEnabled })).toMatchSnapshot();
 });

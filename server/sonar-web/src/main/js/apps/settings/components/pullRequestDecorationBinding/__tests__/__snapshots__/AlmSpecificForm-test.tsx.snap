@@ -152,15 +152,15 @@ exports[`it should render correctly for azure and monorepo=true 1`] = `
   >
     <label
       className="display-flex-center"
-      htmlFor="azure.monorepo"
+      htmlFor="monorepo"
     >
-      settings.pr_decoration.binding.form.azure.monorepo
+      settings.pr_decoration.binding.form.monorepo
       <HelpTooltip
         className="spacer-left"
         overlay={
           <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.monorepo.help"
-            id="settings.pr_decoration.binding.form.azure.monorepo.help"
+            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+            id="settings.pr_decoration.binding.form.monorepo.help"
             values={
               Object {
                 "doc_link": <Link
@@ -183,7 +183,7 @@ exports[`it should render correctly for azure and monorepo=true 1`] = `
     >
       <InputForBoolean
         isDefault={true}
-        name="azure.monorepo"
+        name="monorepo"
         onChange={[Function]}
         value={false}
       />
@@ -287,6 +287,143 @@ exports[`it should render correctly for bitbucket and monorepo=false 1`] = `
 </Fragment>
 `;
 
+exports[`it should render correctly for bitbucket and monorepo=true 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="bitbucket.repository"
+    >
+      settings.pr_decoration.binding.form.bitbucket.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
+            id="settings.pr_decoration.binding.form.bitbucket.repository.help"
+            values={
+              Object {
+                "example": <React.Fragment>
+                  .../projects/
+                  <strong>
+                    {KEY}
+                  </strong>
+                  /repos/{SLUG}/browse
+                </React.Fragment>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="bitbucket.repository"
+      maxLength={256}
+      name="bitbucket.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="bitbucket.slug"
+    >
+      settings.pr_decoration.binding.form.bitbucket.slug
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
+            id="settings.pr_decoration.binding.form.bitbucket.slug.help"
+            values={
+              Object {
+                "example": <React.Fragment>
+                  .../projects/{KEY}/repos/
+                  <strong>
+                    {SLUG}
+                  </strong>
+                  /browse
+                </React.Fragment>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="bitbucket.slug"
+      maxLength={256}
+      name="bitbucket.slug"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="monorepo"
+    >
+      settings.pr_decoration.binding.form.monorepo
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+            id="settings.pr_decoration.binding.form.monorepo.help"
+            values={
+              Object {
+                "doc_link": <Link
+                  onlyActiveOnIndex={false}
+                  style={Object {}}
+                  target="_blank"
+                  to="/documentation/analysis/bitbucket-integration/"
+                >
+                  learn_more
+                </Link>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <div
+      className="display-flex-center"
+    >
+      <InputForBoolean
+        isDefault={true}
+        name="monorepo"
+        onChange={[Function]}
+        value={false}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
 exports[`it should render correctly for github and monorepo=false 1`] = `
 <Fragment>
   <div
@@ -362,7 +499,109 @@ exports[`it should render correctly for github and monorepo=false 1`] = `
 </Fragment>
 `;
 
+exports[`it should render correctly for github and monorepo=true 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="github.repository"
+    >
+      settings.pr_decoration.binding.form.github.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+            id="settings.pr_decoration.binding.form.github.repository.help"
+            values={
+              Object {
+                "example": "SonarSource/sonarqube",
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="github.repository"
+      maxLength={256}
+      name="github.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="github.summary_comment_setting"
+    >
+      settings.pr_decoration.binding.form.github.summary_comment_setting
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+            id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+            values={Object {}}
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <div
+      className="display-flex-center"
+    >
+      <InputForBoolean
+        isDefault={true}
+        name="github.summary_comment_setting"
+        onChange={[Function]}
+        value={true}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
 exports[`it should render correctly for gitlab and monorepo=false 1`] = `
+<div
+  className="form-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="gitlab.repository"
+  >
+    settings.pr_decoration.binding.form.gitlab.repository
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <input
+    className="input-super-large"
+    id="gitlab.repository"
+    maxLength={256}
+    name="gitlab.repository"
+    onChange={[Function]}
+    type="text"
+    value=""
+  />
+</div>
+`;
+
+exports[`it should render correctly for gitlab and monorepo=true 1`] = `
 <div
   className="form-field"
 >
@@ -466,15 +705,15 @@ exports[`should render an alert for azure when the monorepo option is activated 
   >
     <label
       className="display-flex-center"
-      htmlFor="azure.monorepo"
+      htmlFor="monorepo"
     >
-      settings.pr_decoration.binding.form.azure.monorepo
+      settings.pr_decoration.binding.form.monorepo
       <HelpTooltip
         className="spacer-left"
         overlay={
           <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.monorepo.help"
-            id="settings.pr_decoration.binding.form.azure.monorepo.help"
+            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+            id="settings.pr_decoration.binding.form.monorepo.help"
             values={
               Object {
                 "doc_link": <Link
@@ -497,7 +736,7 @@ exports[`should render an alert for azure when the monorepo option is activated 
     >
       <InputForBoolean
         isDefault={true}
-        name="azure.monorepo"
+        name="monorepo"
         onChange={[Function]}
         value={true}
       />
@@ -506,7 +745,7 @@ exports[`should render an alert for azure when the monorepo option is activated 
         display="inline"
         variant="warning"
       >
-        settings.pr_decoration.binding.form.azure.monorepo.warning
+        settings.pr_decoration.binding.form.monorepo.warning
       </Alert>
     </div>
   </div>

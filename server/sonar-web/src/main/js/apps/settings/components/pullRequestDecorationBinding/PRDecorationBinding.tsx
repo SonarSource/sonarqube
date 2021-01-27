@@ -181,15 +181,18 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         });
       }
       case AlmKeys.Bitbucket: {
-        if (!almSpecificFields) {
+        const repository = almSpecificFields?.repository;
+        const slug = almSpecificFields?.slug;
+        const monorepo = almSpecificFields?.monorepo ?? false;
+        if (!repository || !slug) {
           return Promise.reject();
         }
-        const { repository = '', slug = '' } = almSpecificFields;
         return setProjectBitbucketBinding({
           almSetting,
           project,
           repository,
-          slug
+          slug,
+          monorepo
         });
       }
       case AlmKeys.GitHub: {

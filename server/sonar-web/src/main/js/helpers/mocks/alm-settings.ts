@@ -106,6 +106,7 @@ export function mockProjectBitbucketBindingResponse(
     key: 'foo',
     repository: 'PROJECT_KEY',
     slug: 'repo-slug',
+    monorepo: true,
     ...overrides
   };
 }

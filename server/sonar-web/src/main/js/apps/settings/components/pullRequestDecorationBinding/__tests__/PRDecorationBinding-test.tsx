@@ -146,7 +146,8 @@ describe('handleSubmit', () => {
     const bitbucketKey = 'bitbucket';
     const repository = 'repoKey';
     const slug = 'repoSlug';
-    wrapper.setState({ formData: { key: bitbucketKey, repository, slug }, instances });
+    const monorepo = true;
+    wrapper.setState({ formData: { key: bitbucketKey, repository, slug, monorepo }, instances });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
@@ -154,7 +155,8 @@ describe('handleSubmit', () => {
       almSetting: bitbucketKey,
       project: PROJECT_KEY,
       repository,
-      slug
+      slug,
+      monorepo
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -254,6 +256,37 @@ it('should accept submit azure settings', async () => {
     project: PROJECT_KEY,
     repositoryName: 'az-repo',
     projectName: 'az-project',
+    monorepo: false
+  });
+});
+
+it('should reject submitted bbs settings', async () => {
+  const wrapper = shallowRender();
+
+  expect.assertions(2);
+  await expect(
+    wrapper
+      .instance()
+      .submitProjectAlmBinding(AlmKeys.Bitbucket, 'bbs-binding', { slug: 'project' })
+  ).rejects.toBeUndefined();
+  await expect(
+    wrapper
+      .instance()
+      .submitProjectAlmBinding(AlmKeys.Bitbucket, 'bbs-binding', { repository: 'repo' })
+  ).rejects.toBeUndefined();
+});
+
+it('should accept submit bbs settings', async () => {
+  const wrapper = shallowRender();
+  await wrapper.instance().submitProjectAlmBinding(AlmKeys.Bitbucket, 'bbs', {
+    repository: 'bbs-repo',
+    slug: 'bbs-project'
+  });
+  expect(setProjectBitbucketBinding).toHaveBeenCalledWith({
+    almSetting: 'bbs',
+    project: PROJECT_KEY,
+    repository: 'bbs-repo',
+    slug: 'bbs-project',
     monorepo: false
   });
 });

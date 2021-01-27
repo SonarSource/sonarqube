@@ -113,6 +113,37 @@ function renderField(
   );
 }
 
+function renderMonoRepoField(props: {
+  monorepoEnabled: boolean;
+  value?: boolean;
+  docLink: string;
+  onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
+}) {
+  if (!props.monorepoEnabled) {
+    return null;
+  }
+
+  return renderBooleanField({
+    help: true,
+    helpParams: {
+      doc_link: (
+        <Link to={props.docLink} target="_blank">
+          {translate('learn_more')}
+        </Link>
+      )
+    },
+    id: 'monorepo',
+    onFieldChange: props.onFieldChange,
+    propKey: 'monorepo',
+    value: props.value ?? false,
+    inputExtra: props.value && (
+      <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
+        {translate('settings.pr_decoration.binding.form.monorepo.warning')}
+      </Alert>
+    )
+  });
+}
+
 export default function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
@@ -138,26 +169,12 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {monorepoEnabled &&
-            renderBooleanField({
-              help: true,
-              helpParams: {
-                doc_link: (
-                  <Link to="/documentation/analysis/azuredevops-integration/" target="_blank">
-                    {translate('learn_more')}
-                  </Link>
-                )
-              },
-              id: 'azure.monorepo',
-              onFieldChange: props.onFieldChange,
-              propKey: 'monorepo',
-              value: monorepo ?? false,
-              inputExtra: monorepo && (
-                <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
-                  {translate('settings.pr_decoration.binding.form.azure.monorepo.warning')}
-                </Alert>
-              )
-            })}
+          {renderMonoRepoField({
+            monorepoEnabled,
+            value: monorepo,
+            docLink: '/documentation/analysis/azuredevops-integration/',
+            onFieldChange: props.onFieldChange
+          })}
         </>
       );
     case AlmKeys.Bitbucket:
@@ -194,6 +211,12 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             onFieldChange: props.onFieldChange,
             propKey: 'slug',
             value: slug || ''
+          })}
+          {renderMonoRepoField({
+            monorepoEnabled,
+            value: monorepo,
+            docLink: '/documentation/analysis/bitbucket-integration/',
+            onFieldChange: props.onFieldChange
           })}
         </>
       );

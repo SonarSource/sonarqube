@@ -73,6 +73,7 @@ export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingRespon
   alm: AlmKeys.Bitbucket;
   repository: string;
   slug: string;
+  monorepo: boolean;
 }
 
 export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
@@ -100,6 +101,7 @@ export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {
 export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   slug: string;
+  monorepo: boolean;
 }
 
 export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
