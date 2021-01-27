@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { withAppState } from '../../hoc/withAppState';
 import RenderOptions from '../components/RenderOptions';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
@@ -30,6 +31,7 @@ import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
+  appState: T.AppState;
   component: T.Component;
   open: boolean;
 }
@@ -43,8 +45,12 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.Other]: Other
 };
 
-export default function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { component, open } = props;
+export function JenkinsfileStep(props: JenkinsfileStepProps) {
+  const {
+    appState: { branchesEnabled },
+    component,
+    open
+  } = props;
   const [buildTool, setBuildTool] = React.useState<BuildTools | undefined>(undefined);
   return (
     <Step
@@ -89,7 +95,11 @@ export default function JenkinsfileStep(props: JenkinsfileStepProps) {
                     <p className="little-spacer-bottom">
                       <strong>{translate('onboarding.tutorial.with.jenkins.commit')}</strong>
                     </p>
-                    <p>{translate('onboarding.tutorial.with.jenkins.commit.why')}</p>
+                    <p>
+                      {branchesEnabled
+                        ? translate('onboarding.tutorial.with.jenkins.commit.why')
+                        : translate('onboarding.tutorial.with.jenkins.commit.why.no_branches')}
+                    </p>
                   </div>
                 </div>
                 <div className="display-flex-row huge-spacer-bottom">
@@ -118,3 +128,5 @@ export default function JenkinsfileStep(props: JenkinsfileStepProps) {
     />
   );
 }
+
+export default withAppState(JenkinsfileStep);

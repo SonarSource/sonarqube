@@ -19,25 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockBitbucketBindingDefinition,
-  mockProjectBitbucketBindingResponse
-} from '../../../../helpers/mocks/alm-settings';
-import WebhookStepBitbucket, { WebhookStepBitbucketProps } from '../WebhookStepBitbucket';
+import PipelineStep, { PipelineStepProps } from '../PipelineStep';
+import { renderStepContent } from '../test-utils';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ almBinding: undefined })).toMatchSnapshot('with no alm binding');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('with branches disabled');
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot('Step wrapper');
+  expect(renderStepContent(wrapper)).toMatchSnapshot('content');
 });
 
-function shallowRender(props: Partial<WebhookStepBitbucketProps> = {}) {
-  return shallow<WebhookStepBitbucketProps>(
-    <WebhookStepBitbucket
-      almBinding={mockBitbucketBindingDefinition()}
-      branchesEnabled={true}
-      projectBinding={mockProjectBitbucketBindingResponse()}
-      {...props}
-    />
+function shallowRender(props: Partial<PipelineStepProps> = {}) {
+  return shallow<PipelineStepProps>(
+    <PipelineStep finished={false} onDone={jest.fn()} onOpen={jest.fn()} open={true} {...props} />
   );
 }

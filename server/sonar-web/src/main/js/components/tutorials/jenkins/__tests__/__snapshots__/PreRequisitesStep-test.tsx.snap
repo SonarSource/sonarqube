@@ -86,3 +86,77 @@ exports[`should render correctly: content 1`] = `
   </Button>
 </div>
 `;
+
+exports[`should render correctly: content for branches disabled 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "must_have",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
+    />
+  </p>
+  <ul
+    className="list-styled big-spacer-bottom"
+  >
+    <li>
+      onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner
+    </li>
+  </ul>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
+      id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/jenkins/"
+          >
+            onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
+          </Link>,
+        }
+      }
+    />
+  </p>
+  <p
+    className="big-spacer-bottom"
+  >
+    onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
+  </p>
+  <p
+    className="big-spacer-bottom display-flex-center"
+  >
+    <label
+      className="cursor-pointer"
+      htmlFor="skip-prereqs"
+      onClick={[Function]}
+    >
+      onboarding.tutorial.with.jenkins.prereqs.skip_next_time
+    </label>
+    <Checkbox
+      checked={true}
+      className="little-spacer-left"
+      id="skip-prereqs"
+      onCheck={[MockFunction]}
+      thirdState={false}
+    />
+  </p>
+  <Button
+    onClick={[MockFunction]}
+  >
+    onboarding.tutorial.with.jenkins.prereqs.done
+  </Button>
+</div>
+`;

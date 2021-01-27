@@ -75,6 +75,7 @@ exports[`it should render correctly for bitbucket: content 1`] = `
           "url": "http://bbs.enterprise.com",
         }
       }
+      branchesEnabled={true}
       projectBinding={
         Object {
           "alm": "bitbucket",
@@ -140,6 +141,7 @@ exports[`it should render correctly for github: content 1`] = `
           "url": "http://github.enterprise.com",
         }
       }
+      branchesEnabled={true}
       projectBinding={
         Object {
           "alm": "github",

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
+import { getAppState, getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import {
   AlmBindingDefinition,
@@ -31,11 +31,13 @@ import {
 } from '../../../types/alm-settings';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
+import PipelineStep from './PipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
 import WebhookStep from './WebhookStep';
 
 export interface JenkinsTutorialProps {
   almBinding?: AlmBindingDefinition;
+  branchesEnabled: boolean;
   component: T.Component;
   projectBinding: ProjectAlmBindingResponse;
   setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
@@ -52,7 +54,7 @@ enum Steps {
 const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, component, projectBinding, skipPreReqs } = props;
+  const { almBinding, branchesEnabled, component, projectBinding, skipPreReqs } = props;
   const [step, setStep] = React.useState(
     skipPreReqs ? Steps.MultiBranchPipeline : Steps.PreRequisites
   );
@@ -75,6 +77,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
 
       <PreRequisitesStep
         alm={projectBinding.alm}
+        branchesEnabled={branchesEnabled}
         onDone={() => setStep(Steps.MultiBranchPipeline)}
         onOpen={() => setStep(Steps.PreRequisites)}
         onChangeSkipNextTime={skip => {
@@ -87,17 +90,27 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         skipNextTime={skipPreReqs}
       />
 
-      <MultiBranchPipelineStep
-        almBinding={almBinding}
-        finished={step > Steps.MultiBranchPipeline}
-        onDone={() => setStep(Steps.Webhook)}
-        onOpen={() => setStep(Steps.MultiBranchPipeline)}
-        open={step === Steps.MultiBranchPipeline}
-        projectBinding={projectBinding}
-      />
+      {branchesEnabled ? (
+        <MultiBranchPipelineStep
+          almBinding={almBinding}
+          finished={step > Steps.MultiBranchPipeline}
+          onDone={() => setStep(Steps.Webhook)}
+          onOpen={() => setStep(Steps.MultiBranchPipeline)}
+          open={step === Steps.MultiBranchPipeline}
+          projectBinding={projectBinding}
+        />
+      ) : (
+        <PipelineStep
+          finished={step > Steps.MultiBranchPipeline}
+          onDone={() => setStep(Steps.Webhook)}
+          onOpen={() => setStep(Steps.MultiBranchPipeline)}
+          open={step === Steps.MultiBranchPipeline}
+        />
+      )}
 
       <WebhookStep
         almBinding={almBinding}
+        branchesEnabled={branchesEnabled}
         finished={step > Steps.Webhook}
         onDone={() => setStep(Steps.Jenkinsfile)}
         onOpen={() => setStep(Steps.Webhook)}
@@ -110,8 +123,11 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   );
 }
 
-const mapStateToProps = (state: Store): Pick<JenkinsTutorialProps, 'skipPreReqs'> => {
+const mapStateToProps = (
+  state: Store
+): Pick<JenkinsTutorialProps, 'branchesEnabled' | 'skipPreReqs'> => {
   return {
+    branchesEnabled: Boolean(getAppState(state).branchesEnabled),
     skipPreReqs: getCurrentUserSetting(state, USER_SETTING_SKIP_BITBUCKET_PREREQS) === 'true'
   };
 };

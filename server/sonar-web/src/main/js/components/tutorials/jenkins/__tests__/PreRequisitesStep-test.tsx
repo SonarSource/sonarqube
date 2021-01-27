@@ -27,12 +27,17 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('Step wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content');
+
+  expect(renderStepContent(shallowRender({ branchesEnabled: false }))).toMatchSnapshot(
+    'content for branches disabled'
+  );
 });
 
 function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {
   return shallow<PreRequisitesStepProps>(
     <PreRequisitesStep
       alm={AlmKeys.Bitbucket}
+      branchesEnabled={true}
       onChangeSkipNextTime={jest.fn()}
       onDone={jest.fn()}
       onOpen={jest.fn()}

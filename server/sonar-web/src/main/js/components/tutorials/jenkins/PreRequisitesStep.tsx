@@ -29,6 +29,7 @@ import Step from '../components/Step';
 
 export interface PreRequisitesStepProps {
   alm: AlmKeys;
+  branchesEnabled: boolean;
   onChangeSkipNextTime: (skip: boolean) => void;
   onDone: () => void;
   onOpen: () => void;
@@ -37,7 +38,7 @@ export interface PreRequisitesStepProps {
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { alm, open, skipNextTime } = props;
+  const { alm, branchesEnabled, open, skipNextTime } = props;
   return (
     <Step
       finished={!open}
@@ -52,9 +53,11 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
             />
           </p>
           <ul className="list-styled big-spacer-bottom">
-            <li>
-              {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
-            </li>
+            {branchesEnabled && (
+              <li>
+                {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
+              </li>
+            )}
             <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner')}</li>
           </ul>
           <p className="big-spacer-bottom">

@@ -28,15 +28,18 @@ import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
 export interface WebhookStepBitbucketProps {
   almBinding?: BitbucketBindingDefinition;
+  branchesEnabled: boolean;
   projectBinding: ProjectAlmBindingResponse;
 }
 
-function buildUrlSnippet(ownUrl = '***BITBUCKET_URL***') {
-  return `***JENKINS_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`;
+function buildUrlSnippet(branchesEnabled: boolean, ownUrl = '***BITBUCKET_URL***') {
+  return branchesEnabled
+    ? `***JENKINS_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`
+    : '***JENKINS_URL***/job/JENKINS_JOB_NAME/build?token=JENKINS_BUILD_TRIGGER_TOKEN';
 }
 
 export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
-  const { almBinding, projectBinding } = props;
+  const { almBinding, branchesEnabled, projectBinding } = props;
 
   const linkUrl =
     almBinding &&
@@ -66,10 +69,15 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url" />
             </p>
-            <CodeSnippet isOneLine={true} snippet={buildUrlSnippet(almBinding && almBinding.url)} />
-            <Alert variant="info">
-              {translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning')}
-            </Alert>
+            <CodeSnippet
+              isOneLine={true}
+              snippet={buildUrlSnippet(branchesEnabled, almBinding && almBinding.url)}
+            />
+            {branchesEnabled && (
+              <Alert variant="info">
+                {translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning')}
+              </Alert>
+            )}
           </li>
         </ul>
       </li>
@@ -82,9 +90,11 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           <li>
             <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo" />
           </li>
-          <li>
-            <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr" />
-          </li>
+          {branchesEnabled && (
+            <li>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr" />
+            </li>
+          )}
         </ul>
       </li>
       <li>

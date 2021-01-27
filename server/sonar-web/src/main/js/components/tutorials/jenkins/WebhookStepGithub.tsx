@@ -28,13 +28,18 @@ import { buildGithubLink } from '../utils';
 
 export interface WebhookStepGithubProps {
   almBinding?: GithubBindingDefinition;
+  branchesEnabled: boolean;
   projectBinding: ProjectAlmBindingResponse;
 }
 
 export default function WebhookStepGithub(props: WebhookStepGithubProps) {
-  const { almBinding, projectBinding } = props;
+  const { almBinding, branchesEnabled, projectBinding } = props;
 
   const linkUrl = almBinding && `${buildGithubLink(almBinding, projectBinding)}/settings/hooks`;
+
+  const webhookUrl = branchesEnabled
+    ? '/github-webhook/'
+    : '/job/JENKINS_JOB_NAME/build?token=JENKINS_BUILD_TRIGGER_TOKEN';
 
   return (
     <>
@@ -57,7 +62,7 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url" />
             </p>
-            <CodeSnippet isOneLine={true} snippet="/github-webhook/" />
+            <CodeSnippet isOneLine={true} snippet={webhookUrl} />
           </li>
         </ul>
       </li>
@@ -72,9 +77,13 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
               {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.repo')}
             </strong>
           </li>
-          <li>
-            <strong>{translate('onboarding.tutorial.with.jenkins.webhook.github.step2.pr')}</strong>
-          </li>
+          {branchesEnabled && (
+            <li>
+              <strong>
+                {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.pr')}
+              </strong>
+            </li>
+          )}
         </ul>
       </li>
       <li>

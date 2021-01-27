@@ -33,6 +33,7 @@ import WebhookStep from '../WebhookStep';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('branches not enabled');
   expect(
     shallowRender({ projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.Azure }) })
   ).toMatchSnapshot('unsupported alm');
@@ -106,6 +107,7 @@ it('should correctly skip the pre-reqs step if the user requested it', () => {
 function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
   return shallow<JenkinsTutorialProps>(
     <JenkinsTutorial
+      branchesEnabled={true}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketBindingResponse()}
       setCurrentUserSetting={jest.fn()}

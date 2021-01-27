@@ -28,12 +28,14 @@ import WebhookStepGithub, { WebhookStepGithubProps } from '../WebhookStepGithub'
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ almBinding: undefined })).toMatchSnapshot('with no alm binding');
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('with branches disabled');
 });
 
 function shallowRender(props: Partial<WebhookStepGithubProps> = {}) {
   return shallow<WebhookStepGithubProps>(
     <WebhookStepGithub
       almBinding={mockGithubBindingDefinition()}
+      branchesEnabled={true}
       projectBinding={mockProjectGithubBindingResponse()}
       {...props}
     />

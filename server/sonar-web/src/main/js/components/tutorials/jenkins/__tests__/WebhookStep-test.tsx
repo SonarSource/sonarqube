@@ -55,6 +55,7 @@ function shallowRender(props: Partial<WebhookStepProps> = {}) {
   return shallow<WebhookStepProps>(
     <WebhookStep
       almBinding={mockBitbucketBindingDefinition()}
+      branchesEnabled={true}
       finished={false}
       onDone={jest.fn()}
       onOpen={jest.fn()}

@@ -34,6 +34,7 @@ import WebhookStepGithub from './WebhookStepGithub';
 
 export interface WebhookStepProps {
   almBinding?: AlmBindingDefinition;
+  branchesEnabled: boolean;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
@@ -42,13 +43,14 @@ export interface WebhookStepProps {
 }
 
 function renderAlmSpecificInstructions(props: WebhookStepProps) {
-  const { almBinding, projectBinding } = props;
+  const { almBinding, branchesEnabled, projectBinding } = props;
 
   switch (projectBinding.alm) {
     case AlmKeys.Bitbucket:
       return (
         <WebhookStepBitbucket
           almBinding={isBitbucketBindingDefinition(almBinding) ? almBinding : undefined}
+          branchesEnabled={branchesEnabled}
           projectBinding={projectBinding}
         />
       );
@@ -57,6 +59,7 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
       return (
         <WebhookStepGithub
           almBinding={isGithubBindingDefinition(almBinding) ? almBinding : undefined}
+          branchesEnabled={branchesEnabled}
           projectBinding={projectBinding}
         />
       );
