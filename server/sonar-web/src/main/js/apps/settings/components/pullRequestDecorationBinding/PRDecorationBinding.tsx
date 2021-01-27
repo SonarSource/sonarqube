@@ -26,6 +26,7 @@ import {
   getProjectAlmBinding,
   setProjectAzureBinding,
   setProjectBitbucketBinding,
+  setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
   setProjectGitlabBinding
 } from '../../../../api/alm-settings';
@@ -191,6 +192,16 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
           repository,
           slug,
           monorepo
+        });
+      }
+      case AlmKeys.BitbucketCloud: {
+        if (!repository) {
+          return Promise.reject();
+        }
+        return setProjectBitbucketCloudBinding({
+          almSetting,
+          project,
+          repository
         });
       }
       case AlmKeys.GitHub: {

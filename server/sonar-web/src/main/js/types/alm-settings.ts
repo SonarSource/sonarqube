@@ -113,6 +113,10 @@ export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParam
   monorepo: boolean;
 }
 
+export interface BitbucketCloudProjectAlmBindingParams extends ProjectAlmBindingParams {
+  repository: string;
+}
+
 export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   summaryCommentEnabled: boolean;

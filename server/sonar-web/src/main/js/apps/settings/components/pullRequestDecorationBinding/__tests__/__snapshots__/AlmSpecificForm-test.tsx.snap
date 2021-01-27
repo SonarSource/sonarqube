@@ -424,6 +424,55 @@ exports[`it should render correctly for bitbucket and monorepo=true 1`] = `
 </Fragment>
 `;
 
+exports[`it should render correctly for bitbucketcloud and monorepo=false 1`] = `
+<Fragment>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="bitbucketcloud.repository"
+    >
+      settings.pr_decoration.binding.form.bitbucketcloud.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
+            id="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
+            values={
+              Object {
+                "example": <React.Fragment>
+                  https://bitbucket.org/{workspace}/
+                  <strong>
+                    {repository}
+                  </strong>
+                </React.Fragment>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <input
+      className="input-super-large"
+      id="bitbucketcloud.repository"
+      maxLength={256}
+      name="bitbucketcloud.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+</Fragment>
+`;
+
 exports[`it should render correctly for github and monorepo=false 1`] = `
 <Fragment>
   <div

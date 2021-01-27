@@ -27,6 +27,7 @@ it.each([
   [AlmKeys.Azure, true],
   [AlmKeys.BitbucketServer, false],
   [AlmKeys.BitbucketServer, true],
+  [AlmKeys.BitbucketCloud, false],
   [AlmKeys.GitHub, false],
   [AlmKeys.GitHub, true],
   [AlmKeys.GitLab, false],

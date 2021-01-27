@@ -217,7 +217,27 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'slug',
             value: slug || ''
           })}
-          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.Bitbucket])}
+          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer])}
+        </>
+      );
+    case AlmKeys.BitbucketCloud:
+      return (
+        <>
+          {renderField({
+            help: true,
+            helpParams: {
+              example: (
+                <>
+                  {'https://bitbucket.org/{workspace}/'}
+                  <strong>{'{repository}'}</strong>
+                </>
+              )
+            },
+            id: 'bitbucketcloud.repository',
+            onFieldChange: props.onFieldChange,
+            propKey: 'repository',
+            value: repository || ''
+          })}
         </>
       );
     case AlmKeys.GitHub:

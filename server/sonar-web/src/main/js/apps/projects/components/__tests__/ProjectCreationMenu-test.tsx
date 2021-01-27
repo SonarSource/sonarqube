@@ -53,19 +53,48 @@ it('should not fetch alm bindings if user cannot create projects', async () => {
 });
 
 it('should filter alm bindings appropriately', async () => {
-  (getAlmSettings as jest.Mock).mockResolvedValueOnce([
-    { alm: AlmKeys.Azure },
-    { alm: AlmKeys.BitbucketServer, url: 'b1' },
-    { alm: AlmKeys.BitbucketServer, url: 'b2' },
-    { alm: AlmKeys.GitHub },
-    { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+  (getAlmSettings as jest.Mock)
+    .mockResolvedValueOnce([
+      // Only faulty configs.
+      { alm: AlmKeys.Azure }, // Missing some configuration; will be ignored.
+      { alm: AlmKeys.BitbucketCloud }, // Bitbucket Cloud isn't supported.
+      { alm: AlmKeys.GitLab } // Missing some configuration; will be ignored.
+    ])
+    .mockResolvedValueOnce([
+      // All correct configs.
+      { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
+      { alm: AlmKeys.BitbucketServer, url: 'b1' },
+      { alm: AlmKeys.GitHub },
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+    ])
+    .mockResolvedValueOnce([
+      // Only duplicate ALMs; should all be ignored.
+      { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
+      { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
+      { alm: AlmKeys.BitbucketServer, url: 'b1' },
+      { alm: AlmKeys.BitbucketServer, url: 'b1' },
+      { alm: AlmKeys.GitHub },
+      { alm: AlmKeys.GitHub },
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' },
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+    ]);
+
+  let wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().boundAlms).toEqual([]);
+
+  wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().boundAlms).toEqual([
+    AlmKeys.Azure,
+    AlmKeys.BitbucketServer,
+    AlmKeys.GitHub,
+    AlmKeys.GitLab
   ]);
 
-  const wrapper = shallowRender();
-
+  wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().boundAlms).toEqual([AlmKeys.GitHub, AlmKeys.GitLab]);
+  expect(wrapper.state().boundAlms).toEqual([]);
 });
 
 function shallowRender(overrides: Partial<ProjectCreationMenu['props']> = {}) {

@@ -26,6 +26,7 @@ import {
   getProjectAlmBinding,
   setProjectAzureBinding,
   setProjectBitbucketBinding,
+  setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
   setProjectGitlabBinding
 } from '../../../../../api/alm-settings';
@@ -40,6 +41,7 @@ jest.mock('../../../../../api/alm-settings', () => ({
   setProjectBitbucketBinding: jest.fn().mockResolvedValue(undefined),
   setProjectGithubBinding: jest.fn().mockResolvedValue(undefined),
   setProjectGitlabBinding: jest.fn().mockResolvedValue(undefined),
+  setProjectBitbucketCloudBinding: jest.fn().mockResolvedValue(undefined),
   deleteProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
 }));
 
@@ -94,7 +96,8 @@ describe('handleSubmit', () => {
     { key: 'github', alm: AlmKeys.GitHub },
     { key: 'azure', alm: AlmKeys.Azure },
     { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
-    { key: 'gitlab', alm: AlmKeys.GitLab }
+    { key: 'gitlab', alm: AlmKeys.GitLab },
+    { key: 'bitbucketcloud', alm: AlmKeys.BitbucketCloud }
   ];
 
   it('should work for github', async () => {
@@ -187,6 +190,28 @@ describe('handleSubmit', () => {
     });
     expect(wrapper.state().success).toBe(true);
   });
+
+  it('should work for bitbucket cloud', async () => {
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    const bitbucketKey = 'bitbucketcloud';
+    const repository = 'repoKey';
+    wrapper.setState({ formData: { key: bitbucketKey, repository }, instances: [] });
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
+    expect(setProjectBitbucketCloudBinding).not.toBeCalled();
+
+    wrapper.setState({ formData: { key: bitbucketKey, repository }, instances });
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
+
+    expect(setProjectBitbucketCloudBinding).toBeCalledWith({
+      almSetting: bitbucketKey,
+      project: PROJECT_KEY,
+      repository
+    });
+    expect(wrapper.state().success).toBe(true);
+  });
 });
 
 describe.each([[500], [404]])('For status %i', status => {
@@ -266,6 +291,7 @@ it.each([
   [AlmKeys.BitbucketServer, {}],
   [AlmKeys.BitbucketServer, { slug: 'test' }],
   [AlmKeys.BitbucketServer, { repository: 'test' }],
+  [AlmKeys.BitbucketCloud, {}],
   [AlmKeys.GitHub, {}],
   [AlmKeys.GitLab, {}]
 ])('should properly reject promise for %s & %s', async (almKey: AlmKeys, params: {}) => {
@@ -290,6 +316,7 @@ it('should validate form', async () => {
     instances: [
       { key: 'azure', alm: AlmKeys.Azure },
       { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
+      { key: 'bitbucketcloud', alm: AlmKeys.BitbucketCloud },
       { key: 'github', alm: AlmKeys.GitHub },
       { key: 'gitlab', alm: AlmKeys.GitLab }
     ]
@@ -303,6 +330,8 @@ it('should validate form', async () => {
     { values: { key: 'github', repository: 'asdf' }, result: true },
     { values: { key: 'bitbucket', repository: 'key' }, result: false },
     { values: { key: 'bitbucket', repository: 'key', slug: 'slug' }, result: true },
+    { values: { key: 'bitbucketcloud', repository: '' }, result: false },
+    { values: { key: 'bitbucketcloud', repository: 'key' }, result: true },
     { values: { key: 'gitlab' }, result: false },
     { values: { key: 'gitlab', repository: 'key' }, result: true }
   ].forEach(({ values, result }) => {

@@ -26,6 +26,7 @@ import {
   AzureProjectAlmBindingParams,
   BitbucketBindingDefinition,
   BitbucketCloudBindingDefinition,
+  BitbucketCloudProjectAlmBindingParams,
   BitbucketProjectAlmBindingParams,
   GithubBindingDefinition,
   GithubProjectAlmBindingParams,
@@ -130,6 +131,10 @@ export function setProjectAzureBinding(data: AzureProjectAlmBindingParams) {
 
 export function setProjectBitbucketBinding(data: BitbucketProjectAlmBindingParams) {
   return post('/api/alm_settings/set_bitbucket_binding', data).catch(throwGlobalError);
+}
+
+export function setProjectBitbucketCloudBinding(data: BitbucketCloudProjectAlmBindingParams) {
+  return post('/api/alm_settings/set_bitbucketcloud_binding', data).catch(throwGlobalError);
 }
 
 export function setProjectGithubBinding(data: GithubProjectAlmBindingParams) {
