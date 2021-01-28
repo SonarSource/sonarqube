@@ -238,6 +238,12 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'summaryCommentEnabled',
             value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
           })}
+          {renderMonoRepoField({
+            monorepoEnabled,
+            value: monorepo,
+            docLink: '/documentation/analysis/github-integration/',
+            onFieldChange: props.onFieldChange
+          })}
         </>
       );
     case AlmKeys.GitLab:

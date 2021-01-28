@@ -79,6 +79,7 @@ export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingRespon
 export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitHub;
   repository: string;
+  monorepo: boolean;
 }
 
 export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse {
@@ -107,6 +108,7 @@ export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParam
 export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   summaryCommentEnabled: boolean;
+  monorepo: boolean;
 }
 
 export interface GitlabProjectAlmBindingParams extends ProjectAlmBindingParams {

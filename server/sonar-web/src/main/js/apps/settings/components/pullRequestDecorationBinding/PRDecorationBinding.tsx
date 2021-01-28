@@ -202,6 +202,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
           almSpecificFields?.summaryCommentEnabled === undefined
             ? true
             : almSpecificFields?.summaryCommentEnabled;
+        const monorepo = almSpecificFields?.monorepo ?? false;
         if (!repository) {
           return Promise.reject();
         }
@@ -209,7 +210,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
           almSetting,
           project,
           repository,
-          summaryCommentEnabled
+          summaryCommentEnabled,
+          monorepo
         });
       }
 

@@ -118,6 +118,7 @@ export function mockProjectGithubBindingResponse(
     alm: AlmKeys.GitHub,
     key: 'foo',
     repository: 'PROJECT_KEY',
+    monorepo: true,
     ...overrides
   };
 }

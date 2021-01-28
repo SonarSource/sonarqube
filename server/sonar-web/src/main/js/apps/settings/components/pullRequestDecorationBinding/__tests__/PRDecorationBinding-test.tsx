@@ -100,8 +100,9 @@ describe('handleSubmit', () => {
     const githubKey = 'github';
     const repository = 'repo/path';
     const summaryCommentEnabled = true;
+    const monorepo = true;
     wrapper.setState({
-      formData: { key: githubKey, repository, summaryCommentEnabled },
+      formData: { key: githubKey, repository, summaryCommentEnabled, monorepo },
       instances
     });
     wrapper.instance().handleSubmit();
@@ -111,7 +112,8 @@ describe('handleSubmit', () => {
       almSetting: githubKey,
       project: PROJECT_KEY,
       repository,
-      summaryCommentEnabled
+      summaryCommentEnabled,
+      monorepo
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -310,7 +312,8 @@ it('should accept submit github settings', async () => {
     almSetting: 'github-binding',
     project: PROJECT_KEY,
     repository: 'foo',
-    summaryCommentEnabled: true
+    summaryCommentEnabled: true,
+    monorepo: false
   });
 
   await wrapper.instance().submitProjectAlmBinding(AlmKeys.GitHub, 'github-binding', {
@@ -321,7 +324,8 @@ it('should accept submit github settings', async () => {
     almSetting: 'github-binding',
     project: PROJECT_KEY,
     repository: 'foo',
-    summaryCommentEnabled: true
+    summaryCommentEnabled: true,
+    monorepo: false
   });
 });
 

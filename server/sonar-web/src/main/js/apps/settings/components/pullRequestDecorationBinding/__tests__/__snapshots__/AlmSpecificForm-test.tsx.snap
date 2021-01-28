@@ -571,6 +571,48 @@ exports[`it should render correctly for github and monorepo=true 1`] = `
       />
     </div>
   </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="monorepo"
+    >
+      settings.pr_decoration.binding.form.monorepo
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+            id="settings.pr_decoration.binding.form.monorepo.help"
+            values={
+              Object {
+                "doc_link": <Link
+                  onlyActiveOnIndex={false}
+                  style={Object {}}
+                  target="_blank"
+                  to="/documentation/analysis/github-integration/"
+                >
+                  learn_more
+                </Link>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <div
+      className="display-flex-center"
+    >
+      <InputForBoolean
+        isDefault={true}
+        name="monorepo"
+        onChange={[Function]}
+        value={false}
+      />
+    </div>
+  </div>
 </Fragment>
 `;
 
