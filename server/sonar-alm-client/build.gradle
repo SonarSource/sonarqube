@@ -3,6 +3,7 @@ description = 'SonarQube :: ALM integrations :: Clients'
 dependencies {
     compile project(path: ':sonar-plugin-api', configuration: 'shadow')
     compile project(':sonar-ws')
+    compile project(':server:sonar-webserver-api')
     compile 'com.google.code.gson:gson'
     compile 'com.google.guava:guava'
     compile 'com.squareup.okhttp3:okhttp'

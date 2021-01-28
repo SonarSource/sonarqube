@@ -20,6 +20,7 @@
 package org.sonar.server.almsettings.ws;
 
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
@@ -46,11 +47,12 @@ public class ValidateAction implements AlmSettingsWsAction {
   private final GitlabHttpClient gitlabHttpClient;
   private final GithubApplicationClient githubApplicationClient;
   private final BitbucketServerRestClient bitbucketServerRestClient;
+  private final BitbucketCloudRestClient bitbucketCloudRestClient;
 
   public ValidateAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
     AzureDevOpsHttpClient azureDevOpsHttpClient,
     GithubApplicationClientImpl githubApplicationClient, GitlabHttpClient gitlabHttpClient,
-    BitbucketServerRestClient bitbucketServerRestClient) {
+    BitbucketServerRestClient bitbucketServerRestClient, BitbucketCloudRestClient bitbucketCloudRestClient) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
@@ -58,6 +60,7 @@ public class ValidateAction implements AlmSettingsWsAction {
     this.githubApplicationClient = githubApplicationClient;
     this.gitlabHttpClient = gitlabHttpClient;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
+    this.bitbucketCloudRestClient = bitbucketCloudRestClient;
   }
 
   @Override
@@ -97,7 +100,7 @@ public class ValidateAction implements AlmSettingsWsAction {
           validateBitbucketServer(almSettingDto);
           break;
         case BITBUCKET_CLOUD:
-          // TODO implement
+          validateBitbucketCloud(almSettingDto);
           break;
         case AZURE_DEVOPS:
           validateAzure(almSettingDto);
@@ -144,5 +147,9 @@ public class ValidateAction implements AlmSettingsWsAction {
     bitbucketServerRestClient.validateUrl(almSettingDto.getUrl());
     bitbucketServerRestClient.validateToken(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
     bitbucketServerRestClient.validateReadPermission(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
+  }
+
+  private void validateBitbucketCloud(AlmSettingDto almSettingDto) {
+    bitbucketCloudRestClient.validate(almSettingDto.getClientId(), almSettingDto.getClientSecret(), almSettingDto.getAppId());
   }
 }

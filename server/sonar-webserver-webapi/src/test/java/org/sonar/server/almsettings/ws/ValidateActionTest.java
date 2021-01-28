@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
@@ -62,9 +63,10 @@ public class ValidateActionTest {
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final GithubApplicationClientImpl githubApplicationClient = mock(GithubApplicationClientImpl.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
+  private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final WsActionTester ws = new WsActionTester(
     new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubApplicationClient, gitlabHttpClient,
-      bitbucketServerRestClient));
+      bitbucketServerRestClient, bitbucketCloudRestClient));
 
   @Test
   public void fail_when_key_does_not_match_existing_alm_setting() {
