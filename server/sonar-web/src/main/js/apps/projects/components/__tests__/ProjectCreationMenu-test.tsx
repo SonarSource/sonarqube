@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getAlmSettings } from '../../../../api/alm-settings';
-import { mockAppState, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ProjectCreationMenu } from '../ProjectCreationMenu';
 
@@ -52,12 +52,6 @@ it('should not fetch alm bindings if user cannot create projects', async () => {
   expect(getAlmSettings).not.toBeCalled();
 });
 
-it('should not fetch alm bindings if branches are not enabled', async () => {
-  const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: false }) });
-  await waitAndUpdate(wrapper);
-  expect(getAlmSettings).not.toBeCalled();
-});
-
 it('should filter alm bindings appropriately', async () => {
   (getAlmSettings as jest.Mock).mockResolvedValueOnce([
     { alm: AlmKeys.Azure },
@@ -77,7 +71,6 @@ it('should filter alm bindings appropriately', async () => {
 function shallowRender(overrides: Partial<ProjectCreationMenu['props']> = {}) {
   return shallow<ProjectCreationMenu>(
     <ProjectCreationMenu
-      appState={mockAppState({ branchesEnabled: true })}
       currentUser={mockLoggedInUser({ permissions: { global: ['provisioning'] } })}
       {...overrides}
     />

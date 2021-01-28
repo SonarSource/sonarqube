@@ -23,14 +23,12 @@ import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAlmSettings } from '../../../api/alm-settings';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
   className?: string;
   currentUser: T.LoggedInUser;
 }
@@ -71,18 +69,15 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   };
 
   fetchAlmBindings = async () => {
-    const {
-      appState: { branchesEnabled },
-      currentUser
-    } = this.props;
+    const { currentUser } = this.props;
     const canCreateProject = hasGlobalPermission(currentUser, PROJECT_CREATION_PERMISSION);
 
     // getAlmSettings requires branchesEnabled
-    if (!canCreateProject || !branchesEnabled) {
+    if (!canCreateProject) {
       return;
     }
 
-    const almSettings = await getAlmSettings();
+    const almSettings: AlmSettingsInstance[] = await getAlmSettings().catch(() => []);
 
     // Import is only available if exactly one binding is configured
     const boundAlms = IMPORT_COMPATIBLE_ALMS.filter(key => {
@@ -129,4 +124,4 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppState(withCurrentUser(ProjectCreationMenu));
+export default withCurrentUser(ProjectCreationMenu);

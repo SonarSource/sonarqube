@@ -18,7 +18,7 @@ exports[`should render correctly 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+      <Connect(withCurrentUser(ProjectCreationMenu))
         className="little-spacer-right"
       />
       <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
@@ -96,7 +96,7 @@ exports[`should render correctly while loading 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+      <Connect(withCurrentUser(ProjectCreationMenu))
         className="little-spacer-right"
       />
       <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
@@ -174,7 +174,7 @@ exports[`should render disabled sorting options for visualizations 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(withAppState(Connect(withCurrentUser(ProjectCreationMenu))))
+      <Connect(withCurrentUser(ProjectCreationMenu))
         className="little-spacer-right"
       />
       <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))

@@ -29,6 +29,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<AzureTabProps> = {}) {
   return shallow(
     <AzureTab
+      branchesEnabled={true}
       definitions={[mockAzureBindingDefinition()]}
       definitionStatus={{}}
       loadingAlmDefinitions={false}

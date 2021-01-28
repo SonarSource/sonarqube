@@ -24,7 +24,6 @@ import GithubTab, { GithubTabProps } from '../GithubTab';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('with branch support');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('without branch support');
 });
 
 function shallowRender(props: Partial<GithubTabProps> = {}) {

@@ -66,12 +66,23 @@ it('should render correctly', () => {
   expect(
     shallowRender({ alm: AlmKeys.Azure, definition: mockAzureBindingDefinition() })
   ).toMatchSnapshot('Azure DevOps');
+
+  expect(
+    shallowRender({
+      branchesEnabled: false,
+      status: mockAlmSettingsBindingStatus({
+        alertSuccess: true,
+        type: AlmSettingsBindingStatusType.Success
+      })
+    })
+  ).toMatchSnapshot('success with branches disabled');
 });
 
 function shallowRender(props: Partial<AlmBindingDefinitionBoxProps> = {}) {
   return shallow(
     <AlmBindingDefinitionBox
       alm={AlmKeys.GitHub}
+      branchesEnabled={true}
       definition={mockGithubBindingDefinition()}
       multipleDefinitions={false}
       onCheck={jest.fn()}

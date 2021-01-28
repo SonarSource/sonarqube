@@ -36,11 +36,6 @@ it('should render correctly', () => {
   expect(getAlmSettings).toBeCalled();
 });
 
-it('should render correctly if no branch support', () => {
-  expect(shallowRender({ appState: { branchesEnabled: false } })).toMatchSnapshot();
-  expect(getAlmSettings).not.toBeCalled();
-});
-
 it('should render correctly if the manual method is selected', () => {
   expect(
     shallowRender({
@@ -82,7 +77,7 @@ it('should render correctly if the GitLab method is selected', () => {
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
   return shallow<CreateProjectPage>(
     <CreateProjectPage
-      appState={{ branchesEnabled: true }}
+      appState={{}}
       currentUser={mockLoggedInUser()}
       location={mockLocation()}
       router={mockRouter()}

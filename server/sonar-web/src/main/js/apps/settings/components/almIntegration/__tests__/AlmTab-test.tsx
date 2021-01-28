@@ -95,6 +95,7 @@ function shallowRender(props: Partial<AlmTab<AzureBindingDefinition>['props']> =
   return shallow<AlmTab<AzureBindingDefinition>>(
     <AlmTab
       alm={AlmKeys.Azure}
+      branchesEnabled={true}
       createConfiguration={jest.fn()}
       defaultBinding={DEFAULT_BINDING}
       definitions={[mockAzureBindingDefinition()]}

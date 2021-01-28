@@ -37,7 +37,7 @@ import './style.css';
 import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  appState: Pick<T.AppState, 'branchesEnabled' | 'canAdmin'>;
+  appState: Pick<T.AppState, 'canAdmin'>;
   currentUser: T.LoggedInUser;
 }
 
@@ -60,13 +60,8 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    const {
-      appState: { branchesEnabled }
-    } = this.props;
     this.mounted = true;
-    if (branchesEnabled) {
-      this.fetchAlmBindings();
-    }
+    this.fetchAlmBindings();
   }
 
   componentWillUnmount() {
@@ -192,10 +187,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const {
-      appState: { branchesEnabled },
-      location
-    } = this.props;
+    const { location } = this.props;
     const mode: CreateProjectModes | undefined = location.query?.mode;
 
     return (
@@ -203,7 +195,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         <Helmet title={translate('my_account.create_new.TRK')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          {this.renderForm(branchesEnabled ? mode : CreateProjectModes.Manual)}
+          {this.renderForm(mode)}
         </div>
       </>
     );

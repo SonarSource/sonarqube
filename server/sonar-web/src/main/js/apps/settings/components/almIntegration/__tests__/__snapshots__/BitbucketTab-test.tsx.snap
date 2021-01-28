@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
 >
   <AlmTab
     alm="bitbucket"
+    branchesEnabled={true}
     createConfiguration={[Function]}
     defaultBinding={
       Object {

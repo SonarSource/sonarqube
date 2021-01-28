@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <AlmTabRenderer
   alm="azure"
+  branchesEnabled={true}
   defaultBinding={
     Object {
       "key": "",

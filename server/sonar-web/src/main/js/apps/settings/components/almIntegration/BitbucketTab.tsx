@@ -34,6 +34,7 @@ import AlmTab from './AlmTab';
 import BitbucketForm from './BitbucketForm';
 
 export interface BitbucketTabProps {
+  branchesEnabled: boolean;
   definitions: BitbucketBindingDefinition[];
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
@@ -46,6 +47,7 @@ export interface BitbucketTabProps {
 
 export default function BitbucketTab(props: BitbucketTabProps) {
   const {
+    branchesEnabled,
     multipleAlmEnabled,
     definitions,
     definitionStatus,
@@ -57,6 +59,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
     <div className="bordered">
       <AlmTab
         alm={AlmKeys.Bitbucket}
+        branchesEnabled={branchesEnabled}
         createConfiguration={createBitbucketConfiguration}
         defaultBinding={{ key: '', url: '', personalAccessToken: '' }}
         definitions={definitions}

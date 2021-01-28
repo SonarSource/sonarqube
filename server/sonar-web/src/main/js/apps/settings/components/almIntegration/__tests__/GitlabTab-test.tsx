@@ -24,7 +24,6 @@ import GitlabTab, { GitlabTabProps } from '../GitlabTab';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('with branch support');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('without branch support');
   expect(
     shallowRender({
       definitions: [mockGitlabBindingDefinition({ url: 'https://gitlab.com/api/v4' })]

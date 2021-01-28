@@ -119,18 +119,20 @@ exports[`should render correctly: error 1`] = `
   <div
     className="display-flex-row spacer-bottom"
   >
-    <Tooltip
-      overlay="settings.almintegration.feature.pr_decoration.description"
+    <div
+      className="huge-spacer-right"
     >
-      <div
-        className="huge-spacer-right"
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
       >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertErrorIcon
-          className="spacer-left"
-        />
-      </div>
-    </Tooltip>
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertErrorIcon
+        className="spacer-left"
+      />
+    </div>
     <div>
       <Tooltip
         overlay="settings.almintegration.feature.alm_repo_import.description"
@@ -242,18 +244,20 @@ exports[`should render correctly: success 1`] = `
   <div
     className="display-flex-row spacer-bottom"
   >
-    <Tooltip
-      overlay="settings.almintegration.feature.pr_decoration.description"
+    <div
+      className="huge-spacer-right"
     >
-      <div
-        className="huge-spacer-right"
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
       >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertSuccessIcon
-          className="spacer-left"
-        />
-      </div>
-    </Tooltip>
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
     <div>
       <Tooltip
         overlay="settings.almintegration.feature.alm_repo_import.description"
@@ -317,18 +321,129 @@ exports[`should render correctly: success with alert 1`] = `
   <div
     className="display-flex-row spacer-bottom"
   >
-    <Tooltip
-      overlay="settings.almintegration.feature.pr_decoration.description"
+    <div
+      className="huge-spacer-right"
     >
-      <div
-        className="huge-spacer-right"
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
       >
-        settings.almintegration.feature.pr_decoration.title
-        <AlertSuccessIcon
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
+  </div>
+  <div
+    className="width-50"
+  >
+    <Alert
+      variant="success"
+    >
+      settings.almintegration.configuration_valid
+    </Alert>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[Function]}
+  >
+    settings.almintegration.check_configuration
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: success with branches disabled 1`] = `
+<div
+  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
+>
+  <div
+    className="actions pull-right"
+  >
+    <Button
+      onClick={[Function]}
+    >
+      <EditIcon
+        className="spacer-right"
+      />
+      edit
+    </Button>
+    <Button
+      className="button-red spacer-left"
+      onClick={[Function]}
+    >
+      <DeleteIcon
+        className="spacer-right"
+      />
+      delete
+    </Button>
+  </div>
+  <div
+    className="big-spacer-bottom"
+  >
+    <h3>
+      key
+    </h3>
+    <span>
+      http://github.enterprise.com
+    </span>
+  </div>
+  <div
+    className="display-flex-row spacer-bottom"
+  >
+    <div
+      className="huge-spacer-right"
+    >
+      <Tooltip
+        overlay="settings.almintegration.feature.pr_decoration.description"
+      >
+        <span>
+          settings.almintegration.feature.pr_decoration.title
+        </span>
+      </Tooltip>
+      <div
+        className="display-inline-flex-center"
+      >
+        <strong
           className="spacer-left"
+        >
+          settings.almintegration.feature.pr_decoration.disabled
+        </strong>
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay={
+            <FormattedMessage
+              defaultMessage="settings.almintegration.feature.pr_decoration.disabled.no_branches"
+              id="settings.almintegration.feature.pr_decoration.disabled.no_branches"
+              values={
+                Object {
+                  "link": <a
+                    href="https://redirect.sonarsource.com/editions/developer.html?sourceEdition=community"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    settings.almintegration.feature.pr_decoration.disabled.no_branches.link
+                  </a>,
+                }
+              }
+            />
+          }
         />
       </div>
-    </Tooltip>
+    </div>
     <div>
       <Tooltip
         overlay="settings.almintegration.feature.alm_repo_import.description"

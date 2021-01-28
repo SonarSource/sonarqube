@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Tooltip
+  mouseLeaveDelay={0.25}
+  overlay={
+    <FormattedMessage
+      defaultMessage="settings.almintegration.create.tooltip"
+      id="settings.almintegration.create.tooltip"
+      values={
+        Object {
+          "alm": "alm.azure",
+          "link": <a
+            href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=community"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            settings.almintegration.create.tooltip.link
+          </a>,
+        }
+      }
+    />
+  }
+>
+  <span>
+    Child
+  </span>
+</Tooltip>
+`;
+
+exports[`should render correctly 2`] = `
+<Tooltip
+  mouseLeaveDelay={0.25}
+  overlay={null}
+>
+  <span>
+    Child
+  </span>
+</Tooltip>
+`;

@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import {
   AlmBindingDefinition,
   AlmKeys,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
-import { EditionKey } from '../../../../types/editions';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm, {
   AlmBindingDefinitionFormChildrenProps
 } from './AlmBindingDefinitionForm';
+import CreationTooltip from './CreationTooltip';
 
 export interface AlmTabRendererProps<B> {
   alm: AlmKeys;
+  branchesEnabled: boolean;
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   editedDefinition?: B;
   defaultBinding: B;
@@ -62,6 +60,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
 ) {
   const {
     alm,
+    branchesEnabled,
     definitions,
     definitionStatus,
     editedDefinition,
@@ -74,25 +73,6 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
-  const creationTooltip = preventCreation ? (
-    <FormattedMessage
-      id="settings.almintegration.create.tooltip"
-      defaultMessage={translate('settings.almintegration.create.tooltip')}
-      values={{
-        link: (
-          <a
-            href={getEditionUrl(getEdition(EditionKey.enterprise), {
-              sourceEdition: EditionKey.developer
-            })}
-            rel="noopener noreferrer"
-            target="_blank">
-            {translate('settings.almintegration.create.tooltip.link')}
-          </a>
-        ),
-        alm: translate('alm', alm)
-      }}
-    />
-  ) : null;
 
   return (
     <div className="big-padded">
@@ -102,18 +82,19 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
         )}
 
         <div className={definitions.length > 0 ? 'spacer-bottom text-right' : 'big-spacer-top'}>
-          <Tooltip overlay={creationTooltip} mouseLeaveDelay={0.25}>
+          <CreationTooltip alm={alm} preventCreation={preventCreation}>
             <Button
               data-test="settings__alm-create"
               disabled={preventCreation}
               onClick={props.onCreate}>
               {translate('settings.almintegration.create')}
             </Button>
-          </Tooltip>
+          </CreationTooltip>
         </div>
         {definitions.map(def => (
           <AlmBindingDefinitionBox
             alm={alm}
+            branchesEnabled={branchesEnabled}
             definition={def}
             key={def.key}
             multipleDefinitions={definitions.length > 1}

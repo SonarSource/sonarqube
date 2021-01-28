@@ -28,6 +28,7 @@ import AlmTabRenderer from './AlmTabRenderer';
 
 interface Props<B> {
   alm: AlmKeys;
+  branchesEnabled: boolean;
   createConfiguration: (data: B) => Promise<void>;
   defaultBinding: B;
   definitions: B[];
@@ -109,6 +110,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
   render() {
     const {
       alm,
+      branchesEnabled,
       defaultBinding,
       definitions,
       definitionStatus,
@@ -124,6 +126,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
     return (
       <AlmTabRenderer
         alm={alm}
+        branchesEnabled={branchesEnabled}
         defaultBinding={defaultBinding}
         definitions={definitions}
         definitionStatus={definitionStatus}

@@ -59,40 +59,37 @@ export default function GitlabTab(props: GitlabTabProps) {
 
   return (
     <div className="bordered">
-      {branchesEnabled && (
-        <>
-          <AlmTab
-            alm={AlmKeys.GitLab}
-            createConfiguration={createGitlabConfiguration}
-            defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
-            definitions={definitions}
-            definitionStatus={definitionStatus}
-            form={childProps => <GitlabForm {...childProps} />}
-            help={
-              <FormattedMessage
-                defaultMessage={translate(`settings.almintegration.gitlab.info`)}
-                id="settings.almintegration.gitlab.info"
-                values={{
-                  link: (
-                    <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
-                      {translate('learn_more')}
-                    </Link>
-                  )
-                }}
-              />
-            }
-            loadingAlmDefinitions={loadingAlmDefinitions}
-            loadingProjectCount={loadingProjectCount}
-            multipleAlmEnabled={multipleAlmEnabled}
-            onCheck={props.onCheck}
-            onDelete={props.onDelete}
-            onUpdateDefinitions={props.onUpdateDefinitions}
-            updateConfiguration={updateGitlabConfiguration}
+      <AlmTab
+        alm={AlmKeys.GitLab}
+        branchesEnabled={branchesEnabled}
+        createConfiguration={createGitlabConfiguration}
+        defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
+        definitions={definitions}
+        definitionStatus={definitionStatus}
+        form={childProps => <GitlabForm {...childProps} />}
+        help={
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.gitlab.info`)}
+            id="settings.almintegration.gitlab.info"
+            values={{
+              link: (
+                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
+                  {translate('learn_more')}
+                </Link>
+              )
+            }}
           />
+        }
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
+        multipleAlmEnabled={multipleAlmEnabled}
+        onCheck={props.onCheck}
+        onDelete={props.onDelete}
+        onUpdateDefinitions={props.onUpdateDefinitions}
+        updateConfiguration={updateGitlabConfiguration}
+      />
 
-          <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
-        </>
-      )}
+      <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
 
       <div className="big-padded">
         <CategoryDefinitionsList

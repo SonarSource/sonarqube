@@ -10,9 +10,9 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -21,10 +21,11 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -65,9 +66,9 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -76,10 +77,11 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -106,9 +108,9 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -117,10 +119,11 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -147,26 +150,9 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.almintegration.create.tooltip"
-            id="settings.almintegration.create.tooltip"
-            values={
-              Object {
-                "alm": "alm.azure",
-                "link": <a
-                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  settings.almintegration.create.tooltip.link
-                </a>,
-              }
-            }
-          />
-        }
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={true}
       >
         <Button
           data-test="settings__alm-create"
@@ -175,10 +161,11 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -205,9 +192,9 @@ exports[`should render correctly for multi-ALM binding: submitting 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -216,10 +203,11 @@ exports[`should render correctly for multi-ALM binding: submitting 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -246,26 +234,9 @@ exports[`should render correctly for single-ALM binding 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.almintegration.create.tooltip"
-            id="settings.almintegration.create.tooltip"
-            values={
-              Object {
-                "alm": "alm.azure",
-                "link": <a
-                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  settings.almintegration.create.tooltip.link
-                </a>,
-              }
-            }
-          />
-        }
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={true}
       >
         <Button
           data-test="settings__alm-create"
@@ -274,10 +245,11 @@ exports[`should render correctly for single-ALM binding 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -304,26 +276,9 @@ exports[`should render correctly for single-ALM binding 2`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.almintegration.create.tooltip"
-            id="settings.almintegration.create.tooltip"
-            values={
-              Object {
-                "alm": "alm.azure",
-                "link": <a
-                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  settings.almintegration.create.tooltip.link
-                </a>,
-              }
-            }
-          />
-        }
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={true}
       >
         <Button
           data-test="settings__alm-create"
@@ -332,10 +287,11 @@ exports[`should render correctly for single-ALM binding 2`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -362,26 +318,9 @@ exports[`should render correctly for single-ALM binding 3`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.almintegration.create.tooltip"
-            id="settings.almintegration.create.tooltip"
-            values={
-              Object {
-                "alm": "alm.azure",
-                "link": <a
-                  href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=developer"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  settings.almintegration.create.tooltip.link
-                </a>,
-              }
-            }
-          />
-        }
+      <Connect(withAppState(CreationTooltip))
+        alm="azure"
+        preventCreation={true}
       >
         <Button
           data-test="settings__alm-create"
@@ -390,10 +329,11 @@ exports[`should render correctly for single-ALM binding 3`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="azure"
+      branchesEnabled={true}
       definition={
         Object {
           "key": "key",
@@ -420,9 +360,9 @@ exports[`should render correctly with validation 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="github"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -431,10 +371,11 @@ exports[`should render correctly with validation 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="github"
+      branchesEnabled={true}
       definition={
         Object {
           "appId": "123456",
@@ -470,9 +411,9 @@ exports[`should render correctly with validation: create a first 1`] = `
     <div
       className="big-spacer-top"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="github"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -481,7 +422,7 @@ exports[`should render correctly with validation: create a first 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionForm
       bindingDefinition={
@@ -515,9 +456,9 @@ exports[`should render correctly with validation: create a second 1`] = `
     <div
       className="spacer-bottom text-right"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="github"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -526,10 +467,11 @@ exports[`should render correctly with validation: create a second 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
     <AlmBindingDefinitionBox
       alm="github"
+      branchesEnabled={true}
       definition={
         Object {
           "appId": "123456",
@@ -583,9 +525,9 @@ exports[`should render correctly with validation: empty 1`] = `
     <div
       className="big-spacer-top"
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={null}
+      <Connect(withAppState(CreationTooltip))
+        alm="github"
+        preventCreation={false}
       >
         <Button
           data-test="settings__alm-create"
@@ -594,7 +536,7 @@ exports[`should render correctly with validation: empty 1`] = `
         >
           settings.almintegration.create
         </Button>
-      </Tooltip>
+      </Connect(withAppState(CreationTooltip))>
     </div>
   </DeferredSpinner>
 </div>

@@ -59,47 +59,44 @@ export default function GithubTab(props: GithubTabProps) {
 
   return (
     <div className="bordered">
-      {branchesEnabled && (
-        <>
-          <AlmTab
-            alm={AlmKeys.GitHub}
-            createConfiguration={createGithubConfiguration}
-            defaultBinding={{
-              key: '',
-              appId: '',
-              clientId: '',
-              clientSecret: '',
-              url: '',
-              privateKey: ''
+      <AlmTab
+        alm={AlmKeys.GitHub}
+        branchesEnabled={branchesEnabled}
+        createConfiguration={createGithubConfiguration}
+        defaultBinding={{
+          key: '',
+          appId: '',
+          clientId: '',
+          clientSecret: '',
+          url: '',
+          privateKey: ''
+        }}
+        definitions={definitions}
+        definitionStatus={definitionStatus}
+        form={childProps => <GithubForm {...childProps} />}
+        help={
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.github.info`)}
+            id="settings.almintegration.github.info"
+            values={{
+              link: (
+                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                  {translate('learn_more')}
+                </Link>
+              )
             }}
-            definitions={definitions}
-            definitionStatus={definitionStatus}
-            form={childProps => <GithubForm {...childProps} />}
-            help={
-              <FormattedMessage
-                defaultMessage={translate(`settings.almintegration.github.info`)}
-                id="settings.almintegration.github.info"
-                values={{
-                  link: (
-                    <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
-                      {translate('learn_more')}
-                    </Link>
-                  )
-                }}
-              />
-            }
-            loadingAlmDefinitions={loadingAlmDefinitions}
-            loadingProjectCount={loadingProjectCount}
-            multipleAlmEnabled={multipleAlmEnabled}
-            onCheck={props.onCheck}
-            onDelete={props.onDelete}
-            onUpdateDefinitions={props.onUpdateDefinitions}
-            updateConfiguration={updateGithubConfiguration}
           />
+        }
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
+        multipleAlmEnabled={multipleAlmEnabled}
+        onCheck={props.onCheck}
+        onDelete={props.onDelete}
+        onUpdateDefinitions={props.onUpdateDefinitions}
+        updateConfiguration={updateGithubConfiguration}
+      />
 
-          <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
-        </>
-      )}
+      <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
 
       <div className="big-padded">
         <CategoryDefinitionsList

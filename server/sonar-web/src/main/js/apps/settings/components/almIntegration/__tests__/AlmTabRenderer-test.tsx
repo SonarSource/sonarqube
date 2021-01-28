@@ -93,6 +93,7 @@ function shallowRender<B extends AlmBindingDefinition>(
   return shallow(
     <AlmTabRenderer
       alm={AlmKeys.Azure}
+      branchesEnabled={true}
       defaultBinding={{} as any}
       definitions={[]}
       definitionStatus={{}}

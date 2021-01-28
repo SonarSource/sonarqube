@@ -32,6 +32,7 @@ import AlmTab from './AlmTab';
 import AzureForm from './AzureForm';
 
 export interface AzureTabProps {
+  branchesEnabled: boolean;
   definitions: AzureBindingDefinition[];
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
@@ -44,6 +45,7 @@ export interface AzureTabProps {
 
 export default function AzureTab(props: AzureTabProps) {
   const {
+    branchesEnabled,
     multipleAlmEnabled,
     definitions,
     definitionStatus,
@@ -55,6 +57,7 @@ export default function AzureTab(props: AzureTabProps) {
     <div className="bordered">
       <AlmTab
         alm={AlmKeys.Azure}
+        branchesEnabled={branchesEnabled}
         createConfiguration={createAzureConfiguration}
         defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
         definitions={definitions}

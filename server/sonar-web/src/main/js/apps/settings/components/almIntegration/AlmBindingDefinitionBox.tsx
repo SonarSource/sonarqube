@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
@@ -27,15 +28,18 @@ import DeleteIcon from 'sonar-ui-common/components/icons/DeleteIcon';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import {
   AlmBindingDefinition,
   AlmKeys,
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
+import { EditionKey } from '../../../../types/editions';
 
 export interface AlmBindingDefinitionBoxProps {
   alm: AlmKeys;
+  branchesEnabled: boolean;
   definition: AlmBindingDefinition;
   multipleDefinitions: boolean;
   onCheck: (definitionKey: string) => void;
@@ -55,6 +59,48 @@ const STATUS_ICON = {
   [AlmSettingsBindingStatusType.Success]: <AlertSuccessIcon className="spacer-left" />
 };
 
+function getPRDecorationFeatureStatus(
+  branchesEnabled: boolean,
+  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
+) {
+  if (branchesEnabled) {
+    return STATUS_ICON[type];
+  }
+
+  return (
+    <div className="display-inline-flex-center">
+      <strong className="spacer-left">
+        {translate('settings.almintegration.feature.pr_decoration.disabled')}
+      </strong>
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={
+          <FormattedMessage
+            id="settings.almintegration.feature.pr_decoration.disabled.no_branches"
+            defaultMessage={translate(
+              'settings.almintegration.feature.pr_decoration.disabled.no_branches'
+            )}
+            values={{
+              link: (
+                <a
+                  href={getEditionUrl(getEdition(EditionKey.developer), {
+                    sourceEdition: EditionKey.community
+                  })}
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  {translate(
+                    'settings.almintegration.feature.pr_decoration.disabled.no_branches.link'
+                  )}
+                </a>
+              )
+            }}
+          />
+        }
+      />
+    </div>
+  );
+}
+
 function getImportFeatureStatus(
   definition: AlmBindingDefinition,
   multipleDefinitions: boolean,
@@ -72,7 +118,9 @@ function getImportFeatureStatus(
         />
       </div>
     );
-  } else if (!definition.url) {
+  }
+
+  if (!definition.url) {
     return (
       <div className="display-inline-flex-center">
         <strong className="spacer-left">
@@ -84,13 +132,13 @@ function getImportFeatureStatus(
         />
       </div>
     );
-  } else {
-    return STATUS_ICON[type];
   }
+
+  return STATUS_ICON[type];
 }
 
 export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxProps) {
-  const { alm, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
+  const { alm, branchesEnabled, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
 
   const importFeatureTitle =
     alm === AlmKeys.GitLab
@@ -129,12 +177,12 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
         <>
           {status.type !== AlmSettingsBindingStatusType.Warning && (
             <div className="display-flex-row spacer-bottom">
-              <Tooltip overlay={importFeatureDescription}>
-                <div className="huge-spacer-right">
-                  {importFeatureTitle}
-                  {STATUS_ICON[status.type]}
-                </div>
-              </Tooltip>
+              <div className="huge-spacer-right">
+                <Tooltip overlay={importFeatureDescription}>
+                  <span>{importFeatureTitle}</span>
+                </Tooltip>
+                {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
+              </div>
               <div>
                 <Tooltip
                   overlay={translate(

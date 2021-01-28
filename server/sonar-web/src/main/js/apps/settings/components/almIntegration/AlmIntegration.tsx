@@ -101,14 +101,6 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   };
 
   fetchPullRequestDecorationSetting = () => {
-    const {
-      appState: { branchesEnabled }
-    } = this.props;
-
-    if (!branchesEnabled) {
-      return Promise.resolve();
-    }
-
     this.setState({ loadingAlmDefinitions: true });
     return getAlmDefinitions()
       .then(definitions => {

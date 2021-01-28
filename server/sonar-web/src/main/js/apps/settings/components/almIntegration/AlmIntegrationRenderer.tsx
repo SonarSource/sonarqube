@@ -64,7 +64,8 @@ const tabs = [
         />
         GitHub
       </>
-    )
+    ),
+    requiresBranchesEnabled: false
   },
   {
     key: AlmKeys.Bitbucket,
@@ -79,7 +80,7 @@ const tabs = [
         Bitbucket Server
       </>
     ),
-    requiresBranchesEnabled: true
+    requiresBranchesEnabled: false
   },
   {
     key: AlmKeys.Azure,
@@ -94,7 +95,7 @@ const tabs = [
         Azure DevOps Server
       </>
     ),
-    requiresBranchesEnabled: true
+    requiresBranchesEnabled: false
   },
   {
     key: AlmKeys.GitLab,
@@ -108,7 +109,8 @@ const tabs = [
         />
         GitLab
       </>
-    )
+    ),
+    requiresBranchesEnabled: false
   }
 ];
 
@@ -143,6 +145,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
 
       {currentAlm === AlmKeys.Azure && (
         <AzureTab
+          branchesEnabled={branchesEnabled}
           definitions={definitions.azure}
           definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}
@@ -155,6 +158,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       )}
       {currentAlm === AlmKeys.Bitbucket && (
         <BitbucketTab
+          branchesEnabled={branchesEnabled}
           definitions={definitions.bitbucket}
           definitionStatus={definitionStatus}
           loadingAlmDefinitions={loadingAlmDefinitions}

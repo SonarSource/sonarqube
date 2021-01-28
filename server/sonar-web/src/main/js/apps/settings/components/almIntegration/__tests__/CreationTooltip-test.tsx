@@ -19,26 +19,24 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import BitbucketTab, { BitbucketTabProps } from '../BitbucketTab';
+import { mockAppState } from '../../../../../helpers/testMocks';
+import { AlmKeys } from '../../../../../types/alm-settings';
+import { EditionKey } from '../../../../../types/editions';
+import { CreationTooltip, CreationTooltipProps } from '../CreationTooltip';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ preventCreation: false })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<BitbucketTabProps> = {}) {
+function shallowRender(props: Partial<CreationTooltipProps> = {}) {
   return shallow(
-    <BitbucketTab
-      branchesEnabled={true}
-      definitions={[mockBitbucketBindingDefinition()]}
-      definitionStatus={{}}
-      loadingAlmDefinitions={false}
-      loadingProjectCount={false}
-      multipleAlmEnabled={true}
-      onCheck={jest.fn()}
-      onDelete={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
-      {...props}
-    />
+    <CreationTooltip
+      alm={AlmKeys.Azure}
+      appState={mockAppState({ edition: EditionKey.community })}
+      preventCreation={true}
+      {...props}>
+      <span>Child</span>
+    </CreationTooltip>
   );
 }
