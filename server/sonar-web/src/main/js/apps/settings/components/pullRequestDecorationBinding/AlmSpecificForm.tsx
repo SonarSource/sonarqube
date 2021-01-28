@@ -151,6 +151,15 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
     monorepoEnabled
   } = props;
 
+  const renderMonoRepoFieldWithDocLink = (docLink: string) => {
+    return renderMonoRepoField({
+      monorepoEnabled,
+      value: monorepo,
+      docLink,
+      onFieldChange: props.onFieldChange
+    });
+  };
+
   switch (alm) {
     case AlmKeys.Azure:
       return (
@@ -169,12 +178,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {renderMonoRepoField({
-            monorepoEnabled,
-            value: monorepo,
-            docLink: '/documentation/analysis/azuredevops-integration/',
-            onFieldChange: props.onFieldChange
-          })}
+          {renderMonoRepoFieldWithDocLink('/documentation/analysis/azuredevops-integration/')}
         </>
       );
     case AlmKeys.Bitbucket:
@@ -212,12 +216,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'slug',
             value: slug || ''
           })}
-          {renderMonoRepoField({
-            monorepoEnabled,
-            value: monorepo,
-            docLink: '/documentation/analysis/bitbucket-integration/',
-            onFieldChange: props.onFieldChange
-          })}
+          {renderMonoRepoFieldWithDocLink('/documentation/analysis/bitbucket-integration/')}
         </>
       );
     case AlmKeys.GitHub:
@@ -238,21 +237,21 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'summaryCommentEnabled',
             value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
           })}
-          {renderMonoRepoField({
-            monorepoEnabled,
-            value: monorepo,
-            docLink: '/documentation/analysis/github-integration/',
-            onFieldChange: props.onFieldChange
-          })}
+          {renderMonoRepoFieldWithDocLink('/documentation/analysis/github-integration/')}
         </>
       );
     case AlmKeys.GitLab:
-      return renderField({
-        id: 'gitlab.repository',
-        onFieldChange: props.onFieldChange,
-        propKey: 'repository',
-        value: repository || ''
-      });
+      return (
+        <>
+          {renderField({
+            id: 'gitlab.repository',
+            onFieldChange: props.onFieldChange,
+            propKey: 'repository',
+            value: repository || ''
+          })}
+          {renderMonoRepoFieldWithDocLink('/documentation/analysis/gitlab-integration/')}
+        </>
+      );
     default:
       return null;
   }

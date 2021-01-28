@@ -86,6 +86,7 @@ export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse 
   alm: AlmKeys.GitLab;
   repository: string;
   url: string;
+  monorepo: boolean;
 }
 
 export interface ProjectAlmBindingParams {
@@ -113,6 +114,7 @@ export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
 
 export interface GitlabProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository?: string;
+  monorepo: boolean;
 }
 
 export interface AlmSettingsInstance {

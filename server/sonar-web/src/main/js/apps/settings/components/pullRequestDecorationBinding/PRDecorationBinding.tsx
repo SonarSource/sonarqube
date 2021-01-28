@@ -163,27 +163,24 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
   ): Promise<void> {
     const almSetting = key;
     const project = this.props.component.key;
+    const repository = almSpecificFields?.repository;
+    const slug = almSpecificFields?.slug;
+    const monorepo = almSpecificFields?.monorepo ?? false;
 
     switch (alm) {
       case AlmKeys.Azure: {
-        const projectName = almSpecificFields?.slug;
-        const repositoryName = almSpecificFields?.repository;
-        const monorepo = almSpecificFields?.monorepo ?? false;
-        if (!projectName || !repositoryName) {
+        if (!slug || !repository) {
           return Promise.reject();
         }
         return setProjectAzureBinding({
           almSetting,
           project,
-          projectName,
-          repositoryName,
+          projectName: slug,
+          repositoryName: repository,
           monorepo
         });
       }
       case AlmKeys.Bitbucket: {
-        const repository = almSpecificFields?.repository;
-        const slug = almSpecificFields?.slug;
-        const monorepo = almSpecificFields?.monorepo ?? false;
         if (!repository || !slug) {
           return Promise.reject();
         }
@@ -196,13 +193,11 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         });
       }
       case AlmKeys.GitHub: {
-        const repository = almSpecificFields?.repository;
         // By default it must remain true.
         const summaryCommentEnabled =
           almSpecificFields?.summaryCommentEnabled === undefined
             ? true
             : almSpecificFields?.summaryCommentEnabled;
-        const monorepo = almSpecificFields?.monorepo ?? false;
         if (!repository) {
           return Promise.reject();
         }
@@ -216,11 +211,14 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       }
 
       case AlmKeys.GitLab: {
-        const repository = almSpecificFields && almSpecificFields.repository;
+        if (!repository) {
+          return Promise.reject();
+        }
         return setProjectGitlabBinding({
           almSetting,
           project,
-          repository
+          repository,
+          monorepo
         });
       }
 

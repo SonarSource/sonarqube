@@ -131,6 +131,7 @@ export function mockProjectGitLabBindingResponse(
     key: 'foo',
     repository: 'PROJECT_KEY',
     url: 'https://gitlab.com/api/v4',
+    monorepo: true,
     ...overrides
   };
 }

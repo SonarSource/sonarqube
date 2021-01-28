@@ -617,57 +617,103 @@ exports[`it should render correctly for github and monorepo=true 1`] = `
 `;
 
 exports[`it should render correctly for gitlab and monorepo=false 1`] = `
-<div
-  className="form-field"
->
-  <label
-    className="display-flex-center"
-    htmlFor="gitlab.repository"
+<Fragment>
+  <div
+    className="form-field"
   >
-    settings.pr_decoration.binding.form.gitlab.repository
-    <em
-      className="mandatory"
+    <label
+      className="display-flex-center"
+      htmlFor="gitlab.repository"
     >
-      *
-    </em>
-  </label>
-  <input
-    className="input-super-large"
-    id="gitlab.repository"
-    maxLength={256}
-    name="gitlab.repository"
-    onChange={[Function]}
-    type="text"
-    value=""
-  />
-</div>
+      settings.pr_decoration.binding.form.gitlab.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+    </label>
+    <input
+      className="input-super-large"
+      id="gitlab.repository"
+      maxLength={256}
+      name="gitlab.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+</Fragment>
 `;
 
 exports[`it should render correctly for gitlab and monorepo=true 1`] = `
-<div
-  className="form-field"
->
-  <label
-    className="display-flex-center"
-    htmlFor="gitlab.repository"
+<Fragment>
+  <div
+    className="form-field"
   >
-    settings.pr_decoration.binding.form.gitlab.repository
-    <em
-      className="mandatory"
+    <label
+      className="display-flex-center"
+      htmlFor="gitlab.repository"
     >
-      *
-    </em>
-  </label>
-  <input
-    className="input-super-large"
-    id="gitlab.repository"
-    maxLength={256}
-    name="gitlab.repository"
-    onChange={[Function]}
-    type="text"
-    value=""
-  />
-</div>
+      settings.pr_decoration.binding.form.gitlab.repository
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+    </label>
+    <input
+      className="input-super-large"
+      id="gitlab.repository"
+      maxLength={256}
+      name="gitlab.repository"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="form-field"
+  >
+    <label
+      className="display-flex-center"
+      htmlFor="monorepo"
+    >
+      settings.pr_decoration.binding.form.monorepo
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <FormattedMessage
+            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+            id="settings.pr_decoration.binding.form.monorepo.help"
+            values={
+              Object {
+                "doc_link": <Link
+                  onlyActiveOnIndex={false}
+                  style={Object {}}
+                  target="_blank"
+                  to="/documentation/analysis/gitlab-integration/"
+                >
+                  learn_more
+                </Link>,
+              }
+            }
+          />
+        }
+        placement="right"
+      />
+    </label>
+    <div
+      className="display-flex-center"
+    >
+      <InputForBoolean
+        isDefault={true}
+        name="monorepo"
+        onChange={[Function]}
+        value={false}
+      />
+    </div>
+  </div>
+</Fragment>
 `;
 
 exports[`should render an alert for azure when the monorepo option is activated 1`] = `

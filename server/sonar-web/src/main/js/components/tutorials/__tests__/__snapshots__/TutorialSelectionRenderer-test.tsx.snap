@@ -86,6 +86,7 @@ exports[`should render correctly: gitlab tutorial 1`] = `
       Object {
         "alm": "gitlab",
         "key": "foo",
+        "monorepo": true,
         "repository": "PROJECT_KEY",
         "url": "https://gitlab.com/api/v4",
       }
