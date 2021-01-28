@@ -37,6 +37,8 @@ public class AlmIntegrationsWSModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      CheckPatAction.class,
+      SetPatAction.class,
       ImportBitbucketServerProjectAction.class,
       ListBitbucketServerProjectsAction.class,
       SearchBitbucketServerReposAction.class,

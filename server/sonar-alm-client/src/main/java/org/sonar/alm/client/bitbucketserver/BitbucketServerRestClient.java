@@ -77,6 +77,11 @@ public class BitbucketServerRestClient {
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
   }
 
+  public RepositoryList getRecentRepo(String serverUrl, String token) {
+    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/profile/recent/repos");
+    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
+  }
+
   public ProjectList getProjects(String serverUrl, String token) {
     HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/projects");
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), ProjectList.class));

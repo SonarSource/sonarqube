@@ -23,13 +23,11 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -61,12 +59,17 @@ public class AzureDevOpsHttpClient {
       .build();
   }
 
+  public void checkPAT(String serverUrl, String token) {
+    String url = String.format("%s/_apis/projects", getTrimmedUrl(serverUrl));
+    LOG.debug(String.format("check pat : [%s]", url));
+    doGet(token, url);
+  }
+
   public GsonAzureProjectList getProjects(String serverUrl, String token) {
     String url = String.format("%s/_apis/projects", getTrimmedUrl(serverUrl));
     LOG.debug(String.format("get projects : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProjectList.class));
   }
-
 
   public GsonAzureRepoList getRepos(String serverUrl, String token, @Nullable String projectName) {
     String url;
@@ -85,12 +88,25 @@ public class AzureDevOpsHttpClient {
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepo.class));
   }
 
-  protected  <G> G doGet(String token, String url, Function<Response, G> handler) {
+  private void doGet(String token, String url) {
+    Request request = prepareRequestWithToken(token, GET, url, null);
+    doCall(request);
+  }
+
+  protected void doCall(Request request) {
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(UNABLE_TO_CONTACT_AZURE_SERVER, e);
+    }
+  }
+
+  protected <G> G doGet(String token, String url, Function<Response, G> handler) {
     Request request = prepareRequestWithToken(token, GET, url, null);
     return doCall(request, handler);
   }
 
-  protected  <G> G doCall(Request request, Function<Response, G> handler) {
+  protected <G> G doCall(Request request, Function<Response, G> handler) {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
       return handler.apply(response);

@@ -19,6 +19,9 @@
  */
 package org.sonar.alm.client.azure;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -34,9 +37,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class AzureDevOpsHttpClientTest {
   public static final String UNABLE_TO_CONTACT_AZURE = "Unable to contact Azure DevOps server, got an unexpected response";
@@ -58,6 +58,52 @@ public class AzureDevOpsHttpClientTest {
   @After
   public void stopServer() throws IOException {
     server.shutdown();
+  }
+
+  @Test
+  public void check_pat() throws InterruptedException {
+    enqueueResponse(200, " { \"count\": 1,\n" +
+      "  \"value\": [\n" +
+      "    {\n" +
+      "      \"id\": \"3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
+      "      \"name\": \"Project\",\n" +
+      "      \"description\": \"Project Description\",\n" +
+      "      \"url\": \"https://ado.sonarqube.com/DefaultCollection/_apis/projects/3311cd05-3f00-4a5e-b47f-df94a9982b6e\",\n" +
+      "      \"state\": \"wellFormed\",\n" +
+      "      \"revision\": 63,\n" +
+      "      \"visibility\": \"private\"\n" +
+      "    }]}");
+
+    underTest.checkPAT(server.url("").toString(), "token");
+
+    RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
+    String azureDevOpsUrlCall = request.getRequestUrl().toString();
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects");
+    assertThat(request.getMethod()).isEqualTo("GET");
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .contains("check pat : [" + server.url("").toString() + "_apis/projects]");
+  }
+
+  @Test
+  public void check_invalid_pat() {
+    enqueueResponse(401);
+
+    String serverUrl = server.url("").toString();
+    assertThatThrownBy(() -> underTest.checkPAT(serverUrl, "invalid-token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid personal access token");
+  }
+
+  @Test
+  public void check_pat_with_server_error() {
+    enqueueResponse(500);
+
+    String serverUrl = server.url("").toString();
+    assertThatThrownBy(() -> underTest.checkPAT(serverUrl, "token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unable to contact Azure DevOps server");
   }
 
   @Test

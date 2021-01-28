@@ -88,6 +88,46 @@ public class BitbucketServerRestClientTest {
   }
 
   @Test
+  public void get_recent_repos() {
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody("{\n" +
+        "  \"isLastPage\": true,\n" +
+        "  \"values\": [\n" +
+        "    {\n" +
+        "      \"slug\": \"banana\",\n" +
+        "      \"id\": 2,\n" +
+        "      \"name\": \"banana\",\n" +
+        "      \"project\": {\n" +
+        "        \"key\": \"HOY\",\n" +
+        "        \"id\": 2,\n" +
+        "        \"name\": \"hoy\"\n" +
+        "      }\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"slug\": \"potato\",\n" +
+        "      \"id\": 1,\n" +
+        "      \"name\": \"potato\",\n" +
+        "      \"project\": {\n" +
+        "        \"key\": \"HEY\",\n" +
+        "        \"id\": 1,\n" +
+        "        \"name\": \"hey\"\n" +
+        "      }\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}"));
+
+    RepositoryList gsonBBSRepoList = underTest.getRecentRepo(server.url("/").toString(), "token");
+    assertThat(gsonBBSRepoList.isLastPage()).isTrue();
+    assertThat(gsonBBSRepoList.getValues()).hasSize(2);
+    assertThat(gsonBBSRepoList.getValues()).extracting(Repository::getId, Repository::getName, Repository::getSlug,
+      g -> g.getProject().getId(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+      .containsExactlyInAnyOrder(
+        tuple(2L, "banana", "banana", 2L, "HOY", "hoy"),
+        tuple(1L, "potato", "potato", 1L, "HEY", "hey"));
+  }
+
+  @Test
   public void get_repo() {
     server.enqueue(new MockResponse()
       .setHeader("Content-Type", "application/json;charset=UTF-8")
