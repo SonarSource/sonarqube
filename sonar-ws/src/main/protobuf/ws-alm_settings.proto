@@ -30,7 +30,7 @@ message ListDefinitionsWsResponse {
   repeated AlmSettingAzure azure = 2;
   repeated AlmSettingBitbucket bitbucket = 3;
   repeated AlmSettingGitlab gitlab = 4;
-  repeated AlmSettingBitbucketCloud bitbucketCloud = 5;
+  repeated AlmSettingBitbucketCloud bitbucketcloud = 5;
 }
 
 message AlmSettingGithub {
@@ -58,6 +58,7 @@ message AlmSettingBitbucketCloud {
   optional string key = 1;
   optional string clientId = 2;
   optional string clientSecret = 3;
+  optional string workspace = 4;
 }
 
 message AlmSettingGitlab {

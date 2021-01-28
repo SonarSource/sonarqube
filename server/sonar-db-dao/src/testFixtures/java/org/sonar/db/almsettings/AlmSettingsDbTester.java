@@ -30,6 +30,7 @@ import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketCloudAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketCloudProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
@@ -94,6 +95,11 @@ public class AlmSettingsDbTester {
   @SafeVarargs
   public final ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), populators);
+  }
+
+  @SafeVarargs
+  public final ProjectAlmSettingDto insertBitbucketCloudProjectAlmSetting(AlmSettingDto bbCloudAlmSetting, ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
+    return insertProjectAlmSetting(newBitbucketCloudProjectAlmSettingDto(bbCloudAlmSetting, project), populators);
   }
 
   @SafeVarargs

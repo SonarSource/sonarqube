@@ -144,8 +144,10 @@ public class LogListenerTest {
         .build())
       .execute();
 
-    for (LogEvent e : logOutput) {
-      savedStdOut.println("[captured]" + e.level + " " + e.msg);
+    synchronized (logOutput) {
+      for (LogEvent e : logOutput) {
+        savedStdOut.println("[captured]" + e.level + " " + e.msg);
+      }
     }
 
     // only done in DEBUG during analysis
