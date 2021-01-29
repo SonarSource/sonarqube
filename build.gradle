@@ -98,6 +98,11 @@ allprojects {
         repository = 'public'
       }
       url "https://repox.jfrog.io/repox/${repository}"
+      metadataSources {
+        mavenPom()
+        artifact()
+        ignoreGradleMetadataRedirection()
+      }
     }
   }
 
