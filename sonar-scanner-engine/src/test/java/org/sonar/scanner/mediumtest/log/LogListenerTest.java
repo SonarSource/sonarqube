@@ -88,6 +88,8 @@ public class LogListenerTest {
 
   @Before
   public void prepare() {
+    System.out.flush();
+    System.err.flush();
     stdOutTarget = new ByteArrayOutputStream();
     stdErrTarget = new ByteArrayOutputStream();
     System.setOut(new PrintStream(stdOutTarget));
