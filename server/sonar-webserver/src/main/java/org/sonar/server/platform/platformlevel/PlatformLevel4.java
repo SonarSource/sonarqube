@@ -48,11 +48,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
-import org.sonar.server.almsettings.ws.AlmSettingsSupport;
-import org.sonar.server.almsettings.ws.AlmSettingsWs;
-import org.sonar.server.almsettings.ws.DeleteAction;
-import org.sonar.server.almsettings.ws.ListAction;
-import org.sonar.server.almsettings.ws.ListDefinitionsAction;
+import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationTemplate;
@@ -508,11 +504,7 @@ public class PlatformLevel4 extends PlatformLevel {
       AlmIntegrationsWSModule.class,
 
       // ALM settings
-      AlmSettingsWs.class,
-      AlmSettingsSupport.class,
-      DeleteAction.class,
-      ListAction.class,
-      ListDefinitionsAction.class,
+      AlmSettingsWsModule.class,
 
       // Branch
       BranchFeatureProxyImpl.class,
