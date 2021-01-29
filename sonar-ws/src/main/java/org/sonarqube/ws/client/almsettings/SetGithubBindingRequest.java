@@ -34,6 +34,7 @@ public class SetGithubBindingRequest {
   private String project;
   private String repository;
   private String summaryCommentEnabled;
+  private String monorepo;
 
   /**
    * This is a mandatory parameter.
@@ -77,6 +78,15 @@ public class SetGithubBindingRequest {
 
   public SetGithubBindingRequest setSummaryCommentEnabled(String summaryCommentEnabled) {
     this.summaryCommentEnabled = summaryCommentEnabled;
+    return this;
+  }
+
+  public String getMonorepo() {
+    return monorepo;
+  }
+
+  public SetGithubBindingRequest setMonorepo(String monorepo) {
+    this.monorepo = monorepo;
     return this;
   }
 }

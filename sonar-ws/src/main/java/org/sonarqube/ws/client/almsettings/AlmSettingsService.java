@@ -245,6 +245,7 @@ public class AlmSettingsService extends BaseService {
         .setParam("project", request.getProject())
         .setParam("repository", request.getRepository())
         .setParam("summaryCommentEnabled", request.getSummaryCommentEnabled())
+        .setParam("monorepo", request.getMonorepo())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
