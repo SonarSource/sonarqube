@@ -135,10 +135,6 @@ it('should (dis)allow submit by validating its state', () => {
   wrapper.setState({ formData: mockGithubBindingDefinition(), touched: true });
   expect(wrapper.instance().canSubmit()).toBe(true);
 
-  wrapper.setState({ formData: mockGithubBindingDefinition({ key: '' }), touched: true });
-  wrapper.setProps({ hideKeyField: true });
-  expect(wrapper.instance().canSubmit()).toBe(true);
-
   wrapper.setState({ formData: mockGithubBindingDefinition({ url: '' }), touched: true });
   wrapper.setProps({ optionalFields: ['url'] });
   expect(wrapper.instance().canSubmit()).toBe(true);

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
@@ -138,8 +139,7 @@ public class BitbucketCloudRestClient {
   }
 
   protected <G> G doGet(String accessToken, HttpUrl url, Function<Response, G> handler) {
-    Request request = prepareRequestWithAccessToken(accessToken, GET, url, null);
-    return doCall(request, handler, false);
+    return doGet(accessToken, url, handler, false);
   }
 
   protected void doPost(String accessToken, HttpUrl url, RequestBody body) {
@@ -191,7 +191,7 @@ public class BitbucketCloudRestClient {
     });
   }
 
-  private static <T> ErrorDetails getErrorDetails(@Nullable ResponseBody body, Function<String, String> parser) throws IOException {
+  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body, UnaryOperator<String> parser) throws IOException {
     if (body == null) {
       return new ErrorDetails("", null);
     }
@@ -200,7 +200,7 @@ public class BitbucketCloudRestClient {
       try {
         return new ErrorDetails(bodyStr, parser.apply(bodyStr));
       } catch (JsonParseException e) {
-        // ignore
+        //ignore
       }
     }
     return new ErrorDetails(bodyStr, null);

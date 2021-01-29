@@ -38,7 +38,6 @@ export interface AlmTabRendererProps<B> {
   branchesEnabled: boolean;
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   editedDefinition?: B;
-  defaultBinding: B;
   definitions: B[];
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help: React.ReactNode;

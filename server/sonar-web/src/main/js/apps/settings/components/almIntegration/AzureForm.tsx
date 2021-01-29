@@ -24,27 +24,22 @@ import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface AzureFormProps {
   formData: AzureBindingDefinition;
-  hideKeyField?: boolean;
   onFieldChange: (fieldId: keyof AzureBindingDefinition, value: string) => void;
-  readOnly?: boolean;
 }
 
 export default function AzureForm(props: AzureFormProps) {
-  const { formData, hideKeyField, onFieldChange, readOnly } = props;
+  const { formData, onFieldChange } = props;
 
   return (
     <>
-      {!hideKeyField && (
-        <AlmBindingDefinitionFormField
-          autoFocus={true}
-          help={translate('settings.almintegration.form.name.azure.help')}
-          id="name.azure"
-          onFieldChange={onFieldChange}
-          propKey="key"
-          readOnly={readOnly}
-          value={formData.key}
-        />
-      )}
+      <AlmBindingDefinitionFormField
+        autoFocus={true}
+        help={translate('settings.almintegration.form.name.azure.help')}
+        id="name.azure"
+        onFieldChange={onFieldChange}
+        propKey="key"
+        value={formData.key}
+      />
       <AlmBindingDefinitionFormField
         help={
           <>
@@ -62,7 +57,6 @@ export default function AzureForm(props: AzureFormProps) {
         maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="url"
-        readOnly={readOnly}
         value={formData.url || ''}
       />
       <AlmBindingDefinitionFormField
@@ -72,7 +66,6 @@ export default function AzureForm(props: AzureFormProps) {
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
-        readOnly={readOnly}
         value={formData.personalAccessToken}
       />
     </>

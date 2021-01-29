@@ -82,9 +82,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
   handleSubmit = (config: B, originalKey: string) => {
     const call = originalKey
       ? this.props.updateConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : // If there's no support for multi-ALM binding, the key will be an empty string.
-        // Set a default.
-        this.props.createConfiguration({ ...config, key: config.key || this.props.alm });
+      : this.props.createConfiguration({ ...config });
 
     this.setState({ submitting: true });
     return call
@@ -112,7 +110,6 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
     const {
       alm,
       branchesEnabled,
-      defaultBinding,
       definitions,
       definitionStatus,
       form,
@@ -128,7 +125,6 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
       <AlmTabRenderer
         alm={alm}
         branchesEnabled={branchesEnabled}
-        defaultBinding={defaultBinding}
         definitions={definitions}
         definitionStatus={definitionStatus}
         editedDefinition={editedDefinition}

@@ -58,7 +58,6 @@ it('should render correctly for single-ALM binding', () => {
 it('should render correctly with validation', () => {
   const githubProps = {
     alm: AlmKeys.GitHub,
-    defaultBinding: mockGithubBindingDefinition(),
     definitions: [mockGithubBindingDefinition()]
   };
   expect(shallowRender(githubProps)).toMatchSnapshot('default');
@@ -89,7 +88,6 @@ it('should render correctly with validation', () => {
 
 function shallowRenderAzure(props: Partial<AlmTabRendererProps<AzureBindingDefinition>> = {}) {
   return shallowRender({
-    defaultBinding: mockAzureBindingDefinition(),
     definitions: [mockAzureBindingDefinition()],
     ...props
   });
@@ -102,7 +100,6 @@ function shallowRender<B extends AlmBindingDefinition>(
     <AlmTabRenderer
       alm={AlmKeys.Azure}
       branchesEnabled={true}
-      defaultBinding={{} as any}
       definitions={[]}
       definitionStatus={{}}
       form={jest.fn()}

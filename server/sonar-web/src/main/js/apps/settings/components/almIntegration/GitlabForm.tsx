@@ -24,27 +24,22 @@ import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface GitlabFormProps {
   formData: GitlabBindingDefinition;
-  hideKeyField?: boolean;
   onFieldChange: (fieldId: keyof GitlabBindingDefinition, value: string) => void;
-  readOnly?: boolean;
 }
 
 export default function GitlabForm(props: GitlabFormProps) {
-  const { formData, hideKeyField, onFieldChange, readOnly } = props;
+  const { formData, onFieldChange } = props;
 
   return (
     <>
-      {!hideKeyField && (
-        <AlmBindingDefinitionFormField
-          autoFocus={true}
-          help={translate('settings.almintegration.form.name.gitlab.help')}
-          id="name.gitlab"
-          onFieldChange={onFieldChange}
-          propKey="key"
-          readOnly={readOnly}
-          value={formData.key}
-        />
-      )}
+      <AlmBindingDefinitionFormField
+        autoFocus={true}
+        help={translate('settings.almintegration.form.name.gitlab.help')}
+        id="name.gitlab"
+        onFieldChange={onFieldChange}
+        propKey="key"
+        value={formData.key}
+      />
       <AlmBindingDefinitionFormField
         help={
           <>
@@ -57,7 +52,6 @@ export default function GitlabForm(props: GitlabFormProps) {
         maxLength={2000}
         onFieldChange={onFieldChange}
         propKey="url"
-        readOnly={readOnly}
         value={formData.url || ''}
       />
       <AlmBindingDefinitionFormField
@@ -67,7 +61,6 @@ export default function GitlabForm(props: GitlabFormProps) {
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
-        readOnly={readOnly}
         value={formData.personalAccessToken}
       />
     </>

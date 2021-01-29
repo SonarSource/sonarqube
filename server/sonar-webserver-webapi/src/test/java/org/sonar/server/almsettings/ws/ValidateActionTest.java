@@ -38,6 +38,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -188,6 +189,29 @@ public class ValidateActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSetting.getKey())
       .execute()).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid Azure URL or Personal Access Token");
+  }
+
+  @Test
+  public void bitbucketcloud_validation_checks() {
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketCloudAlmSetting());
+
+    ws.newRequest()
+      .setParam("key", almSetting.getKey())
+      .execute();
+
+    verify(bitbucketCloudRestClient).validate(almSetting.getClientId(), almSetting.getClientSecret(), almSetting.getAppId());
+  }
+
+  @Test
+  public void bitbucketcloud_validation_check_fails() {
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketCloudAlmSetting());
+
+    doThrow(IllegalArgumentException.class)
+      .when(bitbucketCloudRestClient).validate(almSetting.getClientId(), almSetting.getClientSecret(), almSetting.getAppId());
+
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSetting.getKey());
+    assertThatThrownBy(request::execute).isInstanceOf(IllegalArgumentException.class);
   }
 
   private AlmSettingDto insertAlmSetting(AlmSettingDto almSettingDto) {

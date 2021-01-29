@@ -17,7 +17,6 @@ exports[`should render correctly: default 1`] = `
   </label>
   <input
     className="input-super-large"
-    disabled={false}
     id="key"
     maxLength={40}
     name="key"
@@ -41,7 +40,6 @@ exports[`should render correctly: optional 1`] = `
   </label>
   <input
     className="input-super-large"
-    disabled={false}
     id="key"
     maxLength={40}
     name="key"
@@ -98,7 +96,6 @@ exports[`should render correctly: textarea 1`] = `
   </label>
   <textarea
     className="settings-large-input"
-    disabled={false}
     id="key"
     maxLength={40}
     onChange={[Function]}
@@ -131,7 +128,6 @@ exports[`should render correctly: with help 1`] = `
   </label>
   <input
     className="input-super-large"
-    disabled={false}
     id="key"
     maxLength={40}
     name="key"

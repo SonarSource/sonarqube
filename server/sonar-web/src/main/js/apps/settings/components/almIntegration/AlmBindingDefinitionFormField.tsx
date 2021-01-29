@@ -33,7 +33,6 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   optional?: boolean;
   overwriteOnly?: boolean;
   propKey: keyof B;
-  readOnly?: boolean;
   value: string;
 }
 
@@ -49,7 +48,6 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
     optional,
     overwriteOnly = false,
     propKey,
-    readOnly = false,
     value
   } = props;
   const [showField, setShowField] = React.useState(!overwriteOnly);
@@ -78,7 +76,6 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
       {showField && isTextArea && (
         <textarea
           className="settings-large-input"
-          disabled={readOnly}
           id={id}
           maxLength={maxLength || 2000}
           onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
@@ -92,7 +89,6 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
         <input
           autoFocus={autoFocus}
           className="input-super-large"
-          disabled={readOnly}
           id={id}
           maxLength={maxLength || 100}
           name={id}

@@ -24,16 +24,13 @@ import AlmBindingDefinitionFormModalRenderer from './AlmBindingDefinitionFormMod
 
 export interface AlmBindingDefinitionFormChildrenProps<B> {
   formData: B;
-  hideKeyField?: boolean;
   onFieldChange: (fieldId: keyof B, value: string) => void;
-  readOnly?: boolean;
 }
 
 interface Props<B> {
   bindingDefinition: B;
   children: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help?: React.ReactNode;
-  hideKeyField?: boolean;
   isSecondInstance?: boolean;
   onCancel?: () => void;
   onDelete?: (definitionKey: string) => void;
@@ -95,18 +92,13 @@ export default class AlmBindingDefinitionForm<
   };
 
   canSubmit = () => {
-    const { hideKeyField, optionalFields } = this.props;
+    const { optionalFields } = this.props;
     const { formData, touched } = this.state;
 
-    let values;
-    if (hideKeyField) {
-      values = omit(formData, 'key');
-    } else {
-      values = { ...formData };
-    }
+    let values = { ...formData };
 
     if (optionalFields && optionalFields.length > 0) {
-      values = omit(values, optionalFields);
+      values = omit(values, optionalFields) as B;
     }
 
     return touched && !Object.values(values).some(v => !v);
