@@ -32,7 +32,7 @@ public class SetGitlabBindingRequest {
   private String almSetting;
   private String project;
   private String repository;
-
+  private String monorepo;
 
   public String getRepository() {
     return repository;
@@ -65,6 +65,15 @@ public class SetGitlabBindingRequest {
 
   public String getProject() {
     return project;
+  }
+
+  public String getMonorepo() {
+    return monorepo;
+  }
+
+  public SetGitlabBindingRequest setMonorepo(String monorepo) {
+    this.monorepo = monorepo;
+    return this;
   }
 
 }
