@@ -32,7 +32,10 @@ public class AlmSettingsWsModule extends Module {
       ListDefinitionsAction.class,
       //Azure alm settings,
       CreateAzureAction.class,
-      UpdateAzureAction.class
+      UpdateAzureAction.class,
+      //Bitbucket alm settings
+      CreateBitBucketAction.class,
+      UpdateBitbucketAction.class
     );
   }
 }
