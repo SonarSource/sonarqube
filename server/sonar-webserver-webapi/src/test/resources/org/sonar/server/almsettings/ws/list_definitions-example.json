@@ -1,0 +1,26 @@
+{
+  "github": [
+    {
+      "key": "GitHub Server - Dev Team",
+      "url": "https://github.enterprise.com",
+      "appId": "12345",
+      "clientId": "client_id"
+    }
+  ],
+  "azure": [
+    {
+      "key": "Azure Devops Server - Dev Team"
+    }
+  ],
+  "bitbucket": [
+    {
+      "key": "Bitbucket Server - Dev Team",
+      "url": "https://bitbucket.enterprise.com"
+    }
+  ],
+  "gitlab": [
+    {
+      "key": "Gitlab - Dev Team"
+    }
+  ]
+}

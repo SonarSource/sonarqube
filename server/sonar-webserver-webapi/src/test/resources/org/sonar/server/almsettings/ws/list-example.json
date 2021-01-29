@@ -1,0 +1,28 @@
+{
+  "almSettings": [
+    {
+      "key": "GitHub Server - Dev Team",
+      "alm": "github",
+      "url": "https://github.enterprise.com"
+    },
+    {
+      "key": "Azure Server - Dev Team",
+      "alm": "azure"
+    },
+    {
+      "key": "Bitbucket Server - Dev Team",
+      "alm": "bitbucket",
+      "url": "https://bitbucket.enterprise.com"
+    },
+    {
+      "key": "Bitbucket Cloud - Dev Team",
+      "alm": "bitbucketcloud",
+      "url": "https://bitbucket.org"
+    },
+    {
+      "key": "GitLab - Dev Team",
+      "alm": "gitlab",
+      "url": "https://www.gitlab.com/api/v4"
+    }
+  ]
+}
