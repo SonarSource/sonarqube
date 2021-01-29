@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.platform.Server;
@@ -34,6 +35,8 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
@@ -45,6 +48,7 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.StringUtils.startsWith;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
@@ -122,6 +126,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
           data.setHasUnanalyzedC(numberOfUnanalyzedCMeasures > 0);
           data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
         });
+
+      data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
     }
     Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);
     installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
@@ -130,6 +136,26 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setInDocker(dockerSupport.isRunningInDocker());
 
     return data.build();
+  }
+
+  private Map<String, Long> countAlmUsage(DbSession dbSession) {
+    return dbClient.almSettingDao().selectAll(dbSession).stream()
+      .collect(Collectors.groupingBy(almSettingDto -> {
+        if (checkIfCloudAlm(almSettingDto, ALM.GITHUB, "https://api.github.com")) {
+          return "github_cloud";
+        } else if (checkIfCloudAlm(almSettingDto, ALM.GITLAB, "https://gitlab.com/api/v4")) {
+          return "gitlab_cloud";
+        } else if (checkIfCloudAlm(almSettingDto, ALM.AZURE_DEVOPS, "https://dev.azure.com")) {
+          return "azure_devops_cloud";
+        } else if (ALM.BITBUCKET_CLOUD.equals(almSettingDto.getAlm())) {
+          return almSettingDto.getRawAlm();
+        }
+        return almSettingDto.getRawAlm() + "_server";
+      }, Collectors.counting()));
+  }
+
+  private static boolean checkIfCloudAlm(AlmSettingDto almSettingDto, ALM alm, String url) {
+    return alm.equals(almSettingDto.getAlm()) && startsWith(almSettingDto.getUrl(), url);
   }
 
   @Override

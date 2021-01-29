@@ -68,6 +68,16 @@ public class TelemetryDataJsonWriter {
       json.endObject();
     });
     json.endArray();
+    json.name("almIntegrationCount");
+    json.beginArray();
+    statistics.getAlmIntegrationCountByAlm().forEach((alm, count) -> {
+      json.beginObject();
+      json.prop("alm", alm);
+      json.prop("count", count);
+      json.endObject();
+    });
+    json.endArray();
+
     statistics.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
     statistics.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
     if (statistics.getInstallationDate() != null) {

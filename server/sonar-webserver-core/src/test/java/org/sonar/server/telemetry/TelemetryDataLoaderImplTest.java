@@ -118,6 +118,16 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=300;kotlin=2500"));
     projectMeasuresIndexer.indexAll();
 
+    // alm
+    db.almSettings().insertAzureAlmSetting();
+    db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
+    db.almSettings().insertBitbucketAlmSetting();
+    db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almSettings().insertGitHubAlmSetting();
+    db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
+    db.almSettings().insertGitlabAlmSetting();
+    db.almSettings().insertGitlabAlmSetting(a -> a.setUrl("https://gitlab.com/api/v4"));
+
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
     assertThat(data.getVersion()).isEqualTo(version);
@@ -133,6 +143,15 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getNclocByLanguage()).containsOnly(
       entry("java", 500L), entry("kotlin", 2500L), entry("js", 50L));
     assertThat(data.isInDocker()).isFalse();
+    assertThat(data.getAlmIntegrationCountByAlm())
+        .containsEntry("azure_devops_server", 1L)
+        .containsEntry("azure_devops_cloud", 1L)
+        .containsEntry("bitbucket_server", 1L)
+        .containsEntry("bitbucket_cloud", 1L)
+        .containsEntry("gitlab_server", 1L)
+        .containsEntry("gitlab_cloud", 1L)
+        .containsEntry("github_cloud", 1L)
+        .containsEntry("github_server", 1L);
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {

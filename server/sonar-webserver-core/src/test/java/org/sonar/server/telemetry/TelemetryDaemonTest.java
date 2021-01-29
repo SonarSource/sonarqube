@@ -64,6 +64,7 @@ public class TelemetryDaemonTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
+    .setAlmIntegrationCountByAlm(Collections.emptyMap())
     .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
       .setProjectCount(12)
       .setProjectCountByLanguage(Collections.emptyMap())

@@ -96,6 +96,22 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_bitbucket_cloud">Further information about this action online (including a response example)</a>
+   * @since 8.7
+   */
+  public void createBitbucketCloud(CreateBitbucketCloudRequest request) {
+    call(
+      new PostRequest(path("create_bitbucketcloud"))
+        .setParam("key", request.getKey())
+        .setParam("clientId", request.getClientId())
+        .setParam("clientSecret", request.getClientSecret())
+        .setParam("workspace", request.getWorkspace())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_github">Further information about this action online (including a response example)</a>
    * @since 8.1

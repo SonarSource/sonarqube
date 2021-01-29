@@ -37,6 +37,7 @@ public class TelemetryData {
   private final boolean usingBranches;
   private final Database database;
   private final Map<String, Long> projectCountByLanguage;
+  private final Map<String, Long> almIntegrationCountByAlm;
   private final Map<String, Long> nclocByLanguage;
   private final EditionProvider.Edition edition;
   private final String licenseType;
@@ -56,6 +57,7 @@ public class TelemetryData {
     usingBranches = builder.usingBranches;
     database = builder.database;
     projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
+    almIntegrationCountByAlm = builder.almIntegrationCountByAlm;
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
     edition = builder.edition;
     licenseType = builder.licenseType;
@@ -102,6 +104,10 @@ public class TelemetryData {
     return projectCountByLanguage;
   }
 
+  public Map<String, Long> getAlmIntegrationCountByAlm() {
+    return almIntegrationCountByAlm;
+  }
+
   public Map<String, Long> getNclocByLanguage() {
     return nclocByLanguage;
   }
@@ -145,6 +151,7 @@ public class TelemetryData {
     private Map<String, String> plugins;
     private Database database;
     private ProjectMeasuresStatistics projectMeasuresStatistics;
+    private Map<String, Long> almIntegrationCountByAlm;
     private Long ncloc;
     private Boolean usingBranches;
     private EditionProvider.Edition edition;
@@ -176,6 +183,11 @@ public class TelemetryData {
 
     Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
+      return this;
+    }
+
+    Builder setAlmIntegrationCountByAlm(Map<String, Long> almIntegrationCountByAlm) {
+      this.almIntegrationCountByAlm = almIntegrationCountByAlm;
       return this;
     }
 
@@ -239,6 +251,7 @@ public class TelemetryData {
       requireNonNull(version);
       requireNonNull(plugins);
       requireNonNull(projectMeasuresStatistics);
+      requireNonNull(almIntegrationCountByAlm);
       requireNonNull(ncloc);
       requireNonNull(database);
       requireNonNull(usingBranches);

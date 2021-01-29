@@ -19,6 +19,7 @@
  */
 package org.sonar.server.telemetry;
 
+import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -48,6 +49,7 @@ public class TelemetryDataJsonWriterTest {
     .setServerId("foo")
     .setVersion("bar")
     .setPlugins(Collections.emptyMap())
+    .setAlmIntegrationCountByAlm(Collections.emptyMap())
     .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
       .setProjectCount(12)
       .setProjectCountByLanguage(Collections.emptyMap())
@@ -232,6 +234,32 @@ public class TelemetryDataJsonWriterTest {
       "[" +
       nclocByLanguage.entrySet().stream().map(e -> "{\"language\":\"" + e.getKey() + "\",\"ncloc\":" + e.getValue() + "}").collect(joining()) +
       "]" +
+      "}");
+  }
+
+  @Test
+  public void write_alm_count_by_alm() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setAlmIntegrationCountByAlm(ImmutableMap.of(
+        "github", 4L,
+        "github_cloud", 1L,
+        "gitlab", 2L,
+        "gitlab_cloud", 5L,
+        "azure_devops", 1L))
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"almIntegrationCount\": " +
+      "["
+      + "{ \"alm\":\"github\", \"count\":4},"
+      + "{ \"alm\":\"github_cloud\", \"count\":1},"
+      + "{ \"alm\":\"gitlab\", \"count\":2},"
+      + "{ \"alm\":\"gitlab_cloud\", \"count\":5},"
+      + "{ \"alm\":\"azure_devops\", \"count\":1},"
+      + "]"
+      +
       "}");
   }
 
