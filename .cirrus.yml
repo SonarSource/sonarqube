@@ -246,6 +246,10 @@ qa_gitlab_task:
           token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_api], name: 'token_read');
           token_read.set_token('token-read-123');
           token_read.save!;
+          user = User.find_by_username('root');
+          user.password = 'adminadmin';
+          user.password_confirmation = 'adminadmin';
+          user.save!;
           \""
   env:
     # No need to clone the full history.
