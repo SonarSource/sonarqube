@@ -7,7 +7,7 @@ SonarQube's integration with GitHub Enterprise and GitHub.com allows you to main
 
 With this integration, you'll be able to:
 
-- **Import your GitHub repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitHub repositories into SonarQube to easily set up SonarQube projects.  
+- **Import your GitHub repositories** - Import your GitHub repositories into SonarQube to easily set up SonarQube projects.  
 - **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitHub so you know if it's safe to merge your changes.
 - **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.  
 
@@ -15,7 +15,7 @@ With this integration, you'll be able to:
 To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.15+.
 
 ## Importing your GitHub repositories to SonarQube
-You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. This is the first step in setting up pull request decoration and GitHub authentication. 
+You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration.
 
 [[info]]
 |If you're using Community Edition or want to set up authentication without importing your GitHub repositories, see the **Creating a dedicated app for authentication** section below for instructions on setting up authentication.
@@ -72,9 +72,7 @@ After creating and installing your GitHub App above, you can add pull request de
 [[info]]
 | To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
-The simplest way to add pull request decoration is by adding a project from GitHub by clicking the "+" in the upper-right corner and selecting **GitHub**.
-
-![import a GitHub repository](/images/add-github-project.png)
+The simplest way to add pull request decoration is by adding a project from GitHub by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitHub**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
@@ -89,11 +87,29 @@ From here, set your:
 ### Advanced pull request decoration configuration
 
 [[collapse]]
-| ## **Showing the analysis summary under the GitHub Conversation tab**
+| ## Adding pull request decoration to projects that are part of a mono repository
+|
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up pull request decoration for each SonarQube project.
+|
+| In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
+| 
+| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
+|
+| To do this, set your global ALM Integration settings as shown in the **Importing your GitHub repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
+|
+| From here, set your: 
+|
+| - **Configuration name** – The configuration name that corresponds to your ALM instance.
+| - **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
+| - **Repo Slug** – Part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
+| - **Enable mono repository support** – (Enterprise Edition and above only) Set this to true. 
+
+[[collapse]]
+| ## Showing the analysis summary under the GitHub Conversation tab
 | By default, **Enable analysis summary under the GitHub Conversation tab** is on and your pull request analysis will be shown under both the **Conversation** and **Checks** tabs in GitHub. When off, your pull request analysis summary is only shown under the **Checks** tab.
 
 [[collapse]]
-| ## **Configuring multiple ALM instances**
+| ## Configuring multiple ALM instances
 |You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
 |
 |- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
@@ -101,7 +117,7 @@ From here, set your:
 |- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
-| ## **Linking issues**
+| ## Linking issues
 | During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## Setting up GitHub authentication
