@@ -36,6 +36,9 @@ public class AlmSettingsWsModule extends Module {
       //Github alm settings
       CreateGithubAction.class,
       UpdateGithubAction.class,
+      //Gitlab alm settings
+      CreateGitlabAction.class,
+      UpdateGitlabAction.class,
       //Bitbucket alm settings
       CreateBitBucketAction.class,
       UpdateBitbucketAction.class
