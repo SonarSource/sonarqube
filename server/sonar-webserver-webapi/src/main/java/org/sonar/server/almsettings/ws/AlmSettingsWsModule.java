@@ -33,6 +33,9 @@ public class AlmSettingsWsModule extends Module {
       //Azure alm settings,
       CreateAzureAction.class,
       UpdateAzureAction.class,
+      //Github alm settings
+      CreateGithubAction.class,
+      UpdateGithubAction.class,
       //Bitbucket alm settings
       CreateBitBucketAction.class,
       UpdateBitbucketAction.class
