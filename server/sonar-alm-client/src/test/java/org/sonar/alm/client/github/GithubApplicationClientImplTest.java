@@ -29,13 +29,20 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.alm.client.github.security.AppToken;
+import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,14 +57,140 @@ public class GithubApplicationClientImplTest {
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
   private GithubApplicationHttpClientImpl httpClient = mock(GithubApplicationHttpClientImpl.class);
+  private GithubAppSecurity appSecurity = mock(GithubAppSecurity.class);
+  private GithubAppConfiguration githubAppConfiguration = mock(GithubAppConfiguration.class);
   private GithubApplicationClient underTest;
 
   private String appUrl = "Any URL";
 
   @Before
   public void setup() {
-    underTest = new GithubApplicationClientImpl(httpClient);
+    when(githubAppConfiguration.getApiEndpoint()).thenReturn(appUrl);
+    underTest = new GithubApplicationClientImpl(httpClient, appSecurity);
     logTester.clear();
+  }
+
+  @Test
+  @UseDataProvider("invalidApiEndpoints")
+  public void checkApiEndpoint_Invalid(String url, String expectedMessage) {
+    GithubAppConfiguration configuration = new GithubAppConfiguration(1L, "", url);
+
+    assertThatThrownBy(() -> underTest.checkApiEndpoint(configuration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(expectedMessage);
+  }
+
+  @DataProvider
+  public static Object[][] invalidApiEndpoints() {
+    return new Object[][] {
+      {"", "Missing URL"},
+      {"ftp://api.github.com", "Only http and https schemes are supported"},
+      {"https://github.com", "Invalid GitHub URL"}
+    };
+  }
+
+  @Test
+  @UseDataProvider("validApiEndpoints")
+  public void checkApiEndpoint(String url) {
+    GithubAppConfiguration configuration = new GithubAppConfiguration(1L, "", url);
+
+    assertThatCode(() -> underTest.checkApiEndpoint(configuration)).isNull();
+  }
+
+  @DataProvider
+  public static Object[][] validApiEndpoints() {
+    return new Object[][] {
+      {"https://github.sonarsource.com/api/v3"},
+      {"https://api.github.com"},
+      {"https://github.sonarsource.com/api/v3/"},
+      {"https://api.github.com/"},
+      {"HTTPS://api.github.com/"},
+      {"HTTP://api.github.com/"},
+      {"HtTpS://github.SonarSource.com/api/v3"},
+      {"HtTpS://github.sonarsource.com/api/V3"},
+      {"HtTpS://github.sonarsource.COM/ApI/v3"}
+    };
+  }
+
+  @Test
+  public void checkAppPermissions_IOException() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    when(httpClient.get(appUrl, appToken, "/app")).thenThrow(new IOException("OOPS"));
+
+    assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Failed to validate configuration, check URL and Private Key");
+  }
+
+  @Test
+  @UseDataProvider("checkAppPermissionsErrorCodes")
+  public void checkAppPermissions_ErrorCodes(int errorCode, String expectedMessage) throws IOException {
+    AppToken appToken = mockAppToken();
+
+    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new ErrorGetResponse(errorCode, null));
+
+    assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(expectedMessage);
+  }
+
+  @DataProvider
+  public static Object[][] checkAppPermissionsErrorCodes() {
+    return new Object[][] {
+      {HTTP_UNAUTHORIZED, "Authentication failed, verify the Client Id, Client Secret and Private Key fields"},
+      {HTTP_FORBIDDEN, "Authentication failed, verify the Client Id, Client Secret and Private Key fields"},
+      {HTTP_NOT_FOUND, "Failed to check permissions with Github, check the configuration"}
+    };
+  }
+
+  @Test
+  public void checkAppPermissions_MissingPermissions() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse("{}"));
+
+    assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Failed to get app permissions, unexpected response body");
+  }
+
+  @Test
+  public void checkAppPermissions_IncorrectPermissions() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    String json = "{"
+      + "      \"permissions\": {\n"
+      + "        \"checks\": \"read\",\n"
+      + "        \"metadata\": \"read\",\n"
+      + "        \"statuses\": \"read\",\n"
+      + "        \"pull_requests\": \"read\"\n"
+      + "      }\n"
+      + "}";
+
+    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+
+    assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing permissions; permission granted on pull_requests is 'read', should be 'write', checks is 'read', should be 'write'");
+  }
+
+  @Test
+  public void checkAppPermissions() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    String json = "{"
+      + "      \"permissions\": {\n"
+      + "        \"checks\": \"write\",\n"
+      + "        \"metadata\": \"read\",\n"
+      + "        \"statuses\": \"read\",\n"
+      + "        \"pull_requests\": \"write\"\n"
+      + "      }\n"
+      + "}";
+
+    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+
+    assertThatCode(() -> underTest.checkAppPermissions(githubAppConfiguration)).isNull();
   }
 
   @Test
@@ -664,9 +797,25 @@ public class GithubApplicationClientImplTest {
       .containsOnly(1296269L, "Hello-World", "octocat/Hello-World", "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", false);
   }
 
+  private AppToken mockAppToken() {
+    String jwt = randomAlphanumeric(5);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(new AppToken(jwt));
+    return new AppToken(jwt);
+  }
+
   private static class OkGetResponse extends Response {
     private OkGetResponse(String content) {
       super(200, content);
+    }
+  }
+
+  private static class ErrorGetResponse extends Response {
+    ErrorGetResponse() {
+      super(401, null);
+    }
+
+    ErrorGetResponse(int code, String content) {
+      super(code, content);
     }
   }
 

@@ -22,6 +22,7 @@ package org.sonar.server.almsettings.ws;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,8 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.almsettings.ws.AlmSettingsSupport;
-import org.sonar.server.almsettings.ws.AlmSettingsWsAction;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings.AlmSetting;

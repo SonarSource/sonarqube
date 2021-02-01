@@ -65,6 +65,21 @@ public class BitbucketServerRestClient {
       .build();
   }
 
+  public void validateUrl(String serverUrl) {
+    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/repos");
+    doGet("", url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
+  }
+
+  public void validateToken(String serverUrl, String token) {
+    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/users");
+    doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), UserList.class));
+  }
+
+  public void validateReadPermission(String serverUrl, String personalAccessToken) {
+    HttpUrl url = buildUrl(serverUrl, "/rest/api/1.0/repos");
+    doGet(personalAccessToken, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
+  }
+
   public RepositoryList getRepos(String serverUrl, String token, @Nullable String project, @Nullable String repo) {
     String projectOrEmpty = Optional.ofNullable(project).orElse("");
     String repoOrEmpty = Optional.ofNullable(repo).orElse("");

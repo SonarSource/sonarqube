@@ -17,21 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings.ws;
+package org.sonar.alm.client.github.security;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.alm.client.github.security.AppToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class AlmSettingsWsModuleTest {
+public class AppTokenTest {
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new AlmSettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 14);
+  public void test_value() {
+    AppToken underTest = new AppToken("foo");
+
+    assertThat(underTest.toString())
+      .isEqualTo(underTest.getValue())
+      .isEqualTo("foo");
+
+    assertThat(underTest.getAuthorizationHeaderPrefix()).isEqualTo("Bearer");
   }
 
+  @Test
+  public void test_equals_hashCode() {
+    AppToken foo = new AppToken("foo");
+
+    assertThat(foo)
+      .isEqualTo(foo)
+      .isEqualTo(new AppToken("foo"))
+      .isNotEqualTo(new AppToken("bar"))
+      .hasSameHashCodeAs(foo)
+      .hasSameHashCodeAs(new AppToken("foo"));
+  }
 }

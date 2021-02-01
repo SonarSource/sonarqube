@@ -7,6 +7,8 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'commons-codec:commons-codec'
+    compile 'com.auth0:java-jwt'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.64'
 
     testCompile project(':sonar-plugin-api-impl')
 

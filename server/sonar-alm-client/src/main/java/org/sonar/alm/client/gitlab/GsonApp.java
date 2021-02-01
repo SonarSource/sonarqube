@@ -17,21 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings.ws;
+package org.sonar.alm.client.gitlab;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import com.google.gson.annotations.SerializedName;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import java.util.Map;
 
-public class AlmSettingsWsModuleTest {
+public class GsonApp {
+  @SerializedName("installations_count")
+  private long installationsCount;
+  @SerializedName("permissions")
+  private Map<String, String> permissions;
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new AlmSettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 14);
+  public GsonApp() {
+    // http://stackoverflow.com/a/18645370/229031
+  }
+
+  public GsonApp(long installationsCount, Map<String, String> permissions) {
+    this.installationsCount = installationsCount;
+    this.permissions = permissions;
+  }
+
+  public long getInstallationsCount() {
+    return installationsCount;
+  }
+
+  public Map<String, String> getPermissions() {
+    return permissions;
   }
 
 }

@@ -26,6 +26,8 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.server.ServerSide;
@@ -52,6 +54,13 @@ public interface GithubApplicationClient {
    * Lists all the repositories of the provided organization accessible to the access token provided.
    */
   Repositories listRepositories(String appUrl, AccessToken accessToken, String organization, @Nullable String query, int page, int pageSize);
+
+  void checkApiEndpoint(GithubAppConfiguration githubAppConfiguration);
+
+  /**
+   * Checks if an app has all the permissions required.
+   */
+  void checkAppPermissions(GithubAppConfiguration githubAppConfiguration);
 
   /**
    * Returns the repository identified by the repositoryKey owned by the provided organization.

@@ -20,37 +20,121 @@
 package org.sonar.alm.client.github;
 
 import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
 import org.sonar.alm.client.github.GithubBinding.GsonRepositorySearch;
+import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.alm.client.github.security.AppToken;
+import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.alm.client.gitlab.GsonApp;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.util.stream.Collectors.toList;
 
 public class GithubApplicationClientImpl implements GithubApplicationClient {
   private static final Logger LOG = Loggers.get(GithubApplicationClientImpl.class);
-  private static final Gson GSON = new Gson();
+  protected static final Gson GSON = new Gson();
 
-  private final GithubApplicationHttpClient appHttpClient;
+  protected static final String WRITE_PERMISSION_NAME = "write";
+  protected static final String READ_PERMISSION_NAME = "read";
+  protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
 
-  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient) {
+  protected final GithubApplicationHttpClient appHttpClient;
+  protected final GithubAppSecurity appSecurity;
+
+  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity) {
     this.appHttpClient = appHttpClient;
+    this.appSecurity = appSecurity;
   }
 
   private static void checkPageArgs(int page, int pageSize) {
     checkArgument(page > 0, "'page' must be larger than 0.");
     checkArgument(pageSize > 0 && pageSize <= 100, "'pageSize' must be a value larger than 0 and smaller or equal to 100.");
+  }
+
+
+  @Override
+  public void checkApiEndpoint(GithubAppConfiguration githubAppConfiguration) {
+    if (StringUtils.isBlank(githubAppConfiguration.getApiEndpoint())) {
+      throw new IllegalArgumentException("Missing URL");
+    }
+
+    URI apiEndpoint;
+    try {
+      apiEndpoint = URI.create(githubAppConfiguration.getApiEndpoint());
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid URL, " + e.getMessage());
+    }
+
+    if (!"http".equalsIgnoreCase(apiEndpoint.getScheme()) && !"https".equalsIgnoreCase(apiEndpoint.getScheme())) {
+      throw new IllegalArgumentException("Only http and https schemes are supported");
+    } else if (!"api.github.com".equalsIgnoreCase(apiEndpoint.getHost()) && !apiEndpoint.getPath().toLowerCase(Locale.ENGLISH).startsWith("/api/v3")) {
+      throw new IllegalArgumentException("Invalid GitHub URL");
+    }
+  }
+
+  @Override
+  public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+
+    Map<String, String> permissions = new HashMap<>();
+    permissions.put("checks", WRITE_PERMISSION_NAME);
+    permissions.put("pull_requests", WRITE_PERMISSION_NAME);
+    permissions.put("statuses", READ_PERMISSION_NAME);
+    permissions.put("metadata", READ_PERMISSION_NAME);
+
+    String endPoint = "/app";
+    GetResponse response;
+    try {
+      response = appHttpClient.get(githubAppConfiguration.getApiEndpoint(), appToken, endPoint);
+    } catch (IOException e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + githubAppConfiguration.getApiEndpoint() + endPoint, e);
+      throw new IllegalArgumentException("Failed to validate configuration, check URL and Private Key");
+    }
+    if (response.getCode() == HTTP_OK) {
+      Map<String, String> perms = handleResponse(response, endPoint, GsonApp.class)
+        .map(GsonApp::getPermissions)
+        .orElseThrow(() -> new IllegalArgumentException("Failed to get app permissions, unexpected response body"));
+      List<String> missingPermissions = permissions.entrySet().stream()
+        .filter(permission -> !Objects.equals(permission.getValue(), perms.get(permission.getKey())))
+        .map(Map.Entry::getKey)
+        .collect(toList());
+
+      if (!missingPermissions.isEmpty()) {
+        String message = missingPermissions.stream()
+          .map(perm -> perm + " is '" + perms.get(perm) + "', should be '" + permissions.get(perm) + "'")
+          .collect(Collectors.joining(", "));
+
+        throw new IllegalArgumentException("Missing permissions; permission granted on " + message);
+      }
+    } else if (response.getCode() == HTTP_UNAUTHORIZED || response.getCode() == HTTP_FORBIDDEN) {
+      throw new IllegalArgumentException("Authentication failed, verify the Client Id, Client Secret and Private Key fields");
+    } else {
+      throw new IllegalArgumentException("Failed to check permissions with Github, check the configuration");
+    }
   }
 
   @Override
@@ -71,7 +155,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         organizations.setOrganizations(gsonInstallations.get().installations.stream()
           .map(gsonInstallation -> new Organization(gsonInstallation.account.id, gsonInstallation.account.login, null, null, null, null, null,
             gsonInstallation.targetType))
-          .collect(Collectors.toList()));
+          .collect(toList()));
       }
 
       return organizations;
@@ -100,7 +184,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       if (gsonRepositories.get().items != null) {
         repositories.setRepositories(gsonRepositories.get().items.stream()
           .map(gsonRepository -> new Repository(gsonRepository.id, gsonRepository.name, gsonRepository.isPrivate, gsonRepository.fullName, gsonRepository.url))
-          .collect(Collectors.toList()));
+          .collect(toList()));
       }
 
       return repositories;
@@ -159,6 +243,16 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       throw new IllegalArgumentException();
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create GitHub's user access token", e);
+    }
+  }
+
+
+  protected static <T> Optional<T> handleResponse(GithubApplicationHttpClient.Response response, String endPoint, Class<T> gsonClass) {
+    try {
+      return response.getContent().map(c -> GSON.fromJson(c, gsonClass));
+    } catch (Exception e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
+      return Optional.empty();
     }
   }
 }

@@ -30,11 +30,13 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
@@ -53,6 +55,85 @@ public class GitlabHttpClient {
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
       .build();
+  }
+
+
+  public void checkReadPermission(@Nullable String gitlabUrl, @Nullable String personalAccessToken) {
+    checkProjectAccess(gitlabUrl, personalAccessToken, "Could not validate GitLab read permission. Got an unexpected answer.");
+  }
+
+  public void checkUrl(@Nullable String gitlabUrl) {
+    checkProjectAccess(gitlabUrl, null, "Could not validate GitLab url. Got an unexpected answer.");
+  }
+
+  private void checkProjectAccess(@Nullable String gitlabUrl, @Nullable String personalAccessToken, String errorMessage) {
+    String url = String.format("%s/projects", gitlabUrl);
+
+    LOG.debug(String.format("get projects : [%s]", url));
+    Request.Builder builder = new Request.Builder()
+      .url(url)
+      .get();
+
+    if (personalAccessToken != null) {
+      builder.addHeader(PRIVATE_TOKEN, personalAccessToken);
+    }
+
+    Request request = builder.build();
+
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response, errorMessage);
+      Project.parseJsonArray(response.body().string());
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to verify read permission. Got a non-json payload as result.");
+    } catch (IOException e) {
+      throw new IllegalArgumentException(errorMessage);
+    }
+  }
+
+  public void checkToken(String gitlabUrl, String personalAccessToken) {
+    String url = String.format("%s/user", gitlabUrl);
+
+    LOG.debug(String.format("get current user : [%s]", url));
+    Request.Builder builder = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, personalAccessToken)
+      .url(url)
+      .get();
+
+    Request request = builder.build();
+
+    String errorMessage = "Could not validate GitLab token. Got an unexpected answer.";
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response, errorMessage);
+      GsonId.parseOne(response.body().string());
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to verify token. Got a non-json payload as result.");
+    } catch (IOException e) {
+      throw new IllegalArgumentException(errorMessage);
+    }
+  }
+
+  public void checkWritePermission(String gitlabUrl, String personalAccessToken) {
+    String url = String.format("%s/markdown", gitlabUrl);
+
+    LOG.debug(String.format("verify write permission by formating some markdown : [%s]", url));
+    Request.Builder builder = new Request.Builder()
+      .url(url)
+      .addHeader(PRIVATE_TOKEN, personalAccessToken)
+      .addHeader("Content-Type", MediaTypes.JSON)
+      .post(RequestBody.create("{\"text\":\"validating write permission\"}".getBytes(UTF_8)));
+
+    Request request = builder.build();
+
+    String errorMessage = "Could not validate GitLab write permission. Got an unexpected answer.";
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response, errorMessage);
+      GsonMarkdown.parseOne(response.body().string());
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to verify write permission. Got a non-json payload as result.");
+    } catch (IOException e) {
+      throw new IllegalArgumentException(errorMessage);
+    }
+
   }
 
   private static String urlEncode(String value) {

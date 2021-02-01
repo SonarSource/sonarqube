@@ -25,8 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.almsettings.ws.AlmSettingsSupport;
-import org.sonar.server.almsettings.ws.AlmSettingsWsAction;
 import org.sonar.server.user.UserSession;
 
 public class DeleteAction implements AlmSettingsWsAction {

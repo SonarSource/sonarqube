@@ -17,21 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings.ws;
+package org.sonar.alm.client.gitlab;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class GsonId {
 
-public class AlmSettingsWsModuleTest {
+  @SerializedName("id")
+  private final long id;
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new AlmSettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 14);
+  public GsonId() {
+    // http://stackoverflow.com/a/18645370/229031
+    this(0);
+  }
+
+  public GsonId(long id) {
+    this.id = id;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public static GsonId parseOne(String json) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, GsonId.class);
   }
 
 }

@@ -30,6 +30,7 @@ public class AlmSettingsWsModule extends Module {
       DeleteAction.class,
       ListAction.class,
       ListDefinitionsAction.class,
+      ValidateAction.class,
       //Azure alm settings,
       CreateAzureAction.class,
       UpdateAzureAction.class,
