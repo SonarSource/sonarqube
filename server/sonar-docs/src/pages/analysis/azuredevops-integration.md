@@ -6,15 +6,15 @@ SonarQube's integration with Azure DevOps Server allows you to maintain code qua
 
 With this integration, you'll be able to:
 
-- **Import your Azure DevOps repositories** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your Azure DevOps repositories into SonarQube to easily set up SonarQube projects. 
-- **Analyze projects with Azure Pipelines** - Integrate analysis into your build pipeline. SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html).
+- **Import your Azure DevOps repositories** - Import your Azure DevOps repositories into SonarQube to easily set up SonarQube projects. 
+- **Analyze projects with Azure Pipelines** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
 - **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
 
 ## Prerequisites
-SonarQube integration with Azure DevOps server requires at least Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2+.
+Integration with Azure DevOps server requires at least Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2+.
 
 ## Importing your Azure DevOps repositories into SonarQube
-Setting up the import of Azure DevOps Server repositories into SonarQube allows you to easily create SonarQube projects from your Azure DevOps Server repositories. This is also the first step in adding pull request decoration. 
+Setting up the import of Azure DevOps Server repositories into SonarQube allows you to easily create SonarQube projects from your Azure DevOps Server repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration. 
 
 To set up the import of Azure DevOps repositories:  
 
@@ -29,9 +29,7 @@ To import your Azure DevOps repositories into SonarQube, you need to first set y
 - **Personal Access Token** – An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [personal access token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed. This personal access token is used for pull request decoration, and you'll be asked for another personal access token for importing projects in the following section.
 
 ### Adding a personal access token for importing repositories
-After setting these global settings, you can add a project from Azure DevOps Server by clicking the "+" in the upper-right corner and selecting **Azure DevOps**:
-
-![import an Azure DevOps Server project](/images/add-ADO-project.png)
+After setting your global settings, you can add a project from Azure DevOps Server by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
 
 Then, you'll be asked to provide a personal access token with `Code (Read & Write)` scope so SonarQube can access and list your Azure DevOps Server projects. This token will be stored in SonarQube and can be revoked at anytime in Azure DevOps Server.
 
@@ -228,10 +226,24 @@ Select your build technology below to expand the instructions for configuring br
 ### Running your pipeline
 Commit and push your code to trigger the pipeline execution and SonarQube analysis. New pushes on your branches (and pull requests if you set up pull request analysis) trigger a new analysis in SonarQube.
 
+### Maintaining pull request code quality and security 
+Using pull requests allows you to prevent unsafe or substandard code from being merged with your main branch. The following branch policies can help you maintain your code quality and safety by analyzing code and identifying issues in all of the pull requests on your project. These policies are optional, but they're highly recommended so you can quickly track, identify, and remediate issues in your code.
+
+#### **Ensuring your pull requests are automatically analyzed**
+Ensure all of your pull requests get automatically analyzed by adding a [build validation branch policy](https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#pr-triggers) on the target branch.
+
+#### **Preventing pull request merges when the Quality Gate fails**
+Prevent the merge of pull requests with a failed Quality Gate by adding a `SonarQube/quality gate` [status check branch policy](https://docs.microsoft.com/en-us/azure/devops/repos/git/pr-status-policy) on the target branch.
+ 
+[[info]]
+| If your SonarQube project is configured as part of a mono repository in Enterprise Edition or above, you need to use a status check branch policy that uses a SonarQube project key (`SonarQube/quality_gate_[SQ_project_key]`) instead of `SonarQube/quality gate`.
+ 
+Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
+
 ## Adding pull request decoration to Azure DevOps Server
 Pull request decoration shows your Quality Gate and analysis metrics directly in Azure DevOps Server.
 
-After you've set up SonarQube to import your Azure DevOps Server repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, the simplest way to add pull request decoration is by adding a project from Azure DevOps Server by clicking the "+" in the upper-right corner and selecting **Azure DevOps**.
+After you've set up SonarQube to import your Azure DevOps Server repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, the simplest way to add pull request decoration is by adding a project from Azure DevOps Server by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
@@ -245,40 +257,27 @@ From here, set your:
 - **Project name**
 - **Repository name**
 
-### Adding pull request decoration to projects that are part of a mono repository
-
-In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up pull request decoration for each SonarQube project.
-
-In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
-
-In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
-
-To do this, set your global ALM Integration settings as shown in the **Importing your Azure DevOps repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
-
-From here:
-
-- Set your **Project name**
-- Set your **Repository name**
-- (_Enterprise Edition and above only_) Set the **Enable mono repository support** to true 
-
-### Maintaining pull request code quality and security 
-Using pull requests allows you to prevent unsafe or substandard code from being merged with your main branch. The following branch policies can help you maintain your code quality and safety by analyzing code and identifying issues in all of the pull requests on your project. These policies are optional, but they're highly recommended so you can quickly track, identify, and remediate issues in your code.
-
-#### **Ensuring your pull requests are automatically analyzed**
-Ensure all of your pull requests get automatically analyzed by adding a [build validation branch policy](https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#pr-triggers) on the target branch.
-
-#### **Preventing pull request merges when the Quality Gate fails**
-Prevent the merge of pull requests with a failed Quality Gate by adding a `SonarQube/quality gate` [status check branch policy](https://docs.microsoft.com/en-us/azure/devops/repos/git/pr-status-policy) on the target branch.
-
-[[info]]
-|If your SonarQube project is configured as a mono repository in Enterprise Edition or above, you need to use a status check branch policy that uses a SonarQube project key (`SonarQube/quality_gate_[SQ_project_key]`) instead of `SonarQube/quality gate`.
-
-Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
-
 ### Advanced pull request decoration configuration
 
 [[collapse]]
-| ## **Configuring multiple ALM instances**
+| ## Adding pull request decoration to projects that are part of a mono repository
+|
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up pull request decoration for each SonarQube project.
+|
+| In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
+|
+| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
+|
+| To do this, set your global ALM Integration settings as shown in the **Importing your Azure DevOps repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
+|
+| From here, set your:
+|
+| - **Project name**
+| - **Repository name**
+| - **Enable mono repository support** – (Enterprise Edition and above only) Set this to true 
+
+[[collapse]]
+| ## Configuring multiple ALM instances
 |You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
 |
 |- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
@@ -286,7 +285,7 @@ Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.
 |- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
-| ## **Linking issues**
+| ## Linking issues
 | During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## FAQ

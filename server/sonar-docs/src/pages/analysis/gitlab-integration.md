@@ -7,13 +7,13 @@ SonarQube's integration with GitLab Self-Managed and GitLab.com allows you to ma
 
 With this integration, you'll be able to:
 
-- **Authenticate with GitLab** - (starting in Community Edition) Sign in to SonarQube with your GitLab credentials.
-- **Import your GitLab projects** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) Import your GitLab Projects into SonarQube to easily set up SonarQube projects.  
-- **Analyze projects with GitLab CI/CD** - Integrate analysis into your build pipeline. SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
+- **Authenticate with GitLab** - Sign in to SonarQube with your GitLab credentials.
+- **Import your GitLab projects** - Import your GitLab Projects into SonarQube to easily set up SonarQube projects.  
+- **Analyze projects with GitLab CI/CD** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner.
 - **Add merge request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitLab so you know if it's safe to merge your changes.
 
 ## Prerequisites
-- Integration with GitLab Self-Managed requires at least GitLab Self-Managed version 11.7.
+Integration with GitLab Self-Managed requires at least GitLab Self-Managed version 11.7.
 
 ## Authenticating with GitLab
 You can delegate authentication to GitLab using a dedicated GitLab OAuth application.
@@ -49,7 +49,7 @@ For example, with the following GitLab group setup:
 You should name your SonarQube group `my-group` to synchronize it with your GitLab group and `my-group/my-subgroup` to synchronize it with your GitLab subgroup.
 
 ## Importing your GitLab projects into SonarQube
-Setting up the import of GitLab projects into SonarQube allows you to easily create SonarQube projects from your GitLab projects. This is also the first step in adding merge request decoration.
+Setting up the import of GitLab projects into SonarQube allows you to easily create SonarQube projects from your GitLab projects. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding merge request decoration.
 
 To set up the import of GitLab projects:
 
@@ -61,12 +61,10 @@ To import your GitLab projects into SonarQube, you need to first set your global
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
-- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used for pull request decoration. You'll be asked for another personal access token for importing projects in the following section. 
+- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used for merge request decoration. You'll be asked for another personal access token for importing projects in the following section. 
 
 ### Adding a personal access token for importing projects
-After setting these global settings, you can add a project from GitLab by clicking the "+" in the upper-right corner and selecting **GitLab**:
-
-![import a GitLab project](/images/add-gitlab-project.png)
+After setting these global settings, you can add a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.
 
 Then, you'll be asked to provide a personal access token with `read_api` scope so SonarQube can access and list your GitLab projects. This token will be stored in SonarQube and can be revoked at anytime in GitLab.
 
@@ -183,7 +181,7 @@ Merge request decoration shows your Quality Gate and analysis metrics directly i
 
 ![pull request decoration](/images/github-branch-decoration.png)
 
-After you've set up SonarQube to import your GitLab projects as shown in the previous section, the simplest way to add merge request decoration is by adding a project from GitLab by clicking the "+" in the upper-right corner and selecting **GitLab**.
+After you've set up SonarQube to import your GitLab projects as shown in the previous section, the simplest way to add merge request decoration is by adding a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for merge request decoration are set automatically.
 
@@ -191,13 +189,30 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 To add merge request decoration to a manually created or existing project, after you've set your global ALM Integration settings as shown above, set your project-level settings at **Project Settings > General Settings > Pull Request Decoration**. 
 
 From here, set your: 
-- **Configuration name** – The configuration name that corresponds to your GitHub instance. 
-- **Repository identifier** – The path of your repository URL.
+- **Configuration name** – The configuration name that corresponds to your GitLab instance. 
+- **Project ID** – your GitLab Project ID found in GitLab
 
 ### Advanced merge request decoration configuration
 
 [[collapse]]
-| ## **Configuring multiple ALM instances**
+| ## Adding merge request decoration to projects that are part of a mono repository
+|
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up merge request decoration for each SonarQube project.
+|
+| In Developer Edition, analyzing a merge request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
+|
+| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
+|
+| To do this, set your global ALM Integration settings as shown in the **Importing your GitLab projects into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
+|
+| From here, set your: 
+| - **Configuration name** – The configuration name that corresponds to your GitLab instance. 
+| - **Project ID** – your GitLab Project ID found in GitLab.
+| - **Enable mono repository support** – (Enterprise Edition and above only) Set this to true.
+
+
+[[collapse]]
+| ## Configuring multiple ALM instances
 |You can decorate merge requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
 |
 |- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
@@ -205,5 +220,5 @@ From here, set your:
 |- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
-| ## **Linking issues**
+| ## Linking issues
 | During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
