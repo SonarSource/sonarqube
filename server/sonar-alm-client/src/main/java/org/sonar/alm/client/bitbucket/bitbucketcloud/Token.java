@@ -22,7 +22,7 @@ package org.sonar.alm.client.bitbucket.bitbucketcloud;
 import com.google.gson.annotations.SerializedName;
 
 public class Token {
-  @SerializedName("scope")
+  @SerializedName("scopes")
   private String scopes;
   @SerializedName("access_token")
   private String accessToken;

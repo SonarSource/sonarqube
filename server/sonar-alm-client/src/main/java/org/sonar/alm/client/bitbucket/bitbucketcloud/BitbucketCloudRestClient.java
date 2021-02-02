@@ -37,7 +37,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.sonar.api.internal.apachecommons.io.IOUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -73,47 +72,58 @@ public class BitbucketCloudRestClient {
    * Validate parameters provided.
    */
   public void validate(String clientId, String clientSecret, String workspace) {
-    String accessToken = validateAccessToken(clientId, clientSecret);
-    doGet(accessToken, buildUrl("/workspaces/" + workspace + "/permissions"), r -> null, true);
+    Token token = validateAccessToken(clientId, clientSecret);
+
+    if (token.getScopes() == null || !token.getScopes().contains("pullrequest")) {
+      String msg = "The OAuth consumer in the Bitbucket workspace is not configured with the permission to read pull requests";
+      LOG.info("Validation failed. {}}: {}", msg, token.getScopes());
+      throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + msg);
+    }
+
+    try {
+      doGet(token.getAccessToken(), buildUrl("/repositories/" + workspace), r -> null);
+    } catch (NotFoundException | IllegalStateException e) {
+      throw new IllegalArgumentException(e.getMessage());
+    }
   }
 
-  private String validateAccessToken(String clientId, String clientSecret) {
-    Response response = null;
-    try {
-      Request request = createAccessTokenRequest(clientId, clientSecret);
-      response = client.newCall(request).execute();
+  private Token validateAccessToken(String clientId, String clientSecret) {
+    Request request = createAccessTokenRequest(clientId, clientSecret);
+    try (Response response = client.newCall(request).execute()) {
       if (response.isSuccessful()) {
-        return buildGson().fromJson(response.body().charStream(), Token.class).getAccessToken();
+        return buildGson().fromJson(response.body().charStream(), Token.class);
       }
 
       ErrorDetails errorMsg = getTokenError(response.body());
-      if (errorMsg.parsedErrorMsg != null) {
-        switch (errorMsg.parsedErrorMsg) {
+      if (errorMsg.body != null) {
+        switch (errorMsg.body) {
           case "invalid_grant":
             throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS +
               ": Configure the OAuth consumer in the Bitbucket workspace to be a private consumer");
           case "unauthorized_client":
             throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": Check your credentials");
           default:
-            LOG.info("Validation failed: " + errorMsg.parsedErrorMsg);
+            if (errorMsg.parsedErrorMsg != null) {
+              LOG.info("Validation failed: " + errorMsg.parsedErrorMsg);
+              throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + errorMsg.parsedErrorMsg);
+            } else {
+              LOG.info("Validation failed: " + errorMsg.body);
+              throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS);
+            }
         }
       } else {
-        LOG.info("Validation failed: " + errorMsg.body);
+        LOG.info("Validation failed");
       }
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS, e);
-    } finally {
-      if (response != null && response.body() != null) {
-        IOUtils.closeQuietly(response);
-      }
     }
   }
 
   public String createAccessToken(String clientId, String clientSecret) {
     Request request = createAccessTokenRequest(clientId, clientSecret);
-    return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class), false).getAccessToken();
+    return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class)).getAccessToken();
   }
 
   private Request createAccessTokenRequest(String clientId, String clientSecret) {
@@ -133,35 +143,31 @@ public class BitbucketCloudRestClient {
     return HttpUrl.parse(removeEnd(bitbucketCloudEndpoint, "/") + "/" + VERSION + relativeUrl);
   }
 
-  protected <G> G doGet(String accessToken, HttpUrl url, Function<Response, G> handler, boolean throwErrorDetails) {
-    Request request = prepareRequestWithAccessToken(accessToken, GET, url, null);
-    return doCall(request, handler, throwErrorDetails);
-  }
-
   protected <G> G doGet(String accessToken, HttpUrl url, Function<Response, G> handler) {
-    return doGet(accessToken, url, handler, false);
+    Request request = prepareRequestWithAccessToken(accessToken, GET, url, null);
+    return doCall(request, handler);
   }
 
   protected void doPost(String accessToken, HttpUrl url, RequestBody body) {
     Request request = prepareRequestWithAccessToken(accessToken, "POST", url, body);
-    doCall(request, r -> null, false);
+    doCall(request, r -> null);
   }
 
   protected void doPut(String accessToken, HttpUrl url, String json) {
     RequestBody body = RequestBody.create(json, JSON_MEDIA_TYPE);
     Request request = prepareRequestWithAccessToken(accessToken, "PUT", url, body);
-    doCall(request, r -> null, false);
+    doCall(request, r -> null);
   }
 
   protected void doDelete(String accessToken, HttpUrl url) {
     Request request = prepareRequestWithAccessToken(accessToken, "DELETE", url, null);
-    doCall(request, r -> null, false);
+    doCall(request, r -> null);
   }
 
-  private <G> G doCall(Request request, Function<Response, G> handler, boolean throwErrorDetails) {
+  private <G> G doCall(Request request, Function<Response, G> handler) {
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        handleError(response, throwErrorDetails);
+        handleError(response);
       }
       return handler.apply(response);
     } catch (IOException e) {
@@ -169,58 +175,17 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  private static Request prepareRequestWithAccessToken(String accessToken, String method, HttpUrl url, @Nullable RequestBody body) {
-    return new Request.Builder()
-      .method(method, body)
-      .url(url)
-      .header("Authorization", "Bearer " + accessToken)
-      .build();
-  }
-
-  public static Gson buildGson() {
-    return new GsonBuilder().create();
-  }
-
-  private static ErrorDetails getTokenError(@Nullable ResponseBody body) throws IOException {
-    return getErrorDetails(body, s -> {
-      TokenError gsonError = buildGson().fromJson(s, TokenError.class);
-      if (gsonError != null && gsonError.error != null) {
-        return gsonError.error;
-      }
-      return null;
-    });
-  }
-
-  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body, UnaryOperator<String> parser) throws IOException {
-    if (body == null) {
-      return new ErrorDetails("", null);
-    }
-    String bodyStr = body.string();
-    if (body.contentType() != null && Objects.equals(JSON_MEDIA_TYPE.type(), body.contentType().type())) {
-      try {
-        return new ErrorDetails(bodyStr, parser.apply(bodyStr));
-      } catch (JsonParseException e) {
-        //ignore
-      }
-    }
-    return new ErrorDetails(bodyStr, null);
-  }
-
-  private static void handleError(Response response, boolean throwErrorDetails) throws IOException {
+  private static void handleError(Response response) throws IOException {
     int responseCode = response.code();
     ErrorDetails error = getError(response.body());
     if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
       String errorMsg = error.parsedErrorMsg != null ? error.parsedErrorMsg : "";
-      if (throwErrorDetails) {
-        throw new IllegalArgumentException(errorMsg);
-      } else {
-        throw new NotFoundException(errorMsg);
-      }
+      throw new NotFoundException(errorMsg);
     }
     LOG.info(UNABLE_TO_CONTACT_BBC_SERVERS + ": {} {}", responseCode, error.parsedErrorMsg != null ? error.parsedErrorMsg : error.body);
 
-    if (throwErrorDetails && error.parsedErrorMsg != null) {
-      throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + error.parsedErrorMsg);
+    if (error.parsedErrorMsg != null) {
+      throw new IllegalStateException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + error.parsedErrorMsg);
     } else {
       throw new IllegalStateException(UNABLE_TO_CONTACT_BBC_SERVERS);
     }
@@ -236,14 +201,61 @@ public class BitbucketCloudRestClient {
     });
   }
 
-  private static class ErrorDetails {
-    private String body;
-    @Nullable
-    private String parsedErrorMsg;
+  private static ErrorDetails getTokenError(@Nullable ResponseBody body) throws IOException {
+    if (body == null) {
+      return new ErrorDetails(null, null);
+    }
+    String bodyStr = body.string();
+    if (body.contentType() != null && Objects.equals(JSON_MEDIA_TYPE.type(), body.contentType().type())) {
+      try {
+        TokenError gsonError = buildGson().fromJson(bodyStr, TokenError.class);
+        if (gsonError != null && gsonError.error != null) {
+          return new ErrorDetails(gsonError.error, gsonError.errorDescription);
+        }
+      } catch (JsonParseException e) {
+        // ignore
+      }
+    }
 
-    public ErrorDetails(String body, @Nullable String parsedErrorMsg) {
+    return new ErrorDetails(bodyStr, null);
+  }
+
+  private static class ErrorDetails {
+    @Nullable
+    private final String body;
+    @Nullable
+    private final String parsedErrorMsg;
+
+    public ErrorDetails(@Nullable String body, @Nullable String parsedErrorMsg) {
       this.body = body;
       this.parsedErrorMsg = parsedErrorMsg;
     }
+  }
+
+  private static ErrorDetails getErrorDetails(@Nullable ResponseBody body, UnaryOperator<String> parser) throws IOException {
+    if (body == null) {
+      return new ErrorDetails("", null);
+    }
+    String bodyStr = body.string();
+    if (body.contentType() != null && Objects.equals(JSON_MEDIA_TYPE.type(), body.contentType().type())) {
+      try {
+        return new ErrorDetails(bodyStr, parser.apply(bodyStr));
+      } catch (JsonParseException e) {
+        // ignore
+      }
+    }
+    return new ErrorDetails(bodyStr, null);
+  }
+
+  private static Request prepareRequestWithAccessToken(String accessToken, String method, HttpUrl url, @Nullable RequestBody body) {
+    return new Request.Builder()
+      .method(method, body)
+      .url(url)
+      .header("Authorization", "Bearer " + accessToken)
+      .build();
+  }
+
+  public static Gson buildGson() {
+    return new GsonBuilder().create();
   }
 }
