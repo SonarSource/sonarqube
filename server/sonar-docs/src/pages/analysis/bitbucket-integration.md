@@ -17,12 +17,12 @@ Setting up the import of BitBucket Server repositories into SonarQube allows you
 
 To set up the import of BitBucket Server repositories:
 
-1. Set your global settings
+1. Set your global ALM integration settings
 1. Add a personal access token for importing repositories
 
-### Setting your global settings
-To import your Bitbucket Server projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Bitbucket** tab, and specify the following settings:
- 
+### Setting your global ALM Integration settings
+To set your global ALM Integration settings, navigate to **Administration > ALM Integrations**, select the **Bitbucket** tab, and select **Bitbucket Server** as the variant you want to configure. From here, specify the following settings:
+
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Server configuration at the project level. Use something succinct and easily recognizable.
 - **Bitbucket Server URL** – your instances URL. For example, `https://bitbucket-server.your-company.com`.
 - **Personal Access Token** – A Bitbucket Server user account is used to decorate Pull Requests. We recommend using a dedicated Bitbucket Server account with Administrator permissions. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed. This personal access token is used for pull request decoration, and you'll be asked for another personal access token for importing projects in the following section.
@@ -37,7 +37,7 @@ After saving your personal access token, you'll see a list of your Bitbucket Ser
 ## Adding pull request decoration to Bitbucket Server
 Pull request decoration shows your Quality Gate and analysis metrics directly in Bitbucket Server:
 
-![pull request decoration](/images/github-branch-decoration.png) 
+![pull request decoration](/images/github-branch-decoration.png)
 
 [[info]]
 | To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
@@ -47,13 +47,13 @@ After you've set up SonarQube to import your Bitbucket Server repositories as sh
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
 ### Adding pull request decoration to a manually created or existing project
-To add pull request decoration to a manually created or existing project, after you've updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
+To add pull request decoration to a manually created or existing project, after you've updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
 
-From here, set your: 
+From here, set your:
 
 - **Configuration name** – The configuration name that corresponds to your ALM instance.
-- **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
-- **Repo Slug** – Part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
+- **Project Key** – the project key is part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
+- **Repository SLUG** – The repository slug is part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
 
 ### Advanced pull request decoration configuration
 
@@ -64,11 +64,11 @@ From here, set your:
 |
 | In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
 |
-| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously. 
+| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously.
 |
 | To do this, set your global ALM Integration settings as shown in the **Importing your Bitbucket Server repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
 |
-| From here, set your: 
+| From here, set your:
 |
 | - **Configuration name** – The configuration name that corresponds to your ALM instance.
 | - **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
@@ -77,9 +77,9 @@ From here, set your:
 
 [[collapse]]
 | ## Configuring multiple ALM instances
-|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects.
 |
-|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM.
 |
 |- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
