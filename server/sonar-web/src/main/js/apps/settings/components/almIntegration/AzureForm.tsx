@@ -48,9 +48,14 @@ export default function AzureForm(props: AzureFormProps) {
       <AlmBindingDefinitionFormField
         help={
           <>
-            {translate('settings.almintegration.form.url.azure.help')}
+            {translate('settings.almintegration.form.url.azure.help1')}
             <br />
-            <em>https://ado.your-company.com/DefaultCollection</em>
+            <em>https://ado.your-company.com/your_collection</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.azure.help2')}
+            <br />
+            <em>https://dev.azure.com/your_organization</em>
           </>
         }
         id="url.azure"

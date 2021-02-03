@@ -18,9 +18,6 @@ exports[`should render correctly: branches enabled 1`] = `
       ]
     }
   />
-  <ol
-    className="list-styled big-spacer-top"
-  />
 </Fragment>
 `;
 
@@ -41,9 +38,6 @@ exports[`should render correctly: branches not enabled 1`] = `
         "other",
       ]
     }
-  />
-  <ol
-    className="list-styled big-spacer-top"
   />
 </Fragment>
 `;
@@ -67,6 +61,27 @@ exports[`should render correctly: dotnet 1`] = `
       ]
     }
   />
+  <Alert
+    className="big-spacer-top"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      values={
+        Object {
+          "doc_link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
+          </Link>,
+        }
+      }
+    />
+  </Alert>
   <ol
     className="list-styled big-spacer-top"
   >
@@ -208,6 +223,27 @@ exports[`should render correctly: gradle 1`] = `
       ]
     }
   />
+  <Alert
+    className="big-spacer-top"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      values={
+        Object {
+          "doc_link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
+          </Link>,
+        }
+      }
+    />
+  </Alert>
   <ol
     className="list-styled big-spacer-top"
   >
@@ -356,6 +392,27 @@ exports[`should render correctly: maven 1`] = `
       ]
     }
   />
+  <Alert
+    className="big-spacer-top"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      values={
+        Object {
+          "doc_link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
+          </Link>,
+        }
+      }
+    />
+  </Alert>
   <ol
     className="list-styled big-spacer-top"
   >
@@ -504,6 +561,27 @@ exports[`should render correctly: other 1`] = `
       ]
     }
   />
+  <Alert
+    className="big-spacer-top"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+      values={
+        Object {
+          "doc_link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/azuredevops-integration/"
+          >
+            onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
+          </Link>,
+        }
+      }
+    />
+  </Alert>
   <ol
     className="list-styled big-spacer-top"
   >

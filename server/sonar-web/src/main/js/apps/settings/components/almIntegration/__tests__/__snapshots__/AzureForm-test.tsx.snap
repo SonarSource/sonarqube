@@ -13,10 +13,17 @@ exports[`should render correctly: create 1`] = `
   <AlmBindingDefinitionFormField
     help={
       <React.Fragment>
-        settings.almintegration.form.url.azure.help
+        settings.almintegration.form.url.azure.help1
         <br />
         <em>
-          https://ado.your-company.com/DefaultCollection
+          https://ado.your-company.com/your_collection
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.azure.help2
+        <br />
+        <em>
+          https://dev.azure.com/your_organization
         </em>
       </React.Fragment>
     }
@@ -51,10 +58,17 @@ exports[`should render correctly: edit 1`] = `
   <AlmBindingDefinitionFormField
     help={
       <React.Fragment>
-        settings.almintegration.form.url.azure.help
+        settings.almintegration.form.url.azure.help1
         <br />
         <em>
-          https://ado.your-company.com/DefaultCollection
+          https://ado.your-company.com/your_collection
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.azure.help2
+        <br />
+        <em>
+          https://dev.azure.com/your_organization
         </em>
       </React.Fragment>
     }

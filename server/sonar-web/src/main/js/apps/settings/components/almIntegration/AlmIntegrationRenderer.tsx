@@ -92,7 +92,7 @@ const tabs = [
           height={16}
           src={`${getBaseUrl()}/images/alm/azure.svg`}
         />
-        Azure DevOps Server
+        Azure DevOps
       </>
     ),
     requiresBranchesEnabled: false

@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import InputForBoolean from '../inputs/InputForBoolean';
 
@@ -178,7 +179,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {renderMonoRepoFieldWithDocLink('/documentation/analysis/azuredevops-integration/')}
+          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}
         </>
       );
     case AlmKeys.Bitbucket:
@@ -216,7 +217,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'slug',
             value: slug || ''
           })}
-          {renderMonoRepoFieldWithDocLink('/documentation/analysis/bitbucket-integration/')}
+          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.Bitbucket])}
         </>
       );
     case AlmKeys.GitHub:
@@ -237,7 +238,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'summaryCommentEnabled',
             value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
           })}
-          {renderMonoRepoFieldWithDocLink('/documentation/analysis/github-integration/')}
+          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub])}
         </>
       );
     case AlmKeys.GitLab:
@@ -249,7 +250,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {renderMonoRepoFieldWithDocLink('/documentation/analysis/gitlab-integration/')}
+          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab])}
         </>
       );
     default:

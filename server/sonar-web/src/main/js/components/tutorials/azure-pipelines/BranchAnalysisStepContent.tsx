@@ -23,6 +23,8 @@ import { Link } from 'react-router';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ALM_DOCUMENTATION_PATHS } from '../../../helpers/constants';
+import { AlmKeys } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import { withAppState } from '../../hoc/withAppState';
 import RenderOptions from '../components/RenderOptions';
@@ -71,9 +73,26 @@ sonar.projectKey=${component.key}`;
         optionLabelKey="onboarding.build"
         options={Object.values(BuildTechnology)}
       />
-      <ol className="list-styled big-spacer-top">
-        {buildTechnology && (
-          <>
+      {buildTechnology && (
+        <>
+          <Alert variant="info" className="big-spacer-top">
+            <FormattedMessage
+              id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+              defaultMessage={translate(
+                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info'
+              )}
+              values={{
+                doc_link: (
+                  <Link to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]} target="_blank">
+                    {translate(
+                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link'
+                    )}
+                  </Link>
+                )
+              }}
+            />
+          </Alert>
+          <ol className="list-styled big-spacer-top">
             <li>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
@@ -203,7 +222,7 @@ sonar.projectKey=${component.key}`;
                   )}
                   values={{
                     link: (
-                      <Link to="/documentation/analysis/azuredevops-integration/" target="_blank">
+                      <Link to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]} target="_blank">
                         {translate(
                           'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
                         )}
@@ -213,9 +232,9 @@ sonar.projectKey=${component.key}`;
                 />
               </>
             )}
-          </>
-        )}
-      </ol>
+          </ol>
+        </>
+      )}
     </>
   );
 }

@@ -56,7 +56,7 @@ exports[`should render correctly: azure 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
@@ -146,7 +146,7 @@ exports[`should render correctly: bitbucket 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
@@ -236,7 +236,7 @@ exports[`should render correctly: default 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
@@ -326,7 +326,7 @@ exports[`should render correctly: delete modal 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
@@ -421,7 +421,7 @@ exports[`should render correctly: gitlab 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
@@ -511,7 +511,7 @@ exports[`should render correctly: loading 1`] = `
               height={16}
               src="/images/alm/azure.svg"
             />
-            Azure DevOps Server
+            Azure DevOps
           </React.Fragment>,
           "requiresBranchesEnabled": false,
         },
