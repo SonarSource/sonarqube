@@ -100,8 +100,7 @@ From here, set your:
 | From here, set your: 
 |
 | - **Configuration name** – The configuration name that corresponds to your ALM instance.
-| - **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
-| - **Repo Slug** – Part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
+| - **Repository identifier** – The path of your repository URL.
 | - **Enable mono repository support** – (Enterprise Edition and above only) Set this to true. 
 
 [[collapse]]
