@@ -107,21 +107,6 @@ import Suggestions from '../embed-docs-modal/Suggestions';
 const exposeLibraries = () => {
   const global = window as any;
 
-  global.SonarHelpers = {
-    getBranchLikeQuery,
-    isBranch,
-    isMainBranch,
-    isPullRequest,
-    getStandards,
-    renderCWECategory,
-    renderOwaspTop10Category,
-    renderSansTop25Category,
-    renderSonarSourceSecurityCategory,
-    getComponentIssuesUrl,
-    getComponentSecurityHotspotsUrl,
-    getRulesUrl
-  };
-  global.SonarMeasures = { ...measures, formatMeasure };
   global.SonarRequest = {
     request,
     get,
@@ -133,62 +118,106 @@ const exposeLibraries = () => {
     throwGlobalError,
     addGlobalSuccessMessage
   };
-  global.SonarComponents = {
-    A11ySkipTarget,
-    ActionsDropdown,
-    ActionsDropdownItem,
-    Alert,
-    AlertErrorIcon,
-    AlertSuccessIcon,
-    AlertWarnIcon,
-    BranchIcon: BranchLikeIcon,
-    Button,
-    Checkbox,
-    CheckIcon,
-    ClearIcon,
-    ConfirmButton,
-    CoverageRating,
-    DateFormatter,
-    DateFromNow,
-    DateTimeFormatter,
-    DeferredSpinner,
-    DetachIcon,
-    Dropdown,
-    DropdownIcon,
-    DuplicationsRating,
-    EditButton,
-    Favorite,
-    FormattedMessage,
-    HelpIcon,
-    HelpTooltip,
-    HomePageSelect,
-    Level,
-    ListFooter,
-    LockIcon,
-    LongLivingBranchIcon: BranchIcon,
-    Modal,
-    NotFound,
-    PlusCircleIcon,
-    PullRequestIcon,
-    QualifierIcon,
-    RadioToggle,
-    Rating,
-    ReloadButton,
-    ResetButtonLink,
-    SearchBox,
-    SearchSelect,
-    SecurityHotspotIcon,
-    Select,
-    SelectList,
-    SimpleModal,
-    SubmitButton,
-    Suggestions,
-    Tooltip,
-    VulnerabilityIcon
-  };
-
   global.t = translate;
   global.tp = translateWithParameters;
+
+  /**
+   * @deprecated since SonarQube 8.7
+   */
+  Object.defineProperty(global, 'SonarHelpers', {
+    get: () => {
+      // eslint-disable-next-line no-console
+      console.warn('SonarHelpers usages are deprecated since SonarQube 8.7');
+      return {
+        getBranchLikeQuery,
+        isBranch,
+        isMainBranch,
+        isPullRequest,
+        getStandards,
+        renderCWECategory,
+        renderOwaspTop10Category,
+        renderSansTop25Category,
+        renderSonarSourceSecurityCategory,
+        getComponentIssuesUrl,
+        getComponentSecurityHotspotsUrl,
+        getRulesUrl
+      };
+    }
+  });
+
+  /**
+   * @deprecated since SonarQube 8.7
+   */
+  Object.defineProperty(global, 'SonarMeasures', {
+    get: () => {
+      // eslint-disable-next-line no-console
+      console.warn('SonarMeasures usages are deprecated since SonarQube 8.7');
+      return { ...measures, formatMeasure };
+    }
+  });
+
+  /**
+   * @deprecated since SonarQube 8.7
+   */
+  Object.defineProperty(global, 'SonarComponents', {
+    get: () => {
+      // eslint-disable-next-line no-console
+      console.warn('SonarComponents usages are deprecated since SonarQube 8.7');
+      return {
+        A11ySkipTarget,
+        ActionsDropdown,
+        ActionsDropdownItem,
+        Alert,
+        AlertErrorIcon,
+        AlertSuccessIcon,
+        AlertWarnIcon,
+        BranchIcon: BranchLikeIcon,
+        Button,
+        Checkbox,
+        CheckIcon,
+        ClearIcon,
+        ConfirmButton,
+        CoverageRating,
+        DateFormatter,
+        DateFromNow,
+        DateTimeFormatter,
+        DeferredSpinner,
+        DetachIcon,
+        Dropdown,
+        DropdownIcon,
+        DuplicationsRating,
+        EditButton,
+        Favorite,
+        FormattedMessage,
+        HelpIcon,
+        HelpTooltip,
+        HomePageSelect,
+        Level,
+        ListFooter,
+        LockIcon,
+        LongLivingBranchIcon: BranchIcon,
+        Modal,
+        NotFound,
+        PlusCircleIcon,
+        PullRequestIcon,
+        QualifierIcon,
+        RadioToggle,
+        Rating,
+        ReloadButton,
+        ResetButtonLink,
+        SearchBox,
+        SearchSelect,
+        SecurityHotspotIcon,
+        Select,
+        SelectList,
+        SimpleModal,
+        SubmitButton,
+        Suggestions,
+        Tooltip,
+        VulnerabilityIcon
+      };
+    }
+  });
 };
 
 export default exposeLibraries;
