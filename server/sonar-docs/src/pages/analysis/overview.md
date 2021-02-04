@@ -14,7 +14,7 @@ Once the SonarQube platform has been installed, you're ready to install a scanne
 * anything else (CLI) - [SonarScanner](/analysis/scan/sonarscanner/)
 
 [[info]]
-| SonarQube integrations are supported for popular ALMs: GitHub Enterprise and GitHub.com, BitBucket Server, and Azure Devops Server. 
+| SonarQube integrations are supported for popular ALMs: GitHub Enterprise and GitHub.com, BitBucket Server, Azure Devops Server and Azure DevOps Services.
 
 [[warning]]
 | We do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.

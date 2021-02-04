@@ -24,7 +24,7 @@ For example, if your Main Branch is named "master" in SonarQube but "develop" in
 For GitLab CI/CD configuration, see the [GitLab ALM integration](/analysis/gitlab-integration/) page.
 
 ## Azure Pipelines
-For Azure Pipelines configuration, see the [Azure DevOps Server integration](/analysis/azuredevops-integration/) page.
+For Azure Pipelines configuration, see the [Azure DevOps integration](/analysis/azuredevops-integration/) page.
 
 ## Bitbucket Pipelines
 For Bitbucket Pipelines configuration, see the [Bitbucket Cloud integration](/analysis/bitbucket-cloud-integration/) page.

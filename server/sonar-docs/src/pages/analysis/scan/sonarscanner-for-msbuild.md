@@ -11,7 +11,7 @@ title: SonarScanner for .NET
 
 The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](http://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
 
-SonarScanner for .NET is distributed as a standalone command line executable, as an extension for [Azure DevOps Server](/analysis/scan/sonarscanner-for-azure-devops/), and as a plugin for [Jenkins](/analysis/scan/sonarscanner-for-jenkins/).
+SonarScanner for .NET is distributed as a standalone command line executable, as an extension for [Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/), and as a plugin for [Jenkins](/analysis/scan/sonarscanner-for-jenkins/).
 
 It supports .Net Core on every platform (Windows, macOS, Linux).
 

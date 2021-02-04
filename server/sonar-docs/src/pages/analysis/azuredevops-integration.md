@@ -1,8 +1,8 @@
 ---
-title: Azure DevOps Server Integration
+title: Azure DevOps Integration
 url: /analysis/azuredevops-integration/
 ---
-SonarQube's integration with Azure DevOps Server allows you to maintain code quality and security in your Azure DevOps Server repositories.
+SonarQube's integration with Azure DevOps allows you to maintain code quality and security in your Azure DevOps repositories. It is compatible with both Azure DevOps Server and Azure DevOps Services.
 
 With this integration, you'll be able to:
 
@@ -14,26 +14,26 @@ With this integration, you'll be able to:
 Integration with Azure DevOps server requires at least Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2+.
 
 ## Importing your Azure DevOps repositories into SonarQube
-Setting up the import of Azure DevOps Server repositories into SonarQube allows you to easily create SonarQube projects from your Azure DevOps Server repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration. 
+Setting up the import of Azure DevOps repositories into SonarQube allows you to easily create SonarQube projects from your Azure DevOps repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration. 
 
 To set up the import of Azure DevOps repositories:  
 
 1. Set your global settings
-1. Add a personal access token for importing repositories  
+2. Add a personal access token for importing repositories  
 
 ### Setting your global settings
 To import your Azure DevOps repositories into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **Azure DevOps** tab, and click the **Create configuration** button. Specify the following settings:
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Azure DevOps configuration at the project level. Use something succinct and easily recognizable.
-- **Azure DevOps server collection URL** – Your full Azure DevOps Server collection URL. For example, `https://ado.your-company.com/DefaultCollection`.
-- **Personal Access Token** – An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [personal access token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed. This personal access token is used for pull request decoration, and you'll be asked for another personal access token for importing projects in the following section.
+- **Azure DevOps collection/organization URL** – If you are using Azure DevOps Server, provide your full Azure DevOps collection URL. For example, `https://ado.your-company.com/DefaultCollection`. If you are using Azure DevOps Services, provide your full Azure DevOps organization URL. For example, `https://dev.azure.com/your_organization`.
+- **Personal Access Token** – An Azure DevOps user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps account with Administrator permissions. You need a [personal access token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed. This personal access token is used for pull request decoration, and you'll be asked for another personal access token for importing projects in the following section.
 
 ### Adding a personal access token for importing repositories
-After setting your global settings, you can add a project from Azure DevOps Server by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
+After setting your global settings, you can add a project from Azure DevOps by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
 
-Then, you'll be asked to provide a personal access token with `Code (Read & Write)` scope so SonarQube can access and list your Azure DevOps Server projects. This token will be stored in SonarQube and can be revoked at anytime in Azure DevOps Server.
+Then, you'll be asked to provide a personal access token with `Code (Read & Write)` scope so SonarQube can access and list your Azure DevOps projects. This token will be stored in SonarQube and can be revoked at anytime in Azure DevOps.
 
-After saving your personal access token, you'll see a list of your Azure DevOps Server projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for pull request decoration. 
+After saving your personal access token, you'll see a list of your Azure DevOps projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for pull request decoration. 
 
 For information on analyzing your projects with Azure Pipelines, see the following section.
 
@@ -50,16 +50,20 @@ You can find a tutorial on setting up analysis with Azure Pipelines by selecting
 Or, You can also use the following sections to set up analysis with Azure Pipelines. 
 
 ### Installing your extension
-From Visual Studio Marketplace, install the [SonarQube extension](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube) by clicking the **Get it free** button. If you are using [Microsoft-hosted build agents](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops) then there is nothing else to install. The extension will work with all of the hosted agents (Windows, Linux, and macOS).
+From Visual Studio Marketplace, install the [SonarQube extension](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube) by clicking the **Get it free** button. 
+
+#### Azure DevOps Server - build agents
+
+If you are using [Microsoft-hosted build agents](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops) then there is nothing else to install. The extension will work with all of the hosted agents (Windows, Linux, and macOS).
 
 If you are self-hosting the build agents, make sure you have at least the minimum SonarQube-supported version of Java installed.
 
 ### Adding a new SonarQube Service Endpoint
-After installing your extension, you need to declare your SonarQube server as a service endpoint in your Azure DevOps Server project settings:
+After installing your extension, you need to declare your SonarQube server as a service endpoint in your Azure DevOps project settings:
 
-1. In Azure DevOps Server, go to **Project Settings > Service connections**. 
-1. Click **New service connection** and select **SonarQube** from the service connection list.
-1. Enter your SonarQube **Server URL**, an [Authentication Token](/user-guide/user-token/), and a memorable **Service connection name**. Then, click **Save**.
+1. In Azure DevOps, go to **Project Settings > Service connections**. 
+2. Click **New service connection** and select **SonarQube** from the service connection list.
+3. Enter your SonarQube **Server URL**, an [Authentication Token](/user-guide/user-token/), and a memorable **Service connection name**. Then, click **Save**.
 
 ### Configuring branch analysis
 After adding your SonarQube service endpoint, you'll need to configure branch analysis. You'll use the following tasks in your build definitions to analyze your projects:
@@ -74,7 +78,7 @@ Select your build technology below to expand the instructions for configuring br
 
 [[collapse]]
 | ## .NET
-| 1. In Azure DevOps Server, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
+| 1. In Azure DevOps, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
 |    - Select the SonarQube server endpoint you created in the **Adding a new SonarQube Service Endpoint** section.
 |    - Under **Choose a way to run the analysis**, select **Integrate with MSBuild**.
 |    - In the **project key** field, enter your project key.
@@ -107,7 +111,7 @@ Select your build technology below to expand the instructions for configuring br
 
 [[collapse]]
 | ## Maven or Gradle
-| 1. In Azure DevOps Server, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
+| 1. In Azure DevOps, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
 |    - Select the SonarQube server endpoint you created in the **Adding a new SonarQube Service Endpoint** section.
 |    - Under **Choose a way to run the analysis**, select **Integrate with Maven or Gradle**.
 |    - Expand the **Advanced section** and replace the **Additional Properties** with the following snippet:
@@ -144,7 +148,7 @@ Select your build technology below to expand the instructions for configuring br
 
 [[collapse]]
 | ## Other (JavaScript, TypeScript, Go, Python, PHP, etc.)
-| 1. In Azure DevOps Server, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
+| 1. In Azure DevOps, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
 |    - Select the SonarQube server endpoint you created in the **Adding a new SonarQube Service Endpoint** section.
 |    - Under **Choose a way to run the analysis**, select **Integrate with MSBuild**.
 |    - Select the **Manually provide configuration** mode.
@@ -240,10 +244,10 @@ Prevent the merge of pull requests with a failed Quality Gate by adding a `Sonar
  
 Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
 
-## Adding pull request decoration to Azure DevOps Server
-Pull request decoration shows your Quality Gate and analysis metrics directly in Azure DevOps Server.
+## Adding pull request decoration to Azure DevOps
+Pull request decoration shows your Quality Gate and analysis metrics directly in Azure DevOps.
 
-After you've set up SonarQube to import your Azure DevOps Server repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, the simplest way to add pull request decoration is by adding a project from Azure DevOps Server by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
+After you've set up SonarQube to import your Azure DevOps repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, the simplest way to add pull request decoration is by adding a project from Azure DevOps by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
