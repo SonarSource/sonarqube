@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -52,6 +51,8 @@ public class BitbucketCloudRestClient {
   private static final String ACCESS_TOKEN_ENDPOINT = "https://bitbucket.org/site/oauth2/access_token";
   private static final String VERSION = "2.0";
   private static final String UNABLE_TO_CONTACT_BBC_SERVERS = "Unable to contact Bitbucket Cloud servers";
+  private static final String ERROR_BBC_SERVERS = "Error returned by Bitbucket Cloud";
+
   protected static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
 
   private final OkHttpClient client;
@@ -77,7 +78,7 @@ public class BitbucketCloudRestClient {
     if (token.getScopes() == null || !token.getScopes().contains("pullrequest")) {
       String msg = "The OAuth consumer in the Bitbucket workspace is not configured with the permission to read pull requests";
       LOG.info("Validation failed. {}}: {}", msg, token.getScopes());
-      throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + msg);
+      throw new IllegalArgumentException(ERROR_BBC_SERVERS + ": " + msg);
     }
 
     try {
@@ -105,7 +106,7 @@ public class BitbucketCloudRestClient {
           default:
             if (errorMsg.parsedErrorMsg != null) {
               LOG.info("Validation failed: " + errorMsg.parsedErrorMsg);
-              throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + errorMsg.parsedErrorMsg);
+              throw new IllegalArgumentException(ERROR_BBC_SERVERS + ": " + errorMsg.parsedErrorMsg);
             } else {
               LOG.info("Validation failed: " + errorMsg.body);
               throw new IllegalArgumentException(UNABLE_TO_CONTACT_BBC_SERVERS);
@@ -148,44 +149,24 @@ public class BitbucketCloudRestClient {
     return doCall(request, handler);
   }
 
-  protected void doPost(String accessToken, HttpUrl url, RequestBody body) {
-    Request request = prepareRequestWithAccessToken(accessToken, "POST", url, body);
-    doCall(request, r -> null);
-  }
-
-  protected void doPut(String accessToken, HttpUrl url, String json) {
-    RequestBody body = RequestBody.create(json, JSON_MEDIA_TYPE);
-    Request request = prepareRequestWithAccessToken(accessToken, "PUT", url, body);
-    doCall(request, r -> null);
-  }
-
-  protected void doDelete(String accessToken, HttpUrl url) {
-    Request request = prepareRequestWithAccessToken(accessToken, "DELETE", url, null);
-    doCall(request, r -> null);
-  }
-
-  private <G> G doCall(Request request, Function<Response, G> handler) {
+  protected <G> G doCall(Request request, Function<Response, G> handler) {
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
         handleError(response);
       }
       return handler.apply(response);
     } catch (IOException e) {
-      throw new IllegalStateException(UNABLE_TO_CONTACT_BBC_SERVERS, e);
+      throw new IllegalStateException(ERROR_BBC_SERVERS, e);
     }
   }
 
   private static void handleError(Response response) throws IOException {
     int responseCode = response.code();
     ErrorDetails error = getError(response.body());
-    if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-      String errorMsg = error.parsedErrorMsg != null ? error.parsedErrorMsg : "";
-      throw new NotFoundException(errorMsg);
-    }
-    LOG.info(UNABLE_TO_CONTACT_BBC_SERVERS + ": {} {}", responseCode, error.parsedErrorMsg != null ? error.parsedErrorMsg : error.body);
+    LOG.info(ERROR_BBC_SERVERS + ": {} {}", responseCode, error.parsedErrorMsg != null ? error.parsedErrorMsg : error.body);
 
     if (error.parsedErrorMsg != null) {
-      throw new IllegalStateException(UNABLE_TO_CONTACT_BBC_SERVERS + ": " + error.parsedErrorMsg);
+      throw new IllegalStateException(ERROR_BBC_SERVERS + ": " + error.parsedErrorMsg);
     } else {
       throw new IllegalStateException(UNABLE_TO_CONTACT_BBC_SERVERS);
     }
@@ -247,7 +228,7 @@ public class BitbucketCloudRestClient {
     return new ErrorDetails(bodyStr, null);
   }
 
-  private static Request prepareRequestWithAccessToken(String accessToken, String method, HttpUrl url, @Nullable RequestBody body) {
+  protected static Request prepareRequestWithAccessToken(String accessToken, String method, HttpUrl url, @Nullable RequestBody body) {
     return new Request.Builder()
       .method(method, body)
       .url(url)

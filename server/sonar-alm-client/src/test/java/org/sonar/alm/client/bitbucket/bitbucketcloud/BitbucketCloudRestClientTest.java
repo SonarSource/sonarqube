@@ -102,7 +102,7 @@ public class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
-      .withMessage("No workspace with identifier 'workspace'.");
+      .withMessage("Error returned by Bitbucket Cloud: No workspace with identifier 'workspace'.");
   }
 
   @Test
@@ -140,7 +140,7 @@ public class BitbucketCloudRestClientTest {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"))
-      .withMessage("Unable to contact Bitbucket Cloud servers: Your credentials lack one or more required privilege scopes.");
+      .withMessage("Error returned by Bitbucket Cloud: Your credentials lack one or more required privilege scopes.");
   }
 
   @Test
