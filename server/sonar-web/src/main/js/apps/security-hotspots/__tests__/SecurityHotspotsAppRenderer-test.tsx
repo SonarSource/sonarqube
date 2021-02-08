@@ -23,6 +23,7 @@ import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { mockComponent } from '../../../helpers/testMocks';
+import { SecurityStandard } from '../../../types/security';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
@@ -57,6 +58,26 @@ it('should render correctly with hotspots', () => {
       .find(ScreenPositionHelper)
       .dive()
   ).toMatchSnapshot();
+});
+
+it('should render correctly when filtered by category or cwe', () => {
+  const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
+
+  expect(
+    shallowRender({ filterByCWE: '327', hotspots, hotspotsTotal: 2, selectedHotspot: hotspots[0] })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot('cwe');
+  expect(
+    shallowRender({
+      filterByCategory: { category: 'a1', standard: SecurityStandard.OWASP_TOP10 },
+      hotspots,
+      hotspotsTotal: 2,
+      selectedHotspot: hotspots[0]
+    })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot('category');
 });
 
 it('should properly propagate the "show all" call', () => {

@@ -27,10 +27,11 @@ import { SECURITY_STANDARD_RENDERER } from '../utils';
 import HotspotListItem from './HotspotListItem';
 
 export interface HotspotSimpleListProps {
-  filterByCategory: {
+  filterByCategory?: {
     standard: SecurityStandard;
     category: string;
   };
+  filterByCWE?: string;
   hotspots: RawHotspot[];
   hotspotsTotal: number;
   loadingMore: boolean;
@@ -43,12 +44,20 @@ export interface HotspotSimpleListProps {
 export default function HotspotSimpleList(props: HotspotSimpleListProps) {
   const {
     filterByCategory,
+    filterByCWE,
     hotspots,
     hotspotsTotal,
     loadingMore,
     selectedHotspot,
     standards
   } = props;
+
+  const categoryLabel =
+    filterByCategory &&
+    SECURITY_STANDARD_RENDERER[filterByCategory.standard](standards, filterByCategory.category);
+
+  const cweLabel =
+    filterByCWE && SECURITY_STANDARD_RENDERER[SecurityStandard.CWE](standards, filterByCWE);
 
   return (
     <div className="hotspots-list-single-category huge-spacer-bottom">
@@ -60,10 +69,9 @@ export default function HotspotSimpleList(props: HotspotSimpleListProps) {
         <div className="hotspot-category">
           <div className="hotspot-category-header">
             <strong className="flex-1 spacer-right break-word">
-              {SECURITY_STANDARD_RENDERER[filterByCategory.standard](
-                standards,
-                filterByCategory.category
-              )}
+              {categoryLabel}
+              {categoryLabel && cweLabel && <hr />}
+              {cweLabel}
             </strong>
           </div>
           <ul>

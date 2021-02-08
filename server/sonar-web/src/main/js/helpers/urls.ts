@@ -128,7 +128,8 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
       ...pick(query, [
         SecurityStandard.SONARSOURCE,
         SecurityStandard.OWASP_TOP10,
-        SecurityStandard.SANS_TOP25
+        SecurityStandard.SANS_TOP25,
+        SecurityStandard.CWE
       ])
     }
   };

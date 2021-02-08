@@ -123,6 +123,19 @@ it('should handle category request', () => {
   );
 });
 
+it('should handle cwe request', () => {
+  (getStandards as jest.Mock).mockResolvedValue(mockStandards());
+  (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
+
+  shallowRender({
+    location: mockLocation({ query: { [SecurityStandard.CWE]: '1004' } })
+  });
+
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ [SecurityStandard.CWE]: '1004' })
+  );
+});
+
 it('should load data correctly when hotspot key list is forced', async () => {
   const hotspots = [
     mockRawHotspot({ key: 'test1' }),

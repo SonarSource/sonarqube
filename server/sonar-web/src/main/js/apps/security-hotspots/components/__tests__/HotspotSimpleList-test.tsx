@@ -24,7 +24,11 @@ import { SecurityStandard } from '../../../../types/security';
 import HotspotSimpleList, { HotspotSimpleListProps } from '../HotspotSimpleList';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('filter by category');
+  expect(shallowRender({ filterByCategory: undefined, filterByCWE: '327' })).toMatchSnapshot(
+    'filter by cwe'
+  );
+  expect(shallowRender({ filterByCWE: '327' })).toMatchSnapshot('filter by both');
 });
 
 function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
@@ -40,7 +44,7 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
       onLoadMore={jest.fn()}
       selectedHotspot={hotspots[0]}
       standards={{
-        cwe: {},
+        cwe: { 327: { title: 'Use of a Broken or Risky Cryptographic Algorithm' } },
         owaspTop10: {
           a1: { title: 'A1 - SQL Injection' },
           a3: { title: 'A3 - Sensitive Data Exposure' }

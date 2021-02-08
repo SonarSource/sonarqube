@@ -58,6 +58,249 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
+exports[`should render correctly when filtered by category or cwe: category 1`] = `
+<div
+  className="layout-page-side"
+  style={
+    Object {
+      "top": 0,
+    }
+  }
+>
+  <div
+    className="layout-page-side-inner"
+  >
+    <HotspotSimpleList
+      filterByCategory={
+        Object {
+          "category": "a1",
+          "standard": "owaspTop10",
+        }
+      }
+      hotspots={
+        Array [
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h1",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h2",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+        ]
+      }
+      hotspotsTotal={2}
+      loadingMore={false}
+      onHotspotClick={[MockFunction]}
+      onLoadMore={[MockFunction]}
+      selectedHotspot={
+        Object {
+          "author": "Developer 1",
+          "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+          "creationDate": "2013-05-13T17:55:39+0200",
+          "key": "h1",
+          "line": 81,
+          "message": "'3' is a magic number.",
+          "project": "com.github.kevinsawicki:http-request",
+          "resolution": undefined,
+          "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+          "securityCategory": "command-injection",
+          "status": "TO_REVIEW",
+          "updateDate": "2013-05-13T17:55:39+0200",
+          "vulnerabilityProbability": "HIGH",
+        }
+      }
+      standards={
+        Object {
+          "cwe": Object {
+            "1004": Object {
+              "title": "Sensitive Cookie Without 'HttpOnly' Flag",
+            },
+            "unknown": Object {
+              "title": "No CWE associated",
+            },
+          },
+          "owaspTop10": Object {
+            "a1": Object {
+              "title": "Injection",
+            },
+            "a2": Object {
+              "title": "Broken Authentication",
+            },
+            "a3": Object {
+              "title": "Sensitive Data Exposure",
+            },
+          },
+          "sansTop25": Object {
+            "insecure-interaction": Object {
+              "title": "Insecure Interaction Between Components",
+            },
+            "porous-defenses": Object {
+              "title": "Porous Defenses",
+            },
+            "risky-resource": Object {
+              "title": "Risky Resource Management",
+            },
+          },
+          "sonarsourceSecurity": Object {
+            "buffer-overflow": Object {
+              "title": "Buffer Overflow",
+            },
+            "rce": Object {
+              "title": "Code Injection (RCE)",
+            },
+            "sql-injection": Object {
+              "title": "SQL Injection",
+            },
+          },
+        }
+      }
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly when filtered by category or cwe: cwe 1`] = `
+<div
+  className="layout-page-side"
+  style={
+    Object {
+      "top": 0,
+    }
+  }
+>
+  <div
+    className="layout-page-side-inner"
+  >
+    <HotspotSimpleList
+      filterByCWE="327"
+      hotspots={
+        Array [
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h1",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h2",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+        ]
+      }
+      hotspotsTotal={2}
+      loadingMore={false}
+      onHotspotClick={[MockFunction]}
+      onLoadMore={[MockFunction]}
+      selectedHotspot={
+        Object {
+          "author": "Developer 1",
+          "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+          "creationDate": "2013-05-13T17:55:39+0200",
+          "key": "h1",
+          "line": 81,
+          "message": "'3' is a magic number.",
+          "project": "com.github.kevinsawicki:http-request",
+          "resolution": undefined,
+          "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+          "securityCategory": "command-injection",
+          "status": "TO_REVIEW",
+          "updateDate": "2013-05-13T17:55:39+0200",
+          "vulnerabilityProbability": "HIGH",
+        }
+      }
+      standards={
+        Object {
+          "cwe": Object {
+            "1004": Object {
+              "title": "Sensitive Cookie Without 'HttpOnly' Flag",
+            },
+            "unknown": Object {
+              "title": "No CWE associated",
+            },
+          },
+          "owaspTop10": Object {
+            "a1": Object {
+              "title": "Injection",
+            },
+            "a2": Object {
+              "title": "Broken Authentication",
+            },
+            "a3": Object {
+              "title": "Sensitive Data Exposure",
+            },
+          },
+          "sansTop25": Object {
+            "insecure-interaction": Object {
+              "title": "Insecure Interaction Between Components",
+            },
+            "porous-defenses": Object {
+              "title": "Porous Defenses",
+            },
+            "risky-resource": Object {
+              "title": "Risky Resource Management",
+            },
+          },
+          "sonarsourceSecurity": Object {
+            "buffer-overflow": Object {
+              "title": "Buffer Overflow",
+            },
+            "rce": Object {
+              "title": "Code Injection (RCE)",
+            },
+            "sql-injection": Object {
+              "title": "SQL Injection",
+            },
+          },
+        }
+      }
+    />
+  </div>
+</div>
+`;
+
 exports[`should render correctly with hotspots 1`] = `
 <div
   id="security_hotspots"

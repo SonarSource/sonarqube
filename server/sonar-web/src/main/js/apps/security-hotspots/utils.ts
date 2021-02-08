@@ -40,7 +40,8 @@ export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, Ris
 export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
   SecurityStandard.OWASP_TOP10,
-  SecurityStandard.SANS_TOP25
+  SecurityStandard.SANS_TOP25,
+  SecurityStandard.CWE
 ];
 
 export const SECURITY_STANDARD_RENDERER = {

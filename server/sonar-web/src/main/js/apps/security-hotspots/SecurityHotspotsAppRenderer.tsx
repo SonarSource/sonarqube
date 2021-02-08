@@ -43,6 +43,7 @@ export interface SecurityHotspotsAppRendererProps {
     standard: SecurityStandard;
     category: string;
   };
+  filterByCWE?: string;
   filters: HotspotFilters;
   hotspots: RawHotspot[];
   hotspotsReviewedMeasure?: string;
@@ -66,6 +67,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     branchLike,
     component,
     filterByCategory,
+    filterByCWE,
     filters,
     hotspots,
     hotspotsReviewedMeasure,
@@ -125,9 +127,10 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               {({ top }) => (
                 <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
                   <div className="layout-page-side-inner">
-                    {filterByCategory ? (
+                    {filterByCategory || filterByCWE ? (
                       <HotspotSimpleList
                         filterByCategory={filterByCategory}
+                        filterByCWE={filterByCWE}
                         hotspots={hotspots}
                         hotspotsTotal={hotspotsTotal}
                         loadingMore={loadingMore}
