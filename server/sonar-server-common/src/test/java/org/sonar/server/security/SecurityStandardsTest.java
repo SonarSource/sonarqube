@@ -68,6 +68,14 @@ public class SecurityStandardsTest {
   }
 
   @Test
+  public void fromSecurityStandards_from_empty_set_has_no_CweTop25_standard() {
+    SecurityStandards securityStandards = fromSecurityStandards(emptySet());
+
+    assertThat(securityStandards.getStandards()).isEmpty();
+    assertThat(securityStandards.getCweTop25()).isEmpty();
+  }
+
+  @Test
   public void fromSecurityStandards_finds_SQCategory_from_any_if_the_mapped_CWE_standard() {
     CWES_BY_SQ_CATEGORY.forEach((sqCategory, cwes) -> {
       cwes.forEach(cwe -> {

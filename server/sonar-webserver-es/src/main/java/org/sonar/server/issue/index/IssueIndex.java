@@ -1016,6 +1016,17 @@ public class IssueIndex {
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
+  public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String uuid, boolean isViewOrApp) {
+    // TODO:: Mock data - SONAR-14447 elasticsearch query
+    return Arrays.asList(
+      new SecurityStandardCategoryStatistics("2019", 1, OptionalInt.empty(), 10, 5, 10,
+        SecurityStandards.CWES_BY_CWE_TOP_25.get("2019").stream().map(cwe -> new SecurityStandardCategoryStatistics(cwe, 1, OptionalInt.empty(), 1, 3, 2, null))
+          .collect(toList())),
+      new SecurityStandardCategoryStatistics("2020", 0, OptionalInt.empty(), 9, 5, 10,
+        SecurityStandards.CWES_BY_CWE_TOP_25.get("2020").stream().map(cwe -> new SecurityStandardCategoryStatistics(cwe, 1, OptionalInt.empty(), 1, 3, 4, null))
+          .collect(toList())));
+  }
+
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Arrays.stream(SQCategory.values())

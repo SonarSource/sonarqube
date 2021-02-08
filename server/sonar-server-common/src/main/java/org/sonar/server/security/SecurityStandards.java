@@ -64,6 +64,22 @@ public final class SecurityStandards {
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
+  // https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html
+  private static final Set<String> CWE_TOP25_2019 = new HashSet<>(
+    asList("119", "79", "20", "200", "125", "89", "416", "190", "352",
+      "22", "78", "787", "287", "476", "732", "434", "611", "94",
+      "798", "400", "772", "426", "502", "269", "295"));
+
+  // https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html
+  private static final Set<String> CWE_TOP25_2020 = new HashSet<>(
+    asList("79", "787", "20", "125", "119", "89", "200", "416", "352",
+      "78", "190", "22", "476", "287", "434", "732", "94", "522",
+      "611", "798", "502", "269", "400", "306", "862"));
+
+  public static final Map<String, Set<String>> CWES_BY_CWE_TOP_25 = ImmutableMap.of(
+    "2019", CWE_TOP25_2019,
+    "2020", CWE_TOP25_2020);
+
   public enum VulnerabilityProbability {
     HIGH(3),
     MEDIUM(2),
@@ -187,6 +203,10 @@ public final class SecurityStandards {
     return toSansTop25(cwe);
   }
 
+  public Set<String> getCweTop25() {
+    return toCweTop25(cwe);
+  }
+
   public SQCategory getSqCategory() {
     return sqCategory;
   }
@@ -223,6 +243,14 @@ public final class SecurityStandards {
       .map(s -> s.substring(CWE_PREFIX.length()))
       .collect(toSet());
     return result.isEmpty() ? singleton(UNKNOWN_STANDARD) : result;
+  }
+
+  private static Set<String> toCweTop25(Set<String> cwe) {
+    return CWES_BY_CWE_TOP_25
+      .keySet()
+      .stream()
+      .filter(k -> cwe.stream().anyMatch(CWES_BY_CWE_TOP_25.get(k)::contains))
+      .collect(toSet());
   }
 
   private static Set<String> toSansTop25(Collection<String> cwe) {
