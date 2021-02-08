@@ -39,6 +39,7 @@ it('correctly calls the onDone prop', () => {
   wrapper.instance().handleBuildToolChange(BuildTools.Gradle);
   expect(onDone).toBeCalledWith(expect.objectContaining({ buildTool: BuildTools.Gradle }));
 
+  wrapper.setState({ config: { buildTool: BuildTools.Other } });
   wrapper.instance().handleOSChange(OSs.Windows);
   expect(onDone).toBeCalledWith(
     expect.objectContaining({ os: OSs.Windows, buildTool: BuildTools.Other })

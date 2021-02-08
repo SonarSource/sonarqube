@@ -27,6 +27,10 @@ exports[`renders correctly: default 1`] = `
             "value": "dotnet",
           },
           Object {
+            "label": "onboarding.build.cfamily",
+            "value": "cfamily",
+          },
+          Object {
             "label": "onboarding.build.other",
             "value": "other",
           },
@@ -65,6 +69,10 @@ exports[`renders correctly: with "maven" selected 1`] = `
             "value": "dotnet",
           },
           Object {
+            "label": "onboarding.build.cfamily",
+            "value": "cfamily",
+          },
+          Object {
             "label": "onboarding.build.other",
             "value": "other",
           },
@@ -101,6 +109,10 @@ exports[`renders correctly: with "other" selected 1`] = `
           Object {
             "label": "onboarding.build.dotnet",
             "value": "dotnet",
+          },
+          Object {
+            "label": "onboarding.build.cfamily",
+            "value": "cfamily",
           },
           Object {
             "label": "onboarding.build.other",

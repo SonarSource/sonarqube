@@ -36,8 +36,11 @@ export interface JenkinsfileStepProps {
   open: boolean;
 }
 
+// To remove when CFamily is includ in this tutorial
+type BuildToolsWithoutCFamily = Exclude<BuildTools, BuildTools.CFamily>;
+
 const BUILDTOOL_COMPONENT_MAP: {
-  [x in BuildTools]: React.ComponentType<{ component: T.Component }>;
+  [x in BuildToolsWithoutCFamily]: React.ComponentType<{ component: T.Component }>;
 } = {
   [BuildTools.Maven]: Maven,
   [BuildTools.Gradle]: Gradle,
@@ -51,7 +54,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
     component,
     open
   } = props;
-  const [buildTool, setBuildTool] = React.useState<BuildTools | undefined>(undefined);
+  const [buildTool, setBuildTool] = React.useState<BuildToolsWithoutCFamily | undefined>(undefined);
   return (
     <Step
       finished={false}
@@ -64,7 +67,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
               <RenderOptions
                 checked={buildTool}
                 name="buildtool"
-                onCheck={value => setBuildTool(value as BuildTools)}
+                onCheck={value => setBuildTool(value as BuildToolsWithoutCFamily)}
                 optionLabelKey="onboarding.build"
                 options={Object.values(BuildTools)}
               />

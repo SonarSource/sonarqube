@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { BuildTools, ManualTutorialConfig } from '../../types';
+import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
 import JavaMaven from './JavaMaven';
@@ -50,6 +51,11 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
 
     case BuildTools.DotNet:
       return <DotNet host={host} projectKey={projectKey} token={token} />;
+
+    case BuildTools.CFamily:
+      return languageConfig.os !== undefined ? (
+        <ClangGCCCustom os={languageConfig.os} host={host} projectKey={projectKey} token={token} />
+      ) : null;
 
     case BuildTools.Other:
       return languageConfig.os !== undefined ? (

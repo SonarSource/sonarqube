@@ -47,14 +47,23 @@ export default class BuildToolForm extends React.PureComponent<Props, State> {
   };
 
   handleOSChange = (os: OSs) => {
-    this.setState({ config: { buildTool: BuildTools.Other, os } }, () => {
-      this.props.onDone(this.state.config);
-    });
+    this.setState(
+      ({ config }) => ({ config: { buildTool: config.buildTool, os } }),
+      () => {
+        this.props.onDone(this.state.config);
+      }
+    );
   };
 
   render() {
     const { config } = this.state;
-    const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet, BuildTools.Other];
+    const buildTools = [
+      BuildTools.Maven,
+      BuildTools.Gradle,
+      BuildTools.DotNet,
+      BuildTools.CFamily,
+      BuildTools.Other
+    ];
 
     return (
       <>
@@ -71,7 +80,7 @@ export default class BuildToolForm extends React.PureComponent<Props, State> {
           />
         </div>
 
-        {config.buildTool === BuildTools.Other && (
+        {(config.buildTool === BuildTools.Other || config.buildTool === BuildTools.CFamily) && (
           <RenderOptions
             checked={config.os}
             name="os"

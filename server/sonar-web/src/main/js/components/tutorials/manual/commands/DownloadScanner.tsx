@@ -18,24 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { OSs } from '../../types';
-import DownloadScanner from './DownloadScanner';
-import ExecScanner from './ExecScanner';
 
-export interface OtherProps {
-  host: string;
+interface Props {
   os: OSs;
-  projectKey: string;
-  token: string;
 }
 
-export default function Other(props: OtherProps) {
-  const { host, os, projectKey, token } = props;
-
+export default function SQScanner(props: Props) {
+  const { os } = props;
   return (
     <div>
-      <DownloadScanner os={os} />
-      <ExecScanner host={host} os={os} projectKey={projectKey} token={token} />
+      <h4 className="spacer-bottom">{translate('onboarding.analysis.sq_scanner.header', os)}</h4>
+      <p className="spacer-bottom markdown">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.analysis.sq_scanner.text')}
+          id="onboarding.analysis.sq_scanner.text"
+          values={{
+            dir: <code>bin</code>,
+            env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>
+          }}
+        />
+      </p>
+      <p>
+        <Link className="button" to="/documentation/analysis/scan/sonarscanner/" target="_blank">
+          {translate('download_verb')}
+        </Link>
+      </p>
     </div>
   );
 }

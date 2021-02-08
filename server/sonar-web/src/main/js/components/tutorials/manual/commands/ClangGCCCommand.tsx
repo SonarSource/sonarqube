@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci',
-  AzurePipelines = 'azure-pipelines'
+import * as React from 'react';
+import { OSs } from '../../types';
+import DownloadBuildWrapper from './DownloadBuildWrapper';
+import DownloadScanner from './DownloadScanner';
+import ExecBuildWrapper from './ExecBuildWrapper';
+import ExecScanner from './ExecScanner';
+
+export interface ClangGCCCustomProps {
+  host: string;
+  os: OSs;
+  projectKey: string;
+  token: string;
 }
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+export default function ClangGCCCustom(props: ClangGCCCustomProps) {
+  const { os, host, projectKey, token } = props;
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+  return (
+    <div>
+      <DownloadBuildWrapper os={os} />
+      <DownloadScanner os={os} />
+      <ExecBuildWrapper os={os} />
+      <ExecScanner host={host} projectKey={projectKey} os={os} token={token} cfamily={true} />
+    </div>
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

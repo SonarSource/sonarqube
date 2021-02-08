@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci',
-  AzurePipelines = 'azure-pipelines'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { OSs } from '../../../types';
+import ExecScanner, { ExecScannerProps } from '../ExecScanner';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('Shoud renders for %p correctly', os => {
+  expect(shallowRender({ os })).toMatchSnapshot();
+});
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
-}
+it('Should render for cfamily', () => {
+  expect(shallowRender({ cfamily: true })).toMatchSnapshot();
+});
 
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };
+function shallowRender(props: Partial<ExecScannerProps> = {}) {
+  return shallow<ExecScannerProps>(
+    <ExecScanner host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
+  );
+}

@@ -17,27 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci',
-  AzurePipelines = 'azure-pipelines'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { OSs } from '../../../types';
+import DownloadBuildWrapper from '../DownloadBuildWrapper';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
-
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
-}
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('Shoud renders for %p correctly', os => {
+  expect(shallow(<DownloadBuildWrapper os={os} />)).toMatchSnapshot();
+});
