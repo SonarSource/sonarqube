@@ -143,7 +143,7 @@ public class BulkChangeAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
-      .setDescription("Bulk change on issues.<br/>" +
+      .setDescription("Bulk change on issues. Up to 500 issues can be updated. <br/>" +
         "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
