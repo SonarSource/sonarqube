@@ -59,6 +59,11 @@ public final class SecurityStandards {
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
   private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
+
+  /**
+   * @deprecated SansTop25 report is outdated and will be removed in future versions
+   */
+  @Deprecated
   public static final Map<String, Set<String>> CWES_BY_SANS_TOP_25 = ImmutableMap.of(
     SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
@@ -199,6 +204,10 @@ public final class SecurityStandards {
     return toOwaspTop10(standards);
   }
 
+  /**
+   * @deprecated SansTop25 report is outdated and will be removed in future versions
+   */
+  @Deprecated
   public Set<String> getSansTop25() {
     return toSansTop25(cwe);
   }

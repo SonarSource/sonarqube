@@ -1006,6 +1006,10 @@ public class IssueIndex {
       .collect(MoreCollectors.toList(branchUuids.size()));
   }
 
+  /**
+   * @deprecated SansTop25 report is outdated and will be removed in future versions
+   */
+  @Deprecated
   public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)

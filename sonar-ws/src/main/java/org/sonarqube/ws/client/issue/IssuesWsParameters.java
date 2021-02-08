@@ -84,6 +84,7 @@ public class IssuesWsParameters {
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";
   public static final String PARAM_OWASP_TOP_10 = "owaspTop10";
+  @Deprecated
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_CWE_TOP_25 = "cweTop25";
   public static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
