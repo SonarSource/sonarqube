@@ -43,6 +43,9 @@ public class DbVersion87 implements DbVersion {
       .add(4210, "Add column 'monorepo' to table 'project_alm_settings'", AddMonorepoColumnToProjectAlmSettingsTable.class)
       .add(4211, "Populate column 'monorepo' to false in table 'project_alm_settings'", PopulateMonorepoColumnToProjectAlmSettingsTable.class)
       .add(4212, "Make column 'monorepo' in table 'project_alm_settings' not Nullable", MakeMonorepoColumnInProjectAlmSettingsTableNotNullable.class)
+
+      .add(4213, "Drop column 'description' in table 'project_measures'", DropDescriptionInProjectMeasures.class)
+
     ;
   }
 }
