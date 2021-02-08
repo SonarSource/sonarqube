@@ -14,11 +14,13 @@ With this integration, you'll be able to:
 ## Prerequisites
 To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.15+.
 
-## Importing your GitHub repositories to SonarQube
-You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration.
+### Branch Analysis
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
 
-[[info]]
-|If you're using Community Edition or want to set up authentication without importing your GitHub repositories, see the **Creating a dedicated app for authentication** section below for instructions on setting up authentication.
+## Importing your GitHub repositories to SonarQube
+You need to use a GitHub App to connect SonarQube and GitHub so you can import your GitHub repositories into SonarQube. This is also the first step in adding authentication and, if you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, the first step in adding pull request decoration.
+
+If you want to set up authentication without importing your GitHub repositories, see the **Creating a dedicated app for authentication** section below for instructions on setting up authentication.
 
 In this section, you'll complete the following steps to connect SonarQube and GitHub with a GitHub App:
 
@@ -136,7 +138,7 @@ Navigate to **Administration > Configuration > General Settings > ALM Integratio
 Now, from the login page, your users can connect their GitHub accounts with the new "Log in with GitHub" button.
 
 ### Creating a dedicated app for authentication
-If you're using Community Edition or you want to use a dedicated app for GitHub authentication, you can create a GitHub OAuth app. You'll find general instructions for creating a GitHub OAuth App [here](https://docs.github.com/en/free-pro-team@latest/developers/apps/creating-an-oauth-app). Specify the following settings in your OAuth App:
+If you want to use a dedicated app for GitHub authentication, you can create a GitHub OAuth app. You'll find general instructions for creating a GitHub OAuth App [here](https://docs.github.com/en/free-pro-team@latest/developers/apps/creating-an-oauth-app). Specify the following settings in your OAuth App:
 
 - **Homepage URL** – the public URL of your SonarQube server. For example, `https://sonarqube.mycompany.com`. For security reasons, HTTP is not supported, and you must use HTTPS. The public URL is configured in SonarQube at **[Administration > General > Server base URL](/#sonarqube-admin#/admin/settings)**.
 - **Authorization callback URL** – your instance's base URL. For example, `https://yourinstance.sonarqube.com`.

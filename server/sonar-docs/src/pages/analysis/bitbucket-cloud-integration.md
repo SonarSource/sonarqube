@@ -16,7 +16,7 @@ SonarScanners running in Bitbucket Pipelines can automatically detect branches o
 ### Activating builds  
 Set up your build according to your SonarQube edition:
 
-- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by using the `branches.master` pipeline in your `bitbucket-pipelines.yml` file and not using the `pull-requests` pipeline.
+- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `branches` pipeline in your `bitbucket-pipelines.yml` file and not using the `pull-requests` pipeline.
 - **Developer Edition and above** – Bitbucket Pipelines can build specific branches and pull requests if you use the `branches` and `pull-requests` pipelines as shown in the example configurations below.
 
 ### Setting environment variables

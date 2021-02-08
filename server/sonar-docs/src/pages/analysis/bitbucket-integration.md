@@ -12,6 +12,9 @@ With this integration, you'll be able to:
 ## Prerequisites
 Integration with Bitbucket Server requires at least Bitbucket Server version 5.15.
 
+### Branch Analysis
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
+
 ## Importing your Bitbucket Server repositories into SonarQube
 Setting up the import of BitBucket Server repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Server repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration.
 
