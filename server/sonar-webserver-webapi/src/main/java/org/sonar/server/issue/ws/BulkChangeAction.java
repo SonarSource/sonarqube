@@ -187,7 +187,8 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("security,java8")
       .setDeprecatedKey("remove_tags.tags", "6.2");
     action.createParam(PARAM_COMMENT)
-      .setDescription("To add a comment to a list of issues")
+      .setDescription("Add a comment. "
+        + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
       .setExampleValue("Here is my comment");
     action.createParam(PARAM_SEND_NOTIFICATIONS)
       .setSince("4.0")
