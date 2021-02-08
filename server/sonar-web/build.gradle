@@ -63,7 +63,7 @@ yarn_audit {
   dependsOn(yarn)
 }
 
-def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
+def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "__mocks__")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources

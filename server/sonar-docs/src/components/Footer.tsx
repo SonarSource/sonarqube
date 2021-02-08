@@ -32,7 +32,7 @@ export default function Footer() {
           src="https://licensebuttons.net/l/by-nc/3.0/us/88x31.png"
         />
       </a>
-      © 2008-2020, SonarSource S.A, Switzerland. Except where otherwise noted, content in this space
+      © 2008-2021, SonarSource S.A, Switzerland. Except where otherwise noted, content in this space
       is licensed under a{' '}
       <a
         href="https://creativecommons.org/licenses/by-nc/3.0/us/"
