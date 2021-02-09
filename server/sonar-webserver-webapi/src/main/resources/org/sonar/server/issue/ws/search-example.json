@@ -9,11 +9,11 @@
       "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
       "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
       "project": "com.github.kevinsawicki:http-request",
-      "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+      "rule": "java:S1144",
       "status": "RESOLVED",
-      "resolution": "FALSE-POSITIVE",
-      "severity": "MINOR",
-      "message": "'3' is a magic number.",
+      "resolution": "WONTFIX",
+      "severity": "MAJOR",
+      "message": "Remove this unused private \"getKee\" method.",
       "line": 81,
       "hash": "a227e508d6646b55a086ee11d63b21e9",
       "author": "Developer 1",
@@ -23,13 +23,13 @@
       "tags": [
         "bug"
       ],
-      "type": "RELIABILITY",
+      "type": "CODE_SMELL",
       "comments": [
         {
           "key": "7d7c56f5-7b5a-41b9-87f8-36fa70caa5ba",
           "login": "john.smith",
-          "htmlText": "Must be &quot;final&quot;!",
-          "markdown": "Must be \"final\"!",
+          "htmlText": "Must be &quot;public&quot;!",
+          "markdown": "Must be \"public\"!",
           "updatable": false,
           "createdAt": "2013-05-13T18:08:34+0200"
         }
@@ -38,9 +38,7 @@
         "jira-issue-key": "SONAR-1234"
       },
       "transitions": [
-        "unconfirm",
-        "resolve",
-        "falsepositive"
+        "reopen"
       ],
       "actions": [
         "comment"
@@ -100,8 +98,8 @@
   ],
   "rules": [
     {
-      "key": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-      "name": "Magic Number",
+      "key": "java:S1144",
+      "name": "Unused \"private\" methods should be removed",
       "status": "READY",
       "lang": "java",
       "langName": "Java"
