@@ -50,7 +50,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
@@ -79,6 +81,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -320,8 +323,15 @@ public class SearchAction implements HotspotsWsAction {
       String projectUuid = firstNonNull(project.getMainBranchProjectUuid(), project.uuid());
       if (Qualifiers.APP.equals(project.qualifier())) {
         builder.viewUuids(singletonList(projectUuid));
+        addCreatedAfterByProjects(builder, dbSession, wsRequest, project);
       } else {
         builder.projectUuids(singletonList(projectUuid));
+        if (wsRequest.isSinceLeakPeriod() && !wsRequest.getPullRequest().isPresent()) {
+          Date sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid())
+            .map(s -> longToDate(s.getPeriodDate()))
+            .orElseGet(() -> new Date(system2.now()));
+          builder.createdAfter(sinceDate, false);
+        }
       }
 
       if (project.getMainBranchProjectUuid() == null) {
@@ -329,13 +339,6 @@ public class SearchAction implements HotspotsWsAction {
       } else {
         builder.branchUuid(project.uuid());
         builder.mainBranch(false);
-      }
-
-      if (wsRequest.isSinceLeakPeriod() && !wsRequest.getPullRequest().isPresent()) {
-        Date sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid())
-          .map(s -> longToDate(s.getPeriodDate()))
-          .orElseGet(() -> new Date(system2.now()));
-        builder.createdAfter(sinceDate, false);
       }
     }
 
@@ -366,9 +369,24 @@ public class SearchAction implements HotspotsWsAction {
     return issueIndex.search(query, searchOptions);
   }
 
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, WsRequest wsRequest, ComponentDto application) {
+    if (!wsRequest.isSinceLeakPeriod() || wsRequest.getPullRequest().isPresent()) {
+      return;
+    }
+
+    Set<String> projectUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, application.uuid()).stream()
+      .map(ProjectDto::getUuid)
+      .collect(Collectors.toSet());
+    long now = system2.now();
+    Map<String, IssueQuery.PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s ->
+        new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+
+    builder.createdAfterByProjectUuids(leakByProjects);
+  }
+
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {
-    Set<String> componentKeys = searchResponseData.getOrderedHotspots()
-      .stream()
+    Set<String> componentKeys = searchResponseData.getOrderedHotspots().stream()
       .flatMap(hotspot -> Stream.of(hotspot.getComponentKey(), hotspot.getProjectKey()))
       .collect(Collectors.toSet());
     if (!componentKeys.isEmpty()) {
