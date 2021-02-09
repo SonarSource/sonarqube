@@ -89,7 +89,8 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
 
   @Override
   public Optional<String> getReturnTo(HttpServletRequest request) {
-    return getParameter(request, RETURN_TO_PARAMETER);
+    return getParameter(request, RETURN_TO_PARAMETER)
+      .flatMap(OAuth2AuthenticationParametersImpl::sanitizeRedirectUrl);
   }
 
   @Override
