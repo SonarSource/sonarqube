@@ -50,9 +50,7 @@ After you've set up SonarQube to import your Bitbucket Server repositories as sh
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
 ### Adding pull request decoration to a manually created or existing project
-To add pull request decoration to a manually created or existing project, after you've updated your global ALM Integration settings as shown above, set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
-
-From here, set your:
+To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are configured as shown in the **Importing your Bitbucket Server repositories into SonarQube** section above, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**:
 
 - **Configuration name** – The configuration name that corresponds to your ALM instance.
 - **Project Key** – the project key is part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
@@ -63,20 +61,19 @@ From here, set your:
 [[collapse]]
 | ## Adding pull request decoration to projects that are part of a mono repository
 |
-| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same repository. You'll need to set up pull request decoration for each SonarQube project.
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same BitBucket Server repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
 |
-| In Developer Edition, analyzing a pull request for a project that is part of a mono repository will override the current pull request decoration even if you're analyzing a different project.
+| Pull request decoration for a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html). Decorating pull requests in Developer Edition might lead to unexpected behavior.
 |
-| In [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and above, you can show pull request decoration for multiple projects simultaneously.
+| To add pull request decoration to a project that's part of a mono repository, set your project up manually as shown in the **Adding pull request decoration to a manually created or existing project** above. You also need to set the **Enable mono repository support** setting to true.
 |
-| To do this, set your global ALM Integration settings as shown in the **Importing your Bitbucket Server repositories into SonarQube** section above, and set your project settings at **Project Settings > General Settings > Pull Request Decoration**.
+| After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
 |
-| From here, set your:
+| ### Ensuring the correct project is analyzed
+| You need to adjust the analysis scope to make sure SonarQube doesn't analyze code from other projects in your mono repository. To do this set up a **Source File Inclusion** for your  project at **Project Settings > Analysis Scope** with a pattern that will only include files from the appropriate folder. For example, adding `./MyFolderName/**/*` to your inclusions would only include analysis of code in the `MyFolderName` folder. See [Narrowing the Focus](/project-administration/narrowing-the-focus/) for more information on setting your analysis scope.
 |
-| - **Configuration name** – The configuration name that corresponds to your ALM instance.
-| - **Project Key** – Part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
-| - **Repo Slug** – Part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
-| - **Enable mono repository support** – (Enterprise Edition and above only) Set this to true  
+| ### Passing project names to the scanner
+| Because of the nature of a mono repository, SonarQube scanners might read all project names of your mono repository as identical. To avoid having multiple projects with the same name, you need to pass the `sonar.projectName` parameter to the scanner. For example, if you're using the Maven scanner, you would pass `mvn sonar:sonar -Dsonar.projectName=YourProjectName`.
 
 [[collapse]]
 | ## Configuring multiple ALM instances
