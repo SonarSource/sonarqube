@@ -22,56 +22,108 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-const CATEGORIES = [
-  {
-    category: 'global',
-    shortcuts: [
-      { keys: ['s'], action: 'search' },
-      { keys: ['?'], action: 'open_shortcuts' }
-    ]
-  },
-  {
-    category: 'code_page',
-    shortcuts: [
-      { keys: ['↑', '↓'], action: 'select_files' },
-      { keys: ['→'], action: 'open_file' },
-      { keys: ['←'], action: 'back' }
-    ]
-  },
-  {
-    category: 'issues_page',
-    shortcuts: [
-      { keys: ['↑', '↓'], action: 'navigate' },
-      { keys: ['→'], action: 'source_code' },
-      { keys: ['←'], action: 'back' },
-      { keys: ['alt', '+', '↑', '↓'], action: 'navigate_locations' },
-      { keys: ['alt', '+', '←', '→'], action: 'switch_flows' },
-      { keys: ['f'], action: 'transition' },
-      { keys: ['a'], action: 'assign' },
-      { keys: ['m'], action: 'assign_to_me' },
-      { keys: ['i'], action: 'severity' },
-      { keys: ['c'], action: 'comment' },
-      { keys: ['ctrl', '+', 'enter'], action: 'submit_comment' },
-      { keys: ['t'], action: 'tags' }
-    ]
-  },
-  {
-    category: 'measures_page',
-    shortcuts: [
-      { keys: ['↑', '↓'], action: 'select_files' },
-      { keys: ['→'], action: 'open_file' },
-      { keys: ['←'], action: 'back' }
-    ]
-  },
-  {
-    category: 'rules_page',
-    shortcuts: [
-      { keys: ['↑', '↓'], action: 'navigate' },
-      { keys: ['→'], action: 'rule_details' },
-      { keys: ['←'], action: 'back' }
-    ]
-  }
-];
+type Shortcuts = Array<{
+  category: string;
+  shortcuts: Array<{
+    keys: string[];
+    action: string;
+  }>;
+}>;
+
+const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
+  left: [
+    {
+      category: 'global',
+      shortcuts: [
+        { keys: ['s'], action: 'search' },
+        { keys: ['?'], action: 'open_shortcuts' }
+      ]
+    },
+    {
+      category: 'issues_page',
+      shortcuts: [
+        { keys: ['↑', '↓'], action: 'navigate' },
+        { keys: ['→'], action: 'source_code' },
+        { keys: ['←'], action: 'back' },
+        { keys: ['alt', '+', '↑', '↓'], action: 'navigate_locations' },
+        { keys: ['alt', '+', '←', '→'], action: 'switch_flows' },
+        { keys: ['f'], action: 'transition' },
+        { keys: ['a'], action: 'assign' },
+        { keys: ['m'], action: 'assign_to_me' },
+        { keys: ['i'], action: 'severity' },
+        { keys: ['c'], action: 'comment' },
+        { keys: ['ctrl', '+', 'enter'], action: 'submit_comment' },
+        { keys: ['t'], action: 'tags' }
+      ]
+    }
+  ],
+  right: [
+    {
+      category: 'code_page',
+      shortcuts: [
+        { keys: ['↑', '↓'], action: 'select_files' },
+        { keys: ['→'], action: 'open_file' },
+        { keys: ['←'], action: 'back' }
+      ]
+    },
+    {
+      category: 'measures_page',
+      shortcuts: [
+        { keys: ['↑', '↓'], action: 'select_files' },
+        { keys: ['→'], action: 'open_file' },
+        { keys: ['←'], action: 'back' }
+      ]
+    },
+    {
+      category: 'rules_page',
+      shortcuts: [
+        { keys: ['↑', '↓'], action: 'navigate' },
+        { keys: ['→'], action: 'rule_details' },
+        { keys: ['←'], action: 'back' }
+      ]
+    }
+  ]
+};
+
+function renderShortcuts(list: Shortcuts) {
+  return (
+    <>
+      {list.map(({ category, shortcuts }) => (
+        <div key={category} className="spacer-bottom">
+          <h3 className="null-spacer-top">{translate('keyboard_shortcuts', category, 'title')}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>{translate('keyboard_shortcuts.shortcut')}</th>
+                <th>{translate('keyboard_shortcuts.action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shortcuts.map(({ action, keys }) => (
+                <tr key={action}>
+                  <td>
+                    {keys.map(k =>
+                      k === '+' ? (
+                        <span key={k} className="little-spacer-right">
+                          {k}
+                        </span>
+                      ) : (
+                        <code key={k} className="little-spacer-right">
+                          {k}
+                        </code>
+                      )
+                    )}
+                  </td>
+                  <td>{translate('keyboard_shortcuts', category, action)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </>
+  );
+}
 
 export default function KeyboardShortcutsModal() {
   const [display, setDisplay] = React.useState(false);
@@ -108,40 +160,9 @@ export default function KeyboardShortcutsModal() {
         <h2>{title}</h2>
       </div>
 
-      <div className="modal-body modal-container markdown display-flex-wrap display-flex-space-between">
-        {CATEGORIES.map(({ category, shortcuts }) => (
-          <div key={category} className="spacer-right">
-            <h3>{translate('keyboard_shortcuts', category, 'title')}</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>{translate('keyboard_shortcuts.shortcut')}</th>
-                  <th>{translate('keyboard_shortcuts.action')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shortcuts.map(({ action, keys }) => (
-                  <tr key={action}>
-                    <td>
-                      {keys.map(k =>
-                        k === '+' ? (
-                          <span key={k} className="little-spacer-right">
-                            {k}
-                          </span>
-                        ) : (
-                          <code key={k} className="little-spacer-right">
-                            {k}
-                          </code>
-                        )
-                      )}
-                    </td>
-                    <td>{translate('keyboard_shortcuts', category, action)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+      <div className="modal-body modal-container markdown display-flex-start shortcuts-modal">
+        <div className="flex-1">{renderShortcuts(CATEGORIES.left)}</div>
+        <div className="flex-1 huge-spacer-left">{renderShortcuts(CATEGORIES.right)}</div>
       </div>
 
       <div className="modal-foot">

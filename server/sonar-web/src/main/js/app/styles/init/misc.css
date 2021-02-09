@@ -56,6 +56,10 @@ th.hide-overflow {
   margin-top: 1px;
 }
 
+.null-spacer-top {
+  margin-top: 0 !important;
+}
+
 .spacer {
   margin: 8px !important;
 }
