@@ -118,7 +118,6 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
                 <input className="hidden" name="old-password-fake" type="password" />
                 <input
                   id="old-user-password"
-                  maxLength={50}
                   name="old-password"
                   onChange={this.handleOldPasswordChange}
                   required={true}
@@ -136,7 +135,6 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
               <input className="hidden" name="password-fake" type="password" />
               <input
                 id="user-password"
-                maxLength={50}
                 name="password"
                 onChange={this.handleNewPasswordChange}
                 required={true}
@@ -153,7 +151,6 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
               <input className="hidden" name="confirm-password-fake" type="password" />
               <input
                 id="confirm-user-password"
-                maxLength={50}
                 name="confirm-password"
                 onChange={this.handleConfirmPasswordChange}
                 required={true}

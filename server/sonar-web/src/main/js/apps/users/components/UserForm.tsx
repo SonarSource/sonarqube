@@ -230,7 +230,6 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   <input className="hidden" name="password-fake" type="password" />
                   <input
                     id="create-user-password"
-                    maxLength={50}
                     name="password"
                     onChange={this.handlePasswordChange}
                     required={true}

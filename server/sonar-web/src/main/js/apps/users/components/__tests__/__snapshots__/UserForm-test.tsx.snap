@@ -242,7 +242,6 @@ exports[`should render correctly 2`] = `
         />
         <input
           id="create-user-password"
-          maxLength={50}
           name="password"
           onChange={[Function]}
           required={true}
