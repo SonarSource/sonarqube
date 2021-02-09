@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import { keyBy } from 'lodash';
 import * as React from 'react';
+import OriginalBubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
 import { mockComponentMeasure, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import { enhanceComponent } from '../../utils';
@@ -36,16 +37,35 @@ const metrics = keyBy(
 );
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({
+      components: [
+        enhanceComponent(
+          mockComponentMeasure(true, {
+            measures: [
+              mockMeasure({ value: '0', metric: MetricKey.ncloc }),
+              mockMeasure({ value: '0', metric: MetricKey.security_remediation_effort }),
+              mockMeasure({ value: '0', metric: MetricKey.vulnerabilities }),
+              mockMeasure({ value: '0', metric: MetricKey.security_rating })
+            ]
+          }),
+          metrics[MetricKey.vulnerabilities],
+          metrics
+        )
+      ]
+    })
+  ).toMatchSnapshot('all on x=0');
 });
 
 it('should handle filtering', () => {
   const wrapper = shallowRender();
+  expect(wrapper.find(OriginalBubbleChart).props().items).toHaveLength(1);
 
   wrapper.instance().handleRatingFilterClick(2);
 
   expect(wrapper.state().ratingFilters).toEqual({ 2: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find(OriginalBubbleChart).props().items).toHaveLength(0);
 });
 
 function shallowRender(overrides: Partial<BubbleChart['props']> = {}) {

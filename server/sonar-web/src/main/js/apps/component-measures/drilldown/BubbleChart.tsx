@@ -147,6 +147,14 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     const formatXTick = (tick: string | number | undefined) => formatMeasure(tick, metrics.x.type);
     const formatYTick = (tick: string | number | undefined) => formatMeasure(tick, metrics.y.type);
 
+    let xDomain: [number, number] | undefined;
+    if (items.reduce((acc, item) => acc + item.x, 0) === 0) {
+      // All items are on the 0 axis. This won't display the grid on the X axis,
+      // which can make the graph a little hard to read. Force the display of
+      // the X grid.
+      xDomain = [0, 100];
+    }
+
     return (
       <OriginalBubbleChart<T.ComponentMeasureEnhanced>
         formatXTick={formatXTick}
@@ -156,6 +164,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
         onBubbleClick={this.handleBubbleClick}
         padding={[25, 60, 50, 60]}
         yDomain={getBubbleYDomain(this.props.domain)}
+        xDomain={xDomain}
       />
     );
   }

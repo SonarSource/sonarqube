@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should handle filtering 1`] = `
+exports[`should render correctly: all on x=0 1`] = `
 <div
   className="measure-overview-bubble-chart"
 >
@@ -35,11 +35,7 @@ exports[`should handle filtering 1`] = `
       </span>
       <ColorRatingsLegend
         className="spacer-top"
-        filters={
-          Object {
-            "2": true,
-          }
-        }
+        filters={Object {}}
         onRatingClick={[Function]}
       />
     </span>
@@ -55,7 +51,113 @@ exports[`should handle filtering 1`] = `
       formatXTick={[Function]}
       formatYTick={[Function]}
       height={500}
-      items={Array []}
+      items={
+        Array [
+          Object {
+            "color": undefined,
+            "data": Object {
+              "key": "foo:src/index.tsx",
+              "leak": "1.0",
+              "measures": Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "ncloc",
+                    "key": "ncloc",
+                    "name": "Ncloc",
+                    "type": "NUMBER",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "security_remediation_effort",
+                    "key": "security_remediation_effort",
+                    "name": "Security_remediation_effort",
+                    "type": "NUMBER",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "vulnerabilities",
+                    "key": "vulnerabilities",
+                    "name": "Vulnerabilities",
+                    "type": "NUMBER",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "0",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "security_rating",
+                    "key": "security_rating",
+                    "name": "Security_rating",
+                    "type": "RATING",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "0",
+                },
+              ],
+              "name": "index.tsx",
+              "path": "src/index.tsx",
+              "qualifier": "FIL",
+              "value": "0",
+            },
+            "size": 0,
+            "tooltip": <div
+              className="text-left"
+            >
+              <React.Fragment>
+                index.tsx
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Ncloc: 0
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Security_remediation_effort: 0
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Vulnerabilities: 0
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Security_rating: \`
+              </React.Fragment>
+            </div>,
+            "x": 0,
+            "y": 0,
+          },
+        ]
+      }
       onBubbleClick={[Function]}
       padding={
         Array [
@@ -69,6 +171,12 @@ exports[`should handle filtering 1`] = `
         Array [
           5,
           45,
+        ]
+      }
+      xDomain={
+        Array [
+          0,
+          100,
         ]
       }
     />
@@ -86,7 +194,7 @@ exports[`should handle filtering 1`] = `
 </div>
 `;
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <div
   className="measure-overview-bubble-chart"
 >
