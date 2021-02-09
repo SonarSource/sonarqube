@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -292,6 +293,120 @@ public class IssueIndexSecurityReportsTest {
         tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 1));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
+  }
+
+  @Test
+  public void getCWETop25Report_aggregation() {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDoc("openvul", project).setCwe(asList("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("notopenvul", project).setCwe(asList("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER),
+      newDoc("toreviewhotspot", project).setCwe(asList("89")).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("only2020", project).setCwe(asList("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("unknown", project).setCwe(asList("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR));
+
+    List<SecurityStandardCategoryStatistics> cweTop25Reports = underTest.getCweTop25Reports(project.uuid(), false);
+
+    SecurityStandardCategoryStatistics cwe2019 = cweTop25Reports.get(0);
+    assertThat(cwe2019.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2019, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(1L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2019, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2019, "862")).isNull();
+    assertThat(findRuleInCweByYear(cwe2019, "999")).isNull();
+
+    SecurityStandardCategoryStatistics cwe2020 = cweTop25Reports.get(1);
+    assertThat(cwe2020.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2020, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(1L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "862")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(1L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "999")).isNull();
+  }
+
+  @Test
+  public void getCWETop25Report_aggregation_on_portfolio() {
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    indexIssues(
+      newDoc("openvul1", project1).setCwe(asList("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project2).setCwe(asList("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("toreviewhotspot", project1).setCwe(asList("89")).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("only2020", project2).setCwe(asList("862")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("unknown", project2).setCwe(asList("999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR));
+
+    indexView(application.uuid(), asList(project1.uuid(), project2.uuid()));
+
+    List<SecurityStandardCategoryStatistics> cweTop25Reports = underTest.getCweTop25Reports(application.uuid(), true);
+
+    SecurityStandardCategoryStatistics cwe2019 = cweTop25Reports.get(0);
+    assertThat(cwe2019.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2019, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(2L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2019, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2019, "862")).isNull();
+    assertThat(findRuleInCweByYear(cwe2019, "999")).isNull();
+
+    SecurityStandardCategoryStatistics cwe2020 = cweTop25Reports.get(1);
+    assertThat(cwe2020.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2020, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(2L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "862")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(1L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2020, "999")).isNull();
+  }
+
+  private SecurityStandardCategoryStatistics findRuleInCweByYear(SecurityStandardCategoryStatistics statistics, String cweId) {
+    return statistics.getChildren().stream().filter(stat -> stat.getCategory().equals(cweId)).findAny().orElse(null);
   }
 
   private void indexIssues(IssueDoc... issues) {

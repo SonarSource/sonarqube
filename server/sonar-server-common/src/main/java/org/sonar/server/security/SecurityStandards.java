@@ -22,8 +22,10 @@ package org.sonar.server.security;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,18 +72,18 @@ public final class SecurityStandards {
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
   // https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html
-  private static final Set<String> CWE_TOP25_2019 = new HashSet<>(
-    asList("119", "79", "20", "200", "125", "89", "416", "190", "352",
+  public static final List<String> CWE_TOP25_2019 =
+    Collections.unmodifiableList(asList("119", "79", "20", "200", "125", "89", "416", "190", "352",
       "22", "78", "787", "287", "476", "732", "434", "611", "94",
       "798", "400", "772", "426", "502", "269", "295"));
 
   // https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html
-  private static final Set<String> CWE_TOP25_2020 = new HashSet<>(
-    asList("79", "787", "20", "125", "119", "89", "200", "416", "352",
+  public static final List<String> CWE_TOP25_2020 =
+    Collections.unmodifiableList(asList("79", "787", "20", "125", "119", "89", "200", "416", "352",
       "78", "190", "22", "476", "287", "434", "732", "94", "522",
       "611", "798", "502", "269", "400", "306", "862"));
 
-  public static final Map<String, Set<String>> CWES_BY_CWE_TOP_25 = ImmutableMap.of(
+  public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = ImmutableMap.of(
     "2019", CWE_TOP25_2019,
     "2020", CWE_TOP25_2020);
 

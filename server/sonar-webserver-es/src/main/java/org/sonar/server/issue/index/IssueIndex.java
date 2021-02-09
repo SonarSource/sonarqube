@@ -33,6 +33,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -166,6 +167,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULN
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
+import static org.sonar.server.security.SecurityStandards.CWES_BY_CWE_TOP_25;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
@@ -1016,19 +1018,32 @@ public class IssueIndex {
       .forEach(sansCategory -> request.aggregation(newSecurityReportSubAggregations(
         AggregationBuilders.filter(sansCategory, boolQuery().filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory))),
         includeCwe,
-        Optional.ofNullable(SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory)))));
+        SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
-  public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String uuid, boolean isViewOrApp) {
-    // TODO:: Mock data - SONAR-14447 elasticsearch query
-    return Arrays.asList(
-      new SecurityStandardCategoryStatistics("2019", 1, OptionalInt.empty(), 10, 5, 10,
-        SecurityStandards.CWES_BY_CWE_TOP_25.get("2019").stream().map(cwe -> new SecurityStandardCategoryStatistics(cwe, 1, OptionalInt.empty(), 1, 3, 2, null))
-          .collect(toList())),
-      new SecurityStandardCategoryStatistics("2020", 0, OptionalInt.empty(), 9, 5, 10,
-        SecurityStandards.CWES_BY_CWE_TOP_25.get("2020").stream().map(cwe -> new SecurityStandardCategoryStatistics(cwe, 1, OptionalInt.empty(), 1, 3, 4, null))
-          .collect(toList())));
+  public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {
+    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    CWES_BY_CWE_TOP_25.keySet()
+      .forEach(cweYear -> request.aggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(cweYear, boolQuery().filter(existsQuery(FIELD_ISSUE_CWE))),
+          true,
+          CWES_BY_CWE_TOP_25.get(cweYear))));
+    List<SecurityStandardCategoryStatistics> result = processSecurityReportSearchResults(request, true);
+    for (SecurityStandardCategoryStatistics cweReport : result) {
+      Set<String> foundRules = cweReport.getChildren().stream()
+        .map(SecurityStandardCategoryStatistics::getCategory)
+        .collect(Collectors.toSet());
+      CWES_BY_CWE_TOP_25.get(cweReport.getCategory()).stream()
+        .filter(rule -> !foundRules.contains(rule))
+        .forEach(rule -> cweReport.getChildren().add(emptyCweStatistics(rule)));
+    }
+    return result;
+  }
+
+  private static SecurityStandardCategoryStatistics emptyCweStatistics(String rule) {
+    return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null);
   }
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
@@ -1038,7 +1053,7 @@ public class IssueIndex {
         newSecurityReportSubAggregations(
           AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY, sonarsourceCategory.getKey()))),
           includeCwe,
-          Optional.ofNullable(SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory)))));
+          SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory))));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
@@ -1049,7 +1064,7 @@ public class IssueIndex {
         newSecurityReportSubAggregations(
           AggregationBuilders.filter(owaspCategory, boolQuery().filter(termQuery(FIELD_ISSUE_OWASP_TOP_10, owaspCategory))),
           includeCwe,
-          Optional.empty())));
+          null)));
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
@@ -1095,16 +1110,16 @@ public class IssueIndex {
       reviewedSecurityHotspots, securityReviewRating, children);
   }
 
-  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, Optional<Set<String>> cwesInCategory) {
+  private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, @Nullable Collection<String> cwesInCategory) {
     AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
     if (includeCwe) {
       final TermsAggregationBuilder cwesAgg = AggregationBuilders.terms(AGG_CWES)
         .field(FIELD_ISSUE_CWE)
         // 100 should be enough to display all CWEs. If not, the UI will be broken anyway
         .size(MAX_FACET_SIZE);
-      cwesInCategory.ifPresent(set -> {
-        cwesAgg.includeExclude(new IncludeExclude(set.toArray(new String[0]), new String[0]));
-      });
+      if (cwesInCategory != null) {
+        cwesAgg.includeExclude(new IncludeExclude(cwesInCategory.toArray(new String[0]), new String[0]));
+      }
       categoriesAggs.subAggregation(addSecurityReportIssueCountAggregations(cwesAgg));
     }
     return aggregationBuilder;
