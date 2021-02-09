@@ -137,7 +137,7 @@ public class PluginJarLoader {
     Set<String> removedKeys = new HashSet<>();
     do {
       removedKeys.clear();
-      for (PluginInfo plugin : pluginsByKey.values()) {
+      for (ServerPluginInfo plugin : pluginsByKey.values()) {
         if (!isCompatible(plugin, pluginsByKey)) {
           removedKeys.add(plugin.getKey());
         }
@@ -149,11 +149,16 @@ public class PluginJarLoader {
   }
 
   @VisibleForTesting
-  static boolean isCompatible(PluginInfo plugin, Map<String, ServerPluginInfo> allPluginsByKeys) {
+  static boolean isCompatible(ServerPluginInfo plugin, Map<String, ServerPluginInfo> allPluginsByKeys) {
     if (!Strings.isNullOrEmpty(plugin.getBasePlugin()) && !allPluginsByKeys.containsKey(plugin.getBasePlugin())) {
       // it extends a plugin that is not installed
       LOG.warn("Plugin {} [{}] is ignored because its base plugin [{}] is not installed", plugin.getName(), plugin.getKey(), plugin.getBasePlugin());
       return false;
+    }
+
+    if (plugin.getType() != BUNDLED && !plugin.getRequiredPlugins().isEmpty()) {
+      LOG.warn("Use of 'Plugin-Dependencies' mechanism is planned for removal. Update the plugin {} [{}] to shade its dependencies instead.",
+        plugin.getName(), plugin.getKey());
     }
 
     for (PluginInfo.RequiredPlugin requiredPlugin : plugin.getRequiredPlugins()) {
