@@ -41,12 +41,11 @@ import static org.mockito.Mockito.when;
 public class OAuth2AuthenticationParametersImplTest {
 
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
-  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private final ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
 
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-
-  private OAuth2AuthenticationParameters underTest = new OAuth2AuthenticationParametersImpl();
+  private final OAuth2AuthenticationParameters underTest = new OAuth2AuthenticationParametersImpl();
 
   @Before
   public void setUp() throws Exception {
@@ -100,27 +99,24 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   @DataProvider({"http://example.com", "/\t/example.com", "//local_file", "/\\local_file", "something_else"})
-  public void return_to_is_not_set_when_not_local(String url) {
+  public void get_return_to_is_not_set_when_not_local(String url) {
     when(request.getParameter("return_to")).thenReturn(url);
 
-    underTest.init(request, response);
-
-    verify(response, never()).addCookie(any());
+    assertThat(underTest.getReturnTo(request)).isEmpty();
   }
 
   @Test
   public void get_return_to_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
-    assertThat(redirection).isNotEmpty();
-    assertThat(redirection.get()).isEqualTo("/settings");
+    assertThat(redirection).contains("/settings");
   }
 
   @Test
   public void get_return_to_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {});
+    when(request.getCookies()).thenReturn(new Cookie[]{});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -129,7 +125,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -138,7 +134,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_allowEmailShift_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"allowEmailShift\":\"true\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"allowEmailShift\":\"true\"}")});
 
     Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
 
@@ -148,7 +144,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_allowEmailShift_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {});
+    when(request.getCookies()).thenReturn(new Cookie[]{});
 
     Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
 
@@ -157,7 +153,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_allowEmailShift_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
 
@@ -176,7 +172,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void getAllowUpdateLogin_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {});
+    when(request.getCookies()).thenReturn(new Cookie[]{});
 
     Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
 
@@ -185,7 +181,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void getAllowUpdateLogin_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
 
@@ -194,7 +190,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
     underTest.delete(request, response);
 
