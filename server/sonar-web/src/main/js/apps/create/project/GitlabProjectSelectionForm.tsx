@@ -101,7 +101,17 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                 <td>
                   <Tooltip overlay={project.slug}>
                     <strong className="project-name display-inline-block text-ellipsis">
-                      {project.name}
+                      {project.sqProjectKey ? (
+                        <Link to={getProjectUrl(project.sqProjectKey)}>
+                          <QualifierIcon
+                            className="spacer-right"
+                            qualifier={ComponentQualifier.Project}
+                          />
+                          {project.sqProjectName}
+                        </Link>
+                      ) : (
+                        project.name
+                      )}
                     </strong>
                   </Tooltip>
                   <br />
@@ -122,27 +132,14 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                   </a>
                 </td>
                 {project.sqProjectKey ? (
-                  <>
-                    <td>
-                      <span className="display-flex-center display-flex-justify-end already-set-up">
-                        <CheckIcon className="little-spacer-right" size={12} />
-                        {translate('onboarding.create_project.repository_imported')}:
-                      </span>
-                    </td>
-                    <td>
-                      <div className="sq-project-link text-ellipsis">
-                        <Link to={getProjectUrl(project.sqProjectKey)}>
-                          <QualifierIcon
-                            className="spacer-right"
-                            qualifier={ComponentQualifier.Project}
-                          />
-                          {project.sqProjectName}
-                        </Link>
-                      </div>
-                    </td>
-                  </>
+                  <td>
+                    <span className="display-flex-center display-flex-justify-end already-set-up">
+                      <CheckIcon className="little-spacer-right" size={12} />
+                      {translate('onboarding.create_project.repository_imported')}
+                    </span>
+                  </td>
                 ) : (
-                  <td colSpan={2} className="text-right">
+                  <td className="text-right">
                     <Button
                       disabled={!!importingGitlabProjectId}
                       onClick={() => props.onImport(project.id)}>

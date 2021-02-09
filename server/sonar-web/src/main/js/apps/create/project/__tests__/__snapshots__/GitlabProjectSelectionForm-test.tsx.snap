@@ -55,7 +55,6 @@ exports[`should render correctly: importing 1`] = `
         </td>
         <td
           className="text-right"
-          colSpan={2}
         >
           <Button
             disabled={true}
@@ -75,7 +74,25 @@ exports[`should render correctly: importing 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              Awesome Project !
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "already-imported",
+                    },
+                  }
+                }
+              >
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier="TRK"
+                />
+                Already Imported
+              </Link>
             </strong>
           </Tooltip>
           <br />
@@ -111,33 +128,7 @@ exports[`should render correctly: importing 1`] = `
               size={12}
             />
             onboarding.create_project.repository_imported
-            :
           </span>
-        </td>
-        <td>
-          <div
-            className="sq-project-link text-ellipsis"
-          >
-            <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "already-imported",
-                  },
-                }
-              }
-            >
-              <QualifierIcon
-                className="spacer-right"
-                qualifier="TRK"
-              />
-              Already Imported
-            </Link>
-          </div>
         </td>
       </tr>
     </tbody>
@@ -263,7 +254,6 @@ exports[`should render correctly: projects 1`] = `
         </td>
         <td
           className="text-right"
-          colSpan={2}
         >
           <Button
             disabled={false}
@@ -283,7 +273,25 @@ exports[`should render correctly: projects 1`] = `
             <strong
               className="project-name display-inline-block text-ellipsis"
             >
-              Awesome Project !
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "already-imported",
+                    },
+                  }
+                }
+              >
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier="TRK"
+                />
+                Already Imported
+              </Link>
             </strong>
           </Tooltip>
           <br />
@@ -319,33 +327,7 @@ exports[`should render correctly: projects 1`] = `
               size={12}
             />
             onboarding.create_project.repository_imported
-            :
           </span>
-        </td>
-        <td>
-          <div
-            className="sq-project-link text-ellipsis"
-          >
-            <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/dashboard",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "already-imported",
-                  },
-                }
-              }
-            >
-              <QualifierIcon
-                className="spacer-right"
-                qualifier="TRK"
-              />
-              Already Imported
-            </Link>
-          </div>
         </td>
       </tr>
     </tbody>
