@@ -180,7 +180,7 @@ select {
 }
 
 .input-code {
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: var(--sourceCodeFontFamily);
   font-size: var(--smallFontSize);
 }
 

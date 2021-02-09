@@ -102,7 +102,7 @@ code,
 kbd,
 samp,
 tt {
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: var(--sourceCodeFontFamily);
   font-size: var(--smallFontSize);
   line-height: 18px;
 }

@@ -87,7 +87,7 @@
 .source-line-number,
 .source-line-scm {
   line-height: 18px;
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: var(--sourceCodeFontFamily);
   font-size: var(--smallFontSize);
 }
 

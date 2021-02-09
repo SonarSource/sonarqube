@@ -122,7 +122,7 @@
 .markdown pre,
 .rule-desc code,
 .markdown code {
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: var(--sourceCodeFontFamily);
   font-size: var(--smallFontSize);
 }
 
@@ -211,7 +211,7 @@ code.rule {
   border: 1px dashed #aaa;
   box-sizing: border-box;
   font-size: var(--smallFontSize);
-  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: var(--sourceCodeFontFamily);
 }
 
 .property blockquote,
