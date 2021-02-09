@@ -40,6 +40,6 @@ public class BranchCoverageRule extends AbstractCoverageRule {
   @Override
   protected String formatMessage(int effortToFix, double minCoverage) {
     // FIXME declare min threshold as int but not float ?
-    return format("%d more branches need to be covered by tests to reach the minimum threshold of %s%% branch coverage.", effortToFix, minCoverage);
+    return format("%d more conditions need to be covered by tests to reach the minimum threshold of %s%% condition coverage.", effortToFix, minCoverage);
   }
 }

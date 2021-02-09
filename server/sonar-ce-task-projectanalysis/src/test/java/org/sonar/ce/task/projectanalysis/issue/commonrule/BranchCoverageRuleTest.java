@@ -57,6 +57,6 @@ public class BranchCoverageRuleTest extends CoverageRuleTest {
 
   @Override
   protected String getExpectedIssueMessage() {
-    return "23 more branches need to be covered by tests to reach the minimum threshold of 65.0% branch coverage.";
+    return "23 more conditions need to be covered by tests to reach the minimum threshold of 65.0% condition coverage.";
   }
 }
