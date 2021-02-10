@@ -2,6 +2,15 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.7 Upgrade Notes  
+**JavaScript and TypeScript analysis now requires Node.js 10+**  
+In order to analyze JavaScript or TypeScript code, you now need to have Node.js 10+ installed on the machine running the scan.
+
+**Azure DevOps Service and BitBucket Cloud are now supported**  
+SonarQube now officially supports AzureDevOps Service and BitBucket Cloud. If you were running analysis using BitBucket Pipelines previously, when you upgrade, the Main branch name in your SonarQube project needs to match the branch name in your code repository to continue writing history to the branch. You may have to rename it before running analysis again.
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16540)  
+
 ## Release 8.6 Upgrade Notes  
 **Elasticsearch update and change in cluster configuration**  
 For non-DCE editions, the Elasticsearch upgrade doesn't change the configuration. SonarQube automatically binds to the loopback address an additional Elasticsearch port which can be configured optionally.  
