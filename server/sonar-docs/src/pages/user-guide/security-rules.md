@@ -24,8 +24,8 @@ With Hotspots, we want to help developers understand information security risks,
 ## Which security-standards are covered?
 Our security rules are classified according to well-established security-standards such as:
 * [CWE](https://cwe.mitre.org/): SonarQube is a CWE compatible product [since 2015](https://cwe.mitre.org/compatible/questionnaires/33.html).
-* [SANS Top 25](https://www.sans.org/top25-software-errors/)
-* [OWASP Top 10 ](https://www.owasp.org/index.php/Top_10-2017_Top_10)
+* [OWASP Top 10 ](https://www.owasp.org/index.php/Top_10-2017_Top_10))
+* [SANS Top 25 - outdated](https://www.sans.org/top25-software-errors/)
 
 The standards to which a rule relates will be listed in the **See** section at the bottom of the rule description. More generally, you can search for a rule on [rules.sonarsource.com](https://rules.sonarsource.com/):
 * [Java-vulnerability-issue-type](https://rules.sonarsource.com/java/type/Vulnerability): all vulnerability rules for Java language.

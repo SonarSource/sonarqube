@@ -6,7 +6,10 @@ url: /user-guide/security-reports/
 *Security Reports are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
 
 ## What do Security Reports show?
-Security Reports quickly give you the big picture on your application's security, with breakdowns of just where you stand in regard to each of the [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10), and [SANS Top 25](https://www.sans.org/top25-software-errors) categories, and [CWE](https://cwe.mitre.org/)-specific details.
+Security Reports quickly give you the big picture on your application's security, with breakdowns of just where you stand in regard to each of the [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10), both [CWE Top 25 2019](https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html) and [CWE Top 25 2020](https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html), and [CWE](https://cwe.mitre.org/) -specific details.
+
+[[warning]]
+| The SANS Top 25 report is based on outdated statistics and should no longer be used. Instead, we recommend using the CWE Top 25 reports.
 
 The Security Reports rely on the rules activated in your Quality Profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you will get no issues linked to that specific category and the rating displayed will be A. That won't mean you are safe for that category, but that you need to activate more rules (assuming some exist).
 
