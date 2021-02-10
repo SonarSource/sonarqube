@@ -62,6 +62,7 @@ The `RuleKey` value can be one of the following:
   * [S2091](https://rules.sonarsource.com/java/RSPEC-2091): XPath Injection
   * [S5135](https://rules.sonarsource.com/java/RSPEC-5135): Deserialization Injection
   * [S5334](https://rules.sonarsource.com/java/RSPEC-5334): Code Injection
+  * [S6096](https://rules.sonarsource.com/java/RSPEC-6096): Zip Slip
 * For PHP
   * [S3649](https://rules.sonarsource.com/php/RSPEC-3649): SQL Injection
   * [S5131](https://rules.sonarsource.com/php/RSPEC-5131): XSS
@@ -89,6 +90,8 @@ The `RuleKey` value can be one of the following:
   * [S2631](https://rules.sonarsource.com/csharp/RSPEC-2631): RegExp Injection
   * [S5144](https://rules.sonarsource.com/csharp/RSPEC-5144): Server-Side Request Forgery (SSRF)
   * [S2091](https://rules.sonarsource.com/csharp/RSPEC-2091): XPath Injection
+  * [S5334](https://rules.sonarsource.com/csharp/RSPEC-5334): Code Injection
+  * [S6096](https://rules.sonarsource.com/csharp/RSPEC-6096): Zip Slip
 * For Python
   * [S3649](https://rules.sonarsource.com/python/RSPEC-3649): SQL Injection
   * [S5131](https://rules.sonarsource.com/python/RSPEC-5131): XSS
