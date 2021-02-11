@@ -1339,6 +1339,28 @@ public class SearchActionTest {
   }
 
   @Test
+  public void returns_hotspots_with_specified_cwes() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDefinitionDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("cwe:117", "cwe:190")));
+    RuleDefinitionDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspTop10:a1", "cwe:601")));
+    insertHotspot(project, file, rule1);
+    IssueDto hotspot2 = insertHotspot(project, file, rule2);
+    insertHotspot(project, file, rule3);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project).setParam("cwe", "117,190")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot2.getKey());
+  }
+
+  @Test
   public void returns_hotspots_with_specified_owaspTop10_category() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);

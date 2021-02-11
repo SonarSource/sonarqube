@@ -106,6 +106,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_OWASP_TOP_10 = "owaspTop10";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  private static final String PARAM_CWE = "cwe";
 
   private static final List<String> STATUSES = ImmutableList.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
@@ -125,6 +126,48 @@ public class SearchAction implements HotspotsWsAction {
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.responseFormatter = responseFormatter;
     this.system2 = system2;
+  }
+
+  private static WsRequest toWsRequest(Request request) {
+    List<String> hotspotList = request.paramAsStrings(PARAM_HOTSPOTS);
+    Set<String> hotspotKeys = hotspotList != null ? ImmutableSet.copyOf(hotspotList) : ImmutableSet.of();
+    List<String> owaspTop10List = request.paramAsStrings(PARAM_OWASP_TOP_10);
+    Set<String> owaspTop10 = owaspTop10List != null ? ImmutableSet.copyOf(owaspTop10List) : ImmutableSet.of();
+    List<String> sansTop25List = request.paramAsStrings(PARAM_SANS_TOP_25);
+    Set<String> sansTop25 = sansTop25List != null ? ImmutableSet.copyOf(sansTop25List) : ImmutableSet.of();
+    List<String> sonarsourceSecurityList = request.paramAsStrings(PARAM_SONARSOURCE_SECURITY);
+    Set<String> sonarsourceSecurity = sonarsourceSecurityList != null ? ImmutableSet.copyOf(sonarsourceSecurityList) : ImmutableSet.of();
+    List<String> cwesList = request.paramAsStrings(PARAM_CWE);
+    Set<String> cwes = cwesList != null ? ImmutableSet.copyOf(cwesList) : ImmutableSet.of();
+
+    return new WsRequest(
+      request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
+      request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
+      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owaspTop10, sansTop25, sonarsourceSecurity, cwes);
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    WsRequest wsRequest = toWsRequest(request);
+    validateParameters(wsRequest);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkIfNeedIssueSync(dbSession, wsRequest);
+      Optional<ComponentDto> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
+      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project.orElse(null));
+      loadComponents(dbSession, searchResponseData);
+      loadRules(dbSession, searchResponseData);
+      writeProtobuf(formatResponse(searchResponseData), request, response);
+    }
+  }
+
+  private void checkIfNeedIssueSync(DbSession dbSession, WsRequest wsRequest) {
+    Optional<String> projectKey = wsRequest.getProjectKey();
+    if (projectKey.isPresent()) {
+      issueIndexSyncProgressChecker.checkIfComponentNeedIssueSync(dbSession, projectKey.get());
+    } else {
+      // component keys not provided - asking for global
+      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
+    }
   }
 
   @Override
@@ -185,48 +228,12 @@ public class SearchAction implements HotspotsWsAction {
         "' to select issues not associated with any category")
       .setSince("8.6")
       .setPossibleValues(Arrays.stream(SecurityStandards.SQCategory.values()).map(SecurityStandards.SQCategory::getKey).collect(Collectors.toList()));
+    action.createParam(PARAM_CWE)
+      .setDescription("Comma-separated list of CWE numbers")
+      .setExampleValue("89,434,352")
+      .setSince("8.8");
 
     action.setResponseExample(getClass().getResource("search-example.json"));
-  }
-
-  @Override
-  public void handle(Request request, Response response) throws Exception {
-    WsRequest wsRequest = toWsRequest(request);
-    validateParameters(wsRequest);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      checkIfNeedIssueSync(dbSession, wsRequest);
-      Optional<ComponentDto> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
-      SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project.orElse(null));
-      loadComponents(dbSession, searchResponseData);
-      loadRules(dbSession, searchResponseData);
-      writeProtobuf(formatResponse(searchResponseData), request, response);
-    }
-  }
-
-  private void checkIfNeedIssueSync(DbSession dbSession, WsRequest wsRequest) {
-    Optional<String> projectKey = wsRequest.getProjectKey();
-    if (projectKey.isPresent()) {
-      issueIndexSyncProgressChecker.checkIfComponentNeedIssueSync(dbSession, projectKey.get());
-    } else {
-      // component keys not provided - asking for global
-      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
-    }
-  }
-
-  private static WsRequest toWsRequest(Request request) {
-    List<String> hotspotList = request.paramAsStrings(PARAM_HOTSPOTS);
-    Set<String> hotspotKeys = hotspotList != null ? ImmutableSet.copyOf(hotspotList) : ImmutableSet.of();
-    List<String> owaspTop10List = request.paramAsStrings(PARAM_OWASP_TOP_10);
-    Set<String> owaspTop10 = owaspTop10List != null ? ImmutableSet.copyOf(owaspTop10List) : ImmutableSet.of();
-    List<String> sansTop25List = request.paramAsStrings(PARAM_SANS_TOP_25);
-    Set<String> sansTop25 = sansTop25List != null ? ImmutableSet.copyOf(sansTop25List) : ImmutableSet.of();
-    List<String> sonarsourceSecurityList = request.paramAsStrings(PARAM_SONARSOURCE_SECURITY);
-    Set<String> sonarsourceSecurity = sonarsourceSecurityList != null ? ImmutableSet.copyOf(sonarsourceSecurityList) : ImmutableSet.of();
-
-    return new WsRequest(
-      request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
-      request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owaspTop10, sansTop25, sonarsourceSecurity);
   }
 
   private void validateParameters(WsRequest wsRequest) {
@@ -363,6 +370,10 @@ public class SearchAction implements HotspotsWsAction {
       builder.sonarsourceSecurity(wsRequest.getSonarsourceSecurity());
     }
 
+    if (!wsRequest.getCwe().isEmpty()) {
+      builder.cwe(wsRequest.getCwe());
+    }
+
     IssueQuery query = builder.build();
     SearchOptions searchOptions = new SearchOptions()
       .setPage(wsRequest.page, wsRequest.index);
@@ -483,12 +494,14 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> owaspTop10;
     private final Set<String> sansTop25;
     private final Set<String> sonarsourceSecurity;
+    private final Set<String> cwe;
 
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod,
-      @Nullable Boolean onlyMine, Set<String> owaspTop10, Set<String> sansTop25, Set<String> sonarsourceSecurity) {
+      @Nullable Boolean onlyMine, Set<String> owaspTop10, Set<String> sansTop25, Set<String> sonarsourceSecurity,
+      Set<String> cwe) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -502,6 +515,7 @@ public class SearchAction implements HotspotsWsAction {
       this.owaspTop10 = owaspTop10;
       this.sansTop25 = sansTop25;
       this.sonarsourceSecurity = sonarsourceSecurity;
+      this.cwe = cwe;
     }
 
     int getPage() {
@@ -554,6 +568,10 @@ public class SearchAction implements HotspotsWsAction {
 
     public Set<String> getSonarsourceSecurity() {
       return sonarsourceSecurity;
+    }
+
+    public Set<String> getCwe() {
+      return cwe;
     }
   }
 
