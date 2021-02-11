@@ -114,9 +114,10 @@ Property | Description | Default | Required |
 
 ### Application nodes
 Property  | Description | Required 
----|---|---|---
+---|---|---
 `sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `sonar.cluster.node.host:sonar.cluster.node.port`.|yes
-`sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no|
+`sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster. If not specified, the first interface will be chosen (note that loopback interfaces won't be selected).|no
+`sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no
 `sonar.cluster.node.web.port`|The Hazelcast port for communication with the WebServer process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.node.ce.port`|The Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port, but not both. The item format is `sonar.cluster.node.search.host` for host only or`sonar.cluster.node.search.host:sonar.cluster.node.search.port` for host and port.| yes
