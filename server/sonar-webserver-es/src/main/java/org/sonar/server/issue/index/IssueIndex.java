@@ -52,7 +52,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
+import org.elasticsearch.search.aggregations.bucket.histogram.LongBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -808,7 +808,7 @@ public class IssueIndex {
           .format(DateUtils.DATETIME_FORMAT)
           .timeZone(Optional.ofNullable(query.timeZone()).orElse(system.getDefaultTimeZone().toZoneId()))
           // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-          .extendedBounds(new ExtendedBounds(startInclusive ? startTime : (startTime + 1), endTime - 1L));
+          .extendedBounds(new LongBounds(startInclusive ? startTime : (startTime + 1), endTime - 1L));
         addEffortAggregationIfNeeded(query, dateHistogram);
         t.subAggregation(dateHistogram);
       });
