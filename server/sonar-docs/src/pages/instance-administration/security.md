@@ -195,7 +195,7 @@ Go back to **[Administration > Configuration > Encryption](/#sonarqube-admin#/ad
 1. **Use the encrypted values in your SonarQube server configuration**  
 Simply copy these encrypted values into _$SONARQUBE-HOME/conf/sonar.properties_
 ```
-sonar.jdbc.password={aes}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
+sonar.jdbc.password={aes-gcm}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
 ...
 sonar.secretKeyPath=C:/path/to/my/secure/location/my_secret_key.txt
 ```

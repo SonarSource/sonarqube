@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+package org.sonar.api.config.internal;
 
-import com.google.common.io.Resources;
 import java.io.File;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import javax.crypto.BadPaddingException;
@@ -33,44 +33,56 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class AesCipherTest {
+public class AesECBCipherTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void encrypt() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
+  public void generateRandomSecretKey() {
+    AesECBCipher cipher = new AesECBCipher(null);
+
+    String key = cipher.generateRandomSecretKey();
+
+    assertThat(StringUtils.isNotBlank(key)).isTrue();
+    assertThat(Base64.isArrayByteBase64(key.getBytes())).isTrue();
+  }
+
+  @Test
+  public void encrypt() throws Exception {
+    AesECBCipher cipher = new AesECBCipher(pathToSecretKey());
 
     String encryptedText = cipher.encrypt("this is a secret");
 
     assertThat(StringUtils.isNotBlank(encryptedText)).isTrue();
-    assertThat(Base64.isBase64(encryptedText.getBytes())).isTrue();
+    assertThat(Base64.isArrayByteBase64(encryptedText.getBytes())).isTrue();
   }
 
   @Test
-  public void encrypt_bad_key() {
+  public void encrypt_bad_key() throws Exception {
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("Invalid AES key");
 
-    AesCipher cipher = new AesCipher(getPath("bad_secret_key.txt"));
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
+    AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
     cipher.encrypt("this is a secret");
   }
 
   @Test
-  public void decrypt() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
+  public void decrypt() throws Exception {
+    AesECBCipher cipher = new AesECBCipher(pathToSecretKey());
 
-    // the following value has been encrypted with the key /org/sonar/api/config/AesCipherTest/aes_secret_key.txt
+    // the following value has been encrypted with the key /org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt
     String clearText = cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
 
     assertThat(clearText).isEqualTo("this is a secret");
   }
 
   @Test
-  public void decrypt_bad_key() {
-    AesCipher cipher = new AesCipher(getPath("bad_secret_key.txt"));
+  public void decrypt_bad_key() throws Exception {
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
+    AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
     try {
       cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
@@ -82,8 +94,9 @@ public class AesCipherTest {
   }
 
   @Test
-  public void decrypt_other_key() {
-    AesCipher cipher = new AesCipher(getPath("other_secret_key.txt"));
+  public void decrypt_other_key() throws Exception {
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/other_secret_key.txt");
+    AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
     try {
       // text encrypted with another key
@@ -96,46 +109,47 @@ public class AesCipherTest {
   }
 
   @Test
-  public void encryptThenDecrypt() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
+  public void encryptThenDecrypt() throws Exception {
+    AesECBCipher cipher = new AesECBCipher(pathToSecretKey());
 
     assertThat(cipher.decrypt(cipher.encrypt("foo"))).isEqualTo("foo");
   }
 
   @Test
   public void testDefaultPathToSecretKey() {
-    AesCipher cipher = new AesCipher(null);
+    AesECBCipher cipher = new AesECBCipher(null);
 
     String path = cipher.getPathToSecretKey();
 
     assertThat(StringUtils.isNotBlank(path)).isTrue();
-    assertThat(new File(path).getName()).isEqualTo("sonar-secret.txt");
+    assertThat(new File(path)).hasName("sonar-secret.txt");
   }
 
   @Test
   public void loadSecretKeyFromFile() throws Exception {
-    AesCipher cipher = new AesCipher(null);
+    AesECBCipher cipher = new AesECBCipher(null);
     Key secretKey = cipher.loadSecretFileFromFile(pathToSecretKey());
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
-    assertThat(secretKey.getEncoded().length).isGreaterThan(10);
+    assertThat(secretKey.getEncoded()).hasSizeGreaterThan(10);
   }
 
   @Test
   public void loadSecretKeyFromFile_trim_content() throws Exception {
-    String path = getPath("non_trimmed_secret_key.txt");
-    AesCipher cipher = new AesCipher(null);
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/non_trimmed_secret_key.txt");
+    String path = new File(resource.toURI()).getCanonicalPath();
+    AesECBCipher cipher = new AesECBCipher(null);
 
     Key secretKey = cipher.loadSecretFileFromFile(path);
 
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
-    assertThat(secretKey.getEncoded().length).isGreaterThan(10);
+    assertThat(secretKey.getEncoded()).hasSizeGreaterThan(10);
   }
 
   @Test
   public void loadSecretKeyFromFile_file_does_not_exist() throws Exception {
     thrown.expect(IllegalStateException.class);
 
-    AesCipher cipher = new AesCipher(null);
+    AesECBCipher cipher = new AesECBCipher(null);
     cipher.loadSecretFileFromFile("/file/does/not/exist");
   }
 
@@ -143,30 +157,26 @@ public class AesCipherTest {
   public void loadSecretKeyFromFile_no_property() throws Exception {
     thrown.expect(IllegalStateException.class);
 
-    AesCipher cipher = new AesCipher(null);
+    AesECBCipher cipher = new AesECBCipher(null);
     cipher.loadSecretFileFromFile(null);
   }
 
   @Test
-  public void hasSecretKey() {
-    AesCipher cipher = new AesCipher(pathToSecretKey());
+  public void hasSecretKey() throws Exception {
+    AesECBCipher cipher = new AesECBCipher(pathToSecretKey());
 
     assertThat(cipher.hasSecretKey()).isTrue();
   }
 
   @Test
   public void doesNotHaveSecretKey() {
-    AesCipher cipher = new AesCipher("/my/twitter/id/is/SimonBrandhof");
+    AesECBCipher cipher = new AesECBCipher("/my/twitter/id/is/SimonBrandhof");
 
     assertThat(cipher.hasSecretKey()).isFalse();
   }
 
-  private static String getPath(String file) {
-    return Resources.getResource(AesCipherTest.class, "AesCipherTest/" + file).getPath();
+  private String pathToSecretKey() throws Exception {
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
+    return new File(resource.toURI()).getCanonicalPath();
   }
-
-  private static String pathToSecretKey() {
-    return getPath("aes_secret_key.txt");
-  }
-
 }

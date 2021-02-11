@@ -32,29 +32,34 @@ import javax.annotation.Nullable;
 public final class Encryption {
 
   private static final String BASE64_ALGORITHM = "b64";
+  private static final String AES_ECB_ALGORITHM = "aes";
+  private static final String AES_GCM_ALGORITHM = "aes-gcm";
 
-  private static final String AES_ALGORITHM = "aes";
-  private final AesCipher aesCipher;
+  private final AesECBCipher aesECBCipher;
+  private final AesGCMCipher aesGCMCipher;
 
   private final Map<String, Cipher> ciphers;
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   public Encryption(@Nullable String pathToSecretKey) {
-    aesCipher = new AesCipher(pathToSecretKey);
+    aesECBCipher = new AesECBCipher(pathToSecretKey);
+    aesGCMCipher = new AesGCMCipher(pathToSecretKey);
     ciphers = new HashMap<>();
     ciphers.put(BASE64_ALGORITHM, new Base64Cipher());
-    ciphers.put(AES_ALGORITHM, aesCipher);
+    ciphers.put(AES_ECB_ALGORITHM, aesECBCipher);
+    ciphers.put(AES_GCM_ALGORITHM, aesGCMCipher);
   }
 
   public void setPathToSecretKey(@Nullable String pathToSecretKey) {
-    aesCipher.setPathToSecretKey(pathToSecretKey);
+    aesECBCipher.setPathToSecretKey(pathToSecretKey);
+    aesGCMCipher.setPathToSecretKey(pathToSecretKey);
   }
 
   /**
    * Checks the availability of the secret key, that is required to encrypt and decrypt.
    */
   public boolean hasSecretKey() {
-    return aesCipher.hasSecretKey();
+    return aesGCMCipher.hasSecretKey();
   }
 
   public boolean isEncrypted(String value) {
@@ -62,7 +67,7 @@ public final class Encryption {
   }
 
   public String encrypt(String clearText) {
-    return encrypt(AES_ALGORITHM, clearText);
+    return encrypt(AES_GCM_ALGORITHM, clearText);
   }
 
   public String scramble(String clearText) {
@@ -70,7 +75,7 @@ public final class Encryption {
   }
 
   public String generateRandomSecretKey() {
-    return aesCipher.generateRandomSecretKey();
+    return aesGCMCipher.generateRandomSecretKey();
   }
 
   public String decrypt(String encryptedText) {

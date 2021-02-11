@@ -21,7 +21,6 @@ package org.sonar.api.config.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import javax.annotation.Nullable;
@@ -34,8 +33,9 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
 
-final class AesCipher implements Cipher {
+abstract class AesCipher implements Cipher {
   static final int KEY_SIZE_IN_BITS = 256;
 
   private static final String CRYPTO_KEY = "AES";
@@ -44,33 +44,6 @@ final class AesCipher implements Cipher {
 
   AesCipher(@Nullable String pathToSecretKey) {
     this.pathToSecretKey = pathToSecretKey;
-  }
-
-  @Override
-  public String encrypt(String clearText) {
-    try {
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
-      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes(StandardCharsets.UTF_8.name())));
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
-  @Override
-  public String decrypt(String encryptedText) {
-    try {
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
-      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
-      byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
-      return new String(cipherData, StandardCharsets.UTF_8);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   /**
@@ -85,18 +58,18 @@ final class AesCipher implements Cipher {
     return false;
   }
 
-  private Key loadSecretFile() throws IOException {
+  protected Key loadSecretFile() throws IOException {
     String path = getPathToSecretKey();
     return loadSecretFileFromFile(path);
   }
 
   Key loadSecretFileFromFile(@Nullable String path) throws IOException {
     if (StringUtils.isBlank(path)) {
-      throw new IllegalStateException("Secret key not found. Please set the property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH);
+      throw new IllegalStateException("Secret key not found. Please set the property " + ENCRYPTION_SECRET_KEY_PATH);
     }
     File file = new File(path);
     if (!file.exists() || !file.isFile()) {
-      throw new IllegalStateException("The property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH + " does not link to a valid file: " + path);
+      throw new IllegalStateException("The property " + ENCRYPTION_SECRET_KEY_PATH + " does not link to a valid file: " + path);
     }
     String s = FileUtils.readFileToString(file, UTF_8);
     if (StringUtils.isBlank(s)) {
