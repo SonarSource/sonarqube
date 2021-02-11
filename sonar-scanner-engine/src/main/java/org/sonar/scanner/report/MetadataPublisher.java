@@ -95,6 +95,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     addScmInformation(builder);
     addForkPoint(builder);
     addNotAnalyzedFileCountsByLanguage(builder);
+    addMainBranch(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.putQprofilesPerLanguage(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
@@ -110,8 +111,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
 
     addModulesRelativePaths(builder);
+    addMainBranch(builder);
 
     writer.writeMetadata(builder.build());
+  }
+
+  private void addMainBranch(ScannerReport.Metadata.Builder builder) {
+    builder.setGitDefaultMainBranch("");
   }
 
   private void addForkPoint(ScannerReport.Metadata.Builder builder) {
