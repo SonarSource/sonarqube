@@ -96,6 +96,7 @@ Select your build technology below to expand the instructions for configuring br
 | - master
 | - feature/*
 |
+| steps:
 | # Prepare Analysis Configuration task
 | - task: SonarQubePrepare@4
 |   inputs:
@@ -136,6 +137,7 @@ Select your build technology below to expand the instructions for configuring br
 | - master
 | - feature/*
 |
+| steps:
 | # Prepare Analysis Configuration task
 | - task: SonarQubePrepare@4
 |   inputs:
@@ -153,7 +155,7 @@ Select your build technology below to expand the instructions for configuring br
 | ## Other (JavaScript, TypeScript, Go, Python, PHP, etc.)
 | 1. In Azure DevOps, create or edit a **Build Pipeline**, and add a new **Prepare Analysis Configuration** task _before_ your build task:
 |    - Select the SonarQube server endpoint you created in the **Adding a new SonarQube Service Endpoint** section.
-|    - Under **Choose a way to run the analysis**, select **Integrate with MSBuild**.
+|    - Under **Choose a way to run the analysis**, select **Use standalone scanner**.
 |    - Select the **Manually provide configuration** mode.
 |    - In the **project key** field, enter your project key.
 | 1. Add a new **Run Code Analysis** task _after_ your build task.
@@ -167,12 +169,14 @@ Select your build technology below to expand the instructions for configuring br
 | - master
 | - feature/*
 |
+| steps:
 | # Prepare Analysis Configuration task
 | - task: SonarQubePrepare@4
 |   inputs:
 |     SonarQube: 'YourSonarqubeServerEndpoint'
 |     scannerMode: 'CLI'
 |     configMode: 'manual'
+|     cliProjectKey: 'YourProjectKey'
 |
 | # Run Code Analysis task
 | - task: SonarQubeAnalyze@4
