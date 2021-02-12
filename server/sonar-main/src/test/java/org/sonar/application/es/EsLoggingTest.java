@@ -35,7 +35,7 @@ public class EsLoggingTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private EsLogging underTest = new EsLogging();
+  private final EsLogging underTest = new EsLogging();
 
   @Test
   public void createProperties_with_empty_props() throws IOException {
@@ -64,7 +64,16 @@ public class EsLoggingTest {
       "appender.file_es.strategy.action.condition.nested_condition.type", "IfAccumulatedFileCount",
       "appender.file_es.strategy.action.condition.nested_condition.exceeds", "7",
       "rootLogger.level", "INFO",
-      "rootLogger.appenderRef.file_es.ref", "file_es");
+      "rootLogger.appenderRef.file_es.ref", "file_es",
+      "loggers", "DEPRECATION,org.elasticsearch.client.RestClient,org.elasticsearch.deprecation",
+      "logger.org.elasticsearch.client.RestClient.name", "org.elasticsearch.client.RestClient",
+      "logger.org.elasticsearch.deprecation.level", "ERROR",
+      "logger.org.elasticsearch.deprecation.name", "org.elasticsearch.deprecation",
+      "logger.DEPRECATION.level", "ERROR",
+      "logger.DEPRECATION.name", "DEPRECATION",
+      "logger.org.elasticsearch.client.RestClient.level", "ERROR"
+
+    );
   }
 
   @Test

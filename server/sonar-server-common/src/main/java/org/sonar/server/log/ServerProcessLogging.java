@@ -77,6 +77,7 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("org.elasticsearch.http", Level.INFO);
 
     // turn off ES type deprecation logging to not flood logs
+    builder.immutableLevel("DEPRECATION", Level.ERROR);
     builder.immutableLevel("org.elasticsearch.deprecation", Level.ERROR);
     builder.immutableLevel("org.elasticsearch.client.RestClient", Level.ERROR);
 

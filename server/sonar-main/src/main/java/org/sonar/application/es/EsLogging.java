@@ -47,6 +47,10 @@ public class EsLogging {
     log4JPropertiesBuilder.apply(
       LogLevelConfig.newBuilder(log4JPropertiesBuilder.getRootLoggerName())
         .rootLevelFor(ProcessId.ELASTICSEARCH)
+        // turn off ES type deprecation logging to not flood logs
+        .immutableLevel("DEPRECATION", Level.ERROR)
+        .immutableLevel("org.elasticsearch.deprecation", Level.ERROR)
+        .immutableLevel("org.elasticsearch.client.RestClient", Level.ERROR)
         .build());
 
     return log4JPropertiesBuilder.get();
