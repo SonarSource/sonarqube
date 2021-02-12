@@ -8,6 +8,17 @@ exports[`renders correctly: .NET 1`] = `
 />
 `;
 
+exports[`renders correctly: CFamily 1`] = `
+<ClangGCCCustom
+  host="HOST"
+  os="linux"
+  projectKey="my-project"
+  token="myToken"
+/>
+`;
+
+exports[`renders correctly: Empty CFamily 1`] = `""`;
+
 exports[`renders correctly: gradle 1`] = `
 <JavaGradle
   host="HOST"

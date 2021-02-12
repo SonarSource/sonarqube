@@ -38,6 +38,12 @@ it('renders correctly', () => {
     '.NET'
   );
   expect(
+    shallowRender({ languageConfig: { buildTool: BuildTools.CFamily, os: OSs.Linux } })
+  ).toMatchSnapshot('CFamily');
+  expect(shallowRender({ languageConfig: { buildTool: BuildTools.CFamily } })).toMatchSnapshot(
+    'Empty CFamily'
+  );
+  expect(
     shallowRender({ languageConfig: { buildTool: BuildTools.Other, os: OSs.Windows } })
   ).toMatchSnapshot('other');
 });

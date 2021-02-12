@@ -17,32 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import RenderOptions from '../../../components/RenderOptions';
+import { OSs } from '../../../types';
+import ClangGCC, { ClangGCCProps } from '../ClangGCC';
 
-export interface SentenceWithHighlightsProps {
-  highlightKeys: string[];
-  translationKey: string;
-  highlightPrefixKeys?: string;
-}
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', buildTool => {
+  const wrapper = shallowRender();
 
-export default function SentenceWithHighlights({
-  highlightKeys,
-  translationKey,
-  highlightPrefixKeys
-}: SentenceWithHighlightsProps) {
-  const values: T.Dict<JSX.Element> = {};
+  wrapper.find(RenderOptions).simulate('check', buildTool);
+  expect(wrapper).toMatchSnapshot();
+});
 
-  const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
-  highlightKeys.forEach(key => {
-    values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
-  });
-  return (
-    <FormattedMessage
-      defaultMessage={translate(translationKey, 'sentence')}
-      id={`${translationKey}.sentence`}
-      values={values}
-    />
+function shallowRender(props: Partial<ClangGCCProps> = {}) {
+  return shallow<ClangGCCProps>(
+    <ClangGCC onStepValidationChange={jest.fn()} projectKey="projectKey" {...props} />
   );
 }

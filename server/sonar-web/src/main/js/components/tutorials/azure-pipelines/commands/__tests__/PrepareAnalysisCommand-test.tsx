@@ -17,35 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
-import RenderOptions from '../../components/RenderOptions';
-import { BuildTools } from '../../types';
-import BranchAnalysisStepContent, { BranchesAnalysisStepProps } from '../BranchAnalysisStepContent';
+import { BuildTools } from '../../../types';
+import PrepareAnalysisCommand, {
+  PrepareAnalysisCommandProps,
+  PrepareType
+} from '../PrepareAnalysisCommand';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it.each([
+  [PrepareType.JavaMavenGradle, BuildTools.Gradle],
+  [PrepareType.JavaMavenGradle, BuildTools.Maven],
+  [PrepareType.StandAlone, BuildTools.Other],
+  [PrepareType.StandAlone, BuildTools.CFamily],
+  [PrepareType.MSBuild, BuildTools.DotNet]
+])('should render correctly', (kind, buildTool) => {
+  expect(shallowRender({ kind, buildTool })).toMatchSnapshot();
 });
 
-it.each([BuildTools.DotNet, BuildTools.Gradle, BuildTools.Maven, BuildTools.Other])(
-  'should render correctly',
-  (buildTech: BuildTools) => {
-    const wrapper = shallowRender();
-    wrapper
-      .find(RenderOptions)
-      .props()
-      .onCheck(buildTech);
-
-    expect(wrapper).toMatchSnapshot(buildTech);
-  }
-);
-
-function shallowRender(props: Partial<BranchesAnalysisStepProps> = {}) {
-  return shallow(
-    <BranchAnalysisStepContent
-      component={mockComponent()}
-      onStepValidationChange={jest.fn()}
+function shallowRender(props: Partial<PrepareAnalysisCommandProps> = {}) {
+  return shallow<PrepareAnalysisCommandProps>(
+    <PrepareAnalysisCommand
+      kind={PrepareType.JavaMavenGradle}
+      buildTool={BuildTools.CFamily}
+      projectKey="projectKey"
       {...props}
     />
   );

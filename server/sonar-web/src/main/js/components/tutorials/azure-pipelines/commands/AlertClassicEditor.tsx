@@ -17,32 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { AlmKeys } from '../../../../types/alm-settings';
 
-export interface SentenceWithHighlightsProps {
-  highlightKeys: string[];
-  translationKey: string;
-  highlightPrefixKeys?: string;
-}
-
-export default function SentenceWithHighlights({
-  highlightKeys,
-  translationKey,
-  highlightPrefixKeys
-}: SentenceWithHighlightsProps) {
-  const values: T.Dict<JSX.Element> = {};
-
-  const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
-  highlightKeys.forEach(key => {
-    values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
-  });
+export default function AlertClassicEditor() {
   return (
-    <FormattedMessage
-      defaultMessage={translate(translationKey, 'sentence')}
-      id={`${translationKey}.sentence`}
-      values={values}
-    />
+    <Alert variant="info" className="big-spacer-top">
+      <FormattedMessage
+        id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+        defaultMessage={translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info')}
+        values={{
+          doc_link: (
+            <Link to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]} target="_blank">
+              {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
+            </Link>
+          )
+        }}
+      />
+    </Alert>
   );
 }

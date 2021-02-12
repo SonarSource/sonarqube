@@ -17,32 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { mockAppState } from '../../../../../helpers/testMocks';
+import { PublishSteps, PublishStepsProps } from '../PublishSteps';
 
-export interface SentenceWithHighlightsProps {
-  highlightKeys: string[];
-  translationKey: string;
-  highlightPrefixKeys?: string;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ appState: mockAppState({ branchesEnabled: true }) })).toMatchSnapshot();
+});
 
-export default function SentenceWithHighlights({
-  highlightKeys,
-  translationKey,
-  highlightPrefixKeys
-}: SentenceWithHighlightsProps) {
-  const values: T.Dict<JSX.Element> = {};
-
-  const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
-  highlightKeys.forEach(key => {
-    values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
-  });
-  return (
-    <FormattedMessage
-      defaultMessage={translate(translationKey, 'sentence')}
-      id={`${translationKey}.sentence`}
-      values={values}
-    />
-  );
+function shallowRender(props: Partial<PublishStepsProps> = {}) {
+  return shallow<PublishStepsProps>(<PublishSteps appState={mockAppState()} {...props} />);
 }

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Alert
+  className="big-spacer-top"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+    id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info"
+    values={
+      Object {
+        "doc_link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          target="_blank"
+          to="/documentation/analysis/azuredevops-integration/"
+        >
+          onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
