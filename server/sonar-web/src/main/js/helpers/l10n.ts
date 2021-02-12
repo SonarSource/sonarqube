@@ -62,7 +62,7 @@ export function translateWithParameters(
   if (message) {
     return parameters
       .map(parameter => String(parameter))
-      .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
+      .reduce((acc, parameter, index) => acc.replace(`{${index}}`, () => parameter), message);
   } else {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line

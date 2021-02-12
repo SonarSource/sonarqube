@@ -67,6 +67,11 @@ describe('#translateWithParameters', () => {
     );
   });
 
+  it('should not be affected by replacement pattern XSS vulnerability of String.replace', () => {
+    resetBundle({ y_apples: 'I have {0} apples' });
+    expect(translateWithParameters('y_apples', '$`')).toBe('I have $` apples');
+  });
+
   it('should not translate message but return its key', () => {
     expect(translateWithParameters('random', 5)).toBe('random.5');
     expect(translateWithParameters('random', 1, 2, 3)).toBe('random.1.2.3');
