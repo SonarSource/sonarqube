@@ -92,7 +92,7 @@ interface Props {
   branchLike?: BranchLike;
   component?: T.Component;
   currentUser: T.CurrentUser;
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
   fetchIssues: (query: T.RawQuery) => Promise<FetchIssuesPromise>;
   location: Location;
   onBranchesChange?: () => void;
@@ -859,7 +859,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  renderBulkChange(openIssue: T.Issue | undefined) {
+  renderBulkChange() {
     const { component, currentUser } = this.props;
     const { checkAll, bulkChangeModal, checked, issues, paging } = this.state;
 
@@ -867,7 +867,7 @@ export default class App extends React.PureComponent<Props, State> {
     const thirdState = checked.length > 0 && !isAllChecked;
     const isChecked = isAllChecked || thirdState;
 
-    if (!currentUser.isLoggedIn || openIssue) {
+    if (!currentUser.isLoggedIn) {
       return null;
     }
 
@@ -1062,7 +1062,7 @@ export default class App extends React.PureComponent<Props, State> {
           <div className="layout-page-main-inner">
             <A11ySkipTarget anchor="issues_main" />
 
-            {this.renderBulkChange(openIssue)}
+            {this.renderBulkChange()}
             <PageActions
               canSetHome={!this.props.component}
               effortTotal={this.state.effortTotal}

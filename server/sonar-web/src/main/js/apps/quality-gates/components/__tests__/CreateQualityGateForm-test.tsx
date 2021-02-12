@@ -17,12 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import CreateQualityGateForm from '../CreateQualityGateForm';
+import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import { change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { createQualityGate } from '../../../../api/quality-gates';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { getQualityGateUrl } from '../../../../helpers/urls';
+import { CreateQualityGateForm } from '../CreateQualityGateForm';
+
+jest.mock('../../../../api/quality-gates', () => ({
+  createQualityGate: jest.fn().mockResolvedValue({ id: '1', name: 'newValue' })
+}));
 
 it('should render correctly', () => {
-  expect(
-    shallow(<CreateQualityGateForm onClose={jest.fn()} onCreate={jest.fn()} />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should correctly handle create', async () => {
+  const onCreate = jest.fn().mockResolvedValue(undefined);
+  const push = jest.fn();
+  const wrapper = shallowRender({ onCreate, router: mockRouter({ push }) });
+
+  wrapper
+    .find(ConfirmModal)
+    .props()
+    .onConfirm();
+  expect(createQualityGate).not.toHaveBeenCalled();
+
+  change(wrapper.find('#quality-gate-form-name'), 'newValue');
+  expect(wrapper.state().name).toBe('newValue');
+
+  wrapper
+    .find(ConfirmModal)
+    .props()
+    .onConfirm();
+  expect(createQualityGate).toHaveBeenCalledWith({ name: 'newValue' });
+
+  await waitAndUpdate(wrapper);
+  expect(onCreate).toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith(getQualityGateUrl('1'));
+});
+
+function shallowRender(props: Partial<CreateQualityGateForm['props']> = {}) {
+  return shallow<CreateQualityGateForm>(
+    <CreateQualityGateForm
+      onClose={jest.fn()}
+      onCreate={jest.fn()}
+      router={mockRouter()}
+      {...props}
+    />
+  );
+}

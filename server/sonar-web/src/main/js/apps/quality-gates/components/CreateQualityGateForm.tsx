@@ -34,27 +34,23 @@ interface State {
   name: string;
 }
 
-class CreateQualityGateForm extends React.PureComponent<Props, State> {
+export class CreateQualityGateForm extends React.PureComponent<Props, State> {
   state: State = { name: '' };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
   };
 
-  handleCreate = () => {
+  handleCreate = async () => {
     const { name } = this.state;
 
-    if (!name) {
-      return undefined;
-    }
+    if (name) {
+      const qualityGate = await createQualityGate({ name });
 
-    return createQualityGate({ name })
-      .then(qualityGate => {
-        return this.props.onCreate().then(() => qualityGate);
-      })
-      .then(qualityGate => {
-        this.props.router.push(getQualityGateUrl(String(qualityGate.id)));
-      });
+      await this.props.onCreate();
+
+      this.props.router.push(getQualityGateUrl(String(qualityGate.id)));
+    }
   };
 
   render() {

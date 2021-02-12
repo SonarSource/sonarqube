@@ -18,9 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
+import * as key from 'keymaster';
 import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from 'sonar-ui-common/helpers/pages';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import {
@@ -33,6 +40,7 @@ import {
   mockRouter
 } from '../../../../helpers/testMocks';
 import {
+  disableLocationsNavigator,
   enableLocationsNavigator,
   selectNextFlow,
   selectNextLocation,
@@ -40,6 +48,14 @@ import {
   selectPreviousLocation
 } from '../../actions';
 import App from '../App';
+import BulkChangeModal from '../BulkChangeModal';
+
+jest.mock('sonar-ui-common/helpers/pages', () => ({
+  addSideBarClass: jest.fn(),
+  addWhitePageClass: jest.fn(),
+  removeSideBarClass: jest.fn(),
+  removeWhitePageClass: jest.fn()
+}));
 
 jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
@@ -54,10 +70,13 @@ jest.mock('keymaster', () => {
       return true;
     });
   };
+  let scope = 'issues';
 
-  key.getScope = () => 'issues';
-  key.setScope = () => {};
-  key.deleteScope = () => {};
+  key.getScope = () => scope;
+  key.setScope = (newScope: string) => {
+    scope = newScope;
+  };
+  key.deleteScope = jest.fn();
 
   return key;
 });
@@ -73,12 +92,36 @@ const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
 
 const referencedComponent = { key: 'foo-key', name: 'bar', uuid: 'foo-uuid' };
 
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
+
+beforeEach(() => {
+  Object.defineProperty(window, 'addEventListener', {
+    value: jest.fn()
+  });
+  Object.defineProperty(window, 'removeEventListener', {
+    value: jest.fn()
+  });
+});
+
+afterEach(() => {
+  Object.defineProperty(window, 'addEventListener', {
+    value: originalAddEventListener
+  });
+  Object.defineProperty(window, 'removeEventListener', {
+    value: originalRemoveEventListener
+  });
+});
+
 it('should render a list of issue', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
   expect(wrapper.state().referencedComponentsById).toEqual({ 'foo-uuid': referencedComponent });
   expect(wrapper.state().referencedComponentsByKey).toEqual({ 'foo-key': referencedComponent });
+
+  expect(addSideBarClass).toBeCalled();
+  expect(addWhitePageClass).toBeCalled();
 });
 
 it('should not render for anonymous user', () => {
@@ -150,6 +193,37 @@ it('should correctly bind key events for issue navigation', async () => {
 
   keydown(KeyCodes.LeftArrow);
   expect(push).toBeCalledTimes(2);
+  expect(window.addEventListener).toBeCalledTimes(2);
+});
+
+it('should correctly clean up on unmount', () => {
+  const wrapper = shallowRender();
+
+  wrapper.unmount();
+  expect(key.deleteScope).toBeCalled();
+  expect(removeSideBarClass).toBeCalled();
+  expect(removeWhitePageClass).toBeCalled();
+  expect(window.removeEventListener).toBeCalledTimes(2);
+});
+
+it('should be able to bulk change specific issues', async () => {
+  const wrapper = shallowRender({ currentUser: mockLoggedInUser() });
+  await waitAndUpdate(wrapper);
+
+  const instance = wrapper.instance();
+  expect(wrapper.state().checked.length).toBe(0);
+  instance.handleIssueCheck('foo');
+  instance.handleIssueCheck('bar');
+  expect(wrapper.state().checked.length).toBe(2);
+
+  instance.handleOpenBulkChange();
+  wrapper.update();
+  expect(wrapper.find(BulkChangeModal).exists()).toBe(true);
+  const { issues } = await wrapper
+    .find(BulkChangeModal)
+    .props()
+    .fetchIssues({});
+  expect(issues).toHaveLength(2);
 });
 
 it('should be able to uncheck all issue with global checkbox', async () => {
@@ -309,6 +383,10 @@ describe('keydown event handler', () => {
     jest.resetAllMocks();
   });
 
+  afterEach(() => {
+    key.setScope('issues');
+  });
+
   it('should handle alt', () => {
     instance.handleKeyDown(mockEvent({ keyCode: 18 }));
     expect(instance.setState).toHaveBeenCalledWith(enableLocationsNavigator);
@@ -328,6 +406,36 @@ describe('keydown event handler', () => {
   it('should handle alt+→', () => {
     instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 39 }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextFlow);
+  });
+  it('should ignore different scopes', () => {
+    key.setScope('notissues');
+    instance.handleKeyDown(mockEvent({ keyCode: 18 }));
+    expect(instance.setState).not.toHaveBeenCalled();
+  });
+});
+
+describe('keyup event handler', () => {
+  const wrapper = shallowRender();
+  const instance = wrapper.instance();
+  jest.spyOn(instance, 'setState');
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterEach(() => {
+    key.setScope('issues');
+  });
+
+  it('should handle alt', () => {
+    instance.handleKeyUp(mockEvent({ keyCode: 18 }));
+    expect(instance.setState).toHaveBeenCalledWith(disableLocationsNavigator);
+  });
+
+  it('should ignore different scopes', () => {
+    key.setScope('notissues');
+    instance.handleKeyUp(mockEvent({ keyCode: 18 }));
+    expect(instance.setState).not.toHaveBeenCalled();
   });
 });
 

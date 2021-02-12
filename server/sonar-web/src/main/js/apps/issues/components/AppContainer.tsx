@@ -25,16 +25,10 @@ import { withRouter } from '../../../components/hoc/withRouter';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { FetchIssuesPromise } from '../../../types/issues';
 
 const IssuesAppContainer = lazyLoadComponent(() => import('./App'), 'IssuesAppContainer');
 
-interface StateProps {
-  currentUser: T.CurrentUser;
-  fetchIssues: (query: T.RawQuery) => Promise<FetchIssuesPromise>;
-}
-
-const mapStateToProps = (state: Store): StateProps => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
   fetchIssues
 });
@@ -54,9 +48,6 @@ const fetchIssues = (query: T.RawQuery) => {
     .catch(throwGlobalError);
 };
 
-// have to type cast this, because of async action
-const mapDispatchToProps = {
-  fetchBranchStatus: fetchBranchStatus as any
-};
+const mapDispatchToProps = { fetchBranchStatus };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(IssuesAppContainer));

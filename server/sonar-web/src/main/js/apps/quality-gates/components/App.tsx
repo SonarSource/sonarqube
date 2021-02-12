@@ -44,7 +44,7 @@ interface State {
   qualityGates: T.QualityGate[];
 }
 
-class App extends React.PureComponent<WithRouterProps, State> {
+class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>, State> {
   mounted = false;
   state: State = { canCreate: false, loading: true, qualityGates: [] };
 

@@ -21,29 +21,18 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { fetchLanguages } from '../../store/rootActions';
-import { getAppState, getCurrentUser, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
-interface StateProps {
-  appState: T.AppState | undefined;
-  currentUser: T.CurrentUser | undefined;
+interface Props {
+  fetchLanguages: () => void;
   enableGravatar: boolean;
   gravatarServerUrl: string;
 }
 
-interface DispatchProps {
-  fetchLanguages: () => Promise<void>;
-}
-
-interface OwnProps {
-  children: JSX.Element;
-}
-
-type Props = StateProps & DispatchProps & OwnProps;
-
-class App extends React.PureComponent<Props> {
+export class App extends React.PureComponent<Props> {
   mounted = false;
 
   componentDidMount() {
@@ -102,19 +91,15 @@ class App extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => {
+const mapStateToProps = (state: Store) => {
   const enableGravatar = getGlobalSettingValue(state, 'sonar.lf.enableGravatar');
   const gravatarServerUrl = getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl');
   return {
-    appState: getAppState(state),
-    currentUser: getCurrentUser(state),
     enableGravatar: Boolean(enableGravatar && enableGravatar.value === 'true'),
     gravatarServerUrl: (gravatarServerUrl && gravatarServerUrl.value) || ''
   };
 };
 
-const mapDispatchToProps = ({
-  fetchLanguages
-} as any) as DispatchProps;
+const mapDispatchToProps = { fetchLanguages };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
