@@ -91,7 +91,6 @@ export function restoreQualityProfile(data: RequestData): Promise<any> {
 }
 
 export interface ProfileProject {
-  id: number;
   key: string;
   name: string;
   selected: boolean;

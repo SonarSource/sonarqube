@@ -55,14 +55,12 @@ jest.mock('../../../api/quality-profiles', () => {
       const results: ProfileProject[] = [];
       if (key === 'js' || key === 'css' || key === 'html_default') {
         results.push({
-          id: 1,
           key: 'foo',
           name: 'Foo',
           selected: true
         });
       } else if (key === 'html') {
         results.push({
-          id: 2,
           key: 'foobar',
           name: 'FooBar',
           selected: true

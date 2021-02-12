@@ -44,7 +44,6 @@ export interface Task {
   hasErrorStacktrace?: boolean;
   hasScannerContext?: boolean;
   id: string;
-  logs?: boolean;
   pullRequest?: string;
   pullRequestTitle?: string;
   scannerContext?: string;
