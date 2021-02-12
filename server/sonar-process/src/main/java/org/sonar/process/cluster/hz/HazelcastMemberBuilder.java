@@ -24,11 +24,15 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+
+import com.hazelcast.util.AddressUtil;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
@@ -36,14 +40,22 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class HazelcastMemberBuilder {
 
+  private static final Logger LOG = Loggers.get(HazelcastMemberBuilder.class);
   private String nodeName;
   private int port;
   private ProcessId processId;
   private String networkInterface;
   private List<String> members = new ArrayList<>();
+  private final InetAdressResolver inetAdressResolver;
+
+  public HazelcastMemberBuilder(InetAdressResolver inetAdressResolver) {
+    this.inetAdressResolver = inetAdressResolver;
+  }
 
   public HazelcastMemberBuilder setNodeName(String s) {
     this.nodeName = s;
@@ -78,10 +90,37 @@ public class HazelcastMemberBuilder {
    * port is automatically added.
    */
   public HazelcastMemberBuilder setMembers(Collection<String> c) {
-    this.members = c.stream()
-      .map(host -> host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue()))
-      .collect(Collectors.toList());
+    this.members.addAll(c.stream().map(this::extractMembers).flatMap(Collection::stream).collect(Collectors.toList()));
     return this;
+  }
+
+  private List<String> extractMembers(String host) {
+    LOG.debug("Trying to add host: " + host);
+    String hostStripped = host.split(":")[0];
+    if (AddressUtil.isIpAddress(hostStripped)) {
+      LOG.debug("Found ip based host config for host: " + host);
+      return Collections.singletonList(host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue()));
+    } else {
+      List<String> membersToAdd = new ArrayList<>();
+      for (String memberIp : getAllByName(hostStripped)){
+        String prefix = memberIp.split("/")[1];
+        LOG.debug("Found IP for: " + hostStripped + " : " + prefix);
+        String memberPort = host.contains(":") ? host.split(":")[1] : CLUSTER_NODE_HZ_PORT.getDefaultValue();
+        String member = prefix + ":" + memberPort;
+        membersToAdd.add(member);
+      }
+      return membersToAdd;
+    }
+  }
+
+  List<String> getAllByName(String hostname) {
+    LOG.debug("Trying to resolve Hostname: " + hostname);
+    try {
+      return inetAdressResolver.getAllByName(hostname);
+    } catch (UnknownHostException e) {
+      LOG.error("Host could not be found\n" + e.getMessage());
+    }
+    return new ArrayList<>();
   }
 
   public HazelcastMember build() {

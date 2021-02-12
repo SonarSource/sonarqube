@@ -249,7 +249,6 @@ If you're using [Docker Compose](https://docs.docker.com/compose/), use the foll
 |       - sonarqube_data:/opt/sonarqube/data
 |       - sonarqube_extensions:/opt/sonarqube/extensions
 |       - sonarqube_logs:/opt/sonarqube/logs
-|       - sonarqube_temp:/opt/sonarqube/temp
 |     ports:
 |       - "9000:9000"
 |   db:
@@ -265,7 +264,6 @@ If you're using [Docker Compose](https://docs.docker.com/compose/), use the foll
 |   sonarqube_data:
 |   sonarqube_extensions:
 |   sonarqube_logs:
-|   sonarqube_temp:
 |   postgresql:
 |   postgresql_data:
 | ```

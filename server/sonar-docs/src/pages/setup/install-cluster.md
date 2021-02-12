@@ -56,6 +56,25 @@ SonarSource does not provide specific recommendations for reverse proxy / load b
 - Ability to balance HTTP requests (load) between the application nodes configured in the SonarQube cluster.
 - If terminating HTTPS, meets the requirements set out in [Securing SonarQube Behind a Proxy](/setup/operate-server/).
 - No requirement to preserve or sticky sessions; this is handled by the built-in JWT mechanism.
+- Ability to check for node health for routing
+
+#### Example with HAProxy
+
+```
+frontend http-in
+    bind *:80
+    bind *:443 ssl crt /etc/ssl/private/<server_certificate>
+    http-request redirect scheme https unless { ssl_fc }
+    default_backend sonarqube_server
+backend sonarqube_server
+    balance roundrobin
+    http-request set-header X-Forwarded-Proto https
+    option httpchk GET /api/system/status
+    http-check expect rstring UP|DB_MIGRATION_NEEDED|DB_MIGRATION_RUNNING
+    default-server check maxconn 200
+    server node1 <server_endpoint_1>
+    server node2 <server_endpoint_2> 
+```
 
 ### License
 
@@ -65,7 +84,7 @@ You need a dedicated license to activate the Data Center Edition. If you don't h
 
 Don't start this journey alone!  As a Data Center Edition subscriber, SonarSource will assist with the setup and configuration of your cluster. Get in touch with [SonarSource Support](https://support.sonarsource.com) for help.
 
-## Configuration
+## Installing SonarQube from the ZIP file
 
 Additional parameters are required to activate clustering capabilities and specialize each node. These parameters are in addition to standard configuration properties used in a single-node configuration.
 
@@ -155,7 +174,7 @@ sonar.cluster.es.hosts=ip3:9002,ip4:9002,ip5:9002
 ...
 ```
 
-## Sample Installation Process
+### Sample Installation Process
 
 The following is an example of the default SonarQube cluster installation process. You need to tailor your installation to the specifics of the target installation environment and the operational requirements of the hosting organization.
 
@@ -187,4 +206,145 @@ The following is an example of the default SonarQube cluster installation proces
 4. After all search nodes are running, start all application nodes.
 5. Configure the load balancer to proxy with both application nodes.
 
-Congratulations, you have a fully-functional SonarQube cluster.  Once you've complete these steps, you can [Operate your Cluster](/setup/operate-cluster/).
+## Installing SonarQube from the Docker Image
+
+You can also install a cluster using our docker images. The general setup is the same but is shifted to a docker specific terminology.
+
+## Requirements
+
+### Network
+
+All containers should be in the same network. This includes search and application nodes.
+For the best performance, it is advised to check for low latency between the database and the cluster nodes.
+
+### Limits
+
+The limits of each container depend on the workload that each container has. A good starting point would be:
+
+* cpus: 0.5  
+* mem_limit: 4096M  
+* mem_reservation: 1024M  
+
+The 4Gb mem_limit should not be lower as this is the minimal value for Elasticsearch.
+
+### Logs
+
+The sonarqube_logs volume will be populated with a new folder depending on the containers hostname and all logs of this container will be put into this folder. 
+This behavior also happens when a custom log path is specified via the [Docker Environment Variables](/setup/environment-variables/).
+
+### Search and Application nodes
+
+The Application nodes can be scaled using replicas. Please note that this is not the case for the Search nodes: Elasticsearch will not become ready.
+
+## Example Docker Compose configuration
+
+[[collapse]]
+| ## docker-compose.yml file example
+|
+| ```yaml
+|version: "3"
+|
+|services:
+|  sonarqube:
+|    image: sonarqube:8.6-datacenter-app
+|    depends_on:
+|      - db
+|      - search-1
+|      - search-2
+|      - search-3
+|    networks:
+|      - sonar-network
+|    deploy:
+|      replicas: 2
+|    environment:
+|      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+|      SONAR_JDBC_USERNAME: sonar
+|      SONAR_JDBC_PASSWORD: sonar
+|      SONAR_WEB_PORT: 9000
+|      SONAR_CLUSTER_SEARCH_HOSTS: "search-1,search-2,search-3"
+|      SONAR_CLUSTER_HOSTS: "sonarqube"
+|      SONAR_AUTH_JWTBASE64HS256SECRET: "dZ0EB0KxnF++nr5+4vfTCaun/eWbv6gOoXodiAMqcFo="
+|      VIRTUAL_HOST: sonarqube.dev.local
+|      VIRTUAL_PORT: 9000
+|    volumes:
+|      - sonarqube_data:/opt/sonarqube/data
+|      - sonarqube_extensions:/opt/sonarqube/extensions
+|      - sonarqube_logs:/opt/sonarqube/logs
+|  search-1:
+|    image: sonarqube:8.6-datacenter-search
+|    hostname: "search-1"
+|    depends_on:
+|      - db
+|    networks:
+|      - sonar-network
+|    environment:
+|      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+|      SONAR_JDBC_USERNAME: sonar
+|      SONAR_JDBC_PASSWORD: sonar
+|      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
+|      SONAR_CLUSTER_NODE_NAME: "search-1"
+|  search-2:
+|    image: sonarqube:8.6-datacenter-search
+|    hostname: "search-2"
+|    depends_on:
+|      - db
+|    networks:
+|      - sonar-network
+|    environment:
+|      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+|      SONAR_JDBC_USERNAME: sonar
+|      SONAR_JDBC_PASSWORD: sonar
+|      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
+|      SONAR_CLUSTER_NODE_NAME: "search-2"
+|  search-3:
+|    image: sonarqube:8.6-datacenter-search
+|    hostname: "search-3"
+|    depends_on:
+|      - db
+|    networks:
+|      - sonar-network
+|    environment:
+|      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+|      SONAR_JDBC_USERNAME: sonar
+|      SONAR_JDBC_PASSWORD: sonar
+|      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
+|      SONAR_CLUSTER_NODE_NAME: "search-3"
+|  db:
+|    image: postgres:12
+|    networks:
+|      - sonar-network
+|    environment:
+|      POSTGRES_USER: sonar
+|      POSTGRES_PASSWORD: sonar
+|    volumes:
+|      - postgresql:/var/lib/postgresql
+|      - postgresql_data:/var/lib/postgresql/data
+|  proxy:
+|    image: jwilder/nginx-proxy
+|    ports:
+|      - "80:80"
+|    volumes:
+|      - /var/run/docker.sock:/tmp/docker.sock:ro
+|    networks:
+|      - sonar-network
+|      - sonar-public
+|
+|networks:
+|  sonar-network:
+|    ipam:
+|      driver: default
+|      config:
+|        - subnet: 172.28.2.0/24
+|  sonar-public:
+|    driver: bridge
+|
+|volumes:
+|  sonarqube_data:
+|  sonarqube_extensions:
+|  sonarqube_logs:
+|  postgresql:
+|  postgresql_data:
+| ```
+
+## Next Steps
+Once you've complete these steps, check out the [Operate your Cluster](/setup/operate-cluster/) documentation.

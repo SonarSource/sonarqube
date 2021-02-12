@@ -33,6 +33,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
+import org.sonar.process.cluster.hz.InetAdressResolver;
 
 import static java.util.Arrays.asList;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
@@ -59,7 +60,7 @@ public class AppStateFactory {
   }
 
   private static HazelcastMember createHzMember(Props props) {
-    HazelcastMemberBuilder builder = new HazelcastMemberBuilder()
+    HazelcastMemberBuilder builder = new HazelcastMemberBuilder(new InetAdressResolver())
       .setNetworkInterface(props.nonNullValue(CLUSTER_NODE_HOST.getKey()))
       .setMembers(asList(props.nonNullValue(CLUSTER_HZ_HOSTS.getKey()).split(",")))
       .setNodeName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))

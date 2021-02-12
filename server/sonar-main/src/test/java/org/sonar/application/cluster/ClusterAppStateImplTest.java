@@ -34,6 +34,7 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
+import org.sonar.process.cluster.hz.InetAdressResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -152,7 +153,7 @@ public class ClusterAppStateImplTest {
     // use loopback for support of offline builds
     InetAddress loopback = InetAddress.getLoopbackAddress();
 
-    return new HazelcastMemberBuilder()
+    return new HazelcastMemberBuilder(new InetAdressResolver())
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
       .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())

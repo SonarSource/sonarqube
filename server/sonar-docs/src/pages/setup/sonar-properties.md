@@ -341,6 +341,36 @@ If SonarQube is behind a reverse proxy, then the following value allows to displ
 Default value (which was "combined" before version 6.2) is equivalent to "combined + SQ HTTP request ID":
 `SONAR_WEB_ACCESSLOGS_PATTERN=%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" "%reqAttribute{ID}"`
 
+## DataCenter Edition
+
+**`SONAR_CLUSTER_NAME=sonarqube`**
+
+The name of the cluster. Required if multiple clusters are present on the same network. For example, this prevents mixing Production and Preproduction clusters. This will be the name stored in the Hazelcast cluster and used as the name of the Elasticsearch cluster.
+
+**`SONAR_CLUSTER_SEARCH_HOSTS`**
+
+Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port, but not both. The item format is `ip/hostname` for host only or`ip/hostname:port` for host and port. `ip/hostname` can also be set to the service name of the search containers .
+
+### Search Nodes Only
+
+**`SONAR_CLUSTER_ES_HOSTS`**
+
+Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port but not both. The item format is `ip/hostname` for host only or`ip/hostname:port` for host and port, while `ip/hostname` can also be set to the service name of the search containers.
+
+**`SONAR_CLUSTER_NODE_NAME`**
+
+The name of the node that is used on Elasticsearch and stored in Hazelcast member attribute (NODE_NAME)
+
+### Application Nodes Only
+
+**`SONAR_CLUSTER_HOSTS`**
+
+Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `SONAR_CLUSTER_NODE_PORT` value is not used. Item format is `ip/hostname`, `ip/hostname:port`. `ip/hostname` can also be set to the service name of the application containers.
+
+**`SONAR_CLUSTER_NODE_PORT`**
+
+The Hazelcast port for communication with each application member of the cluster. Default: `9003`
+
 ## Others
 
 **`SONAR_NOTIFICATIONS_DELAY=60`**  
@@ -359,4 +389,3 @@ Telemetry - Share anonymous SonarQube statistics. By sharing anonymous SonarQube
 
 **`SONAR_SEARCH_HTTPPORT=-1`**  
 Elasticsearch HTTP connector
-

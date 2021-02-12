@@ -20,6 +20,12 @@
 package org.sonar.process.cluster.hz;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -31,6 +37,8 @@ import org.sonar.process.ProcessId;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 
 public class HazelcastMemberBuilderTest {
@@ -42,7 +50,25 @@ public class HazelcastMemberBuilderTest {
 
   // use loopback for support of offline builds
   private InetAddress loopback = InetAddress.getLoopbackAddress();
-  private HazelcastMemberBuilder underTest = new HazelcastMemberBuilder();
+  private InetAdressResolver inetAdressResolver = mock(InetAdressResolver.class);
+  private HazelcastMemberBuilder underTest = new HazelcastMemberBuilder(inetAdressResolver);
+
+  @Before
+  public void before() throws UnknownHostException {
+    when(inetAdressResolver.getAllByName("foo")).thenReturn(Collections.singletonList("foo/5.6.7.8"));
+    when(inetAdressResolver.getAllByName("bar")).thenReturn(Collections.singletonList("bar/8.7.6.5"));
+    when(inetAdressResolver.getAllByName("wizz")).thenReturn(Arrays.asList("wizz/1.2.3.4", "wizz/2.3.4.5", "wizz/3.4.5.6"));
+    when(inetAdressResolver.getAllByName("ninja")).thenReturn(Arrays.asList("ninja/4.5.6.7", "ninja/5.6.7.8"));
+  }
+
+  @Test
+  public void testMultipleIPsByHostname() {
+    underTest.setMembers(asList("wizz:9001", "ninja"));
+
+    List<String> members = underTest.getMembers();
+    assertThat(members).containsExactlyInAnyOrder("1.2.3.4:9001", "2.3.4.5:9001", "3.4.5.6:9001", "4.5.6.7:9003", "5.6.7.8:9003");
+
+  }
 
   @Test
   public void build_member() {
@@ -70,8 +96,8 @@ public class HazelcastMemberBuilderTest {
     underTest.setMembers(asList("foo", "bar:9100", "1.2.3.4"));
 
     assertThat(underTest.getMembers()).containsExactly(
-      "foo:" + CLUSTER_NODE_HZ_PORT.getDefaultValue(),
-      "bar:9100",
+      "5.6.7.8:" + CLUSTER_NODE_HZ_PORT.getDefaultValue(),
+      "8.7.6.5:9100",
       "1.2.3.4:" + CLUSTER_NODE_HZ_PORT.getDefaultValue());
   }
 
