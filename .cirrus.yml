@@ -30,7 +30,7 @@ task_only_nightly_depending_on_build_template: &TASK_ONLY_NIGHTLY_DEPENDING_ON_B
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-  #only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
 
 task_only_default_depending_on_build_template: &TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
