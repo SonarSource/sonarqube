@@ -10,9 +10,7 @@ There are two levels of users with permissions for adding and editing Portfolios
 
 ### Create Portfolios Permission
 
-Users with the Create Portfolios permission (granted at the global level at [Administration > Security > Global Permissions](/#sonarqube-admin#/admin/permissions)) can create Portfolios by clicking the the **Create Portfolio** button in the upper-right corner of the **Portfolios** homepage.
-
-![Create Portfolios](/images/creatingportfoliosandapps.png)
+Users with the Create Portfolios permission (granted at the global level at [Administration > Security > Global Permissions](/#sonarqube-admin#/admin/permissions)) can create Portfolios by clicking the **Create Portfolio** button in the upper-right corner of the **Portfolios** homepage.
 
 Users with the Create Portfolios permission can edit an individual Portfolio definition from the Portfolio-level **Portfolio Settings > Edit Definition** interface.
 
