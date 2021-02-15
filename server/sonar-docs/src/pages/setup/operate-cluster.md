@@ -40,7 +40,9 @@ You can start or stop a single node in the same way as starting and stopping an 
 ## Scalability
 You have the option of adding application nodes (up to 10 total application nodes) to your cluster to increase computing capabilities. 
 
-### Adding an Application Node
+### Scaling in a Traditional Environment
+
+#### **Adding an Application Node**
 To add an Application Node:
 
 1. Configure your new application node in sonar.properties. The following is an example of the configuration to be added to sonar.properties for a sixth application node (server6, ip6) in a cluster with the default five servers:
@@ -61,8 +63,19 @@ To add an Application Node:
 
 	While you don't need to restart the cluster after adding a node, you should ensure the configuration is up to date on all of your nodes to avoid issues when you eventually do need to restart.
 
-### Removing an Application Node
+#### **Removing an Application Node**
 When you remove an application node, make sure to update the configuration of the remaining nodes. Much like adding a node, while you don't need to restart the cluster after removing a node, you should ensure the configuration is up to date on all of your nodes to avoid issues when you eventually do need to restart.
+
+### Scaling in a Docker Environment
+
+#### **Adding Application Nodes**
+
+If you're using docker-compose, you can scale the application nodes using the following command:
+
+`docker-compose up -d --scale sonarqube=3`
+
+#### Removing Application Nodes
+You can reduce the number of application nodes with the same command used to add application nodes by lowering the number.
 
 ## Monitoring
 CPU and RAM usage on each node have to be monitored separately with an APM. 
@@ -73,7 +86,7 @@ In addition, we provide a Web API _api/system/health_ you can use to validate th
 * YELLOW: SonarQube is usable, but it needs attention in order to be fully operational
 * RED: SonarQube is not operational
 
-To call it from a monitoring system without having to give admin credentials, it is possible to setup a System Passcode through the property `sonar.web.systemPasscode`. This must be configured in _$SONARQUBE-HOME/conf/sonar.properties_.
+To call it from a monitoring system without having to give admin credentials, it is possible to setup a system passcode. You can configure this through the `sonar.web.systemPasscode` property in _$SONARQUBE-HOME/conf/sonar.properties_ if you're using a traditional environment or through the corresponding environment variable if you're using a Docker environment.
 
 ### Cluster Status
 On the System Info page at **Administration > System**, you can check whether your cluster is running safely (green) or has some nodes with problems (orange or red).
@@ -99,7 +112,9 @@ There are three TCP networks to configure:
 
 [Hazelcast](https://hazelcast.org/) is used to manage the communication between the cluster's application nodes. You don't need to install it yourself, it's provided out of the box.
 
-The following properties may be defined in the _$SONARQUBE-HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
+If you're working in a Docker environment, your properties are configured using environment variables.
+
+If you're working in a traditional environment, the following properties may be defined in the _$SONARQUBE-HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
 
 [[warning]]
 | Ports can be unintentionally exposed. We recommend only giving external access to the application nodes and to main port (`sonar.web.port`).

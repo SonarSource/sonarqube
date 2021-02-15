@@ -227,14 +227,16 @@ The limits of each container depend on the workload that each container has. A g
 
 The 4Gb mem_limit should not be lower as this is the minimal value for Elasticsearch.
 
-### Logs
+### Scalability
 
-The sonarqube_logs volume will be populated with a new folder depending on the containers hostname and all logs of this container will be put into this folder. 
-This behavior also happens when a custom log path is specified via the [Docker Environment Variables](/setup/environment-variables/).
+Application nodes can be scaled using replicas. This is not the case for the Search nodes as Elasticsearch will not become ready. See the [Configure and Operate a Cluster](/setup/operate-cluster/) for more information.
 
-### Search and Application nodes
+### Volumes
+You'll use the following volumes in your configuration:
 
-The Application nodes can be scaled using replicas. Please note that this is not the case for the Search nodes: Elasticsearch will not become ready.
+- `sonarqube_data` – In the Docker Compose configuration example in the following section, volumes are shared between replicas in the application nodes, so you don't need a `sonarqube_data` volume on your application nodes. In the search nodes, the `sonarqube_data` volume contains the Elasticsearch data and helps reduce startup time, so we recommend having a `sonarqube_data` volume on each search node.
+- `sonarqube_extensions` – For application nodes, we recommend sharing a common `sonarqube_extensions` volume which contains any plugins you install and the Oracle JDBC driver if necessary.
+- `sonarqube_logs` – For both application and search nodes, we recommend sharing a common `sonarqube_logs` volume which contains SonarQube logs. The volume will be populated with a new folder depending on the container's hostname and all logs of this container will be put into this folder. This behavior also happens when a custom log path is specified via the [Docker Environment Variables](/setup/environment-variables/).
 
 ## Example Docker Compose configuration
 
@@ -267,7 +269,6 @@ The Application nodes can be scaled using replicas. Please note that this is not
 |      VIRTUAL_HOST: sonarqube.dev.local
 |      VIRTUAL_PORT: 9000
 |    volumes:
-|      - sonarqube_data:/opt/sonarqube/data
 |      - sonarqube_extensions:/opt/sonarqube/extensions
 |      - sonarqube_logs:/opt/sonarqube/logs
 |  search-1:
@@ -283,6 +284,8 @@ The Application nodes can be scaled using replicas. Please note that this is not
 |      SONAR_JDBC_PASSWORD: sonar
 |      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
 |      SONAR_CLUSTER_NODE_NAME: "search-1"
+|    volumes:
+|      - search-data-1:/opt/sonarqube/data
 |  search-2:
 |    image: sonarqube:8.6-datacenter-search
 |    hostname: "search-2"
@@ -296,6 +299,8 @@ The Application nodes can be scaled using replicas. Please note that this is not
 |      SONAR_JDBC_PASSWORD: sonar
 |      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
 |      SONAR_CLUSTER_NODE_NAME: "search-2"
+|    volumes:
+|      - search-data-2:/opt/sonarqube/data
 |  search-3:
 |    image: sonarqube:8.6-datacenter-search
 |    hostname: "search-3"
@@ -309,6 +314,8 @@ The Application nodes can be scaled using replicas. Please note that this is not
 |      SONAR_JDBC_PASSWORD: sonar
 |      SONAR_CLUSTER_ES_HOSTS: "search-1,search-2,search-3"
 |      SONAR_CLUSTER_NODE_NAME: "search-3"
+|    volumes:
+|      - search-data-3:/opt/sonarqube/data
 |  db:
 |    image: postgres:12
 |    networks:
@@ -339,9 +346,11 @@ The Application nodes can be scaled using replicas. Please note that this is not
 |    driver: bridge
 |
 |volumes:
-|  sonarqube_data:
 |  sonarqube_extensions:
 |  sonarqube_logs:
+|  search-data-1:
+|  search-data-2:
+|  search-data-3:
 |  postgresql:
 |  postgresql_data:
 | ```
