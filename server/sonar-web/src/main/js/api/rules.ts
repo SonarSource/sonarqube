@@ -25,12 +25,39 @@ export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
 }
 
-export function searchRules(data: { [x: string]: any }): Promise<SearchRulesResponse> {
+export function searchRules(data: {
+  activation?: boolean | string;
+  active_severities?: string;
+  asc?: boolean | string;
+  available_since?: string;
+  cwe?: string;
+  f?: string;
+  facets?: string;
+  include_external?: boolean | string;
+  inheritance?: string;
+  is_template?: boolean | string;
+  languages?: string;
+  owaspTop10?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+  qprofile?: string;
+  repositories?: string;
+  rule_key?: string;
+  s?: string;
+  sansTop25?: string;
+  severities?: string;
+  sonarsourceSecurity?: string;
+  statuses?: string;
+  tags?: string;
+  template_key?: string;
+  types?: string;
+}): Promise<SearchRulesResponse> {
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 
-export function takeFacet(response: any, property: string) {
-  const facet = response.facets.find((facet: any) => facet.property === property);
+export function takeFacet(response: SearchRulesResponse, property: string) {
+  const facet = response.facets?.find(f => f.property === property);
   return facet ? facet.values : [];
 }
 

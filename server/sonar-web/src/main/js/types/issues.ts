@@ -30,16 +30,15 @@ export enum IssueScope {
 }
 
 interface Comment {
+  createdAt: string;
+  htmlText: string;
+  key: string;
   login: string;
-  [x: string]: any;
+  markdown: string;
+  updatable: boolean;
 }
 
-interface IssueBase {
-  severity: string;
-  [x: string]: any;
-}
-
-export interface RawIssue extends IssueBase {
+export interface RawIssue {
   assignee?: string;
   author?: string;
   comments?: Array<Comment>;
@@ -52,6 +51,7 @@ export interface RawIssue extends IssueBase {
   line?: number;
   project: string;
   rule: string;
+  severity: string;
   status: string;
   subProject?: string;
   textRange?: T.TextRange;
