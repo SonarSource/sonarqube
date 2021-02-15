@@ -169,9 +169,13 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
     const slug = almSpecificFields?.slug;
     const monorepo = almSpecificFields?.monorepo ?? false;
 
+    if (!repository) {
+      return Promise.reject();
+    }
+
     switch (alm) {
       case AlmKeys.Azure: {
-        if (!slug || !repository) {
+        if (!slug) {
           return Promise.reject();
         }
         return setProjectAzureBinding({
@@ -183,7 +187,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         });
       }
       case AlmKeys.BitbucketServer: {
-        if (!repository || !slug) {
+        if (!slug) {
           return Promise.reject();
         }
         return setProjectBitbucketBinding({
@@ -195,9 +199,6 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         });
       }
       case AlmKeys.BitbucketCloud: {
-        if (!repository) {
-          return Promise.reject();
-        }
         return setProjectBitbucketCloudBinding({
           almSetting,
           project,
@@ -206,13 +207,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       }
       case AlmKeys.GitHub: {
         // By default it must remain true.
-        const summaryCommentEnabled =
-          almSpecificFields?.summaryCommentEnabled === undefined
-            ? true
-            : almSpecificFields?.summaryCommentEnabled;
-        if (!repository) {
-          return Promise.reject();
-        }
+        const summaryCommentEnabled = almSpecificFields?.summaryCommentEnabled ?? true;
         return setProjectGithubBinding({
           almSetting,
           project,
@@ -223,9 +218,6 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       }
 
       case AlmKeys.GitLab: {
-        if (!repository) {
-          return Promise.reject();
-        }
         return setProjectGitlabBinding({
           almSetting,
           project,
