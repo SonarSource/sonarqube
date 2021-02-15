@@ -35,8 +35,14 @@ jest.mock('../../../../api/newCodePeriod', () => ({
   setNewCodePeriod: jest.fn().mockResolvedValue({})
 }));
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render correctly', async () => {
+  let wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper = shallowRender({ branchesEnabled: false });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('without branch support');
 });
 
 it('should initialize correctly', async () => {
@@ -100,6 +106,7 @@ it('should handle errors gracefully', async () => {
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(
     <App
+      branchLike={mockBranch()}
       branchLikes={[mockMainBranch()]}
       branchesEnabled={true}
       canAdmin={true}

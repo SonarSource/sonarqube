@@ -22,8 +22,6 @@ import { Link } from 'react-router';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { isSonarCloud } from '../../../helpers/system';
-import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {
@@ -69,70 +67,6 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     );
   }
 
-  renderSonarCloudLinks() {
-    return (
-      <>
-        <li className="divider" />
-        <li>
-          <a
-            href="https://community.sonarsource.com/c/help/sc"
-            rel="noopener noreferrer"
-            target="_blank">
-            {translate('embed_docs.get_help')}
-          </a>
-        </li>
-        <li className="divider" />
-        {this.renderTitle(translate('embed_docs.stay_connected'))}
-        <li>
-          {this.renderIconLink(
-            'https://twitter.com/sonarcloud',
-            'embed-doc/twitter-icon.svg',
-            'Twitter'
-          )}
-        </li>
-        <li>
-          {this.renderIconLink(
-            'https://blog.sonarsource.com/product/SonarCloud',
-            'sonarcloud-square-logo.svg',
-            translate('embed_docs.blog')
-          )}
-        </li>
-        <li>
-          <ProductNewsMenuItem tag="SonarCloud" />
-        </li>
-      </>
-    );
-  }
-
-  renderSonarQubeLinks() {
-    return (
-      <>
-        <li className="divider" />
-        <li>
-          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
-            {translate('embed_docs.get_help')}
-          </a>
-        </li>
-        <li className="divider" />
-        {this.renderTitle(translate('embed_docs.stay_connected'))}
-        <li>
-          {this.renderIconLink(
-            'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
-            'embed-doc/sq-icon.svg',
-            translate('embed_docs.news')
-          )}
-        </li>
-        <li>
-          {this.renderIconLink(
-            'https://twitter.com/SonarQube',
-            'embed-doc/twitter-icon.svg',
-            'Twitter'
-          )}
-        </li>
-      </>
-    );
-  }
-
   render() {
     return (
       <DropdownOverlay>
@@ -148,7 +82,28 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
               {translate('api_documentation.page')}
             </Link>
           </li>
-          {isSonarCloud() ? this.renderSonarCloudLinks() : this.renderSonarQubeLinks()}
+          <li className="divider" />
+          <li>
+            <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+              {translate('embed_docs.get_help')}
+            </a>
+          </li>
+          <li className="divider" />
+          {this.renderTitle(translate('embed_docs.stay_connected'))}
+          <li>
+            {this.renderIconLink(
+              'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
+              'embed-doc/sq-icon.svg',
+              translate('embed_docs.news')
+            )}
+          </li>
+          <li>
+            {this.renderIconLink(
+              'https://twitter.com/SonarQube',
+              'embed-doc/twitter-icon.svg',
+              'Twitter'
+            )}
+          </li>
         </ul>
       </DropdownOverlay>
     );
