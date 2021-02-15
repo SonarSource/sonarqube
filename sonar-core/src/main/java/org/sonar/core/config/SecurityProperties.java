@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 
-import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
 
 class SecurityProperties {
 
@@ -33,7 +33,7 @@ class SecurityProperties {
   }
 
   static List<PropertyDefinition> all() {
-    return singletonList(
+    return asList(
       PropertyDefinition.builder(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)
         .defaultValue(Boolean.toString(CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE))
         .name("Force user authentication")
@@ -43,7 +43,17 @@ class SecurityProperties {
             + "<br><strong>Disabling this setting can expose the instance to security risks.</strong>")
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
-        .build());
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
+        .defaultValue(Boolean.toString(CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE))
+        .name("Enable permission management for project administrators")
+        .description(
+          "Set if users with 'Administer' role in a project should be allowed to change project permissions. By default users with 'Administer' " +
+            "role are allowed to change both project configuration and project permissions.")
+        .type(PropertyType.BOOLEAN)
+        .category(CoreProperties.CATEGORY_SECURITY)
+        .build()
+    );
 
   }
 }

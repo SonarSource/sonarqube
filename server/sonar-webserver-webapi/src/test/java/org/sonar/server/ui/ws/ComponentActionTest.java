@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -98,6 +99,7 @@ public class ComponentActionTest {
   private final ComponentDbTester componentDbTester = db.components();
   private final PropertyDbTester propertyDbTester = new PropertyDbTester(db);
   private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private final Configuration config = mock(Configuration.class);
 
   private WsActionTester ws;
 
@@ -652,7 +654,7 @@ public class ComponentActionTest {
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
     when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
-    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{context -> {
       for (Page page : pages) {
         context.addPage(page);
       }
@@ -660,7 +662,7 @@ public class ComponentActionTest {
     pageRepository.start();
     ws = new WsActionTester(
       new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient, resourceTypes),
-        new QualityGateFinder(dbClient)));
+        new QualityGateFinder(dbClient), config));
   }
 
   private String execute(String componentKey) {
@@ -702,7 +704,7 @@ public class ComponentActionTest {
       .setAdmin(true)
       .build();
 
-    return new Page[] {page1, page2, adminPage};
+    return new Page[]{page1, page2, adminPage};
   }
 
   private void verifySuccess(String componentKey) {

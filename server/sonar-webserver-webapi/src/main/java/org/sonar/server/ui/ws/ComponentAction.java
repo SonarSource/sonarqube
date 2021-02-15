@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -60,6 +61,8 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.emptySortedSet;
+import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
+import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -94,15 +97,17 @@ public class ComponentAction implements NavigationWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
+  private final Configuration config;
 
   public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
-    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
+                         ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, Configuration config) {
     this.dbClient = dbClient;
     this.pageRepository = pageRepository;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
+    this.config = config;
   }
 
   @Override
@@ -287,13 +292,16 @@ public class ComponentAction implements NavigationWsAction {
     boolean isQualityGateAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
     boolean isGlobalAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER);
     boolean canBrowseProject = userSession.hasComponentPermission(USER, component);
+    boolean allowChangingPermissionsByProjectAdmins = config.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)
+      .orElse(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE);
 
     json.prop("showSettings", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
     json.prop("showQualityProfiles", isProject && (isProjectAdmin || isQualityProfileAdmin));
     json.prop("showQualityGates", isProject && (isProjectAdmin || isQualityGateAdmin));
     json.prop("showManualMeasures", showManualMeasures);
     json.prop("showLinks", isProjectAdmin && isProject);
-    json.prop("showPermissions", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
+    json.prop("showPermissions", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY)
+      && (isGlobalAdmin || allowChangingPermissionsByProjectAdmins));
     json.prop("showHistory", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showBackgroundTasks", showBackgroundTasks);
