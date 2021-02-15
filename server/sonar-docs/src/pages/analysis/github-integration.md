@@ -39,12 +39,17 @@ Specify the following settings in your app:
 - **Webhook URL** – Your instance's base URL. For example, `https://yourinstance.sonarqube.com`.
 - Grant access for the following **Repository permissions**:
 
-   | Permission          | Access       |
-   |---------------------|--------------|
-   | Checks              | Read & write |
-   | **GitHub Enterprise:** Repository metadata <br> **GitHub.com:** Metadata <br> (this setting is automatically set by GitHub)| Read-only |
-   | Pull Requests       | Read & write |
-   | Commit statuses     | Read-only    |
+  | Permission          | Access       |
+  |---------------------|--------------|
+  | Checks              | Read & write |
+  | **GitHub Enterprise:** Repository metadata <br> **GitHub.com:** Metadata <br> (this setting is automatically set by GitHub)| Read-only |
+  | Pull Requests       | Read & write |
+  | Commit statuses     | Read-only    |
+- If setting up **GitHub Authentication**, grant access for the following **User permissions**:
+
+  | Permission          | Access       |
+  |---------------------|--------------|
+  | Email addresses     | Read-only    |
 
 - Under "Where can this GitHub App be installed?," select **Any account**.
 
