@@ -194,7 +194,11 @@ exports[`it should render correctly for gitlab: content 1`] = `
   </p>
   <ol
     className="list-styled"
-  />
+  >
+    <WebhookStepGitLab
+      branchesEnabled={true}
+    />
+  </ol>
   <Button
     onClick={[MockFunction]}
   >

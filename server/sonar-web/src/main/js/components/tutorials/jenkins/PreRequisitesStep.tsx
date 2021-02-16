@@ -58,6 +58,9 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
                 {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
               </li>
             )}
+            {!branchesEnabled && alm === AlmKeys.GitLab && (
+              <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.gitlab_plugin')}</li>
+            )}
             <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner')}</li>
           </ul>
           <p className="big-spacer-bottom">

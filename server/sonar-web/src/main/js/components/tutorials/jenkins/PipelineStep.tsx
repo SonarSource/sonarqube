@@ -20,11 +20,13 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 
 export interface PipelineStepProps {
+  alm: AlmKeys;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
@@ -32,7 +34,7 @@ export interface PipelineStepProps {
 }
 
 export default function PipelineStep(props: PipelineStepProps) {
-  const { finished, open } = props;
+  const { alm, finished, open } = props;
   return (
     <Step
       finished={finished}
@@ -51,10 +53,39 @@ export default function PipelineStep(props: PipelineStepProps) {
               />
             </li>
             <li>
-              <SentenceWithHighlights
-                highlightKeys={['tab', 'option']}
-                translationKey="onboarding.tutorial.with.jenkins.pipeline.step2"
-              />
+              {alm === AlmKeys.GitLab ? (
+                <>
+                  <SentenceWithHighlights
+                    highlightKeys={['tab', 'option']}
+                    translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.trigger"
+                  />
+                  <ul className="list-styled">
+                    <li>
+                      <SentenceWithHighlights
+                        highlightKeys={['triggers', 'push_events']}
+                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.pick_triggers"
+                      />
+                    </li>
+                    <li>
+                      <SentenceWithHighlights
+                        highlightKeys={['advanced']}
+                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.click_advanced"
+                      />
+                    </li>
+                    <li>
+                      <SentenceWithHighlights
+                        highlightKeys={['secret_token', 'generate']}
+                        translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.secret_token"
+                      />
+                    </li>
+                  </ul>
+                </>
+              ) : (
+                <SentenceWithHighlights
+                  highlightKeys={['tab', 'option']}
+                  translationKey="onboarding.tutorial.with.jenkins.pipeline.step2"
+                />
+              )}
             </li>
             <li>
               <SentenceWithHighlights
@@ -66,7 +97,10 @@ export default function PipelineStep(props: PipelineStepProps) {
                   <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.definition" />
                 </li>
                 <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm" />
+                  <SentenceWithHighlights
+                    highlightKeys={['label', 'branches_to_build']}
+                    translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm"
+                  />
                 </li>
                 <li>
                   <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.script_path" />

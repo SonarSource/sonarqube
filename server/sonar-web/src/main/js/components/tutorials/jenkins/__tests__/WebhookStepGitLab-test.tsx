@@ -19,28 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../types/alm-settings';
-import PipelineStep, { PipelineStepProps } from '../PipelineStep';
-import { renderStepContent } from '../test-utils';
+import WebhookStepGitLab, { WebhookStepGitLabProps } from '../WebhookStepGitLab';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('Step wrapper');
-  expect(renderStepContent(wrapper)).toMatchSnapshot('content');
-  expect(renderStepContent(shallowRender({ alm: AlmKeys.GitLab }))).toMatchSnapshot(
-    'gitlab content'
-  );
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('with branches disabled');
 });
 
-function shallowRender(props: Partial<PipelineStepProps> = {}) {
-  return shallow<PipelineStepProps>(
-    <PipelineStep
-      alm={AlmKeys.GitHub}
-      finished={false}
-      onDone={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      {...props}
-    />
-  );
+function shallowRender(props: Partial<WebhookStepGitLabProps> = {}) {
+  return shallow<WebhookStepGitLabProps>(<WebhookStepGitLab branchesEnabled={true} {...props} />);
 }

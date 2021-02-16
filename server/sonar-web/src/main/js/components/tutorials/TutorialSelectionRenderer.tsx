@@ -45,7 +45,8 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   }
 
   const jenkinsAvailable =
-    projectBinding && [AlmKeys.BitbucketServer, AlmKeys.GitHub].includes(projectBinding.alm);
+    projectBinding &&
+    [AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKeys.GitLab].includes(projectBinding.alm);
 
   return (
     <>

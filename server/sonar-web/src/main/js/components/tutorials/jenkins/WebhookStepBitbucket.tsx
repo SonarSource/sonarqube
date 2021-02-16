@@ -34,8 +34,8 @@ export interface WebhookStepBitbucketProps {
 
 function buildUrlSnippet(branchesEnabled: boolean, ownUrl = '***BITBUCKET_URL***') {
   return branchesEnabled
-    ? `***JENKINS_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`
-    : '***JENKINS_URL***/job/JENKINS_JOB_NAME/build?token=JENKINS_BUILD_TRIGGER_TOKEN';
+    ? `***JENKINS_SERVER_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`
+    : '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
 }
 
 export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {

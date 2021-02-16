@@ -31,6 +31,7 @@ import {
 import Step from '../components/Step';
 import WebhookStepBitbucket from './WebhookStepBitbucket';
 import WebhookStepGithub from './WebhookStepGithub';
+import WebhookStepGitLab from './WebhookStepGitLab';
 
 export interface WebhookStepProps {
   almBinding?: AlmBindingDefinition;
@@ -63,6 +64,9 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
           projectBinding={projectBinding}
         />
       );
+
+    case AlmKeys.GitLab:
+      return <WebhookStepGitLab branchesEnabled={branchesEnabled} />;
 
     default:
       return null;

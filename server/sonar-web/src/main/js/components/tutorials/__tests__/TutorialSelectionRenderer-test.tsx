@@ -24,6 +24,7 @@ import {
   mockBitbucketBindingDefinition,
   mockProjectAzureBindingResponse,
   mockProjectBitbucketBindingResponse,
+  mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../helpers/testMocks';
@@ -61,7 +62,7 @@ it('should render correctly', () => {
   ).toMatchSnapshot('azure pipelines tutorial');
 });
 
-it('should allow mode selection', () => {
+it('should allow mode selection for Bitbucket', () => {
   const onSelectTutorial = jest.fn();
   const wrapper = shallowRender({
     onSelectTutorial,
@@ -75,18 +76,38 @@ it('should allow mode selection', () => {
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
 });
 
-it('should allow gitlab selection', () => {
+it('should allow mode selection for Github', () => {
+  const onSelectTutorial = jest.fn();
+  const wrapper = shallowRender({
+    onSelectTutorial,
+    projectBinding: mockProjectGithubBindingResponse()
+  });
+
+  click(wrapper.find('button.tutorial-mode-jenkins'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
+
+  click(wrapper.find('button.tutorial-mode-manual'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+});
+
+it('should allow mode selection for GitLab', () => {
   const onSelectTutorial = jest.fn();
   const wrapper = shallowRender({
     onSelectTutorial,
     projectBinding: mockProjectGitLabBindingResponse()
   });
 
+  click(wrapper.find('button.tutorial-mode-jenkins'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
+
   click(wrapper.find('button.tutorial-mode-gitlab'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitLabCI);
+
+  click(wrapper.find('button.tutorial-mode-manual'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
 });
 
-it('should allow azure pipelines selection', () => {
+it('should allow mode selection for Azure DevOps', () => {
   const onSelectTutorial = jest.fn();
   const wrapper = shallowRender({
     onSelectTutorial,
@@ -95,6 +116,9 @@ it('should allow azure pipelines selection', () => {
 
   click(wrapper.find('button.azure-pipelines'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.AzurePipelines);
+
+  click(wrapper.find('button.tutorial-mode-manual'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
 });
 
 function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {

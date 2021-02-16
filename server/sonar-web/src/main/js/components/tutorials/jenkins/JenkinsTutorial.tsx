@@ -27,6 +27,7 @@ import {
   AlmBindingDefinition,
   isProjectBitbucketBindingResponse,
   isProjectGitHubBindingResponse,
+  isProjectGitLabBindingResponse,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import JenkinsfileStep from './JenkinsfileStep';
@@ -62,7 +63,8 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   // Failsafe; should never happen.
   if (
     !isProjectBitbucketBindingResponse(projectBinding) &&
-    !isProjectGitHubBindingResponse(projectBinding)
+    !isProjectGitHubBindingResponse(projectBinding) &&
+    !isProjectGitLabBindingResponse(projectBinding)
   ) {
     return (
       <Alert variant="error">{translate('onboarding.tutorial.with.jenkins.unsupported')}</Alert>
@@ -101,6 +103,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         />
       ) : (
         <PipelineStep
+          alm={projectBinding.alm}
           finished={step > Steps.MultiBranchPipeline}
           onDone={() => setStep(Steps.Webhook)}
           onOpen={() => setStep(Steps.MultiBranchPipeline)}

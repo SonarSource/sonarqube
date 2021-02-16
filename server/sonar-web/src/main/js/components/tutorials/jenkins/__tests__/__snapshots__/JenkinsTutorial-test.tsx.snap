@@ -21,6 +21,7 @@ exports[`should render correctly: branches not enabled 1`] = `
     skipNextTime={false}
   />
   <PipelineStep
+    alm="bitbucket"
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}

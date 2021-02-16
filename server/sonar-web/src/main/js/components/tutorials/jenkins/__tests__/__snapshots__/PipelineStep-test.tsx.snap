@@ -63,7 +63,139 @@ exports[`should render correctly: content 1`] = `
           />
         </li>
         <li>
+          <SentenceWithHighlights
+            highlightKeys={
+              Array [
+                "label",
+                "branches_to_build",
+              ]
+            }
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm"
+          />
+        </li>
+        <li>
           <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.script_path"
+          />
+        </li>
+      </ul>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "save",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.pipeline.step4"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: gitlab content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    onboarding.tutorial.with.jenkins.pipeline.intro
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "new_item",
+            "type",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.pipeline.step1"
+      />
+    </li>
+    <li>
+      <React.Fragment>
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "tab",
+              "option",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.trigger"
+        />
+        <ul
+          className="list-styled"
+        >
+          <li>
+            <SentenceWithHighlights
+              highlightKeys={
+                Array [
+                  "triggers",
+                  "push_events",
+                ]
+              }
+              translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.pick_triggers"
+            />
+          </li>
+          <li>
+            <SentenceWithHighlights
+              highlightKeys={
+                Array [
+                  "advanced",
+                ]
+              }
+              translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.click_advanced"
+            />
+          </li>
+          <li>
+            <SentenceWithHighlights
+              highlightKeys={
+                Array [
+                  "secret_token",
+                  "generate",
+                ]
+              }
+              translationKey="onboarding.tutorial.with.jenkins.pipeline.gitlab.step2.secret_token"
+            />
+          </li>
+        </ul>
+      </React.Fragment>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.pipeline.step3"
+      />
+      <ul
+        className="list-styled"
+      >
+        <li>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.definition"
+          />
+        </li>
+        <li>
+          <SentenceWithHighlights
+            highlightKeys={
+              Array [
+                "label",
+                "branches_to_build",
+              ]
+            }
             translationKey="onboarding.tutorial.with.jenkins.pipeline.step3.scm"
           />
         </li>

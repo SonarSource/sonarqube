@@ -25,8 +25,10 @@ import {
   isGithubBindingDefinition,
   isProjectBitbucketBindingResponse,
   isProjectGitHubBindingResponse,
+  isProjectGitLabBindingResponse,
   ProjectBitbucketBindingResponse,
-  ProjectGitHubBindingResponse
+  ProjectGitHubBindingResponse,
+  ProjectGitLabBindingResponse
 } from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import LabelValuePair from '../components/LabelValuePair';
@@ -40,7 +42,10 @@ export interface MultiBranchPipelineStepProps {
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectBinding: ProjectBitbucketBindingResponse | ProjectGitHubBindingResponse;
+  projectBinding:
+    | ProjectBitbucketBindingResponse
+    | ProjectGitHubBindingResponse
+    | ProjectGitLabBindingResponse;
 }
 
 export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepProps) {
@@ -64,7 +69,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
             </li>
             <li>
               <SentenceWithHighlights
-                highlightKeys={['tab']}
+                highlightKeys={['tab', 'source']}
                 translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${projectBinding.alm}`}
               />
               <ul className="list-styled">
@@ -107,10 +112,30 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                     </li>
                   </>
                 )}
+                {isProjectGitLabBindingResponse(projectBinding) && (
+                  <>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.creds" />
+                    </li>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.owner" />
+                    </li>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.repo" />
+                    </li>
+                  </>
+                )}
                 <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviour" />
+                  <LabelActionPair
+                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${projectBinding.alm}.behaviour`}
+                  />
                 </li>
               </ul>
+              <p className="big-spacer-left padder-left">
+                {translate(
+                  'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults'
+                )}
+              </p>
             </li>
             <li>
               <SentenceWithHighlights

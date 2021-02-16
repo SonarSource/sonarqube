@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockProjectBitbucketBindingResponse,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
+  mockProjectGitLabBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import MultiBranchPipelineStep, { MultiBranchPipelineStepProps } from '../MultiBranchPipelineStep';
 import { renderStepContent } from '../test-utils';
@@ -33,6 +34,9 @@ it('should render correctly', () => {
   expect(
     renderStepContent(shallowRender({ projectBinding: mockProjectGithubBindingResponse() }))
   ).toMatchSnapshot('content for github');
+  expect(
+    renderStepContent(shallowRender({ projectBinding: mockProjectGitLabBindingResponse() }))
+  ).toMatchSnapshot('content for gitlab');
 });
 
 function shallowRender(props: Partial<MultiBranchPipelineStepProps> = {}) {

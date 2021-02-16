@@ -31,6 +31,9 @@ it('should render correctly', () => {
   expect(renderStepContent(shallowRender({ branchesEnabled: false }))).toMatchSnapshot(
     'content for branches disabled'
   );
+  expect(
+    renderStepContent(shallowRender({ alm: AlmKeys.GitLab, branchesEnabled: false }))
+  ).toMatchSnapshot('content for branches disabled, gitlab');
 });
 
 function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {

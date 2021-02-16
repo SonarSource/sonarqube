@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { AlmKeys } from '../../../../types/alm-settings';
-import PipelineStep, { PipelineStepProps } from '../PipelineStep';
-import { renderStepContent } from '../test-utils';
+import {
+  mockBitbucketCloudBindingDefinition,
+  mockGithubBindingDefinition,
+  mockGitlabBindingDefinition
+} from '../../helpers/mocks/alm-settings';
+import { isGitLabBindingDefinition } from '../alm-settings';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('Step wrapper');
-  expect(renderStepContent(wrapper)).toMatchSnapshot('content');
-  expect(renderStepContent(shallowRender({ alm: AlmKeys.GitLab }))).toMatchSnapshot(
-    'gitlab content'
-  );
+describe('isGitLabBindingDefinition', () => {
+  it('correctly returns false for non-GitLab bindings', () => {
+    expect(isGitLabBindingDefinition(mockBitbucketCloudBindingDefinition())).toBe(false);
+    expect(isGitLabBindingDefinition(mockGithubBindingDefinition())).toBe(false);
+  });
+
+  it('correctly returns true for GitLab bindings', () => {
+    expect(isGitLabBindingDefinition(mockGitlabBindingDefinition())).toBe(true);
+  });
 });
-
-function shallowRender(props: Partial<PipelineStepProps> = {}) {
-  return shallow<PipelineStepProps>(
-    <PipelineStep
-      alm={AlmKeys.GitHub}
-      finished={false}
-      onDone={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      {...props}
-    />
-  );
-}

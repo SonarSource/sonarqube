@@ -20,27 +20,15 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
-import { buildGithubLink } from '../utils';
 
-export interface WebhookStepGithubProps {
-  almBinding?: GithubBindingDefinition;
+export interface WebhookStepGitLabProps {
   branchesEnabled: boolean;
-  projectBinding: ProjectAlmBindingResponse;
 }
 
-export default function WebhookStepGithub(props: WebhookStepGithubProps) {
-  const { almBinding, branchesEnabled, projectBinding } = props;
-
-  const linkUrl = almBinding && `${buildGithubLink(almBinding, projectBinding)}/settings/hooks`;
-
-  const webhookUrl = branchesEnabled
-    ? '***JENKINS_SERVER_URL***/github-webhook/'
-    : '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
-
+export default function WebhookStepGitLab({ branchesEnabled }: WebhookStepGitLabProps) {
   return (
     <>
       <li>
@@ -48,39 +36,47 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
           defaultMessage={translate('onboarding.tutorial.with.jenkins.webhook.step1.sentence')}
           id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
           values={{
-            link: linkUrl ? (
-              <a href={linkUrl} rel="noopener noreferrer" target="_blank">
-                {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
-              </a>
-            ) : (
-              translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')
-            )
+            link: translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step1.link')
           }}
         />
         <ul className="list-styled">
-          <li className="abs-width-600">
-            <p>
-              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url" />
-            </p>
-            <CodeSnippet isOneLine={true} snippet={webhookUrl} />
-          </li>
+          {branchesEnabled ? (
+            <li className="abs-width-600">
+              <p>
+                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_with_branches" />
+              </p>
+              <CodeSnippet
+                isOneLine={true}
+                snippet="***JENKINS_SERVER_URL***/gitlab-webhook/post"
+              />
+            </li>
+          ) : (
+            <>
+              <li>
+                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_no_branches" />
+              </li>
+              <li>
+                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.secret_token" />
+              </li>
+            </>
+          )}
         </ul>
       </li>
       <li>
         <SentenceWithHighlights
-          highlightKeys={['events', 'option']}
-          translationKey="onboarding.tutorial.with.jenkins.webhook.github.step2"
+          highlightKeys={['trigger']}
+          translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step2"
         />
         <ul className="list-styled">
           <li>
             <strong>
-              {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.repo')}
+              {translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step2.repo')}
             </strong>
           </li>
           {branchesEnabled && (
             <li>
               <strong>
-                {translate('onboarding.tutorial.with.jenkins.webhook.github.step2.pr')}
+                {translate('onboarding.tutorial.with.jenkins.webhook.gitlab.step2.mr')}
               </strong>
             </li>
           )}
@@ -88,8 +84,8 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
       </li>
       <li>
         <SentenceWithHighlights
-          highlightKeys={['create']}
-          translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+          highlightKeys={['add_webhook']}
+          translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step3"
         />
       </li>
     </>
