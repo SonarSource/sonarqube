@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -50,6 +51,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -64,10 +66,11 @@ public class DeleteTemplateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserSessionRule userSession = UserSessionRule.standalone();
-  private DbClient dbClient = db.getDbClient();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
-  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbClient, resourceTypes);
+  private final UserSessionRule userSession = UserSessionRule.standalone();
+  private final DbClient dbClient = db.getDbClient();
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
+  private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbClient, resourceTypes);
+  private final Configuration configuration = mock(Configuration.class);
 
   private WsActionTester underTest;
 
@@ -75,7 +78,7 @@ public class DeleteTemplateActionTest {
   public void setUp() {
     GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, new DefaultGroupFinder(db.getDbClient()));
     this.underTest = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolver));
+      new PermissionWsSupport(dbClient, configuration, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolver));
   }
 
   @Test

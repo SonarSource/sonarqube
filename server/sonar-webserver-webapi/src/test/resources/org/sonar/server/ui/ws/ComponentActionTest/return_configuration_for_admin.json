@@ -1,13 +1,17 @@
 {
   "configuration": {
-    "showSettings": false,
+    "showSettings": true,
     "showQualityProfiles": true,
     "showQualityGates": true,
     "showManualMeasures": true,
     "showLinks": true,
-    "showPermissions": false,
-    "showHistory": false,
-    "showUpdateKey": false,
+    "showPermissions": true,
+    "showHistory": true,
+    "showUpdateKey": true,
+    "showBackgroundTasks": true,
+    "canApplyPermissionTemplate": false,
+    "canBrowseProject": true,
+    "canUpdateProjectVisibilityToPrivate": true,
     "extensions": [
       {
         "key": "my_plugin/first_page",

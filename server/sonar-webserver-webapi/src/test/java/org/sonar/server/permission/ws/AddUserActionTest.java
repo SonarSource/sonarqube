@@ -21,6 +21,7 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
@@ -36,6 +37,7 @@ import org.sonar.server.permission.PermissionServiceImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -54,9 +56,10 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   private UserDto user;
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private WsParameters wsParameters = new WsParameters(permissionService);
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final WsParameters wsParameters = new WsParameters(permissionService);
+  private final Configuration configuration = mock(Configuration.class);
 
   @Before
   public void setUp() {
@@ -65,7 +68,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Override
   protected AddUserAction buildWsAction() {
-    return new AddUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService);
+    return new AddUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService, configuration);
   }
 
   @Test
@@ -112,7 +115,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() {
-    ComponentDto view = db.components().insertComponent(newView( "view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView("view-uuid").setDbKey("view-key"));
     loginAsAdmin();
 
     newRequest()

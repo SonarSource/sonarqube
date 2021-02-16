@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -50,15 +51,17 @@ public class AddUserAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final Configuration configuration;
 
   public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService) {
+                       WsParameters wsParameters, PermissionService permissionService, Configuration configuration) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
+    this.configuration = configuration;
   }
 
   @Override
@@ -85,7 +88,7 @@ public class AddUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      checkProjectAdmin(userSession, project.orElse(null));
+      checkProjectAdmin(userSession, configuration, project.orElse(null));
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,

@@ -50,7 +50,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.RequestValidator.validateGlobalPermission;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -66,7 +65,7 @@ public class UsersAction implements PermissionsWsAction {
   private final RequestValidator requestValidator;
 
   public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, WsParameters wsParameters,
-    RequestValidator requestValidator) {
+                     RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
@@ -107,7 +106,7 @@ public class UsersAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      checkProjectAdmin(userSession, project.orElse(null));
+      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
 
       PermissionQuery query = buildPermissionQuery(request, project.orElse(null));
       List<UserDto> users = findUsers(dbSession, query);

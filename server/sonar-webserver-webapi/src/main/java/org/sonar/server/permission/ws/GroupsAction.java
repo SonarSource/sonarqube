@@ -49,7 +49,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -99,7 +98,7 @@ public class GroupsAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      checkProjectAdmin(userSession, project.orElse(null));
+      wsSupport.checkPermissionManagementAccess(userSession, project.orElse(null));
 
       PermissionQuery query = buildPermissionQuery(request, project.orElse(null));
       List<GroupDto> groups = findGroups(dbSession, query);

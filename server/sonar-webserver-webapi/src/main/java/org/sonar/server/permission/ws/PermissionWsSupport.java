@@ -20,6 +20,8 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
@@ -39,6 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 
@@ -47,11 +51,17 @@ public class PermissionWsSupport {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final GroupWsSupport groupWsSupport;
+  private final Configuration configuration;
 
-  public PermissionWsSupport(DbClient dbClient, ComponentFinder componentFinder, GroupWsSupport groupWsSupport) {
+  public PermissionWsSupport(DbClient dbClient, Configuration configuration, ComponentFinder componentFinder, GroupWsSupport groupWsSupport) {
     this.dbClient = dbClient;
+    this.configuration = configuration;
     this.componentFinder = componentFinder;
     this.groupWsSupport = groupWsSupport;
+  }
+
+  public void checkPermissionManagementAccess(UserSession userSession, @Nullable ComponentDto project) {
+    checkProjectAdmin(userSession, configuration, project);
   }
 
   public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {

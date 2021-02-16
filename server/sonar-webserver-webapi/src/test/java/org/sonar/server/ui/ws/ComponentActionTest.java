@@ -23,11 +23,15 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -67,6 +71,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Version;
 
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -102,6 +107,13 @@ public class ComponentActionTest {
   private final Configuration config = mock(Configuration.class);
 
   private WsActionTester ws;
+
+  @Before
+  public void setup() {
+    ResourceType resourceType = mock(ResourceType.class);
+    when(resourceType.getBooleanProperty(any())).thenReturn(true);
+    when(resourceTypes.get(any())).thenReturn(resourceType);
+  }
 
   @Test
   public void return_info_if_user_has_browse_permission_on_project() {
@@ -425,46 +437,72 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void return_configuration_for_private_projects() {
+  public void return_configuration_for_private_projects_for_user_with_project_administer_permission_when_permission_management_is_enabled_for_project_admins() {
     ComponentDto project = insertProject();
     UserSessionRule userSessionRule = userSession.logIn();
     init();
-
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\n" +
-      "  \"configuration\": {\n" +
-      "    \"showSettings\": false,\n" +
-      "    \"showQualityProfiles\": true,\n" +
-      "    \"showQualityGates\": true,\n" +
-      "    \"showManualMeasures\": true,\n" +
-      "    \"showLinks\": true,\n" +
-      "    \"showPermissions\": false,\n" +
-      "    \"showHistory\": false,\n" +
-      "    \"showUpdateKey\": false,\n" +
-      "    \"showBackgroundTasks\": true,\n" +
-      "    \"canApplyPermissionTemplate\": false,\n" +
-      "    \"canBrowseProject\": false,\n" +
-      "    \"canUpdateProjectVisibilityToPrivate\": true\n" +
-      "  }\n" +
-      "}");
-
     userSessionRule.addProjectPermission(UserRole.USER, project);
-    assertJson(execute(project.getDbKey())).isSimilarTo("{\n" +
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    String json = execute(project.getDbKey());
+
+    assertJson(json).isSimilarTo("{\n" +
       "  \"configuration\": {\n" +
-      "    \"showSettings\": false,\n" +
+      "    \"showSettings\": true,\n" +
       "    \"showQualityProfiles\": true,\n" +
       "    \"showQualityGates\": true,\n" +
       "    \"showManualMeasures\": true,\n" +
       "    \"showLinks\": true,\n" +
-      "    \"showPermissions\": false,\n" +
-      "    \"showHistory\": false,\n" +
-      "    \"showUpdateKey\": false,\n" +
+      "    \"showPermissions\": true,\n" +
+      "    \"showHistory\": true,\n" +
+      "    \"showUpdateKey\": true,\n" +
       "    \"showBackgroundTasks\": true,\n" +
       "    \"canApplyPermissionTemplate\": false,\n" +
       "    \"canBrowseProject\": true,\n" +
       "    \"canUpdateProjectVisibilityToPrivate\": true\n" +
       "  }\n" +
       "}");
+  }
+
+  @Test
+  public void return_configuration_for_private_projects_for_user_with_project_administer_permission_when_permission_management_is_disabled_for_project_admins() {
+    when(config.getBoolean(CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
+    ComponentDto project = insertProject();
+    UserSessionRule userSessionRule = userSession.logIn();
+    init();
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    String json = execute(project.getDbKey());
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"configuration\": {\n" +
+      "    \"showSettings\": true,\n" +
+      "    \"showQualityProfiles\": true,\n" +
+      "    \"showQualityGates\": true,\n" +
+      "    \"showManualMeasures\": true,\n" +
+      "    \"showLinks\": true,\n" +
+      "    \"showPermissions\": false,\n" +
+      "    \"showHistory\": true,\n" +
+      "    \"showUpdateKey\": true,\n" +
+      "    \"showBackgroundTasks\": true,\n" +
+      "    \"canApplyPermissionTemplate\": false,\n" +
+      "    \"canBrowseProject\": true,\n" +
+      "    \"canUpdateProjectVisibilityToPrivate\": true\n" +
+      "  }\n" +
+      "}");
+  }
+
+  @Test
+  public void do_not_return_configuration_for_private_projects_for_user_with_view_permission_only() {
+    ComponentDto project = insertProject();
+    UserSessionRule userSessionRule = userSession.logIn();
+    init();
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+
+    String json = execute(project.getDbKey());
+
+    assertThat(json).doesNotContain("\"configuration\"");
   }
 
   @Test
@@ -645,7 +683,12 @@ public class ComponentActionTest {
 
   private ComponentDto insertProject() {
     db.qualityGates().createDefaultQualityGate();
-    return db.components().insertPrivateProject("abcd", p -> p.setDbKey("polop").setName("Polop").setDescription("test project"));
+    return db.components().insertPrivateProject("abcd", p ->
+      p.setDbKey("polop")
+        .setName("Polop")
+        .setDescription("test project")
+        .setQualifier(Qualifiers.PROJECT)
+        .setScope(Scopes.PROJECT));
   }
 
   private void init(Page... pages) {

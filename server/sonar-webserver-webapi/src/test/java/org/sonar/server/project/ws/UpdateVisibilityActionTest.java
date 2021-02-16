@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
@@ -64,9 +65,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 
 public class UpdateVisibilityActionTest {
@@ -94,9 +99,10 @@ public class UpdateVisibilityActionTest {
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private final Configuration configuration = mock(Configuration.class);
 
   private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
-    userSessionRule, projectIndexers, new SequenceUuidFactory());
+    userSessionRule, projectIndexers, new SequenceUuidFactory(), configuration);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -231,13 +237,38 @@ public class UpdateVisibilityActionTest {
       .setParam(PARAM_VISIBILITY, randomVisibility);
     userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project);
     Arrays.stream(GlobalPermission.values())
-      .forEach(perm -> userSessionRule.addPermission(perm));
-    request.setParam(PARAM_PROJECT, project.getDbKey())
-      .setParam(PARAM_VISIBILITY, randomVisibility);
+      .forEach(userSessionRule::addPermission);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
+  }
+
+
+  @Test
+  public void execute_throws_ForbiddenException_if_user_has_ADMIN_permission_but_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
+    when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
+    ComponentDto project = dbTester.components().insertPublicProject();
+    request.setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_VISIBILITY, randomVisibility);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void execute_throws_ForbiddenException_if_user_has_global_ADMIN_permission_even_if_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
+    when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.setSystemAdministrator().addProjectPermission(UserRole.ADMIN, project);
+    request.setParam(PARAM_PROJECT, project.getDbKey())
+      .setParam(PARAM_VISIBILITY, "private");
+
+    request.execute();
+
+    assertThat(isPrivateInDb(project)).isTrue();
   }
 
   @Test

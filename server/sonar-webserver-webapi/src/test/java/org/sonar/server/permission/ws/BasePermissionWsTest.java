@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -43,6 +44,7 @@ import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
@@ -59,6 +61,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsActionTester wsTester;
+  protected Configuration configuration = mock(Configuration.class);
 
   @Before
   public void initWsTester() {
@@ -73,7 +76,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionWsSupport newPermissionWsSupport() {
     DbClient dbClient = db.getDbClient();
-    return new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, newRootResourceTypes()), newGroupWsSupport());
+    return new PermissionWsSupport(dbClient, configuration, new ComponentFinder(dbClient, newRootResourceTypes()), newGroupWsSupport());
   }
 
   protected ResourceTypesRule newRootResourceTypes() {

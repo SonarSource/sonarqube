@@ -41,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
-import org.sonar.server.permission.PermissionPrivilegeChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;
@@ -55,8 +54,8 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -75,7 +74,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final PermissionService permissionService;
 
   public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
-    PermissionWsSupport wsSupport, PermissionService permissionService) {
+                                        PermissionWsSupport wsSupport, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
@@ -140,7 +139,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     if (projectRef.isPresent()) {
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());
-      PermissionPrivilegeChecker.checkProjectAdmin(userSession, project);
+      wsSupport.checkPermissionManagementAccess(userSession, project);
     } else {
       userSession.checkLoggedIn().checkIsSystemAdministrator();
     }
@@ -240,7 +239,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private String[] qualifiers(@Nullable String requestQualifier) {
     return requestQualifier == null
       ? rootQualifiers
-      : (new String[] {requestQualifier});
+      : (new String[]{requestQualifier});
   }
 
   private Table<String, String, Integer> userCountByRootComponentUuidAndPermission(DbSession dbSession, List<String> rootComponentUuids) {
