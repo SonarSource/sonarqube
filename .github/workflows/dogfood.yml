@@ -12,7 +12,7 @@ jobs:
     name: Update dogfood-on-next branch
     steps:
       - name: Merge dogfood and master branches
-        uses: SonarSource/gh-action_dogfood_merge@1
+        uses: SonarSource/gh-action_dogfood_merge@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
         with:
