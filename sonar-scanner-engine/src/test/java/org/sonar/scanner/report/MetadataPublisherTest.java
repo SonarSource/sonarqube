@@ -286,4 +286,49 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getRelativePathFromScmRoot()).isEmpty();
   }
+
+  @Test
+  public void addMainBranch_givenDefaultMainBranchSet_writeItToMetadata() throws IOException {
+    ScmProvider scmProvider = mock(ScmProvider.class);
+    when(scmProvider.getMainBranch(any())).thenReturn("Main");
+    when(scmProvider.relativePathFromScmRoot(any())).thenReturn(mock(Path.class));
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getGitDefaultMainBranch()).isEqualTo("Main");
+  }
+
+  @Test
+  public void addMainBranch_givenEmptyDefaultMainBranchSet_emptyDefaultMainBranchInMetadata() throws IOException {
+    ScmProvider scmProvider = mock(ScmProvider.class);
+    when(scmProvider.getMainBranch(any())).thenReturn("");
+    when(scmProvider.relativePathFromScmRoot(any())).thenReturn(mock(Path.class));
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getGitDefaultMainBranch()).isEmpty();
+  }
+
+  @Test
+  public void addMainBranch_givenNullMainBranchSet_emptyDefaultMainBranchInMetadata() throws IOException {
+    ScmProvider scmProvider = mock(ScmProvider.class);
+    when(scmProvider.getMainBranch(any())).thenReturn(null);
+    when(scmProvider.relativePathFromScmRoot(any())).thenReturn(mock(Path.class));
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getGitDefaultMainBranch()).isEmpty();
+  }
 }

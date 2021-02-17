@@ -68,6 +68,17 @@ public abstract class ScmProvider {
   }
 
   /**
+   * Return the main branch name.
+   *
+   * @return null if the SCM provider was not able to find the main branch.
+   * @since 8.8
+   */
+  @CheckForNull
+  public String getMainBranch(Path rootBaseDir) {
+    return null;
+  }
+
+  /**
    * Return a map between paths given as argument and the corresponding line numbers which are new compared to the provided target branch.
    * If nothing is returned for a file, the scanner will consider that the provider was unable to determine changes for that file and it will
    * assume that nothing was changed in it.

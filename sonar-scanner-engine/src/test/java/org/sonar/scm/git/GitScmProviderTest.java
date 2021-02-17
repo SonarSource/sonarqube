@@ -39,15 +39,19 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -730,6 +734,132 @@ public class GitScmProviderTest {
     GitScmProvider provider = newGitScmProvider();
 
     assertThat(provider.revisionId(projectDir)).isNull();
+  }
+
+  @Test
+  public void getMainBranch_givenRepoWithOneBranchCalledMain_returnMainBranchCalledMain() throws Exception {
+    //given
+    worktree = temp.newFolder().toPath();
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    git = new Git(repo);
+
+    addBranchInConfig("Main");
+
+    Path projectDir = worktree.resolve("project");
+    Files.createDirectory(projectDir);
+
+    GitScmProvider provider = newGitScmProvider();
+
+    //when
+    String mainBranch = provider.getMainBranch(projectDir);
+
+    //then
+    assertThat(mainBranch).isEqualTo("Main");
+  }
+
+  @Test
+  public void getMainBranch_givenRepoWithTwoBranches_returnFirstBranch() throws Exception {
+    //given
+    worktree = temp.newFolder().toPath();
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    git = new Git(repo);
+
+    addBranchInConfig("First");
+    addBranchInConfig("Second");
+
+    Path projectDir = worktree.resolve("project");
+    Files.createDirectory(projectDir);
+
+    GitScmProvider provider = newGitScmProvider();
+
+    //when
+    String mainBranch = provider.getMainBranch(projectDir);
+
+    //then
+    assertThat(mainBranch).isEqualTo("First");
+  }
+
+  @Test
+  public void getMainBranch_givenNoBranches_dontThrowException() throws Exception {
+    //given
+    worktree = temp.newFolder().toPath();
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    git = new Git(repo);
+
+    Path projectDir = worktree.resolve("project");
+    Files.createDirectory(projectDir);
+
+    GitScmProvider provider = newGitScmProvider();
+
+    //when
+    String mainBranch = provider.getMainBranch(projectDir);
+
+    //then no exception
+    assertThat(mainBranch).isNullOrEmpty();
+  }
+
+  @Test
+  public void getMainBranch_givenRepositoryNotFoundExceptionWhenBuildingRepo_returnNull() throws Exception {
+    //given
+
+    worktree = temp.newFolder().toPath();
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    git = new Git(repo);
+    repo.getObjectDatabase().close(); //This is here to force RepositoryBuilder to throw subclass of IOException
+
+    Path projectDir = worktree.resolve("project");
+    Files.createDirectory(projectDir);
+
+    GitScmProvider provider = newGitScmProvider();
+
+    //when
+    String mainBranch = provider.getMainBranch(projectDir);
+
+    //then no exception
+    assertThat(mainBranch).isNullOrEmpty();
+  }
+
+  @Test
+  public void getMainBranch_givenIOExceptionWhenBuildingRepo_returnNull() throws Exception {
+    //given
+
+    worktree = temp.newFolder().toPath();
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    git = new Git(repo);
+
+    Path projectDir = worktree.resolve("project");
+    Files.createDirectory(projectDir);
+
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+      @Override
+      Repository buildRepo(Path basedir) throws IOException {
+        throw new IOException();
+      }
+    };
+
+    //when
+    String mainBranch = provider.getMainBranch(projectDir);
+
+    //then no exception
+    assertThat(mainBranch).isNullOrEmpty();
+  }
+
+  /**
+   * Normally after cloning the repository we would have at least one
+   * branch it git config. This method adds these branches without
+   * cloning any repository (because unit tests ought to be fast)
+   */
+  private void addBranchInConfig(String ... branches) throws IOException {
+    for(String branch : branches) {
+      git.getRepository().getConfig().setStringList("branch", branch, "remote", Arrays.asList("origin"));
+      git.getRepository().getConfig().setStringList("branch", branch, "merge", Arrays.asList("refs/head/" + branch));
+    }
+    git.getRepository().getConfig().save();
   }
 
   private String randomizedContent(String prefix, int numLines) {

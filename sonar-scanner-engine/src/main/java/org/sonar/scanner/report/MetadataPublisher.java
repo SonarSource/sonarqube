@@ -61,6 +61,9 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final InputComponentStore componentStore;
   private final ScmConfiguration scmConfiguration;
 
+  private ScmProvider scmProvider;
+  private Path projectBasedir;
+
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, QualityProfiles qProfiles,
     CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
     ScmRevision scmRevision, ForkDateSupplier forkDateSupplier, InputComponentStore componentStore, ScmConfiguration scmConfiguration) {
@@ -95,7 +98,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     addScmInformation(builder);
     addForkPoint(builder);
     addNotAnalyzedFileCountsByLanguage(builder);
-    addMainBranch(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.putQprofilesPerLanguage(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
@@ -110,6 +112,9 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
 
+    scmProvider = scmConfiguration.provider();
+    projectBasedir = moduleHierarchy.root().getBaseDir();
+
     addModulesRelativePaths(builder);
     addMainBranch(builder);
 
@@ -117,7 +122,16 @@ public class MetadataPublisher implements ReportPublisherStep {
   }
 
   private void addMainBranch(ScannerReport.Metadata.Builder builder) {
-    builder.setGitDefaultMainBranch("");
+    if (scmProvider == null) {
+      return;
+    }
+    String mainBranch = scmProvider.getMainBranch(projectBasedir);
+    if (mainBranch != null && !mainBranch.isEmpty()) {
+      LOG.debug("The main branch for '{}' is '{}'", projectBasedir.toString(), mainBranch);
+      builder.setGitDefaultMainBranch(mainBranch);
+    } else {
+      LOG.debug("The main branch for '{}' has not been found", projectBasedir.toString());
+    }
   }
 
   private void addForkPoint(ScannerReport.Metadata.Builder builder) {
@@ -140,12 +154,10 @@ public class MetadataPublisher implements ReportPublisherStep {
       }
     }
 
-    ScmProvider scmProvider = scmConfiguration.provider();
     if (scmProvider == null) {
       return;
     }
 
-    Path projectBasedir = moduleHierarchy.root().getBaseDir();
     try {
       builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
     } catch (UnsupportedOperationException e) {
