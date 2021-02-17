@@ -57,6 +57,11 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     />
   );
 
+  // Main branch hasn't been analyzed yet && (CE || (DE+ && only one branch))
+  if (!component.analysisDate && (!branchesEnabled || !hasManyBranches)) {
+    return null;
+  }
+
   return (
     <span
       className={classNames('big-spacer-left flex-0 branch-like-navigation-toggler-container', {

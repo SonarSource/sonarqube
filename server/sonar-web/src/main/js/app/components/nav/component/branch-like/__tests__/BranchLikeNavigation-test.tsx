@@ -30,6 +30,23 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should not render', () => {
+  // CE && main branch not analyzed yet
+  const wrapper = shallowRender({
+    appState: mockAppState({ branchesEnabled: false }),
+    component: mockComponent({ analysisDate: undefined })
+  });
+  expect(wrapper.type()).toBeNull();
+
+  // DE+ && main branch not analyzed yet && no other branches
+  const wrapper1 = shallowRender({
+    appState: mockAppState({ branchesEnabled: true }),
+    component: mockComponent({ analysisDate: undefined }),
+    branchLikes: []
+  });
+  expect(wrapper1.type()).toBeNull();
+});
+
 it('should render the menu trigger if branches are enabled', () => {
   const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
   expect(wrapper).toMatchSnapshot();
@@ -67,7 +84,7 @@ function shallowRender(props?: Partial<BranchLikeNavigationProps>) {
     <BranchLikeNavigation
       appState={mockAppState()}
       branchLikes={branchLikes}
-      component={mockComponent()}
+      component={mockComponent({ analysisDate: '2021-01-01 01:01:01' })}
       currentBranchLike={branchLikes[0]}
       {...props}
     />
