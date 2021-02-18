@@ -7,13 +7,19 @@ _Branch analysis is available starting in [Developer Edition](https://redirect.s
 
 ## Overview
 
-With Branch Analysis, you can ensure that you're maintaining consistent code quality all the way down to the branch level of your projects. 
+With branch analysis, you can ensure that you're maintaining consistent code quality all the way down to the branch level of your projects. 
 
-### Master / Main Branch
+### Master/Main branch
 
-This is the default branch and typically corresponds to what's being developed for your next release. This is usually known within a development team as "master" or "head" and is analyzed when no specific branch parameters are provided. It is labeled "Main Branch" and defaults to the name "master" but can be renamed from the project settings at **Administration > Branches and Pull Requests**. When you are using Community Edition, this is the only branch you see.
+This is the default branch and typically corresponds to what's being developed for your next release. This is usually known within a development team as "master" or "head" and is analyzed when no specific branch parameters are provided. It is labeled **MAIN BRANCH** in SonarQube.
 
-### Settings and Quality Profiles on Branches
+If you're using Git as your SCM, when you analyze your project for the first time, the main branch will be renamed to match the main branch of your repository. If SonarQube can't find information about the main branch during the first analysis, it's named "master" by default.
+
+Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can rename the main branch manually from the project settings at **Administration > Branches and Pull Requests**. 
+
+In Community Edition, this is the only branch you see. You can rename it using the [Web API](/extend/web-api/).
+
+### Settings and quality profiles on branches
 
 Branch settings and Quality Profiles are the same as those set for the master branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis. 
 
@@ -28,7 +34,7 @@ The branch Quality Gate lets you know if your branch is ready to be merged. Each
 * Applies on conditions on New Code and overall code.
 * Assigns a status (Passed or Failed).
 
-## Setting up Branch analysis
+## Setting up branch analysis
 
 A branch is created when the `sonar.branch.name` parameter is passed during analysis.
 
@@ -48,9 +54,9 @@ if [[ "$CI_BRANCH_NAME" == master ]] || [[ "$CI_BRANCH_NAME" == release/* ]]; th
 fi
 ``` 
 
-### Issue Creation and Synchronization
+### Issue Creation and synchronization
 
-During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the Main Branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'master' to branch yyy".
+During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the main branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'master' to branch yyy".
 
 At each subsequent analysis of the branch, any new issue that comes from a pull request automatically inherits the attributes (type, severity, ...) the issue had in the pull request. A comment is added to the change log of the issue on the branch: "The issue has been merged from 'xxx' into 'yyy'"
 
@@ -78,3 +84,11 @@ For example, adding the pattern `release/.*` would keep any branches named relea
 You can set a branch to **Keep when inactive** at the project level from from the **Branches** tab at **Project Settings > Branches and Pull Requests**. Here, you can also turn off protection for a branch so it will be deleted when it's inactive for the number of days that has been specified in the global settings at **Administration > General Settings > Housekeeping > Number of days before deleting inactive branches**. 
 
 **Note:** The main branch is always protected from automatic deletion, even if it's inactive. This can't be changed.
+
+## Keeping your "master" branch history when upgrading from Community Edition to a commercial edition
+
+When upgrading to a current commercial edition version, automatic branch and pull request configuration creates branches based on their names in your code repository. If the name of your main branch (master) in SonarQube doesn't match the branch's name in your code repository, the history of your main branch won't be taken on by the branch you analyze. 
+
+**Before running analysis**, you can keep your branch history by renaming the main branch in SonarQube with the name of the branch in your code repository at **Project Settings > Branches and Pull Requests**. 
+
+For example, if your main branch is named "master" in SonarQube but "develop" in your code repository, rename your main branch "develop" in SonarQube.
