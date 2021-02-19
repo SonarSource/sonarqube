@@ -192,6 +192,21 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
+  public void return_JSON_property() {
+    logIn();
+    propertyDefinitions.addComponent(PropertyDefinition
+        .builder("foo")
+        .type(PropertyType.JSON)
+        .build());
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).hasSize(1);
+    Definition definition = result.getDefinitions(0);
+    assertThat(definition.getType()).isEqualTo(Settings.Type.JSON);
+  }
+
+  @Test
   public void return_property_set() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition

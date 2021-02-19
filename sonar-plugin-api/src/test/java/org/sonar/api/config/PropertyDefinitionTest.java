@@ -25,23 +25,22 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition.Builder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.AnnotationUtils;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 public class PropertyDefinitionTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_override_toString() {
@@ -305,35 +304,51 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void should_not_authorise_empty_key() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Key must be set");
+  public void should_create_json_property_type() {
+    Builder builder = PropertyDefinition.builder("json-prop").type(PropertyType.JSON).multiValues(false);
+    assertThatCode(builder::build)
+      .doesNotThrowAnyException();
+  }
 
-    PropertyDefinition.builder(null).build();
+  @Test
+  public void should_not_authorise_empty_key() {
+    Builder builder = PropertyDefinition.builder(null);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Key must be set");
+  }
+
+  @Test
+  public void should_not_create_json_multivalue() {
+    Builder builder = PropertyDefinition.builder("json-prop").type(PropertyType.JSON).multiValues(true);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Multivalues are not allowed to be defined for JSON-type property.");
   }
 
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_hidden() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
-
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.PROJECT).hidden().build();
+    Builder builder = PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.PROJECT).hidden();
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Cannot be hidden and defining qualifiers on which to display");
   }
 
   @Test
   public void should_not_authorize_defining_ony_on_qualifiers_and_hidden() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
-
-    PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.PROJECT).hidden().build();
+    Builder builder = PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.PROJECT).hidden();
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Cannot be hidden and defining qualifiers on which to display");
   }
 
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_only_on_qualifiers() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Cannot define both onQualifiers and onlyOnQualifiers");
-
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.MODULE).onlyOnQualifiers(Qualifiers.PROJECT).build();
+    Builder builder = PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.MODULE)
+      .onlyOnQualifiers(Qualifiers.PROJECT);
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Cannot define both onQualifiers and onlyOnQualifiers");
   }
 
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of("TRK", "VW", "BRC", "SVW");

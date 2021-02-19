@@ -64,6 +64,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -386,6 +387,46 @@ public class SetActionTest {
     callForGlobalSetting("my.old.key", "My Value");
 
     assertGlobalSetting("my.key", "My Value");
+  }
+
+  @Test
+  public void persist_JSON_property() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    callForGlobalSetting("my.key", "{\"test\":\"value\"}");
+
+    assertGlobalSetting("my.key", "{\"test\":\"value\"}");
+  }
+
+  @Test
+  public void fail_if_JSON_invalid_for_JSON_property() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting("my.key", "{\"test\":\"value\""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provided JSON is invalid");
+
+    assertThatThrownBy(() -> callForGlobalSetting("my.key", "{\"test\":\"value\",}"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provided JSON is invalid");
+
+    assertThatThrownBy(() -> callForGlobalSetting("my.key", "{\"test\":[\"value\",]}"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provided JSON is invalid");
   }
 
   @Test

@@ -50,6 +50,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.FLOAT;
 import static org.sonar.api.PropertyType.INTEGER;
+import static org.sonar.api.PropertyType.JSON;
 import static org.sonar.api.PropertyType.LONG;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.PropertyType.REGULAR_EXPRESSION;
@@ -599,6 +600,7 @@ public final class PropertyDefinition {
       fixType(key, type);
       checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
       checkArgument(!hidden || (onQualifiers.isEmpty() && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
+      checkArgument(!JSON.equals(type) || !multiValues, "Multivalues are not allowed to be defined for JSON-type property.");
       if (hidden) {
         global = false;
       }

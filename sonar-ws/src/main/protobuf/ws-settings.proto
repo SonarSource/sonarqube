@@ -81,6 +81,7 @@ enum Type {
   SINGLE_SELECT_LIST = 11;
   PROPERTY_SET = 12;
   LICENSE = 13;
+  JSON = 14;
 }
 
 // Response of GET api/settings/values

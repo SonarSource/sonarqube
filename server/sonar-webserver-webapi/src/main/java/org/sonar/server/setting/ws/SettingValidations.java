@@ -20,8 +20,12 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -121,6 +125,8 @@ public class SettingValidations {
         validateMetric(data);
       } else if (definition.type() == PropertyType.USER_LOGIN) {
         validateLogin(data);
+      } else if (definition.type() == PropertyType.JSON) {
+        validateJson(data);
       } else {
         validateOtherTypes(data, definition);
       }
@@ -150,6 +156,17 @@ public class SettingValidations {
         List<UserDto> users = dbClient.userDao().selectByLogins(dbSession, data.values).stream().filter(UserDto::isActive).collect(Collectors.toList());
         checkRequest(data.values.size() == users.size(), "Error when validating login setting with key '%s' and values [%s]. A value is not a valid login.",
           data.key, data.values.stream().collect(Collectors.joining(", ")));
+      }
+    }
+
+    private void validateJson(SettingData data) {
+      Optional<String> jsonContent = data.values.stream().findFirst();
+      if (jsonContent.isPresent()) {
+        try {
+          new Gson().getAdapter(JsonElement.class).fromJson(jsonContent.get());
+        } catch (IOException e) {
+          throw new IllegalArgumentException("Provided JSON is invalid");
+        }
       }
     }
   }
