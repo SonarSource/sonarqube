@@ -34,8 +34,6 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -43,7 +41,6 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ShowAction implements DuplicationsWsAction {
 
   private static final String PARAM_KEY = "key";
-  private static final String PARAM_UUID = "uuid";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private final DbClient dbClient;
@@ -69,18 +66,16 @@ public class ShowAction implements DuplicationsWsAction {
       .setResponseExample(getClass().getResource("show-example.json"));
 
     action.setChangelog(
-      new Change("6.5", "The fields 'uuid', 'projectUuid', 'subProjectUuid' are deprecated in the response."));
+      new Change("8.8", "Deprecated parameter 'uuid' was removed."),
+      new Change("8.8", "The fields 'uuid', 'projectUuid', 'subProjectUuid' were removed from the response."),
+      new Change("6.5", "Parameter 'uuid' is now deprecated."),
+      new Change("6.5", "The fields 'uuid', 'projectUuid', 'subProjectUuid' are now deprecated in the response."));
 
     action
       .createParam(PARAM_KEY)
       .setDescription("File key")
+      .setRequired(true)
       .setExampleValue("my_project:/src/foo/Bar.php");
-
-    action
-      .createParam(PARAM_UUID)
-      .setDeprecatedSince("6.5")
-      .setDescription("File ID. If provided, 'key' must not be provided.")
-      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
     action
       .createParam(PARAM_BRANCH)
@@ -110,15 +105,13 @@ public class ShowAction implements DuplicationsWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentUuid = request.param(PARAM_UUID);
+    String key = request.mandatoryParam(PARAM_KEY);
     String branch = request.param(PARAM_BRANCH);
     String pullRequest = request.param(PARAM_PULL_REQUEST);
-    checkArgument(componentUuid == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'", PARAM_UUID,
-      PARAM_BRANCH, PARAM_PULL_REQUEST);
     if (branch == null && pullRequest == null) {
-      return componentFinder.getByUuidOrKey(dbSession, componentUuid, request.param(PARAM_KEY), UUID_AND_KEY);
+      return componentFinder.getByKey(dbSession, key);
     }
-    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_KEY), branch, pullRequest);
+    return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, key, branch, pullRequest);
   }
 
   @CheckForNull

@@ -23,7 +23,6 @@ import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -43,6 +42,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -52,16 +52,14 @@ public class ShowActionTest {
   private static MetricDto dataMetric = MetricToDto.INSTANCE.apply(CoreMetrics.DUPLICATIONS_DATA);
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Rule
   public DbTester db = DbTester.create();
-  private DuplicationsParser parser = new DuplicationsParser(db.getDbClient().componentDao());
-  private ShowResponseBuilder showResponseBuilder = new ShowResponseBuilder(db.getDbClient());
-
-  private WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), parser, showResponseBuilder, userSessionRule, TestComponentFinder.from(db)));
+  private final DuplicationsParser parser = new DuplicationsParser(db.getDbClient().componentDao());
+  private final ShowResponseBuilder showResponseBuilder = new ShowResponseBuilder(db.getDbClient());
+  private final WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), parser, showResponseBuilder, userSessionRule,
+    TestComponentFinder.from(db)));
 
   @Before
   public void setUp() {
@@ -78,19 +76,13 @@ public class ShowActionTest {
     assertThat(show.since()).isEqualTo("4.4");
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(4);
+    assertThat(show.params()).extracting(WebService.Param::key).contains("key", "branch", "pullRequest");
   }
 
   @Test
   public void get_duplications_by_file_key() {
     TestRequest request = newBaseRequest();
     verifyCallToFileWithDuplications(file -> request.setParam("key", file.getDbKey()));
-  }
-
-  @Test
-  public void get_duplications_by_file_id() {
-    TestRequest request = newBaseRequest();
-    verifyCallToFileWithDuplications(file -> request.setParam("uuid", file.uuid()));
   }
 
   @Test
@@ -130,34 +122,34 @@ public class ShowActionTest {
 
     assertJson(result).isSimilarTo(
       format("{\n" +
-        "  \"duplications\": [\n" +
-        "    {\n" +
-        "      \"blocks\": [\n" +
-        "        {\n" +
-        "          \"from\": 20,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "          \"from\": 31,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        }\n" +
-        "      ]\n" +
-        "    }\n" +
-        "  ],\n" +
-        "  \"files\": {\n" +
-        "    \"1\": {\n" +
-        "      \"key\": \"%s\",\n" +
-        "      \"name\": \"%s\",\n" +
-        "      \"uuid\": \"%s\",\n" +
-        "      \"project\": \"%s\",\n" +
-        "      \"projectUuid\": \"%s\",\n" +
-        "      \"projectName\": \"%s\"\n" +
-        "      \"branch\": \"%s\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}",
+          "  \"duplications\": [\n" +
+          "    {\n" +
+          "      \"blocks\": [\n" +
+          "        {\n" +
+          "          \"from\": 20,\n" +
+          "          \"size\": 5,\n" +
+          "          \"_ref\": \"1\"\n" +
+          "        },\n" +
+          "        {\n" +
+          "          \"from\": 31,\n" +
+          "          \"size\": 5,\n" +
+          "          \"_ref\": \"1\"\n" +
+          "        }\n" +
+          "      ]\n" +
+          "    }\n" +
+          "  ],\n" +
+          "  \"files\": {\n" +
+          "    \"1\": {\n" +
+          "      \"key\": \"%s\",\n" +
+          "      \"name\": \"%s\",\n" +
+          "      \"uuid\": \"%s\",\n" +
+          "      \"project\": \"%s\",\n" +
+          "      \"projectUuid\": \"%s\",\n" +
+          "      \"projectName\": \"%s\"\n" +
+          "      \"branch\": \"%s\"\n" +
+          "    }\n" +
+          "  }\n" +
+          "}",
         file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), file.getBranch()));
   }
 
@@ -182,60 +174,62 @@ public class ShowActionTest {
 
     assertJson(result).isSimilarTo(
       format("{\n" +
-        "  \"duplications\": [\n" +
-        "    {\n" +
-        "      \"blocks\": [\n" +
-        "        {\n" +
-        "          \"from\": 20,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "          \"from\": 31,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        }\n" +
-        "      ]\n" +
-        "    }\n" +
-        "  ],\n" +
-        "  \"files\": {\n" +
-        "    \"1\": {\n" +
-        "      \"key\": \"%s\",\n" +
-        "      \"name\": \"%s\",\n" +
-        "      \"uuid\": \"%s\",\n" +
-        "      \"project\": \"%s\",\n" +
-        "      \"projectUuid\": \"%s\",\n" +
-        "      \"projectName\": \"%s\"\n" +
-        "      \"pullRequest\": \"%s\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}",
+          "  \"duplications\": [\n" +
+          "    {\n" +
+          "      \"blocks\": [\n" +
+          "        {\n" +
+          "          \"from\": 20,\n" +
+          "          \"size\": 5,\n" +
+          "          \"_ref\": \"1\"\n" +
+          "        },\n" +
+          "        {\n" +
+          "          \"from\": 31,\n" +
+          "          \"size\": 5,\n" +
+          "          \"_ref\": \"1\"\n" +
+          "        }\n" +
+          "      ]\n" +
+          "    }\n" +
+          "  ],\n" +
+          "  \"files\": {\n" +
+          "    \"1\": {\n" +
+          "      \"key\": \"%s\",\n" +
+          "      \"name\": \"%s\",\n" +
+          "      \"uuid\": \"%s\",\n" +
+          "      \"project\": \"%s\",\n" +
+          "      \"projectUuid\": \"%s\",\n" +
+          "      \"projectName\": \"%s\"\n" +
+          "      \"pullRequest\": \"%s\"\n" +
+          "    }\n" +
+          "  }\n" +
+          "}",
         file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), file.getPullRequest()));
   }
 
   @Test
   public void fail_if_file_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
+    TestRequest request = newBaseRequest().setParam("key", "missing");
 
-    newBaseRequest().setParam("key", "missing").execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_user_is_not_allowed_to_access_project() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
+    TestRequest request = newBaseRequest().setParam("key", file.getDbKey());
 
-    expectedException.expect(ForbiddenException.class);
-
-    newBaseRequest().setParam("key", file.getDbKey()).execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_no_parameter_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'uuid' or 'key' must be provided");
+    TestRequest request = newBaseRequest();
 
-    newBaseRequest().execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'key' parameter is missing");
   }
 
   @Test
@@ -243,27 +237,12 @@ public class ShowActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
+    TestRequest request = ws.newRequest()
+      .setParam("key", branch.getDbKey());
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam("key", branch.getDbKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    ws.newRequest()
-      .setParam("uuid", branch.uuid())
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private TestRequest newBaseRequest() {
