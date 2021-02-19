@@ -112,9 +112,11 @@ There are three TCP networks to configure:
 
 [Hazelcast](https://hazelcast.org/) is used to manage the communication between the cluster's application nodes. You don't need to install it yourself, it's provided out of the box.
 
-If you're working in a Docker environment, your properties are configured using environment variables.
+## Docker Environment Configuration
+In a Docker environment, your properties are configured using [Environment Variables](/setup/environment-variables/).
 
-If you're working in a traditional environment, the following properties may be defined in the _$SONARQUBE-HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
+## Traditional Environment Configuration
+The following properties may be defined in the _$SONARQUBE-HOME/conf/sonar.properties_ file of each node in a cluster. When defining a property that contains a list of hosts (`*.hosts`) the port is not required if the default port was not overridden in the configuration.
 
 [[warning]]
 | Ports can be unintentionally exposed. We recommend only giving external access to the application nodes and to main port (`sonar.web.port`).
@@ -131,7 +133,7 @@ Property | Description | Default | Required |
 Property  | Description | Required 
 ---|---|---
 `sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `sonar.cluster.node.host:sonar.cluster.node.port`.|yes
-`sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster. If not specified, the first interface will be chosen (note that loopback interfaces won't be selected).|no
+`sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster.|yes
 `sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no
 `sonar.cluster.node.web.port`|The Hazelcast port for communication with the WebServer process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.node.ce.port`|The Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
