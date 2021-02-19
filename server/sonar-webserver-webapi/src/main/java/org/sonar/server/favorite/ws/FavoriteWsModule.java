@@ -25,7 +25,6 @@ public class FavoriteWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      FavouritesWs.class,
       FavoritesWs.class,
       AddAction.class,
       RemoveAction.class,

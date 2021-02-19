@@ -28,7 +28,6 @@ public class FavoriteModule extends Module {
     add(
       FavoriteFinder.class,
       FavoriteUpdater.class
-
     );
   }
 
