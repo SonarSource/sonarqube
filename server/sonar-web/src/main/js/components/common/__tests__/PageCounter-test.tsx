@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import PageCounter, { PageCounterProps } from '../PageCounter';
 
-export interface PageCounterProps {
-  className?: string;
-  current?: number;
-  label: string;
-  total: number;
-}
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
 
-export default function PageCounter({ className, current, label, total }: PageCounterProps) {
-  return (
-    <div className={classNames('display-inline-block', className)}>
-      <strong className="little-spacer-right">
-        {current !== undefined && formatMeasure(current + 1, 'INT') + ' / '}
-        <span className="it__page-counter-total">{formatMeasure(total, 'INT')}</span>
-      </strong>
-      {label}
-    </div>
+function shallowRender(props: Partial<PageCounterProps> = {}) {
+  return shallow<PageCounterProps>(
+    <PageCounter label="label" current={123} total={1234} {...props} />
   );
 }
