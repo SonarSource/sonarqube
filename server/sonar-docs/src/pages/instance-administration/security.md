@@ -148,7 +148,8 @@ Project visibility may be toggled between public or private. Making a project pr
 
 * **Administer Issues**: Change the type and severity of issues, resolve issues as being "Won't Fix" or "False Positive" (users also need "Browse" permission).
 * **Administer Security Hotspots**: Change the status of a Security Hotspot.
-* **Administer**: Access project settings and perform administration tasks (users also need "Browse" permission).
+* **Administer**: Access project settings and perform administration tasks (users also need "Browse" permission).  
+  By default, a user with this **Administer** permission can manage both configuration and permissions for the current project. To only allow project administrators to update the project configuration, go to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security)** and disable the **Enable permission management for project administrators** property.
 * **Execute Analysis**: Access to all settings required to perform analysis and the ability to push analysis results to the SonarQube server. This includes private project settings and secured settings like passwords
 
 Private projects have two additional permissions:
