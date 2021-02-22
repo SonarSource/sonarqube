@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { InjectedIntlProps } from 'react-intl';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { CreationDateFacet } from '../CreationDateFacet';
 
 it('should render correctly', () => {
@@ -40,6 +41,9 @@ it('should render correctly', () => {
     })
   ).toMatchSnapshot('created after timestamp');
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('project');
+  expect(
+    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) })
+  ).toMatchSnapshot('portfolio');
 });
 
 it.each([

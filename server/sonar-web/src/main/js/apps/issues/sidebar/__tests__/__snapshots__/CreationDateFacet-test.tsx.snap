@@ -357,6 +357,80 @@ exports[`should render correctly: created at 1`] = `
 </FacetBox>
 `;
 
+exports[`should render correctly: portfolio 1`] = `
+<FacetBox
+  property="createdAt"
+>
+  <FacetHeader
+    fetching={false}
+    name="issues.facet.createdAt"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <div>
+    <div
+      className="search-navigator-date-facet-selection"
+    >
+      <DateRangeInput
+        onChange={[Function]}
+        value={
+          Object {
+            "from": undefined,
+            "to": undefined,
+          }
+        }
+      />
+    </div>
+    <div
+      className="spacer-top issues-predefined-periods"
+    >
+      <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.all"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.all"
+        value=""
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_week"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_week"
+        value="1w"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_month"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_month"
+        value="1m"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        loading={false}
+        name="issues.facet.createdAt.last_year"
+        onClick={[Function]}
+        tooltip="issues.facet.createdAt.last_year"
+        value="1y"
+      />
+    </div>
+  </div>
+</FacetBox>
+`;
+
 exports[`should render correctly: project 1`] = `
 <FacetBox
   property="createdAt"

@@ -34,6 +34,7 @@ import DateRangeInput from '../../../components/controls/DateRangeInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
+import { isPortfolioLike } from '../../../types/component';
 import { Query } from '../utils';
 
 interface Props {
@@ -229,7 +230,7 @@ export class CreationDateFacet extends React.PureComponent<Props & InjectedIntlP
           tooltip={translate('issues.facet.createdAt.all')}
           value=""
         />
-        {component ? (
+        {component && !isPortfolioLike(component.qualifier) ? (
           <FacetItem
             active={sinceLeakPeriod}
             name={translate('issues.new_code')}
