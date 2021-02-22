@@ -98,23 +98,6 @@ public class EditCommentActionTest {
   }
 
   @Test
-  public void edit_comment_using_deprecated_key_parameter() {
-    IssueDto issueDto = newIssue();
-    UserDto user = dbTester.users().insertUser();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
-    loginWithBrowsePermission(user, USER, issueDto);
-
-    tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
-
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
-
-    verifyContentOfPreloadedSearchResponseData(issueDto);
-    IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
-    assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
-    assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
-  }
-
-  @Test
   public void fail_when_comment_is_for_hotspot() {
     IssueDto hotspot = issueDbTester.insertHotspot();
     UserDto user = dbTester.users().insertUser();
@@ -124,8 +107,8 @@ public class EditCommentActionTest {
 
     String commentDtoKey = commentDto.getKey();
     assertThatThrownBy(() -> call(commentDtoKey, "please have a look"))
-    .isInstanceOf(NotFoundException.class)
-    .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test

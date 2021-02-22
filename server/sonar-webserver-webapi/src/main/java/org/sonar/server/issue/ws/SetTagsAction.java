@@ -56,7 +56,7 @@ public class SetTagsAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public SetTagsAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter) {
+                       OperationResponseWriter responseWriter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
@@ -81,7 +81,6 @@ public class SetTagsAction implements IssuesWsAction {
     action.createParam(PARAM_ISSUE)
       .setDescription("Issue key")
       .setSince("6.3")
-      .setDeprecatedKey("key", "6.3")
       .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setRequired(true);
     action.createParam(PARAM_TAGS)

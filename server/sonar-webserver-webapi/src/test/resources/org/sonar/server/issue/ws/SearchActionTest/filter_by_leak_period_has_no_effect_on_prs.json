@@ -50,7 +50,6 @@
   "components": [
     {
       "key": "FILE_KEY",
-      "uuid": "FILE_ID",
       "enabled": true,
       "qualifier": "FIL",
       "name": "NAME_FILE_ID",

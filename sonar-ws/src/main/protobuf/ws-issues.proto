@@ -198,10 +198,9 @@ message Languages {
 }
 
 message Component {
-  reserved 11; //drop organization
+  reserved 3, 11; //drop organization
   optional int64 deprecatedId = 1;
   optional string key = 2;
-  optional string uuid = 3;
   optional bool enabled = 4;
   optional string qualifier = 5;
   optional string name = 6;

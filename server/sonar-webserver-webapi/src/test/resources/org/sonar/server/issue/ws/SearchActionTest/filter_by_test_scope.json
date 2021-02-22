@@ -26,7 +26,6 @@
   "components": [
     {
       "key": "ANOTHER_FILE_KEY",
-      "uuid": "ANOTHER_FILE_ID",
       "enabled": true,
       "qualifier": "UTS",
       "name": "NAME_ANOTHER_FILE_ID",
@@ -35,7 +34,6 @@
     },
     {
       "key": "PROJECT_KEY",
-      "uuid": "PROJECT_ID",
       "enabled": true,
       "qualifier": "TRK",
       "name": "NAME_PROJECT_ID",

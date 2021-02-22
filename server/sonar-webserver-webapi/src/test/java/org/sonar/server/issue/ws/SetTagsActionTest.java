@@ -134,17 +134,6 @@ public class SetTagsActionTest {
   }
 
   @Test
-  public void set_tags_using_deprecated_key_param() {
-    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
-    logIn(issueDto);
-
-    ws.newRequest().setParam("key", issueDto.getKey()).setParam("tags", "bug").execute();
-
-    IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issueDto.getKey()).get();
-    assertThat(issueReloaded.getTags()).containsOnly("bug");
-  }
-
-  @Test
   public void tags_are_stored_as_lowercase() {
     IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);

@@ -84,20 +84,6 @@ public class DeleteCommentActionTest {
   }
 
   @Test
-  public void delete_comment_using_deprecated_key_parameter() {
-    IssueDto issueDto = issueDbTester.insertIssue();
-    UserDto user = dbTester.users().insertUser();
-    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
-    loginAndAddProjectPermission(user, issueDto, USER);
-
-    tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
-
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
-    assertThat(dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey())).isNotPresent();
-    verifyContentOfPreloadedSearchResponseData(issueDto);
-  }
-
-  @Test
   public void fail_when_comment_does_not_belong_to_current_user() {
     IssueDto issueDto = issueDbTester.insertIssue();
     UserDto user = dbTester.users().insertUser();

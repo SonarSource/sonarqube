@@ -304,10 +304,8 @@ public class SearchResponseFormat {
     Collection<ComponentDto> components = data.getComponents();
     List<Issues.Component> result = new ArrayList<>();
     for (ComponentDto dto : components) {
-      String uuid = dto.uuid();
       Component.Builder builder = Component.newBuilder()
         .setKey(dto.getKey())
-        .setUuid(uuid)
         .setQualifier(dto.qualifier())
         .setName(nullToEmpty(dto.name()))
         .setLongName(nullToEmpty(dto.longName()))
