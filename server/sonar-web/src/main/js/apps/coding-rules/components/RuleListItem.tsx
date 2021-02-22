@@ -136,7 +136,11 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (selectedProfile.isBuiltIn && canCopy) {
       return (
         <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
-          {this.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')}
+          <Tooltip overlay={translate('coding_rules.need_extend_or_copy')}>
+            <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+              {translate('coding_rules', activation ? 'deactivate' : 'activate')}
+            </Button>
+          </Tooltip>
         </td>
       );
     }
@@ -146,48 +150,47 @@ export default class RuleListItem extends React.PureComponent<Props> {
       return null;
     }
 
+    if (activation) {
+      return (
+        <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
+          {activation.inherit === 'NONE' ? (
+            <ConfirmButton
+              confirmButtonText={translate('yes')}
+              modalBody={translate('coding_rules.deactivate.confirm')}
+              modalHeader={translate('coding_rules.deactivate')}
+              onConfirm={this.handleDeactivate}>
+              {({ onClick }) => (
+                <Button
+                  className="coding-rules-detail-quality-profile-deactivate button-red"
+                  onClick={onClick}>
+                  {translate('coding_rules.deactivate')}
+                </Button>
+              )}
+            </ConfirmButton>
+          ) : (
+            <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
+              <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+                {translate('coding_rules.deactivate')}
+              </Button>
+            </Tooltip>
+          )}
+        </td>
+      );
+    }
+
     return (
       <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
-        {activation
-          ? this.renderDeactivateButton(activation.inherit)
-          : !rule.isTemplate && (
-              <ActivationButton
-                buttonText={translate('coding_rules.activate')}
-                className="coding-rules-detail-quality-profile-activate"
-                modalHeader={translate('coding_rules.activate_in_quality_profile')}
-                onDone={this.handleActivate}
-                profiles={[selectedProfile]}
-                rule={rule}
-              />
-            )}
-      </td>
-    );
-  };
-
-  renderDeactivateButton = (
-    inherit: string,
-    overlayTranslationKey = 'coding_rules.can_not_deactivate'
-  ) => {
-    return inherit === 'NONE' ? (
-      <ConfirmButton
-        confirmButtonText={translate('yes')}
-        modalBody={translate('coding_rules.deactivate.confirm')}
-        modalHeader={translate('coding_rules.deactivate')}
-        onConfirm={this.handleDeactivate}>
-        {({ onClick }) => (
-          <Button
-            className="coding-rules-detail-quality-profile-deactivate button-red"
-            onClick={onClick}>
-            {translate('coding_rules.deactivate')}
-          </Button>
+        {!rule.isTemplate && (
+          <ActivationButton
+            buttonText={translate('coding_rules.activate')}
+            className="coding-rules-detail-quality-profile-activate"
+            modalHeader={translate('coding_rules.activate_in_quality_profile')}
+            onDone={this.handleActivate}
+            profiles={[selectedProfile]}
+            rule={rule}
+          />
         )}
-      </ConfirmButton>
-    ) : (
-      <Tooltip overlay={translate(overlayTranslationKey)}>
-        <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
-          {translate('coding_rules.deactivate')}
-        </Button>
-      </Tooltip>
+      </td>
     );
   };
 

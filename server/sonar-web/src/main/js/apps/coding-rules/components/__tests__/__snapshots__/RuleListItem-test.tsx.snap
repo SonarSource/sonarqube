@@ -1,29 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`#renderDeactivateButton should render correctly 1`] = `
-<ConfirmButton
-  confirmButtonText="yes"
-  modalBody="coding_rules.deactivate.confirm"
-  modalHeader="coding_rules.deactivate"
-  onConfirm={[Function]}
+exports[`renderActions should disable the button when I am on a built-in profile: activate 1`] = `
+<td
+  className="coding-rule-table-meta-cell coding-rule-activation-actions"
 >
-  [Function]
-</ConfirmButton>
-`;
-
-exports[`#renderDeactivateButton should render correctly 2`] = `
-<Tooltip
-  overlay="coding_rules.need_extend_or_copy"
->
-  <Button
-    className="coding-rules-detail-quality-profile-deactivate button-red disabled"
+  <Tooltip
+    overlay="coding_rules.need_extend_or_copy"
   >
-    coding_rules.deactivate
-  </Button>
-</Tooltip>
+    <Button
+      className="coding-rules-detail-quality-profile-deactivate button-red disabled"
+    >
+      coding_rules.activate
+    </Button>
+  </Tooltip>
+</td>
 `;
 
-exports[`renderActions should disable the button when I am on a built-in profile 1`] = `
+exports[`renderActions should disable the button when I am on a built-in profile: deactivate 1`] = `
 <td
   className="coding-rule-table-meta-cell coding-rule-activation-actions"
 >
