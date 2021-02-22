@@ -105,6 +105,7 @@ exports[`should render correctly: add language 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "bar",
                     },
                   }
@@ -151,6 +152,7 @@ exports[`should render correctly: add language 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "baz",
                     },
                   }
@@ -199,6 +201,7 @@ exports[`should render correctly: add language 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "foo",
                     },
                   }
@@ -416,6 +419,7 @@ exports[`should render correctly: default 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "bar",
                     },
                   }
@@ -462,6 +466,7 @@ exports[`should render correctly: default 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "baz",
                     },
                   }
@@ -510,6 +515,7 @@ exports[`should render correctly: default 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "foo",
                     },
                   }
@@ -747,6 +753,7 @@ exports[`should render correctly: open profile 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "bar",
                     },
                   }
@@ -793,6 +800,7 @@ exports[`should render correctly: open profile 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "baz",
                     },
                   }
@@ -841,6 +849,7 @@ exports[`should render correctly: open profile 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
+                      "activation": "true",
                       "qprofile": "foo",
                     },
                   }
