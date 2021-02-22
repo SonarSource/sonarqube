@@ -35,12 +35,12 @@ exports[`should render correctly 1`] = `
         values={
           Object {
             "button": <ClipboardIconButton
-              copyValue="http://localhost"
+              copyValue="http://localhost:9000"
             />,
             "url": <code
               className="rule"
             >
-              http://localhost
+              http://localhost:9000
             </code>,
           }
         }

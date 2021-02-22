@@ -36,13 +36,14 @@ export enum Steps {
 }
 
 export interface GitLabCITutorialProps {
+  baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
   projectBinding: ProjectAlmBindingResponse;
 }
 
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
-  const { component, currentUser, projectBinding } = props;
+  const { baseUrl, component, currentUser, projectBinding } = props;
 
   const [step, setStep] = React.useState(Steps.PROJECT_KEY);
   const [buildTool, setBuildTool] = React.useState<BuildTools | undefined>();
@@ -71,6 +72,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
       />
 
       <EnvironmentVariablesStep
+        baseUrl={baseUrl}
         component={component}
         currentUser={currentUser}
         finished={step > Steps.ENV_VARIABLES}

@@ -19,5 +19,6 @@
  */
 export const enum SettingsKey {
   DaysBeforeDeletingInactiveBranchesAndPRs = 'sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs',
-  DefaultProjectVisibility = 'projects.default.visibility'
+  DefaultProjectVisibility = 'projects.default.visibility',
+  ServerBaseUrl = 'sonar.core.serverBaseURL'
 }

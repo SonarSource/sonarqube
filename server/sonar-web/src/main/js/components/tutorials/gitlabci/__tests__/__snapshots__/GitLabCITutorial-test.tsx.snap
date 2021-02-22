@@ -41,6 +41,7 @@ exports[`should render correctly 1`] = `
     setBuildTool={[Function]}
   />
   <EnvironmentVariablesStep
+    baseUrl="http://localhost:9000"
     component={
       Object {
         "breadcrumbs": Array [],

@@ -32,6 +32,7 @@ import SaveAndRunStepContent from './SaveAndRunStepContent';
 import ServiceEndpointStepContent from './ServiceEndpointStepContent';
 
 export interface AzurePipelinesTutorialProps {
+  baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
   projectBinding: ProjectAlmBindingResponse;
@@ -51,7 +52,7 @@ interface Step {
 }
 
 export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProps) {
-  const { component, currentUser, projectBinding } = props;
+  const { baseUrl, component, currentUser, projectBinding } = props;
 
   const [currentStep, setCurrentStep] = React.useState(Steps.ExtensionInstallation);
   const [isCurrentStepValid, setIsCurrentStepValid] = React.useState(false);
@@ -69,7 +70,13 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
     { step: Steps.ExtensionInstallation, content: <ExtensionInstallationStepContent /> },
     {
       step: Steps.ServiceEndpoint,
-      content: <ServiceEndpointStepContent component={component} currentUser={currentUser} />
+      content: (
+        <ServiceEndpointStepContent
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+        />
+      )
     },
     {
       step: Steps.BranchAnalysis,

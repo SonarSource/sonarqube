@@ -20,7 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { getAlmDefinitionsNoCatch, getProjectAlmBinding } from '../../../api/alm-settings';
+import { getValues } from '../../../api/settings';
 import { mockBitbucketBindingDefinition } from '../../../helpers/mocks/alm-settings';
 import {
   mockComponent,
@@ -29,12 +31,21 @@ import {
   mockRouter
 } from '../../../helpers/testMocks';
 import { AlmKeys } from '../../../types/alm-settings';
+import { SettingsKey } from '../../../types/settings';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
+
+jest.mock('sonar-ui-common/helpers/urls', () => ({
+  getHostUrl: jest.fn().mockReturnValue('http://host.url')
+}));
 
 jest.mock('../../../api/alm-settings', () => ({
   getProjectAlmBinding: jest.fn().mockRejectedValue(null),
   getAlmDefinitionsNoCatch: jest.fn().mockRejectedValue(null)
+}));
+
+jest.mock('../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([])
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -86,6 +97,32 @@ it('should handle selection', () => {
       query: { selectedTutorial: TutorialModes.Jenkins }
     })
   );
+});
+
+it('should fetch the correct baseUrl', async () => {
+  (getValues as jest.Mock)
+    .mockResolvedValueOnce([{ key: SettingsKey.ServerBaseUrl, value: '' }])
+    .mockResolvedValueOnce([{ key: SettingsKey.ServerBaseUrl, value: 'http://sq.example.com' }])
+    .mockRejectedValueOnce(null);
+
+  let wrapper = shallowRender();
+
+  expect(getValues).toBeCalled();
+  expect(getHostUrl).toBeCalled();
+
+  // No baseURL, fallback to the URL in the browser.
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().baseUrl).toBe('http://host.url');
+
+  // A baseURL was set.
+  wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().baseUrl).toBe('http://sq.example.com');
+
+  // Access denied, fallback to the URL in the browser.
+  wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().baseUrl).toBe('http://host.url');
 });
 
 function shallowRender(props: Partial<TutorialSelection['props']> = {}) {

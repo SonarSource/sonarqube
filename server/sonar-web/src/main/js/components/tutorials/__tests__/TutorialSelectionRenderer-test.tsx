@@ -125,6 +125,7 @@ function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {
   return shallow<TutorialSelectionRendererProps>(
     <TutorialSelectionRenderer
       almBinding={mockBitbucketBindingDefinition()}
+      baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       loading={false}

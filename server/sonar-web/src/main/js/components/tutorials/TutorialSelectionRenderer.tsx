@@ -29,6 +29,7 @@ import { TutorialModes } from './types';
 
 export interface TutorialSelectionRendererProps {
   almBinding?: AlmBindingDefinition;
+  baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
   loading: boolean;
@@ -38,7 +39,15 @@ export interface TutorialSelectionRendererProps {
 }
 
 export default function TutorialSelectionRenderer(props: TutorialSelectionRendererProps) {
-  const { almBinding, component, currentUser, loading, projectBinding, selectedTutorial } = props;
+  const {
+    almBinding,
+    baseUrl,
+    component,
+    currentUser,
+    loading,
+    projectBinding,
+    selectedTutorial
+  } = props;
 
   if (loading) {
     return <i className="spinner" />;
@@ -138,6 +147,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial === TutorialModes.GitLabCI && projectBinding !== undefined && (
         <GitLabCITutorial
+          baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
           projectBinding={projectBinding}
@@ -146,6 +156,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial === TutorialModes.AzurePipelines && projectBinding !== undefined && (
         <AzurePipelinesTutorial
+          baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
           projectBinding={projectBinding}

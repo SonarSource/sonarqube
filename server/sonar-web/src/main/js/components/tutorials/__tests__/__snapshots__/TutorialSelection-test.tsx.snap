@@ -2,6 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <TutorialSelectionRenderer
+  baseUrl="http://host.url"
   component={
     Object {
       "breadcrumbs": Array [],

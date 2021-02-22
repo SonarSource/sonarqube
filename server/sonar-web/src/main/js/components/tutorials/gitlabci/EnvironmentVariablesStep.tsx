@@ -22,11 +22,11 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import EditTokenModal from '../components/EditTokenModal';
 import Step from '../components/Step';
 
 export interface EnvironmentVariablesStepProps {
+  baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
   finished: boolean;
@@ -40,7 +40,7 @@ const pipelineDescriptionLinkLabel = translate(
 );
 
 export default function EnvironmentVariablesStep(props: EnvironmentVariablesStepProps) {
-  const { component, currentUser, finished, open } = props;
+  const { baseUrl, component, currentUser, finished, open } = props;
 
   const [isModalVisible, toggleModal] = React.useState(false);
 
@@ -139,9 +139,9 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
             defaultMessage={fieldValueTranslation}
             id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
             values={{
-              extra: <ClipboardIconButton copyValue={getHostUrl()} />,
+              extra: <ClipboardIconButton copyValue={baseUrl} />,
               field: translate('onboarding.tutorial.with.gitlab_ci.env_variables.step2'),
-              value: <code className="rule">{getHostUrl()}</code>
+              value: <code className="rule">{baseUrl}</code>
             }}
           />
         </li>

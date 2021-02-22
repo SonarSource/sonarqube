@@ -140,13 +140,13 @@ exports[`should render correctly: initial content 1`] = `
         values={
           Object {
             "extra": <ClipboardIconButton
-              copyValue="http://localhost"
+              copyValue="http://localhost:9000"
             />,
             "field": "onboarding.tutorial.with.gitlab_ci.env_variables.step2",
             "value": <code
               className="rule"
             >
-              http://localhost
+              http://localhost:9000
             </code>,
           }
         }

@@ -46,6 +46,10 @@ it('should render open/close the token modal when asked to', () => {
 
 function shallowRender() {
   return shallow(
-    <ServiceEndpointStepContent component={mockComponent()} currentUser={mockLoggedInUser()} />
+    <ServiceEndpointStepContent
+      baseUrl="http://localhost:9000"
+      component={mockComponent()}
+      currentUser={mockLoggedInUser()}
+    />
   );
 }

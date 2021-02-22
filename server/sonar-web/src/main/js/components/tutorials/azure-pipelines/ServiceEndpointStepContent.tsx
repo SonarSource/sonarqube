@@ -22,17 +22,17 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import EditTokenModal from '../components/EditTokenModal';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
 export interface ServiceEndpointStepProps {
+  baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
 }
 
 export default function ServiceEndpointStepContent(props: ServiceEndpointStepProps) {
-  const { component, currentUser } = props;
+  const { baseUrl, component, currentUser } = props;
 
   const [isModalVisible, toggleModal] = React.useState(false);
 
@@ -61,8 +61,8 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
             )}
             id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step4.sentence"
             values={{
-              url: <code className="rule">{getHostUrl()}</code>,
-              button: <ClipboardIconButton copyValue={getHostUrl()} />
+              url: <code className="rule">{baseUrl}</code>,
+              button: <ClipboardIconButton copyValue={baseUrl} />
             }}
           />
         </li>

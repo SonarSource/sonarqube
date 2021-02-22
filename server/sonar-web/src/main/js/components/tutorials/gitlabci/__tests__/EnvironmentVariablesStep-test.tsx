@@ -34,6 +34,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<EnvironmentVariablesStepProps> = {}) {
   return shallow<EnvironmentVariablesStepProps>(
     <EnvironmentVariablesStep
+      baseUrl="http://localhost:9000"
       currentUser={mockLoggedInUser()}
       component={mockComponent()}
       finished={false}

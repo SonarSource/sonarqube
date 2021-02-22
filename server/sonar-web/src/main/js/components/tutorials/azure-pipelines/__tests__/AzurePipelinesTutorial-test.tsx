@@ -101,6 +101,7 @@ it('should open a step when user click on it', () => {
 function shallowRender(props: Partial<AzurePipelinesTutorialProps> = {}) {
   return shallow<AzurePipelinesTutorialProps>(
     <AzurePipelinesTutorial
+      baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       projectBinding={mockProjectAzureBindingResponse()}

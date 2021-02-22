@@ -36,6 +36,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<GitLabCITutorialProps> = {}) {
   return shallow<GitLabCITutorialProps>(
     <GitLabCITutorial
+      baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       projectBinding={mockProjectGitLabBindingResponse()}

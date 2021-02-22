@@ -3,6 +3,7 @@
 exports[`should render correctly: azure pipelines tutorial 1`] = `
 <Fragment>
   <AzurePipelinesTutorial
+    baseUrl="http://localhost:9000"
     component={
       Object {
         "breadcrumbs": Array [],
@@ -51,6 +52,7 @@ exports[`should render correctly: azure pipelines tutorial 1`] = `
 exports[`should render correctly: gitlab tutorial 1`] = `
 <Fragment>
   <GitLabCITutorial
+    baseUrl="http://localhost:9000"
     component={
       Object {
         "breadcrumbs": Array [],
