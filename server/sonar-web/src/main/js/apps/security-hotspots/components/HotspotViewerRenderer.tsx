@@ -49,7 +49,7 @@ export interface HotspotViewerRendererProps {
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
   onOpenComment: () => void;
   onCloseComment: () => void;
-  onUpdateHotspot: () => Promise<void>;
+  onUpdateHotspot: (statusUpdate?: boolean) => Promise<void>;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -128,7 +128,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               </div>
             </div>
             <div className="huge-spacer-left">
-              <Status hotspot={hotspot} onStatusChange={props.onUpdateHotspot} />
+              <Status hotspot={hotspot} onStatusChange={() => props.onUpdateHotspot(true)} />
             </div>
           </div>
 

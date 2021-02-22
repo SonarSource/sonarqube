@@ -296,7 +296,7 @@ exports[`should render correctly 1`] = `
               ],
             }
           }
-          onStatusChange={[MockFunction]}
+          onStatusChange={[Function]}
         />
       </div>
     </div>
@@ -941,7 +941,7 @@ exports[`should render correctly: anonymous user 1`] = `
               ],
             }
           }
-          onStatusChange={[MockFunction]}
+          onStatusChange={[Function]}
         />
       </div>
     </div>
@@ -1586,7 +1586,7 @@ exports[`should render correctly: assignee without name 1`] = `
               ],
             }
           }
-          onStatusChange={[MockFunction]}
+          onStatusChange={[Function]}
         />
       </div>
     </div>
@@ -2231,7 +2231,7 @@ exports[`should render correctly: deleted assignee 1`] = `
               ],
             }
           }
-          onStatusChange={[MockFunction]}
+          onStatusChange={[Function]}
         />
       </div>
     </div>
@@ -2883,7 +2883,7 @@ exports[`should render correctly: unassigned 1`] = `
               ],
             }
           }
-          onStatusChange={[MockFunction]}
+          onStatusChange={[Function]}
         />
       </div>
     </div>

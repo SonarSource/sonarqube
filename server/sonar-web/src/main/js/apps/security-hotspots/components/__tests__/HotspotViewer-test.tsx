@@ -51,11 +51,24 @@ it('should render correctly', async () => {
   expect(getSecurityHotspotDetails).toHaveBeenCalledWith(newHotspotKey);
 });
 
-it('should refresh hotspot on update', () => {
+it('should refresh hotspot list on status update', () => {
   const onUpdateHotspot = jest.fn();
   const wrapper = shallowRender({ onUpdateHotspot });
-  wrapper.find(HotspotViewerRenderer).simulate('updateHotspot');
+  wrapper
+    .find(HotspotViewerRenderer)
+    .props()
+    .onUpdateHotspot(true);
   expect(onUpdateHotspot).toHaveBeenCalled();
+});
+
+it('should NOT refresh hotspot list on assignee/comment updates', () => {
+  const onUpdateHotspot = jest.fn();
+  const wrapper = shallowRender({ onUpdateHotspot });
+  wrapper
+    .find(HotspotViewerRenderer)
+    .props()
+    .onUpdateHotspot();
+  expect(onUpdateHotspot).not.toHaveBeenCalled();
 });
 
 it('should open comment form when scroll to comment', () => {

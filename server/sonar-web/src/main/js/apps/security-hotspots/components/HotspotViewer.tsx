@@ -79,10 +79,14 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       .catch(() => this.mounted && this.setState({ loading: false }));
   };
 
-  handleHotspotUpdate = async () => {
+  handleHotspotUpdate = async (statusUpdate = false) => {
     const { hotspotKey } = this.props;
 
-    await this.props.onUpdateHotspot(hotspotKey);
+    if (statusUpdate) {
+      await this.props.onUpdateHotspot(hotspotKey);
+    } else {
+      await this.fetchHotspot();
+    }
   };
 
   handleOpenComment = () => {
