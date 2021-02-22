@@ -69,6 +69,7 @@ This feature is available to users of:
 * [SonarLint for Visual Studio](https://www.sonarlint.org/visualstudio) 4.29 and above 
 * [SonarLint for IntelliJ](https://www.sonarlint.org/intellij) 4.13 and above
 * [SonarLint for VS Code](https://www.sonarlint.org/vscode) 1.20 and above
+* [SonarLint for Eclipse](https://www.sonarlint.org/eclipse) 5.7 and above
 
 The project needs to be open in the appropriate IDE and bound to the server through SonarLint's connected mode.
 
