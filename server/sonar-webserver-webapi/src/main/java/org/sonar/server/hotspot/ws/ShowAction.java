@@ -45,7 +45,6 @@ import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.rule.HotspotRuleDescription;
-import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
@@ -169,17 +168,10 @@ public class ShowAction implements HotspotsWsAction {
       .setSecurityCategory(sqCategory.getKey())
       .setVulnerabilityProbability(sqCategory.getVulnerability().name());
 
-    if (ruleDefinitionDto.isCustomRule()) {
-      String htmlDescription = RuleDescriptionFormatter.getDescriptionAsHtml(ruleDefinitionDto);
-      if (htmlDescription != null) {
-        ruleBuilder.setRiskDescription(macroInterpreter.interpret(htmlDescription));
-      }
-    } else {
-      HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);
-      hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
-      hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
-      hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);
-    }
+    HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);
+    hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
+    hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
+    hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);
 
     responseBuilder.setRule(ruleBuilder.build());
   }
@@ -232,7 +224,7 @@ public class ShowAction implements HotspotsWsAction {
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
     ComponentDto component = hotspotOnProject ? project
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
     return new Components(project, component);
   }

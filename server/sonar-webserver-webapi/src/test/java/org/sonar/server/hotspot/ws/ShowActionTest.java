@@ -387,16 +387,12 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
 
-    String description = "<div>line1\nline2</div>";
-    String parsedDescription = "&lt;div&gt;line1<br/>line2&lt;/div&gt;";
-    String resultingDescription = "!" + parsedDescription + "!";
+    String description = "== Title\n<div>line1\nline2</div>";
 
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT,
       r -> r.setTemplateUuid("123")
         .setDescription(description)
         .setDescriptionFormat(MARKDOWN));
-
-    doReturn(resultingDescription).when(macroInterpreter).interpret(parsedDescription);
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
@@ -404,7 +400,7 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getRule().getRiskDescription()).isEqualTo(resultingDescription);
+    assertThat(response.getRule().getRiskDescription()).isEqualTo("<h2>Title</h2>&lt;div&gt;line1<br/>line2&lt;/div&gt;");
   }
 
   @Test

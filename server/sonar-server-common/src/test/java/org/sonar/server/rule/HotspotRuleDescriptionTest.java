@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -143,6 +144,43 @@ public class HotspotRuleDescriptionTest {
     assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
     assertThat(result.getVulnerable().get()).isEqualTo(ASKATRISK + SENSITIVECODE);
     assertThat(result.getFixIt().get()).isEqualTo(RECOMMENTEDCODINGPRACTICE + SEE);
+  }
+
+  @Test
+  public void parse_custom_rule_description() {
+    String ruleDescription = "This is the custom rule description";
+    String exceptionsContent = "This the exceptions section content";
+    String askContent = "This is the ask section content";
+    String recommendedContent = "This is the recommended section content";
+
+    RuleDefinitionDto dto = RuleTesting.newRule()
+      .setTemplateUuid("123")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .setDescription(
+        ruleDescription + "\n"
+        + "== Exceptions" + "\n"
+        + exceptionsContent + "\n"
+        + "== Ask Yourself Whether" + "\n"
+        + askContent + "\n"
+        + "== Recommended Secure Coding Practices" + "\n"
+        + recommendedContent + "\n"
+      );
+
+    HotspotRuleDescription result = HotspotRuleDescription.from(dto);
+
+    assertThat(result.getRisk().get()).hasToString(
+      ruleDescription + "<br/>"
+      + "<h2>Exceptions</h2>"
+      + exceptionsContent + "<br/>"
+    );
+    assertThat(result.getVulnerable().get()).hasToString(
+        "<h2>Ask Yourself Whether</h2>"
+        + askContent + "<br/>"
+    );
+    assertThat(result.getFixIt().get()).hasToString(
+      "<h2>Recommended Secure Coding Practices</h2>"
+        + recommendedContent + "<br/>"
+    );
   }
 
   /*

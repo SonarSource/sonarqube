@@ -71,7 +71,7 @@ public class HtmlHeadingChannel extends RegexChannel<MarkdownOutput> {
     CharSequence headingText = token.subSequence(index, token.length());
 
     output.append("<h" + headingLevel + ">");
-    output.append(headingText);
+    output.append(headingText.toString().trim());
     output.append("</h" + headingLevel + ">");
   }
 }
