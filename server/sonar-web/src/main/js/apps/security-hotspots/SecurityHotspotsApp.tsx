@@ -22,7 +22,6 @@ import * as key from 'keymaster';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
@@ -107,7 +106,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    addSideBarClass();
     this.fetchInitialData();
     this.registerKeyboardEvents();
   }
@@ -134,7 +132,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    removeSideBarClass();
     this.unregisterKeyboardEvents();
     this.mounted = false;
   }

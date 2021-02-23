@@ -23,6 +23,7 @@ import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { HotspotStatusFilter, RawHotspot, RiskExposure } from '../../../types/security-hotspots';
 import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
 import HotspotCategory from './HotspotCategory';
@@ -58,6 +59,10 @@ export default class HotspotList extends React.Component<Props, State> {
     };
   }
 
+  componentDidMount() {
+    addSideBarClass();
+  }
+
   componentDidUpdate(prevProps: Props) {
     // Force open the category of selected hotspot
     if (
@@ -77,6 +82,10 @@ export default class HotspotList extends React.Component<Props, State> {
       );
       this.setState({ groupedHotspots });
     }
+  }
+
+  componentWillUnmount() {
+    removeSideBarClass();
   }
 
   groupHotspots = (hotspots: RawHotspot[], securityCategories: T.StandardSecurityCategories) => {

@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { addSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
@@ -43,11 +42,6 @@ import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
 beforeEach(() => jest.clearAllMocks());
-
-jest.mock('sonar-ui-common/helpers/pages', () => ({
-  addSideBarClass: jest.fn(),
-  removeSideBarClass: jest.fn()
-}));
 
 jest.mock('../../../api/measures', () => ({
   getMeasures: jest.fn().mockResolvedValue([])
@@ -83,7 +77,6 @@ it('should load data correctly', async () => {
   expect(wrapper.state().loading).toBe(true);
   expect(wrapper.state().loadingMeasure).toBe(true);
 
-  expect(addSideBarClass).toBeCalled();
   expect(getStandards).toBeCalled();
   expect(getSecurityHotspots).toBeCalledWith(
     expect.objectContaining({

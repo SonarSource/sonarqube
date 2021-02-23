@@ -109,7 +109,13 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
         onShowAllHotspots={props.onShowAllHotspots}
       />
 
-      {loading && <DeferredSpinner className="huge-spacer-left big-spacer-top" />}
+      {loading && (
+        <div className="layout-page">
+          <div className="layout-page-side-inner">
+            <DeferredSpinner className="big-spacer-top" />
+          </div>
+        </div>
+      )}
 
       {!loading &&
         (hotspots.length === 0 || !selectedHotspot ? (

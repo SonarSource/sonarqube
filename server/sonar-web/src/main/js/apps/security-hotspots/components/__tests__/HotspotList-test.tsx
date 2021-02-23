@@ -19,13 +19,32 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { HotspotStatusFilter, RiskExposure } from '../../../../types/security-hotspots';
 import HotspotList from '../HotspotList';
 
+jest.mock('sonar-ui-common/helpers/pages', () => ({
+  addSideBarClass: jest.fn(),
+  removeSideBarClass: jest.fn()
+}));
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ loadingMore: true })).toMatchSnapshot();
+});
+
+it('should add/remove sidebar classes', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(addSideBarClass).toHaveBeenCalled();
+
+  wrapper.unmount();
+
+  expect(removeSideBarClass).toHaveBeenCalled();
 });
 
 it('should render correctly when the list of hotspot is static', () => {

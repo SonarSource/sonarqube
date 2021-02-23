@@ -19,9 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { SecurityStandard } from '../../../../types/security';
 import HotspotSimpleList, { HotspotSimpleListProps } from '../HotspotSimpleList';
+
+jest.mock('sonar-ui-common/helpers/pages', () => ({
+  addSideBarClass: jest.fn(),
+  removeSideBarClass: jest.fn()
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('filter by category');
@@ -29,6 +36,18 @@ it('should render correctly', () => {
     'filter by cwe'
   );
   expect(shallowRender({ filterByCWE: '327' })).toMatchSnapshot('filter by both');
+});
+
+it('should add/remove sidebar classes', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(addSideBarClass).toHaveBeenCalled();
+
+  wrapper.unmount();
+
+  expect(removeSideBarClass).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {

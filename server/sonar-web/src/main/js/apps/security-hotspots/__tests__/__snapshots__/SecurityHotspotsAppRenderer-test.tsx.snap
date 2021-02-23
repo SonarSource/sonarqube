@@ -486,9 +486,17 @@ exports[`should render correctly: loading 1`] = `
     onChangeFilters={[MockFunction]}
     onShowAllHotspots={[MockFunction]}
   />
-  <DeferredSpinner
-    className="huge-spacer-left big-spacer-top"
-  />
+  <div
+    className="layout-page"
+  >
+    <div
+      className="layout-page-side-inner"
+    >
+      <DeferredSpinner
+        className="big-spacer-top"
+      />
+    </div>
+  </div>
 </div>
 `;
 

@@ -21,6 +21,7 @@ import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { RawHotspot } from '../../../types/security-hotspots';
 import { SECURITY_STANDARD_RENDERER } from '../utils';
@@ -41,58 +42,68 @@ export interface HotspotSimpleListProps {
   standards: Standards;
 }
 
-export default function HotspotSimpleList(props: HotspotSimpleListProps) {
-  const {
-    filterByCategory,
-    filterByCWE,
-    hotspots,
-    hotspotsTotal,
-    loadingMore,
-    selectedHotspot,
-    standards
-  } = props;
+export default class HotspotSimpleList extends React.Component<HotspotSimpleListProps> {
+  componentDidMount() {
+    addSideBarClass();
+  }
 
-  const categoryLabel =
-    filterByCategory &&
-    SECURITY_STANDARD_RENDERER[filterByCategory.standard](standards, filterByCategory.category);
+  componentWillUnmount() {
+    removeSideBarClass();
+  }
 
-  const cweLabel =
-    filterByCWE && SECURITY_STANDARD_RENDERER[SecurityStandard.CWE](standards, filterByCWE);
+  render() {
+    const {
+      filterByCategory,
+      filterByCWE,
+      hotspots,
+      hotspotsTotal,
+      loadingMore,
+      selectedHotspot,
+      standards
+    } = this.props;
 
-  return (
-    <div className="hotspots-list-single-category huge-spacer-bottom">
-      <h1 className="hotspot-list-header bordered-bottom">
-        <SecurityHotspotIcon className="spacer-right" />
-        {translateWithParameters('hotspots.list_title', hotspotsTotal)}
-      </h1>
-      <div className="big-spacer-bottom">
-        <div className="hotspot-category">
-          <div className="hotspot-category-header">
-            <strong className="flex-1 spacer-right break-word">
-              {categoryLabel}
-              {categoryLabel && cweLabel && <hr />}
-              {cweLabel}
-            </strong>
+    const categoryLabel =
+      filterByCategory &&
+      SECURITY_STANDARD_RENDERER[filterByCategory.standard](standards, filterByCategory.category);
+
+    const cweLabel =
+      filterByCWE && SECURITY_STANDARD_RENDERER[SecurityStandard.CWE](standards, filterByCWE);
+
+    return (
+      <div className="hotspots-list-single-category huge-spacer-bottom">
+        <h1 className="hotspot-list-header bordered-bottom">
+          <SecurityHotspotIcon className="spacer-right" />
+          {translateWithParameters('hotspots.list_title', hotspotsTotal)}
+        </h1>
+        <div className="big-spacer-bottom">
+          <div className="hotspot-category">
+            <div className="hotspot-category-header">
+              <strong className="flex-1 spacer-right break-word">
+                {categoryLabel}
+                {categoryLabel && cweLabel && <hr />}
+                {cweLabel}
+              </strong>
+            </div>
+            <ul>
+              {hotspots.map(h => (
+                <li data-hotspot-key={h.key} key={h.key}>
+                  <HotspotListItem
+                    hotspot={h}
+                    onClick={this.props.onHotspotClick}
+                    selected={h.key === selectedHotspot.key}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul>
-            {hotspots.map(h => (
-              <li data-hotspot-key={h.key} key={h.key}>
-                <HotspotListItem
-                  hotspot={h}
-                  onClick={props.onHotspotClick}
-                  selected={h.key === selectedHotspot.key}
-                />
-              </li>
-            ))}
-          </ul>
         </div>
+        <ListFooter
+          count={hotspots.length}
+          loadMore={!loadingMore ? this.props.onLoadMore : undefined}
+          loading={loadingMore}
+          total={hotspotsTotal}
+        />
       </div>
-      <ListFooter
-        count={hotspots.length}
-        loadMore={!loadingMore ? props.onLoadMore : undefined}
-        loading={loadingMore}
-        total={hotspotsTotal}
-      />
-    </div>
-  );
+    );
+  }
 }
