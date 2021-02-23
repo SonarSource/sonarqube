@@ -61,8 +61,8 @@ module.exports = {
     rowHoverHighlight: '#ecf6fe',
 
     // fonts
-    baseFontColor: '#444',
-    secondFontColor: '#777',
+    baseFontColor: '#333',
+    secondFontColor: '#666',
 
     // forms
     mandatoryFieldColor: '#a4030f',
