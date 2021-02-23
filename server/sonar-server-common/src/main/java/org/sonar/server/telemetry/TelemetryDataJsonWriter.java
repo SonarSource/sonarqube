@@ -78,6 +78,13 @@ public class TelemetryDataJsonWriter {
     });
     json.endArray();
 
+    if (!statistics.getCustomSecurityConfigs().isEmpty()) {
+      json.name("customSecurityConfig");
+      json.beginArray();
+      json.values(statistics.getCustomSecurityConfigs());
+      json.endArray();
+    }
+
     statistics.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
     statistics.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
     if (statistics.getInstallationDate() != null) {

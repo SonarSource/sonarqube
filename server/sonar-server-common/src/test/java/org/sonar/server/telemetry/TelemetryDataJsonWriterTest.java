@@ -342,6 +342,19 @@ public class TelemetryDataJsonWriterTest {
       "}");
   }
 
+  @Test
+  public void writes_security_custom_config() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setCustomSecurityConfigs(Arrays.asList("php", "java"))
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"customSecurityConfig\": [\"php\", \"java\"]" +
+      "}");
+  }
+
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())

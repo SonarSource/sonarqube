@@ -21,12 +21,15 @@ package org.sonar.server.telemetry;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -47,9 +50,12 @@ import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
+import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.startsWith;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
+import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
+import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
@@ -61,18 +67,19 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final UserIndex userIndex;
   private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
+  private final Configuration configuration;
   private final InternalProperties internalProperties;
   private final DockerSupport dockerSupport;
   @CheckForNull
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, InternalProperties internalProperties, DockerSupport dockerSupport) {
-    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, dockerSupport, null);
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
+    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, configuration, dockerSupport, null);
   }
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, InternalProperties internalProperties,
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
@@ -81,6 +88,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
     this.internalProperties = internalProperties;
+    this.configuration = configuration;
     this.dockerSupport = dockerSupport;
     this.licenseReader = licenseReader;
   }
@@ -129,6 +137,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
       data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
     }
+
+    setSecurityCustomConfigIfPresent(data);
+
     Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);
     installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
@@ -136,6 +147,23 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setInDocker(dockerSupport.isRunningInDocker());
 
     return data.build();
+  }
+
+  private void setSecurityCustomConfigIfPresent(TelemetryData.Builder data) {
+    editionProvider.get()
+      .filter(edition -> asList(ENTERPRISE, DATACENTER).contains(edition))
+      .ifPresent(edition -> {
+        List<String> customSecurityConfigs = new LinkedList<>();
+        configuration.get("sonar.security.config.javasecurity")
+          .ifPresent(s -> customSecurityConfigs.add("java"));
+        configuration.get("sonar.security.config.phpsecurity")
+          .ifPresent(s -> customSecurityConfigs.add("php"));
+        configuration.get("sonar.security.config.pythonsecurity")
+          .ifPresent(s -> customSecurityConfigs.add("python"));
+        configuration.get("sonar.security.config.roslyn.sonaranalyzer.security.cs")
+          .ifPresent(s -> customSecurityConfigs.add("csharp"));
+        data.setCustomSecurityConfigs(customSecurityConfigs);
+      });
   }
 
   private Map<String, Long> countAlmUsage(DbSession dbSession) {

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
@@ -58,6 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
+import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
@@ -71,6 +73,7 @@ public class TelemetryDataLoaderImplTest {
 
   private final FakeServer server = new FakeServer();
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
+  private final Configuration configuration = mock(Configuration.class);
   private final TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final DockerSupport dockerSupport = mock(DockerSupport.class);
@@ -80,9 +83,9 @@ public class TelemetryDataLoaderImplTest {
   private final LicenseReader licenseReader = mock(LicenseReader.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, dockerSupport, null);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, null);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, dockerSupport, licenseReader);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, licenseReader);
 
   @Test
   public void send_telemetry_data() {
@@ -144,14 +147,14 @@ public class TelemetryDataLoaderImplTest {
       entry("java", 500L), entry("kotlin", 2500L), entry("js", 50L));
     assertThat(data.isInDocker()).isFalse();
     assertThat(data.getAlmIntegrationCountByAlm())
-        .containsEntry("azure_devops_server", 1L)
-        .containsEntry("azure_devops_cloud", 1L)
-        .containsEntry("bitbucket_server", 1L)
-        .containsEntry("bitbucket_cloud", 1L)
-        .containsEntry("gitlab_server", 1L)
-        .containsEntry("gitlab_cloud", 1L)
-        .containsEntry("github_cloud", 1L)
-        .containsEntry("github_server", 1L);
+      .containsEntry("azure_devops_server", 1L)
+      .containsEntry("azure_devops_cloud", 1L)
+      .containsEntry("bitbucket_server", 1L)
+      .containsEntry("bitbucket_cloud", 1L)
+      .containsEntry("gitlab_server", 1L)
+      .containsEntry("gitlab_cloud", 1L)
+      .containsEntry("github_cloud", 1L)
+      .containsEntry("github_server", 1L);
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {
@@ -290,6 +293,30 @@ public class TelemetryDataLoaderImplTest {
 
     assertThat(data.hasUnanalyzedC().get()).isFalse();
     assertThat(data.hasUnanalyzedCpp().get()).isFalse();
+  }
+
+  @Test
+  public void populate_security_custom_config_for_languages_on_enterprise() {
+    when(editionProvider.get()).thenReturn(Optional.of(ENTERPRISE));
+
+    when(configuration.get("sonar.security.config.javasecurity")).thenReturn(Optional.of("{}"));
+    when(configuration.get("sonar.security.config.phpsecurity")).thenReturn(Optional.of("{}"));
+    when(configuration.get("sonar.security.config.pythonsecurity")).thenReturn(Optional.of("{}"));
+    when(configuration.get("sonar.security.config.roslyn.sonaranalyzer.security.cs")).thenReturn(Optional.of("{}"));
+
+    TelemetryData data = commercialUnderTest.load();
+
+    assertThat(data.getCustomSecurityConfigs())
+      .containsExactlyInAnyOrder("java", "php", "python", "csharp");
+  }
+
+  @Test
+  public void skip_security_custom_config_on_community() {
+    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getCustomSecurityConfigs()).isEmpty();
   }
 
   private PluginInfo newPlugin(String key, String version) {

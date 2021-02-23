@@ -19,12 +19,15 @@
  */
 package org.sonar.server.telemetry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 public class TelemetryData {
@@ -46,6 +49,7 @@ public class TelemetryData {
   private final boolean inDocker;
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
+  private final List<String> customSecurityConfigs;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -66,6 +70,7 @@ public class TelemetryData {
     inDocker = builder.inDocker;
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
+    customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
   }
 
   public String getServerId() {
@@ -140,6 +145,10 @@ public class TelemetryData {
     return Optional.ofNullable(hasUnanalyzedCpp);
   }
 
+  public List<String> getCustomSecurityConfigs() {
+    return customSecurityConfigs;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -154,13 +163,14 @@ public class TelemetryData {
     private Map<String, Long> almIntegrationCountByAlm;
     private Long ncloc;
     private Boolean usingBranches;
-    private EditionProvider.Edition edition;
+    private Edition edition;
     private String licenseType;
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
     private Boolean hasUnanalyzedC;
     private Boolean hasUnanalyzedCpp;
+    private List<String> customSecurityConfigs;
 
     private Builder() {
       // enforce static factory method
@@ -211,7 +221,7 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setEdition(@Nullable EditionProvider.Edition edition) {
+    Builder setEdition(@Nullable Edition edition) {
       this.edition = edition;
       return this;
     }
@@ -243,6 +253,11 @@ public class TelemetryData {
 
     Builder setHasUnanalyzedCpp(@Nullable Boolean hasUnanalyzedCpp) {
       this.hasUnanalyzedCpp = hasUnanalyzedCpp;
+      return this;
+    }
+
+    Builder setCustomSecurityConfigs(List<String> customSecurityConfigs) {
+      this.customSecurityConfigs = customSecurityConfigs;
       return this;
     }
 
