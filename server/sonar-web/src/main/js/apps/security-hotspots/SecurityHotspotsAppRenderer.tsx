@@ -88,7 +88,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     const element =
       selectedHotspot && document.querySelector(`[data-hotspot-key="${selectedHotspot.key}"]`);
     if (parent && element) {
-      scrollToElement(element, { parent, smooth: true, topOffset: 150, bottomOffset: 400 });
+      scrollToElement(element, { parent, smooth: true, topOffset: 100, bottomOffset: 100 });
     }
   }, [selectedHotspot]);
 
