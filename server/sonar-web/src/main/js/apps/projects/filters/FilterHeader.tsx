@@ -27,7 +27,7 @@ interface Props {
 export default function FilterHeader(props: Props) {
   return (
     <div className="search-navigator-facet-header projects-facet-header">
-      {props.name}
+      <h3 className="h4">{props.name}</h3>
       {props.children}
     </div>
   );

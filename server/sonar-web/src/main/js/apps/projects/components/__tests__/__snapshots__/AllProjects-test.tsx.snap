@@ -40,6 +40,11 @@ exports[`renders 1`] = `
     encodeSpecialCharacters={true}
     title="projects.page"
   />
+  <h1
+    className="a11y-hidden"
+  >
+    projects.page
+  </h1>
   <ScreenPositionHelper
     className="layout-page-side-outer"
   >
@@ -52,129 +57,138 @@ exports[`renders 1`] = `
       anchor="projects_main"
     />
     <div
-      className="layout-page-header-panel layout-page-main-header"
+      role="main"
     >
+      <h2
+        className="a11y-hidden"
+      >
+        list_of_projects
+      </h2>
       <div
-        className="layout-page-header-panel-inner layout-page-main-header-inner"
+        className="layout-page-header-panel layout-page-main-header"
       >
         <div
-          className="layout-page-main-inner"
+          className="layout-page-header-panel-inner layout-page-main-header-inner"
         >
-          <PageHeader
-            currentUser={
-              Object {
-                "isLoggedIn": true,
-              }
-            }
-            loading={false}
-            onPerspectiveChange={[Function]}
-            onQueryChange={[Function]}
-            onSortChange={[Function]}
-            projects={
-              Array [
+          <div
+            className="layout-page-main-inner"
+          >
+            <PageHeader
+              currentUser={
                 Object {
-                  "key": "foo",
-                  "measures": Object {},
-                  "name": "Foo",
-                  "qualifier": "TRK",
-                  "tags": Array [],
-                  "visibility": "public",
-                },
-              ]
-            }
-            query={
-              Object {
-                "coverage": undefined,
-                "duplications": undefined,
-                "gate": undefined,
-                "languages": undefined,
-                "maintainability": undefined,
-                "new_coverage": undefined,
-                "new_duplications": undefined,
-                "new_lines": undefined,
-                "new_maintainability": undefined,
-                "new_reliability": undefined,
-                "new_security": undefined,
-                "new_security_review_rating": undefined,
-                "qualifier": undefined,
-                "reliability": undefined,
-                "search": undefined,
-                "security": undefined,
-                "security_review_rating": undefined,
-                "size": undefined,
-                "sort": undefined,
-                "tags": undefined,
-                "view": undefined,
-                "visualization": undefined,
+                  "isLoggedIn": true,
+                }
               }
-            }
-            selectedSort="name"
-            total={0}
-            view="overall"
-            visualization="risk"
-          />
+              loading={false}
+              onPerspectiveChange={[Function]}
+              onQueryChange={[Function]}
+              onSortChange={[Function]}
+              projects={
+                Array [
+                  Object {
+                    "key": "foo",
+                    "measures": Object {},
+                    "name": "Foo",
+                    "qualifier": "TRK",
+                    "tags": Array [],
+                    "visibility": "public",
+                  },
+                ]
+              }
+              query={
+                Object {
+                  "coverage": undefined,
+                  "duplications": undefined,
+                  "gate": undefined,
+                  "languages": undefined,
+                  "maintainability": undefined,
+                  "new_coverage": undefined,
+                  "new_duplications": undefined,
+                  "new_lines": undefined,
+                  "new_maintainability": undefined,
+                  "new_reliability": undefined,
+                  "new_security": undefined,
+                  "new_security_review_rating": undefined,
+                  "qualifier": undefined,
+                  "reliability": undefined,
+                  "search": undefined,
+                  "security": undefined,
+                  "security_review_rating": undefined,
+                  "size": undefined,
+                  "sort": undefined,
+                  "tags": undefined,
+                  "view": undefined,
+                  "visualization": undefined,
+                }
+              }
+              selectedSort="name"
+              total={0}
+              view="overall"
+              visualization="risk"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      className="layout-page-main-inner"
-    >
-      <ProjectsList
-        cardType="overall"
-        currentUser={
-          Object {
-            "isLoggedIn": true,
-          }
-        }
-        handleFavorite={[Function]}
-        isFavorite={false}
-        isFiltered={false}
-        projects={
-          Array [
+      <div
+        className="layout-page-main-inner"
+      >
+        <ProjectsList
+          cardType="overall"
+          currentUser={
             Object {
-              "key": "foo",
-              "measures": Object {},
-              "name": "Foo",
-              "qualifier": "TRK",
-              "tags": Array [],
-              "visibility": "public",
-            },
-          ]
-        }
-        query={
-          Object {
-            "coverage": undefined,
-            "duplications": undefined,
-            "gate": undefined,
-            "languages": undefined,
-            "maintainability": undefined,
-            "new_coverage": undefined,
-            "new_duplications": undefined,
-            "new_lines": undefined,
-            "new_maintainability": undefined,
-            "new_reliability": undefined,
-            "new_security": undefined,
-            "new_security_review_rating": undefined,
-            "qualifier": undefined,
-            "reliability": undefined,
-            "search": undefined,
-            "security": undefined,
-            "security_review_rating": undefined,
-            "size": undefined,
-            "sort": undefined,
-            "tags": undefined,
-            "view": undefined,
-            "visualization": undefined,
+              "isLoggedIn": true,
+            }
           }
-        }
-      />
-      <ListFooter
-        count={1}
-        loadMore={[Function]}
-        loading={false}
-        ready={true}
-        total={0}
-      />
+          handleFavorite={[Function]}
+          isFavorite={false}
+          isFiltered={false}
+          projects={
+            Array [
+              Object {
+                "key": "foo",
+                "measures": Object {},
+                "name": "Foo",
+                "qualifier": "TRK",
+                "tags": Array [],
+                "visibility": "public",
+              },
+            ]
+          }
+          query={
+            Object {
+              "coverage": undefined,
+              "duplications": undefined,
+              "gate": undefined,
+              "languages": undefined,
+              "maintainability": undefined,
+              "new_coverage": undefined,
+              "new_duplications": undefined,
+              "new_lines": undefined,
+              "new_maintainability": undefined,
+              "new_reliability": undefined,
+              "new_security": undefined,
+              "new_security_review_rating": undefined,
+              "qualifier": undefined,
+              "reliability": undefined,
+              "search": undefined,
+              "security": undefined,
+              "security_review_rating": undefined,
+              "size": undefined,
+              "sort": undefined,
+              "tags": undefined,
+              "view": undefined,
+              "visualization": undefined,
+            }
+          }
+        />
+        <ListFooter
+          count={1}
+          loadMore={[Function]}
+          loading={false}
+          ready={true}
+          total={0}
+        />
+      </div>
     </div>
   </div>
 </div>
@@ -193,6 +207,11 @@ exports[`renders 2`] = `
     encodeSpecialCharacters={true}
     title="projects.page"
   />
+  <h1
+    className="a11y-hidden"
+  >
+    projects.page
+  </h1>
   <ScreenPositionHelper
     className="layout-page-side-outer"
   >
@@ -205,68 +224,77 @@ exports[`renders 2`] = `
       anchor="projects_main"
     />
     <div
-      className="layout-page-header-panel layout-page-main-header"
+      role="main"
     >
+      <h2
+        className="a11y-hidden"
+      >
+        list_of_projects
+      </h2>
       <div
-        className="layout-page-header-panel-inner layout-page-main-header-inner"
+        className="layout-page-header-panel layout-page-main-header"
       >
         <div
-          className="layout-page-main-inner"
+          className="layout-page-header-panel-inner layout-page-main-header-inner"
         >
-          <PageHeader
-            currentUser={
-              Object {
-                "isLoggedIn": true,
-              }
-            }
-            loading={false}
-            onPerspectiveChange={[Function]}
-            onQueryChange={[Function]}
-            onSortChange={[Function]}
-            projects={
-              Array [
+          <div
+            className="layout-page-main-inner"
+          >
+            <PageHeader
+              currentUser={
                 Object {
-                  "key": "foo",
-                  "measures": Object {},
-                  "name": "Foo",
-                  "qualifier": "TRK",
-                  "tags": Array [],
-                  "visibility": "public",
-                },
-              ]
-            }
-            query={
-              Object {
-                "view": "visualizations",
+                  "isLoggedIn": true,
+                }
               }
-            }
-            selectedSort="name"
-            total={0}
-            view="visualizations"
-            visualization="risk"
-          />
+              loading={false}
+              onPerspectiveChange={[Function]}
+              onQueryChange={[Function]}
+              onSortChange={[Function]}
+              projects={
+                Array [
+                  Object {
+                    "key": "foo",
+                    "measures": Object {},
+                    "name": "Foo",
+                    "qualifier": "TRK",
+                    "tags": Array [],
+                    "visibility": "public",
+                  },
+                ]
+              }
+              query={
+                Object {
+                  "view": "visualizations",
+                }
+              }
+              selectedSort="name"
+              total={0}
+              view="visualizations"
+              visualization="risk"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      className="layout-page-main-inner"
-    >
-      <Visualizations
-        projects={
-          Array [
-            Object {
-              "key": "foo",
-              "measures": Object {},
-              "name": "Foo",
-              "qualifier": "TRK",
-              "tags": Array [],
-              "visibility": "public",
-            },
-          ]
-        }
-        total={0}
-        visualization="risk"
-      />
+      <div
+        className="layout-page-main-inner"
+      >
+        <Visualizations
+          projects={
+            Array [
+              Object {
+                "key": "foo",
+                "measures": Object {},
+                "name": "Foo",
+                "qualifier": "TRK",
+                "tags": Array [],
+                "visibility": "public",
+              },
+            ]
+          }
+          total={0}
+          visualization="risk"
+        />
+      </div>
     </div>
   </div>
 </div>

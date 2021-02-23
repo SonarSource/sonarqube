@@ -47,7 +47,7 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
     const pathnameForAll = '/projects';
 
     return (
-      <header className="page-header text-center">
+      <div className="page-header text-center">
         <div className="button-group little-spacer-top">
           <Link
             activeClassName="button-active"
@@ -66,7 +66,7 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
             {translate('all')}
           </IndexLink>
         </div>
-      </header>
+      </div>
     );
   }
 }

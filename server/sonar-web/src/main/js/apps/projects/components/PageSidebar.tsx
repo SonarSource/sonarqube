@@ -75,7 +75,7 @@ export default function PageSidebar(props: PageSidebarProps) {
       <div className="projects-facets-header clearfix">
         {isFiltered && <ClearAll onClearAll={props.onClearAll} />}
 
-        <h3>{translate('filters')}</h3>
+        <h2 className="h3">{translate('filters')}</h2>
       </div>
       <QualityGateFilter {...facetProps} facet={getFacet(facets, 'gate')} value={query.gate} />
       {!isLeakView && (

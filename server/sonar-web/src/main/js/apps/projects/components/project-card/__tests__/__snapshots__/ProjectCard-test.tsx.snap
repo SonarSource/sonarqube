@@ -32,8 +32,8 @@ exports[`should display applications 1`] = `
           />
         </span>
       </Tooltip>
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         <Link
@@ -51,7 +51,7 @@ exports[`should display applications 1`] = `
         >
           Foo
         </Link>
-      </h2>
+      </h3>
       <ProjectCardQualityGate
         status="OK"
       />
@@ -140,8 +140,8 @@ exports[`should display applications: with project count 1`] = `
           />
         </span>
       </Tooltip>
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         <Link
@@ -159,7 +159,7 @@ exports[`should display applications: with project count 1`] = `
         >
           Foo
         </Link>
-      </h2>
+      </h3>
       <ProjectCardQualityGate
         status="OK"
       />
@@ -229,8 +229,8 @@ exports[`should display configure analysis button for logged in user: default 1`
     <div
       className="project-card-main big-padded padded-bottom display-flex-center"
     >
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         <Link
@@ -248,7 +248,7 @@ exports[`should display configure analysis button for logged in user: default 1`
         >
           Foo
         </Link>
-      </h2>
+      </h3>
     </div>
     <div
       className="project-card-meta big-padded padded-bottom display-flex-center"
@@ -319,12 +319,12 @@ exports[`should display configure analysis button for logged in user: hidden if 
     <div
       className="project-card-main big-padded padded-bottom display-flex-center"
     >
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         Foo
-      </h2>
+      </h3>
     </div>
     <div
       className="project-card-meta big-padded padded-bottom display-flex-center"
@@ -379,12 +379,12 @@ exports[`should display correclty when project need issue synch 1`] = `
     <div
       className="project-card-main big-padded padded-bottom display-flex-center"
     >
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         Foo
-      </h2>
+      </h3>
       <ProjectCardQualityGate
         status="OK"
       />
@@ -453,8 +453,8 @@ exports[`should display not analyzed yet 1`] = `
     <div
       className="project-card-main big-padded padded-bottom display-flex-center"
     >
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         <Link
@@ -472,7 +472,7 @@ exports[`should display not analyzed yet 1`] = `
         >
           Foo
         </Link>
-      </h2>
+      </h3>
     </div>
     <div
       className="project-card-meta big-padded padded-bottom display-flex-center"
@@ -527,8 +527,8 @@ exports[`should display the overall measures and quality gate 1`] = `
     <div
       className="project-card-main big-padded padded-bottom display-flex-center"
     >
-      <h2
-        className="project-card-name text-ellipsis"
+      <h3
+        className="h2 project-card-name text-ellipsis"
         title="Foo"
       >
         <Link
@@ -546,7 +546,7 @@ exports[`should display the overall measures and quality gate 1`] = `
         >
           Foo
         </Link>
-      </h2>
+      </h3>
       <ProjectCardQualityGate
         status="OK"
       />

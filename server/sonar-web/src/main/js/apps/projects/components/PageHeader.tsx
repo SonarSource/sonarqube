@@ -52,7 +52,7 @@ export default function PageHeader(props: Props) {
   const sortingDisabled = view === 'visualizations' && !limitReached;
 
   return (
-    <header className="page-header">
+    <div className="page-header">
       <div className="display-flex-space-between spacer-top">
         <SearchFilterContainer onQueryChange={props.onQueryChange} query={props.query} />
         <div className="display-flex-center">
@@ -97,6 +97,6 @@ export default function PageHeader(props: Props) {
           </Tooltip>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

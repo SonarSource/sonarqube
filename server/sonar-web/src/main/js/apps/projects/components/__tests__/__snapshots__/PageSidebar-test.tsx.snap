@@ -12,9 +12,11 @@ exports[`should render \`leak\` view correctly 1`] = `
   <div
     className="projects-facets-header clearfix"
   >
-    <h3>
+    <h2
+      className="h3"
+    >
       filters
-    </h3>
+    </h2>
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}
@@ -76,9 +78,11 @@ exports[`should render \`leak\` view correctly with no applications 1`] = `
   <div
     className="projects-facets-header clearfix"
   >
-    <h3>
+    <h2
+      className="h3"
+    >
       filters
-    </h3>
+    </h2>
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}
@@ -134,9 +138,11 @@ exports[`should render correctly 1`] = `
     <ClearAll
       onClearAll={[MockFunction]}
     />
-    <h3>
+    <h2
+      className="h3"
+    >
       filters
-    </h3>
+    </h2>
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}
@@ -194,9 +200,11 @@ exports[`should render correctly with no applications 1`] = `
     <ClearAll
       onClearAll={[MockFunction]}
     />
-    <h3>
+    <h2
+      className="h3"
+    >
       filters
-    </h3>
+    </h2>
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}

@@ -94,9 +94,9 @@ function renderFirstLine(project: Props['project'], handleFavorite: Props['handl
             </span>
           </Tooltip>
         )}
-        <h2 className="project-card-name text-ellipsis" title={name}>
+        <h3 className="h2 project-card-name text-ellipsis" title={name}>
           {needIssueSync ? name : <Link to={getProjectUrl(key)}>{name}</Link>}
-        </h2>
+        </h3>
 
         {analysisDate && (
           <>

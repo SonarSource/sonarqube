@@ -330,6 +330,12 @@ a.search-navigator-facet:focus,
   font-weight: 400;
 }
 
+.search-navigator-facet-header > h3,
+.search-navigator-facet-header > h4 {
+  line-height: inherit;
+  display: inline;
+}
+
 .search-navigator-facet-header-value {
   display: block;
   overflow: hidden;

@@ -4,7 +4,11 @@ exports[`renders 1`] = `
 <div
   className="search-navigator-facet-header projects-facet-header"
 >
-  foo
+  <h3
+    className="h4"
+  >
+    foo
+  </h3>
 </div>
 `;
 
@@ -12,7 +16,11 @@ exports[`renders with children 1`] = `
 <div
   className="search-navigator-facet-header projects-facet-header"
 >
-  foo
+  <h3
+    className="h4"
+  >
+    foo
+  </h3>
   <div />
 </div>
 `;

@@ -224,7 +224,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
   renderSide = () => (
     <ScreenPositionHelper className="layout-page-side-outer">
       {({ top }) => (
-        <div className="layout-page-side projects-page-side" style={{ top }}>
+        <section
+          aria-label={translate('filters')}
+          className="layout-page-side projects-page-side"
+          style={{ top }}>
           <div className="layout-page-side-inner">
             <div className="layout-page-filters">
               <A11ySkipTarget
@@ -244,7 +247,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
               />
             </div>
           </div>
-        </div>
+        </section>
       )}
     </ScreenPositionHelper>
   );
@@ -317,13 +320,18 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <Suggestions suggestions="projects" />
         <Helmet defer={false} title={translate('projects.page')} />
 
+        <h1 className="a11y-hidden">{translate('projects.page')}</h1>
+
         {this.renderSide()}
 
         <div className="layout-page-main">
           <A11ySkipTarget anchor="projects_main" />
 
-          {this.renderHeader()}
-          {this.renderMain()}
+          <div role="main">
+            <h2 className="a11y-hidden">{translate('list_of_projects')}</h2>
+            {this.renderHeader()}
+            {this.renderMain()}
+          </div>
         </div>
       </div>
     );

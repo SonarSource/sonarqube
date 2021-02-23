@@ -78,9 +78,9 @@ export default class Visualizations extends React.PureComponent<Props> {
 
     return (
       <div className="boxed-group projects-visualizations">
-        <div className="projects-visualization">
+        <main className="projects-visualization">
           {projects != null && this.renderVisualization(projects)}
-        </div>
+        </main>
         {this.renderFooter()}
       </div>
     );

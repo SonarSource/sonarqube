@@ -4,14 +4,14 @@ exports[`renders 1`] = `
 <div
   className="boxed-group projects-visualizations"
 >
-  <div
+  <main
     className="projects-visualization"
   >
     <Coverage
       helpText="projects.visualization.coverage.description"
       projects={Array []}
     />
-  </div>
+  </main>
 </div>
 `;
 
@@ -19,14 +19,14 @@ exports[`renders when limit is reached 1`] = `
 <div
   className="boxed-group projects-visualizations"
 >
-  <div
+  <main
     className="projects-visualization"
   >
     <Coverage
       helpText="projects.visualization.coverage.description"
       projects={Array []}
     />
-  </div>
+  </main>
   <footer
     className="projects-visualizations-footer"
   >
