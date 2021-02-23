@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,8 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ActivityStatusActionTest {
@@ -58,11 +56,10 @@ public class ActivityStatusActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private System2 system2 = mock(System2.class);
-
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, TestComponentFinder.from(db), system2));
+  private final System2 system2 = mock(System2.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, TestComponentFinder.from(db), system2));
 
   @Test
   public void test_definition() {
@@ -70,7 +67,7 @@ public class ActivityStatusActionTest {
     assertThat(def.key()).isEqualTo("activity_status");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.isPost()).isFalse();
-    assertThat(def.params()).extracting(WebService.Param::key).containsOnly("componentId", "componentKey");
+    assertThat(def.params()).extracting(WebService.Param::key).containsOnly("componentId", "component");
   }
 
   @Test
@@ -92,12 +89,12 @@ public class ActivityStatusActionTest {
 
   @Test
   public void status_for_a_project_as_project_admin() {
-    String projectUuid = "project-uuid";
-    String anotherProjectUuid = "another-project-uuid";
-    ComponentDto project = newPrivateProjectDto(projectUuid);
-    ComponentDto anotherProject = newPrivateProjectDto(anotherProjectUuid);
+    String projectKey = "project-key";
+    String anotherProjectKey = "another-project-key";
+    ComponentDto project = newPrivateProjectDto().setDbKey(projectKey);
+    ComponentDto anotherProject = newPrivateProjectDto().setDbKey(anotherProjectKey);
     db.components().insertComponent(project);
-    db.components().insertComponent(newPrivateProjectDto(anotherProjectUuid));
+    db.components().insertComponent(newPrivateProjectDto().setDbKey(anotherProjectKey));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, project);
@@ -113,7 +110,7 @@ public class ActivityStatusActionTest {
     insertActivity(CeActivityDto.Status.FAILED, project);
     insertActivity(CeActivityDto.Status.FAILED, anotherProject);
 
-    Ce.ActivityStatusWsResponse result = call(projectUuid);
+    Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);
 
     assertThat(result.getPending()).isEqualTo(2);
     assertThat(result.getFailing()).isEqualTo(1);
@@ -121,14 +118,14 @@ public class ActivityStatusActionTest {
 
   @Test
   public void add_pending_time() {
-    String projectUuid = "project-uuid";
-    ComponentDto project = newPrivateProjectDto(projectUuid);
+    String projectKey = "project-key";
+    ComponentDto project = newPrivateProjectDto().setDbKey(projectKey);
     db.components().insertComponent(project);
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(system2.now()).thenReturn(2000L);
     insertInQueue(CeQueueDto.Status.PENDING, project, 1000L);
-    Ce.ActivityStatusWsResponse result = call(projectUuid);
+    Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);
 
     assertThat(result).extracting(Ce.ActivityStatusWsResponse::getPending, Ce.ActivityStatusWsResponse::getFailing,
       Ce.ActivityStatusWsResponse::getInProgress, Ce.ActivityStatusWsResponse::getPendingTime)
@@ -141,23 +138,6 @@ public class ActivityStatusActionTest {
 
     assertThat(result.getPending()).isZero();
     assertThat(result.getFailing()).isZero();
-  }
-
-  @Test
-  public void fail_if_component_uuid_and_key_are_provided() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    db.components().insertComponent(project);
-
-    String uuid = project.uuid();
-    String dbKey = project.getDbKey();
-    assertThatThrownBy(() -> callByComponentUuidOrComponentKey(uuid, dbKey))
-      .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  public void fail_if_component_uuid_is_unknown() {
-    assertThatThrownBy(() -> call("unknown-uuid"))
-      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -210,24 +190,13 @@ public class ActivityStatusActionTest {
   }
 
   private Ce.ActivityStatusWsResponse call() {
-    return callByComponentUuidOrComponentKey(null, null);
+    return callByComponentKey(null);
   }
 
-  private Ce.ActivityStatusWsResponse call(String componentUuid) {
-    return callByComponentUuidOrComponentKey(componentUuid, null);
-  }
-
-  private Ce.ActivityStatusWsResponse callByComponentKey(String componentKey) {
-    return callByComponentUuidOrComponentKey(null, componentKey);
-  }
-
-  private Ce.ActivityStatusWsResponse callByComponentUuidOrComponentKey(@Nullable String componentUuid, @Nullable String componentKey) {
+  private Ce.ActivityStatusWsResponse callByComponentKey(@Nullable String componentKey) {
     TestRequest request = ws.newRequest();
-    if (componentUuid != null) {
-      request.setParam(PARAM_COMPONENT_ID, componentUuid);
-    }
     if (componentKey != null) {
-      request.setParam(DEPRECATED_PARAM_COMPONENT_KEY, componentKey);
+      request.setParam(PARAM_COMPONENT, componentKey);
     }
     return request.executeProtobuf(Ce.ActivityStatusWsResponse.class);
   }

@@ -38,7 +38,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
 
-import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -67,15 +67,17 @@ public class ActivityStatusAction implements CeWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
+      .setDeprecatedSince("8.8")
       .setDescription("Id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
-    action.createParam(DEPRECATED_PARAM_COMPONENT_KEY)
-      .setDeprecatedSince("6.6")
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
     action.setChangelog(new Change("6.6", "New field 'inProgress' in response"));
     action.setChangelog(new Change("7.8", "New field 'pendingTime' in response, only included when there are pending tasks"));
+    action.setChangelog(new Change("8.8", "Parameter 'componentId' is now deprecated."));
+    action.setChangelog(new Change("8.8", "Parameter 'componentKey' is now removed. Please use parameter 'component' instead."));
   }
 
   @Override
@@ -88,7 +90,7 @@ public class ActivityStatusAction implements CeWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.map(ComponentDto::uuid).orElse(null);
-      checkPermissions(component);
+      checkPermissions(component.orElse(null));
       int pendingCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
       int inProgressCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
       int failingCount = dbClient.ceActivityDao().countLastByStatusAndMainComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
@@ -117,9 +119,9 @@ public class ActivityStatusAction implements CeWsAction {
     return Optional.ofNullable(component);
   }
 
-  private void checkPermissions(Optional<ComponentDto> component) {
-    if (component.isPresent()) {
-      userSession.checkComponentPermission(UserRole.ADMIN, component.get());
+  private void checkPermissions(@Nullable ComponentDto component) {
+    if (component != null) {
+      userSession.checkComponentPermission(UserRole.ADMIN, component);
     } else {
       userSession.checkIsSystemAdministrator();
     }
@@ -130,12 +132,12 @@ public class ActivityStatusAction implements CeWsAction {
   }
 
   private static Request toWsRequest(org.sonar.api.server.ws.Request request) {
-    return new Request(request.param(PARAM_COMPONENT_ID), request.param(DEPRECATED_PARAM_COMPONENT_KEY));
+    return new Request(request.param(PARAM_COMPONENT_ID), request.param(PARAM_COMPONENT));
   }
 
   private static class Request {
-    private String componentId;
-    private String componentKey;
+    private final String componentId;
+    private final String componentKey;
 
     Request(@Nullable String componentId, @Nullable String componentKey) {
       this.componentId = componentId;
