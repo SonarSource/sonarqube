@@ -19,7 +19,7 @@ It supports .Net Core on every platform (Windows, macOS, Linux).
 
 * At least the minimal version of Java supported by your SonarQube server
 * The SDK corresponding to your build system:
-   * [.NET Framework v4.6](https://www.microsoft.com/fr-fr/download/details.aspx?id=53344) - either [Build Tools for Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=615458) or the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/)
+   * [.NET Framework v4.6](https://www.microsoft.com/en-us/download/details.aspx?id=53344) - either [Build Tools for Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=615458) or the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/)
    * [.NET Core SDK 2.0 and above](https://dotnet.microsoft.com/download) (for .NET Core version of the scanner or if you plan to use [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
 
 [[info]]
