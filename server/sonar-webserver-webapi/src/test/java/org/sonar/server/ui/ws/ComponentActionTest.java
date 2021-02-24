@@ -172,7 +172,7 @@ public class ComponentActionTest {
     init();
 
     String json = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("component", project.getKey())
       .setParam("branch", branch.getBranch())
       .execute()
       .getInput();
@@ -229,7 +229,7 @@ public class ComponentActionTest {
       .setName("Main.xoo"));
 
     String json = ws.newRequest()
-      .setParam("componentKey", fileDto.getKey())
+      .setParam("component", fileDto.getKey())
       .setParam("branch", branch.getBranch())
       .execute()
       .getInput();
@@ -309,7 +309,7 @@ public class ComponentActionTest {
     init();
 
     String json = ws.newRequest()
-      .setParam("componentKey", project.getKey())
+      .setParam("component", project.getKey())
       .setParam("branch", branch.getKey())
       .execute()
       .getInput();
@@ -651,14 +651,13 @@ public class ComponentActionTest {
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'visibility' field is added"),
       tuple("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
-      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"),
+      tuple("8.8", "Deprecated parameter 'componentKey' has been removed. Please use parameter 'component' instead"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT);
     assertThat(componentId.isRequired()).isFalse();
     assertThat(componentId.description()).isNotNull();
     assertThat(componentId.exampleValue()).isNotNull();
-    assertThat(componentId.deprecatedKey()).isEqualTo("componentKey");
-    assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
   }
 
   @Test(expected = BadRequestException.class)
@@ -709,7 +708,7 @@ public class ComponentActionTest {
   }
 
   private String execute(String componentKey) {
-    return ws.newRequest().setParam("componentKey", componentKey).execute().getInput();
+    return ws.newRequest().setParam("component", componentKey).execute().getInput();
   }
 
   private void verify(String json, String jsonFile) {

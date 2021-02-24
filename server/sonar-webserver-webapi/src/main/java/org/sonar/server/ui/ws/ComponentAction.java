@@ -120,13 +120,13 @@ public class ComponentAction implements NavigationWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2")
       .setChangelog(
+        new Change("8.8", "Deprecated parameter 'componentKey' has been removed. Please use parameter 'component' instead"),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
         new Change("6.4", "The 'visibility' field is added"));
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
-      .setDeprecatedKey("componentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action
