@@ -119,6 +119,10 @@
         AND u.active=${_true}
     </select>
 
+    <select id="selectExternalIdentityProviders" resultType="string">
+        SELECT distinct(external_identity_provider) from users
+    </select>
+
     <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultType="User">
         SELECT
         <include refid="userColumns"/>

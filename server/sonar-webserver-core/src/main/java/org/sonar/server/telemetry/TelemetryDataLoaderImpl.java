@@ -136,6 +136,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         });
 
       data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
+      data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
+
     }
 
     setSecurityCustomConfigIfPresent(data);

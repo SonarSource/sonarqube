@@ -42,6 +42,7 @@ public class TelemetryData {
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> almIntegrationCountByAlm;
   private final Map<String, Long> nclocByLanguage;
+  private final List<String> externalAuthenticationProviders;
   private final EditionProvider.Edition edition;
   private final String licenseType;
   private final Long installationDate;
@@ -71,6 +72,7 @@ public class TelemetryData {
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
+    externalAuthenticationProviders = builder.externalAuthenticationProviders;
   }
 
   public String getServerId() {
@@ -149,6 +151,10 @@ public class TelemetryData {
     return customSecurityConfigs;
   }
 
+  public List<String> getExternalAuthenticationProviders() {
+    return externalAuthenticationProviders;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -171,9 +177,15 @@ public class TelemetryData {
     private Boolean hasUnanalyzedC;
     private Boolean hasUnanalyzedCpp;
     private List<String> customSecurityConfigs;
+    private List<String> externalAuthenticationProviders;
 
     private Builder() {
       // enforce static factory method
+    }
+
+    Builder setExternalAuthenticationProviders(List<String> providers) {
+      this.externalAuthenticationProviders = providers;
+      return this;
     }
 
     Builder setServerId(String serverId) {
@@ -270,6 +282,7 @@ public class TelemetryData {
       requireNonNull(ncloc);
       requireNonNull(database);
       requireNonNull(usingBranches);
+      requireNonNull(externalAuthenticationProviders);
 
       return new TelemetryData(this);
     }

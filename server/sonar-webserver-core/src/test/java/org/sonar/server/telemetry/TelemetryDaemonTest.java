@@ -71,6 +71,7 @@ public class TelemetryDaemonTest {
       .setNclocByLanguage(Collections.emptyMap())
       .build())
     .setNcloc(42L)
+    .setExternalAuthenticationProviders(Collections.emptyList())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true)
     .build();

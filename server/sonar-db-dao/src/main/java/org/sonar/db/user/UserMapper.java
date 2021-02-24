@@ -62,6 +62,8 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectByExternalLoginAndIdentityProvider(@Param("externalLogin") String externalLogin, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
+  List<String> selectExternalIdentityProviders();
+
   void scrollAll(ResultHandler<UserDto> handler);
 
   /**

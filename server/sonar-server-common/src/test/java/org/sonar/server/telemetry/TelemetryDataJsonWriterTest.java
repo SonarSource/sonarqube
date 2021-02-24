@@ -56,6 +56,7 @@ public class TelemetryDataJsonWriterTest {
       .setNclocByLanguage(Collections.emptyMap())
       .build())
     .setNcloc(42L)
+    .setExternalAuthenticationProviders(Arrays.asList("github", "gitlab"))
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);
 
@@ -82,6 +83,15 @@ public class TelemetryDataJsonWriterTest {
     String json = writeTelemetryData(data);
 
     assertThat(json).doesNotContain("edition");
+  }
+
+  @Test
+  public void write_external_auth_providers() {
+    TelemetryData data = SOME_TELEMETRY_DATA.build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{ \"externalAuthProviders\": [ \"github\", \"gitlab\" ] }");
   }
 
   @Test

@@ -98,8 +98,8 @@ public class TelemetryDataLoaderImplTest {
     when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
 
     int userCount = 3;
-    IntStream.range(0, userCount).forEach(i -> db.users().insertUser());
-    db.users().insertUser(u -> u.setActive(false));
+    IntStream.range(0, userCount).forEach(i -> db.users().insertUser(u -> u.setExternalIdentityProvider("provider" + i)));
+    db.users().insertUser(u -> u.setActive(false).setExternalIdentityProvider("provider0"));
     userIndexer.indexAll();
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
@@ -155,6 +155,7 @@ public class TelemetryDataLoaderImplTest {
       .containsEntry("gitlab_cloud", 1L)
       .containsEntry("github_cloud", 1L)
       .containsEntry("github_server", 1L);
+    assertThat(data.getExternalAuthenticationProviders()).containsExactlyInAnyOrder("provider0", "provider1", "provider2");
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {

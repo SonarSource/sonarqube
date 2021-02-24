@@ -80,6 +80,15 @@ public class UserDaoTest {
   }
 
   @Test
+  public void selectExternalIdentityProviders() {
+    db.users().insertUser(user -> user.setLogin("user1").setExternalIdentityProvider("github"));
+    db.users().insertUser(user -> user.setLogin("user2").setExternalIdentityProvider("sonarqube"));
+    db.users().insertUser(user -> user.setLogin("user3").setExternalIdentityProvider("github"));
+
+    assertThat(underTest.selectExternalIdentityProviders(session)).containsExactlyInAnyOrder("github", "sonarqube");
+  }
+
+  @Test
   public void selectUserByLogin_not_found() {
     db.users().insertUser(user -> user.setLogin("user"));
 
