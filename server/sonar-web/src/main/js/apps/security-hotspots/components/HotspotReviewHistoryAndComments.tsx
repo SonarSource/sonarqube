@@ -96,7 +96,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     return (
       <>
         <h1>{translate('hotspot.section.activity')}</h1>
-        <div className="padded">
+        <div className="padded it__hs-review-history">
           <HotspotReviewHistory
             hotspot={hotspot}
             onDeleteComment={this.handleDeleteComment}
@@ -108,7 +108,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
               <hr />
               <div className="big-spacer-top">
                 <Button
-                  className={classNames({ invisible: commentVisible })}
+                  className={classNames('it__hs-add-comment', { invisible: commentVisible })}
                   id="hotspot-comment-box-display"
                   onClick={this.props.onOpenComment}>
                   {translate('hotspots.comment.open')}

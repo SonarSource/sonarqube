@@ -83,7 +83,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               {isLoggedIn(currentUser) && (
                 <>
                   <div className="dropdown spacer-right flex-1-0-auto">
-                    <Button onClick={props.onOpenComment}>
+                    <Button className="it__hs-add-comment" onClick={props.onOpenComment}>
                       {translate('hotspots.comment.open')}
                     </Button>
                   </div>
@@ -120,7 +120,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                   {translate('risk_exposure', hotspot.rule.vulnerabilityProbability)}
                 </div>
               </div>
-              <div className="display-flex-center">
+              <div className="display-flex-center it__hs-assignee">
                 <span className="big-spacer-right">{translate('assignee')}</span>
                 <div>
                   <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />

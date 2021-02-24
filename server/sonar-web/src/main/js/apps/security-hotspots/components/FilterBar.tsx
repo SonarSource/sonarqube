@@ -144,7 +144,7 @@ export function FilterBar(props: FilterBarProps) {
                   <DeferredSpinner loading={loadingMeasure}>
                     {hotspotsReviewedMeasure && <CoverageRating value={hotspotsReviewedMeasure} />}
                     <Measure
-                      className="spacer-left huge"
+                      className="spacer-left huge it__hs-review-percentage"
                       metricKey={
                         onBranch && !filters.sinceLeakPeriod
                           ? 'security_hotspots_reviewed'

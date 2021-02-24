@@ -108,7 +108,7 @@ exports[`should render correctly: anonymous 1`] = `
             loading={false}
           >
             <Measure
-              className="spacer-left huge"
+              className="spacer-left huge it__hs-review-percentage"
               metricKey="security_hotspots_reviewed"
               metricType="PERCENT"
             />
@@ -224,7 +224,7 @@ exports[`should render correctly: logged-in 1`] = `
             loading={false}
           >
             <Measure
-              className="spacer-left huge"
+              className="spacer-left huge it__hs-review-percentage"
               metricKey="security_hotspots_reviewed"
               metricType="PERCENT"
             />
@@ -396,7 +396,7 @@ exports[`should render correctly: on Pull request 1`] = `
             loading={false}
           >
             <Measure
-              className="spacer-left huge"
+              className="spacer-left huge it__hs-review-percentage"
               metricKey="new_security_hotspots_reviewed"
               metricType="PERCENT"
             />
@@ -496,7 +496,7 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
               value="23.30"
             />
             <Measure
-              className="spacer-left huge"
+              className="spacer-left huge it__hs-review-percentage"
               metricKey="security_hotspots_reviewed"
               metricType="PERCENT"
               value="23.30"

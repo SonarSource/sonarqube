@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
     hotspot.section.activity
   </h1>
   <div
-    className="padded"
+    className="padded it__hs-review-history"
   >
     <HotspotReviewHistory
       hotspot={
@@ -114,7 +114,7 @@ exports[`should render correctly 1`] = `
       className="big-spacer-top"
     >
       <Button
-        className=""
+        className="it__hs-add-comment"
         id="hotspot-comment-box-display"
         onClick={[MockFunction]}
       >
@@ -169,7 +169,7 @@ exports[`should render correctly without user 1`] = `
     hotspot.section.activity
   </h1>
   <div
-    className="padded"
+    className="padded it__hs-review-history"
   >
     <HotspotReviewHistory
       hotspot={

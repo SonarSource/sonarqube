@@ -92,7 +92,7 @@ exports[`should render correctly 1`] = `
             }
           >
             <EditButton
-              className="it__hotspots-comment-edit button-small"
+              className="button-small"
               onClick={[Function]}
             />
           </Toggler>
@@ -117,7 +117,7 @@ exports[`should render correctly 1`] = `
           overlayPlacement="bottom-right"
         >
           <DeleteButton
-            className="it__hotspots-comment-delete button-small"
+            className="button-small"
           />
         </Dropdown>
       </div>

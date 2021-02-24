@@ -23,6 +23,7 @@ exports[`should render correctly 1`] = `
           className="dropdown spacer-right flex-1-0-auto"
         >
           <Button
+            className="it__hs-add-comment"
             onClick={[MockFunction]}
           >
             hotspots.comment.open
@@ -84,7 +85,7 @@ exports[`should render correctly 1`] = `
           </div>
         </div>
         <div
-          className="display-flex-center"
+          className="display-flex-center it__hs-assignee"
         >
           <span
             className="big-spacer-right"
@@ -668,6 +669,7 @@ exports[`should render correctly: anonymous user 1`] = `
           className="dropdown spacer-right flex-1-0-auto"
         >
           <Button
+            className="it__hs-add-comment"
             onClick={[MockFunction]}
           >
             hotspots.comment.open
@@ -729,7 +731,7 @@ exports[`should render correctly: anonymous user 1`] = `
           </div>
         </div>
         <div
-          className="display-flex-center"
+          className="display-flex-center it__hs-assignee"
         >
           <span
             className="big-spacer-right"
@@ -1313,6 +1315,7 @@ exports[`should render correctly: assignee without name 1`] = `
           className="dropdown spacer-right flex-1-0-auto"
         >
           <Button
+            className="it__hs-add-comment"
             onClick={[MockFunction]}
           >
             hotspots.comment.open
@@ -1374,7 +1377,7 @@ exports[`should render correctly: assignee without name 1`] = `
           </div>
         </div>
         <div
-          className="display-flex-center"
+          className="display-flex-center it__hs-assignee"
         >
           <span
             className="big-spacer-right"
@@ -1958,6 +1961,7 @@ exports[`should render correctly: deleted assignee 1`] = `
           className="dropdown spacer-right flex-1-0-auto"
         >
           <Button
+            className="it__hs-add-comment"
             onClick={[MockFunction]}
           >
             hotspots.comment.open
@@ -2019,7 +2023,7 @@ exports[`should render correctly: deleted assignee 1`] = `
           </div>
         </div>
         <div
-          className="display-flex-center"
+          className="display-flex-center it__hs-assignee"
         >
           <span
             className="big-spacer-right"
@@ -2610,6 +2614,7 @@ exports[`should render correctly: unassigned 1`] = `
           className="dropdown spacer-right flex-1-0-auto"
         >
           <Button
+            className="it__hs-add-comment"
             onClick={[MockFunction]}
           >
             hotspots.comment.open
@@ -2671,7 +2676,7 @@ exports[`should render correctly: unassigned 1`] = `
           </div>
         </div>
         <div
-          className="display-flex-center"
+          className="display-flex-center it__hs-assignee"
         >
           <span
             className="big-spacer-right"
