@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { SettingType } from '../../../../types/settings';
 import {
   DefaultInputProps,
   DefaultSpecializedInputProps,
@@ -32,10 +33,11 @@ import InputForString from './InputForString';
 import InputForText from './InputForText';
 
 const typeMapping: {
-  [type in T.SettingType]?: React.ComponentType<DefaultSpecializedInputProps>;
+  [type in SettingType]?: React.ComponentType<DefaultSpecializedInputProps>;
 } = {
   STRING: InputForString,
   TEXT: InputForText,
+  JSON: InputForText,
   PASSWORD: InputForPassword,
   BOOLEAN: InputForBoolean,
   INTEGER: InputForNumber,

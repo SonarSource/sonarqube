@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Setting,
+  SettingCategoryDefinition,
+  SettingFieldDefinition
+} from '../../../types/settings';
 import { getDefaultValue, getEmptyValue, sanitizeTranslation } from '../utils';
 
 const fields = [
-  { key: 'foo', type: 'STRING' } as T.SettingFieldDefinition,
-  { key: 'bar', type: 'SINGLE_SELECT_LIST' } as T.SettingFieldDefinition
+  { key: 'foo', type: 'STRING' } as SettingFieldDefinition,
+  { key: 'bar', type: 'SINGLE_SELECT_LIST' } as SettingFieldDefinition
 ];
 
-const settingDefinition: T.SettingCategoryDefinition = {
+const settingDefinition: SettingCategoryDefinition = {
   category: 'test',
   fields: [],
   key: 'test',
@@ -34,7 +39,7 @@ const settingDefinition: T.SettingCategoryDefinition = {
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
-    const setting: T.SettingCategoryDefinition = {
+    const setting: SettingCategoryDefinition = {
       ...settingDefinition,
       type: 'PROPERTY_SET',
       fields
@@ -43,7 +48,7 @@ describe('#getEmptyValue()', () => {
   });
 
   it('should work for multi values string', () => {
-    const setting: T.SettingCategoryDefinition = {
+    const setting: SettingCategoryDefinition = {
       ...settingDefinition,
       type: 'STRING',
       multiValues: true
@@ -52,7 +57,7 @@ describe('#getEmptyValue()', () => {
   });
 
   it('should work for multi values boolean', () => {
-    const setting: T.SettingCategoryDefinition = {
+    const setting: SettingCategoryDefinition = {
       ...settingDefinition,
       type: 'BOOLEAN',
       multiValues: true
@@ -62,19 +67,20 @@ describe('#getEmptyValue()', () => {
 });
 
 describe('#getDefaultValue()', () => {
-  const check = (parentValue?: string, expected?: string) => {
-    const setting: T.Setting = {
-      definition: { key: 'test', options: [], type: 'BOOLEAN' },
-      parentValue,
-      key: 'test'
-    };
-    expect(getDefaultValue(setting)).toEqual(expected);
-  };
-
-  it('should work for boolean field when passing "true"', () =>
-    check('true', 'settings.boolean.true'));
-  it('should work for boolean field when passing "false"', () =>
-    check('false', 'settings.boolean.false'));
+  it.each([
+    ['true', 'settings.boolean.true'],
+    ['false', 'settings.boolean.false']
+  ])(
+    'should work for boolean field when passing "%s"',
+    (parentValue?: string, expected?: string) => {
+      const setting: Setting = {
+        definition: { key: 'test', options: [], type: 'BOOLEAN' },
+        parentValue,
+        key: 'test'
+      };
+      expect(getDefaultValue(setting)).toEqual(expected);
+    }
+  );
 });
 
 describe('sanitizeTranslation', () => {

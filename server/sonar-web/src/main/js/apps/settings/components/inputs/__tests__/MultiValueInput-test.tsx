@@ -20,6 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { SettingCategoryDefinition } from '../../../../../types/settings';
 import { DefaultInputProps } from '../../../utils';
 import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
@@ -28,7 +29,7 @@ const settingValue = {
   key: 'example'
 };
 
-const settingDefinition: T.SettingCategoryDefinition = {
+const settingDefinition: SettingCategoryDefinition = {
   category: 'general',
   fields: [],
   key: 'example',

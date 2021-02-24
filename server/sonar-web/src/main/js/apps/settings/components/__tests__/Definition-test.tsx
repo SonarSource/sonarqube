@@ -20,9 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { Setting } from '../../../../types/settings';
 import { Definition } from '../Definition';
 
-const setting: T.Setting = {
+const setting: Setting = {
   key: 'foo',
   value: '42',
   inherited: true,
@@ -34,6 +35,14 @@ const setting: T.Setting = {
     options: []
   }
 };
+
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -65,10 +74,26 @@ it('should correctly save value change', async () => {
   await waitAndUpdate(wrapper);
   expect(saveValue).toHaveBeenCalledWith(setting.definition.key, undefined);
   expect(wrapper.find('AlertSuccessIcon').exists()).toBe(true);
+  expect(wrapper.state().success).toBe(true);
+  jest.runAllTimers();
+  expect(wrapper.state().success).toBe(false);
+});
+
+it('should correctly reset', async () => {
+  const cancelChange = jest.fn();
+  const resetValue = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ cancelChange, changedValue: 10, resetValue });
+  wrapper.find('DefinitionActions').prop<Function>('onReset')();
+  await waitAndUpdate(wrapper);
+  expect(resetValue).toHaveBeenCalledWith(setting.definition.key, undefined);
+  expect(cancelChange).toHaveBeenCalledWith(setting.definition.key);
+  expect(wrapper.state().success).toBe(true);
+  jest.runAllTimers();
+  expect(wrapper.state().success).toBe(false);
 });
 
 function shallowRender(props: Partial<Definition['props']> = {}) {
-  return shallow(
+  return shallow<Definition>(
     <Definition
       cancelChange={jest.fn()}
       changeValue={jest.fn()}

@@ -75,6 +75,15 @@ export function checkValue(key: string) {
       return false;
     }
 
+    if (definition.type === 'JSON') {
+      try {
+        JSON.parse(value);
+      } catch (e) {
+        dispatch(failValidation(key, e.message));
+        return false;
+      }
+    }
+
     dispatch(passValidation(key));
     return true;
   };

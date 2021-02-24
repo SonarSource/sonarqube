@@ -19,6 +19,7 @@
  */
 import { groupBy, isEqual, sortBy } from 'lodash';
 import * as React from 'react';
+import { Setting, SettingCategoryDefinition } from '../../../types/settings';
 import { getSubCategoryDescription, getSubCategoryName, sanitizeTranslation } from '../utils';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
@@ -27,7 +28,7 @@ interface Props {
   category: string;
   component?: T.Component;
   fetchValues: Function;
-  settings: Array<T.Setting & { definition: T.SettingCategoryDefinition }>;
+  settings: Array<Setting & { definition: SettingCategoryDefinition }>;
   subCategory?: string;
 }
 

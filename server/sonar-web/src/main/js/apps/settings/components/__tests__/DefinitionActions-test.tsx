@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { SettingCategoryDefinition } from '../../../../types/settings';
 import DefinitionActions from '../DefinitionActions';
 
-const definition: T.SettingCategoryDefinition = {
+const definition: SettingCategoryDefinition = {
   category: 'baz',
   description: 'lorem',
   fields: [],

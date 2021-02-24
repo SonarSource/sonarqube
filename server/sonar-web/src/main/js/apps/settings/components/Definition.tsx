@@ -29,6 +29,7 @@ import {
   isSettingsAppLoading,
   Store
 } from '../../../store/rootReducer';
+import { Setting } from '../../../types/settings';
 import { checkValue, resetValue, saveValue } from '../store/actions';
 import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
 import {
@@ -51,13 +52,15 @@ interface Props {
   passValidation: (key: string) => void;
   resetValue: (key: string, component?: string) => Promise<void>;
   saveValue: (key: string, component?: string) => Promise<void>;
-  setting: T.Setting;
+  setting: Setting;
   validationMessage?: string;
 }
 
 interface State {
   success: boolean;
 }
+
+const SAFE_SET_STATE_DELAY = 3000;
 
 export class Definition extends React.PureComponent<Props, State> {
   timeout?: number;
@@ -91,7 +94,10 @@ export class Definition extends React.PureComponent<Props, State> {
     return this.props.resetValue(definition.key, componentKey).then(() => {
       this.props.cancelChange(definition.key);
       this.safeSetState({ success: true });
-      this.timeout = window.setTimeout(() => this.safeSetState({ success: false }), 3000);
+      this.timeout = window.setTimeout(
+        () => this.safeSetState({ success: false }),
+        SAFE_SET_STATE_DELAY
+      );
     });
   };
 
@@ -113,9 +119,14 @@ export class Definition extends React.PureComponent<Props, State> {
       this.props.saveValue(setting.definition.key, component && component.key).then(
         () => {
           this.safeSetState({ success: true });
-          this.timeout = window.setTimeout(() => this.safeSetState({ success: false }), 3000);
+          this.timeout = window.setTimeout(
+            () => this.safeSetState({ success: false }),
+            SAFE_SET_STATE_DELAY
+          );
         },
-        () => {}
+        () => {
+          /* Do nothing */
+        }
       );
     }
   };

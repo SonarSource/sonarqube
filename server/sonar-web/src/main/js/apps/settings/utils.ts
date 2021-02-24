@@ -19,6 +19,7 @@
  */
 import { sanitize } from 'dompurify';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../types/settings';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -32,7 +33,7 @@ export interface DefaultInputProps {
   onCancel?: () => void;
   onChange: (value: any) => void;
   onSave?: () => void;
-  setting: T.Setting;
+  setting: Setting;
   value: any;
 }
 
@@ -42,12 +43,12 @@ export function sanitizeTranslation(html: string) {
   });
 }
 
-export function getPropertyName(definition: T.SettingDefinition) {
+export function getPropertyName(definition: SettingDefinition) {
   const key = `property.${definition.key}.name`;
   return hasMessage(key) ? translate(key) : definition.name;
 }
 
-export function getPropertyDescription(definition: T.SettingDefinition) {
+export function getPropertyDescription(definition: SettingDefinition) {
   const key = `property.${definition.key}.description`;
   return hasMessage(key) ? translate(key) : definition.description;
 }
@@ -67,12 +68,12 @@ export function getSubCategoryDescription(category: string, subCategory: string)
   return hasMessage(key) ? translate(key) : null;
 }
 
-export function getUniqueName(definition: T.SettingDefinition, index?: string) {
+export function getUniqueName(definition: SettingDefinition, index?: string) {
   const indexSuffix = index ? `[${index}]` : '';
   return `settings[${definition.key}]${indexSuffix}`;
 }
 
-export function getSettingValue({ definition, fieldValues, value, values }: T.Setting) {
+export function getSettingValue({ definition, fieldValues, value, values }: Setting) {
   if (isCategoryDefinition(definition) && definition.multiValues) {
     return values;
   } else if (definition.type === 'PROPERTY_SET') {
@@ -82,7 +83,7 @@ export function getSettingValue({ definition, fieldValues, value, values }: T.Se
   }
 }
 
-export function isEmptyValue(definition: T.SettingDefinition, value: any) {
+export function isEmptyValue(definition: SettingDefinition, value: any) {
   if (value == null) {
     return true;
   } else if (definition.type === 'BOOLEAN') {
@@ -92,13 +93,11 @@ export function isEmptyValue(definition: T.SettingDefinition, value: any) {
   }
 }
 
-export function isCategoryDefinition(
-  item: T.SettingDefinition
-): item is T.SettingCategoryDefinition {
+export function isCategoryDefinition(item: SettingDefinition): item is SettingCategoryDefinition {
   return Boolean((item as any).fields);
 }
 
-export function getEmptyValue(item: T.SettingDefinition | T.SettingCategoryDefinition): any {
+export function getEmptyValue(item: SettingDefinition | SettingCategoryDefinition): any {
   if (isCategoryDefinition(item)) {
     if (item.multiValues) {
       return [getEmptyValue({ ...item, multiValues: false })];
@@ -117,11 +116,11 @@ export function getEmptyValue(item: T.SettingDefinition | T.SettingCategoryDefin
   return '';
 }
 
-export function isDefaultOrInherited(setting: T.Setting) {
+export function isDefaultOrInherited(setting: Setting) {
   return Boolean(setting.inherited);
 }
 
-export function getDefaultValue(setting: T.Setting) {
+export function getDefaultValue(setting: Setting) {
   const { definition, parentFieldValues, parentValue, parentValues } = setting;
 
   if (definition.type === 'PASSWORD') {

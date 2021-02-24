@@ -22,8 +22,9 @@ import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/re
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { isCategoryDefinition } from '../apps/settings/utils';
 import { BranchParameters } from '../types/branch-like';
+import { SettingCategoryDefinition, SettingDefinition, SettingValue } from '../types/settings';
 
-export function getDefinitions(component?: string): Promise<T.SettingCategoryDefinition[]> {
+export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
     r => r.definitions,
     throwGlobalError
@@ -32,12 +33,12 @@ export function getDefinitions(component?: string): Promise<T.SettingCategoryDef
 
 export function getValues(
   data: { keys: string; component?: string } & BranchParameters
-): Promise<T.SettingValue[]> {
+): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', data).then(r => r.settings);
 }
 
 export function setSettingValue(
-  definition: T.SettingDefinition,
+  definition: SettingDefinition,
   value: any,
   component?: string
 ): Promise<void> {

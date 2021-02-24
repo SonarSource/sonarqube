@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
+import { SettingCategoryDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../utils';
 
-type Props = DefaultSpecializedInputProps & Pick<T.SettingCategoryDefinition, 'options'>;
+type Props = DefaultSpecializedInputProps & Pick<SettingCategoryDefinition, 'options'>;
 
 export default class InputForSingleSelectList extends React.PureComponent<Props> {
   handleInputChange = ({ value }: { value: string }) => {

@@ -21,6 +21,7 @@ import { keyBy } from 'lodash';
 import { combineReducers } from 'redux';
 import { Action as AppStateAction, Actions as AppStateActions } from '../../../store/appState';
 import { ActionType } from '../../../store/utils/actions';
+import { SettingValue } from '../../../types/settings';
 
 enum Actions {
   receiveValues = 'RECEIVE_VALUES'
@@ -28,7 +29,7 @@ enum Actions {
 
 type Action = ActionType<typeof receiveValues, Actions.receiveValues>;
 
-type SettingsState = T.Dict<T.SettingValue>;
+type SettingsState = T.Dict<SettingValue>;
 
 export interface State {
   components: T.Dict<SettingsState>;
@@ -74,11 +75,7 @@ function global(state: State['components'] = {}, action: Action | AppStateAction
 
 export default combineReducers({ components, global });
 
-export function getValue(
-  state: State,
-  key: string,
-  component?: string
-): T.SettingValue | undefined {
+export function getValue(state: State, key: string, component?: string): SettingValue | undefined {
   if (component) {
     return state.components[component] && state.components[component][key];
   }
