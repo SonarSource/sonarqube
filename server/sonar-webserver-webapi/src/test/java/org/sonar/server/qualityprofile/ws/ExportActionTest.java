@@ -148,8 +148,6 @@ public class ExportActionTest {
     assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("language", "qualityProfile", "exporterKey");
     WebService.Param exportersParam = definition.param("exporterKey");
     assertThat(exportersParam.possibleValues()).containsOnly("polop", "palap");
-    assertThat(exportersParam.deprecatedKey()).isEqualTo("format");
-    assertThat(exportersParam.deprecatedKeySince()).isEqualTo("6.3");
     assertThat(exportersParam.isInternal()).isFalse();
   }
 

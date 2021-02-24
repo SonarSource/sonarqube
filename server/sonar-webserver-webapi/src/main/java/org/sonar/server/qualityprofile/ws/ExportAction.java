@@ -93,9 +93,7 @@ public class ExportAction implements QProfileWsAction {
       action.createParam(PARAM_EXPORTER_KEY)
         .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +
           "Possible values are described by api/qualityprofiles/exporters.")
-        .setPossibleValues(exporterKeys)
-        // This deprecated key is only there to be able to deal with redirection from /profiles/export
-        .setDeprecatedKey("format", "6.3");
+        .setPossibleValues(exporterKeys);
     }
   }
 
