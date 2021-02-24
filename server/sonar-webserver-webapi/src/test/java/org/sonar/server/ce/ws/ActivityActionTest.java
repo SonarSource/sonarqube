@@ -90,7 +90,7 @@ public class ActivityActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[]{mock(CeTaskProcessor.class)});
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -113,14 +113,12 @@ public class ActivityActionTest {
     assertThat(task.getComponentId()).isEqualTo(project2.uuid());
     assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
-    assertThat(task.getLogs()).isFalse();
     assertThat(task.getWarningCount()).isZero();
 
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
-    assertThat(task.getLogs()).isFalse();
     assertThat(task.getWarningCount()).isZero();
   }
 

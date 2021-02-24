@@ -70,7 +70,6 @@ public class TaskFormatterTest {
     assertThat(wsTask.getType()).isEqualTo("TYPE");
     assertThat(wsTask.getId()).isEqualTo("UUID");
     assertThat(wsTask.getStatus()).isEqualTo(Ce.TaskStatus.PENDING);
-    assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
     assertThat(wsTask.hasScannerContext()).isFalse();
 
@@ -110,7 +109,6 @@ public class TaskFormatterTest {
     assertThat(wsTask.getComponentName()).isEqualTo("Component Name");
     assertThat(wsTask.getComponentQualifier()).isEqualTo("TRK");
     assertThat(wsTask.getStatus()).isEqualTo(Ce.TaskStatus.IN_PROGRESS);
-    assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(wsTask.hasExecutionTimeMs()).isTrue();
     assertThat(wsTask.hasExecutedAt()).isFalse();
@@ -194,7 +192,6 @@ public class TaskFormatterTest {
     assertThat(wsTask.getSubmitterLogin()).isEqualTo(user.getLogin());
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
-    assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.hasScannerContext()).isFalse();
     assertThat(wsTask.getWarningCount()).isEqualTo(warningCount);
     assertThat(wsTask.getWarningsList()).isEmpty();

@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -38,11 +37,10 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ComponentResponse;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ComponentAction implements CeWsAction {
@@ -63,26 +61,20 @@ public class ComponentAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
-        "Requires the following permission: 'Browse' on the specified component.<br>" +
-        "Either '%s' or '%s' must be provided.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT)
+        "Requires the following permission: 'Browse' on the specified component.")
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
-        new Change("7.6", String.format("The use of module keys in parameter \"%s\" is deprecated", PARAM_COMPONENT)))
+        new Change("7.6", format("The use of module keys in parameter \"%s\" is deprecated", PARAM_COMPONENT)),
+        new Change("8.8", "Deprecated parameter 'componentId' has been removed."),
+        new Change("8.8", "Parameter 'component' is now required."))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setRequired(false)
-      .setExampleValue(Uuids.UUID_EXAMPLE_01)
-      .setDeprecatedSince("6.6");
-
     action.createParam(PARAM_COMPONENT)
-      .setRequired(false)
-      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001)
-      .setDeprecatedKey("componentKey", "6.6");
+      .setRequired(true)
+      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
@@ -106,8 +98,7 @@ public class ComponentAction implements CeWsAction {
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
-    String componentKey = wsRequest.param(PARAM_COMPONENT);
-    String componentId = wsRequest.param(PARAM_COMPONENT_ID);
-    return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
+    String componentKey = wsRequest.mandatoryParam(PARAM_COMPONENT);
+    return componentFinder.getByKey(dbSession, componentKey);
   }
 }

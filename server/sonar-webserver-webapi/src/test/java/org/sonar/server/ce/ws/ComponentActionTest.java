@@ -58,7 +58,6 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentActionTest {
 
@@ -67,9 +66,9 @@ public class ComponentActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private ComponentAction underTest = new ComponentAction(userSession, db.getDbClient(), formatter, TestComponentFinder.from(db));
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
+  private final ComponentAction underTest = new ComponentAction(userSession, db.getDbClient(), formatter, TestComponentFinder.from(db));
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void empty_queue_and_empty_activity() {
@@ -130,14 +129,14 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void search_tasks_by_component_id() {
+  public void search_tasks_by_component() {
     ComponentDto project = db.components().insertPrivateProject();
     logInWithBrowsePermission(project);
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid())
+      .setParam(PARAM_COMPONENT, project.getKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     Ce.Task current = response.getCurrent();
@@ -260,21 +259,6 @@ public class ComponentActionTest {
     assertThat(response.getCurrent())
       .extracting(Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(messageCount, emptyList());
-  }
-
-  @Test
-  public void deprecated_component_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    logInWithBrowsePermission(project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
-
-    Ce.ComponentResponse response = ws.newRequest()
-      .setParam("componentKey", project.getKey())
-      .executeProtobuf(Ce.ComponentResponse.class);
-    assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T1");
-    assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
   }
 
   @Test

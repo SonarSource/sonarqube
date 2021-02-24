@@ -108,7 +108,7 @@ message WorkerCountResponse {
 }
 
 message Task {
-  reserved 20; //drop organization
+  reserved 15,20; //drop organizations, drop 'logs'
   optional string id = 1;
   optional string type = 2;
   optional string componentId = 3;
@@ -123,7 +123,6 @@ message Task {
   optional string executedAt = 12;
   optional bool isLastExecuted = 13;
   optional int64 executionTimeMs = 14;
-  optional bool logs = 15;
   optional string errorMessage = 16;
   optional string errorStacktrace = 17;
   optional string scannerContext = 18;

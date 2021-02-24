@@ -83,7 +83,6 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(false);
     cache.getUser(dto.getSubmitterUuid()).ifPresent(user -> builder.setSubmitterLogin(user.getLogin()));
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     ofNullable(dto.getStartedAt()).map(DateUtils::formatDateTime).ifPresent(builder::setStartedAt);
@@ -108,7 +107,6 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(false);
     ofNullable(dto.getComponentUuid()).ifPresent(uuid -> setComponent(builder, uuid, cache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
     ofNullable(analysisUuid).ifPresent(builder::setAnalysisId);

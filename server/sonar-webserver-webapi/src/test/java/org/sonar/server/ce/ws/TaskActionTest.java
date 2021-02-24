@@ -105,7 +105,6 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(privateProject.getDbKey());
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(privateProject.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
-    assertThat(taskResponse.getTask().getLogs()).isFalse();
     assertThat(taskResponse.getTask().getWarningCount()).isZero();
     assertThat(taskResponse.getTask().getWarningsList()).isEmpty();
   }
@@ -152,7 +151,6 @@ public class TaskActionTest {
     assertThat(task.getComponentName()).isEqualTo(privateProject.name());
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
-    assertThat(task.getLogs()).isFalse();
     assertThat(task.getWarningCount()).isZero();
     assertThat(task.getWarningsList()).isEmpty();
   }
