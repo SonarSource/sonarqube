@@ -320,7 +320,7 @@
 }
 
 .bulk-change-radio-button {
-  margin: 0 calc(- var(--gridSize) / 2);
+  margin: 0 calc(-1 * var(--gridSize) / 2);
   padding: 0 calc(var(--gridSize) / 2);
 }
 
