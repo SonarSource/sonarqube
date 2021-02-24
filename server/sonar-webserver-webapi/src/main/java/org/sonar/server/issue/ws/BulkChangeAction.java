@@ -128,8 +128,8 @@ public class BulkChangeAction implements IssuesWsAction {
   private final IssuesChangesNotificationSerializer notificationSerializer;
 
   public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, WebIssueStorage issueStorage,
-    NotificationManager notificationService, List<Action> actions,
-    IssueChangePostProcessor issueChangePostProcessor, IssuesChangesNotificationSerializer notificationSerializer) {
+                          NotificationManager notificationService, List<Action> actions,
+                          IssueChangePostProcessor issueChangePostProcessor, IssuesChangesNotificationSerializer notificationSerializer) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -160,32 +160,26 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue(UUID_EXAMPLE_01 + "," + UUID_EXAMPLE_02);
     action.createParam(PARAM_ASSIGN)
       .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
-      .setExampleValue("john.smith")
-      .setDeprecatedKey("assign.assignee", "6.2");
+      .setExampleValue("john.smith");
     action.createParam(PARAM_SET_SEVERITY)
       .setDescription("To change the severity of the list of issues")
       .setExampleValue(BLOCKER)
-      .setPossibleValues(Severity.ALL)
-      .setDeprecatedKey("set_severity.severity", "6.2");
+      .setPossibleValues(Severity.ALL);
     action.createParam(PARAM_SET_TYPE)
       .setDescription("To change the type of the list of issues")
       .setExampleValue(BUG)
       .setPossibleValues(RuleType.names())
-      .setSince("5.5")
-      .setDeprecatedKey("set_type.type", "6.2");
+      .setSince("5.5");
     action.createParam(PARAM_DO_TRANSITION)
       .setDescription("Transition")
       .setExampleValue(REOPEN)
-      .setPossibleValues(DefaultTransitions.ALL)
-      .setDeprecatedKey("do_transition.transition", "6.2");
+      .setPossibleValues(DefaultTransitions.ALL);
     action.createParam(PARAM_ADD_TAGS)
       .setDescription("Add tags")
-      .setExampleValue("security,java8")
-      .setDeprecatedKey("add_tags.tags", "6.2");
+      .setExampleValue("security,java8");
     action.createParam(PARAM_REMOVE_TAGS)
       .setDescription("Remove tags")
-      .setExampleValue("security,java8")
-      .setDeprecatedKey("remove_tags.tags", "6.2");
+      .setExampleValue("security,java8");
     action.createParam(PARAM_COMMENT)
       .setDescription("Add a comment. "
         + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
@@ -370,7 +364,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
-          .collect(uniqueIndex(ComponentDto::uuid, identity()));
+        .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));
