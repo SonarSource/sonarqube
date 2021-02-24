@@ -103,8 +103,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setExampleValue("apac");
 
     createRootQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
-      .setDefaultValue(Qualifiers.PROJECT)
-      .setDeprecatedKey(PARAM_QUALIFIER, "6.6");
+      .setDefaultValue(Qualifiers.PROJECT);
 
     WsParameters.createTemplateParameters(action);
 
