@@ -96,11 +96,13 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("8.8", "deprecated response field 'id' has been removed"),
+        new Change("8.8", "deprecated response field 'refId' has been removed."),
         new Change("8.1", "the response field periods under measures field is deprecated. Use period instead."),
         new Change("8.1", "the response field periods is deprecated. Use period instead."),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
-        new Change("6.6", "the response field id is deprecated. Use key instead."),
-        new Change("6.6", "the response field refId is deprecated. Use refKey instead."))
+        new Change("6.6", "the response field 'id' is deprecated. Use 'key' instead."),
+        new Change("6.6", "the response field 'refId' is deprecated. Use 'refKey' instead."))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT)
@@ -237,7 +239,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
-    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
+                                                   Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
     if (refComponent.isPresent()) {

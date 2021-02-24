@@ -68,9 +68,8 @@ message SearchHistoryResponse {
 }
 
 message Component {
-  optional string id = 1;
+  reserved 1,3;
   optional string key = 2;
-  optional string refId = 3;
   optional string refKey = 4;
   optional string projectId = 5;
   optional string name = 6;

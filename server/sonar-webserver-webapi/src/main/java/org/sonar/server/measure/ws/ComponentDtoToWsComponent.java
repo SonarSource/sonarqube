@@ -34,12 +34,11 @@ class ComponentDtoToWsComponent {
   }
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, LiveMeasureDto> measuresByMetric,
-    Map<String, ComponentDto> referenceComponentsByUuid) {
+                                                     Map<String, ComponentDto> referenceComponentsByUuid) {
     Component.Builder wsComponent = componentDtoToWsComponent(component);
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
-      wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.getDbKey());
     }
 
@@ -55,7 +54,6 @@ class ComponentDtoToWsComponent {
 
   static Component.Builder componentDtoToWsComponent(ComponentDto component) {
     Component.Builder wsComponent = Component.newBuilder()
-      .setId(component.uuid())
       .setKey(component.getKey())
       .setName(component.name())
       .setQualifier(component.qualifier());

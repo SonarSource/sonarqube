@@ -24,8 +24,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 class ComponentTreeRequest {
-
-  private String baseComponentId;
   private String component;
   private String branch;
   private String pullRequest;
@@ -42,30 +40,11 @@ class ComponentTreeRequest {
   private Integer page;
   private Integer pageSize;
 
-  /**
-   * @deprecated since 6.6, please use {@link #getComponent()} instead
-   */
-  @Deprecated
-  @CheckForNull
-  public String getBaseComponentId() {
-    return baseComponentId;
-  }
-
-  /**
-   * @deprecated since 6.6, please use {@link #setComponent(String)} instead
-   */
-  @Deprecated
-  public ComponentTreeRequest setBaseComponentId(@Nullable String baseComponentId) {
-    this.baseComponentId = baseComponentId;
-    return this;
-  }
-
-  @CheckForNull
   public String getComponent() {
     return component;
   }
 
-  public ComponentTreeRequest setComponent(@Nullable String component) {
+  public ComponentTreeRequest setComponent(String component) {
     this.component = component;
     return this;
   }

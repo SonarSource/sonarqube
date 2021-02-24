@@ -225,7 +225,7 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void reference_uuid_in_the_response() {
+  public void reference_key_in_the_response() {
     userSession.logIn().setRoot();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertPrivatePortfolio();
@@ -235,20 +235,7 @@ public class ComponentActionTest {
 
     ComponentWsResponse response = newRequest(projectCopy.getKey(), metric.getKey());
 
-    assertThat(response.getComponent().getRefId()).isEqualTo(project.uuid());
     assertThat(response.getComponent().getRefKey()).isEqualTo(project.getKey());
-  }
-
-  @Test
-  public void return_deprecated_id_in_the_response() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertSnapshot(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
-
-    ComponentWsResponse response = newRequest(project.getKey(), metric.getKey());
-
-    assertThat(response.getComponent().getId()).isEqualTo(project.uuid());
   }
 
   @Test
