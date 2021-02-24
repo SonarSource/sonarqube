@@ -28,6 +28,7 @@ option optimize_for = SPEED;
 
 // Response of GET api/issues/search
 message SearchWsResponse {
+  reserved 5;
   optional int64 total = 1;
   optional int64 p = 2;
   optional int32 ps = 3;
@@ -35,8 +36,6 @@ message SearchWsResponse {
 
   // Total amount of effort, only when the facet "total" is enabled
   optional int64 effortTotal = 13;
-  // Deprecated since 5.5, replaced by effortTotal
-  optional int64 debtTotal = 5;
 
   repeated Issue issues = 6;
   repeated Component components = 7;

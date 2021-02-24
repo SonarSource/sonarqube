@@ -92,7 +92,7 @@ public class SearchResponseFormat {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
-    formatEffortTotal(data, response);
+    ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
     response.addAllIssues(formatIssues(fields, data));
     response.addAllComponents(formatComponents(data));
     formatFacets(data, facets, response);
@@ -124,14 +124,6 @@ public class SearchResponseFormat {
     response.addAllRules(formatRules(data).getRulesList());
     response.addAllUsers(formatUsers(data).getUsersList());
     return response.build();
-  }
-
-  private static void formatEffortTotal(SearchResponseData data, SearchWsResponse.Builder response) {
-    Long effort = data.getEffortTotal();
-    if (effort != null) {
-      response.setDebtTotal(effort);
-      response.setEffortTotal(effort);
-    }
   }
 
   private static void formatPaging(Paging paging, SearchWsResponse.Builder response) {
