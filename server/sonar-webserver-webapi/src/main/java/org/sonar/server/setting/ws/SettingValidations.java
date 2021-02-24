@@ -22,7 +22,10 @@ package org.sonar.server.setting.ws;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -31,6 +34,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -45,10 +53,17 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SettingValidations {
+  private static final Collection<String> SECURITY_JSON_PROPERTIES = asList(
+    "sonar.security.config.javasecurity",
+    "sonar.security.config.phpsecurity",
+    "sonar.security.config.pythonsecurity",
+    "sonar.security.config.roslyn.sonaranalyzer.security.cs"
+  );
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;
   private final I18n i18n;
@@ -114,6 +129,7 @@ public class SettingValidations {
   }
 
   private class ValueTypeValidation implements Consumer<SettingData> {
+
     @Override
     public void accept(SettingData data) {
       PropertyDefinition definition = definitions.get(data.key);
@@ -126,7 +142,7 @@ public class SettingValidations {
       } else if (definition.type() == PropertyType.USER_LOGIN) {
         validateLogin(data);
       } else if (definition.type() == PropertyType.JSON) {
-        validateJson(data);
+        validateJson(data, definition);
       } else {
         validateOtherTypes(data, definition);
       }
@@ -159,15 +175,30 @@ public class SettingValidations {
       }
     }
 
-    private void validateJson(SettingData data) {
+    private void validateJson(SettingData data, PropertyDefinition definition) {
       Optional<String> jsonContent = data.values.stream().findFirst();
       if (jsonContent.isPresent()) {
         try {
           new Gson().getAdapter(JsonElement.class).fromJson(jsonContent.get());
-        } catch (IOException e) {
+          validateJsonSchema(jsonContent.get(), definition);
+        } catch (ValidationException e) {
+          throw new IllegalArgumentException(String.format("Provided JSON is invalid [%s]", e.getMessage()));
+        } catch (IOException e){
           throw new IllegalArgumentException("Provided JSON is invalid");
         }
       }
+    }
+
+    private void validateJsonSchema(String json, PropertyDefinition definition) {
+      if(SECURITY_JSON_PROPERTIES.contains(definition.key())){
+        InputStream jsonSchemaInputStream = this.getClass().getClassLoader().getResourceAsStream("json-schemas/security.json");
+        if(jsonSchemaInputStream != null){
+          JSONObject jsonSchema = new JSONObject(new JSONTokener(jsonSchemaInputStream));
+          JSONObject jsonSubject = new JSONObject(new JSONTokener(json));
+          SchemaLoader.load(jsonSchema).validate(jsonSubject);
+        }
+      }
+
     }
   }
 }

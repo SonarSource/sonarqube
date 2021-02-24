@@ -21,14 +21,20 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -72,6 +78,7 @@ import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
+@RunWith(DataProviderRunner.class)
 public class SetActionTest {
 
   private static final Gson GSON = GsonHelper.create();
@@ -101,6 +108,16 @@ public class SetActionTest {
   public void setUp() {
     // by default test doesn't care about permissions
     userSession.logIn().setSystemAdministrator();
+  }
+
+  @DataProvider
+  public static Object[][] securityJsonProperties() {
+    return new Object[][] {
+      {"sonar.security.config.javasecurity"},
+      {"sonar.security.config.phpsecurity"},
+      {"sonar.security.config.pythonsecurity"},
+      {"sonar.security.config.roslyn.sonaranalyzer.security.cs"}
+    };
   }
 
   @Test
@@ -427,6 +444,107 @@ public class SetActionTest {
     assertThatThrownBy(() -> callForGlobalSetting("my.key", "{\"test\":[\"value\",]}"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Provided JSON is invalid");
+  }
+
+  @Test
+  @UseDataProvider("securityJsonProperties")
+  public void successfully_validate_json_schema(String securityPropertyKey) {
+    String security_custom_config = "{\n" +
+      "  \"S3649\": {\n" +
+      "    \"sources\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"sanitizers\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"str_replace\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"sinks\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"mysql_query\",\n" +
+      "        \"args\": [1]\n" +
+      "      }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}";
+    definitions.addComponent(PropertyDefinition
+      .builder(securityPropertyKey)
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    callForGlobalSetting(securityPropertyKey, security_custom_config);
+
+    assertGlobalSetting(securityPropertyKey, security_custom_config);
+  }
+
+  @Test
+  @UseDataProvider("securityJsonProperties")
+  public void fail_json_schema_validation_when_property_has_incorrect_type(String securityPropertyKey) {
+    String security_custom_config = "{\n" +
+      "  \"S3649\": {\n" +
+      "    \"sources\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"sinks\": [\n" +
+      "      {\n" +
+      "        \"methodId\": 12345,\n" +
+      "        \"args\": [1]\n" +
+      "      }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}";
+    definitions.addComponent(PropertyDefinition
+      .builder(securityPropertyKey)
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("S3649/sinks/0/methodId: expected type: String, found: Integer");
+  }
+
+  @Test
+  @UseDataProvider("securityJsonProperties")
+  public void fail_json_schema_validation_when_property_has_unknown_attribute(String securityPropertyKey) {
+    String security_custom_config = "{\n" +
+      "  \"S3649\": {\n" +
+      "    \"sources\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"unknown\": [\n" +
+      "      {\n" +
+      "        \"methodId\": 12345,\n" +
+      "        \"args\": [1]\n" +
+      "      }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}";
+    definitions.addComponent(PropertyDefinition
+      .builder(securityPropertyKey)
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("extraneous key [unknown] is not permitted");
   }
 
   @Test

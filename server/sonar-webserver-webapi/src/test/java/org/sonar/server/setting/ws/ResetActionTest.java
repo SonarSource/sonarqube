@@ -21,6 +21,7 @@ package org.sonar.server.setting.ws;
 
 import java.util.Random;
 import javax.annotation.Nullable;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

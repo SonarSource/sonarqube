@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Custom configuration schema",
+  "description": "Schema to validate custom configuration given as input to the custom configuration properties",
+  "definitions": {
+    "Interval": {
+      "type": "object",
+      "properties": {
+        "fromIndex": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CommonConfiguration": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "interval": {
+          "$ref": "#/definitions/Interval"
+        },
+        "isMethodPrefix": {
+          "type": "boolean"
+        },
+        "isShallow": {
+          "type": "boolean"
+        },
+        "isWhitelist": {
+          "type": "boolean"
+        },
+        "methodId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "methodId"
+      ],
+      "additionalProperties": false
+    },
+    "RuleConfiguration": {
+      "type": "object",
+      "properties": {
+        "decoders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        },
+        "encoders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        },
+        "passthroughs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        },
+        "sanitizers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        },
+        "sinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommonConfiguration"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/RuleConfiguration"
+  }
+}
