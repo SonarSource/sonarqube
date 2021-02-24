@@ -285,7 +285,6 @@ public class ProjectsActionTest {
       .assertJson("{\"results\":\n" +
         "  [\n" +
         "    {\n" +
-        "      \"id\": \"" + project.getUuid() + "\",\n" +
         "      \"key\": \"" + project.getKey() + "\",\n" +
         "    }\n" +
         "  ]}");

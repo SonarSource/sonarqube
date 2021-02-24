@@ -67,6 +67,8 @@ public class ProjectsAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
+      new Change("8.8", "deprecated 'id' response field has been removed"),
+      new Change("8.8", "deprecated 'uuid' response field has been removed"),
       new Change("7.2", "'more' response field is deprecated"),
       new Change("6.5", "'id' response field is deprecated"),
       new Change("6.0", "'uuid' response field is deprecated and replaced by 'id'"),
@@ -143,9 +145,6 @@ public class ProjectsAction implements QProfileWsAction {
     json.name("results").beginArray();
     for (ProjectQprofileAssociationDto project : projects) {
       json.beginObject()
-        // uuid is deprecated since 6.0
-        .prop("uuid", project.getProjectUuid())
-        .prop("id", project.getProjectUuid())
         .prop("key", project.getProjectKey())
         .prop("name", project.getProjectName())
         .prop("selected", project.isAssociated())
