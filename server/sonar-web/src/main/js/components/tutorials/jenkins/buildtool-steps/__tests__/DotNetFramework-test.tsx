@@ -19,15 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { OSs } from '../../../types';
-import Other, { OtherProps } from '../Other';
+import { DotNetCoreFrameworkProps } from '../DotNet';
+import DotNetFramework from '../DotNetFramework';
 
-it('renders correctly', () => {
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<OtherProps> = {}) {
-  return shallow<OtherProps>(
-    <Other host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
+function shallowRender(props: Partial<DotNetCoreFrameworkProps> = {}) {
+  return shallow<DotNetCoreFrameworkProps>(
+    <DotNetFramework component={mockComponent()} os={OSs.Windows} {...props} />
   );
 }

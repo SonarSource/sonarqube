@@ -19,15 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { OSs } from '../../../types';
-import Other, { OtherProps } from '../Other';
+import DotNetPrereqsScanner from '../DotNetPrereqsScanner';
 
-it('renders correctly', () => {
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<OtherProps> = {}) {
-  return shallow<OtherProps>(
-    <Other host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
-  );
+function shallowRender() {
+  return shallow(<DotNetPrereqsScanner />);
 }

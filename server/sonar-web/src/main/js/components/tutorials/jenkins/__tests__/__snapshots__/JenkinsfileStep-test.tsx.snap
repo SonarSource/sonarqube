@@ -18,7 +18,6 @@ exports[`should render correctly for .NET 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]
@@ -140,7 +139,6 @@ exports[`should render correctly for Gradle 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]
@@ -262,7 +260,6 @@ exports[`should render correctly for Maven 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]
@@ -384,7 +381,6 @@ exports[`should render correctly for Other 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]
@@ -506,7 +502,6 @@ exports[`should render correctly with no branches 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]
@@ -637,7 +632,6 @@ exports[`should render correctly: initial content 1`] = `
           Array [
             "maven",
             "gradle",
-            "cfamily",
             "dotnet",
             "other",
           ]

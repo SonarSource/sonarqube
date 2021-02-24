@@ -69,7 +69,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
                 name="buildtool"
                 onCheck={value => setBuildTool(value as BuildToolsWithoutCFamily)}
                 optionLabelKey="onboarding.build"
-                options={Object.values(BuildTools)}
+                options={Object.keys(BUILDTOOL_COMPONENT_MAP)}
               />
             </li>
             {buildTool !== undefined &&

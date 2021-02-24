@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<li
+  className="abs-width-600"
+>
+  <SentenceWithHighlights
+    highlightKeys={
+      Array [
+        "default_scanner",
+      ]
+    }
+    translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.title"
+  />
+  <Alert
+    className="spacer-top"
+    variant="info"
+  >
+    onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.info
+  </Alert>
+  <ul
+    className="list-styled"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "path",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step1"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "default_scanner",
+            "add_scanner_for_msbuild",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step2"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "name",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step3"
+      />
+      <code
+        className="rule"
+      >
+        SonarScanner for MSBuild
+      </code>
+      <ClipboardIconButton
+        copyValue="SonarScanner for MSBuild"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "install_from",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step5"
+      />
+    </li>
+  </ul>
+</li>
+`;

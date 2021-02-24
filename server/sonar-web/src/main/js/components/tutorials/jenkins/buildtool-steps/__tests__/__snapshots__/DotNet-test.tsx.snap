@@ -1,91 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<li
-  className="abs-width-600"
->
-  <SentenceWithFilename
-    filename="Jenkinsfile"
-    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
-  />
-  <Alert
-    className="spacer-top"
-    variant="info"
-  >
-    <p
-      className="text-middle"
-    >
-      <SentenceWithHighlights
-        highlightKeys={
-          Array [
-            "default_msbuild",
-            "default_scanner",
-            "in_jenkins",
-          ]
-        }
-        translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.replace"
-      />
-      <HelpTooltip
-        className="little-spacer-left"
-        overlay={
-          <React.Fragment>
-            <p
-              className="spacer-bottom"
-            >
-              <SentenceWithHighlights
-                highlightKeys={
-                  Array [
-                    "path",
-                  ]
-                }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help1"
-              />
-            </p>
-            <p
-              className="spacer-bottom"
-            >
-              <SentenceWithHighlights
-                highlightKeys={
-                  Array [
-                    "path",
-                    "name",
-                  ]
-                }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help2"
-              />
-            </p>
-            <p>
-              <SentenceWithHighlights
-                highlightKeys={
-                  Array [
-                    "path",
-                    "name",
-                  ]
-                }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help3"
-              />
-            </p>
-          </React.Fragment>
-        }
-      />
-    </p>
-  </Alert>
-  <CodeSnippet
-    snippet="node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
-    withSonarQubeEnv() {
-      bat \\"\\\\\\"\${scannerHome}\\\\\\\\SonarScanner.MSBuild.exe\\\\\\" begin /k:\\\\\\"my-project\\\\\\"\\"
-      bat \\"\\\\\\"\${msbuildHome}\\\\\\\\MSBuild.exe\\\\\\" /t:Rebuild\\"
-      bat \\"\\\\\\"\${scannerHome}\\\\\\\\SonarScanner.MSBuild.exe\\\\\\" end\\"
-    }
-  }
-}
-"
-  />
-</li>
+<Fragment>
+  <li>
+    onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent
+    <RenderOptions
+      name="flavorComponent"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build.dotnet"
+      options={
+        Array [
+          "win_core",
+          "win_msbuild",
+          "linux_core",
+        ]
+      }
+    />
+  </li>
+</Fragment>
 `;

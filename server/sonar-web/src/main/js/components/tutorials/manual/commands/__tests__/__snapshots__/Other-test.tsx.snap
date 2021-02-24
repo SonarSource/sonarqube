@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly: linux 1`] = `
+exports[`renders correctly 1`] = `
 <div>
   <SQScanner
     os="linux"
@@ -8,34 +8,6 @@ exports[`renders correctly: linux 1`] = `
   <ExecScanner
     host="host"
     os="linux"
-    projectKey="projectKey"
-    token="token"
-  />
-</div>
-`;
-
-exports[`renders correctly: macos 1`] = `
-<div>
-  <SQScanner
-    os="mac"
-  />
-  <ExecScanner
-    host="host"
-    os="mac"
-    projectKey="projectKey"
-    token="token"
-  />
-</div>
-`;
-
-exports[`renders correctly: windows 1`] = `
-<div>
-  <SQScanner
-    os="win"
-  />
-  <ExecScanner
-    host="host"
-    os="win"
     projectKey="projectKey"
     token="token"
   />
