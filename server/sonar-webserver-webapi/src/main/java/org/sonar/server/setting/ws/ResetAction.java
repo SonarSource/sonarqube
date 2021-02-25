@@ -59,7 +59,7 @@ public class ResetAction implements SettingsWsAction {
   private final SettingValidations validations;
 
   public ResetAction(DbClient dbClient, ComponentFinder componentFinder, SettingsUpdater settingsUpdater, UserSession userSession, PropertyDefinitions definitions,
-    SettingValidations validations) {
+                     SettingValidations validations) {
     this.dbClient = dbClient;
     this.settingsUpdater = settingsUpdater;
     this.userSession = userSession;
@@ -80,6 +80,7 @@ public class ResetAction implements SettingsWsAction {
         "</ul>")
       .setSince("6.1")
       .setChangelog(
+        new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings defined in conf/sonar.properties are read-only and can't be changed"))
       .setPost(true)
@@ -91,7 +92,6 @@ public class ResetAction implements SettingsWsAction {
       .setRequired(true);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch key")

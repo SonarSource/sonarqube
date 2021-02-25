@@ -104,6 +104,7 @@ public class SetAction implements SettingsWsAction {
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(
+        new Change("8.8", "Deprecated parameter 'componentKey' has been removed"),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings defined in conf/sonar.properties are read-only and can't be changed"))
       .setPost(true)
@@ -129,7 +130,6 @@ public class SetAction implements SettingsWsAction {
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
-      .setDeprecatedKey("componentKey", "6.3")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
