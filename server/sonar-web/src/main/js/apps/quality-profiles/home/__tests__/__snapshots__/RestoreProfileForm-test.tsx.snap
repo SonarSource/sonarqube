@@ -20,6 +20,9 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -27,11 +30,7 @@ exports[`should render correctly 1`] = `
           htmlFor="restore-profile-backup"
         >
           backup
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="restore-profile-backup"

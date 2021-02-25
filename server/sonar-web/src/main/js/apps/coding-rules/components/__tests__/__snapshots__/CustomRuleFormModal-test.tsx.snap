@@ -23,6 +23,9 @@ exports[`should handle re-activation 1`] = `
       >
         coding_rules.reactivate.help
       </Alert>
+      <MandatoryFieldsExplanation
+        className="spacer-bottom"
+      />
       <div
         className="modal-field"
       >
@@ -31,11 +34,7 @@ exports[`should handle re-activation 1`] = `
         >
           name
            
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -55,11 +54,7 @@ exports[`should handle re-activation 1`] = `
         >
           key
            
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           disabled={false}
@@ -196,12 +191,7 @@ exports[`should handle re-activation 1`] = `
           htmlFor="coding-rules-custom-rule-creation-html-description"
         >
           description
-           
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <textarea
           disabled={false}
@@ -254,6 +244,9 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body modal-container"
     >
+      <MandatoryFieldsExplanation
+        className="spacer-bottom"
+      />
       <div
         className="modal-field"
       >
@@ -262,11 +255,7 @@ exports[`should render correctly 1`] = `
         >
           name
            
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -286,11 +275,7 @@ exports[`should render correctly 1`] = `
         >
           key
            
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           disabled={false}
@@ -427,12 +412,7 @@ exports[`should render correctly 1`] = `
           htmlFor="coding-rules-custom-rule-creation-html-description"
         >
           description
-           
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <textarea
           disabled={false}

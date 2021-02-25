@@ -20,6 +20,7 @@
 import * as React from 'react';
 import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface Props {
@@ -45,15 +46,19 @@ export default function BaselineSettingDays(props: Props) {
       <>
         <p className="big-spacer-bottom">{translate('baseline.number_days.description')}</p>
         {selected && (
-          <ValidationInput
-            error={undefined}
-            id="baseline_number_of_days"
-            isInvalid={isChanged && !isValid}
-            isValid={isChanged && isValid}
-            label={translate('baseline.specify_days')}
-            required={true}>
-            <input onChange={e => onChangeDays(e.currentTarget.value)} type="text" value={days} />
-          </ValidationInput>
+          <>
+            <MandatoryFieldsExplanation />
+
+            <ValidationInput
+              error={undefined}
+              id="baseline_number_of_days"
+              isInvalid={isChanged && !isValid}
+              isValid={isChanged && isValid}
+              label={translate('baseline.specify_days')}
+              required={true}>
+              <input onChange={e => onChangeDays(e.currentTarget.value)} type="text" value={days} />
+            </ValidationInput>
+          </>
         )}
       </>
     </RadioCard>

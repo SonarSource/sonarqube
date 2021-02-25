@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { renameQualityGate } from '../../../api/quality-gates';
 
@@ -66,10 +68,11 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
         onClose={this.props.onClose}
         onConfirm={this.handleRename}
         size="small">
+        <MandatoryFieldsExplanation className="modal-field" />
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">
             {translate('name')}
-            <em className="mandatory">*</em>
+            <MandatoryFieldMarker />
           </label>
           <input
             autoFocus={true}

@@ -15,6 +15,9 @@ exports[`should render correctly 1`] = `
         className="manual-project-create"
         onSubmit={[Function]}
       >
+        <MandatoryFieldsExplanation
+          className="big-spacer-bottom"
+        />
         <ProjectKeyInput
           help="onboarding.create_project.project_key.help"
           label="onboarding.create_project.project_key"

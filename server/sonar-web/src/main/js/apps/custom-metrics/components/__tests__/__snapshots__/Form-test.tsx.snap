@@ -19,6 +19,9 @@ exports[`should render form 1`] = `
     <div
       className="modal-body modal-container"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -26,11 +29,7 @@ exports[`should render form 1`] = `
           htmlFor="create-metric-key"
         >
           key
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -50,11 +49,7 @@ exports[`should render form 1`] = `
           htmlFor="create-metric-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="create-metric-name"
@@ -113,11 +108,7 @@ exports[`should render form 1`] = `
           htmlFor="create-metric-type"
         >
           type
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           clearable={false}

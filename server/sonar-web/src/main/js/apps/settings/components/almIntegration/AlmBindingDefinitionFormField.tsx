@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmBindingDefinition } from '../../../../types/alm-settings';
 
@@ -56,7 +57,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
     <div className="modal-field">
       <label className="display-flex-center" htmlFor={id}>
         {translate('settings.almintegration.form', id)}
-        {!optional && <em className="mandatory">*</em>}
+        {!optional && <MandatoryFieldMarker />}
         {help && <HelpTooltip className="spacer-left" overlay={help} placement="right" />}
       </label>
 

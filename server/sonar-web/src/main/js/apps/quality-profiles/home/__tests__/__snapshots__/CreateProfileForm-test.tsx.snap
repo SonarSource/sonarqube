@@ -20,6 +20,9 @@ exports[`should render correctly: default 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -27,11 +30,7 @@ exports[`should render correctly: default 1`] = `
           htmlFor="create-profile-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -52,11 +51,7 @@ exports[`should render correctly: default 1`] = `
           htmlFor="create-profile-language"
         >
           language
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           clearable={false}
@@ -152,6 +147,9 @@ exports[`should render correctly: with query filter 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -159,11 +157,7 @@ exports[`should render correctly: with query filter 1`] = `
           htmlFor="create-profile-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -184,11 +178,7 @@ exports[`should render correctly: with query filter 1`] = `
           htmlFor="create-profile-language"
         >
           language
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           clearable={false}

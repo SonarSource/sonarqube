@@ -20,6 +20,8 @@
 import * as React from 'react';
 import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
 import ValidationModal from 'sonar-ui-common/components/controls/ValidationModal';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isWebUri } from 'valid-url';
 
@@ -82,6 +84,8 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
         validate={this.handleValidate}>
         {({ dirty, errors, handleBlur, handleChange, isSubmitting, touched, values }) => (
           <>
+            <MandatoryFieldsExplanation className="big-spacer-bottom" />
+
             <InputValidationField
               autoFocus={true}
               dirty={dirty}
@@ -91,7 +95,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               label={
                 <label htmlFor="webhook-name">
                   {translate('webhooks.name')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
               }
               name="name"
@@ -110,7 +114,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               label={
                 <label htmlFor="webhook-url">
                   {translate('webhooks.url')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
               }
               name="url"

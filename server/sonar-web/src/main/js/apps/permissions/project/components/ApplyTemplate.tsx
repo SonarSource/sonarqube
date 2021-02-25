@@ -23,6 +23,8 @@ import Select from 'sonar-ui-common/components/controls/Select';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 
@@ -108,32 +110,33 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
             </header>
 
             <div className="modal-body">
-              {this.state.done ? (
+              {this.state.done && (
                 <Alert variant="success">{translate('projects_role.apply_template.success')}</Alert>
-              ) : (
+              )}
+
+              {this.state.loading && <i className="spinner" />}
+
+              {!this.state.done && !this.state.loading && (
                 <>
-                  {this.state.loading ? (
-                    <i className="spinner" />
-                  ) : (
-                    <div className="modal-field">
-                      <label htmlFor="project-permissions-template">
-                        {translate('template')}
-                        <em className="mandatory">*</em>
-                      </label>
-                      {this.state.permissionTemplates && (
-                        <Select
-                          clearable={false}
-                          id="project-permissions-template"
-                          onChange={this.handlePermissionTemplateChange}
-                          options={this.state.permissionTemplates.map(permissionTemplate => ({
-                            label: permissionTemplate.name,
-                            value: permissionTemplate.id
-                          }))}
-                          value={this.state.permissionTemplate}
-                        />
-                      )}
-                    </div>
-                  )}
+                  <MandatoryFieldsExplanation className="modal-field" />
+                  <div className="modal-field">
+                    <label htmlFor="project-permissions-template">
+                      {translate('template')}
+                      <MandatoryFieldMarker />
+                    </label>
+                    {this.state.permissionTemplates && (
+                      <Select
+                        clearable={false}
+                        id="project-permissions-template"
+                        onChange={this.handlePermissionTemplateChange}
+                        options={this.state.permissionTemplates.map(permissionTemplate => ({
+                          label: permissionTemplate.name,
+                          value: permissionTemplate.id
+                        }))}
+                        value={this.state.permissionTemplate}
+                      />
+                    )}
+                  </div>
                 </>
               )}
             </div>

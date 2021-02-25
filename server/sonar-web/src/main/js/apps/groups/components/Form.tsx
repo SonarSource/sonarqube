@@ -21,6 +21,8 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -73,10 +75,11 @@ export default class Form extends React.PureComponent<Props, State> {
             </header>
 
             <div className="modal-body">
+              <MandatoryFieldsExplanation className="modal-field" />
               <div className="modal-field">
                 <label htmlFor="create-group-name">
                   {translate('name')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   autoFocus={true}

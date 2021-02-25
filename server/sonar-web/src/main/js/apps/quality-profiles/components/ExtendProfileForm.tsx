@@ -21,6 +21,8 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { changeProfileParent, createQualityProfile } from '../../../api/quality-profiles';
 import { Profile } from '../types';
@@ -98,10 +100,11 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
             <h2>{header}</h2>
           </div>
           <div className="modal-body">
+            <MandatoryFieldsExplanation className="modal-field" />
             <div className="modal-field">
               <label htmlFor="extend-profile-name">
                 {translate('quality_profiles.copy_new_name')}
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               <input
                 autoFocus={true}

@@ -19,6 +19,9 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -26,11 +29,7 @@ exports[`should render correctly 1`] = `
           htmlFor="extend-profile-name"
         >
           quality_profiles.copy_new_name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}

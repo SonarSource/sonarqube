@@ -10,11 +10,7 @@ exports[`it should render correctly for azure and monorepo=false 1`] = `
       htmlFor="azure.project"
     >
       settings.pr_decoration.binding.form.azure.project
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -45,11 +41,7 @@ exports[`it should render correctly for azure and monorepo=false 1`] = `
       htmlFor="azure.repository"
     >
       settings.pr_decoration.binding.form.azure.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -85,11 +77,7 @@ exports[`it should render correctly for azure and monorepo=true 1`] = `
       htmlFor="azure.project"
     >
       settings.pr_decoration.binding.form.azure.project
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -120,11 +108,7 @@ exports[`it should render correctly for azure and monorepo=true 1`] = `
       htmlFor="azure.repository"
     >
       settings.pr_decoration.binding.form.azure.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -202,11 +186,7 @@ exports[`it should render correctly for bitbucket and monorepo=false 1`] = `
       htmlFor="bitbucket.repository"
     >
       settings.pr_decoration.binding.form.bitbucket.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -247,11 +227,7 @@ exports[`it should render correctly for bitbucket and monorepo=false 1`] = `
       htmlFor="bitbucket.slug"
     >
       settings.pr_decoration.binding.form.bitbucket.slug
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -297,11 +273,7 @@ exports[`it should render correctly for bitbucket and monorepo=true 1`] = `
       htmlFor="bitbucket.repository"
     >
       settings.pr_decoration.binding.form.bitbucket.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -342,11 +314,7 @@ exports[`it should render correctly for bitbucket and monorepo=true 1`] = `
       htmlFor="bitbucket.slug"
     >
       settings.pr_decoration.binding.form.bitbucket.slug
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -434,11 +402,7 @@ exports[`it should render correctly for bitbucketcloud and monorepo=false 1`] = 
       htmlFor="bitbucketcloud.repository"
     >
       settings.pr_decoration.binding.form.bitbucketcloud.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -483,11 +447,7 @@ exports[`it should render correctly for github and monorepo=false 1`] = `
       htmlFor="github.repository"
     >
       settings.pr_decoration.binding.form.github.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -558,11 +518,7 @@ exports[`it should render correctly for github and monorepo=true 1`] = `
       htmlFor="github.repository"
     >
       settings.pr_decoration.binding.form.github.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -675,11 +631,7 @@ exports[`it should render correctly for gitlab and monorepo=false 1`] = `
       htmlFor="gitlab.repository"
     >
       settings.pr_decoration.binding.form.gitlab.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <input
       className="input-super-large"
@@ -704,11 +656,7 @@ exports[`it should render correctly for gitlab and monorepo=true 1`] = `
       htmlFor="gitlab.repository"
     >
       settings.pr_decoration.binding.form.gitlab.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <input
       className="input-super-large"
@@ -775,11 +723,7 @@ exports[`should render an alert for azure when the monorepo option is activated 
       htmlFor="azure.project"
     >
       settings.pr_decoration.binding.form.azure.project
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={
@@ -810,11 +754,7 @@ exports[`should render an alert for azure when the monorepo option is activated 
       htmlFor="azure.repository"
     >
       settings.pr_decoration.binding.form.azure.repository
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
       <HelpTooltip
         className="spacer-left"
         overlay={

@@ -31,6 +31,9 @@ exports[`should render correctly: form 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -38,12 +41,7 @@ exports[`should render correctly: form 1`] = `
           htmlFor="view-edit-name"
         >
           name
-           
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}

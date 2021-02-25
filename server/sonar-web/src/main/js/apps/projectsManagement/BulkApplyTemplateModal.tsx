@@ -22,6 +22,8 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
@@ -133,7 +135,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     <div className="modal-field">
       <label>
         {translate('template')}
-        <em className="mandatory">*</em>
+        <MandatoryFieldMarker />
       </label>
       <Select
         clearable={false}
@@ -162,8 +164,13 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
           {loading && <i className="spinner" />}
 
-          {!loading && !done && permissionTemplates && this.renderWarning()}
-          {!loading && !done && permissionTemplates && this.renderSelect()}
+          {!loading && !done && permissionTemplates && (
+            <>
+              <MandatoryFieldsExplanation className="spacer-bottom" />
+              {this.renderWarning()}
+              {this.renderSelect()}
+            </>
+          )}
         </div>
 
         <footer className="modal-foot">

@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { copyQualityGate } from '../../../api/quality-gates';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
@@ -72,10 +74,11 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
         onClose={this.props.onClose}
         onConfirm={this.handleCopy}
         size="small">
+        <MandatoryFieldsExplanation className="modal-field" />
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">
             {translate('name')}
-            <em className="mandatory">*</em>
+            <MandatoryFieldMarker />
           </label>
           <input
             autoFocus={true}

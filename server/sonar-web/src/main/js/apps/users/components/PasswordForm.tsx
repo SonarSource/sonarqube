@@ -21,6 +21,8 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
 import { changePassword } from '../../../api/users';
@@ -108,11 +110,14 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
           </header>
           <div className="modal-body">
             {error && <Alert variant="error">{error}</Alert>}
+
+            <MandatoryFieldsExplanation className="modal-field" />
+
             {this.props.isCurrentUser && (
               <div className="modal-field">
                 <label htmlFor="old-user-password">
                   {translate('my_profile.password.old')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 {/* keep this fake field to hack browser autofill */}
                 <input className="hidden" name="old-password-fake" type="password" />
@@ -129,7 +134,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
             <div className="modal-field">
               <label htmlFor="user-password">
                 {translate('my_profile.password.new')}
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               {/* keep this fake field to hack browser autofill */}
               <input className="hidden" name="password-fake" type="password" />
@@ -145,7 +150,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
             <div className="modal-field">
               <label htmlFor="confirm-user-password">
                 {translate('my_profile.password.confirm')}
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               {/* keep this fake field to hack browser autofill */}
               <input className="hidden" name="confirm-password-fake" type="password" />

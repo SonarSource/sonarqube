@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changePassword } from '../../api/users';
 
@@ -99,10 +101,12 @@ export default class ResetPassword extends React.Component<Props, State> {
               </Alert>
             ))}
 
+          <MandatoryFieldsExplanation className="form-field" />
+
           <div className="form-field">
             <label htmlFor="old_password">
               {translate('my_profile.password.old')}
-              <em className="mandatory">*</em>
+              <MandatoryFieldMarker />
             </label>
             <input
               autoComplete="off"
@@ -116,7 +120,7 @@ export default class ResetPassword extends React.Component<Props, State> {
           <div className="form-field">
             <label htmlFor="password">
               {translate('my_profile.password.new')}
-              <em className="mandatory">*</em>
+              <MandatoryFieldMarker />
             </label>
             <input
               autoComplete="off"
@@ -130,7 +134,7 @@ export default class ResetPassword extends React.Component<Props, State> {
           <div className="form-field">
             <label htmlFor="password_confirmation">
               {translate('my_profile.password.confirm')}
-              <em className="mandatory">*</em>
+              <MandatoryFieldMarker />
             </label>
             <input
               autoComplete="off"

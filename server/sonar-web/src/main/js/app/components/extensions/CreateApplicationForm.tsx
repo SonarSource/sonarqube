@@ -22,6 +22,8 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createApplication } from '../../../api/application';
 import { ComponentQualifier, Visibility } from '../../../types/component';
@@ -107,9 +109,12 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
             </div>
 
             <div className="modal-body">
+              <MandatoryFieldsExplanation className="modal-field" />
+
               <div className="modal-field">
                 <label htmlFor="view-edit-name">
-                  {translate('name')} <em className="mandatory">*</em>
+                  {translate('name')}
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   autoFocus={true}

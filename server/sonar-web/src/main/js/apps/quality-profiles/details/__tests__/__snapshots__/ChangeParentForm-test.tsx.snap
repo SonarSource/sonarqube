@@ -20,6 +20,9 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -27,12 +30,7 @@ exports[`should render correctly 1`] = `
           htmlFor="change-profile-parent"
         >
           quality_profiles.parent
-           
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           clearable={false}

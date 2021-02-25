@@ -31,6 +31,9 @@ exports[`render correctly 2`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -38,11 +41,7 @@ exports[`render correctly 2`] = `
           htmlFor="project-permissions-template"
         >
           template
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           clearable={false}

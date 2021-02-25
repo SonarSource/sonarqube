@@ -23,6 +23,8 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { csvEscape } from 'sonar-ui-common/helpers/csv';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { latinize } from 'sonar-ui-common/helpers/strings';
@@ -154,7 +156,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderNameField = () => (
     <div className="modal-field">
       <label htmlFor="coding-rules-custom-rule-creation-name">
-        {translate('name')} <em className="mandatory">*</em>
+        {translate('name')} <MandatoryFieldMarker />
       </label>
       <input
         autoFocus={true}
@@ -171,7 +173,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderKeyField = () => (
     <div className="modal-field">
       <label htmlFor="coding-rules-custom-rule-creation-key">
-        {translate('key')} {!this.props.customRule && <em className="mandatory">*</em>}
+        {translate('key')} {!this.props.customRule && <MandatoryFieldMarker />}
       </label>
 
       {this.props.customRule ? (
@@ -194,7 +196,8 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderDescriptionField = () => (
     <div className="modal-field">
       <label htmlFor="coding-rules-custom-rule-creation-html-description">
-        {translate('description')} <em className="mandatory">*</em>
+        {translate('description')}
+        <MandatoryFieldMarker />
       </label>
       <textarea
         disabled={this.state.submitting}
@@ -331,6 +334,8 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
             {reactivating && (
               <Alert variant="warning">{translate('coding_rules.reactivate.help')}</Alert>
             )}
+
+            <MandatoryFieldsExplanation className="spacer-bottom" />
 
             {this.renderNameField()}
             {this.renderKeyField()}

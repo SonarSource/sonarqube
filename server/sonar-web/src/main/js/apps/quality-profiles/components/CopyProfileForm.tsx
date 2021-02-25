@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { copyProfile } from '../../../api/quality-profiles';
 import { Profile } from '../types';
@@ -86,10 +88,11 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
             <h2>{header}</h2>
           </div>
           <div className="modal-body">
+            <MandatoryFieldsExplanation className="modal-field" />
             <div className="modal-field">
               <label htmlFor="copy-profile-name">
                 {translate('quality_profiles.copy_new_name')}
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               <input
                 autoFocus={true}

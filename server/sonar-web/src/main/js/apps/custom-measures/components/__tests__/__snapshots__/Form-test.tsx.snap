@@ -26,11 +26,7 @@ exports[`should render form 1`] = `
           htmlFor="create-custom-measure-metric"
         >
           custom_measures.metric
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <i
           className="spinner"
@@ -43,11 +39,7 @@ exports[`should render form 1`] = `
           htmlFor="create-custom-measure-value"
         >
           value
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={false}
@@ -127,11 +119,7 @@ exports[`should render form 2`] = `
           htmlFor="create-custom-measure-metric"
         >
           custom_measures.metric
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <Select
           autoFocus={true}
@@ -155,11 +143,7 @@ exports[`should render form 2`] = `
           htmlFor="create-custom-measure-value"
         >
           value
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={false}

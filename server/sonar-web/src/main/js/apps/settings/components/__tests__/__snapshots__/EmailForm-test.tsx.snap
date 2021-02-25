@@ -17,6 +17,9 @@ exports[`should render correctly: default 1`] = `
     className="settings-definition-right"
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -24,11 +27,7 @@ exports[`should render correctly: default 1`] = `
         htmlFor="test-email-to"
       >
         email_configuration.test.to_address
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <input
         className="settings-large-input"
@@ -64,11 +63,7 @@ exports[`should render correctly: default 1`] = `
         htmlFor="test-email-message"
       >
         email_configuration.test.message
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <textarea
         className="settings-large-input"
@@ -115,6 +110,9 @@ exports[`should render correctly: error 1`] = `
         Some error message
       </Alert>
     </div>
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -122,11 +120,7 @@ exports[`should render correctly: error 1`] = `
         htmlFor="test-email-to"
       >
         email_configuration.test.to_address
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <input
         className="settings-large-input"
@@ -162,11 +156,7 @@ exports[`should render correctly: error 1`] = `
         htmlFor="test-email-message"
       >
         email_configuration.test.message
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <textarea
         className="settings-large-input"
@@ -204,6 +194,9 @@ exports[`should render correctly: sending 1`] = `
     className="settings-definition-right"
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -211,11 +204,7 @@ exports[`should render correctly: sending 1`] = `
         htmlFor="test-email-to"
       >
         email_configuration.test.to_address
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <input
         className="settings-large-input"
@@ -251,11 +240,7 @@ exports[`should render correctly: sending 1`] = `
         htmlFor="test-email-message"
       >
         email_configuration.test.message
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <textarea
         className="settings-large-input"
@@ -305,6 +290,9 @@ exports[`should render correctly: success 1`] = `
         email_configuration.test.email_was_sent_to_x.email@example.com
       </Alert>
     </div>
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -312,11 +300,7 @@ exports[`should render correctly: success 1`] = `
         htmlFor="test-email-to"
       >
         email_configuration.test.to_address
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <input
         className="settings-large-input"
@@ -352,11 +336,7 @@ exports[`should render correctly: success 1`] = `
         htmlFor="test-email-message"
       >
         email_configuration.test.message
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <textarea
         className="settings-large-input"

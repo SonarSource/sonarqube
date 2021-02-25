@@ -36,6 +36,9 @@ exports[`should render: form 1`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <ProjectKeyInput
       label="update_key.new_key"
       onProjectKeyChange={[Function]}

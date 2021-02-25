@@ -19,6 +19,9 @@ exports[`should display action state correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -26,11 +29,9 @@ exports[`should display action state correctly 1`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}
@@ -91,6 +92,9 @@ exports[`should display action state correctly 2`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -98,11 +102,9 @@ exports[`should display action state correctly 2`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}
@@ -171,6 +173,9 @@ exports[`should display action state correctly 3`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -178,11 +183,9 @@ exports[`should display action state correctly 3`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}
@@ -270,6 +273,9 @@ exports[`should render multiple instances correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -277,11 +283,9 @@ exports[`should render multiple instances correctly 1`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}
@@ -356,6 +360,9 @@ exports[`should render multiple instances correctly 2`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -363,11 +370,9 @@ exports[`should render multiple instances correctly 2`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}
@@ -483,6 +488,9 @@ exports[`should render single instance correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
     <div
       className="form-field"
     >
@@ -490,11 +498,9 @@ exports[`should render single instance correctly 1`] = `
         htmlFor="name"
       >
         settings.pr_decoration.binding.form.name
-        <em
-          className="mandatory spacer-right"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker
+          className="spacer-right"
+        />
       </label>
       <Select
         autosize={true}

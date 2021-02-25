@@ -48,6 +48,9 @@ exports[`bulk applies template to all results 2`] = `
   <div
     className="modal-body"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <Alert
       variant="warning"
     >
@@ -58,11 +61,7 @@ exports[`bulk applies template to all results 2`] = `
     >
       <label>
         template
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <Select
         clearable={false}
@@ -118,6 +117,9 @@ exports[`bulk applies template to all results 3`] = `
   <div
     className="modal-body"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <Alert
       variant="warning"
     >
@@ -128,11 +130,7 @@ exports[`bulk applies template to all results 3`] = `
     >
       <label>
         template
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <Select
         clearable={false}
@@ -257,6 +255,9 @@ exports[`bulk applies template to selected results 2`] = `
   <div
     className="modal-body"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <Alert
       variant="warning"
     >
@@ -267,11 +268,7 @@ exports[`bulk applies template to selected results 2`] = `
     >
       <label>
         template
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <Select
         clearable={false}
@@ -327,6 +324,9 @@ exports[`bulk applies template to selected results 3`] = `
   <div
     className="modal-body"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <Alert
       variant="warning"
     >
@@ -337,11 +337,7 @@ exports[`bulk applies template to selected results 3`] = `
     >
       <label>
         template
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
+        <MandatoryFieldMarker />
       </label>
       <Select
         clearable={false}

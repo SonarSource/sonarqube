@@ -22,6 +22,8 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Select, { Creatable } from 'sonar-ui-common/components/controls/Select';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface MetricProps {
@@ -107,10 +109,12 @@ export default class Form extends React.PureComponent<Props, State> {
             </header>
 
             <div className="modal-body modal-container">
+              <MandatoryFieldsExplanation className="modal-field" />
+
               <div className="modal-field">
                 <label htmlFor="create-metric-key">
                   {translate('key')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   autoFocus={true}
@@ -126,7 +130,7 @@ export default class Form extends React.PureComponent<Props, State> {
               <div className="modal-field">
                 <label htmlFor="create-metric-name">
                   {translate('name')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   id="create-metric-name"
@@ -159,7 +163,7 @@ export default class Form extends React.PureComponent<Props, State> {
               <div className="modal-field">
                 <label htmlFor="create-metric-type">
                   {translate('type')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <Select
                   clearable={false}

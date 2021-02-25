@@ -21,6 +21,8 @@ import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { parseError } from 'sonar-ui-common/helpers/request';
 import { sendTestEmail } from '../../../api/settings';
@@ -116,10 +118,12 @@ export class EmailForm extends React.PureComponent<Props, State> {
             </div>
           )}
 
+          <MandatoryFieldsExplanation className="form-field" />
+
           <div className="form-field">
             <label htmlFor="test-email-to">
               {translate('email_configuration.test.to_address')}
-              <em className="mandatory">*</em>
+              <MandatoryFieldMarker />
             </label>
             <input
               className="settings-large-input"
@@ -147,7 +151,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
           <div className="form-field">
             <label htmlFor="test-email-message">
               {translate('email_configuration.test.message')}
-              <em className="mandatory">*</em>
+              <MandatoryFieldMarker />
             </label>
             <textarea
               className="settings-large-input"

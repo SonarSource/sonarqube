@@ -9,11 +9,7 @@ exports[`should render correctly: default 1`] = `
     htmlFor="key"
   >
     settings.almintegration.form.key
-    <em
-      className="mandatory"
-    >
-      *
-    </em>
+    <MandatoryFieldMarker />
   </label>
   <input
     className="input-super-large"
@@ -60,11 +56,7 @@ exports[`should render correctly: secret 1`] = `
     htmlFor="key"
   >
     settings.almintegration.form.key
-    <em
-      className="mandatory"
-    >
-      *
-    </em>
+    <MandatoryFieldMarker />
   </label>
   <div>
     <p>
@@ -88,11 +80,7 @@ exports[`should render correctly: textarea 1`] = `
     htmlFor="key"
   >
     settings.almintegration.form.key
-    <em
-      className="mandatory"
-    >
-      *
-    </em>
+    <MandatoryFieldMarker />
   </label>
   <textarea
     className="settings-large-input"
@@ -115,11 +103,7 @@ exports[`should render correctly: with help 1`] = `
     htmlFor="key"
   >
     settings.almintegration.form.key
-    <em
-      className="mandatory"
-    >
-      *
-    </em>
+    <MandatoryFieldMarker />
     <HelpTooltip
       className="spacer-left"
       overlay="help"

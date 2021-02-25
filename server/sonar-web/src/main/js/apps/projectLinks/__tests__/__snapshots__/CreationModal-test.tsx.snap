@@ -19,6 +19,9 @@ exports[`should create link 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -26,11 +29,7 @@ exports[`should create link 1`] = `
           htmlFor="create-link-name"
         >
           project_links.name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -50,11 +49,7 @@ exports[`should create link 1`] = `
           htmlFor="create-link-url"
         >
           project_links.url
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="create-link-url"

@@ -55,6 +55,9 @@ exports[`should render correctly: Branch level - no other branches 1`] = `
   <div
     className="big-spacer-top display-flex-column"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <label
       className="text-middle"
       htmlFor="reference_branch"
@@ -62,11 +65,7 @@ exports[`should render correctly: Branch level - no other branches 1`] = `
       <strong>
         baseline.reference_branch.choose
       </strong>
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <SearchSelect
       autofocus={false}
@@ -106,6 +105,9 @@ exports[`should render correctly: Branch level 1`] = `
   <div
     className="big-spacer-top display-flex-column"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <label
       className="text-middle"
       htmlFor="reference_branch"
@@ -113,11 +115,7 @@ exports[`should render correctly: Branch level 1`] = `
       <strong>
         baseline.reference_branch.choose
       </strong>
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <SearchSelect
       autofocus={false}
@@ -166,6 +164,9 @@ exports[`should render correctly: Project level 1`] = `
   <div
     className="big-spacer-top display-flex-column"
   >
+    <MandatoryFieldsExplanation
+      className="spacer-bottom"
+    />
     <label
       className="text-middle"
       htmlFor="reference_branch"
@@ -173,11 +174,7 @@ exports[`should render correctly: Project level 1`] = `
       <strong>
         baseline.reference_branch.choose
       </strong>
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <SearchSelect
       autofocus={false}

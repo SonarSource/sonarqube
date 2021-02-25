@@ -23,6 +23,7 @@ import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject, doesComponentExists } from '../../../api/components';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
@@ -190,6 +191,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         <div className="create-project-manual">
           <div className="flex-1 huge-spacer-right">
             <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
+              <MandatoryFieldsExplanation className="big-spacer-bottom" />
+
               <ProjectKeyInput
                 error={projectKeyError}
                 help={translate('onboarding.create_project.project_key.help')}

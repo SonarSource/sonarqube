@@ -22,6 +22,8 @@ import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
 import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 
 export interface BaselineSettingReferenceBranchProps {
@@ -90,9 +92,10 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
               <p className="spacer-top">{translate('baseline.reference_branch.description2')}</p>
             )}
             <div className="big-spacer-top display-flex-column">
+              <MandatoryFieldsExplanation className="spacer-bottom" />
               <label className="text-middle" htmlFor="reference_branch">
                 <strong>{translate('baseline.reference_branch.choose')}</strong>
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               <SearchSelect<BranchOption>
                 autofocus={false}

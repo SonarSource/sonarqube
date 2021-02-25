@@ -22,6 +22,8 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import Select from 'sonar-ui-common/components/controls/Select';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { parseAsOptionalString } from 'sonar-ui-common/helpers/query';
 import {
@@ -149,10 +151,11 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
             </div>
           ) : (
             <div className="modal-body">
+              <MandatoryFieldsExplanation className="modal-field" />
               <div className="modal-field">
                 <label htmlFor="create-profile-name">
                   {translate('name')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   autoFocus={true}
@@ -169,7 +172,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
               <div className="modal-field">
                 <label htmlFor="create-profile-language">
                   {translate('language')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <Select
                   clearable={false}

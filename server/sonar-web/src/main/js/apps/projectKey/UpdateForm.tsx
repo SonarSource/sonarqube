@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import ProjectKeyInput from '../../components/common/ProjectKeyInput';
 import { validateProjectKey } from '../../helpers/projects';
@@ -65,6 +66,8 @@ export default function UpdateForm(props: UpdateFormProps) {
       onConfirm={props.onKeyChange}>
       {({ onFormSubmit }) => (
         <form onSubmit={onFormSubmit}>
+          <MandatoryFieldsExplanation className="spacer-bottom" />
+
           <ProjectKeyInput
             error={error}
             label={translate('update_key.new_key')}

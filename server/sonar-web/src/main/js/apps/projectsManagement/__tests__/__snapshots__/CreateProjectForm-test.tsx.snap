@@ -19,6 +19,9 @@ exports[`creates project 1`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -26,11 +29,7 @@ exports[`creates project 1`] = `
           htmlFor="create-project-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -50,11 +49,7 @@ exports[`creates project 1`] = `
           htmlFor="create-project-key"
         >
           key
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="create-project-key"
@@ -119,6 +114,9 @@ exports[`creates project 2`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -126,11 +124,7 @@ exports[`creates project 2`] = `
           htmlFor="create-project-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -150,11 +144,7 @@ exports[`creates project 2`] = `
           htmlFor="create-project-key"
         >
           key
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="create-project-key"
@@ -219,6 +209,9 @@ exports[`creates project 3`] = `
     <div
       className="modal-body"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -226,11 +219,7 @@ exports[`creates project 3`] = `
           htmlFor="create-project-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           autoFocus={true}
@@ -250,11 +239,7 @@ exports[`creates project 3`] = `
           htmlFor="create-project-key"
         >
           key
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           id="create-project-key"

@@ -21,6 +21,9 @@ exports[`should render correctly 1`] = `
     <div
       className="modal-body modal-container"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -28,11 +31,7 @@ exports[`should render correctly 1`] = `
           htmlFor="create-user-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           className="hidden"
@@ -136,6 +135,9 @@ exports[`should render correctly 2`] = `
     <div
       className="modal-body modal-container"
     >
+      <MandatoryFieldsExplanation
+        className="modal-field"
+      />
       <div
         className="modal-field"
       >
@@ -143,11 +145,7 @@ exports[`should render correctly 2`] = `
           htmlFor="create-user-login"
         >
           login
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           className="hidden"
@@ -178,11 +176,7 @@ exports[`should render correctly 2`] = `
           htmlFor="create-user-name"
         >
           name
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           className="hidden"
@@ -229,11 +223,7 @@ exports[`should render correctly 2`] = `
           htmlFor="create-user-password"
         >
           password
-          <em
-            className="mandatory"
-          >
-            *
-          </em>
+          <MandatoryFieldMarker />
         </label>
         <input
           className="hidden"

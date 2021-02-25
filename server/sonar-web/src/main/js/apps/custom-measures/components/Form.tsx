@@ -23,6 +23,7 @@ import Select from 'sonar-ui-common/components/controls/Select';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAllMetrics } from '../../../api/metrics';
 
@@ -115,7 +116,7 @@ export default class Form extends React.PureComponent<Props, State> {
       <div className="modal-field">
         <label htmlFor="create-custom-measure-metric">
           {translate('custom_measures.metric')}
-          <em className="mandatory">*</em>
+          <MandatoryFieldMarker />
         </label>
         {this.state.loading ? (
           <i className="spinner" />
@@ -159,7 +160,7 @@ export default class Form extends React.PureComponent<Props, State> {
               <div className="modal-field">
                 <label htmlFor="create-custom-measure-value">
                   {translate('value')}
-                  <em className="mandatory">*</em>
+                  <MandatoryFieldMarker />
                 </label>
                 <input
                   autoFocus={this.props.measure !== undefined}

@@ -22,6 +22,8 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import Select from 'sonar-ui-common/components/controls/Select';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { Profile } from '../types';
@@ -100,9 +102,11 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
             <h2>{translate('quality_profiles.change_parent')}</h2>
           </div>
           <div className="modal-body">
+            <MandatoryFieldsExplanation className="modal-field" />
             <div className="modal-field">
               <label htmlFor="change-profile-parent">
-                {translate('quality_profiles.parent')} <em className="mandatory">*</em>
+                {translate('quality_profiles.parent')}
+                <MandatoryFieldMarker />
               </label>
               <Select
                 clearable={false}

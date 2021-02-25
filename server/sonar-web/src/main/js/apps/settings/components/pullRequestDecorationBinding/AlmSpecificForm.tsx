@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
@@ -51,7 +52,7 @@ function renderLabel(props: LabelProps) {
   return (
     <label className="display-flex-center" htmlFor={id}>
       {translate('settings.pr_decoration.binding.form', id)}
-      {!optional && <em className="mandatory">*</em>}
+      {!optional && <MandatoryFieldMarker />}
       {help && (
         <HelpTooltip
           className="spacer-left"

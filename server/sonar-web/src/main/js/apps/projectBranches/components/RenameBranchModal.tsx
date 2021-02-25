@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { renameBranch } from '../../../api/branches';
 import { MainBranch } from '../../../types/branch-like';
@@ -86,10 +88,11 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
+            <MandatoryFieldsExplanation className="modal-field" />
             <div className="modal-field">
               <label htmlFor="rename-branch-name">
                 {translate('new_name')}
-                <em className="mandatory">*</em>
+                <MandatoryFieldMarker />
               </label>
               <input
                 autoFocus={true}

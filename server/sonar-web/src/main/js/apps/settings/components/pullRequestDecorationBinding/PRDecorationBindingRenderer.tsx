@@ -25,6 +25,8 @@ import Select from 'sonar-ui-common/components/controls/Select';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import AlmSpecificForm from './AlmSpecificForm';
@@ -110,10 +112,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           event.preventDefault();
           props.onSubmit();
         }}>
+        <MandatoryFieldsExplanation className="form-field" />
+
         <div className="form-field">
           <label htmlFor="name">
             {translate('settings.pr_decoration.binding.form.name')}
-            <em className="mandatory spacer-right">*</em>
+            <MandatoryFieldMarker className="spacer-right" />
           </label>
           <Select
             autosize={true}

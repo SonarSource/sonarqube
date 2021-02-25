@@ -11,6 +11,7 @@ exports[`should render correctly 1`] = `
   >
     baseline.number_days.description
   </p>
+  <MandatoryFieldsExplanation />
   <ValidationInput
     id="baseline_number_of_days"
     isInvalid={false}
@@ -38,6 +39,7 @@ exports[`should render correctly 2`] = `
   >
     baseline.number_days.description
   </p>
+  <MandatoryFieldsExplanation />
   <ValidationInput
     id="baseline_number_of_days"
     isInvalid={false}
@@ -65,6 +67,7 @@ exports[`should render correctly 3`] = `
   >
     baseline.number_days.description
   </p>
+  <MandatoryFieldsExplanation />
   <ValidationInput
     id="baseline_number_of_days"
     isInvalid={true}

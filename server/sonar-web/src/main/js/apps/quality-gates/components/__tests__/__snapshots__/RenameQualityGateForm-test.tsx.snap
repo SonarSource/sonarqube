@@ -9,6 +9,9 @@ exports[`should render correctly 1`] = `
   onConfirm={[Function]}
   size="small"
 >
+  <MandatoryFieldsExplanation
+    className="modal-field"
+  />
   <div
     className="modal-field"
   >
@@ -16,11 +19,7 @@ exports[`should render correctly 1`] = `
       htmlFor="quality-gate-form-name"
     >
       name
-      <em
-        className="mandatory"
-      >
-        *
-      </em>
+      <MandatoryFieldMarker />
     </label>
     <input
       autoFocus={true}
