@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should renders correctly 1`] = `
+<Fragment>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.msbuild.execute.text"
+  >
+    <Component />
+  </InstanceMessage>
+  <CodeSnippet
+    key="0"
+    snippet="command1"
+  />
+  <CodeSnippet
+    key="1"
+    snippet="command2"
+  />
+  <p
+    className="big-spacer-top markdown"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.docs"
+      id="onboarding.analysis.docs"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
+          >
+            onboarding.analysis.msbuild.docs_link
+          </Link>,
+        }
+      }
+    />
+  </p>
+</Fragment>
+`;

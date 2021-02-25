@@ -1,93 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DotNet renders correctly 1`] = `
-<div>
-  <div>
-    <h4
-      className="spacer-bottom"
-    >
-      onboarding.analysis.msbuild.header
-    </h4>
-    <p
-      className="spacer-bottom markdown"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.analysis.msbuild.text"
-        id="onboarding.analysis.msbuild.text"
-        values={
-          Object {
-            "code": <code>
-              %PATH%
-            </code>,
-          }
-        }
-      />
-    </p>
-    <p>
-      <Link
-        className="button"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        target="_blank"
-        to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
-      >
-        download_verb
-      </Link>
-    </p>
-  </div>
-  <h4
-    className="huge-spacer-top spacer-bottom"
-  >
-    onboarding.analysis.msbuild.execute
-  </h4>
-  <InstanceMessage
-    message="onboarding.analysis.msbuild.execute.text"
-  >
-    <Component />
-  </InstanceMessage>
-  <CodeSnippet
-    isOneLine={true}
-    snippet={
+exports[`Should renders correctly 1`] = `
+<Fragment>
+  <RenderOptions
+    checked="dotnet_core"
+    name="variant"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build.dotnet.variant"
+    options={
       Array [
-        "SonarScanner.MSBuild.exe begin",
-        "/k:\\"projectKey\\"",
-        "/d:sonar.host.url=\\"host\\"",
-        "/d:sonar.login=\\"token\\"",
+        "dotnet_core",
+        "dotnet_framework",
       ]
     }
+    titleLabelKey="onboarding.build.dotnet.variant"
   />
-  <CodeSnippet
-    isOneLine={true}
-    snippet="MsBuild.exe /t:Rebuild"
+  <DotNetCore
+    host="host"
+    projectKey="projectKey"
+    token="token"
   />
-  <CodeSnippet
-    isOneLine={true}
-    snippet={
-      Array [
-        "SonarScanner.MSBuild.exe end",
-        "/d:sonar.login=\\"token\\"",
-      ]
-    }
-  />
-  <p
-    className="big-spacer-top markdown"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.analysis.docs"
-      id="onboarding.analysis.docs"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
-          >
-            onboarding.analysis.msbuild.docs_link
-          </Link>,
-        }
-      }
-    />
-  </p>
-</div>
+</Fragment>
 `;

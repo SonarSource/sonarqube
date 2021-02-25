@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import DotNet from '../DotNet';
+import DotNetExecute from '../DotNetExecute';
 
 it('Should renders correctly', () => {
-  expect(shallow(<DotNet host="host" projectKey="projectKey" token="token" />)).toMatchSnapshot();
+  expect(shallow(<DotNetExecute commands={['command1', 'command2']} />)).toMatchSnapshot();
 });

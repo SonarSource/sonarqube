@@ -19,8 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import DotNet from '../DotNet';
+import DotNetCore from '../DotNetCore';
 
 it('Should renders correctly', () => {
-  expect(shallow(<DotNet host="host" projectKey="projectKey" token="token" />)).toMatchSnapshot();
+  expect(
+    shallow(<DotNetCore host="host" projectKey="projectKey" token="token" />)
+  ).toMatchSnapshot();
 });

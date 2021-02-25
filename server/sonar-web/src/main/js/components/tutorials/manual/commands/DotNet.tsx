@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
-import InstanceMessage from '../../../common/InstanceMessage';
+import RenderOptions from '../../components/RenderOptions';
+import DotNetCore from './DotNetCore';
+import DotNetFramework from './DotNetFramework';
 
 export interface DotNetProps {
   host: string;
@@ -30,63 +28,26 @@ export interface DotNetProps {
   token: string;
 }
 
+enum Variant {
+  DotNetCoreVariant = 'dotnet_core',
+  DotNetFrameworkVariant = 'dotnet_framework'
+}
+
 export default function DotNet(props: DotNetProps) {
-  const { host, projectKey, token } = props;
-
-  const command1 = [
-    'SonarScanner.MSBuild.exe begin',
-    `/k:"${projectKey}"`,
-    `/d:sonar.host.url="${host}"`,
-    `/d:sonar.login="${token}"`
-  ];
-
-  const command2 = 'MsBuild.exe /t:Rebuild';
-
-  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${token}"`];
+  const [variant, setVariant] = React.useState<Variant>(Variant.DotNetCoreVariant);
+  const DotNetTuto = variant === 'dotnet_core' ? DotNetCore : DotNetFramework;
 
   return (
-    <div>
-      <div>
-        <h4 className="spacer-bottom">{translate('onboarding.analysis.msbuild.header')}</h4>
-        <p className="spacer-bottom markdown">
-          <FormattedMessage
-            defaultMessage={translate('onboarding.analysis.msbuild.text')}
-            id="onboarding.analysis.msbuild.text"
-            values={{ code: <code>%PATH%</code> }}
-          />
-        </p>
-        <p>
-          <Link
-            className="button"
-            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
-            target="_blank">
-            {translate('download_verb')}
-          </Link>
-        </p>
-      </div>
-
-      <h4 className="huge-spacer-top spacer-bottom">
-        {translate('onboarding.analysis.msbuild.execute')}
-      </h4>
-      <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
-        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
-      </InstanceMessage>
-      <CodeSnippet isOneLine={true} snippet={command1} />
-      <CodeSnippet isOneLine={true} snippet={command2} />
-      <CodeSnippet isOneLine={true} snippet={command3} />
-      <p className="big-spacer-top markdown">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.analysis.docs')}
-          id="onboarding.analysis.docs"
-          values={{
-            link: (
-              <Link to="/documentation/analysis/scan/sonarscanner-for-msbuild/" target="_blank">
-                {translate('onboarding.analysis.msbuild.docs_link')}
-              </Link>
-            )
-          }}
-        />
-      </p>
-    </div>
+    <>
+      <RenderOptions
+        checked={variant}
+        name="variant"
+        onCheck={value => setVariant(value as Variant)}
+        optionLabelKey="onboarding.build.dotnet.variant"
+        options={['dotnet_core', 'dotnet_framework']}
+        titleLabelKey="onboarding.build.dotnet.variant"
+      />
+      <DotNetTuto {...props} />
+    </>
   );
 }

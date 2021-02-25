@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should renders correctly 1`] = `
+<div>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.dotnetcore.global
+  </h4>
+  <p
+    className="big-spacer-top markdown"
+  >
+    onboarding.analysis.dotnetcore.global.text
+  </p>
+  <CodeSnippet
+    snippet="dotnet tool install --global dotnet-sonarscanner"
+  />
+  <Alert
+    className="spacer-top"
+    variant="info"
+  >
+    onboarding.analysis.dotnetcore.global.text.path
+  </Alert>
+  <DotNetExecute
+    commands={
+      Array [
+        "dotnet sonarscanner begin /k:\\"projectKey\\" /d:sonar.host.url=\\"host\\"  /d:sonar.login=\\"token\\"",
+        "dotnet build",
+        "dotnet sonarscanner end /d:sonar.login=\\"token\\"",
+      ]
+    }
+  />
+</div>
+`;
