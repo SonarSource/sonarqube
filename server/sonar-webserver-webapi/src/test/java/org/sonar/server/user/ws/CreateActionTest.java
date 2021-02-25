@@ -184,34 +184,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_user_with_deprecated_scmAccounts_parameter() {
-    logInAsSystemAdministrator();
-
-    tester.newRequest()
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("password", "1234")
-      .setParam("scmAccounts", "jn")
-      .execute();
-
-    assertThat(db.users().selectUserByLogin("john").get().getScmAccountsAsList()).containsOnly("jn");
-  }
-
-  @Test
-  public void create_user_with_deprecated_scm_accounts_parameter() {
-    logInAsSystemAdministrator();
-
-    tester.newRequest()
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("password", "1234")
-      .setParam("scm_accounts", "jn")
-      .execute();
-
-    assertThat(db.users().selectUserByLogin("john").get().getScmAccountsAsList()).containsOnly("jn");
-  }
-
-  @Test
   public void reactivate_user() {
     logInAsSystemAdministrator();
 
@@ -341,7 +313,7 @@ public class CreateActionTest {
     WebService.Action action = tester.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(6);
   }
 
   private CreateWsResponse executeRequest(String login) {

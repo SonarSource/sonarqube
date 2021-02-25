@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,8 +56,6 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
-import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS;
-import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_DEPRECATED;
 
 public class UpdateAction implements UsersWsAction {
 
@@ -98,12 +97,6 @@ public class UpdateAction implements UsersWsAction {
       .setMaximumLength(EMAIL_MAX_LENGTH)
       .setDescription("User email")
       .setExampleValue("myname@email.com");
-
-    action.createParam(PARAM_SCM_ACCOUNTS)
-      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
-      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED, "6.0")
-      .setDeprecatedSince("6.1")
-      .setExampleValue("myscmaccount1,myscmaccount2");
 
     action.createParam(PARAM_SCM_ACCOUNT)
       .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
@@ -173,9 +166,9 @@ public class UpdateAction implements UsersWsAction {
   private static List<String> getScmAccounts(Request request) {
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
       return new ArrayList<>(request.multiParam(PARAM_SCM_ACCOUNT));
+    } else {
+      return Collections.emptyList();
     }
-    List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
-    return oldScmAccounts != null ? oldScmAccounts : new ArrayList<>();
   }
 
   private static class UpdateRequest {

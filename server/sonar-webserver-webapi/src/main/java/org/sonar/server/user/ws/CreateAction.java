@@ -55,8 +55,6 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
-import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS;
-import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_DEPRECATED;
 
 public class CreateAction implements UsersWsAction {
 
@@ -106,12 +104,6 @@ public class CreateAction implements UsersWsAction {
       .setDescription("User email")
       .setExampleValue("myname@email.com");
 
-    action.createParam(PARAM_SCM_ACCOUNTS)
-      .setDescription("Comma-separated list of SCM accounts. This parameter is deprecated, please use '%s' instead", PARAM_SCM_ACCOUNT)
-      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED, "6.0")
-      .setDeprecatedSince("6.1")
-      .setExampleValue("myscmaccount1,myscmaccount2");
-
     action.createParam(PARAM_SCM_ACCOUNT)
       .setDescription("List of SCM accounts. To set several values, the parameter must be called once for each value.")
       .setExampleValue("scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue");
@@ -150,7 +142,8 @@ public class CreateAction implements UsersWsAction {
         }));
       }
       checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
-      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {}));
+      return buildResponse(userUpdater.reactivateAndCommit(dbSession, existingUser, newUser.build(), u -> {
+      }));
     }
   }
 
@@ -179,9 +172,9 @@ public class CreateAction implements UsersWsAction {
   private static List<String> getScmAccounts(Request request) {
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
       return request.multiParam(PARAM_SCM_ACCOUNT);
+    } else {
+      return Collections.emptyList();
     }
-    List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
-    return oldScmAccounts != null ? oldScmAccounts : Collections.emptyList();
   }
 
   static class CreateRequest {

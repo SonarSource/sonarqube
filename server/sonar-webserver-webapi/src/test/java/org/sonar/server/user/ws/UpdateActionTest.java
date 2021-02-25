@@ -83,7 +83,6 @@ public class UpdateActionTest {
       .setParam("login", "john")
       .setParam("name", "Jon Snow")
       .setParam("email", "jon.snow@thegreatw.all")
-      .setParam("scmAccounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_user.json");
   }
@@ -217,34 +216,6 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_only_scm_accounts_with_deprecated_scmAccounts_parameter() {
-    createUser();
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .setParam("scmAccounts", "jon.snow")
-      .execute()
-      .assertJson(getClass(), "update_scm_accounts.json");
-
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
-  }
-
-  @Test
-  public void update_only_scm_accounts_with_deprecated_scm_accounts_parameter() {
-    createUser();
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .setParam("scm_accounts", "jon.snow")
-      .execute()
-      .assertJson(getClass(), "update_scm_accounts.json");
-
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
-  }
-
-  @Test
   public void fail_on_missing_permission() {
     createUser();
     userSession.logIn("polop");
@@ -296,7 +267,7 @@ public class UpdateActionTest {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(4);
   }
 
   private void createUser() {

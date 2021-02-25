@@ -35,8 +35,7 @@ public class UsersWsParameters {
   public static final String PARAM_PASSWORD = "password";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_EMAIL = "email";
-  public static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
-  public static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
+
   public static final String PARAM_SCM_ACCOUNT = "scmAccount";
   public static final String PARAM_LOCAL = "local";
   public static final String PARAM_SELECTED = "selected";
