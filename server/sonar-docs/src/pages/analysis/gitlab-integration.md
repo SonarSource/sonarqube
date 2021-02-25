@@ -182,11 +182,12 @@ For more information on configuring your build with GitLab CI/CD, see the [GitLa
 
 Merge request decoration shows your Quality Gate and analysis metrics directly in GitLab:
 
-![pull request decoration](/images/github-branch-decoration.png)
-
 After you've set up SonarQube to import your GitLab projects as shown in the previous section, the simplest way to add merge request decoration is by adding a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for merge request decoration are set automatically.
+
+[[info]]
+| To decorate merge requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for merge request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
 ### Adding merge request decoration to a manually created or existing project
 To add merge request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown in the **Importing your GitLab projects into SonarQube** section above, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 

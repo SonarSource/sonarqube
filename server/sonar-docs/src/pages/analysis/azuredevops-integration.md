@@ -258,7 +258,8 @@ After you've set up SonarQube to import your Azure DevOps repositories as shown 
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
-To set up a manually created or existing project or a project that's part of a mono repository, see the instructions in the following sections.
+[[info]]
+| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
 ### Adding pull request decoration to a manually created or existing project 
 To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown above in the **Importing your Azure DevOps repositories into SonarQube** section, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 

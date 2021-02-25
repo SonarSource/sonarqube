@@ -22,6 +22,9 @@ You can also add pull request decoration that shows the Pull Request analysis an
 - [Bitbucket Server](/analysis/bitbucket-integration/)
 - [Azure DevOps](/analysis/azuredevops-integration/)
 
+[[info]]
+| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis below in the **Analysis parameters** section.
+
 ## Pull request Quality Gate
 
 A [Quality Gate](/user-guide/quality-gates/) lets you ensure you are meeting your organization's quality policy and that you can merge your pull request. The pull request uses your project Quality Gate as follows:

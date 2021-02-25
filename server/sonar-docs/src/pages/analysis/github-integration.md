@@ -74,14 +74,12 @@ Navigate to **Administration > Configuration > General Settings > ALM Integratio
 ## Adding pull request decoration to GitHub
 After creating and installing your GitHub App above, you can add pull request decoration to show your Quality Gate and analysis metrics directly in GitHub: 
 
-![pull request decoration](/images/github-branch-decoration.png)
-
-[[info]]
-| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
-
 The simplest way to add pull request decoration is by adding a project from GitHub by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitHub**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
+
+[[info]]
+| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
 ### Adding pull request decoration to a manually created or existing project
 To add pull request decoration to a manually created or existing project, after you've created and installed your GitHub App and updated your global ALM Integration settings as shown in the **Importing your GitHub repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 

@@ -40,14 +40,12 @@ After saving your personal access token, you'll see a list of your Bitbucket Ser
 ## Adding pull request decoration to Bitbucket Server
 Pull request decoration shows your Quality Gate and analysis metrics directly in Bitbucket Server:
 
-![pull request decoration](/images/github-branch-decoration.png)
-
-[[info]]
-| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
-
 After you've set up SonarQube to import your Bitbucket Server repositories as shown in the previous section, the simplest way to add pull request decoration is by adding a project from Bitbucket Server by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **Bitbucket**.
 
 Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
+
+[[info]]
+| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
 ### Adding pull request decoration to a manually created or existing project
 To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are configured as shown in the **Importing your Bitbucket Server repositories into SonarQube** section above, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**:
