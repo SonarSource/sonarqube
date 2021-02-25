@@ -133,6 +133,7 @@ import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
+import org.sonar.server.platform.web.SonarLintConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
@@ -338,6 +339,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // web services
       WebServiceEngine.class,
       WebServicesWsModule.class,
+      SonarLintConnectionFilter.class,
       WebServiceFilter.class,
       WebServiceReroutingFilter.class,
 

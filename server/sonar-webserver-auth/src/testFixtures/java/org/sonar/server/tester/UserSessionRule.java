@@ -279,6 +279,12 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  @CheckForNull
+  public Long getLastSonarlintConnectionDate() {
+    return currentUserSession.getLastSonarlintConnectionDate();
+  }
+
+  @Override
   public Collection<GroupDto> getGroups() {
     return currentUserSession.getGroups();
   }

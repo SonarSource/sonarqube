@@ -80,7 +80,8 @@ public class StandaloneSystemInfoWriterTest {
     // response does not contain empty "Section Three"
     assertThat(writer).hasToString("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"usingBranches\":false," +
-      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
+      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],"
+      + "\"sonarlintWeeklyUsers\":0,\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
   }
 
   private void logInAsSystemAdministrator() {

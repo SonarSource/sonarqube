@@ -66,6 +66,8 @@ public interface UserMapper {
 
   void scrollAll(ResultHandler<UserDto> handler);
 
+  void updateSonarlintLastConnectionDate(@Param("login") String login, @Param("now") long now);
+
   /**
    * Count actives users which are root and which login is not the specified one.
    */
@@ -82,4 +84,6 @@ public interface UserMapper {
   void clearHomepages(@Param("homepageType") String type, @Param("homepageParameter") String value, @Param("now") long now);
 
   void clearHomepage(@Param("login") String login, @Param("now") long now);
+
+  long countActiveSonarlintUsers(@Param("sinceDate") long sinceDate);
 }

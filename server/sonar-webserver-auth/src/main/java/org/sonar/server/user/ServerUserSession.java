@@ -55,7 +55,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<GlobalPermission> permissions;
   private Map<String, Set<String>> permissionsByProjectUuid;
 
-  ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
+  public ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
     this.dbClient = dbClient;
     this.userDto = userDto;
   }
@@ -67,6 +67,12 @@ public class ServerUserSession extends AbstractUserSession {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
     }
+  }
+
+  @Override
+  @CheckForNull
+  public Long getLastSonarlintConnectionDate() {
+    return userDto == null ? null : userDto.getLastSonarlintConnectionDate();
   }
 
   @Override

@@ -23,6 +23,7 @@
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter",
         u.last_connection_date as "lastConnectionDate",
+        u.last_sonarlint_connection as "lastSonarlintConnectionDate",
         u.created_at as "createdAt",
         u.updated_at as "updatedAt"
     </sql>
@@ -166,8 +167,16 @@
         salt = null,
         crypted_password = null,
         last_connection_date = null,
+        last_sonarlint_connection = null,
         updated_at = #{now, jdbcType=BIGINT}
     </sql>
+
+    <update id="updateSonarlintLastConnectionDate" parameterType="map">
+        update users set
+          last_sonarlint_connection =  #{now, jdbcType=BIGINT}
+        where
+          login = #{login, jdbcType=VARCHAR}
+    </update>
 
     <update id="deactivateUser" parameterType="map">
         update users set
@@ -221,6 +230,7 @@
         hash_method,
         is_root,
         onboarded,
+        last_sonarlint_connection,
         reset_password,
         homepage_type,
         homepage_parameter,
@@ -242,6 +252,7 @@
         #{user.hashMethod,jdbcType=VARCHAR},
         #{user.root,jdbcType=BOOLEAN},
         #{user.onboarded,jdbcType=BOOLEAN},
+        #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
         #{user.resetPassword,jdbcType=BOOLEAN},
         #{user.homepageType,jdbcType=VARCHAR},
         #{user.homepageParameter,jdbcType=VARCHAR},
@@ -269,9 +280,15 @@
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
         last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
+        last_sonarlint_connection = #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
         updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}
     </update>
+
+    <select id="countActiveSonarlintUsers" parameterType="map" resultType="long">
+        select count(login) from users
+        where last_sonarlint_connection > #{sinceDate,jdbcType=BIGINT}
+    </select>
 
 </mapper>

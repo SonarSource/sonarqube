@@ -105,6 +105,7 @@ public class TelemetryDataJsonWriter {
     });
     json.endArray();
 
+    json.prop("sonarlintWeeklyUsers", statistics.sonarlintWeeklyUsers());
     if (statistics.getInstallationDate() != null) {
       json.prop("installationDate", statistics.getInstallationDate());
     }

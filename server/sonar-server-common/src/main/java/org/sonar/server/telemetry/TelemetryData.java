@@ -52,6 +52,7 @@ public class TelemetryData {
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
   private final List<String> customSecurityConfigs;
+  private final long sonarlintWeeklyUsers;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -62,6 +63,7 @@ public class TelemetryData {
     projectCount = builder.projectMeasuresStatistics.getProjectCount();
     usingBranches = builder.usingBranches;
     database = builder.database;
+    sonarlintWeeklyUsers = builder.sonarlintWeeklyUsers;
     projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
     almIntegrationCountByAlm = builder.almIntegrationCountByAlm;
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
@@ -91,6 +93,10 @@ public class TelemetryData {
 
   public long getNcloc() {
     return ncloc;
+  }
+
+  public long sonarlintWeeklyUsers() {
+    return sonarlintWeeklyUsers;
   }
 
   public long getUserCount() {
@@ -169,6 +175,7 @@ public class TelemetryData {
     private String serverId;
     private String version;
     private long userCount;
+    private long sonarlintWeeklyUsers;
     private Map<String, String> plugins;
     private Database database;
     private ProjectMeasuresStatistics projectMeasuresStatistics;
@@ -198,6 +205,11 @@ public class TelemetryData {
 
     Builder setProjectCountByScm(Map<String, Long> projectCountByScm) {
       this.projectCountByScm = projectCountByScm;
+      return this;
+    }
+
+    Builder setSonarlintWeeklyUsers(long sonarlintWeeklyUsers) {
+      this.sonarlintWeeklyUsers = sonarlintWeeklyUsers;
       return this;
     }
 

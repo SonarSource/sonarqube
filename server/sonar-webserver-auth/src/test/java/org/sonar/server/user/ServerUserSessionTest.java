@@ -100,6 +100,12 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void getLastSonarlintConnectionDate() {
+    UserDto user = db.users().insertUser(p -> p.setLastSonarlintConnectionDate(1000L));
+    assertThat(newUserSession(user).getLastSonarlintConnectionDate()).isEqualTo(1000L);
+  }
+
+  @Test
   public void getGroups_keeps_groups_in_cache() {
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();

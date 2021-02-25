@@ -56,6 +56,9 @@ public interface UserSession {
   @CheckForNull
   String getName();
 
+  @CheckForNull
+  Long getLastSonarlintConnectionDate();
+
   /**
    * The groups that the logged-in user is member of. An empty
    * collection is returned if {@link #isLoggedIn()} is {@code false}.

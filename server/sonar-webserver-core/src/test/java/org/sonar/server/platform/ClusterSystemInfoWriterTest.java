@@ -73,8 +73,9 @@ public class ClusterSystemInfoWriterTest {
       + "\"Application Nodes\":[{\"Name\":\"appNodes\",\"\":{\"name\":\"appNodes\"}}],"
       + "\"Search Nodes\":[{\"Name\":\"searchNodes\",\"\":{\"name\":\"searchNodes\"}}],"
       + "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],"
-      + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"ncloc\":0,\"projectCountByLanguage\":[]," +
-      "\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
+      + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"ncloc\":0,\"projectCountByLanguage\":[],"
+      + "\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],\"sonarlintWeeklyUsers\":0,\"installationDate\":0,"
+      + "\"installationVersion\":\"\",\"docker\":false}}");
   }
 
   private static NodeInfo createNodeInfo(String name) {

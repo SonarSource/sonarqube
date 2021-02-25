@@ -59,6 +59,7 @@ public class TelemetryDataJsonWriterTest {
     .setNcloc(42L)
     .setExternalAuthenticationProviders(asList("github", "gitlab"))
     .setProjectCountByScm(Collections.emptyMap())
+    .setSonarlintWeeklyUsers(10)
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);
 
@@ -94,6 +95,15 @@ public class TelemetryDataJsonWriterTest {
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("{ \"externalAuthProviders\": [ \"github\", \"gitlab\" ] }");
+  }
+
+  @Test
+  public void write_sonarlint_weekly_users() {
+    TelemetryData data = SOME_TELEMETRY_DATA.build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{ \"sonarlintWeeklyUsers\": 10 }");
   }
 
   @Test

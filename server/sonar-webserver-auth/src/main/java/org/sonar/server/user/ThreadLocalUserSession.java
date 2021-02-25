@@ -58,6 +58,12 @@ public class ThreadLocalUserSession implements UserSession {
 
   @Override
   @CheckForNull
+  public Long getLastSonarlintConnectionDate() {
+    return get().getLastSonarlintConnectionDate();
+  }
+
+  @Override
+  @CheckForNull
   public String getLogin() {
     return get().getLogin();
   }

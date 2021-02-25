@@ -66,15 +66,17 @@ import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_K
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
 public class TelemetryDataLoaderImplTest {
+  private final static Long NOW = 100_000_000L;
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
+
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester db = DbTester.create(system2);
   @Rule
   public EsTester es = EsTester.create();
 
   private final FakeServer server = new FakeServer();
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
   private final Configuration configuration = mock(Configuration.class);
-  private final TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final DockerSupport dockerSupport = mock(DockerSupport.class);
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
@@ -199,6 +201,18 @@ public class TelemetryDataLoaderImplTest {
     TelemetryData data = commercialUnderTest.load();
 
     assertThat(data.getLicenseType()).isEmpty();
+  }
+
+  @Test
+  public void data_contains_weekly_count_sonarlint_users() {
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000L));
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
+    // these don't count
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 1_000_000_000L));
+    db.users().insertUser();
+
+    TelemetryData data = communityUnderTest.load();
+    assertThat(data.sonarlintWeeklyUsers()).isEqualTo(2L);
   }
 
   @Test

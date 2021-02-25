@@ -511,6 +511,25 @@ public class UserDaoTest {
   }
 
   @Test
+  public void update_last_sonarlint_connection_date() {
+    UserDto user = db.users().insertUser();
+    assertThat(user.getLastSonarlintConnectionDate()).isNull();
+    underTest.updateSonarlintLastConnectionDate(db.getSession(), user.getLogin());
+    assertThat(underTest.selectByLogin(db.getSession(), user.getLogin()).getLastSonarlintConnectionDate()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void count_sonarlint_weekly_users() {
+    UserDto user1 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000));
+    UserDto user2 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
+    // these don't count
+    UserDto user3 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 1_000_000_000));
+    UserDto user4 = db.users().insertUser();
+
+    assertThat(underTest.countSonarlintWeeklyUsers(db.getSession())).isEqualTo(2);
+  }
+
+  @Test
   public void clean_user_homepage() {
 
     UserDto user = newUserDto().setHomepageType("RANDOM").setHomepageParameter("any-string");
@@ -628,7 +647,7 @@ public class UserDaoTest {
       .extracting(UserDto::getUuid).containsExactlyInAnyOrder(user1.getUuid());
     assertThat(underTest.selectByExternalIdsAndIdentityProvider(session,
       asList(user1.getExternalId(), user2.getExternalId(), user3.getExternalId(), disableUser.getExternalId()), "github"))
-        .extracting(UserDto::getUuid).containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), disableUser.getUuid());
+      .extracting(UserDto::getUuid).containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), disableUser.getUuid());
     assertThat(underTest.selectByExternalIdsAndIdentityProvider(session, singletonList("unknown"), "github")).isEmpty();
     assertThat(underTest.selectByExternalIdsAndIdentityProvider(session, singletonList(user1.getExternalId()), "unknown")).isEmpty();
   }

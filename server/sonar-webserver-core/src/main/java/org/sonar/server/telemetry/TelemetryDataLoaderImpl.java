@@ -144,6 +144,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .stream()
         .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
       data.setProjectCountByScm(projectCountPerScmDetected);
+      data.setSonarlintWeeklyUsers(dbClient.userDao().countSonarlintWeeklyUsers(dbSession));
     }
 
     setSecurityCustomConfigIfPresent(data);
@@ -153,7 +154,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
     data.setInstallationVersion(installationVersionProperty.orElse(null));
     data.setInDocker(dockerSupport.isRunningInDocker());
-
     return data.build();
   }
 

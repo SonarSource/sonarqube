@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v87;
+package org.sonar.server.platform.db.migration.version.v88;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddLastSonarlintConnectionToUsersTest {
+  private static final String TABLE_NAME = "users";
+  private static final String COLUMN_NAME = "last_sonarlint_connection";
 
-public class DbVersion87Test {
-
-  private final DbVersion underTest = new DbVersion87();
-
-  @Test
-  public void migrationNumber_starts_at_4200() {
-    verifyMinimumMigrationNumber(underTest, 4200);
-  }
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddLastSonarlintConnectionToUsersTest.class, "schema.sql");
+  private final DdlChange underTest = new AddLastSonarlintConnectionToUsers(db.database());
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
+  public void add_column() throws SQLException {
+    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+    underTest.execute();
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.BIGINT, null, true);
   }
-
 }

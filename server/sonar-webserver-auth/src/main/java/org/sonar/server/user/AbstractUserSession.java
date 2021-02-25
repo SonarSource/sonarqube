@@ -76,6 +76,12 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  @CheckForNull
+  public Long getLastSonarlintConnectionDate() {
+    return null;
+  }
+
+  @Override
   public final boolean hasPermission(GlobalPermission permission) {
     return isRoot() || hasPermissionImpl(permission);
   }

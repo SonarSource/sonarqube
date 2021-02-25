@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v87;
+package org.sonar.server.platform.db.migration.version.v88;
 
-import org.junit.Test;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DbVersion88 implements DbVersion {
 
-public class DbVersion87Test {
-
-  private final DbVersion underTest = new DbVersion87();
-
-  @Test
-  public void migrationNumber_starts_at_4200() {
-    verifyMinimumMigrationNumber(underTest, 4200);
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(4300, "Add 'last_sonarlint_connection' to 'users", AddLastSonarlintConnectionToUsers.class)
+    ;
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
-  }
-
 }

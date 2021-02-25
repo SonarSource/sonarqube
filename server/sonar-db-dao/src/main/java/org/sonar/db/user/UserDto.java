@@ -63,6 +63,13 @@ public class UserDto {
   @Nullable
   private Long lastConnectionDate;
 
+  /**
+   * Date of the last time sonarlint connected to sonarqube WSs with this user's authentication.
+   * Can be null when user has never been authenticated, or has not been authenticated since the creation of the column in SonarQube 8.8.
+   */
+  @Nullable
+  private Long lastSonarlintConnectionDate;
+
   private Long createdAt;
   private Long updatedAt;
 
@@ -280,6 +287,17 @@ public class UserDto {
     this.lastConnectionDate = lastConnectionDate;
     return this;
   }
+
+  @CheckForNull
+  public Long getLastSonarlintConnectionDate() {
+    return lastSonarlintConnectionDate;
+  }
+
+  public UserDto setLastSonarlintConnectionDate(@Nullable Long lastSonarlintConnectionDate) {
+    this.lastSonarlintConnectionDate = lastSonarlintConnectionDate;
+    return this;
+  }
+
 
   public Long getCreatedAt() {
     return createdAt;

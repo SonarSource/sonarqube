@@ -43,7 +43,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.user.UserDto.SCM_ACCOUNTS_SEPARATOR;
 
 public class UserDao implements Dao {
-
+  private final static long WEEK_IN_MS = 7L * 24L * 3_600L * 1_000L;
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
@@ -112,6 +112,10 @@ public class UserDao implements Dao {
     return dto;
   }
 
+  public void updateSonarlintLastConnectionDate(DbSession session, String login) {
+    mapper(session).updateSonarlintLastConnectionDate(login, system2.now());
+  }
+
   public void setRoot(DbSession session, String login, boolean root) {
     mapper(session).setRoot(login, root, system2.now());
   }
@@ -169,6 +173,11 @@ public class UserDao implements Dao {
   @CheckForNull
   public UserDto selectByExternalLoginAndIdentityProvider(DbSession dbSession, String externalLogin, String externalIdentityProvider) {
     return mapper(dbSession).selectByExternalLoginAndIdentityProvider(externalLogin, externalIdentityProvider);
+  }
+
+  public long countSonarlintWeeklyUsers(DbSession dbSession) {
+    long threshold = system2.now() - WEEK_IN_MS;
+    return mapper(dbSession).countActiveSonarlintUsers(threshold);
   }
 
   public void scrollByUuids(DbSession dbSession, Collection<String> uuids, Consumer<UserDto> consumer) {

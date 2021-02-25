@@ -53,11 +53,13 @@ public class ThreadLocalUserSessionTest {
     MockUserSession expected = new MockUserSession("karadoc")
       .setUuid("karadoc-uuid")
       .setResetPassword(true)
+      .setLastSonarlintConnectionDate(1000L)
       .setGroups(group);
     threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();
     assertThat(session).isSameAs(expected);
+    assertThat(threadLocalUserSession.getLastSonarlintConnectionDate()).isEqualTo(1000L);
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
     assertThat(threadLocalUserSession.getUuid()).isEqualTo("karadoc-uuid");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();

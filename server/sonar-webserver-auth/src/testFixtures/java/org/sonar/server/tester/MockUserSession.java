@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.AbstractUserSession;
@@ -41,6 +43,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private List<GroupDto> groups = new ArrayList<>();
   private UserSession.IdentityProvider identityProvider;
   private UserSession.ExternalIdentity externalIdentity;
+  private Long lastSonarlintConnectionDate;
 
   public MockUserSession(String login) {
     super(MockUserSession.class);
@@ -60,6 +63,17 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     AbstractUserSession.Identity identity = AbstractUserSession.computeIdentity(userDto);
     this.identityProvider = identity.getIdentityProvider();
     this.externalIdentity = identity.getExternalIdentity();
+  }
+
+  @CheckForNull
+  @Override
+  public Long getLastSonarlintConnectionDate() {
+    return lastSonarlintConnectionDate;
+  }
+
+  public MockUserSession setLastSonarlintConnectionDate(@Nullable Long lastSonarlintConnectionDate) {
+    this.lastSonarlintConnectionDate = lastSonarlintConnectionDate;
+    return this;
   }
 
   @Override
