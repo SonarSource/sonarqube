@@ -108,10 +108,6 @@ public class UpdateAction implements RulesWsAction {
         "if the parameter is not set.")
       .setExampleValue("my *note*");
 
-    action.createParam("debt_sub_characteristic")
-      .setDescription("Debt characteristics are no more supported. This parameter is ignored.")
-      .setDeprecatedSince("5.5");
-
     action.createParam(PARAM_REMEDIATION_FN_TYPE)
       .setDescription("Type of the remediation function of the rule")
       .setPossibleValues(DebtRemediationFunction.Type.values())
