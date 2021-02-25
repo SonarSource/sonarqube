@@ -31,6 +31,7 @@ C / C++ / Objective-C|`sonar.cfamily.bullseye.reportPath`| Path to the report fr
 C#|`sonar.cs.vscoveragexml.reportsPaths`|Path to Visual Studio Code Coverage report. Multiple paths may be comma-delimited, or included via wildcards. See _Notes on importing .NET reports_ below.
 C#|`sonar.cs.dotcover.reportsPaths`|Path to dotCover coverage report. See _Notes on importing .NET reports_ below.
 C#|`sonar.cs.opencover.reportsPaths`|Path to OpenCover coverage report. See _Notes on importing .NET reports_ below.
+C#|`sonar.cs.ncover3.reportsPaths`![](/images/cross.svg)|**Deprecated.** Path to NCover3 coverage report. See _Notes on importing .NET reports_ below.
 Flex|`sonar.flex.cobertura.reportPaths`|Path to the Cobertura XML reports. Multiple paths may be comma-delimited. May be absolute or relative to the project base directory.
 Go|`sonar.go.coverage.reportPaths`|Comma-delimited list of paths to coverage report files. Path wildcards are supported (see above) since SonarGo 1.1.
 Java / Kotlin / Scala / JVM|`sonar.coverage.jacoco.xmlReportPaths`|Path to JaCoCo XML coverage reports. Path wildcards are supported (see above).
@@ -45,6 +46,7 @@ Swift, Xcode 7-9.2|`sonar.swift.coverage.reportPath`|Path to the report generate
 VB.NET|`sonar.vbnet.vscoveragexml.reportsPaths`|Path to Visual Studio Code Coverage report. Multiple paths may be comma-delimited, or included via wildcards. See _Notes on importing .NET reports_ below.
 VB.NET|`sonar.vbnet.dotcover.reportsPaths`|Path to dotCover coverage report. See _Notes on importing .NET reports_ below.
 VB.NET|`sonar.vbnet.opencover.reportsPaths`|Path to OpenCover coverage report. See _Notes on importing .NET reports_ below.
+VB.Net|`sonar.vbnet.ncover3.reportsPaths`![](/images/cross.svg)|**Deprecated.** Path to NCover3 coverage report. See _Notes on importing .NET reports_ below.
 
 
 ## Test Execution
