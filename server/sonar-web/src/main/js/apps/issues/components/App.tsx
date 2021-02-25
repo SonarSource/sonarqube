@@ -975,7 +975,10 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <ScreenPositionHelper className="layout-page-side-outer">
         {({ top }) => (
-          <div className="layout-page-side" style={{ top }}>
+          <section
+            aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
+            className="layout-page-side"
+            style={{ top }}>
             <div className="layout-page-side-inner">
               <A11ySkipTarget
                 anchor="issues_sidebar"
@@ -986,7 +989,7 @@ export default class App extends React.PureComponent<Props, State> {
               />
               {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
             </div>
-          </div>
+          </section>
         )}
       </ScreenPositionHelper>
     );
@@ -1015,6 +1018,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div>
+        <h2 className="a11y-hidden">{translate('list_of_issues')}</h2>
         {paging.total > 0 && (
           <IssuesList
             branchLike={branchLike}
@@ -1127,9 +1131,11 @@ export default class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="issues" />
         <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
 
+        <h1 className="a11y-hidden">{translate('issues.page')}</h1>
+
         {this.renderSide(openIssue)}
 
-        <div className="layout-page-main">
+        <div role="main" className="layout-page-main">
           {this.renderHeader({ openIssue, paging, selectedIndex })}
 
           {this.renderPage()}

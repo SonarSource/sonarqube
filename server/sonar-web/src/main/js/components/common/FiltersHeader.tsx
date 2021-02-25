@@ -37,7 +37,7 @@ export default function FiltersHeader({ displayReset, onReset }: Props) {
         </div>
       )}
 
-      <h3>{translate('filters')}</h3>
+      <h2 className="h3">{translate('filters')}</h2>
     </div>
   );
 }

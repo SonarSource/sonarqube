@@ -33,6 +33,11 @@ exports[`should switch to source view if an issue is selected 1`] = `
     encodeSpecialCharacters={true}
     title="issues.page"
   />
+  <h1
+    className="a11y-hidden"
+  >
+    issues.page
+  </h1>
   <ScreenPositionHelper
     className="layout-page-side-outer"
   >
@@ -40,6 +45,7 @@ exports[`should switch to source view if an issue is selected 1`] = `
   </ScreenPositionHelper>
   <div
     className="layout-page-main"
+    role="main"
   >
     <div
       className="layout-page-header-panel layout-page-main-header issues-main-header"
@@ -96,6 +102,11 @@ exports[`should switch to source view if an issue is selected 1`] = `
         loading={false}
       >
         <div>
+          <h2
+            className="a11y-hidden"
+          >
+            list_of_issues
+          </h2>
           <IssuesList
             checked={Array []}
             component={
@@ -358,6 +369,11 @@ exports[`should switch to source view if an issue is selected 2`] = `
     encodeSpecialCharacters={true}
     title="Reduce the number of conditional operators (4) used in the expression"
   />
+  <h1
+    className="a11y-hidden"
+  >
+    issues.page
+  </h1>
   <ScreenPositionHelper
     className="layout-page-side-outer"
   >
@@ -365,6 +381,7 @@ exports[`should switch to source view if an issue is selected 2`] = `
   </ScreenPositionHelper>
   <div
     className="layout-page-main"
+    role="main"
   >
     <A11ySkipTarget
       anchor="issues_main"
