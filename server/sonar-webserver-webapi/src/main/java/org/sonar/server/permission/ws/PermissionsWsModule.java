@@ -51,7 +51,6 @@ public class PermissionsWsModule extends Module {
       UsersAction.class,
       GroupsAction.class,
       SearchGlobalPermissionsAction.class,
-      SearchProjectPermissionsAction.class,
       RemoveUserFromTemplateAction.class,
       AddUserToTemplateAction.class,
       AddGroupToTemplateAction.class,

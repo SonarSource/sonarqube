@@ -208,7 +208,6 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
-import org.sonar.server.updatecenter.ws.UpdateCenterWsModule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserSessionFactoryImpl;
@@ -272,7 +271,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // update center
       UpdateCenterModule.class,
-      UpdateCenterWsModule.class,
 
       // quality profile
       BuiltInQProfileDefinitionsBridge.class,
