@@ -66,6 +66,7 @@ export default class IssueTags extends React.PureComponent<Props> {
             open={this.props.isOpen}
             overlay={<SetIssueTagsPopup selectedTags={tags} setTags={this.setTags} />}>
             <ButtonLink
+              aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-edit-tags"
               onClick={this.toggleSetTags}>
               <TagsList
@@ -78,14 +79,14 @@ export default class IssueTags extends React.PureComponent<Props> {
           </Toggler>
         </div>
       );
-    } else {
-      return (
-        <TagsList
-          allowUpdate={this.props.canSetTags}
-          className="note"
-          tags={issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]}
-        />
-      );
     }
+
+    return (
+      <TagsList
+        allowUpdate={this.props.canSetTags}
+        className="note"
+        tags={issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]}
+      />
+    );
   }
 }

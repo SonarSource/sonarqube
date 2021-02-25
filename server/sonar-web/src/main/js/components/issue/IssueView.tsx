@@ -77,12 +77,7 @@ export default class IssueView extends React.PureComponent<Props> {
     });
 
     return (
-      <div
-        className={issueClass}
-        data-issue={issue.key}
-        onClick={this.handleClick}
-        role="listitem"
-        tabIndex={0}>
+      <div className={issueClass} data-issue={issue.key} onClick={this.handleClick} role="group">
         <IssueTitleBar
           branchLike={this.props.branchLike}
           currentPopup={this.props.currentPopup}

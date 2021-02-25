@@ -23,7 +23,7 @@ import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/bu
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
@@ -99,6 +99,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
           dangerouslySetInnerHTML={{ __html: sanitize(comment.htmlText) }}
         />
         <div className="issue-comment-age">
+          <span className="a11y-hidden">{translate('issue.comment.posted_on')}</span>
           <DateFromNow date={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">
@@ -118,6 +119,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
                   />
                 }>
                 <EditButton
+                  aria-label={translate('issue.comment.edit')}
                   className="js-issue-comment-edit button-small"
                   onClick={this.toggleEditPopup}
                 />
@@ -131,6 +133,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
                 open={this.state.openPopup === 'delete'}
                 overlay={<CommentDeletePopup onDelete={this.handleDelete} />}>
                 <DeleteButton
+                  aria-label={translate('issue.comment.delete')}
                   className="js-issue-comment-delete button-small"
                   onClick={this.toggleDeletePopup}
                 />

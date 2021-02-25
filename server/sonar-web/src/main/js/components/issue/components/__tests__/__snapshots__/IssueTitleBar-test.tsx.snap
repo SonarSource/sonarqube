@@ -10,10 +10,10 @@ exports[`should render correctly: default 1`] = `
   <div
     className="issue-row-meta"
   >
-    <ul
+    <div
       className="issue-meta-list"
     >
-      <li
+      <div
         className="issue-meta"
       >
         <IssueChangelog
@@ -53,8 +53,8 @@ exports[`should render correctly: default 1`] = `
           }
           togglePopup={[MockFunction]}
         />
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <span
@@ -64,8 +64,8 @@ exports[`should render correctly: default 1`] = `
           L
           26
         </span>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Link
@@ -88,8 +88,8 @@ exports[`should render correctly: default 1`] = `
         >
           <LinkIcon />
         </Link>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -114,10 +114,10 @@ exports[`should render correctly: with filter 1`] = `
   <div
     className="issue-row-meta"
   >
-    <ul
+    <div
       className="issue-meta-list"
     >
-      <li
+      <div
         className="issue-meta"
       >
         <IssueChangelog
@@ -157,8 +157,8 @@ exports[`should render correctly: with filter 1`] = `
           }
           togglePopup={[MockFunction]}
         />
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <span
@@ -168,8 +168,8 @@ exports[`should render correctly: with filter 1`] = `
           L
           26
         </span>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Link
@@ -192,8 +192,8 @@ exports[`should render correctly: with filter 1`] = `
         >
           <LinkIcon />
         </Link>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <SimilarIssuesFilter
@@ -233,8 +233,8 @@ exports[`should render correctly: with filter 1`] = `
           onFilter={[MockFunction]}
           togglePopup={[MockFunction]}
         />
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -249,10 +249,10 @@ exports[`should render correctly: with multi locations 1`] = `
   <div
     className="issue-row-meta"
   >
-    <ul
+    <div
       className="issue-meta-list"
     >
-      <li
+      <div
         className="issue-meta"
       >
         <IssueChangelog
@@ -360,8 +360,8 @@ exports[`should render correctly: with multi locations 1`] = `
           }
           togglePopup={[MockFunction]}
         />
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <span
@@ -371,8 +371,8 @@ exports[`should render correctly: with multi locations 1`] = `
           L
           26
         </span>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Tooltip
@@ -382,8 +382,8 @@ exports[`should render correctly: with multi locations 1`] = `
             7
           </LocationIndex>
         </Tooltip>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Link
@@ -406,8 +406,8 @@ exports[`should render correctly: with multi locations 1`] = `
         >
           <LinkIcon />
         </Link>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -422,10 +422,10 @@ exports[`should render correctly: with multi locations and link 1`] = `
   <div
     className="issue-row-meta"
   >
-    <ul
+    <div
       className="issue-meta-list"
     >
-      <li
+      <div
         className="issue-meta"
       >
         <IssueChangelog
@@ -533,8 +533,8 @@ exports[`should render correctly: with multi locations and link 1`] = `
           }
           togglePopup={[MockFunction]}
         />
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <span
@@ -544,8 +544,8 @@ exports[`should render correctly: with multi locations and link 1`] = `
           L
           26
         </span>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Link
@@ -573,8 +573,8 @@ exports[`should render correctly: with multi locations and link 1`] = `
             </LocationIndex>
           </Tooltip>
         </Link>
-      </li>
-      <li
+      </div>
+      <div
         className="issue-meta"
       >
         <Link
@@ -598,8 +598,8 @@ exports[`should render correctly: with multi locations and link 1`] = `
         >
           <LinkIcon />
         </Link>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </div>
 `;

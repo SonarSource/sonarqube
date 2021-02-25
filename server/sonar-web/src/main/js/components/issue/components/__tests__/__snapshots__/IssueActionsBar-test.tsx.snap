@@ -4,10 +4,10 @@ exports[`should render commentable correctly 1`] = `
 <div
   className="issue-actions"
 >
-  <ul
+  <div
     className="issue-meta-list"
   >
-    <li
+    <div
       className="issue-meta"
     >
       <IssueType
@@ -49,8 +49,8 @@ exports[`should render commentable correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueSeverity
@@ -92,8 +92,8 @@ exports[`should render commentable correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueTransition
@@ -135,8 +135,8 @@ exports[`should render commentable correctly 1`] = `
         onChange={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueAssign
@@ -178,7 +178,7 @@ exports[`should render commentable correctly 1`] = `
         onAssign={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
+    </div>
     <IssueCommentAction
       commentAutoTriggered={false}
       commentPlaceholder=""
@@ -186,11 +186,11 @@ exports[`should render commentable correctly 1`] = `
       onChange={[MockFunction]}
       toggleComment={[Function]}
     />
-  </ul>
-  <ul
+  </div>
+  <div
     className="list-inline"
   >
-    <li
+    <div
       className="issue-meta js-issue-tags"
     >
       <IssueTags
@@ -232,8 +232,8 @@ exports[`should render commentable correctly 1`] = `
         onChange={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 `;
 
@@ -241,10 +241,10 @@ exports[`should render effort correctly 1`] = `
 <div
   className="issue-actions"
 >
-  <ul
+  <div
     className="issue-meta-list"
   >
-    <li
+    <div
       className="issue-meta"
     >
       <IssueType
@@ -285,8 +285,8 @@ exports[`should render effort correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueSeverity
@@ -327,8 +327,8 @@ exports[`should render effort correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueTransition
@@ -369,8 +369,8 @@ exports[`should render effort correctly 1`] = `
         onChange={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueAssign
@@ -411,8 +411,8 @@ exports[`should render effort correctly 1`] = `
         onAssign={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <span
@@ -420,12 +420,12 @@ exports[`should render effort correctly 1`] = `
       >
         issue.x_effort.great
       </span>
-    </li>
-  </ul>
-  <ul
+    </div>
+  </div>
+  <div
     className="list-inline"
   >
-    <li
+    <div
       className="issue-meta js-issue-tags"
     >
       <IssueTags
@@ -466,8 +466,8 @@ exports[`should render effort correctly 1`] = `
         onChange={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 `;
 
@@ -475,10 +475,10 @@ exports[`should render issue correctly 1`] = `
 <div
   className="issue-actions"
 >
-  <ul
+  <div
     className="issue-meta-list"
   >
-    <li
+    <div
       className="issue-meta"
     >
       <IssueType
@@ -518,8 +518,8 @@ exports[`should render issue correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueSeverity
@@ -559,8 +559,8 @@ exports[`should render issue correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueTransition
@@ -600,8 +600,8 @@ exports[`should render issue correctly 1`] = `
         onChange={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueAssign
@@ -641,12 +641,12 @@ exports[`should render issue correctly 1`] = `
         onAssign={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
-  <ul
+    </div>
+  </div>
+  <div
     className="list-inline"
   >
-    <li
+    <div
       className="issue-meta js-issue-tags"
     >
       <IssueTags
@@ -686,8 +686,8 @@ exports[`should render issue correctly 1`] = `
         onChange={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 `;
 
@@ -695,10 +695,10 @@ exports[`should render security hotspot correctly 1`] = `
 <div
   className="issue-actions"
 >
-  <ul
+  <div
     className="issue-meta-list"
   >
-    <li
+    <div
       className="issue-meta"
     >
       <IssueType
@@ -738,8 +738,8 @@ exports[`should render security hotspot correctly 1`] = `
         setIssueProperty={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueTransition
@@ -779,8 +779,8 @@ exports[`should render security hotspot correctly 1`] = `
         onChange={[Function]}
         togglePopup={[MockFunction]}
       />
-    </li>
-    <li
+    </div>
+    <div
       className="issue-meta"
     >
       <IssueAssign
@@ -820,12 +820,12 @@ exports[`should render security hotspot correctly 1`] = `
         onAssign={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
-  <ul
+    </div>
+  </div>
+  <div
     className="list-inline"
   >
-    <li
+    <div
       className="issue-meta js-issue-tags"
     >
       <IssueTags
@@ -865,7 +865,7 @@ exports[`should render security hotspot correctly 1`] = `
         onChange={[MockFunction]}
         togglePopup={[MockFunction]}
       />
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 `;

@@ -96,8 +96,8 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
 
     return (
       <div className="issue-actions">
-        <ul className="issue-meta-list">
-          <li className="issue-meta">
+        <div className="issue-meta-list">
+          <div className="issue-meta">
             <IssueType
               canSetType={canSetType}
               isOpen={this.props.currentPopup === 'set-type' && canSetType}
@@ -105,9 +105,9 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               setIssueProperty={this.setIssueProperty}
               togglePopup={this.props.togglePopup}
             />
-          </li>
+          </div>
           {!isSecurityHotspot && (
-            <li className="issue-meta">
+            <div className="issue-meta">
               <IssueSeverity
                 canSetSeverity={canSetSeverity}
                 isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
@@ -115,9 +115,9 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
                 setIssueProperty={this.setIssueProperty}
                 togglePopup={this.props.togglePopup}
               />
-            </li>
+            </div>
           )}
-          <li className="issue-meta">
+          <div className="issue-meta">
             <IssueTransition
               hasTransitions={hasTransitions}
               isOpen={this.props.currentPopup === 'transition' && hasTransitions}
@@ -125,8 +125,8 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               onChange={this.handleTransition}
               togglePopup={this.props.togglePopup}
             />
-          </li>
-          <li className="issue-meta">
+          </div>
+          <div className="issue-meta">
             <IssueAssign
               canAssign={canAssign}
               isOpen={this.props.currentPopup === 'assign' && canAssign}
@@ -134,13 +134,13 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               onAssign={this.props.onAssign}
               togglePopup={this.props.togglePopup}
             />
-          </li>
+          </div>
           {!isSecurityHotspot && issue.effort && (
-            <li className="issue-meta">
+            <div className="issue-meta">
               <span className="issue-meta-label">
                 {translateWithParameters('issue.x_effort', issue.effort)}
               </span>
-            </li>
+            </div>
           )}
           {canComment && (
             <IssueCommentAction
@@ -152,9 +152,9 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               toggleComment={this.toggleComment}
             />
           )}
-        </ul>
-        <ul className="list-inline">
-          <li className="issue-meta js-issue-tags">
+        </div>
+        <div className="list-inline">
+          <div className="issue-meta js-issue-tags">
             <IssueTags
               canSetTags={canSetTags}
               isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
@@ -162,8 +162,8 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               onChange={this.props.onChange}
               togglePopup={this.props.togglePopup}
             />
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
     );
   }

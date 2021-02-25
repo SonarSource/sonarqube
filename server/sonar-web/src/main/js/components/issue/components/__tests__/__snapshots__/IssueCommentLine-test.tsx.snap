@@ -39,6 +39,11 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
   <div
     className="issue-comment-age"
   >
+    <span
+      className="a11y-hidden"
+    >
+      issue.comment.posted_on
+    </span>
     <DateFromNow
       date="2017-03-01T09:36:01+0100"
     />
@@ -76,6 +81,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
         }
       >
         <EditButton
+          aria-label="issue.comment.edit"
           className="js-issue-comment-edit button-small"
           onClick={[Function]}
         />
@@ -94,6 +100,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
         }
       >
         <DeleteButton
+          aria-label="issue.comment.delete"
           className="js-issue-comment-delete button-small"
           onClick={[Function]}
         />
@@ -130,6 +137,11 @@ exports[`should render correctly a comment that is not updatable 1`] = `
   <div
     className="issue-comment-age"
   >
+    <span
+      className="a11y-hidden"
+    >
+      issue.comment.posted_on
+    </span>
     <DateFromNow
       date="2017-03-01T09:36:01+0100"
     />
@@ -167,6 +179,11 @@ exports[`should render correctly a comment that is updatable 1`] = `
   <div
     className="issue-comment-age"
   >
+    <span
+      className="a11y-hidden"
+    >
+      issue.comment.posted_on
+    </span>
     <DateFromNow
       date="2017-03-01T09:36:01+0100"
     />
@@ -204,6 +221,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
         }
       >
         <EditButton
+          aria-label="issue.comment.edit"
           className="js-issue-comment-edit button-small"
           onClick={[Function]}
         />
@@ -222,6 +240,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
         }
       >
         <DeleteButton
+          aria-label="issue.comment.delete"
           className="js-issue-comment-delete button-small"
           onClick={[Function]}
         />

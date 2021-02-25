@@ -57,6 +57,7 @@ export default class SimilarIssuesFilter extends React.PureComponent<Props> {
           overlay={<SimilarIssuesPopup issue={this.props.issue} onFilter={this.handleFilter} />}>
           <ButtonLink
             aria-label={translate('issue.filter_similar_issues')}
+            aria-expanded={this.props.isOpen}
             className="issue-action issue-action-with-options js-issue-filter"
             onClick={this.togglePopup}
             title={translate('issue.filter_similar_issues')}>

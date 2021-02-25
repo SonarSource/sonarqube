@@ -21,6 +21,7 @@ import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setIssueTransition } from '../../../api/issues';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
@@ -69,6 +70,11 @@ export default class IssueTransition extends React.PureComponent<Props> {
               />
             }>
             <ButtonLink
+              aria-label={translateWithParameters(
+                'issue.transition.status_x_click_to_change',
+                translate('issue.status', issue.status)
+              )}
+              aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-transition"
               onClick={this.toggleSetTransition}>
               <StatusHelper
@@ -81,14 +87,14 @@ export default class IssueTransition extends React.PureComponent<Props> {
           </Toggler>
         </div>
       );
-    } else {
-      return (
-        <StatusHelper
-          className="issue-meta-label"
-          resolution={issue.resolution}
-          status={issue.status}
-        />
-      );
     }
+
+    return (
+      <StatusHelper
+        className="issue-meta-label"
+        resolution={issue.resolution}
+        status={issue.status}
+      />
+    );
   }
 }

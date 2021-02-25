@@ -53,7 +53,7 @@ export default class IssueAssign extends React.PureComponent<Props> {
             <Avatar
               className="little-spacer-right"
               hash={issue.assigneeAvatar}
-              name={issue.assigneeName || issue.assignee}
+              name={assigneeName}
               size={16}
             />
           </span>
@@ -70,15 +70,27 @@ export default class IssueAssign extends React.PureComponent<Props> {
   }
 
   render() {
-    if (this.props.canAssign) {
+    const { canAssign, isOpen, issue } = this.props;
+    const assigneeName = issue.assigneeName || issue.assignee;
+
+    if (canAssign) {
       return (
         <div className="dropdown">
           <Toggler
             closeOnEscape={true}
             onRequestClose={this.handleClose}
-            open={this.props.isOpen && this.props.canAssign}
+            open={isOpen}
             overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}>
             <ButtonLink
+              aria-expanded={isOpen}
+              aria-label={
+                assigneeName
+                  ? translateWithParameters(
+                      'issue.assign.assigned_to_x_click_to_change',
+                      assigneeName
+                    )
+                  : translate('issue.assign.unassigned_click_to_assign')
+              }
               className="issue-action issue-action-with-options js-issue-assign"
               onClick={this.toggleAssign}>
               {this.renderAssignee()}
@@ -87,8 +99,8 @@ export default class IssueAssign extends React.PureComponent<Props> {
           </Toggler>
         </div>
       );
-    } else {
-      return this.renderAssignee();
     }
+
+    return this.renderAssignee();
   }
 }

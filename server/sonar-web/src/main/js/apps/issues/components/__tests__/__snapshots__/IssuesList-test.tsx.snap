@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `
-<div>
+<ul>
   <ListItem
     checked={false}
     issue={
@@ -123,5 +123,5 @@ exports[`should render correctly 2`] = `
     }
     selected={false}
   />
-</div>
+</ul>
 `;

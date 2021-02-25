@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { collapsePath, limitComponentName } from 'sonar-ui-common/helpers/path';
 import { getSelectedLocation } from '../utils';
 
@@ -42,7 +43,12 @@ export default function ComponentBreadcrumbs({
   const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
 
   return (
-    <div className="component-name text-ellipsis">
+    <div
+      aria-label={translateWithParameters(
+        'issues.on_file_x',
+        `${displayProject ? issue.projectName + ', ' : ''}${componentName}`
+      )}
+      className="component-name text-ellipsis">
       <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
 
       {displayProject && (

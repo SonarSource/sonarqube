@@ -5,8 +5,7 @@ exports[`should render hotspots correctly 1`] = `
   className="issue hotspot selected"
   data-issue="AVsae-CQS-9G3txfbFN2"
   onClick={[Function]}
-  role="listitem"
-  tabIndex={0}
+  role="group"
 >
   <IssueTitleBar
     issue={
@@ -86,8 +85,7 @@ exports[`should render issues correctly 1`] = `
   className="issue selected"
   data-issue="AVsae-CQS-9G3txfbFN2"
   onClick={[Function]}
-  role="listitem"
-  tabIndex={0}
+  role="group"
 >
   <IssueTitleBar
     issue={

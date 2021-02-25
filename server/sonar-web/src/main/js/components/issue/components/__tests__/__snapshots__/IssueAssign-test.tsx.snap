@@ -24,6 +24,8 @@ exports[`should open the popup when the button is clicked 2`] = `
     }
   >
     <ButtonLink
+      aria-expanded={true}
+      aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
       className="issue-action issue-action-with-options js-issue-assign"
       onClick={[Function]}
     >
@@ -65,6 +67,8 @@ exports[`should render a fallback assignee display if assignee info are not avai
     }
   >
     <ButtonLink
+      aria-expanded={false}
+      aria-label="issue.assign.unassigned_click_to_assign"
       className="issue-action issue-action-with-options js-issue-assign"
       onClick={[Function]}
     >
@@ -96,6 +100,8 @@ exports[`should render with the action 1`] = `
     }
   >
     <ButtonLink
+      aria-expanded={false}
+      aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
       className="issue-action issue-action-with-options js-issue-assign"
       onClick={[Function]}
     >

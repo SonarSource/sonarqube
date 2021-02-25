@@ -22,7 +22,7 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setIssueType } from '../../../api/issues';
 import { colors } from '../../../app/theme';
 import { IssueResponse } from '../../../types/issues';
@@ -64,6 +64,11 @@ export default class IssueType extends React.PureComponent<Props> {
             open={this.props.isOpen && this.props.canSetType}
             overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}>
             <ButtonLink
+              aria-label={translateWithParameters(
+                'issue.type.type_x_click_to_change',
+                translate('issue.type', issue.type)
+              )}
+              aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-set-type"
               onClick={this.toggleSetType}>
               <IssueTypeIcon
@@ -77,13 +82,13 @@ export default class IssueType extends React.PureComponent<Props> {
           </Toggler>
         </div>
       );
-    } else {
-      return (
-        <span>
-          <IssueTypeIcon className="little-spacer-right" query={issue.type} />
-          {translate('issue.type', issue.type)}
-        </span>
-      );
     }
+
+    return (
+      <span>
+        <IssueTypeIcon className="little-spacer-right" query={issue.type} />
+        {translate('issue.type', issue.type)}
+      </span>
+    );
   }
 }

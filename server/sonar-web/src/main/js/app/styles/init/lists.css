@@ -46,7 +46,8 @@ ol.list-styled {
   list-style: none;
 }
 
-.list-inline > li {
+ul.list-inline > li,
+div.list-inline > div {
   display: inline-block;
   vertical-align: top;
   padding-right: 5px;

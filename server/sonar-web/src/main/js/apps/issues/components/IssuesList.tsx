@@ -70,7 +70,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div>
+      <ul>
         {issues.map((issue, index) => (
           <ListItem
             branchLike={branchLike}
@@ -88,7 +88,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
             selected={selectedIssue != null && selectedIssue.key === issue.key}
           />
         ))}
-      </div>
+      </ul>
     );
   }
 }

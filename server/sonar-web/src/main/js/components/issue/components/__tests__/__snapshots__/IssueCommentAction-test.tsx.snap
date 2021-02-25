@@ -29,6 +29,8 @@ exports[`should open the popup when the button is clicked 1`] = `
     }
   >
     <ButtonLink
+      aria-expanded={true}
+      aria-label="issue.comment.add_comment"
       className="issue-action js-issue-comment"
       onClick={[Function]}
     >
@@ -59,6 +61,8 @@ exports[`should render correctly 1`] = `
     }
   >
     <ButtonLink
+      aria-expanded={false}
+      aria-label="issue.comment.add_comment"
       className="issue-action js-issue-comment"
       onClick={[Function]}
     >

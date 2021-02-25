@@ -95,7 +95,7 @@ export default class ListItem extends React.PureComponent<Props> {
     const displayComponent = !previousIssue || previousIssue.component !== issue.component;
 
     return (
-      <div className="issues-workspace-list-item">
+      <li className="issues-workspace-list-item">
         {displayComponent && (
           <div className="issues-workspace-list-component note">
             <ComponentBreadcrumbs component={component} issue={this.props.issue} />
@@ -113,7 +113,7 @@ export default class ListItem extends React.PureComponent<Props> {
           openPopup={this.props.openPopup}
           selected={this.props.selected}
         />
-      </div>
+      </li>
     );
   }
 }
