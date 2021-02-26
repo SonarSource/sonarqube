@@ -77,6 +77,8 @@ The _--version_ argument is optional. If it is omitted the latest version will b
 
 There are two versions of the SonarScanner for .NET. In the following commands, you need to pass an [authentication token](/user-guide/user-token/) using the `sonar.login` property.
 
+### "Classic" .NET Framework Invocation
+
 The first version is based on the "classic" .NET Framework. To use it, execute the following commands from the root folder of your project:
 
 ```
@@ -85,7 +87,9 @@ MSBuild.exe <path to solution.sln> /t:Rebuild
 SonarScanner.MSBuild.exe end /d:sonar.login="myAuthenticationToken"
 ```
 
-Note: On Mac OS or Linux, you can also use `mono <path to SonarScanner.MSBuild.exe>`.
+Note: On macOS or Linux, you can also use `mono <path to SonarScanner.MSBuild.exe>`.
+
+### .NET Core and .NET Core Global Tool Invocation
 
 The second version is based on .NET Core which has a very similar usage:
 
@@ -105,6 +109,14 @@ dotnet build <path to solution.sln>
 dotnet sonarscanner end /d:sonar.login="myAuthenticationToken"
 ```
 
+In summary, the invocation of the SonarScanner for .NET will depend on the scanner flavor:
+
+ Scanner Flavor | Invocation
+ --- | ---
+ .NET 5 | `dotnet <path to SonarScanner.MSBuild.dll>` etc.
+ .NET Core Global Tool | `dotnet sonarscanner begin` etc.
+ .NET Core 2.0+ | `dotnet <path to SonarScanner.MSBuild.dll>` etc.
+ .NET Framework 4.6+|`SonarScanner.MSBuild.exe begin` etc.
 
 
 Notes:
