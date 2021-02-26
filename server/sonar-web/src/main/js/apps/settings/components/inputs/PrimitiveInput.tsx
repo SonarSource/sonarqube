@@ -26,6 +26,7 @@ import {
   isDefaultOrInherited
 } from '../../utils';
 import InputForBoolean from './InputForBoolean';
+import InputForJSON from './InputForJSON';
 import InputForNumber from './InputForNumber';
 import InputForPassword from './InputForPassword';
 import InputForSingleSelectList from './InputForSingleSelectList';
@@ -37,7 +38,7 @@ const typeMapping: {
 } = {
   STRING: InputForString,
   TEXT: InputForText,
-  JSON: InputForText,
+  JSON: InputForJSON,
   PASSWORD: InputForPassword,
   BOOLEAN: InputForBoolean,
   INTEGER: InputForNumber,
