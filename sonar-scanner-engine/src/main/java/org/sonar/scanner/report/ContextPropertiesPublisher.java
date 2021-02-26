@@ -19,25 +19,31 @@
  */
 package org.sonar.scanner.report;
 
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.scanner.scm.ScmConfiguration;
+
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 
 public class ContextPropertiesPublisher implements ReportPublisherStep {
-
   private final ContextPropertiesCache cache;
   private final DefaultConfiguration config;
+  private final ScmConfiguration scmConfiguration;
 
-  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config) {
+  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config, ScmConfiguration scmConfiguration) {
     this.cache = cache;
     this.config = config;
+    this.scmConfiguration = scmConfiguration;
   }
 
   @Override
@@ -45,7 +51,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     MapEntryToContextPropertyFunction transformer = new MapEntryToContextPropertyFunction();
 
     // properties defined programmatically by plugins
-    Stream<ScannerReport.ContextProperty> fromCache = cache.getAll().entrySet().stream().map(transformer);
+    Stream<ScannerReport.ContextProperty> fromCache = Stream.concat(cache.getAll().entrySet().stream(), Stream.of(constructScmInfo())).map(transformer);
 
     // properties that are automatically included to report so that
     // they can be included to webhook payloads
@@ -54,6 +60,15 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
       .map(transformer);
 
     writer.writeContextProperties(Stream.concat(fromCache, fromSettings).collect(Collectors.toList()));
+  }
+
+  private Map.Entry<String, String> constructScmInfo() {
+    ScmProvider scmProvider = scmConfiguration.provider();
+    if (scmProvider != null) {
+      return new AbstractMap.SimpleEntry<>(SONAR_ANALYSIS_DETECTEDSCM, scmProvider.key());
+    } else {
+      return new AbstractMap.SimpleEntry<>(SONAR_ANALYSIS_DETECTEDSCM, "undetected");
+    }
   }
 
   private static final class MapEntryToContextPropertyFunction implements Function<Map.Entry<String, String>, ScannerReport.ContextProperty> {

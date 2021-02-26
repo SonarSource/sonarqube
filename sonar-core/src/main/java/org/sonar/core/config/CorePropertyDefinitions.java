@@ -34,6 +34,7 @@ import static org.sonar.api.PropertyType.STRING;
 public class CorePropertyDefinitions {
 
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
+  public static final String SONAR_ANALYSIS_DETECTEDSCM = "sonar.analysis.detectedscm";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
 

@@ -37,6 +37,7 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +57,8 @@ public class TelemetryDataJsonWriterTest {
       .setNclocByLanguage(Collections.emptyMap())
       .build())
     .setNcloc(42L)
-    .setExternalAuthenticationProviders(Arrays.asList("github", "gitlab"))
+    .setExternalAuthenticationProviders(asList("github", "gitlab"))
+    .setProjectCountByScm(Collections.emptyMap())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);
 
@@ -216,6 +218,23 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
+  public void write_project_count_by_scm() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setProjectCountByScm(ImmutableMap.of("git", 5L, "svn", 4L, "cvs", 3L, "undetected", 2L))
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"projectCountByScm\": ["
+      + "{ \"scm\":\"git\", \"count\":5},"
+      + "{ \"scm\":\"svn\", \"count\":4},"
+      + "{ \"scm\":\"cvs\", \"count\":3},"
+      + "{ \"scm\":\"undetected\", \"count\":2},"
+      + "]}");
+  }
+
+  @Test
   public void write_project_stats_by_language() {
     int projectCount = random.nextInt(8909);
     Map<String, Long> countByLanguage = IntStream.range(0, 1 + random.nextInt(10))
@@ -368,7 +387,7 @@ public class TelemetryDataJsonWriterTest {
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 

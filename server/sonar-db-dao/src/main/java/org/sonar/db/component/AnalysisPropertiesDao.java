@@ -63,6 +63,10 @@ public class AnalysisPropertiesDao implements Dao {
     }
   }
 
+  public List<ProjectCountPerAnalysisPropertyValue> selectProjectCountPerAnalysisPropertyValueInLastAnalysis(DbSession session, String analysisPropertyKey) {
+    return getMapper(session).selectProjectCountPerAnalysisPropertyValueInLastAnalysis(analysisPropertyKey);
+  }
+
   private static boolean mustBeStoredInClob(String value) {
     return value.length() > VARCHAR_MAXSIZE;
   }

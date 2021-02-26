@@ -54,6 +54,7 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
+import org.sonar.db.component.ProjectCountPerAnalysisPropertyValue;
 import org.sonar.db.component.ProjectLinkMapper;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ScrapAnalysisPropertyDto;
@@ -197,6 +198,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
+    confBuilder.loadAlias("ProjectCountPerAnalysisPropertyValue", ProjectCountPerAnalysisPropertyValue.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);

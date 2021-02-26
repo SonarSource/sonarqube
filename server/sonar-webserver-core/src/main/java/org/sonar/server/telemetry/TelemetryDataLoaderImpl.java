@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -40,6 +41,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.ProjectCountPerAnalysisPropertyValue;
 import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
@@ -74,13 +76,13 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
+                                 PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
     this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, configuration, dockerSupport, null);
   }
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-    DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
+                                 PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
+                                 DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -137,7 +139,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
       data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
       data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
-
+      Map<String, Long> projectCountPerScmDetected = dbClient.analysisPropertiesDao()
+        .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM)
+        .stream()
+        .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
+      data.setProjectCountByScm(projectCountPerScmDetected);
     }
 
     setSecurityCustomConfigIfPresent(data);

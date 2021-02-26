@@ -25,13 +25,15 @@ import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class AnalysisPropertiesDaoTest {
   private static final long NOW = 1_000L;
@@ -159,6 +161,32 @@ public class AnalysisPropertiesDaoTest {
     assertThat(result).containsExactlyInAnyOrder(propertyDtos.toArray(new AnalysisPropertyDto[0]));
   }
 
+  @Test
+  public void selectProjectCountPerAnalysisPropertyValueInLastAnalysis_should_return_correct_values() {
+    final String analysisPropertyKey = "key";
+    for (int i = 0; i < 7; i++) {
+      final int index = i;
+      ProjectDto project = dbTester.components().insertPrivateProjectDto();
+      dbTester.components().insertSnapshot(project, s -> s.setLast(true).setUuid("uuid" + index));
+    }
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid0").setUuid("0"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("svn").setAnalysisUuid("uuid1").setUuid("1"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid2").setUuid("2"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid3").setUuid("3"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid4").setUuid("4"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid5").setUuid("5"));
+
+    List<ProjectCountPerAnalysisPropertyValue> result = underTest.selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, analysisPropertyKey);
+
+    assertThat(result)
+      .extracting(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("git", 3L),
+        tuple("svn", 1L),
+        tuple("undetected", 2L)
+      );
+  }
+
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {
     AnalysisPropertyDto analysisPropertyDto = newAnalysisPropertyDto(valueLength, randomAlphanumeric(40));
     underTest.insert(dbSession, analysisPropertyDto);
@@ -171,7 +199,7 @@ public class AnalysisPropertiesDaoTest {
       .setKey(randomAlphanumeric(512))
       .setUuid(randomAlphanumeric(40))
       .setValue(randomAlphanumeric(valueLength))
-      .setCreatedAt( 1_000L);
+      .setCreatedAt(1_000L);
   }
 
   private void compareFirstValueWith(AnalysisPropertyDto analysisPropertyDto) {

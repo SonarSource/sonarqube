@@ -21,6 +21,18 @@
       analysis_uuid = #{analysisUuid}
   </select>
 
+  <select id="selectProjectCountPerAnalysisPropertyValueInLastAnalysis" parameterType="string" resultType="ProjectCountPerAnalysisPropertyValue">
+    select
+      ap.text_value as "propertyValue",
+      count(ap.text_value) as "count"
+    from components cp
+    inner join snapshots s on s.component_uuid = cp.uuid
+    inner join analysis_properties ap on ap.analysis_uuid = s.uuid
+    where
+      s.islast = ${_true} and ap.kee = #{analysisPropertyKey, jdbcType=VARCHAR}
+    group by ap.text_value
+  </select>
+
   <insert id="insertAsEmpty" parameterType="map" useGeneratedKeys="false">
     INSERT INTO analysis_properties (
       uuid,

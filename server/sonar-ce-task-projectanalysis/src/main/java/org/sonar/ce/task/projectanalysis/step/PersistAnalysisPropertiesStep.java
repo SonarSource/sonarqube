@@ -32,10 +32,10 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 
 /**
  * Persist analysis properties
- * Only properties starting with "sonar.analysis" or "sonar.pullrequest" will be persisted in database
  */
 public class PersistAnalysisPropertiesStep implements ComputationStep {
 
@@ -47,7 +47,7 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
   private final UuidFactory uuidFactory;
 
   public PersistAnalysisPropertiesStep(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder,
-    BatchReportReader reportReader, UuidFactory uuidFactory) {
+                                       BatchReportReader reportReader, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.reportReader = reportReader;
@@ -61,7 +61,7 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
       it.forEachRemaining(
         contextProperty -> {
           String propertyKey = contextProperty.getKey();
-          if (propertyKey.startsWith(SONAR_ANALYSIS) || propertyKey.startsWith(SONAR_PULL_REQUEST)) {
+          if (propertyKey.startsWith(SONAR_ANALYSIS) || propertyKey.startsWith(SONAR_PULL_REQUEST) || SONAR_ANALYSIS_DETECTEDSCM.equals(propertyKey)) {
             analysisPropertyDtos.add(new AnalysisPropertyDto()
               .setUuid(uuidFactory.create())
               .setKey(propertyKey)

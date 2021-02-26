@@ -19,18 +19,27 @@
  */
 package org.sonar.db.component;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+public class ProjectCountPerAnalysisPropertyValue {
+  private String propertyValue;
+  private Long count;
 
-public interface AnalysisPropertiesMapper {
+  public ProjectCountPerAnalysisPropertyValue() {
+    //nothing to do here
+  }
 
-  List<AnalysisPropertyDto> selectByAnalysisUuid(@Param("analysisUuid") String analysisUuid);
+  public String getPropertyValue() {
+    return propertyValue;
+  }
 
-  void insertAsEmpty(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
+  public void setPropertyValue(String propertyValue) {
+    this.propertyValue = propertyValue;
+  }
 
-  void insertAsClob(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
+  public Long getCount() {
+    return count;
+  }
 
-  void insertAsText(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
-
-  List<ProjectCountPerAnalysisPropertyValue> selectProjectCountPerAnalysisPropertyValueInLastAnalysis(@Param("analysisPropertyKey") String analysisPropertyKey);
+  public void setCount(Long count) {
+    this.count = count;
+  }
 }

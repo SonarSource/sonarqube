@@ -48,14 +48,13 @@ public class StandaloneSystemInfoWriterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SystemInfoSection section1 = mock(SystemInfoSection.class);
-  private SystemInfoSection section2 = mock(SystemInfoSection.class);
-  private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
-  private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
-  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
-  private TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
-
-  private StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(telemetry, ceHttpClient, healthChecker, dataJsonWriter, section1, section2);
+  private final SystemInfoSection section1 = mock(SystemInfoSection.class);
+  private final SystemInfoSection section2 = mock(SystemInfoSection.class);
+  private final CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
+  private final TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
+  private final TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
+  private final TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
+  private final StandaloneSystemInfoWriter underTest = new StandaloneSystemInfoWriter(telemetry, ceHttpClient, healthChecker, dataJsonWriter, section1, section2);
 
   @Test
   public void write_json() {
@@ -79,10 +78,9 @@ public class StandaloneSystemInfoWriterTest {
     underTest.write(jsonWriter);
     jsonWriter.endObject();
     // response does not contain empty "Section Three"
-    assertThat(writer.toString()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
+    assertThat(writer).hasToString("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
       "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"usingBranches\":false," +
-      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"installationDate\":0," +
-      "\"installationVersion\":\"\",\"docker\":false}}");
+      "\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
   }
 
   private void logInAsSystemAdministrator() {

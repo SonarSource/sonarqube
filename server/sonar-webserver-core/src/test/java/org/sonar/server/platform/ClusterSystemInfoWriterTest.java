@@ -42,13 +42,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ClusterSystemInfoWriterTest {
-  private GlobalInfoLoader globalInfoLoader = mock(GlobalInfoLoader.class);
-  private AppNodesInfoLoader appNodesInfoLoader = mock(AppNodesInfoLoader.class);
-  private SearchNodesInfoLoader searchNodesInfoLoader = mock(SearchNodesInfoLoader.class);
-  private HealthChecker healthChecker = mock(HealthChecker.class);
-  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
-  private TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
-  private ClusterSystemInfoWriter underTest = new ClusterSystemInfoWriter(globalInfoLoader, appNodesInfoLoader,
+  private final GlobalInfoLoader globalInfoLoader = mock(GlobalInfoLoader.class);
+  private final AppNodesInfoLoader appNodesInfoLoader = mock(AppNodesInfoLoader.class);
+  private final SearchNodesInfoLoader searchNodesInfoLoader = mock(SearchNodesInfoLoader.class);
+  private final HealthChecker healthChecker = mock(HealthChecker.class);
+  private final TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
+  private final TelemetryDataJsonWriter dataJsonWriter = new TelemetryDataJsonWriter();
+  private final ClusterSystemInfoWriter underTest = new ClusterSystemInfoWriter(globalInfoLoader, appNodesInfoLoader,
     searchNodesInfoLoader, healthChecker, telemetry, dataJsonWriter);
 
   @Before
@@ -68,13 +68,13 @@ public class ClusterSystemInfoWriterTest {
     underTest.write(jsonWriter);
     jsonWriter.endObject();
 
-    assertThat(writer.toString()).isEqualTo("{\"Health\":\"GREEN\","
+    assertThat(writer).hasToString("{\"Health\":\"GREEN\","
       + "\"Health Causes\":[],\"\":{\"name\":\"globalInfo\"},"
       + "\"Application Nodes\":[{\"Name\":\"appNodes\",\"\":{\"name\":\"appNodes\"}}],"
       + "\"Search Nodes\":[{\"Name\":\"searchNodes\",\"\":{\"name\":\"searchNodes\"}}],"
       + "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],"
       + "\"userCount\":0,\"projectCount\":0,\"usingBranches\":false,\"ncloc\":0,\"projectCountByLanguage\":[]," +
-      "\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
+      "\"nclocByLanguage\":[],\"almIntegrationCount\":[],\"externalAuthProviders\":[],\"projectCountByScm\":[],\"installationDate\":0,\"installationVersion\":\"\",\"docker\":false}}");
   }
 
   private static NodeInfo createNodeInfo(String name) {

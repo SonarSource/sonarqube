@@ -26,6 +26,8 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class TelemetryDataJsonWriter {
 
+  public static final String COUNT = "count";
+
   public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
     json.beginObject();
     json.prop("id", statistics.getServerId());
@@ -55,7 +57,7 @@ public class TelemetryDataJsonWriter {
     statistics.getProjectCountByLanguage().forEach((language, count) -> {
       json.beginObject();
       json.prop("language", language);
-      json.prop("count", count);
+      json.prop(COUNT, count);
       json.endObject();
     });
     json.endArray();
@@ -73,7 +75,7 @@ public class TelemetryDataJsonWriter {
     statistics.getAlmIntegrationCountByAlm().forEach((alm, count) -> {
       json.beginObject();
       json.prop("alm", alm);
-      json.prop("count", count);
+      json.prop(COUNT, count);
       json.endObject();
     });
     json.endArray();
@@ -91,6 +93,16 @@ public class TelemetryDataJsonWriter {
     json.name("externalAuthProviders");
     json.beginArray();
     statistics.getExternalAuthenticationProviders().forEach(json::value);
+    json.endArray();
+
+    json.name("projectCountByScm");
+    json.beginArray();
+    statistics.getProjectCountByScm().forEach((scm, count) -> {
+      json.beginObject();
+      json.prop("scm", scm);
+      json.prop(COUNT, count);
+      json.endObject();
+    });
     json.endArray();
 
     if (statistics.getInstallationDate() != null) {
