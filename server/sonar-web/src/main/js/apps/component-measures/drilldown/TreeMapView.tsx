@@ -51,6 +51,7 @@ interface State {
 const HEIGHT = 500;
 const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
 const LEVEL_COLORS = [colors.red, colors.orange, colors.green, colors.gray71];
+const NA_GRADIENT = `linear-gradient(-45deg, ${colors.gray71} 25%, ${colors.gray60} 25%, ${colors.gray60} 50%, ${colors.gray71} 50%, ${colors.gray71} 75%, ${colors.gray60} 75%, ${colors.gray60} 100%)`;
 
 export default class TreeMapView extends React.PureComponent<Props, State> {
   state: State;
@@ -89,14 +90,14 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           return undefined;
         }
         return {
-          color:
-            colorValue !== undefined
-              ? (colorScale as Function)(colorValue)
-              : colors.secondFontColor,
+          color: colorValue ? (colorScale as Function)(colorValue) : undefined,
+          gradient: !colorValue ? NA_GRADIENT : undefined,
           icon: <QualifierIcon fill={colors.baseFontColor} qualifier={component.qualifier} />,
           key: component.refKey || component.key,
           label: component.name,
           size: sizeValue,
+          measureValue: colorValue,
+          metric,
           tooltip: this.getTooltip({
             colorMetric: metric,
             colorValue,
@@ -176,9 +177,9 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     return (
       <ColorGradientLegend
         className="measure-details-treemap-legend"
-        colorNA={colors.secondFontColor}
+        showColorNA={true}
         colorScale={colorScale}
-        height={20}
+        height={30}
         width={200}
       />
     );
@@ -196,14 +197,14 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         : null;
     return (
       <div className="measure-details-treemap">
-        <ul className="list-inline note spacer-bottom">
-          <li>
+        <div className="display-flex-start note spacer-bottom">
+          <span>
             {translateWithParameters(
               'component_measures.legend.color_x',
               getLocalizedMetricName(metric)
             )}
-          </li>
-          <li>
+          </span>
+          <span className="spacer-left flex-1">
             {translateWithParameters(
               'component_measures.legend.size_x',
               translate(
@@ -212,9 +213,9 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
                 'name'
               )
             )}
-          </li>
-          <li className="pull-right">{this.renderLegend()}</li>
-        </ul>
+          </span>
+          <span>{this.renderLegend()}</span>
+        </div>
         <AutoSizer disableHeight={true}>
           {({ width }) => (
             <TreeMap
