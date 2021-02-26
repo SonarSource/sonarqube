@@ -1,0 +1,157 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.navbar-latest-notification {
+  flex: 0 1 240px;
+  text-align: right;
+  overflow: hidden;
+}
+
+.navbar-latest-notification-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: var(--gridSize);
+  padding-left: 50px;
+  height: 28px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  vertical-align: middle;
+  font-size: var(--smallFontSize);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sonarcloudBlack500);
+  background-color: #000;
+  border-radius: 3px 0 0 3px;
+  cursor: pointer;
+}
+
+.navbar-latest-notification-wrapper:hover {
+  color: var(--sonarcloudBlack300);
+}
+
+.navbar-latest-notification-wrapper .badge-info {
+  position: absolute;
+  margin-right: var(--gridSize);
+  left: 6px;
+  top: 6px;
+}
+
+.navbar-latest-notification-wrapper .label {
+  display: block;
+  max-width: 330px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-latest-notification-dismiss .navbar-icon {
+  height: 28px;
+  background-color: #000;
+  border-radius: 0 3px 3px 0;
+  padding: var(--gridSize) 7px !important;
+  margin-left: 1px;
+  margin-right: var(--gridSize);
+  color: var(--sonarcloudBlack500) !important;
+}
+
+.navbar-latest-notification-dismiss .navbar-icon:hover {
+  color: var(--sonarcloudBlack300) !important;
+}
+
+.notifications-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  background: var(--sonarcloudBlack200);
+}
+
+.notifications-sidebar-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(2 * var(--gridSize));
+  border-bottom: 1px solid var(--sonarcloudBlack250);
+  background-color: var(--sonarcloudBlack100);
+}
+
+.notifications-sidebar-top h3 {
+  font-weight: normal;
+  font-size: var(--bigFontSize);
+}
+
+.notifications-sidebar-content {
+  flex: 1 1;
+  overflow-y: auto;
+}
+
+.notifications-sidebar-footer {
+  padding-top: var(--gridSize);
+  border-top: 1px solid var(--sonarcloudBlack250);
+  flex: 0 0 40px;
+}
+
+.notifications-sidebar-slice h4 {
+  padding: calc(2 * var(--gridSize));
+  padding-bottom: calc(var(--gridSize) / 2);
+  background-color: var(--sonarcloudBlack200);
+  font-weight: normal;
+  font-size: var(--smallFontSize);
+  text-align: right;
+  color: var(--sonarcloudBlack500);
+}
+
+.notifications-sidebar-slice .feature:last-of-type {
+  border-bottom: 1px solid var(--sonarcloudBlack250);
+}
+
+.notifications-sidebar-slice .feature {
+  padding: calc(2 * var(--gridSize));
+  background-color: var(--sonarcloudBlack100);
+  border-top: 1px solid var(--sonarcloudBlack250);
+  overflow: hidden;
+}
+
+.notifications-sidebar-slice.unread .feature {
+  background-color: #e6f6ff;
+  border-color: #cee4f2;
+}
+
+.notifications-sidebar-slice .learn-more {
+  clear: both;
+  float: right;
+  margin-top: var(--gridSize);
+}
+
+.notifications-sidebar-slice .categories li {
+  display: inline-block;
+  padding: 4px;
+  margin-right: var(--gridSize);
+  font-size: 9px;
+  line-height: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 3px;
+}

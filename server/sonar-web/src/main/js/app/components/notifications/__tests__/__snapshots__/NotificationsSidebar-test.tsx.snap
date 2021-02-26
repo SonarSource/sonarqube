@@ -1,0 +1,269 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#Feature should render correctly 1`] = `
+<div
+  className="feature"
+>
+  <ul
+    className="categories spacer-bottom"
+  >
+    <li
+      key="BitBucket"
+      style={
+        Object {
+          "backgroundColor": "#0000ff",
+        }
+      }
+    >
+      BitBucket
+    </li>
+  </ul>
+  <span>
+    BitBucket branch decoration
+  </span>
+  <a
+    className="learn-more"
+    href="http://example.com"
+    rel="noopener noreferrer nofollow"
+    target="_blank"
+  >
+    learn_more
+  </a>
+</div>
+`;
+
+exports[`#Feature should render correctly 2`] = `
+<div
+  className="feature"
+>
+  <ul
+    className="categories spacer-bottom"
+  >
+    <li
+      key="Java"
+      style={
+        Object {
+          "backgroundColor": "#ff0000",
+        }
+      }
+    >
+      Java
+    </li>
+    <li
+      key="Rules"
+      style={
+        Object {
+          "backgroundColor": "#00ff00",
+        }
+      }
+    >
+      Rules
+    </li>
+  </ul>
+  <span>
+    10 new Java rules
+  </span>
+</div>
+`;
+
+exports[`#Notification should render correctly 1`] = `
+<div
+  className="notifications-sidebar-slice"
+>
+  <h4>
+    <DateFormatter
+      date="2018-04-05"
+      long={false}
+    />
+  </h4>
+  <Feature
+    feature={
+      Object {
+        "categories": Array [
+          Object {
+            "color": "#0000ff",
+            "name": "BitBucket",
+          },
+        ],
+        "description": "BitBucket branch decoration",
+        "readMore": "http://example.com",
+      }
+    }
+    key="0"
+  />
+</div>
+`;
+
+exports[`#Notification should render correctly 2`] = `
+<div
+  className="notifications-sidebar-slice unread"
+>
+  <h4>
+    <DateFormatter
+      date="2018-04-05"
+      long={false}
+    />
+  </h4>
+  <Feature
+    feature={
+      Object {
+        "categories": Array [
+          Object {
+            "color": "#0000ff",
+            "name": "BitBucket",
+          },
+        ],
+        "description": "BitBucket branch decoration",
+        "readMore": "http://example.com",
+      }
+    }
+    key="0"
+  />
+</div>
+`;
+
+exports[`#NotificationSidebar should render correctly if there are new features 1`] = `
+<Modal
+  contentLabel="embed_docs.whats_new"
+  onRequestClose={[MockFunction]}
+>
+  <div
+    className="notifications-sidebar"
+  >
+    <div
+      className="notifications-sidebar-top"
+    >
+      <h3>
+        embed_docs.whats_new
+      </h3>
+      <ClearButton
+        className="button-tiny"
+        iconProps={
+          Object {
+            "size": 12,
+            "thin": true,
+          }
+        }
+        onClick={[MockFunction]}
+      />
+    </div>
+    <div
+      className="notifications-sidebar-content"
+    >
+      <div
+        className="text-center"
+      >
+        <DeferredSpinner
+          className="big-spacer-top"
+          timeout={200}
+        />
+      </div>
+    </div>
+  </div>
+</Modal>
+`;
+
+exports[`#NotificationSidebar should render correctly if there are new features 2`] = `
+<Modal
+  contentLabel="embed_docs.whats_new"
+  onRequestClose={[MockFunction]}
+>
+  <div
+    className="notifications-sidebar"
+  >
+    <div
+      className="notifications-sidebar-top"
+    >
+      <h3>
+        embed_docs.whats_new
+      </h3>
+      <ClearButton
+        className="button-tiny"
+        iconProps={
+          Object {
+            "size": 12,
+            "thin": true,
+          }
+        }
+        onClick={[MockFunction]}
+      />
+    </div>
+    <div
+      className="notifications-sidebar-content"
+    >
+      <Notification
+        key="2018-04-06"
+        notification={
+          Object {
+            "features": Array [
+              Object {
+                "categories": Array [
+                  Object {
+                    "color": "#ff0000",
+                    "name": "Java",
+                  },
+                  Object {
+                    "color": "#00ff00",
+                    "name": "Rules",
+                  },
+                ],
+                "description": "10 new Java rules",
+              },
+              Object {
+                "categories": Array [
+                  Object {
+                    "color": "#0000ff",
+                    "name": "BitBucket",
+                  },
+                ],
+                "description": "BitBucket branch decoration",
+                "readMore": "http://example.com",
+              },
+            ],
+            "notification": "10 Java rules, Github checks, Security Hotspots, BitBucket branch decoration",
+            "publicationDate": "2018-04-06",
+          }
+        }
+        unread={true}
+      />
+      <Notification
+        key="2018-04-05"
+        notification={
+          Object {
+            "features": Array [
+              Object {
+                "categories": Array [
+                  Object {
+                    "color": "#0000ff",
+                    "name": "BitBucket",
+                  },
+                ],
+                "description": "BitBucket branch decoration",
+                "readMore": "http://example.com",
+              },
+            ],
+            "notification": "Some other notification",
+            "publicationDate": "2018-04-05",
+          }
+        }
+        unread={true}
+      />
+    </div>
+    <div
+      className="notifications-sidebar-footer"
+    >
+      <div
+        className="spacer-top note text-center"
+      >
+        <a
+          className="spacer-left"
+          href="#"
+          onClick={[MockFunction]}
+        >
+          show_more
+        </a>
+      </div>
+    </div>
+  </div>
+</Modal>
+`;

@@ -10,6 +10,16 @@ SonarScanners running in GitLab CI/CD, Azure Pipelines, Cirrus CI, and Jenkins w
 [[warning]]
 | Automatic configuration is disabled if any branch or pull request properties have been set manually.
 
+## Keeping your "master" branch history when upgrading from Community Edition to a commercial edition
+
+In Community Edition, your analyzed branch is named "master" by default. 
+
+When upgrading to a current commercial edition version, automatic branch and pull request configuration creates branches based on their names in your code repository. If the name of your Main Branch (master) in SonarQube doesn't match the branch's name in your code repository, the history of your Main Branch won't be taken on by the branch you analyze. 
+
+**Before running analysis**, you can keep your branch history by renaming the Main Branch in SonarQube with the name of the branch in your code repository at **Project Settings > Branches and Pull Requests**. 
+
+For example, if your Main Branch is named "master" in SonarQube but "develop" in your code repository, rename your Main Branch "develop" in SonarQube.
+
 ## GitLab CI/CD
 For GitLab CI/CD configuration, see the [GitLab ALM integration](/analysis/gitlab-integration/) page.
 

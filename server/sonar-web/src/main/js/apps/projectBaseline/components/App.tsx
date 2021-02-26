@@ -34,7 +34,6 @@ import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
 interface Props {
-  branchLike: Branch;
   branchLikes: BranchLike[];
   branchesEnabled?: boolean;
   canAdmin?: boolean;
@@ -121,15 +120,13 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   fetchLeakPeriodSetting() {
-    const { branchLike, branchesEnabled, component } = this.props;
-
     this.setState({ loading: true });
 
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: branchesEnabled ? undefined : branchLike.name,
-        project: component.key
+        branch: !this.props.branchesEnabled ? 'master' : undefined,
+        project: this.props.component.key
       })
     ]).then(
       ([generalSetting, setting]) => {
@@ -229,7 +226,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchesEnabled, canAdmin, component, branchLike } = this.props;
+    const { branchesEnabled, canAdmin, component } = this.props;
     const {
       analysis,
       branchList,
@@ -259,7 +256,6 @@ export default class App extends React.PureComponent<Props, State> {
               {generalSetting && overrideGeneralSetting !== undefined && (
                 <ProjectBaselineSelector
                   analysis={analysis}
-                  branch={branchLike}
                   branchList={branchList}
                   branchesEnabled={branchesEnabled}
                   component={component.key}

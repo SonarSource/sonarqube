@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly if there are new features, and the user has not opted out 1`] = `
+<Fragment>
+  <li
+    className="navbar-latest-notification"
+    onClick={[MockFunction]}
+  >
+    <div
+      className="navbar-latest-notification-wrapper"
+    >
+      <span
+        className="badge badge-info"
+      >
+        new
+      </span>
+      <span
+        className="label"
+      >
+        10 Java rules, Github checks, Security Hotspots, BitBucket branch decoration
+      </span>
+    </div>
+  </li>
+  <li
+    className="navbar-latest-notification-dismiss"
+  >
+    <a
+      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <ClearIcon
+        size={12}
+        thin={true}
+      />
+    </a>
+  </li>
+  <li>
+    <a
+      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <NotificationIcon
+        hasUnread={true}
+      />
+    </a>
+  </li>
+</Fragment>
+`;
+
+exports[`should render correctly if there are new features, but the user has opted out 1`] = `
+<Fragment>
+  <li>
+    <a
+      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <NotificationIcon
+        hasUnread={false}
+      />
+    </a>
+  </li>
+</Fragment>
+`;
+
+exports[`should render correctly if there are no new unread features 1`] = `
+<Fragment>
+  <li>
+    <a
+      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <NotificationIcon
+        hasUnread={false}
+      />
+    </a>
+  </li>
+</Fragment>
+`;

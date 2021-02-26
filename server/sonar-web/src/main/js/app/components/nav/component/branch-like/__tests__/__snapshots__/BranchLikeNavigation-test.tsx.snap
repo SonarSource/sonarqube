@@ -8,7 +8,6 @@ exports[`should render correctly 1`] = `
     branchesEnabled={false}
     component={
       Object {
-        "analysisDate": "2021-01-01 01:01:01",
         "breadcrumbs": Array [],
         "key": "my-project",
         "name": "MyProject",
@@ -118,7 +117,6 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
         }
         component={
           Object {
-            "analysisDate": "2021-01-01 01:01:01",
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",
@@ -160,7 +158,6 @@ exports[`should render the menu trigger if branches are enabled 1`] = `
         branchesEnabled={true}
         component={
           Object {
-            "analysisDate": "2021-01-01 01:01:01",
             "breadcrumbs": Array [],
             "key": "my-project",
             "name": "MyProject",

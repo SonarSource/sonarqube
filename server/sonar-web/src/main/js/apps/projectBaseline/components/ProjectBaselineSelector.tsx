@@ -34,7 +34,6 @@ import BranchAnalysisList from './BranchAnalysisList';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
-  branch: Branch;
   branchList: Branch[];
   branchesEnabled?: boolean;
   component: string;
@@ -83,7 +82,6 @@ function branchToOption(b: Branch) {
 export default function ProjectBaselineSelector(props: ProjectBaselineSelectorProps) {
   const {
     analysis,
-    branch,
     branchList,
     branchesEnabled,
     component,
@@ -165,7 +163,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         {selected === 'SPECIFIC_ANALYSIS' && (
           <BranchAnalysisList
             analysis={analysis || ''}
-            branch={branch.name}
+            branch="master"
             component={component}
             onSelectAnalysis={props.onSelectAnalysis}
           />

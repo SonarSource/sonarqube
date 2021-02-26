@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import ProjectBaselineSelector, { ProjectBaselineSelectorProps } from '../ProjectBaselineSelector';
 
 it('should render correctly', () => {
@@ -105,7 +105,6 @@ it('should disable the save button when date is invalid', () => {
 function shallowRender(props: Partial<ProjectBaselineSelectorProps> = {}) {
   return shallow(
     <ProjectBaselineSelector
-      branch={mockBranch()}
       branchList={[mockMainBranch()]}
       branchesEnabled={true}
       component=""

@@ -60,8 +60,6 @@ message Metadata {
 
   map<string, int32> not_analyzed_files_by_language = 20;
 
-  string gitDefaultMainBranch = 21;
-
   message QProfile {
     string key = 1;
     string name = 2;

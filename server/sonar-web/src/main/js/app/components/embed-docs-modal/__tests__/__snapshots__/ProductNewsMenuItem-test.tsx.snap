@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should load the product news 1`] = `
+<a
+  className="rich-item new-loading"
+>
+  <div
+    className="flex-1"
+  >
+    <div
+      className="display-inline-flex-center"
+    >
+      <h4>
+        embed_docs.latest_blog
+      </h4>
+      <span
+        className="note spacer-left"
+      >
+        <PlaceholderBar
+          color="#aaa"
+          width={60}
+        />
+      </span>
+    </div>
+    <p
+      className="little-spacer-bottom"
+    >
+      <PlaceholderBar
+        color="#aaa"
+        width={84}
+      />
+       
+      <PlaceholderBar
+        color="#aaa"
+        width={48}
+      />
+       
+      <PlaceholderBar
+        color="#aaa"
+        width={24}
+      />
+       
+      <PlaceholderBar
+        color="#aaa"
+        width={72}
+      />
+       
+      <PlaceholderBar
+        color="#aaa"
+        width={24}
+      />
+       
+      <PlaceholderBar
+        color="#aaa"
+        width={48}
+      />
+    </p>
+  </div>
+  <ChevronRightIcon
+    className="flex-0"
+  />
+</a>
+`;
+
+exports[`should load the product news 2`] = `
+<a
+  className="rich-item"
+  href="https://blog.sonarsource.com/my-product-news"
+  rel="noopener noreferrer"
+  target="_blank"
+>
+  <div
+    className="flex-1"
+  >
+    <div
+      className="display-inline-flex-center"
+    >
+      <h4>
+        embed_docs.latest_blog
+      </h4>
+      <DateFormatter
+        date="2018-04-06T12:07:19+0000"
+      >
+        <Component />
+      </DateFormatter>
+    </div>
+    <p
+      className="little-spacer-bottom"
+    >
+      My Product News
+    </p>
+  </div>
+  <ChevronRightIcon
+    className="flex-0"
+  />
+</a>
+`;

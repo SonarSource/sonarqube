@@ -99,21 +99,6 @@ public class GitScmProvider extends ScmProvider {
 
   @CheckForNull
   @Override
-  public String getMainBranch(Path rootBaseDir) {
-    try (Repository repo = buildRepo(rootBaseDir)) {
-      Set<String> branches = repo.getConfig().getSubsections("branch");
-      if(!branches.isEmpty()) {
-        // .git/config file will have the default branch at the time of cloning as its first branch
-        return branches.iterator().next();
-      }
-    } catch (IOException e) {
-      LOG.debug("Couldn't build a repo in order to retrieve the default branch name", e);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  @Override
   public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);

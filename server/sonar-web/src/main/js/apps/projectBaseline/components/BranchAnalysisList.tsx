@@ -27,7 +27,7 @@ import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
 
 interface Props {
   analysis: string;
-  branch?: string;
+  branch: string;
   component: string;
   onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
 }
