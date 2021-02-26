@@ -107,7 +107,7 @@
 }
 
 .concise-issue-box:not(.selected) .location-index {
-  background-color: #ccc;
+  background-color: var(--secondFontColor);
 }
 
 .concise-issue-locations {
