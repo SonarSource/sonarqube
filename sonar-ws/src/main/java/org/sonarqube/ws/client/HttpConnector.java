@@ -164,14 +164,19 @@ public class HttpConnector implements WsConnector {
       .newBuilder();
   }
 
-  private static OkHttpClient prepareOkHttpClient(OkHttpClient okHttpClient, WsRequest wsRequest) {
-    if (!wsRequest.getTimeOutInMs().isPresent()) {
+  static OkHttpClient prepareOkHttpClient(OkHttpClient okHttpClient, WsRequest wsRequest) {
+    if (!wsRequest.getTimeOutInMs().isPresent() && !wsRequest.getWriteTimeOutInMs().isPresent()) {
       return okHttpClient;
     }
+    OkHttpClient.Builder builder = okHttpClient.newBuilder();
+    if (wsRequest.getTimeOutInMs().isPresent()) {
+      builder.readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS);
+    }
+    if (wsRequest.getWriteTimeOutInMs().isPresent()) {
+      builder.writeTimeout(wsRequest.getWriteTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS);
+    }
 
-    return okHttpClient.newBuilder()
-      .readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS)
-      .build();
+    return builder.build();
   }
 
   private static void completeUrlQueryParameters(BaseRequest<?> request, HttpUrl.Builder urlBuilder) {
@@ -197,7 +202,7 @@ public class HttpConnector implements WsConnector {
     try {
       return call.execute();
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to request " + okRequest.url(), e);
+      throw new IllegalStateException("Fail to request url: " + okRequest.url(), e);
     }
   }
 

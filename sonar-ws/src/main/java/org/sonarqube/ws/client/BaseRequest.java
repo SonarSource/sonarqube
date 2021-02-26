@@ -50,7 +50,8 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   private final DefaultParameters parameters = new DefaultParameters();
   private final DefaultHeaders headers = new DefaultHeaders();
   private OptionalInt timeOutInMs = OptionalInt.empty();
-
+  private OptionalInt writeTimeOutInMs = OptionalInt.empty();
+  
   BaseRequest(String path) {
     this.path = path;
   }
@@ -72,6 +73,16 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
   public SELF setTimeOutInMs(int timeOutInMs) {
     this.timeOutInMs = OptionalInt.of(timeOutInMs);
+    return (SELF) this;
+  }
+
+  @Override
+  public OptionalInt getWriteTimeOutInMs() {
+    return writeTimeOutInMs;
+  }
+
+  public SELF setWriteTimeOutInMs(int writeTimeOutInMs) {
+    this.writeTimeOutInMs = OptionalInt.of(writeTimeOutInMs);
     return (SELF) this;
   }
 

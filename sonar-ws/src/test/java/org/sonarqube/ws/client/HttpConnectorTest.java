@@ -30,6 +30,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.ConnectionSpec;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -287,6 +288,15 @@ public class HttpConnectorTest {
 
     assertThat(underTest.okHttpClient().readTimeoutMillis()).isEqualTo(42);
     assertThat(underTest.okHttpClient().connectTimeoutMillis()).isEqualTo(74);
+  }
+
+  @Test
+  public void override_timeouts_with_request() {
+    OkHttpClient client = new OkHttpClient.Builder().build();
+    WsRequest request = new PostRequest("abc").setWriteTimeOutInMs(123).setTimeOutInMs(234);
+    client = underTest.prepareOkHttpClient(client, request);
+    assertThat(client.writeTimeoutMillis()).isEqualTo(123);
+    assertThat(client.readTimeoutMillis()).isEqualTo(234);
   }
 
   @Test

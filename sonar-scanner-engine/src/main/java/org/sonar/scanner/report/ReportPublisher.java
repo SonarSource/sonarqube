@@ -61,7 +61,7 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 
 public class ReportPublisher implements Startable {
-
+  private static final int DEFAULT_WRITE_TIMEOUT = 30_000;
   private static final Logger LOG = Loggers.get(ReportPublisher.class);
   private static final String CHARACTERISTIC = "characteristic";
   private static final String DASHBOARD = "dashboard";
@@ -200,6 +200,7 @@ public class ReportPublisher implements Startable {
 
     WsResponse response;
     try {
+      post.setWriteTimeOutInMs(DEFAULT_WRITE_TIMEOUT);
       response = wsClient.call(post).failIfNotSuccessful();
     } catch (HttpException e) {
       throw MessageException.of(String.format("Failed to upload report - %s", DefaultScannerWsClient.createErrorMessage(e)));

@@ -53,6 +53,7 @@ import org.sonarqube.ws.client.WsResponse;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,6 +93,18 @@ public class ReportPublisherTest {
     when(properties.metadataFilePath()).thenReturn(reportTempFolder.newDir().toPath()
       .resolve("folder")
       .resolve("report-task.txt"));
+  }
+
+  @Test
+  public void use_30s_write_timeout() {
+    MockWsResponse submitMockResponse = new MockWsResponse();
+    submitMockResponse.setContent(Ce.SubmitResponse.newBuilder().setTaskId("task-1234").build().toByteArray());
+    when(wsClient.call(any())).thenReturn(submitMockResponse);
+
+    underTest.start();
+    underTest.execute();
+    
+    verify(wsClient).call(argThat(req -> req.getWriteTimeOutInMs().orElse(0) == 30_000));
   }
 
   @Test
