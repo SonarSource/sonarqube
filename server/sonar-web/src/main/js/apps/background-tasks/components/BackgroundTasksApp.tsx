@@ -113,10 +113,10 @@ export default class BackgroundTasksApp extends React.PureComponent<Props, State
     const parameters = mapFiltersToParameters(filters);
 
     if (this.props.component) {
-      parameters.componentId = this.props.component.id;
+      parameters.component = this.props.component.key;
     }
 
-    Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(
+    Promise.all([getActivity(parameters), getStatus(parameters.component)]).then(
       ([{ tasks }, status]) => {
         if (this.mounted) {
           this.setState({

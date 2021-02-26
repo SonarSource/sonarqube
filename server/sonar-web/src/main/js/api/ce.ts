@@ -43,13 +43,9 @@ export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
 }
 
 export function getStatus(
-  componentId?: string
+  component?: string
 ): Promise<{ failing: number; inProgress: number; pending: number; pendingTime?: number }> {
-  const data = {};
-  if (componentId) {
-    Object.assign(data, { componentId });
-  }
-  return getJSON('/api/ce/activity_status', data);
+  return getJSON('/api/ce/activity_status', { component });
 }
 
 export function getTask(id: string, additionalFields?: string[]): Promise<Task> {
