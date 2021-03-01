@@ -22,8 +22,9 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
 import { renderStepContent } from '../../jenkins/test-utils';
+import { BuildTools } from '../../types';
 import ProjectKeyStep, { ProjectKeyStepProps } from '../ProjectKeyStep';
-import { BuildTools } from '../types';
+import { GITLAB_BUILDTOOLS_LIST } from '../types';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -31,7 +32,7 @@ it('should render correctly', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
-it.each([[BuildTools.Maven], [BuildTools.Gradle], [BuildTools.Other]])(
+it.each(GITLAB_BUILDTOOLS_LIST.map(tool => [tool]))(
   'should render correctly for build tool %s',
   buildTool => {
     expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();

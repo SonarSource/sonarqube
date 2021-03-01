@@ -1,5 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly for build tool dotnet 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="dotnet"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "dotnet",
+            "other",
+          ]
+        }
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
 exports[`should render correctly for build tool gradle 1`] = `
 <div
   className="boxed-group-inner"
@@ -18,6 +51,7 @@ exports[`should render correctly for build tool gradle 1`] = `
           Array [
             "maven",
             "gradle",
+            "dotnet",
             "other",
           ]
         }
@@ -85,6 +119,7 @@ exports[`should render correctly for build tool maven 1`] = `
           Array [
             "maven",
             "gradle",
+            "dotnet",
             "other",
           ]
         }
@@ -146,6 +181,7 @@ exports[`should render correctly for build tool other 1`] = `
           Array [
             "maven",
             "gradle",
+            "dotnet",
             "other",
           ]
         }
@@ -216,6 +252,7 @@ exports[`should render correctly: initial content 1`] = `
           Array [
             "maven",
             "gradle",
+            "dotnet",
             "other",
           ]
         }

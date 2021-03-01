@@ -80,6 +80,7 @@ exports[`should render correctly 1`] = `
   />
   <Connect(withAppState(YmlFileStep))
     open={false}
+    projectKey="my-project"
   />
 </Fragment>
 `;

@@ -26,7 +26,7 @@ import {
 } from '../../../types/alm-settings';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import ProjectKeyStep from './ProjectKeyStep';
-import { BuildTools } from './types';
+import { GitlabBuildTools } from './types';
 import YmlFileStep from './YmlFileStep';
 
 export enum Steps {
@@ -46,7 +46,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   const { baseUrl, component, currentUser, projectBinding } = props;
 
   const [step, setStep] = React.useState(Steps.PROJECT_KEY);
-  const [buildTool, setBuildTool] = React.useState<BuildTools | undefined>();
+  const [buildTool, setBuildTool] = React.useState<GitlabBuildTools | undefined>();
 
   // Failsafe; should never happen.
   if (!isProjectGitLabBindingResponse(projectBinding)) {
@@ -81,7 +81,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
         open={step === Steps.ENV_VARIABLES}
       />
 
-      <YmlFileStep buildTool={buildTool} open={step === Steps.YML} />
+      <YmlFileStep buildTool={buildTool} open={step === Steps.YML} projectKey={component.key} />
     </>
   );
 }

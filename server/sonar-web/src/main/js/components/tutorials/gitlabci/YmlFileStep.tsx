@@ -25,15 +25,21 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../hoc/withAppState';
 import Step from '../components/Step';
 import PipeCommand from './commands/PipeCommand';
-import { BuildTools } from './types';
+import { GitlabBuildTools } from './types';
 
 export interface YmlFileStepProps {
   appState: T.AppState;
-  buildTool?: BuildTools;
+  buildTool?: GitlabBuildTools;
   open: boolean;
+  projectKey: string;
 }
 
-export function YmlFileStep({ appState: { branchesEnabled }, buildTool, open }: YmlFileStepProps) {
+export function YmlFileStep({
+  appState: { branchesEnabled },
+  buildTool,
+  open,
+  projectKey
+}: YmlFileStepProps) {
   const renderForm = () => (
     <div className="boxed-group-inner">
       <div className="flex-columns">
@@ -61,7 +67,11 @@ export function YmlFileStep({ appState: { branchesEnabled }, buildTool, open }: 
               </div>
 
               <div className="big-spacer-bottom">
-                <PipeCommand buildTool={buildTool} branchesEnabled={branchesEnabled} />
+                <PipeCommand
+                  buildTool={buildTool}
+                  branchesEnabled={branchesEnabled}
+                  projectKey={projectKey}
+                />
               </div>
 
               <p className="little-spacer-bottom">

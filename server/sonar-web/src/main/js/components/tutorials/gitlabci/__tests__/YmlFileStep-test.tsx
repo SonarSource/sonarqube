@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderStepContent } from '../../jenkins/test-utils';
-import { BuildTools } from '../types';
+import { GITLAB_BUILDTOOLS_LIST } from '../types';
 import { YmlFileStep, YmlFileStepProps } from '../YmlFileStep';
 
 it('should render correctly', () => {
@@ -30,7 +30,7 @@ it('should render correctly', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
-it.each([[BuildTools.Maven], [BuildTools.Gradle], [BuildTools.Other]])(
+it.each(GITLAB_BUILDTOOLS_LIST.map(tool => [tool]))(
   'should render correctly for build tool %s',
   buildTool => {
     expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();
@@ -39,6 +39,11 @@ it.each([[BuildTools.Maven], [BuildTools.Gradle], [BuildTools.Other]])(
 
 function shallowRender(props: Partial<YmlFileStepProps> = {}) {
   return shallow<YmlFileStepProps>(
-    <YmlFileStep appState={mockAppState({ branchesEnabled: true })} open={true} {...props} />
+    <YmlFileStep
+      appState={mockAppState({ branchesEnabled: true })}
+      open={true}
+      projectKey="test"
+      {...props}
+    />
   );
 }

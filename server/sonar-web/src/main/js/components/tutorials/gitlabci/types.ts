@@ -17,9 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  // MSBuild = 'msbuild', // Not yet supported
-  Other = 'other'
-}
+
+import { BuildTools } from '../types';
+
+export type GitlabBuildTools =
+  | BuildTools.Maven
+  | BuildTools.Gradle
+  | BuildTools.DotNet
+  | BuildTools.Other;
+
+export const GITLAB_BUILDTOOLS_LIST: GitlabBuildTools[] = [
+  BuildTools.Maven,
+  BuildTools.Gradle,
+  BuildTools.DotNet,
+  BuildTools.Other
+];

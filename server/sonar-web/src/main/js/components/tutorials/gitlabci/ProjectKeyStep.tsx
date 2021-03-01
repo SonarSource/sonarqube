@@ -25,16 +25,17 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../common/CodeSnippet';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
-import { BuildTools } from './types';
+import { BuildTools } from '../types';
+import { GitlabBuildTools, GITLAB_BUILDTOOLS_LIST } from './types';
 
 export interface ProjectKeyStepProps {
-  buildTool?: BuildTools;
+  buildTool?: GitlabBuildTools;
   component: T.Component;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  setBuildTool: (tool: BuildTools) => void;
+  setBuildTool: (tool: GitlabBuildTools) => void;
 }
 
 const mavenSnippet = (key: string) => `<properties>
@@ -72,6 +73,13 @@ const filenameForBuildTool = {
 export default function ProjectKeyStep(props: ProjectKeyStepProps) {
   const { buildTool, component, finished, open } = props;
 
+  const buildToolSelect = (value: GitlabBuildTools) => {
+    props.setBuildTool(value);
+    if (value === BuildTools.DotNet) {
+      props.onDone();
+    }
+  };
+
   const renderForm = () => (
     <div className="boxed-group-inner">
       <ol className="list-styled">
@@ -80,12 +88,12 @@ export default function ProjectKeyStep(props: ProjectKeyStepProps) {
           <RenderOptions
             checked={buildTool}
             name="buildtool"
-            onCheck={value => props.setBuildTool(value as BuildTools)}
+            onCheck={buildToolSelect}
             optionLabelKey="onboarding.build"
-            options={Object.values(BuildTools)}
+            options={GITLAB_BUILDTOOLS_LIST}
           />
         </li>
-        {buildTool !== undefined && (
+        {buildTool !== undefined && buildTool !== BuildTools.DotNet && (
           <li className="abs-width-600">
             <FormattedMessage
               defaultMessage={translate(

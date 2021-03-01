@@ -19,30 +19,43 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
-import { BuildTools } from '../types';
+import { BuildTools } from '../../types';
+import { GitlabBuildTools } from '../types';
 
 export interface PipeCommandProps {
   branchesEnabled?: boolean;
-  buildTool: BuildTools;
+  buildTool: GitlabBuildTools;
+  projectKey: string;
 }
 
 const BUILD_TOOL_SPECIFIC = {
-  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: 'gradle sonarqube' },
+  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonarqube' },
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
-    script: `
+    script: () => `
     - mvn verify sonar:sonar`
+  },
+  [BuildTools.DotNet]: {
+    image: 'mcr.microsoft.com/dotnet/core/sdk:latest',
+    script: (projectKey: string) => `
+      - "apt-get update"
+      - "apt-get install --yes openjdk-11-jre"
+      - "dotnet tool install --global dotnet-sonarscanner"
+      - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
+      - "dotnet sonarscanner begin /k:\\"${projectKey}\\" /d:sonar.login=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
+      - "dotnet build"
+      - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""`
   },
   [BuildTools.Other]: {
     image: `
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]`,
-    script: `
+    script: () => `
     - sonar-scanner`
   }
 };
 
-export default function PipeCommand({ branchesEnabled, buildTool }: PipeCommandProps) {
+export default function PipeCommand({ projectKey, branchesEnabled, buildTool }: PipeCommandProps) {
   const onlyBlock = branchesEnabled
     ? `- merge_requests
     - master
@@ -60,7 +73,7 @@ export default function PipeCommand({ branchesEnabled, buildTool }: PipeCommandP
     key: "\${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: ${script}
+  script: ${script(projectKey)}
   allow_failure: true
   only:
     ${onlyBlock}

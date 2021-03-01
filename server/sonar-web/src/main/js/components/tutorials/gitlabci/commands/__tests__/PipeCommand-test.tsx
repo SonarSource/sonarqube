@@ -19,17 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { BuildTools } from '../../types';
+import { GITLAB_BUILDTOOLS_LIST } from '../../types';
 import PipeCommand from '../PipeCommand';
 
-it.each([[BuildTools.Gradle], [BuildTools.Maven], [BuildTools.Other]])(
-  'should render correctly for %s',
-  buildTool => {
-    expect(shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} />)).toMatchSnapshot(
-      'branches enabled'
-    );
-    expect(shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} />)).toMatchSnapshot(
-      'branches not enabled'
-    );
-  }
-);
+it.each(GITLAB_BUILDTOOLS_LIST.map(tool => [tool]))('should render correctly for %s', buildTool => {
+  expect(
+    shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} projectKey="test" />)
+  ).toMatchSnapshot('branches enabled');
+  expect(
+    shallow(<PipeCommand buildTool={buildTool} branchesEnabled={true} projectKey="test" />)
+  ).toMatchSnapshot('branches not enabled');
+});
