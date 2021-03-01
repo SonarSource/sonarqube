@@ -165,6 +165,19 @@ The following sections offer advanced configuration options when running the Son
 |     -v `pwd`/cacerts:/opt/java/openjdk/lib/security/cacerts \
 |     sonarsource/sonar-scanner-cli
 | ```
+|
+| Alternatively, you can create your own container that includes the modified `cacerts` file. Create a `Dockerfile` with the following contents:
+|
+| ```
+| FROM sonarsource/sonar-scanner-cli
+| COPY cacerts /opt/java/openjdk/lib/security/cacerts
+| ```
+|
+| Then, assuming both the `cacerts` and `Dockerfile` are in the current directory, create the new image with a command such as:
+| ```
+| docker build --tag our-custom/sonar-scanner-cli .
+| ```
+|
 
 ## Troubleshooting
 **Java heap space error or java.lang.OutOfMemoryError**  
@@ -182,4 +195,3 @@ Upgrade the version of Java being used for analysis or use one of the native pac
 
 **Property missing: `sonar.cs.analyzer.projectOutPaths'. No protobuf files will be loaded for this project.**  
 Scanner CLI is not able to analyze .NET projects. Please, use the SonarScanner for .NET. If you are running the SonarScanner for .NET, ensure that you are not hitting a known limitation.
-

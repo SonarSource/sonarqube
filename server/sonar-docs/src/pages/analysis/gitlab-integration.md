@@ -168,7 +168,13 @@ Click the scanner you're using below to expand the example configuration:
 |     - develop
 | ```
 |
-| **Note:** A project key has to be provided through `sonar-project.properties` or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
+|
+| **Project key**  
+| A project key has to be provided through `sonar-project.properties` or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
+|
+| **Self-signed certificates**  
+| If you secure your SonarQube instance with a self-signed certificate, you may need to build a custom image based on `sonarsource/sonar-scanner-cli`. See the section **Advanced Docker Configuration** within the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
+|
 
 #### **Failing the pipeline job when the Quality Gate fails**
 In order for the Quality Gate to fail on the GitLab side when it fails on the SonarQube side, the scanner needs to wait for the SonarQube Quality Gate status. To enable this, set the `sonar.qualitygate.wait=true` parameter in the `.gitlab-ci.yml` file. 
