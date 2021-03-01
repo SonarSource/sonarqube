@@ -46,8 +46,11 @@ import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
+import org.sonar.scanner.ci.vendors.AwsCodeBuild;
 import org.sonar.scanner.ci.vendors.AzureDevops;
+import org.sonar.scanner.ci.vendors.Bamboo;
 import org.sonar.scanner.ci.vendors.BitbucketPipelines;
+import org.sonar.scanner.ci.vendors.Bitrise;
 import org.sonar.scanner.ci.vendors.Buildkite;
 import org.sonar.scanner.ci.vendors.CircleCi;
 import org.sonar.scanner.ci.vendors.CirrusCi;
@@ -286,8 +289,11 @@ public class ProjectScanContainer extends ComponentContainer {
       // CI
       new CiConfigurationProvider(),
       AppVeyor.class,
+      AwsCodeBuild.class,
       AzureDevops.class,
+      Bamboo.class,
       BitbucketPipelines.class,
+      Bitrise.class,
       Buildkite.class,
       CircleCi.class,
       CirrusCi.class,

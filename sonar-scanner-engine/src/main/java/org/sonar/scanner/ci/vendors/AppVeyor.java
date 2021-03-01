@@ -26,7 +26,7 @@ import org.sonar.scanner.ci.CiVendor;
 
 /**
  * Support of https://www.appveyor.com
- *
+ * <p>
  * Environment variables: https://www.appveyor.com/docs/environment-variables/
  */
 public class AppVeyor implements CiVendor {
@@ -50,6 +50,6 @@ public class AppVeyor implements CiVendor {
   @Override
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable("APPVEYOR_REPO_COMMIT");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

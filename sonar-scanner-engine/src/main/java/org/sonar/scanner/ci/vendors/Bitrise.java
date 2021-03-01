@@ -19,37 +19,39 @@
  */
 package org.sonar.scanner.ci.vendors;
 
+import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-/**
- * Support of https://circleci.com
- * <p>
- * Environment variables: https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
- */
-public class CircleCi implements CiVendor {
+public class Bitrise implements CiVendor {
 
-  private final System2 system;
+  private final System2 system2;
 
-  public CircleCi(System2 system) {
-    this.system = system;
+  public Bitrise(System2 system2) {
+    this.system2 = system2;
   }
 
   @Override
   public String getName() {
-    return "CircleCI";
+    return "Bitrise";
   }
 
   @Override
   public boolean isDetected() {
-    return "true".equals(system.envVariable("CI")) && "true".equals(system.envVariable("CIRCLECI"));
+    return environmentVariableIsTrue("CI") && environmentVariableIsTrue("BITRISE_IO");
   }
 
   @Override
   public CiConfiguration loadConfiguration() {
-    String revision = system.envVariable("CIRCLE_SHA1");
+    String revision = system2.envVariable("BITRISE_GIT_COMMIT");
     return new CiConfigurationImpl(revision, getName());
+  }
+
+  private boolean environmentVariableIsTrue(String key) {
+    return Optional.ofNullable(system2.envVariable(key))
+      .map(Boolean::parseBoolean)
+      .orElse(false);
   }
 }

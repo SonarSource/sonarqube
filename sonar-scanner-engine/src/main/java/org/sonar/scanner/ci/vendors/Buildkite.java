@@ -26,7 +26,7 @@ import org.sonar.scanner.ci.CiVendor;
 
 /**
  * Support of https://buildkite.com
- *
+ * <p>
  * Environment variables: https://buildkite.com/docs/pipelines/environment-variables
  */
 public class Buildkite implements CiVendor {
@@ -50,6 +50,6 @@ public class Buildkite implements CiVendor {
   @Override
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable("BUILDKITE_COMMIT");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

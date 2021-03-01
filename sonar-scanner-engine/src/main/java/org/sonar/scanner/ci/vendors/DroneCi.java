@@ -26,7 +26,7 @@ import org.sonar.scanner.ci.CiVendor;
 
 /**
  * Support https://drone.io
- *
+ * <p>
  * Environment variables are documented at https://docs.drone.io/reference/environ/
  */
 public class DroneCi implements CiVendor {
@@ -49,6 +49,6 @@ public class DroneCi implements CiVendor {
   @Override
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable("DRONE_COMMIT_SHA");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

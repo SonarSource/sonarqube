@@ -28,7 +28,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * Support of https://travis-ci.com
- *
+ * <p>
  * Environment variables: https://docs.travis-ci.com/user/environment-variables/
  */
 public class TravisCi implements CiVendor {
@@ -58,6 +58,6 @@ public class TravisCi implements CiVendor {
       revision = system.envVariable("TRAVIS_PULL_REQUEST_SHA");
 
     }
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

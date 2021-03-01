@@ -139,12 +139,9 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
       data.setAlmIntegrationCountByAlm(countAlmUsage(dbSession));
       data.setExternalAuthenticationProviders(dbClient.userDao().selectExternalIdentityProviders(dbSession));
-      Map<String, Long> projectCountPerScmDetected = dbClient.analysisPropertiesDao()
-        .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM)
-        .stream()
-        .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
-      data.setProjectCountByScm(projectCountPerScmDetected);
       data.setSonarlintWeeklyUsers(dbClient.userDao().countSonarlintWeeklyUsers(dbSession));
+      addScmInformationToTelemetry(dbSession, data);
+      addCiInformationToTelemetry(dbSession, data);
     }
 
     setSecurityCustomConfigIfPresent(data);
@@ -172,6 +169,22 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
           .ifPresent(s -> customSecurityConfigs.add("csharp"));
         data.setCustomSecurityConfigs(customSecurityConfigs);
       });
+  }
+
+  private void addScmInformationToTelemetry(DbSession dbSession, TelemetryData.Builder data) {
+    Map<String, Long> projectCountPerScmDetected = dbClient.analysisPropertiesDao()
+      .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM)
+      .stream()
+      .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
+    data.setProjectCountByScm(projectCountPerScmDetected);
+  }
+
+  private void addCiInformationToTelemetry(DbSession dbSession, TelemetryData.Builder data) {
+    Map<String, Long> projectCountPerCiDetected = dbClient.analysisPropertiesDao()
+      .selectProjectCountPerAnalysisPropertyValueInLastAnalysis(dbSession, CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI)
+      .stream()
+      .collect(Collectors.toMap(ProjectCountPerAnalysisPropertyValue::getPropertyValue, ProjectCountPerAnalysisPropertyValue::getCount));
+    data.setProjectCountByCi(projectCountPerCiDetected);
   }
 
   private Map<String, Long> countAlmUsage(DbSession dbSession) {

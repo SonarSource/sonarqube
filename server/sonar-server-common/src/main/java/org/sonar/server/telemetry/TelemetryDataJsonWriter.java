@@ -95,6 +95,22 @@ public class TelemetryDataJsonWriter {
     statistics.getExternalAuthenticationProviders().forEach(json::value);
     json.endArray();
 
+    addScmInfo(json, statistics);
+    addCiInfo(json, statistics);
+
+    json.prop("sonarlintWeeklyUsers", statistics.sonarlintWeeklyUsers());
+
+    if (statistics.getInstallationDate() != null) {
+      json.prop("installationDate", statistics.getInstallationDate());
+    }
+    if (statistics.getInstallationVersion() != null) {
+      json.prop("installationVersion", statistics.getInstallationVersion());
+    }
+    json.prop("docker", statistics.isInDocker());
+    json.endObject();
+  }
+
+  private static void addScmInfo(JsonWriter json, TelemetryData statistics) {
     json.name("projectCountByScm");
     json.beginArray();
     statistics.getProjectCountByScm().forEach((scm, count) -> {
@@ -104,15 +120,17 @@ public class TelemetryDataJsonWriter {
       json.endObject();
     });
     json.endArray();
+  }
 
-    json.prop("sonarlintWeeklyUsers", statistics.sonarlintWeeklyUsers());
-    if (statistics.getInstallationDate() != null) {
-      json.prop("installationDate", statistics.getInstallationDate());
-    }
-    if (statistics.getInstallationVersion() != null) {
-      json.prop("installationVersion", statistics.getInstallationVersion());
-    }
-    json.prop("docker", statistics.isInDocker());
-    json.endObject();
+  private static void addCiInfo(JsonWriter json, TelemetryData statistics) {
+    json.name("projectCountByCI");
+    json.beginArray();
+    statistics.getProjectCountByCi().forEach((ci, count) -> {
+      json.beginObject();
+      json.prop("ci", ci);
+      json.prop(COUNT, count);
+      json.endObject();
+    });
+    json.endArray();
   }
 }

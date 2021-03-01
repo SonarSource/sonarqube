@@ -30,7 +30,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Support of https://github.com/features/actions
- *
+ * <p>
  * Environment variables: https://developer.github.com/actions/creating-github-actions/accessing-the-runtime-environment/#environment-variables
  */
 public class GithubActions implements CiVendor {
@@ -59,6 +59,6 @@ public class GithubActions implements CiVendor {
     if (isEmpty(revision)) {
       Loggers.get(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
     }
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

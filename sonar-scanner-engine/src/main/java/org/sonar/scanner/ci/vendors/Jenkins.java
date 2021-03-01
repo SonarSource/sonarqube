@@ -62,7 +62,7 @@ public class Jenkins implements CiVendor {
     // https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
     String revision = system.envVariable("ghprbActualCommit");
     if (StringUtils.isNotBlank(revision)) {
-      return new CiConfigurationImpl(revision);
+      return new CiConfigurationImpl(revision, getName());
     }
 
     revision = system.envVariable("GIT_COMMIT");
@@ -71,14 +71,14 @@ public class Jenkins implements CiVendor {
       if (StringUtils.isNotBlank(system.envVariable("CHANGE_ID"))) {
         String jenkinsGitPrSha1 = getJenkinsGitPrSha1();
         if (StringUtils.isNotBlank(jenkinsGitPrSha1)) {
-          return new CiConfigurationImpl(jenkinsGitPrSha1);
+          return new CiConfigurationImpl(jenkinsGitPrSha1, getName());
         }
       }
-      return new CiConfigurationImpl(revision);
+      return new CiConfigurationImpl(revision, getName());
     }
 
     revision = system.envVariable("SVN_COMMIT");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 
   private String getJenkinsGitPrSha1() {

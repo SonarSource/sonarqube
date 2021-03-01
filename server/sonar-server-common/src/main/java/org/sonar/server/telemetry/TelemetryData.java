@@ -44,6 +44,7 @@ public class TelemetryData {
   private final Map<String, Long> nclocByLanguage;
   private final List<String> externalAuthenticationProviders;
   private final Map<String, Long> projectCountByScm;
+  private final Map<String, Long> projectCountByCi;
   private final EditionProvider.Edition edition;
   private final String licenseType;
   private final Long installationDate;
@@ -77,6 +78,7 @@ public class TelemetryData {
     customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
     externalAuthenticationProviders = builder.externalAuthenticationProviders;
     projectCountByScm = builder.projectCountByScm;
+    projectCountByCi = builder.projectCountByCi;
   }
 
   public String getServerId() {
@@ -167,6 +169,10 @@ public class TelemetryData {
     return projectCountByScm;
   }
 
+  public Map<String, Long> getProjectCountByCi() {
+    return projectCountByCi;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -192,7 +198,7 @@ public class TelemetryData {
     private List<String> customSecurityConfigs;
     private List<String> externalAuthenticationProviders;
     private Map<String, Long> projectCountByScm;
-
+    private Map<String, Long> projectCountByCi;
 
     private Builder() {
       // enforce static factory method
@@ -210,6 +216,11 @@ public class TelemetryData {
 
     Builder setSonarlintWeeklyUsers(long sonarlintWeeklyUsers) {
       this.sonarlintWeeklyUsers = sonarlintWeeklyUsers;
+      return this;
+    }
+
+    Builder setProjectCountByCi(Map<String, Long> projectCountByCi) {
+      this.projectCountByCi = projectCountByCi;
       return this;
     }
 
@@ -309,6 +320,7 @@ public class TelemetryData {
       requireNonNull(usingBranches);
       requireNonNull(externalAuthenticationProviders);
       requireNonNull(projectCountByScm);
+      requireNonNull(projectCountByCi);
 
       return new TelemetryData(this);
     }

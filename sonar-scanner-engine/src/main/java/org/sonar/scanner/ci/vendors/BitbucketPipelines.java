@@ -49,6 +49,6 @@ public class BitbucketPipelines implements CiVendor {
   @Override
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable("BITBUCKET_COMMIT");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

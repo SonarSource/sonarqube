@@ -60,6 +60,7 @@ public class TelemetryDataJsonWriterTest {
     .setExternalAuthenticationProviders(asList("github", "gitlab"))
     .setProjectCountByScm(Collections.emptyMap())
     .setSonarlintWeeklyUsers(10)
+    .setProjectCountByCi(Collections.emptyMap())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);
 
@@ -241,6 +242,23 @@ public class TelemetryDataJsonWriterTest {
       + "{ \"scm\":\"svn\", \"count\":4},"
       + "{ \"scm\":\"cvs\", \"count\":3},"
       + "{ \"scm\":\"undetected\", \"count\":2},"
+      + "]}");
+  }
+
+  @Test
+  public void write_project_count_by_ci() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setProjectCountByCi(ImmutableMap.of("Bitbucket Pipelines", 5L, "Github Actions", 4L, "Jenkins", 3L, "undetected", 2L))
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"projectCountByCI\": ["
+      + "{ \"ci\":\"Bitbucket Pipelines\", \"count\":5},"
+      + "{ \"ci\":\"Github Actions\", \"count\":4},"
+      + "{ \"ci\":\"Jenkins\", \"count\":3},"
+      + "{ \"ci\":\"undetected\", \"count\":2},"
       + "]}");
   }
 

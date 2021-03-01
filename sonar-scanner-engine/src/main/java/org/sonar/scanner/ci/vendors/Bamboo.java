@@ -24,32 +24,27 @@ import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-/**
- * Support of https://circleci.com
- * <p>
- * Environment variables: https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
- */
-public class CircleCi implements CiVendor {
-
+public class Bamboo implements CiVendor {
   private final System2 system;
 
-  public CircleCi(System2 system) {
+  public Bamboo(System2 system) {
     this.system = system;
   }
 
   @Override
   public String getName() {
-    return "CircleCI";
+    return "Bamboo";
   }
+
 
   @Override
   public boolean isDetected() {
-    return "true".equals(system.envVariable("CI")) && "true".equals(system.envVariable("CIRCLECI"));
+    return system.envVariable("bamboo_buildNumber") != null;
   }
 
   @Override
   public CiConfiguration loadConfiguration() {
-    String revision = system.envVariable("CIRCLE_SHA1");
+    String revision = system.envVariable("bamboo_planRepository_revision");
     return new CiConfigurationImpl(revision, getName());
   }
 }

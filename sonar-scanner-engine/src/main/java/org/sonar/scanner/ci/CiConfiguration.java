@@ -29,6 +29,11 @@ import java.util.Optional;
 public interface CiConfiguration {
 
   /**
+   * Name of the CI environment
+   */
+  String getCiName();
+
+  /**
    * The revision that triggered the analysis. It should
    * be the revision as seen by end-user, but not the necessarily
    * the effective revision of the clone on disk (merge commit with

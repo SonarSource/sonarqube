@@ -49,6 +49,6 @@ public class SemaphoreCi implements CiVendor {
   @Override
   public CiConfiguration loadConfiguration() {
     String revision = system.envVariable("SEMAPHORE_GIT_SHA");
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

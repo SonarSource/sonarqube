@@ -28,8 +28,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class CiConfigurationProviderTest {
 
-  private MapSettings cli = new MapSettings();
-  private CiConfigurationProvider underTest = new CiConfigurationProvider();
+  private final MapSettings cli = new MapSettings();
+  private final CiConfigurationProvider underTest = new CiConfigurationProvider();
 
   @Test
   public void empty_configuration_if_no_ci_vendors() {
@@ -40,21 +40,21 @@ public class CiConfigurationProviderTest {
 
   @Test
   public void empty_configuration_if_no_ci_detected() {
-    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[] {new DisabledCiVendor("vendor1"), new DisabledCiVendor("vendor2")});
+    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[]{new DisabledCiVendor("vendor1"), new DisabledCiVendor("vendor2")});
 
     assertThat(ciConfiguration.getScmRevision()).isEmpty();
   }
 
   @Test
   public void configuration_defined_by_ci_vendor() {
-    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[] {new DisabledCiVendor("vendor1"), new EnabledCiVendor("vendor2")});
+    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[]{new DisabledCiVendor("vendor1"), new EnabledCiVendor("vendor2")});
 
     assertThat(ciConfiguration.getScmRevision()).hasValue(EnabledCiVendor.SHA);
   }
 
   @Test
   public void fail_if_multiple_ci_vendor_are_detected() {
-    Throwable thrown = catchThrowable(() -> underTest.provide(cli.asConfig(), new CiVendor[] {new EnabledCiVendor("vendor1"), new EnabledCiVendor("vendor2")}));
+    Throwable thrown = catchThrowable(() -> underTest.provide(cli.asConfig(), new CiVendor[]{new EnabledCiVendor("vendor1"), new EnabledCiVendor("vendor2")}));
 
     assertThat(thrown)
       .isInstanceOf(MessageException.class)
@@ -64,7 +64,7 @@ public class CiConfigurationProviderTest {
   @Test
   public void empty_configuration_if_auto_configuration_is_disabled() {
     cli.setProperty("sonar.ci.autoconfig.disabled", true);
-    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[] {new EnabledCiVendor("vendor1")});
+    CiConfiguration ciConfiguration = underTest.provide(cli.asConfig(), new CiVendor[]{new EnabledCiVendor("vendor1")});
 
     assertThat(ciConfiguration.getScmRevision()).isEmpty();
   }
@@ -112,7 +112,7 @@ public class CiConfigurationProviderTest {
 
     @Override
     public CiConfiguration loadConfiguration() {
-      return new CiConfigurationImpl(SHA);
+      return new CiConfigurationImpl(SHA, name);
     }
   }
 }

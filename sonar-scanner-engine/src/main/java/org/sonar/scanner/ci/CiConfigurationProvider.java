@@ -57,10 +57,15 @@ public class CiConfigurationProvider extends ProviderAdapter {
     return new EmptyCiConfiguration();
   }
 
-  private static class EmptyCiConfiguration implements CiConfiguration {
+  static class EmptyCiConfiguration implements CiConfiguration {
     @Override
     public Optional<String> getScmRevision() {
       return Optional.empty();
+    }
+
+    @Override
+    public String getCiName() {
+      return "undetected";
     }
   }
 }

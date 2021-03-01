@@ -20,46 +20,55 @@
 package org.sonar.scanner.report;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scm.ScmConfiguration;
 
+import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 
 public class ContextPropertiesPublisher implements ReportPublisherStep {
   private final ContextPropertiesCache cache;
   private final DefaultConfiguration config;
   private final ScmConfiguration scmConfiguration;
+  private final CiConfiguration ciConfiguration;
 
-  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config, ScmConfiguration scmConfiguration) {
+  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config, ScmConfiguration scmConfiguration,
+                                    CiConfiguration ciConfiguration) {
     this.cache = cache;
     this.config = config;
     this.scmConfiguration = scmConfiguration;
+    this.ciConfiguration = ciConfiguration;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    MapEntryToContextPropertyFunction transformer = new MapEntryToContextPropertyFunction();
-
-    // properties defined programmatically by plugins
-    Stream<ScannerReport.ContextProperty> fromCache = Stream.concat(cache.getAll().entrySet().stream(), Stream.of(constructScmInfo())).map(transformer);
-
+    List<Map.Entry<String, String>> properties = new ArrayList<>(cache.getAll().entrySet());
+    properties.add(constructScmInfo());
+    properties.add(constructCiInfo());
     // properties that are automatically included to report so that
     // they can be included to webhook payloads
-    Stream<ScannerReport.ContextProperty> fromSettings = config.getProperties().entrySet().stream()
+    properties.addAll(config.getProperties().entrySet()
+      .stream()
       .filter(e -> e.getKey().startsWith(CorePropertyDefinitions.SONAR_ANALYSIS))
-      .map(transformer);
+      .collect(Collectors.toList()));
 
-    writer.writeContextProperties(Stream.concat(fromCache, fromSettings).collect(Collectors.toList()));
+    writer.writeContextProperties(properties
+      .stream()
+      .map(e -> ScannerReport.ContextProperty.newBuilder()
+        .setKey(e.getKey())
+        .setValue(e.getValue())
+        .build())
+      .collect(Collectors.toList()));
   }
 
   private Map.Entry<String, String> constructScmInfo() {
@@ -71,12 +80,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     }
   }
 
-  private static final class MapEntryToContextPropertyFunction implements Function<Map.Entry<String, String>, ScannerReport.ContextProperty> {
-    private final ScannerReport.ContextProperty.Builder builder = ScannerReport.ContextProperty.newBuilder();
-
-    @Override
-    public ScannerReport.ContextProperty apply(@Nonnull Map.Entry<String, String> input) {
-      return builder.clear().setKey(input.getKey()).setValue(input.getValue()).build();
-    }
+  private Map.Entry<String, String> constructCiInfo() {
+    return new AbstractMap.SimpleEntry<>(SONAR_ANALYSIS_DETECTEDCI, ciConfiguration.getCiName());
   }
 }

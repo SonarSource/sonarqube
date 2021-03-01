@@ -29,7 +29,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Support https://cirrus-ci.org/
- *
+ * <p>
  * Environment variables are documented at https://cirrus-ci.org/guide/writing-tasks/#environment-variables
  */
 public class CirrusCi implements CiVendor {
@@ -57,6 +57,6 @@ public class CirrusCi implements CiVendor {
     if (isEmpty(revision)) {
       Loggers.get(getClass()).warn("Missing environment variable " + PROPERTY_COMMIT);
     }
-    return new CiConfigurationImpl(revision);
+    return new CiConfigurationImpl(revision, getName());
   }
 }

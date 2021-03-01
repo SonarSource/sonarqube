@@ -27,9 +27,19 @@ public class CiConfigurationImplTest {
 
   @Test
   public void getScmRevision() {
-    assertThat(new CiConfigurationImpl(null).getScmRevision()).isEmpty();
-    assertThat(new CiConfigurationImpl("").getScmRevision()).isEmpty();
-    assertThat(new CiConfigurationImpl("   ").getScmRevision()).isEmpty();
-    assertThat(new CiConfigurationImpl("a7bdf2d").getScmRevision()).hasValue("a7bdf2d");
+    assertThat(new CiConfigurationImpl(null, "test").getScmRevision()).isEmpty();
+    assertThat(new CiConfigurationImpl("", "test").getScmRevision()).isEmpty();
+    assertThat(new CiConfigurationImpl("   ", "test").getScmRevision()).isEmpty();
+    assertThat(new CiConfigurationImpl("a7bdf2d", "test").getScmRevision()).hasValue("a7bdf2d");
+  }
+
+  @Test
+  public void getNam_for_undetected_ci() {
+    assertThat(new CiConfigurationProvider.EmptyCiConfiguration().getCiName()).isEqualTo("undetected");
+  }
+
+  @Test
+  public void getName_for_detected_ci() {
+    assertThat(new CiConfigurationImpl(null, "test").getCiName()).isEqualTo("test");
   }
 }

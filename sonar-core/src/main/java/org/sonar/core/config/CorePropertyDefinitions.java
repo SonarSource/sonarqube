@@ -35,6 +35,7 @@ public class CorePropertyDefinitions {
 
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
   public static final String SONAR_ANALYSIS_DETECTEDSCM = "sonar.analysis.detectedscm";
+  public static final String SONAR_ANALYSIS_DETECTEDCI = "sonar.analysis.detectedci";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
 

@@ -68,6 +68,7 @@ public class TelemetryDaemonTest {
     .setAlmIntegrationCountByAlm(Collections.emptyMap())
     .setExternalAuthenticationProviders(singletonList("github"))
     .setProjectCountByScm(Collections.emptyMap())
+    .setProjectCountByCi(Collections.emptyMap())
     .setProjectMeasuresStatistics(ProjectMeasuresStatistics.builder()
       .setProjectCount(12)
       .setProjectCountByLanguage(Collections.emptyMap())
