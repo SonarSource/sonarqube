@@ -23,18 +23,21 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class DropOrganizationInRulesMetadataTest {
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrganizationInRulesMetadataTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrganizationInRulesMetadataTest.class, "schema.sql");
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database()));
 
-  private MigrationStep underTest = new DropOrganizationInRulesMetadata(dbTester.database());
+  private MigrationStep underTest = new DropOrganizationInRulesMetadata(db.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void column_has_been_dropped() throws SQLException {
     underTest.execute();
-    dbTester.assertColumnDoesNotExist("rules_metadata", "organization_uuid");
-    dbTester.assertPrimaryKey("rules_metadata", "pk_rules_metadata", "rule_uuid");
+    db.assertColumnDoesNotExist("rules_metadata", "organization_uuid");
+    db.assertPrimaryKey("rules_metadata", "pk_rules_metadata", "rule_uuid");
   }
 }

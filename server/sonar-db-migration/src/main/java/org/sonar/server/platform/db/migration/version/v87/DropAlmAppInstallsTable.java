@@ -20,9 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v87;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;

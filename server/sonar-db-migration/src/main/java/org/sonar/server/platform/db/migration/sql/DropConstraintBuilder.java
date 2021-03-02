@@ -51,6 +51,9 @@ public class DropConstraintBuilder {
   }
 
   public DropConstraintBuilder setName(String s) {
+    if (s.startsWith("pk_")) {
+      throw new IllegalArgumentException("This builder should not be used with primary keys");
+    }
     this.constraintName = s;
     return this;
   }
