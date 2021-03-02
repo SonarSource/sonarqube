@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class DropOrganizationsTableTest {
@@ -30,8 +32,9 @@ public class DropOrganizationsTableTest {
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropOrganizationsTableTest.class, "schema.sql");
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database()));
 
-  private MigrationStep underTest = new DropOrganizationsTable(db.database());
+  private MigrationStep underTest = new DropOrganizationsTable(db.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void execute() throws SQLException {
