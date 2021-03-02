@@ -84,7 +84,7 @@ public class GetGithubClientIdActionTest {
   public void fail_when_client_id_does_not_exist() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting(s -> s.setClientId(null));
 
     TestRequest request = ws.newRequest()
         .setParam(GetGithubClientIdAction.PARAM_ALM_SETTING, githubAlmSetting.getKey());

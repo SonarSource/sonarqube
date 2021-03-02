@@ -34,6 +34,8 @@ public class AlmSettingsTesting {
       .setKey(randomAlphanumeric(200))
       .setUrl(randomAlphanumeric(2000))
       .setAppId(randomNumeric(8))
+      .setClientId(randomNumeric(8))
+      .setClientSecret(randomAlphanumeric(80))
       .setPrivateKey(randomAlphanumeric(2000))
       .setAlm(ALM.GITHUB);
   }

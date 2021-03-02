@@ -63,7 +63,7 @@ public class ListDefinitionsActionTest {
   public void list_github_settings() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    AlmSettingDto almSetting1 = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting1 = db.almSettings().insertGitHubAlmSetting(s -> s.setClientId(""));
     AlmSettingDto almSetting2 = db.almSettings().insertGitHubAlmSetting(alm -> alm.setClientId("client_id").setClientSecret("client_secret"));
 
     ListDefinitionsWsResponse wsResponse = ws.newRequest().executeProtobuf(ListDefinitionsWsResponse.class);

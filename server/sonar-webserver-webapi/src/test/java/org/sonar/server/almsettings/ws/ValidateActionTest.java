@@ -138,7 +138,7 @@ public class ValidateActionTest {
 
   @Test
   public void github_validation_checks_missing_clientId() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientSecret("clientSecret")));
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(s -> s.setClientId(null)));
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSetting.getKey())
@@ -147,7 +147,7 @@ public class ValidateActionTest {
 
   @Test
   public void github_validation_checks_missing_clientSecret() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientId("clientId")));
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(s -> s.setClientSecret(null)));
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSetting.getKey())
