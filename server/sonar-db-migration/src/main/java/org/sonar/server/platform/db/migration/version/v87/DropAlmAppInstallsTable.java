@@ -20,22 +20,26 @@
 package org.sonar.server.platform.db.migration.version.v87;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropAlmAppInstallsTable extends DdlChange {
   private static final String TABLE_NAME = "alm_app_installs";
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  public DropAlmAppInstallsTable(Database db) {
+  public DropAlmAppInstallsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setTable(TABLE_NAME).setName("pk_alm_app_installs").build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, "uuid", false));
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("alm_app_installs_owner").build());
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("alm_app_installs_install").build());
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("alm_app_installs_external_id").build());
