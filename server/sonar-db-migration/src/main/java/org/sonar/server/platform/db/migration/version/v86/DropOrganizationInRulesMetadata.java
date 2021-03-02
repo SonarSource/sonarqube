@@ -20,22 +20,25 @@
 package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropOrganizationInRulesMetadata extends DdlChange {
   private static final String TABLE_NAME = "rules_metadata";
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  public DropOrganizationInRulesMetadata(Database db) {
+  public DropOrganizationInRulesMetadata(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setName("pk_rules_metadata").setTable(TABLE_NAME).build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, Arrays.asList("rule_uuid", "organization_uuid"), false));
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
     context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, "rule_uuid").build());
   }

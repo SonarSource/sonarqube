@@ -21,21 +21,23 @@ package org.sonar.server.platform.db.migration.version.v87;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropOrganizationAlmBindingsTable extends DdlChange {
   private static final String TABLE_NAME = "organization_alm_bindings";
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  public DropOrganizationAlmBindingsTable(Database db) {
+  public DropOrganizationAlmBindingsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setTable(TABLE_NAME).setName("pk_organization_alm_bindings").build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, "uuid", false));
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("org_alm_bindings_org").build());
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("org_alm_bindings_install").build());
     context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
