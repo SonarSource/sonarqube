@@ -23,18 +23,21 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class DropOrgMembersTableTest {
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrgMembersTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrgMembersTableTest.class, "schema.sql");
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new DbPrimaryKeyConstraintFinder(db.database()));
 
-  private final MigrationStep underTest = new DropOrgMembersTable(dbTester.database());
+  private final MigrationStep underTest = new DropOrgMembersTable(db.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void table_is_dropped() throws SQLException {
-    dbTester.assertTableExists("organization_members");
+    db.assertTableExists("organization_members");
     underTest.execute();
-    dbTester.assertTableDoesNotExist("organization_members");
+    db.assertTableDoesNotExist("organization_members");
   }
 }

@@ -20,22 +20,25 @@
 package org.sonar.server.platform.db.migration.version.v87;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropOrgMembersTable extends DdlChange {
   private static final String TABLE_NAME = "organization_members";
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  public DropOrgMembersTable(Database db) {
+  public DropOrgMembersTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setTable(TABLE_NAME).setName("pk_organization_members").build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, Arrays.asList("user_uuid", "organization_uuid"), false));
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("org_members_user_uuid").build());
     context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
   }
