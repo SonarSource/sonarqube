@@ -38,3 +38,10 @@ export interface ProfileChangelogEvent {
   ruleKey: string;
   ruleName: string;
 }
+
+export enum ProfileActionModals {
+  Copy,
+  Extend,
+  Rename,
+  Delete
+}

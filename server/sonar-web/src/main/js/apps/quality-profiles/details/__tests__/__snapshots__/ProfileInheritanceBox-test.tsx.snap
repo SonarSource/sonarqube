@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <tr
-  data-test="quality-profiles__inheritance-current"
+  className="it__quality-profiles__inheritance-current"
 >
   <td>
     <div
@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <tr
-  data-test="quality-profiles__inheritance-current"
+  className="it__quality-profiles__inheritance-current"
 >
   <td>
     <div
@@ -69,7 +69,7 @@ exports[`should render correctly 2`] = `
 
 exports[`should render correctly 3`] = `
 <tr
-  data-test="quality-profiles__inheritance-current"
+  className="it__quality-profiles__inheritance-current"
 >
   <td>
     <div
@@ -105,7 +105,7 @@ exports[`should render correctly 3`] = `
 
 exports[`should render correctly 4`] = `
 <tr
-  data-test="quality-profiles__inheritance-current"
+  className="it__quality-profiles__inheritance-current"
 >
   <td>
     <div

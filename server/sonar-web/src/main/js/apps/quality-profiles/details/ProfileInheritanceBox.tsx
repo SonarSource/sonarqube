@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -46,7 +47,7 @@ export default function ProfileInheritanceBox(props: Props) {
   const offset = 25 * depth;
 
   return (
-    <tr className={className} data-test={`quality-profiles__inheritance-${type}`}>
+    <tr className={classNames(`it__quality-profiles__inheritance-${type}`, className)}>
       <td>
         <div style={{ paddingLeft: offset }}>
           {displayLink ? (

@@ -20,16 +20,36 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { setDefaultProfile } from '../../../../api/quality-profiles';
+import {
+  changeProfileParent,
+  copyProfile,
+  createQualityProfile,
+  deleteProfile,
+  renameProfile,
+  setDefaultProfile
+} from '../../../../api/quality-profiles';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
+import { ProfileActionModals } from '../../types';
+import { PROFILE_PATH } from '../../utils';
+import DeleteProfileForm from '../DeleteProfileForm';
 import { ProfileActions } from '../ProfileActions';
+import ProfileModalForm from '../ProfileModalForm';
 
-beforeEach(() => jest.clearAllMocks());
+jest.mock('../../../../api/quality-profiles', () => {
+  const { mockQualityProfile } = jest.requireActual('../../../../helpers/testMocks');
 
-jest.mock('../../../../api/quality-profiles', () => ({
-  ...jest.requireActual('../../../../api/quality-profiles'),
-  setDefaultProfile: jest.fn().mockResolvedValue({})
-}));
+  return {
+    ...jest.requireActual('../../../../api/quality-profiles'),
+    copyProfile: jest.fn().mockResolvedValue(null),
+    changeProfileParent: jest.fn().mockResolvedValue(null),
+    createQualityProfile: jest
+      .fn()
+      .mockResolvedValue({ profile: mockQualityProfile({ key: 'newProfile' }) }),
+    deleteProfile: jest.fn().mockResolvedValue(null),
+    setDefaultProfile: jest.fn().mockResolvedValue(null),
+    renameProfile: jest.fn().mockResolvedValue(null)
+  };
+});
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,
@@ -39,15 +59,13 @@ const PROFILE = mockQualityProfile({
   rulesUpdatedAt: '2017-06-28T12:58:44+0000'
 });
 
-it('renders with no permissions', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+beforeEach(() => jest.clearAllMocks());
 
-it('renders with permission to edit only', () => {
-  expect(shallowRender({ profile: { ...PROFILE, actions: { edit: true } } })).toMatchSnapshot();
-});
-
-it('renders with all permissions', () => {
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('no permissions');
+  expect(shallowRender({ profile: { ...PROFILE, actions: { edit: true } } })).toMatchSnapshot(
+    'edit only'
+  );
   expect(
     shallowRender({
       profile: {
@@ -61,58 +79,240 @@ it('renders with all permissions', () => {
         }
       }
     })
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('all permissions');
+
+  expect(shallowRender().setState({ openModal: ProfileActionModals.Copy })).toMatchSnapshot(
+    'copy modal'
+  );
+  expect(shallowRender().setState({ openModal: ProfileActionModals.Extend })).toMatchSnapshot(
+    'extend modal'
+  );
+  expect(shallowRender().setState({ openModal: ProfileActionModals.Rename })).toMatchSnapshot(
+    'rename modal'
+  );
+  expect(shallowRender().setState({ openModal: ProfileActionModals.Delete })).toMatchSnapshot(
+    'delete modal'
+  );
 });
 
-it('should copy profile', async () => {
-  const name = 'new-name';
-  const updateProfiles = jest.fn(() => Promise.resolve());
-  const push = jest.fn();
-  const wrapper = shallowRender({
-    profile: { ...PROFILE, actions: { copy: true } },
-    router: { push, replace: jest.fn() },
-    updateProfiles
+describe('copy a profile', () => {
+  it('should correctly copy a profile', async () => {
+    const name = 'new-name';
+    const updateProfiles = jest.fn().mockResolvedValue(null);
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { copy: true } },
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+
+    click(wrapper.find('.it__quality-profiles__copy'));
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
+
+    wrapper
+      .find(ProfileModalForm)
+      .props()
+      .onSubmit(name);
+    expect(copyProfile).toBeCalledWith(PROFILE.key, name);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).toBeCalled();
+    expect(push).toBeCalledWith({
+      pathname: '/profiles/show',
+      query: { language: 'js', name }
+    });
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
 
-  click(wrapper.find('[data-test="quality-profiles__copy"]').parent());
-  expect(wrapper.find('CopyProfileForm').exists()).toBe(true);
+  it('should correctly keep the modal open in case of an error', async () => {
+    (copyProfile as jest.Mock).mockRejectedValueOnce(null);
 
-  wrapper.find('CopyProfileForm').prop<Function>('onCopy')(name);
-  expect(updateProfiles).toBeCalled();
-  await waitAndUpdate(wrapper);
+    const name = 'new-name';
+    const updateProfiles = jest.fn();
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { copy: true } },
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+    wrapper.setState({ openModal: ProfileActionModals.Copy });
 
-  expect(push).toBeCalledWith({
-    pathname: '/profiles/show',
-    query: { language: 'js', name }
+    wrapper.instance().handleProfileCopy(name);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).not.toBeCalled();
+    await waitAndUpdate(wrapper);
+
+    expect(push).not.toBeCalled();
+    expect(wrapper.state().openModal).toBe(ProfileActionModals.Copy);
   });
-  expect(wrapper.find('CopyProfileForm').exists()).toBe(false);
 });
 
-it('should extend profile', async () => {
-  const name = 'new-name';
-  const updateProfiles = jest.fn(() => Promise.resolve());
-  const push = jest.fn();
-  const wrapper = shallowRender({
-    profile: { ...PROFILE, actions: { copy: true } },
-    router: { push, replace: jest.fn() },
-    updateProfiles
+describe('extend a profile', () => {
+  it('should correctly extend a profile', async () => {
+    const name = 'new-name';
+    const profile = { ...PROFILE, actions: { copy: true } };
+    const updateProfiles = jest.fn().mockResolvedValue(null);
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile,
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+
+    click(wrapper.find('.it__quality-profiles__extend'));
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
+
+    wrapper
+      .find(ProfileModalForm)
+      .props()
+      .onSubmit(name);
+    expect(createQualityProfile).toBeCalledWith({ language: profile.language, name });
+    await waitAndUpdate(wrapper);
+    expect(changeProfileParent).toBeCalledWith(
+      expect.objectContaining({
+        key: 'newProfile'
+      }),
+      profile
+    );
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).toBeCalled();
+    await waitAndUpdate(wrapper);
+
+    expect(push).toBeCalledWith({
+      pathname: '/profiles/show',
+      query: { language: 'js', name }
+    });
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
 
-  click(wrapper.find('[data-test="quality-profiles__extend"]').parent());
-  expect(wrapper.find('ExtendProfileForm').exists()).toBe(true);
+  it('should correctly keep the modal open in case of an error', async () => {
+    (createQualityProfile as jest.Mock).mockRejectedValueOnce(null);
 
-  wrapper.find('ExtendProfileForm').prop<Function>('onExtend')(name);
-  expect(updateProfiles).toBeCalled();
-  await waitAndUpdate(wrapper);
+    const name = 'new-name';
+    const updateProfiles = jest.fn();
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { copy: true } },
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+    wrapper.setState({ openModal: ProfileActionModals.Extend });
 
-  expect(push).toBeCalledWith({
-    pathname: '/profiles/show',
-    query: { language: 'js', name }
+    wrapper.instance().handleProfileExtend(name);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).not.toBeCalled();
+    expect(changeProfileParent).not.toBeCalled();
+    expect(push).not.toBeCalled();
+    expect(wrapper.state().openModal).toBe(ProfileActionModals.Extend);
   });
-  expect(wrapper.find('ExtendProfileForm').exists()).toBe(false);
 });
 
-it('should delete profile properly', async () => {
+describe('rename a profile', () => {
+  it('should correctly rename a profile', async () => {
+    const name = 'new-name';
+    const updateProfiles = jest.fn().mockResolvedValue(null);
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { edit: true } },
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+
+    click(wrapper.find('.it__quality-profiles__rename'));
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
+
+    wrapper
+      .find(ProfileModalForm)
+      .props()
+      .onSubmit(name);
+    expect(renameProfile).toBeCalledWith(PROFILE.key, name);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).toBeCalled();
+    expect(push).toBeCalledWith({
+      pathname: '/profiles/show',
+      query: { language: 'js', name }
+    });
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
+  });
+
+  it('should correctly keep the modal open in case of an error', async () => {
+    (renameProfile as jest.Mock).mockRejectedValueOnce(null);
+
+    const name = 'new-name';
+    const updateProfiles = jest.fn();
+    const push = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { copy: true } },
+      router: mockRouter({ push }),
+      updateProfiles
+    });
+    wrapper.setState({ openModal: ProfileActionModals.Rename });
+
+    wrapper.instance().handleProfileRename(name);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).not.toBeCalled();
+    await waitAndUpdate(wrapper);
+
+    expect(push).not.toBeCalled();
+    expect(wrapper.state().openModal).toBe(ProfileActionModals.Rename);
+  });
+});
+
+describe('delete a profile', () => {
+  it('should correctly delete a profile', async () => {
+    const updateProfiles = jest.fn().mockResolvedValue(null);
+    const replace = jest.fn();
+    const profile = { ...PROFILE, actions: { delete: true } };
+    const wrapper = shallowRender({
+      profile,
+      router: mockRouter({ replace }),
+      updateProfiles
+    });
+
+    click(wrapper.find('.it__quality-profiles__delete'));
+    expect(wrapper.find(DeleteProfileForm).exists()).toBe(true);
+
+    wrapper
+      .find(DeleteProfileForm)
+      .props()
+      .onDelete();
+    expect(deleteProfile).toBeCalledWith(profile);
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).toBeCalled();
+    expect(replace).toBeCalledWith(PROFILE_PATH);
+    expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
+  });
+
+  it('should correctly keep the modal open in case of an error', async () => {
+    (deleteProfile as jest.Mock).mockRejectedValueOnce(null);
+
+    const updateProfiles = jest.fn();
+    const replace = jest.fn();
+    const wrapper = shallowRender({
+      profile: { ...PROFILE, actions: { copy: true } },
+      router: mockRouter({ replace }),
+      updateProfiles
+    });
+    wrapper.setState({ openModal: ProfileActionModals.Delete });
+
+    wrapper.instance().handleProfileDelete();
+    await waitAndUpdate(wrapper);
+
+    expect(updateProfiles).not.toBeCalled();
+    await waitAndUpdate(wrapper);
+
+    expect(replace).not.toBeCalled();
+    expect(wrapper.state().openModal).toBe(ProfileActionModals.Delete);
+  });
+});
+
+it('should correctly set a profile as the default', async () => {
   const updateProfiles = jest.fn();
 
   const wrapper = shallowRender({ updateProfiles });

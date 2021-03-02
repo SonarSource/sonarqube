@@ -23,16 +23,22 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getQualityProfileBackupUrl, setDefaultProfile } from '../../../api/quality-profiles';
+import {
+  changeProfileParent,
+  copyProfile,
+  createQualityProfile,
+  deleteProfile,
+  getQualityProfileBackupUrl,
+  renameProfile,
+  setDefaultProfile
+} from '../../../api/quality-profiles';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
-import { Profile } from '../types';
+import { Profile, ProfileActionModals } from '../types';
 import { getProfileComparePath, getProfilePath, PROFILE_PATH } from '../utils';
-import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
-import ExtendProfileForm from './ExtendProfileForm';
-import RenameProfileForm from './RenameProfileForm';
+import ProfileModalForm from './ProfileModalForm';
 
 interface Props {
   className?: string;
@@ -43,94 +49,129 @@ interface Props {
 }
 
 interface State {
-  copyFormOpen: boolean;
-  extendFormOpen: boolean;
-  deleteFormOpen: boolean;
-  renameFormOpen: boolean;
+  loading: boolean;
+  openModal?: ProfileActionModals;
 }
 
 export class ProfileActions extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = {
-    copyFormOpen: false,
-    extendFormOpen: false,
-    deleteFormOpen: false,
-    renameFormOpen: false
+    loading: false
   };
 
-  closeCopyForm = () => {
-    this.setState({ copyFormOpen: false });
-  };
+  componentDidMount() {
+    this.mounted = true;
+  }
 
-  closeDeleteForm = () => {
-    this.setState({ deleteFormOpen: false });
-  };
+  componentWillUnmount() {
+    this.mounted = false;
+  }
 
-  closeExtendForm = () => {
-    this.setState({ extendFormOpen: false });
-  };
-
-  closeRenameForm = () => {
-    this.setState({ renameFormOpen: false });
+  handleCloseModal = () => {
+    this.setState({ openModal: undefined });
   };
 
   handleCopyClick = () => {
-    this.setState({ copyFormOpen: true });
-  };
-
-  handleDeleteClick = () => {
-    this.setState({ deleteFormOpen: true });
+    this.setState({ openModal: ProfileActionModals.Copy });
   };
 
   handleExtendClick = () => {
-    this.setState({ extendFormOpen: true });
+    this.setState({ openModal: ProfileActionModals.Extend });
   };
 
   handleRenameClick = () => {
-    this.setState({ renameFormOpen: true });
+    this.setState({ openModal: ProfileActionModals.Rename });
   };
 
-  handleProfileCopy = (name: string) => {
-    this.closeCopyForm();
-    this.navigateToNewProfile(name);
+  handleDeleteClick = () => {
+    this.setState({ openModal: ProfileActionModals.Delete });
   };
 
-  handleProfileDelete = () => {
-    this.props.router.replace(PROFILE_PATH);
-    this.props.updateProfiles();
+  handleProfileCopy = async (name: string) => {
+    this.setState({ loading: true });
+
+    try {
+      await copyProfile(this.props.profile.key, name);
+      this.profileActionPerformed(name);
+    } catch {
+      this.profileActionError();
+    }
   };
 
-  handleProfileExtend = (name: string) => {
-    this.closeExtendForm();
-    this.navigateToNewProfile(name);
+  handleProfileExtend = async (name: string) => {
+    const { profile: parentProfile } = this.props;
+
+    const data = {
+      language: parentProfile.language,
+      name
+    };
+
+    this.setState({ loading: true });
+
+    try {
+      const { profile: newProfile } = await createQualityProfile(data);
+      await changeProfileParent(newProfile, parentProfile);
+      this.profileActionPerformed(name);
+    } catch {
+      this.profileActionError();
+    }
   };
 
-  handleProfileRename = (name: string) => {
-    this.closeRenameForm();
-    this.props.updateProfiles().then(
-      () => {
-        if (!this.props.fromList) {
-          this.props.router.replace(getProfilePath(name, this.props.profile.language));
-        }
-      },
-      () => {}
-    );
+  handleProfileRename = async (name: string) => {
+    this.setState({ loading: true });
+
+    try {
+      await renameProfile(this.props.profile.key, name);
+      this.profileActionPerformed(name);
+    } catch {
+      this.profileActionError();
+    }
+  };
+
+  handleProfileDelete = async () => {
+    this.setState({ loading: true });
+
+    try {
+      await deleteProfile(this.props.profile);
+
+      if (this.mounted) {
+        this.setState({ loading: false, openModal: undefined });
+        this.props.router.replace(PROFILE_PATH);
+        this.props.updateProfiles();
+      }
+    } catch {
+      this.profileActionError();
+    }
   };
 
   handleSetDefaultClick = () => {
     setDefaultProfile(this.props.profile).then(this.props.updateProfiles, () => {});
   };
 
-  navigateToNewProfile = (name: string) => {
-    this.props.updateProfiles().then(
-      () => {
-        this.props.router.push(getProfilePath(name, this.props.profile.language));
-      },
-      () => {}
-    );
+  profileActionPerformed = (name: string) => {
+    const { profile, router } = this.props;
+    if (this.mounted) {
+      this.setState({ loading: false, openModal: undefined });
+      this.props.updateProfiles().then(
+        () => {
+          router.push(getProfilePath(name, profile.language));
+        },
+        () => {
+          /* noop */
+        }
+      );
+    }
+  };
+
+  profileActionError = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
   };
 
   render() {
     const { profile } = this.props;
+    const { loading, openModal } = this.state;
     const { actions = {} } = profile;
 
     const backupUrl = `${getBaseUrl()}${getQualityProfileBackupUrl(profile)}`;
@@ -144,86 +185,110 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       <>
         <ActionsDropdown className={this.props.className}>
           {actions.edit && (
-            <ActionsDropdownItem to={activateMoreUrl}>
-              <span data-test="quality-profiles__activate-more-rules">
-                {translate('quality_profiles.activate_more_rules')}
-              </span>
+            <ActionsDropdownItem
+              className="it__quality-profiles__activate-more-rules"
+              to={activateMoreUrl}>
+              {translate('quality_profiles.activate_more_rules')}
             </ActionsDropdownItem>
           )}
 
           {!profile.isBuiltIn && (
-            <ActionsDropdownItem download={`${profile.key}.xml`} to={backupUrl}>
-              <span data-test="quality-profiles__backup">{translate('backup_verb')}</span>
+            <ActionsDropdownItem
+              className="it__quality-profiles__backup"
+              download={`${profile.key}.xml`}
+              to={backupUrl}>
+              {translate('backup_verb')}
             </ActionsDropdownItem>
           )}
 
-          <ActionsDropdownItem to={getProfileComparePath(profile.name, profile.language)}>
-            <span data-test="quality-profiles__compare">{translate('compare')}</span>
+          <ActionsDropdownItem
+            className="it__quality-profiles__compare"
+            to={getProfileComparePath(profile.name, profile.language)}>
+            {translate('compare')}
           </ActionsDropdownItem>
 
           {actions.copy && (
             <>
-              <ActionsDropdownItem onClick={this.handleCopyClick}>
-                <span data-test="quality-profiles__copy">{translate('copy')}</span>
+              <ActionsDropdownItem
+                className="it__quality-profiles__copy"
+                onClick={this.handleCopyClick}>
+                {translate('copy')}
               </ActionsDropdownItem>
 
-              <ActionsDropdownItem onClick={this.handleExtendClick}>
-                <span data-test="quality-profiles__extend">{translate('extend')}</span>
+              <ActionsDropdownItem
+                className="it__quality-profiles__extend"
+                onClick={this.handleExtendClick}>
+                {translate('extend')}
               </ActionsDropdownItem>
             </>
           )}
 
           {actions.edit && (
-            <ActionsDropdownItem onClick={this.handleRenameClick}>
-              <span data-test="quality-profiles__rename">{translate('rename')}</span>
+            <ActionsDropdownItem
+              className="it__quality-profiles__rename"
+              onClick={this.handleRenameClick}>
+              {translate('rename')}
             </ActionsDropdownItem>
           )}
 
           {actions.setAsDefault && (
-            <ActionsDropdownItem onClick={this.handleSetDefaultClick}>
-              <span data-test="quality-profiles__set-as-default">
-                {translate('set_as_default')}
-              </span>
+            <ActionsDropdownItem
+              className="it__quality-profiles__set-as-default"
+              onClick={this.handleSetDefaultClick}>
+              {translate('set_as_default')}
             </ActionsDropdownItem>
           )}
 
           {actions.delete && <ActionsDropdownDivider />}
 
           {actions.delete && (
-            <ActionsDropdownItem destructive={true} onClick={this.handleDeleteClick}>
-              <span data-test="quality-profiles__delete">{translate('delete')}</span>
+            <ActionsDropdownItem
+              className="it__quality-profiles__delete"
+              destructive={true}
+              onClick={this.handleDeleteClick}>
+              {translate('delete')}
             </ActionsDropdownItem>
           )}
         </ActionsDropdown>
 
-        {this.state.copyFormOpen && (
-          <CopyProfileForm
-            onClose={this.closeCopyForm}
-            onCopy={this.handleProfileCopy}
+        {openModal === ProfileActionModals.Copy && (
+          <ProfileModalForm
+            btnLabelKey="copy"
+            headerKey="quality_profiles.copy_x_title"
+            loading={loading}
+            onClose={this.handleCloseModal}
+            onSubmit={this.handleProfileCopy}
             profile={profile}
           />
         )}
 
-        {this.state.extendFormOpen && (
-          <ExtendProfileForm
-            onClose={this.closeExtendForm}
-            onExtend={this.handleProfileExtend}
+        {openModal === ProfileActionModals.Extend && (
+          <ProfileModalForm
+            btnLabelKey="extend"
+            headerKey="quality_profiles.extend_x_title"
+            loading={loading}
+            onClose={this.handleCloseModal}
+            onSubmit={this.handleProfileExtend}
             profile={profile}
           />
         )}
 
-        {this.state.deleteFormOpen && (
+        {openModal === ProfileActionModals.Rename && (
+          <ProfileModalForm
+            btnLabelKey="rename"
+            headerKey="quality_profiles.rename_x_title"
+            loading={loading}
+            onClose={this.handleCloseModal}
+            onSubmit={this.handleProfileRename}
+            profile={profile}
+          />
+        )}
+
+        {openModal === ProfileActionModals.Delete && (
           <DeleteProfileForm
-            onClose={this.closeDeleteForm}
+            loading={loading}
+            onClose={this.handleCloseModal}
             onDelete={this.handleProfileDelete}
-            profile={profile}
-          />
-        )}
-
-        {this.state.renameFormOpen && (
-          <RenameProfileForm
-            onClose={this.closeRenameForm}
-            onRename={this.handleProfileRename}
             profile={profile}
           />
         )}

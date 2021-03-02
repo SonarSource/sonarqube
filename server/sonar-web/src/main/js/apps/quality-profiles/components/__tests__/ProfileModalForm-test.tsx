@@ -20,34 +20,49 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { change } from 'sonar-ui-common/helpers/testUtils';
 import { mockEvent, mockQualityProfile } from '../../../../helpers/testMocks';
-import DeleteProfileForm, { DeleteProfileFormProps } from '../DeleteProfileForm';
+import ProfileModalForm, { ProfileModalFormProps } from '../ProfileModalForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
-  expect(shallowRender({ profile: mockQualityProfile({ childrenCount: 2 }) })).toMatchSnapshot(
-    'profile has children'
-  );
+
+  const wrapper = shallowRender();
+  change(wrapper.find('#profile-name'), 'new name');
+  expect(wrapper).toMatchSnapshot('can submit');
 });
 
 it('should correctly submit the form', () => {
-  const onDelete = jest.fn();
-  const wrapper = shallowRender({ onDelete });
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit });
 
-  const formOnSubmit = wrapper.find('form').props().onSubmit;
+  // Won't submit unless a new name was given.
+  let formOnSubmit = wrapper.find('form').props().onSubmit;
   if (formOnSubmit) {
     formOnSubmit(mockEvent());
   }
-  expect(onDelete).toBeCalled();
+  expect(onSubmit).not.toBeCalled();
+
+  // Input a new name.
+  change(wrapper.find('#profile-name'), 'new name');
+
+  // Now will submit the form.
+  formOnSubmit = wrapper.find('form').props().onSubmit;
+  if (formOnSubmit) {
+    formOnSubmit(mockEvent());
+  }
+  expect(onSubmit).toBeCalledWith('new name');
 });
 
-function shallowRender(props: Partial<DeleteProfileFormProps> = {}) {
-  return shallow<DeleteProfileFormProps>(
-    <DeleteProfileForm
+function shallowRender(props: Partial<ProfileModalFormProps> = {}) {
+  return shallow<ProfileModalFormProps>(
+    <ProfileModalForm
+      btnLabelKey="btn-label"
+      headerKey="header-label"
       loading={false}
       onClose={jest.fn()}
-      onDelete={jest.fn()}
+      onSubmit={jest.fn()}
       profile={mockQualityProfile()}
       {...props}
     />

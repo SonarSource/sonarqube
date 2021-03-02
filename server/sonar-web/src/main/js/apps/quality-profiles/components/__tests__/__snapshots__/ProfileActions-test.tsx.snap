@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders with all permissions 1`] = `
+exports[`renders correctly: all permissions 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
+      className="it__quality-profiles__activate-more-rules"
       to={
         Object {
           "pathname": "/coding_rules",
@@ -14,23 +15,17 @@ exports[`renders with all permissions 1`] = `
         }
       }
     >
-      <span
-        data-test="quality-profiles__activate-more-rules"
-      >
-        quality_profiles.activate_more_rules
-      </span>
+      quality_profiles.activate_more_rules
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__backup"
       download="key.xml"
       to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
-      <span
-        data-test="quality-profiles__backup"
-      >
-        backup_verb
-      </span>
+      backup_verb
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__compare"
       to={
         Object {
           "pathname": "/profiles/compare",
@@ -41,77 +36,56 @@ exports[`renders with all permissions 1`] = `
         }
       }
     >
-      <span
-        data-test="quality-profiles__compare"
-      >
-        compare
-      </span>
+      compare
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__copy"
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__copy"
-      >
-        copy
-      </span>
+      copy
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__extend"
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__extend"
-      >
-        extend
-      </span>
+      extend
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__rename"
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__rename"
-      >
-        rename
-      </span>
+      rename
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__set-as-default"
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__set-as-default"
-      >
-        set_as_default
-      </span>
+      set_as_default
     </ActionsDropdownItem>
     <ActionsDropdownDivider />
     <ActionsDropdownItem
+      className="it__quality-profiles__delete"
       destructive={true}
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__delete"
-      >
-        delete
-      </span>
+      delete
     </ActionsDropdownItem>
   </ActionsDropdown>
 </Fragment>
 `;
 
-exports[`renders with no permissions 1`] = `
+exports[`renders correctly: copy modal 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
+      className="it__quality-profiles__backup"
       download="key.xml"
       to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
-      <span
-        data-test="quality-profiles__backup"
-      >
-        backup_verb
-      </span>
+      backup_verb
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__compare"
       to={
         Object {
           "pathname": "/profiles/compare",
@@ -122,20 +96,91 @@ exports[`renders with no permissions 1`] = `
         }
       }
     >
-      <span
-        data-test="quality-profiles__compare"
-      >
-        compare
-      </span>
+      compare
     </ActionsDropdownItem>
   </ActionsDropdown>
+  <ProfileModalForm
+    btnLabelKey="copy"
+    headerKey="quality_profiles.copy_x_title"
+    loading={false}
+    onClose={[Function]}
+    onSubmit={[Function]}
+    profile={
+      Object {
+        "activeDeprecatedRuleCount": 0,
+        "activeRuleCount": 68,
+        "childrenCount": 0,
+        "depth": 0,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "projectCount": 3,
+        "rulesUpdatedAt": "2017-06-28T12:58:44+0000",
+      }
+    }
+  />
 </Fragment>
 `;
 
-exports[`renders with permission to edit only 1`] = `
+exports[`renders correctly: delete modal 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
+      className="it__quality-profiles__backup"
+      download="key.xml"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
+    >
+      backup_verb
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="it__quality-profiles__compare"
+      to={
+        Object {
+          "pathname": "/profiles/compare",
+          "query": Object {
+            "language": "js",
+            "name": "name",
+          },
+        }
+      }
+    >
+      compare
+    </ActionsDropdownItem>
+  </ActionsDropdown>
+  <DeleteProfileForm
+    loading={false}
+    onClose={[Function]}
+    onDelete={[Function]}
+    profile={
+      Object {
+        "activeDeprecatedRuleCount": 0,
+        "activeRuleCount": 68,
+        "childrenCount": 0,
+        "depth": 0,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "projectCount": 3,
+        "rulesUpdatedAt": "2017-06-28T12:58:44+0000",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`renders correctly: edit only 1`] = `
+<Fragment>
+  <ActionsDropdown>
+    <ActionsDropdownItem
+      className="it__quality-profiles__activate-more-rules"
       to={
         Object {
           "pathname": "/coding_rules",
@@ -146,23 +191,17 @@ exports[`renders with permission to edit only 1`] = `
         }
       }
     >
-      <span
-        data-test="quality-profiles__activate-more-rules"
-      >
-        quality_profiles.activate_more_rules
-      </span>
+      quality_profiles.activate_more_rules
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__backup"
       download="key.xml"
       to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
     >
-      <span
-        data-test="quality-profiles__backup"
-      >
-        backup_verb
-      </span>
+      backup_verb
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__compare"
       to={
         Object {
           "pathname": "/profiles/compare",
@@ -173,21 +212,146 @@ exports[`renders with permission to edit only 1`] = `
         }
       }
     >
-      <span
-        data-test="quality-profiles__compare"
-      >
-        compare
-      </span>
+      compare
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      className="it__quality-profiles__rename"
       onClick={[Function]}
     >
-      <span
-        data-test="quality-profiles__rename"
-      >
-        rename
-      </span>
+      rename
     </ActionsDropdownItem>
   </ActionsDropdown>
+</Fragment>
+`;
+
+exports[`renders correctly: extend modal 1`] = `
+<Fragment>
+  <ActionsDropdown>
+    <ActionsDropdownItem
+      className="it__quality-profiles__backup"
+      download="key.xml"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
+    >
+      backup_verb
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="it__quality-profiles__compare"
+      to={
+        Object {
+          "pathname": "/profiles/compare",
+          "query": Object {
+            "language": "js",
+            "name": "name",
+          },
+        }
+      }
+    >
+      compare
+    </ActionsDropdownItem>
+  </ActionsDropdown>
+  <ProfileModalForm
+    btnLabelKey="extend"
+    headerKey="quality_profiles.extend_x_title"
+    loading={false}
+    onClose={[Function]}
+    onSubmit={[Function]}
+    profile={
+      Object {
+        "activeDeprecatedRuleCount": 0,
+        "activeRuleCount": 68,
+        "childrenCount": 0,
+        "depth": 0,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "projectCount": 3,
+        "rulesUpdatedAt": "2017-06-28T12:58:44+0000",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`renders correctly: no permissions 1`] = `
+<Fragment>
+  <ActionsDropdown>
+    <ActionsDropdownItem
+      className="it__quality-profiles__backup"
+      download="key.xml"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
+    >
+      backup_verb
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="it__quality-profiles__compare"
+      to={
+        Object {
+          "pathname": "/profiles/compare",
+          "query": Object {
+            "language": "js",
+            "name": "name",
+          },
+        }
+      }
+    >
+      compare
+    </ActionsDropdownItem>
+  </ActionsDropdown>
+</Fragment>
+`;
+
+exports[`renders correctly: rename modal 1`] = `
+<Fragment>
+  <ActionsDropdown>
+    <ActionsDropdownItem
+      className="it__quality-profiles__backup"
+      download="key.xml"
+      to="/api/qualityprofiles/backup?language=js&qualityProfile=name"
+    >
+      backup_verb
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="it__quality-profiles__compare"
+      to={
+        Object {
+          "pathname": "/profiles/compare",
+          "query": Object {
+            "language": "js",
+            "name": "name",
+          },
+        }
+      }
+    >
+      compare
+    </ActionsDropdownItem>
+  </ActionsDropdown>
+  <ProfileModalForm
+    btnLabelKey="rename"
+    headerKey="quality_profiles.rename_x_title"
+    loading={false}
+    onClose={[Function]}
+    onSubmit={[Function]}
+    profile={
+      Object {
+        "activeDeprecatedRuleCount": 0,
+        "activeRuleCount": 68,
+        "childrenCount": 0,
+        "depth": 0,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "projectCount": 3,
+        "rulesUpdatedAt": "2017-06-28T12:58:44+0000",
+      }
+    }
+  />
 </Fragment>
 `;

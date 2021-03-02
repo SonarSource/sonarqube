@@ -20,60 +20,64 @@
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 
-export interface DeleteProfileFormProps {
+export interface ProfileModalFormProps {
+  btnLabelKey: string;
+  headerKey: string;
   loading: boolean;
   onClose: () => void;
-  onDelete: () => void;
+  onSubmit: (name: string) => void;
   profile: Profile;
 }
 
-export default function DeleteProfileForm(props: DeleteProfileFormProps) {
-  const { loading, profile } = props;
-  const header = translate('quality_profiles.delete_confirm_title');
+export default function ProfileModalForm(props: ProfileModalFormProps) {
+  const { btnLabelKey, headerKey, loading, profile } = props;
+  const [name, setName] = React.useState<string | undefined>(undefined);
+
+  const submitDisabled = loading || !name || name === profile.name;
+  const header = translateWithParameters(headerKey, profile.name, profile.languageName);
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
+    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
       <form
         onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
           e.preventDefault();
-          props.onDelete();
+          if (name) {
+            props.onSubmit(name);
+          }
         }}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>
         <div className="modal-body">
-          {profile.childrenCount > 0 ? (
-            <div>
-              <Alert variant="warning">
-                {translate('quality_profiles.this_profile_has_descendants')}
-              </Alert>
-              <p>
-                {translateWithParameters(
-                  'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
-                  profile.name,
-                  profile.languageName
-                )}
-              </p>
-            </div>
-          ) : (
-            <p>
-              {translateWithParameters(
-                'quality_profiles.are_you_sure_want_delete_profile_x',
-                profile.name,
-                profile.languageName
-              )}
-            </p>
-          )}
+          <MandatoryFieldsExplanation className="modal-field" />
+          <div className="modal-field">
+            <label htmlFor="profile-name">
+              {translate('quality_profiles.new_name')}
+              <MandatoryFieldMarker />
+            </label>
+            <input
+              autoFocus={true}
+              id="profile-name"
+              maxLength={100}
+              name="name"
+              onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
+                setName(e.currentTarget.value);
+              }}
+              required={true}
+              size={50}
+              type="text"
+              value={name ?? profile.name}
+            />
+          </div>
         </div>
         <div className="modal-foot">
           {loading && <i className="spinner spacer-right" />}
-          <SubmitButton className="button-red" disabled={loading}>
-            {translate('delete')}
-          </SubmitButton>
+          <SubmitButton disabled={submitDisabled}>{translate(btnLabelKey)}</SubmitButton>
           <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </form>
