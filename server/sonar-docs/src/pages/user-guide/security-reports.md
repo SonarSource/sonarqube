@@ -11,17 +11,28 @@ Security Reports quickly give you the big picture on your application's security
 [[warning]]
 | The SANS Top 25 report is based on outdated statistics and should no longer be used. Instead, we recommend using the CWE Top 25 reports.
 
-The Security Reports rely on the rules activated in your Quality Profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you will get no issues linked to that specific category and the rating displayed will be A. That won't mean you are safe for that category, but that you need to activate more rules (assuming some exist).
+Security Reports rely on the rules activated in your Quality Profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you won't get issues linked to that specific category and the rating displayed will be **A**. That doesn't mean you are safe for that category, but that you need to activate more rules (assuming some exist) in your Quality Profile.
 
 ## What's the difference between a Security Hotspot and a Vulnerability?
 
-For more details, see [Security Hotspots page](/user-guide/security-hotspots/) and to sum-up:
-* With a Hotspot, a security-sensitive piece of code is highlighted, but the overall application security may not be impacted. It's up to the developer to review the code to determine whether or not a fix is needed to secure the code.
-* With a vulnerability, a problem that impacts the application's security has been discovered that needs to be fixed immediately.
- 
+Security Hotspots and Vulnerabilities differ in that:
+
+* A Security Hotspot is a security-sensitive piece of code that is highlighted but doesn't necessarily impact the overall application security. It's up to the developer to review the code to determine whether or not a fix is needed to secure the code.
+* A vulnerability is a problem that impacts the application's security that needs to be fixed immediately.
+
+For more details, see the [Security Hotspots](/user-guide/security-hotspots/) page. 
 
 ## Why don't I see any Vulnerabilities or Security Hotspots?
 You might not see any Vulnerabilities or Security Hotspots for the following reasons:
-* You don't have any because the code has been written without using any security-sensitive API. 
+* Your code has been written without using any security-sensitive API. 
 * Vulnerability or Security Hotspot rules are available but not activated in your Quality Profile so no Security Hotspots or Vulnerabilities are raised.
-* SonarQube might only offer a few rules for your language and won't raise any or only a small number of Vulnerabilities or Security Hotspots.
+* SonarQube might not currently have many rules for your language, so it won't raise any or only a few Vulnerabilities or Security Hotspots.
+
+## Downloading a PDF copy
+You can download a PDF copy of your Security Reports by clicking the **Download as PDF** button in the upper-right corner of the **Security Reports** page. 
+
+The PDF contains:
+
+- the number of open Vulnerabilities and the Security Rating on both overall code and new code.
+- the number of Security Hotspots, the percentage of reviewed Security Hotspots, and the Security Review rating on both overall and new code. 
+- your SonarSource, OWASP Top 10, and CWE Top 25 2020 reports.
