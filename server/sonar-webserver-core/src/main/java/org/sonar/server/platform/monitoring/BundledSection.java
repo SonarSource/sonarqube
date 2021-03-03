@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.monitoring;
 
 import org.sonar.api.server.ServerSide;
@@ -30,19 +31,19 @@ import org.sonar.updatecenter.common.Version;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
-public class PluginsSection implements SystemInfoSection {
+public class BundledSection implements SystemInfoSection {
   private final ServerPluginRepository repository;
 
-  public PluginsSection(ServerPluginRepository repository) {
+  public BundledSection(ServerPluginRepository repository) {
     this.repository = repository;
   }
 
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-    protobuf.setName("Plugins");
+    protobuf.setName("Bundled");
 
-    for (PluginInfo plugin : repository.getPluginsInfoByType(PluginType.EXTERNAL)) {
+    for (PluginInfo plugin : repository.getPluginsInfoByType(PluginType.BUNDLED)) {
       String label = "";
       Version version = plugin.getVersion();
       if (version != null) {

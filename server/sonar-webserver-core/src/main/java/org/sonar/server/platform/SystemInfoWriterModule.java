@@ -23,6 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.server.platform.monitoring.AlmConfigurationSection;
+import org.sonar.server.platform.monitoring.BundledSection;
 import org.sonar.server.platform.monitoring.DbConnectionSection;
 import org.sonar.server.platform.monitoring.DbSection;
 import org.sonar.server.platform.monitoring.EsIndexesSection;
@@ -60,7 +61,8 @@ public class SystemInfoWriterModule extends Module {
       LoggingSection.class,
       PluginsSection.class,
       SettingsSection.class,
-      AlmConfigurationSection.class
+      AlmConfigurationSection.class,
+      BundledSection.class
 
       );
     if (standalone) {

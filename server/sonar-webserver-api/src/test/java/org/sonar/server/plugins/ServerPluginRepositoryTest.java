@@ -20,7 +20,10 @@
 package org.sonar.server.plugins;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.api.Plugin;
@@ -30,6 +33,7 @@ import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.plugins.PluginType.BUNDLED;
 import static org.sonar.server.plugins.PluginType.EXTERNAL;
 
 public class ServerPluginRepositoryTest {
@@ -37,8 +41,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void get_plugin_data() {
-    ServerPlugin plugin1 = newPlugin("plugin1");
-    ServerPlugin plugin2 = newPlugin("plugin2");
+    ServerPlugin plugin1 = newPlugin("plugin1", EXTERNAL);
+    ServerPlugin plugin2 = newPlugin("plugin2", EXTERNAL);
 
     repository.addPlugins(Collections.singletonList(plugin1));
     repository.addPlugin(plugin2);
@@ -56,8 +60,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_getPluginInstance_if_plugin_doesnt_exist() {
-    ServerPlugin plugin1 = newPlugin("plugin1");
-    ServerPlugin plugin2 = newPlugin("plugin2");
+    ServerPlugin plugin1 = newPlugin("plugin1", EXTERNAL);
+    ServerPlugin plugin2 = newPlugin("plugin2", EXTERNAL);
 
     repository.addPlugins(Arrays.asList(plugin1, plugin2));
     Assert.assertThrows("asd", IllegalArgumentException.class, () -> repository.getPluginInstance("plugin3"));
@@ -65,11 +69,61 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_getPluginInfo_if_plugin_doesnt_exist() {
-    ServerPlugin plugin1 = newPlugin("plugin1");
-    ServerPlugin plugin2 = newPlugin("plugin2");
+    ServerPlugin plugin1 = newPlugin("plugin1", EXTERNAL);
+    ServerPlugin plugin2 = newPlugin("plugin2", EXTERNAL);
 
     repository.addPlugins(Arrays.asList(plugin1, plugin2));
     Assert.assertThrows("asd", IllegalArgumentException.class, () -> repository.getPluginInfo("plugin3"));
+  }
+
+  @Test
+  public void getPluginsInfoByTypeExternal_given1ExternalPlugin_return1ExternalPlugin(){
+    //given
+    ServerPlugin externalPlugin = newPlugin("plugin1", EXTERNAL);
+    repository.addPlugin(externalPlugin);
+
+    PluginInfo expectedPluginInfo = externalPlugin.getPluginInfo();
+
+    //when
+    Collection<PluginInfo> pluginInfos = repository.getPluginsInfoByType(EXTERNAL);
+
+    //then
+    assertThat(pluginInfos).containsOnly(expectedPluginInfo);
+  }
+
+  @Test
+  public void getPluginsInfoByTypeExternal_given1ExternalAnd1BundledPlugin_return1ExternalPlugin(){
+    //given
+    ServerPlugin externalPlugin = newPlugin("plugin1", EXTERNAL);
+    ServerPlugin bundledPlugin = newPlugin("plugin2", BUNDLED);
+    repository.addPlugin(externalPlugin);
+    repository.addPlugin(bundledPlugin);
+
+    PluginInfo expectedPluginInfo = externalPlugin.getPluginInfo();
+
+    //when
+    Collection<PluginInfo> pluginInfos = repository.getPluginsInfoByType(EXTERNAL);
+
+    //then
+    assertThat(pluginInfos).containsOnly(expectedPluginInfo);
+  }
+
+  @Test
+  public void getPluginsInfoByTypeBundled_given2BundledPlugins_return2BundledPlugins(){
+    //given
+    ServerPlugin bundledPlugin = newPlugin("plugin1", BUNDLED);
+    ServerPlugin bundledPlugin2 = newPlugin("plugin2", BUNDLED);
+    repository.addPlugin(bundledPlugin);
+    repository.addPlugin(bundledPlugin2);
+
+    PluginInfo expectedPluginInfo = bundledPlugin.getPluginInfo();
+    PluginInfo expectedPluginInfo2 = bundledPlugin2.getPluginInfo();
+
+    //when
+    Collection<PluginInfo> pluginInfos = repository.getPluginsInfoByType(BUNDLED);
+
+    //then
+    assertThat(pluginInfos).containsOnly(expectedPluginInfo, expectedPluginInfo2);
   }
 
   private PluginInfo newPluginInfo(String key) {
@@ -78,7 +132,7 @@ public class ServerPluginRepositoryTest {
     return pluginInfo;
   }
 
-  private ServerPlugin newPlugin(String key) {
-    return new ServerPlugin(newPluginInfo(key), EXTERNAL, mock(Plugin.class), mock(FileAndMd5.class), mock(FileAndMd5.class), mock(ClassLoader.class));
+  private ServerPlugin newPlugin(String key, PluginType type) {
+    return new ServerPlugin(newPluginInfo(key), type, mock(Plugin.class), mock(FileAndMd5.class), mock(FileAndMd5.class), mock(ClassLoader.class));
   }
 }

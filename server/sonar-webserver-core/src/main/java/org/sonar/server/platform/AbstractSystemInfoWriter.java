@@ -30,7 +30,7 @@ import org.sonar.server.telemetry.TelemetryDataLoader;
 public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
   private static final String[] ORDERED_SECTION_NAMES = {
     // standalone
-    "System", "Database", "Plugins",
+    "System", "Database", "Bundled", "Plugins",
 
     // cluster
     "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",

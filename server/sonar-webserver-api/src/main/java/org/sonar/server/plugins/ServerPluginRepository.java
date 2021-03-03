@@ -84,6 +84,14 @@ public class ServerPluginRepository implements PluginRepository {
     return Optional.ofNullable(pluginByKey.get(key));
   }
 
+  public Collection<PluginInfo> getPluginsInfoByType(PluginType type){
+    return pluginByKey.values()
+      .stream()
+      .filter(p -> p.getType() == type)
+      .map(ServerPlugin::getPluginInfo)
+      .collect(Collectors.toList());
+  }
+
   @Override
   public Plugin getPluginInstance(String key) {
     ServerPlugin plugin = pluginByKey.get(key);

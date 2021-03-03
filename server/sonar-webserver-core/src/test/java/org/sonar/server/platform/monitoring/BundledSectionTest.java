@@ -19,47 +19,45 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.plugins.PluginType;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
+import java.util.Arrays;
 
-public class PluginsSectionTest {
+public class BundledSectionTest {
 
   private ServerPluginRepository repo = mock(ServerPluginRepository.class);
-  private PluginsSection underTest = new PluginsSection(repo);
+  private BundledSection underTest = new BundledSection(repo);
 
   @Test
   public void name() {
-    assertThat(underTest.toProtobuf().getName()).isEqualTo("Plugins");
+    assertThat(underTest.toProtobuf().getName()).isEqualTo("Bundled");
   }
 
   @Test
-  public void plugin_name_and_version() {
-    when(repo.getPluginsInfoByType(PluginType.EXTERNAL)).thenReturn(Arrays.asList(
-      new PluginInfo("key-1")
-        .setName("Plugin 1")
-        .setVersion(Version.create("1.1")),
-      new PluginInfo("key-2")
-        .setName("Plugin 2")
-        .setVersion(Version.create("2.2")),
+  public void toProtobuf_given3BundledPlugins_returnThree() {
+    when(repo.getPluginsInfoByType(PluginType.BUNDLED)).thenReturn(Arrays.asList(
+      new PluginInfo("java")
+        .setName("Java")
+        .setVersion(Version.create("20.0")),
+      new PluginInfo("c++")
+        .setName("C++")
+        .setVersion(Version.create("1.0.2")),
       new PluginInfo("no-version")
         .setName("No Version")));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
-    assertThatAttributeIs(section, "key-1", "1.1 [Plugin 1]");
-    assertThatAttributeIs(section, "key-2", "2.2 [Plugin 2]");
+    assertThatAttributeIs(section, "java", "20.0 [Java]");
+    assertThatAttributeIs(section, "c++", "1.0.2 [C++]");
     assertThatAttributeIs(section, "no-version", "[No Version]");
   }
 }
