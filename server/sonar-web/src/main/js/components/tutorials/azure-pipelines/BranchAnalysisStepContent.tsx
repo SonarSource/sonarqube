@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getLanguages, Store } from '../../../store/rootReducer';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 export interface BranchesAnalysisStepProps {
+  languages: T.Languages;
   component: T.Component;
   onStepValidationChange: (isValid: boolean) => void;
 }
@@ -36,11 +39,13 @@ const BUILD_TOOLS_ORDERED: Array<BuildTools> = [
   BuildTools.Other
 ];
 
-export default function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
-  const { component, onStepValidationChange } = props;
+export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
+  const { component, onStepValidationChange, languages } = props;
 
   const [buildTechnology, setBuildTechnology] = React.useState<BuildTools | undefined>();
-
+  const buildToolsList = languages['c']
+    ? BUILD_TOOLS_ORDERED
+    : BUILD_TOOLS_ORDERED.filter(t => t !== BuildTools.CFamily);
   return (
     <>
       <span>{translate('onboarding.build')}</span>
@@ -49,7 +54,7 @@ export default function BranchAnalysisStepContent(props: BranchesAnalysisStepPro
         name="buildTechnology"
         onCheck={value => setBuildTechnology(value as BuildTools)}
         optionLabelKey="onboarding.build"
-        options={BUILD_TOOLS_ORDERED}
+        options={buildToolsList}
       />
       <AnalysisCommand
         onStepValidationChange={onStepValidationChange}
@@ -59,3 +64,9 @@ export default function BranchAnalysisStepContent(props: BranchesAnalysisStepPro
     </>
   );
 }
+
+const mapStateToProps = (state: Store) => ({
+  languages: getLanguages(state)
+});
+
+export default connect(mapStateToProps)(BranchAnalysisStepContent);

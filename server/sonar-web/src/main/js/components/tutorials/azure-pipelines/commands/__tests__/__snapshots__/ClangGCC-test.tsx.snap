@@ -43,6 +43,7 @@ exports[`should render correctly for "linux" 1`] = `
           highlightKeys={
             Array [
               "task",
+              "inline",
             ]
           }
           highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix"
@@ -94,7 +95,7 @@ unzip build-wrapper.zip"
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
         />
         <CodeSnippet
-          snippet="./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir <output directory> make clean all"
+          snippet="./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
         />
       </li>
     </ul>
@@ -158,6 +159,7 @@ exports[`should render correctly for "mac" 1`] = `
           highlightKeys={
             Array [
               "task",
+              "inline",
             ]
           }
           highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix"
@@ -209,7 +211,7 @@ unzip build-wrapper.zip"
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
         />
         <CodeSnippet
-          snippet="./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir <output directory> xcodebuild -project myproject.xcodeproj -configuration Release clean build"
+          snippet="./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output xcodebuild -project myproject.xcodeproj -configuration Release clean build"
         />
       </li>
     </ul>
@@ -273,6 +275,7 @@ exports[`should render correctly for "win" 1`] = `
           highlightKeys={
             Array [
               "task",
+              "inline",
             ]
           }
           highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.win"
@@ -324,7 +327,7 @@ Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
         />
         <CodeSnippet
-          snippet="build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild"
+          snippet="build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output MSBuild.exe /t:Rebuild"
         />
       </li>
     </ul>

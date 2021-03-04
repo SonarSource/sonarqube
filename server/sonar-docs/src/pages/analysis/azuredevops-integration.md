@@ -189,11 +189,13 @@ Select your build technology below to expand the instructions for configuring br
 
 [[collapse]]
 | ## Analyzing a C/C++/Obj-C project
-|In your build pipeline, insert the following steps in the order they appear here. These steps can be interleaved with other steps of your build as long as the following order is followed. All steps have to be executed on the same agent.
-| 1. Make **Build Wrapper** available on the build agent:\
-|   Download and unzip the **Build Wrapper** on the build agent (see *Prerequisites* section of the [C/C++/Objective-C](/analysis/languages/cfamily/) page). The archive to download and decompress depends on the platform of the host.\
-|   Please, note that:
-|    - For the Microsoft-hosted build agent you will need to do it every time (as part of build pipeline), e.g. you can add **PowerShell script** task doing that. This can be done by inserting a **Command Line** task.\
+| In your build pipeline, insert the following steps in the order they appear here. These steps can be interweaved with other steps of your build as long as the following order is followed. All steps have to be executed on the same agent.
+| 
+| 1. Make the **Build Wrapper** available on the build agent: 
+|    
+|    Download and unzip the **Build Wrapper** on the build agent (see the **Prerequisites** section of the [C/C++/Objective-C](/analysis/languages/cfamily/) page). The archive to download and decompress depends on the platform of the host.
+|    Please, note that:
+|    - For the Microsoft-hosted build agent, you will need to make the **Build Wrapper** available on the build agent every time (as part of the build pipeline). To accomplish this, you can add a **PowerShell script** task by inserting a **Command Line** task.
 |     Example of PowerShell commands on a Windows host:
 |     ```
 |     Invoke-WebRequest -Uri '<sonarqube_url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
@@ -210,15 +212,15 @@ Select your build technology below to expand the instructions for configuring br
 |     unzip build-wrapper.zip
 |     ```  
 |    - For the self-hosted build agent you can either download it every time (using the same scripts) or only once (as part of manual setup of build agent).
-| 2. Add a **Prepare analysis Configuration** task and configure it as follow:\
-|   Click on the **Prepare analysis on SonarQube** task to configure it:
+| 1. Add a **Prepare analysis Configuration** task and configure it as follow:
+|     Click on the **Prepare analysis on SonarQube** task to configure it:
 |    * Select the **SonarQube Server**
 |    * In *Choose the way to run the analysis*, select *standalone scanner* (even if you build with *Visual Studio*/*MSBuild*) 
 |    * In *Additional Properties* in the *Advanced* section, add the property `sonar.cfamily.build-wrapper-output` with, as its value, the output directory to which the Build Wrapper should write its results: `sonar.cfamily.build-wrapper-output=<output directory>`
-| 3. Add a **Command Line** task to run your build.\
+| 1. Add a **Command Line** task to run your build.
 |    For the analysis to happen, your build has to be run through a command line so that it can be wrapped-up by the build-wrapper.
 |    To do so, 
-|    * Run **Build Wrapper** executable. Pass in as the arguments (1) the output directory configured in the previous task and (2) the command that runs a clean build of your project (not an incremental build).\
+|    * Run **Build Wrapper** executable. Pass in as the arguments (1) the output directory configured in the previous task and (2) the command that runs a clean build of your project (not an incremental build).
 |    Example of PowerShell commands on a Windows host with an *MSBuild* build:
 |      ```
 |     build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
@@ -231,8 +233,50 @@ Select your build technology below to expand the instructions for configuring br
 |      ```
 |      build-wrapper-macosx-x86/build-wrapper-macos-x86 --out-dir <output directory> xcodebuild -project myproject.xcodeproj -configuration Release clean build
 |      ```
-| 4. Add a **Run Code Analysis** task to run the code analysis and make the results available to SonarQube. Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis.
-| 5. Add a **Publish Quality Gate Result** task.
+| 1. Add a **Run Code Analysis** task to run the code analysis and make the results available to SonarQube. Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis.
+| 1. Add a **Publish Quality Gate Result** task.
+| 
+| **.yml example**:
+| ```
+| trigger:
+| - master
+| - feature/*
+|
+| steps:
+| # Make Build Wrapper available
+| - task: Bash@3
+|   displayName: Download Build Wrapper
+|   inputs:
+|     targetType: inline
+|     script: >
+|       curl  '<SONARQUBE_HOST>/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
+|       unzip build-wrapper.zip
+|
+| # Prepare Analysis Configuration task
+| - task: SonarQubePrepare@4
+|   inputs:
+|     SonarQube: 'YourSonarqubeServerEndpoint'
+|     scannerMode: 'CLI'
+|     configMode: 'manual'
+|     cliProjectKey: 'YourProjectKey'
+|     extraProperties: "sonar.cfamily.build-wrapper-output=bw_output"
+| # Command Line task to run your build.
+| - task: Bash@3
+|    displayName: Bash Script
+|    inputs:
+|      targetType: inline
+|      script: >
+|        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw_output <Your build command>
+|
+| # Run Code Analysis task
+| - task: SonarQubeAnalyze@4
+|
+| # Publish Quality Gate Result task
+| - task: SonarQubePublish@4
+|   inputs:
+|     pollingTimeoutSec: '300'
+| ```
+|  *Note: You need to choose your correct image and adapt the correct wrapper depending on the agent os. See above example to have the correct wrapper.*
 
 ### Running your pipeline
 Commit and push your code to trigger the pipeline execution and SonarQube analysis. New pushes on your branches (and pull requests if you set up pull request analysis) trigger a new analysis in SonarQube.

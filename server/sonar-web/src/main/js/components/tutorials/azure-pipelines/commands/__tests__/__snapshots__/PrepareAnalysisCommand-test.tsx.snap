@@ -240,12 +240,12 @@ exports[`should render correctly 4`] = `
             onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.advanced
           </b>,
           "button": <ClipboardIconButton
-            copyValue="sonar.cfamily.build-wrapper-output=<output directory>"
+            copyValue="sonar.cfamily.build-wrapper-output=bw-output"
           />,
           "property": <code
             className="rule"
           >
-            sonar.cfamily.build-wrapper-output=&lt;output directory&gt;
+            sonar.cfamily.build-wrapper-output=bw-output
           </code>,
         }
       }

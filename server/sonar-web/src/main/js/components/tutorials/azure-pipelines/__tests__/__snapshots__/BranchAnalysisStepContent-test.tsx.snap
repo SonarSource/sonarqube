@@ -137,3 +137,28 @@ exports[`should render correctly: other 1`] = `
   />
 </Fragment>
 `;
+
+exports[`should render correctly: without C 1`] = `
+<Fragment>
+  <span>
+    onboarding.build
+  </span>
+  <RenderOptions
+    name="buildTechnology"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build"
+    options={
+      Array [
+        "dotnet",
+        "maven",
+        "gradle",
+        "other",
+      ]
+    }
+  />
+  <AnalysisCommand
+    onStepValidationChange={[MockFunction]}
+    projectKey="my-project"
+  />
+</Fragment>
+`;

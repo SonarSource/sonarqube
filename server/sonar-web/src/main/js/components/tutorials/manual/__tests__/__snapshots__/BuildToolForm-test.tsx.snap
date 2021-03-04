@@ -138,3 +138,41 @@ exports[`renders correctly: with "other" selected 1`] = `
   />
 </Fragment>
 `;
+
+exports[`renders correctly: without C 1`] = `
+<Fragment>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.build
+    </h4>
+    <RadioToggle
+      disabled={false}
+      name="language"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "onboarding.build.maven",
+            "value": "maven",
+          },
+          Object {
+            "label": "onboarding.build.gradle",
+            "value": "gradle",
+          },
+          Object {
+            "label": "onboarding.build.dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "onboarding.build.other",
+            "value": "other",
+          },
+        ]
+      }
+      value={null}
+    />
+  </div>
+</Fragment>
+`;

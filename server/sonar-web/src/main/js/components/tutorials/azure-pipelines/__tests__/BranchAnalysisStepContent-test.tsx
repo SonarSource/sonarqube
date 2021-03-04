@@ -22,10 +22,11 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
 import { BuildTools } from '../../types';
-import BranchAnalysisStepContent, { BranchesAnalysisStepProps } from '../BranchAnalysisStepContent';
+import { BranchAnalysisStepContent, BranchesAnalysisStepProps } from '../BranchAnalysisStepContent';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ languages: {} })).toMatchSnapshot('without C');
 });
 
 it.each([BuildTools.DotNet, BuildTools.Gradle, BuildTools.Maven, BuildTools.Other])(
@@ -44,6 +45,7 @@ it.each([BuildTools.DotNet, BuildTools.Gradle, BuildTools.Maven, BuildTools.Othe
 function shallowRender(props: Partial<BranchesAnalysisStepProps> = {}) {
   return shallow(
     <BranchAnalysisStepContent
+      languages={{ c: { key: 'c', name: 'test' } }}
       component={mockComponent()}
       onStepValidationChange={jest.fn()}
       {...props}

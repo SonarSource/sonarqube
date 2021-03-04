@@ -20,10 +20,11 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { BuildTools, OSs } from '../../types';
-import BuildToolForm from '../BuildToolForm';
+import { BuildToolForm } from '../BuildToolForm';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ languages: {} })).toMatchSnapshot('without C');
   expect(shallowRender().setState({ config: { buildTool: BuildTools.Maven } })).toMatchSnapshot(
     'with "maven" selected'
   );
@@ -47,5 +48,7 @@ it('correctly calls the onDone prop', () => {
 });
 
 function shallowRender(props: Partial<BuildToolForm['props']> = {}) {
-  return shallow<BuildToolForm>(<BuildToolForm onDone={jest.fn()} {...props} />);
+  return shallow<BuildToolForm>(
+    <BuildToolForm onDone={jest.fn()} languages={{ c: { key: 'c', name: 'test' } }} {...props} />
+  );
 }

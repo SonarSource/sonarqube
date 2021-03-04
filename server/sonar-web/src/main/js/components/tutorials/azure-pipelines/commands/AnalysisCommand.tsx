@@ -38,8 +38,6 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
   React.useEffect(() => {
     if (buildTool && buildTool !== BuildTools.CFamily) {
       props.onStepValidationChange(true);
-    } else {
-      props.onStepValidationChange(false);
     }
   }, [buildTool, props.onStepValidationChange]);
 
