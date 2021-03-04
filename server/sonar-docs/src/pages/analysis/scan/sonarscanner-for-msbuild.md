@@ -222,6 +222,24 @@ Concurrent analyses (i.e. parallel analysis of two solutions on the same build m
 
 The performance impact of this global installation for projects that aren't analyzed is negligible as this target is only a bootstrapper and will bail out nearly instantaneously when the `.sonarqube` folder is not found under the folder being built.
 
+**Analyzing languages other than C# and VB**
+
+By default, SonarScanner for .NET will only analyze C# and VB files in your project. To enable the analysis of other types of files, these files must be listed in the MSBuild project file (the `.csproj` or `.vbproj` file).
+
+More specifically, any files included by an element of one of the `ItemTypes` in
+[this list](https://github.com/SonarSource/sonar-scanner-msbuild/blob/master/src/SonarScanner.MSBuild.Tasks/Targets/SonarQube.Integration.targets#L112)
+will be analyzed automatically. For example, the following line in your `.csproj` or `.vbproj` file
+
+```
+<Content Include="foo\bar\*.js" />
+```
+
+will enable the analysis of all JS files in the directory `foo\bar` because `Content` is one of the `ItemTypes` whose includes are automatically analyzed.
+
+You can also add `ItemTypes` to the default list by following the directions [here](https://github.com/SonarSource/sonar-scanner-msbuild/blob/master/src/SonarScanner.MSBuild.Tasks/Targets/SonarQube.Integration.targets#L75).
+
+You can check which files the scanner will analyze by looking in the file .sonarqube\out\sonar-project.properties after MSBuild has finished.
+
 **Using SonarScanner for .NET with a Proxy**  
 On build machines that connect to the Internet through a proxy server you might experience difficulties connecting to SonarQube. To instruct the Java VM to use the system proxy settings, you need to set the following environment variable before running the SonarScanner for .NET:
 
@@ -237,5 +255,3 @@ SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyP
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html.
 
 Since version 5.0 of the scanner, HTTP_PROXY, HTTPS_PROXY, ALL_PROXY and NO_PROXY will be automatically recognized and use to make call against SonarQube. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
-
-Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html
