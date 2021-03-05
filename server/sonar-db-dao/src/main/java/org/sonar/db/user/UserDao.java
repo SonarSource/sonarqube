@@ -38,12 +38,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Locale.ENGLISH;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.user.UserDto.SCM_ACCOUNTS_SEPARATOR;
 
 public class UserDao implements Dao {
-  private final static long WEEK_IN_MS = 7L * 24L * 3_600L * 1_000L;
+  private static final long WEEK_IN_MS = DAYS.toMillis(7L);
   private final System2 system2;
   private final UuidFactory uuidFactory;
 

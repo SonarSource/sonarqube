@@ -32,6 +32,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ServerUserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +67,7 @@ public class SonarLintConnectionFilterTest {
 
   @Test
   public void only_applies_to_api() {
-    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), mock(ServerUserSession.class), system2);
+    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), mock(ThreadLocalUserSession.class), system2);
     assertThat(underTest.doGetPattern().matches("/api/test")).isTrue();
     assertThat(underTest.doGetPattern().matches("/test")).isFalse();
 
@@ -92,6 +93,16 @@ public class SonarLintConnectionFilterTest {
   }
 
   @Test
+  public void dont_fail_if_no_user_set() throws IOException, ServletException {
+    SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), new ThreadLocalUserSession(), system2);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getHeader("User-Agent")).thenReturn("sonarlint");
+    FilterChain chain = mock(FilterChain.class);
+    underTest.doFilter(request, mock(ServletResponse.class), chain);
+    verify(chain).doFilter(any(), any());
+  }
+
+  @Test
   public void only_update_if_not_updated_within_1h() throws IOException, ServletException {
     system2.setNow(2_000_000L);
     addUser(LOGIN, 1_000_000L);
@@ -111,7 +122,8 @@ public class SonarLintConnectionFilterTest {
 
   private void runFilter(String loggedInUser, @Nullable String agent) throws IOException, ServletException {
     UserDto user = dbTester.getDbClient().userDao().selectByLogin(dbTester.getSession(), loggedInUser);
-    ServerUserSession session = new ServerUserSession(dbTester.getDbClient(), user);
+    ThreadLocalUserSession session = new ThreadLocalUserSession();
+    session.set(new ServerUserSession(dbTester.getDbClient(), user));
     SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), session, system2);
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getHeader("User-Agent")).thenReturn(agent);

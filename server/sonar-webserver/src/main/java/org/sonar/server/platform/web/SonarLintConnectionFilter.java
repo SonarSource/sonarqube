@@ -30,18 +30,20 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletRequest;
+
+import static java.util.concurrent.TimeUnit.HOURS;
 
 public class SonarLintConnectionFilter extends ServletFilter {
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/api/*")
     .build();
   private final DbClient dbClient;
-  private final UserSession userSession;
+  private final ThreadLocalUserSession userSession;
   private final System2 system2;
 
-  public SonarLintConnectionFilter(DbClient dbClient, UserSession userSession, System2 system2) {
+  public SonarLintConnectionFilter(DbClient dbClient, ThreadLocalUserSession userSession, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system2 = system2;
@@ -84,11 +86,11 @@ public class SonarLintConnectionFilter extends ServletFilter {
   }
 
   private boolean shouldUpdate() {
-    if (!userSession.isLoggedIn()) {
+    if (!userSession.hasSession() || !userSession.isLoggedIn()) {
       return false;
     }
     long now = system2.now();
     Long lastUpdate = userSession.getLastSonarlintConnectionDate();
-    return (lastUpdate == null || lastUpdate < now - 3_600_000L);
+    return (lastUpdate == null || lastUpdate < now - HOURS.toMillis(1L));
   }
 }
