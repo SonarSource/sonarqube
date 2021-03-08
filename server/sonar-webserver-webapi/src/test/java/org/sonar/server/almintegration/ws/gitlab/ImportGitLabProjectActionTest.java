@@ -21,9 +21,11 @@ package org.sonar.server.almintegration.ws.gitlab;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.utils.System2;
@@ -32,6 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -45,9 +48,12 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -93,6 +99,7 @@ public class ImportGitLabProjectActionTest {
     });
     Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
     when(uuidFactory.create()).thenReturn("uuid");
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -109,6 +116,78 @@ public class ImportGitLabProjectActionTest {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+  }
+
+  @Test
+  public void import_project_with_specific_different_default_branch() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("PAT");
+    });
+    Project project = getGitlabProject();
+    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("main", true)));
+    when(uuidFactory.create()).thenReturn("uuid");
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(project.getPathWithNamespace() + "_uuid");
+    assertThat(result.getName()).isEqualTo(project.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+
+    Assertions.assertThat(db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()))
+      .extracting(BranchDto::getKey, BranchDto::isMain)
+      .containsExactlyInAnyOrder(tuple("main", true));
+  }
+
+  @Test
+  public void import_project_no_gitlab_default_branch() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("PAT");
+    });
+    Project project = getGitlabProject();
+    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(emptyList());
+    when(uuidFactory.create()).thenReturn("uuid");
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(project.getPathWithNamespace() + "_uuid");
+    assertThat(result.getName()).isEqualTo(project.getName());
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+
+    Assertions.assertThat(db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()))
+      .extracting(BranchDto::getKey, BranchDto::isMain)
+      .containsExactlyInAnyOrder(tuple("master", true));
   }
 
   @Test

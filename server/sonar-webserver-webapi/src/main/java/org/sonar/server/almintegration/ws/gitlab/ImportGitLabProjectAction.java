@@ -21,6 +21,8 @@ package org.sonar.server.almintegration.ws.gitlab;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.server.ws.Request;
@@ -103,14 +105,21 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
       long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);
 
-      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
-      Project gitlabProject = gitlabHttpClient.getProject(url, pat, gitlabProjectId);
+      String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "ALM gitlabUrl cannot be null");
+      Project gitlabProject = gitlabHttpClient.getProject(gitlabUrl, pat, gitlabProjectId);
 
-      ComponentDto componentDto = createProject(dbSession, gitlabProject);
+      Optional<String> almMainBranchName = getAlmDefaultBranch(pat, gitlabProjectId, gitlabUrl);
+      ComponentDto componentDto = createProject(dbSession, gitlabProject, almMainBranchName.orElse(null));
       populateMRSetting(dbSession, gitlabProjectId, componentDto, almSettingDto);
+      componentUpdater.commitAndIndex(dbSession, componentDto);
 
       return ImportHelper.toCreateResponse(componentDto);
     }
+  }
+
+  private Optional<String> getAlmDefaultBranch(String pat, long gitlabProjectId, String gitlabUrl) {
+    Optional<GitLabBranch> almMainBranch = gitlabHttpClient.getBranches(gitlabUrl, pat, gitlabProjectId).stream().filter(GitLabBranch::isDefault).findFirst();
+    return almMainBranch.map(GitLabBranch::getName);
   }
 
   private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ComponentDto componentDto, AlmSettingDto almSettingDto) {
@@ -120,20 +129,20 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       .setAlmRepo(gitlabProjectId.toString())
       .setAlmSlug(null)
       .setMonorepo(false));
-    dbSession.commit();
   }
 
-  private ComponentDto createProject(DbSession dbSession, Project gitlabProject) {
+  private ComponentDto createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String sqProjectKey = generateProjectKey(gitlabProject.getPathWithNamespace(), uuidFactory.create());
 
-    return componentUpdater.create(dbSession, newComponentBuilder()
+    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
       .setKey(sqProjectKey)
       .setName(gitlabProject.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build(),
-      userSession.getUuid());
+      userSession.getUuid(), mainBranchName, s -> {
+      });
   }
 
   @VisibleForTesting

@@ -25,6 +25,7 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -56,7 +57,6 @@ public class GitlabHttpClient {
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
       .build();
   }
-
 
   public void checkReadPermission(@Nullable String gitlabUrl, @Nullable String personalAccessToken) {
     checkProjectAccess(gitlabUrl, personalAccessToken, "Could not validate GitLab read permission. Got an unexpected answer.");
@@ -218,6 +218,27 @@ public class GitlabHttpClient {
       return new GsonBuilder().create().fromJson(body, Project.class);
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
+    } catch (IOException e) {
+      throw new IllegalStateException(e.getMessage(), e);
+    }
+  }
+
+  public List<GitLabBranch> getBranches(String gitlabUrl, String pat, Long gitlabProjectId) {
+    String url = String.format("%s/projects/%s/repository/branches", gitlabUrl, gitlabProjectId);
+    LOG.debug(String.format("get branches : [%s]", url));
+    Request request = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, pat)
+      .get()
+      .url(url)
+      .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response);
+      String body = response.body().string();
+      LOG.trace(String.format("loading branches payload result : [%s]", body));
+      return Arrays.asList(new GsonBuilder().create().fromJson(body, GitLabBranch[].class));
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
     } catch (IOException e) {
       throw new IllegalStateException(e.getMessage(), e);
     }

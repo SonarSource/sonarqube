@@ -62,7 +62,6 @@ public class GitlabHttpClientTest {
       .setBody("{\"error\":\"invalid_token\",\"error_description\":\"Token was revoked. You have to re-authorize from the user.\"}");
     server.enqueue(response);
 
-    String gitlabUrl = this.gitlabUrl;
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Your GitLab token was revoked");
@@ -77,7 +76,6 @@ public class GitlabHttpClientTest {
         "\"scope\":\"api read_api\"}");
     server.enqueue(response);
 
-    String gitlabUrl = this.gitlabUrl;
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Your GitLab token has insufficient scope");
@@ -90,7 +88,6 @@ public class GitlabHttpClientTest {
       .setBody("error in pat");
     server.enqueue(response);
 
-    String gitlabUrl = this.gitlabUrl;
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid personal access token");
@@ -122,10 +119,53 @@ public class GitlabHttpClientTest {
       .setBody("non json payload");
     server.enqueue(response);
 
-    String instanceUrl = gitlabUrl;
-    assertThatThrownBy(() -> underTest.getProject(instanceUrl, "pat", 12345L))
+    assertThatThrownBy(() -> underTest.getProject(gitlabUrl, "pat", 12345L))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
+  }
+
+  @Test
+  public void get_branches(){
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("[{\n"
+        + "    \"name\": \"main\",\n"
+        + "    \"default\": true\n"
+        + "},{\n"
+        + "    \"name\": \"other\",\n"
+        + "    \"default\": false\n"
+        + "}]");
+    server.enqueue(response);
+
+    assertThat(underTest.getBranches(gitlabUrl, "pat", 12345L))
+      .extracting(GitLabBranch::getName, GitLabBranch::isDefault)
+      .containsExactly(
+        tuple("main", true),
+        tuple("other", false)
+      );
+  }
+
+  @Test
+  public void get_branches_fail_if_non_json_payload() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("non json payload");
+    server.enqueue(response);
+
+    String instanceUrl = gitlabUrl;
+    assertThatThrownBy(() -> underTest.getBranches(instanceUrl, "pat", 12345L))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
+  }
+
+  @Test
+  public void get_branches_fail_if_exception() throws IOException {
+    server.shutdown();
+
+    String instanceUrl = gitlabUrl;
+    assertThatThrownBy(() -> underTest.getBranches(instanceUrl, "pat", 12345L))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to connect to");
   }
 
   @Test
@@ -236,8 +276,7 @@ public class GitlabHttpClientTest {
     projects.addHeader("X-Total", "bad-total-number");
     server.enqueue(projects);
 
-    String gitlabInstanceUrl = gitlabUrl;
-    assertThatThrownBy(() -> underTest.searchProjects(gitlabInstanceUrl, "pat", "example", 1, 10))
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not parse pagination number");
   }
@@ -249,8 +288,7 @@ public class GitlabHttpClientTest {
       .setBody("[ ]");
     server.enqueue(projects);
 
-    String gitlabInstanceUrl = gitlabUrl;
-    assertThatThrownBy(() -> underTest.searchProjects(gitlabInstanceUrl, "pat", "example", 1, 10))
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Pagination data from GitLab response is missing");
   }
@@ -262,7 +300,6 @@ public class GitlabHttpClientTest {
       .setBody("test");
     server.enqueue(projects);
 
-    String gitlabUrl = this.gitlabUrl;
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not get projects from GitLab instance");
