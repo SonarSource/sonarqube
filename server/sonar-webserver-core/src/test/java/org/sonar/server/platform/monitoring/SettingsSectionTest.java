@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
@@ -26,6 +27,8 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.apache.commons.lang.StringUtils.repeat;
@@ -37,9 +40,12 @@ public class SettingsSectionTest {
 
   private static final String PASSWORD_PROPERTY = "sonar.password";
 
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   private PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
   private Settings settings = new MapSettings(defs);
-  private SettingsSection underTest = new SettingsSection(settings);
+  private SettingsSection underTest = new SettingsSection(dbTester.getDbClient(), settings);
 
   @Test
   public void return_properties_and_sort_by_key() {
@@ -49,11 +55,28 @@ public class SettingsSectionTest {
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "bar", "bar value");
     assertThatAttributeIs(protobuf, "foo", "foo value");
+    assertThatAttributeIs(protobuf, "Default New Code Definition", "PREVIOUS_VERSION");
 
     // keys are ordered alphabetically
     assertThat(protobuf.getAttributesList())
       .extracting(ProtobufSystemInfo.Attribute::getKey)
-      .containsExactly("bar", "foo");
+      .containsExactly("bar", "foo", "Default New Code Definition");
+  }
+
+  @Test
+  public void return_default_new_code_definition_with_no_specified_value() {
+    dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION,null);
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Default New Code Definition", "PREVIOUS_VERSION");
+  }
+
+  @Test
+  public void return_default_new_code_definition_with_specified_value() {
+    dbTester.newCodePeriods().insert(NewCodePeriodType.NUMBER_OF_DAYS,"30");
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Default New Code Definition", "NUMBER_OF_DAYS: 30");
   }
 
   @Test
