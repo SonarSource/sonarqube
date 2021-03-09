@@ -54,9 +54,6 @@ To add pull request decoration to a manually created or existing project, make s
 - **Project Key** – the project key is part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
 - **Repository SLUG** – The repository slug is part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
 
-[[info]]
-| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
-
 ### Advanced pull request decoration configuration
 
 [[collapse]]

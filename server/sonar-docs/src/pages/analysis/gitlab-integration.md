@@ -201,9 +201,6 @@ To add merge request decoration to a manually created or existing project, make 
 - **Configuration name** – The configuration name that corresponds to your GitLab instance. 
 - **Project ID** – your GitLab Project ID found in GitLab
 
-[[info]]
-| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
-
 ### Advanced merge request decoration configuration
 
 [[collapse]]

@@ -87,9 +87,6 @@ To add pull request decoration to a manually created or existing project, after 
 - **Configuration name** – The configuration name that corresponds to your GitHub instance. 
 - **Repository identifier** – The path of your repository URL.
 
-[[info]]
-| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
-
 ### Advanced pull request decoration configuration
 
 [[collapse]]
