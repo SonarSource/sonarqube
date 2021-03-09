@@ -14,7 +14,7 @@ With this integration, you'll be able to:
 Integration with Azure DevOps server requires at least Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2+.
 
 ### Branch Analysis
-Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
 
 ## Importing your Azure DevOps repositories into SonarQube
 Setting up the import of Azure DevOps repositories into SonarQube allows you to easily create SonarQube projects from your Azure DevOps repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration. 
@@ -38,7 +38,7 @@ Then, you'll be asked to provide a personal access token with `Code (Read & Writ
 
 After saving your personal access token, you'll see a list of your Azure DevOps projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for pull request decoration. 
 
-For information on analyzing your projects with Azure Pipelines, see the following section.
+For information on analyzing your projects with Azure Pipelines, see the **Analyzing projects with Azure Pipelines** section below.
 
 ## Analyzing projects with Azure Pipelines
 SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
@@ -306,12 +306,13 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 | To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
 ### Adding pull request decoration to a manually created or existing project 
-To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown above in the **Importing your Azure DevOps repositories into SonarQube** section, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 
-
-From here, set your: 
+To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown above in the **Importing your Azure DevOps repositories into SonarQube** section, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**:
 
 - **Project name**
 - **Repository name**
+
+[[info]]
+| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
 
 ### Advanced pull request decoration configuration
 

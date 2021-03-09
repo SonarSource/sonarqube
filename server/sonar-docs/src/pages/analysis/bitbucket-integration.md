@@ -13,7 +13,7 @@ With this integration, you'll be able to:
 Integration with Bitbucket Server requires at least Bitbucket Server version 5.15.
 
 ### Branch Analysis
-Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
 
 ## Importing your Bitbucket Server repositories into SonarQube
 Setting up the import of BitBucket Server repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Server repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration.
@@ -53,6 +53,9 @@ To add pull request decoration to a manually created or existing project, make s
 - **Configuration name** – The configuration name that corresponds to your ALM instance.
 - **Project Key** – the project key is part of your BitBucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
 - **Repository SLUG** – The repository slug is part of your BitBucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
+
+[[info]]
+| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
 
 ### Advanced pull request decoration configuration
 

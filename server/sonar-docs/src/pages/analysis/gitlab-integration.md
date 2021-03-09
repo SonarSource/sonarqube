@@ -16,7 +16,7 @@ With this integration, you'll be able to:
 Integration with GitLab Self-Managed requires at least GitLab Self-Managed version 11.7.
 
 ### Branch Analysis
-Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
 
 ## Authenticating with GitLab
 You can delegate authentication to GitLab using a dedicated GitLab OAuth application.
@@ -186,7 +186,7 @@ For more information on configuring your build with GitLab CI/CD, see the [GitLa
 
 ## Adding merge request decoration to GitLab
 
-Merge request decoration shows your Quality Gate and analysis metrics directly in GitLab:
+Merge request decoration shows your Quality Gate and analysis metrics directly in GitLab.
 
 After you've set up SonarQube to import your GitLab projects as shown in the previous section, the simplest way to add merge request decoration is by adding a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.
 
@@ -198,9 +198,11 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 ### Adding merge request decoration to a manually created or existing project
 To add merge request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown in the **Importing your GitLab projects into SonarQube** section above, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 
 
-From here, set your: 
 - **Configuration name** – The configuration name that corresponds to your GitLab instance. 
 - **Project ID** – your GitLab Project ID found in GitLab
+
+[[info]]
+| If you add your project manually, your main branch defaults to the name "master". You can rename it from the project settings at **Administration > Branches and Pull Requests**.
 
 ### Advanced merge request decoration configuration
 
@@ -231,4 +233,4 @@ From here, set your:
 
 [[collapse]]
 | ## Linking issues
-| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
+| During merge request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.

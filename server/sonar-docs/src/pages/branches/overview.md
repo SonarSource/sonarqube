@@ -11,7 +11,11 @@ With Branch Analysis, you can ensure that you're maintaining consistent code qua
 
 ### Master / Main Branch
 
-This is the default branch and typically corresponds to what's being developed for your next release. This is usually known within a development team as "master" or "head" and is analyzed when no specific branch parameters are provided. It is labeled "Main Branch" and defaults to the name "master" but can be renamed from the project settings at **Administration > Branches and Pull Requests**. When you are using Community Edition, this is the only branch you see.
+This is the default branch and typically corresponds to what's being developed for your next release. This branch is usually known within a development team as "master" or "head" and is analyzed when no specific branch parameters are provided. SonarQube labels this branch as **Main Branch**, and, with Community Edition, this is the only branch you can analyze. 
+
+If you add your project from an ALM, your main branch name in SonarQube matches your main branch name in your repository. See **ALM Integrations** in the documentation navigation for more information on adding your project from an ALM.
+
+If you add your project manually, your main branch defaults to the name "master" but can be renamed from the project settings at **Administration > Branches and Pull Requests**. 
 
 ### Settings and Quality Profiles on Branches
 
