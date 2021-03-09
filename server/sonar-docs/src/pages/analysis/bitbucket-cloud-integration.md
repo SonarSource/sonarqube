@@ -67,7 +67,7 @@ Click the scanner you're using below to expand the example configuration:
 |             - gradle
 |             - sonar
 |           script:
-|             - bash ./gradlew sonarqube
+|             - bash ./gradlew sonarqube -Dsonar.qualitygate.wait=true
 |
 |   pull-requests:
 |     '**':
@@ -77,7 +77,7 @@ Click the scanner you're using below to expand the example configuration:
 |             - gradle
 |             - sonar
 |           script:
-|             - bash ./gradlew sonarqube
+|             - bash ./gradlew sonarqube -Dsonar.qualitygate.wait=true
 |
 | definitions:
 |   caches:
@@ -106,7 +106,7 @@ Click the scanner you're using below to expand the example configuration:
 |             - maven
 |             - sonar
 |           script:
-|             - mvn verify sonar:sonar
+|             - mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
 |
 |   pull-requests:
 |     '**':
@@ -116,7 +116,7 @@ Click the scanner you're using below to expand the example configuration:
 |             - maven
 |             - sonar
 |           script:
-|             - mvn verify sonar:sonar
+|             - mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
 |
 | definitions:
 |   caches:
@@ -143,7 +143,7 @@ Click the scanner you're using below to expand the example configuration:
 |           caches:
 |             - sonar
 |           script:
-|             - sonar-scanner
+|             - sonar-scanner -Dsonar.qualitygate.wait=true
 |
 |   pull-requests:
 |     '**':
@@ -153,12 +153,17 @@ Click the scanner you're using below to expand the example configuration:
 |           caches:
 |             - sonar
 |           script:
-|             - sonar-scanner
+|             - sonar-scanner -Dsonar.qualitygate.wait=true
 |
 | definitions:
 |   caches:
 |     sonar: /opt/sonar-scanner/.sonar
 | ```
+
+#### **Failing the pipeline job when the Quality Gate fails**
+In order for the Quality Gate to fail the pipeline when it is red on the SonarQube side, the scanner needs to wait for the SonarQube Quality Gate status. To enable this, set the `sonar.qualitygate.wait=true` parameter in the `bitbucket-pipelines.yml` file, just as in the examples above. If you don't want to fail your pipeline based on the Quality Gate, you can omit the `sonar.qualitygate.wait` parameter.
+
+You can set the `sonar.qualitygate.timeout` property to an amount of time (in seconds) that the scanner should wait for a report to be processed. The default is 300 seconds. 
 
 ### For more information
 For more information on configuring your build with Bitbucket Pipelines, see the [Configure bitbucket-pipelines.yml](https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/) documentation provided by Atlassian.
