@@ -71,10 +71,13 @@ postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
     POSTGRES_PASSWORD: postgres
 
 reports_junit_on_failure_template: &REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  jest_junit_cleanup_script: >
+    find . -type f -wholename "**/build/test-results/test-jest/junit.xml" -exec
+    xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
   reports_artifacts:
     path: "**/build/reports/**/*"
   junit_artifacts:
-    path: "**/test-results/**/*.xml"
+    path: "**/build/test-results/**/*.xml"
     format: junit
 
 screenshots_on_failure_template: &REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
