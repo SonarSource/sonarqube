@@ -31,6 +31,7 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -90,7 +91,7 @@ public class ImportGithubProjectActionTest {
     db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "octocat/Hello-World",
-      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World");
+      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "default-branch");
     when(appClient.getRepository(any(), any(), any(), any()))
       .thenReturn(Optional.of(repository));
 
@@ -107,6 +108,9 @@ public class ImportGithubProjectActionTest {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()).stream().filter(BranchDto::isMain).findAny();
+    assertThat(mainBranch).isPresent();
+    assertThat(mainBranch.get().getKey()).isEqualTo("default-branch");
   }
 
   @Test
@@ -116,7 +120,7 @@ public class ImportGithubProjectActionTest {
     db.components().insertPublicProject(p -> p.setDbKey("octocat_Hello-World"));
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "octocat/Hello-World",
-      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World");
+      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "main");
     when(appClient.getRepository(any(), any(), any(), any()))
       .thenReturn(Optional.of(repository));
 

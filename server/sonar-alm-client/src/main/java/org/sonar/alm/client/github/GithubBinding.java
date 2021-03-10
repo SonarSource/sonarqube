@@ -22,6 +22,8 @@ package org.sonar.alm.client.github;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+import static org.sonar.alm.client.github.GithubApplicationClient.*;
+
 public class GithubBinding {
 
   private GithubBinding() {
@@ -138,11 +140,18 @@ public class GithubBinding {
     boolean isPrivate;
     @SerializedName("url")
     String url;
+    @SerializedName("default_branch")
+    String defaultBranch;
 
     public GsonGithubRepository() {
       // even if empty constructor is not required for Gson, it is strongly
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Repository toRepository() {
+      return new Repository(this.id, this.name, this.isPrivate, this.fullName,
+        this.url, this.defaultBranch);
     }
   }
 }

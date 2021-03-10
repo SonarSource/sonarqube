@@ -107,7 +107,8 @@ public class ListGithubRepositoriesActionTest {
         .thenReturn(new GithubApplicationClient.Repositories()
           .setTotal(2)
           .setRepositories(Stream.of("HelloWorld", "HelloUniverse")
-            .map(name -> new GithubApplicationClient.Repository(name.length(), name, false, "github/" + name, "https://github-enterprise.sonarqube.com/api/v3/github/HelloWorld"))
+            .map(name -> new GithubApplicationClient.Repository(name.length(), name, false, "github/" + name,
+              "https://github-enterprise.sonarqube.com/api/v3/github/HelloWorld", "main"))
             .collect(Collectors.toList())));
 
     ProjectDto project = db.components().insertPrivateProjectDto(componentDto -> componentDto.setDbKey("github_HelloWorld"));

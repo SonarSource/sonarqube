@@ -102,13 +102,15 @@ public interface GithubApplicationClient {
     private final boolean isPrivate;
     private final String fullName;
     private final String url;
+    private final String defaultBranch;
 
-    public Repository(long id, String name, boolean isPrivate, String fullName, String url) {
+    public Repository(long id, String name, boolean isPrivate, String fullName, String url, String defaultBranch) {
       this.id = id;
       this.name = name;
       this.isPrivate = isPrivate;
       this.fullName = fullName;
       this.url = url;
+      this.defaultBranch = defaultBranch;
     }
 
     public long getId() {
@@ -129,6 +131,10 @@ public interface GithubApplicationClient {
 
     public String getUrl() {
       return url;
+    }
+
+    public String getDefaultBranch() {
+      return defaultBranch;
     }
 
     @Override

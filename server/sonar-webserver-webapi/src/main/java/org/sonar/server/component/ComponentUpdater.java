@@ -22,6 +22,7 @@ package org.sonar.server.component;
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -88,11 +89,22 @@ public class ComponentUpdater {
    * Create component without committing.
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
-  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, Consumer<ComponentDto> componentModifier) {
+  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent,
+    @Nullable String userUuid, Consumer<ComponentDto> componentModifier) {
+    return createWithoutCommit(dbSession, newComponent, userUuid, null, componentModifier);
+  }
+
+  /**
+   * Create component without committing.
+   * Don't forget to call commitAndIndex(...) when ready to commit.
+   */
+  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent,
+    @Nullable String userUuid, @Nullable String mainBranchName,
+    Consumer<ComponentDto> componentModifier) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent, componentModifier);
     if (isRootProject(componentDto)) {
-      createMainBranch(dbSession, componentDto.uuid());
+      createMainBranch(dbSession, componentDto.uuid(), mainBranchName);
     }
     handlePermissionTemplate(dbSession, componentDto, userUuid);
     return componentDto;
@@ -152,11 +164,11 @@ public class ComponentUpdater {
       && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
   }
 
-  private void createMainBranch(DbSession session, String componentUuid) {
+  private void createMainBranch(DbSession session, String componentUuid, @Nullable String mainBranch) {
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setUuid(componentUuid)
-      .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
+      .setKey(Optional.ofNullable(mainBranch).orElse(BranchDto.DEFAULT_MAIN_BRANCH_NAME))
       .setMergeBranchUuid(null)
       .setExcludeFromPurge(true)
       .setProjectUuid(componentUuid);

@@ -61,7 +61,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private final ImportHelper importHelper;
 
   public ImportGithubProjectAction(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
-      GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper) {
+    GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
@@ -121,22 +121,23 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       Repository repository = githubApplicationClient.getRepository(url, accessToken, githubOrganization, repositoryKey)
         .orElseThrow(() -> new NotFoundException(String.format("GitHub repository '%s' not found", repositoryKey)));
 
-      ComponentDto componentDto = createProject(dbSession, repository);
+      ComponentDto componentDto = createProject(dbSession, repository, repository.getDefaultBranch());
       populatePRSetting(dbSession, repository, componentDto, almSettingDto);
+      componentUpdater.commitAndIndex(dbSession, componentDto);
 
       return toCreateResponse(componentDto);
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, Repository repo) {
+  private ComponentDto createProject(DbSession dbSession, Repository repo, String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    return componentUpdater.create(dbSession, newComponentBuilder()
+    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
       .setKey(getProjectKeyFromRepository(repo))
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build(),
-      userSession.getUuid());
+      userSession.getUuid(), mainBranchName, s -> {});
   }
 
   static String getProjectKeyFromRepository(Repository repo) {
@@ -152,6 +153,5 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setSummaryCommentEnabled(true)
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
-    dbSession.commit();
   }
 }

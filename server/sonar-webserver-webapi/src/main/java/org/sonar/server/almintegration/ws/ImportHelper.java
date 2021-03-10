@@ -72,5 +72,4 @@ public class ImportHelper {
         .setVisibility(Visibility.getLabel(componentDto.isPrivate())))
       .build();
   }
-
 }

@@ -183,7 +183,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
       if (gsonRepositories.get().items != null) {
         repositories.setRepositories(gsonRepositories.get().items.stream()
-          .map(gsonRepository -> new Repository(gsonRepository.id, gsonRepository.name, gsonRepository.isPrivate, gsonRepository.fullName, gsonRepository.url))
+          .map(GsonGithubRepository::toRepository)
           .collect(toList()));
       }
 
@@ -200,7 +200,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       GetResponse response = appHttpClient.get(appUrl, accessToken, String.format("/repos/%s", repositoryKey));
       return response.getContent()
         .map(content -> GSON.fromJson(content, GsonGithubRepository.class))
-        .map(repository -> new Repository(repository.id, repository.name, repository.isPrivate, repository.fullName, repository.url));
+        .map(GsonGithubRepository::toRepository);
     } catch (Exception e) {
       throw new IllegalStateException(format("Failed to get repository '%s' of '%s' accessible by user access token on '%s'", repositoryKey, organization, appUrl), e);
     }
