@@ -181,6 +181,85 @@ public class BitbucketServerRestClientTest {
   }
 
   @Test
+  public void getBranches_given0Branches_returnEmptyList(){
+    String bodyWith0Branches = "{\n" +
+      "  \"size\": 0,\n" +
+      "  \"limit\": 25,\n" +
+      "  \"isLastPage\": true,\n" +
+      "  \"values\": [],\n" +
+      "  \"start\": 0\n" +
+      "}";
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(bodyWith0Branches));
+
+    BranchesList branches = underTest.getBranches(server.url("/").toString(), "token", "projectSlug", "repoSlug");
+
+    assertThat(branches.getBranches()).isEmpty();
+  }
+
+  @Test
+  public void getBranches_given1Branch_returnListWithOneBranch(){
+    String bodyWith1Branch = "{\n" +
+      "  \"size\": 1,\n" +
+      "  \"limit\": 25,\n" +
+      "  \"isLastPage\": true,\n" +
+      "  \"values\": [{\n" +
+      "    \"id\": \"refs/heads/demo\",\n" +
+      "    \"displayId\": \"demo\",\n" +
+      "    \"type\": \"BRANCH\",\n" +
+      "    \"latestCommit\": \"3e30a6701af6f29f976e9a6609a6076b32a69ac3\",\n" +
+      "    \"latestChangeset\": \"3e30a6701af6f29f976e9a6609a6076b32a69ac3\",\n" +
+      "    \"isDefault\": false\n" +
+      "  }],\n" +
+      "  \"start\": 0\n" +
+      "}";
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(bodyWith1Branch));
+
+    BranchesList branches = underTest.getBranches(server.url("/").toString(), "token", "projectSlug", "repoSlug");
+    assertThat(branches.getBranches()).hasSize(1);
+
+    Branch branch = branches.getBranches().get(0);
+    assertThat(branch.getName()).isEqualTo("demo");
+    assertThat(branch.isDefault()).isFalse();
+
+  }
+
+  @Test
+  public void getBranches_given2Branches_returnListWithTwoBranches(){
+    String bodyWith2Branches = "{\n" +
+      "  \"size\": 2,\n" +
+      "  \"limit\": 25,\n" +
+      "  \"isLastPage\": true,\n" +
+      "  \"values\": [{\n" +
+      "    \"id\": \"refs/heads/demo\",\n" +
+      "    \"displayId\": \"demo\",\n" +
+      "    \"type\": \"BRANCH\",\n" +
+      "    \"latestCommit\": \"3e30a6701af6f29f976e9a6609a6076b32a69ac3\",\n" +
+      "    \"latestChangeset\": \"3e30a6701af6f29f976e9a6609a6076b32a69ac3\",\n" +
+      "    \"isDefault\": false\n" +
+      "  }, {\n" +
+      "    \"id\": \"refs/heads/master\",\n" +
+      "    \"displayId\": \"master\",\n" +
+      "    \"type\": \"BRANCH\",\n" +
+      "    \"latestCommit\": \"66633864d27c531ff43892f6dfea6d91632682fa\",\n" +
+      "    \"latestChangeset\": \"66633864d27c531ff43892f6dfea6d91632682fa\",\n" +
+      "    \"isDefault\": true\n" +
+      "  }],\n" +
+      "  \"start\": 0\n" +
+      "}";
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(bodyWith2Branches));
+
+    BranchesList branches = underTest.getBranches(server.url("/").toString(), "token", "projectSlug", "repoSlug");
+
+    assertThat(branches.getBranches()).hasSize(2);
+  }
+
+  @Test
   public void invalid_url() {
     assertThatThrownBy(() -> BitbucketServerRestClient.buildUrl("file://wrong-url", ""))
       .isInstanceOf(IllegalArgumentException.class)

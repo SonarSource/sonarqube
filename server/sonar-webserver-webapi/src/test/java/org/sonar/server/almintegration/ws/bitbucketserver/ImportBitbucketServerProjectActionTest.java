@@ -19,12 +19,14 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketserver;
 
-import java.util.Optional;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.alm.client.bitbucketserver.Branch;
+import org.sonar.alm.client.bitbucketserver.BranchesList;
 import org.sonar.alm.client.bitbucketserver.Project;
 import org.sonar.alm.client.bitbucketserver.Repository;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +36,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -61,6 +64,11 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ImportBitbucketServerProjectActionTest {
 
@@ -81,6 +89,14 @@ public class ImportBitbucketServerProjectActionTest {
   private final WsActionTester ws = new WsActionTester(new ImportBitbucketServerProjectAction(db.getDbClient(), userSession,
     bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper));
 
+  private static BranchesList defaultBranchesList;
+
+  @BeforeClass
+  public static void beforeAll() {
+    Branch defaultBranch = new Branch("default", true);
+    defaultBranchesList = new BranchesList(Collections.singletonList(defaultBranch));
+  }
+
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
@@ -98,6 +114,7 @@ public class ImportBitbucketServerProjectActionTest {
     Project project = getGsonBBSProject();
     Repository repo = getGsonBBSRepo(project);
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -132,6 +149,8 @@ public class ImportBitbucketServerProjectActionTest {
     expectedException.expectMessage("Could not create null, key already exists: " + projectKey);
 
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+    
     ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
       .setParam("projectKey", "projectKey")
@@ -205,6 +224,74 @@ public class ImportBitbucketServerProjectActionTest {
     ws.newRequest()
       .setParam("almSetting", "anyvalue")
       .execute();
+  }
+
+  @Test
+  public void handle_givenNoDefaultBranchFound_doNotUpdateDefaultBranchName() {
+    BranchesList branchesList = new BranchesList();
+    Branch branch = new Branch("not_a_master", false);
+    branchesList.addBranch(branch);
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+
+    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
+    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).collect(Collectors.toList());
+    String mainBranchName = collect.iterator().next().getKey();
+    assertThat(mainBranchName).isEqualTo("master");
+  }
+
+  @Test
+  public void handle_givenDefaultBranchNamedDefault_updateDefaultBranchNameToDefault() {
+    BranchesList branchesList = new BranchesList();
+    Branch branch = new Branch("default", true);
+    branchesList.addBranch(branch);
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+
+    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
+    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).collect(Collectors.toList());
+    String mainBranchName = collect.iterator().next().getKey();
+    assertThat(mainBranchName).isEqualTo("default");
   }
 
   @Test

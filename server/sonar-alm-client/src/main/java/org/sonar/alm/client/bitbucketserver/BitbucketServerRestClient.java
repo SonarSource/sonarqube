@@ -102,6 +102,11 @@ public class BitbucketServerRestClient {
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), ProjectList.class));
   }
 
+  public BranchesList getBranches(String serverUrl, String token, String projectSlug, String repositorySlug){
+    HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/projects/%s/repos/%s/branches", projectSlug, repositorySlug));
+    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), BranchesList.class));
+  }
+
   protected static HttpUrl buildUrl(@Nullable String serverUrl, String relativeUrl) {
     if (serverUrl == null || !(serverUrl.toLowerCase(ENGLISH).startsWith("http://") || serverUrl.toLowerCase(ENGLISH).startsWith("https://"))) {
       throw new IllegalArgumentException("url must start with http:// or https://");

@@ -21,6 +21,8 @@ package org.sonar.server.almintegration.ws.bitbucketserver;
 
 import java.util.Optional;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.alm.client.bitbucketserver.Branch;
+import org.sonar.alm.client.bitbucketserver.BranchesList;
 import org.sonar.alm.client.bitbucketserver.Repository;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects;
@@ -44,6 +47,7 @@ import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import javax.annotation.Nullable;
 
 public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsAction {
 
@@ -117,22 +121,35 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
       Repository repo = bitbucketServerRestClient.getRepo(url, pat, projectKey, repoSlug);
 
-      ComponentDto componentDto = createProject(dbSession, repo);
+      String defaultBranchName = getDefaultBranchName(pat, projectKey, repoSlug, url);
+
+      ComponentDto componentDto = createProject(dbSession, repo, defaultBranchName);
+
       populatePRSetting(dbSession, repo, componentDto, almSettingDto);
+
+      componentUpdater.commitAndIndex(dbSession, componentDto);
 
       return toCreateResponse(componentDto);
     }
   }
+  
+  private String getDefaultBranchName(String pat, String projectKey, String repoSlug, String url) {
+    BranchesList branches = bitbucketServerRestClient.getBranches(url, pat, projectKey, repoSlug);
+    Optional<Branch> defaultBranch = branches.findDefaultBranch();
+    return defaultBranch.map(Branch::getName).orElse(null);
+  }
 
-  private ComponentDto createProject(DbSession dbSession, Repository repo) {
+  private ComponentDto createProject(DbSession dbSession, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    return componentUpdater.create(dbSession, newComponentBuilder()
+    NewComponent newProject = newComponentBuilder()
       .setKey(repo.getProject().getKey() + "_" + repo.getSlug())
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
-      .build(),
-      userSession.isLoggedIn() ? userSession.getUuid() : null);
+      .build();
+    String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
+
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, defaultBranchName, p -> {});
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
@@ -143,7 +160,6 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
-    dbSession.commit();
   }
 
 }
