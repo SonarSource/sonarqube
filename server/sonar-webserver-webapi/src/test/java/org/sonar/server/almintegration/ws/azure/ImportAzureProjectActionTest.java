@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -114,10 +115,53 @@ public class ImportAzureProjectActionTest {
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
+
     Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get());
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-name");
     assertThat(projectAlmSettingDto.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
     assertThat(projectAlmSettingDto.get().getAlmSlug()).isEqualTo("project-name");
+
+    Optional<BranchDto> mainBranch = db.getDbClient()
+      .branchDao()
+      .selectByProject(db.getSession(), projectDto.get())
+      .stream()
+      .filter(BranchDto::isMain)
+      .findFirst();
+    assertThat(mainBranch).isPresent();
+    assertThat(mainBranch.get().getKey()).hasToString("repo-default-branch");
+  }
+
+  @Test
+  public void import_project_from_empty_repo() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(almSetting.getPersonalAccessToken());
+      dto.setUserUuid(user.getUuid());
+    });
+    GsonAzureRepo repo = getEmptyGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getPersonalAccessToken(), "project-name", "repo-name"))
+      .thenReturn(repo);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    Optional<BranchDto> mainBranch = db.getDbClient()
+      .branchDao()
+      .selectByProject(db.getSession(), projectDto.get())
+      .stream()
+      .filter(BranchDto::isMain)
+      .findFirst();
+
+    assertThat(mainBranch).isPresent();
+    assertThat(mainBranch.get().getKey()).hasToString("master");
   }
 
   @Test
@@ -232,7 +276,13 @@ public class ImportAzureProjectActionTest {
 
   private GsonAzureRepo getGsonAzureRepo() {
     return new GsonAzureRepo("repo-id", "repo-name", "repo-url",
-      new GsonAzureProject("project-name", "project-description"));
+      new GsonAzureProject("project-name", "project-description"),
+      "refs/heads/repo-default-branch");
+  }
+
+  private GsonAzureRepo getEmptyGsonAzureRepo() {
+    return new GsonAzureRepo("repo-id", "repo-name", "repo-url",
+      new GsonAzureProject("project-name", "project-description"), null);
   }
 
 }

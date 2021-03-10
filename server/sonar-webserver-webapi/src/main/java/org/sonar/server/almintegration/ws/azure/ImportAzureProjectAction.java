@@ -122,6 +122,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
       ComponentDto componentDto = createProject(dbSession, repo);
       populatePRSetting(dbSession, repo, componentDto, almSettingDto);
+      componentUpdater.commitAndIndex(dbSession, componentDto);
 
       return toCreateResponse(componentDto);
     }
@@ -129,13 +130,16 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
   private ComponentDto createProject(DbSession dbSession, GsonAzureRepo repo) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    return componentUpdater.create(dbSession, newComponentBuilder()
-      .setKey(generateProjectKey(repo.getProject().getName(), repo.getName()))
-      .setName(repo.getName())
-      .setPrivate(visibility)
-      .setQualifier(PROJECT)
-      .build(),
-      userSession.isLoggedIn() ? userSession.getUuid() : null);
+    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
+        .setKey(generateProjectKey(repo.getProject().getName(), repo.getName()))
+        .setName(repo.getName())
+        .setPrivate(visibility)
+        .setQualifier(PROJECT)
+        .build(),
+      userSession.isLoggedIn() ? userSession.getUuid() : null,
+      repo.getDefaultBranchName(),
+      s -> {
+      });
   }
 
   private void populatePRSetting(DbSession dbSession, GsonAzureRepo repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
@@ -146,7 +150,6 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
-    dbSession.commit();
   }
 
   @VisibleForTesting

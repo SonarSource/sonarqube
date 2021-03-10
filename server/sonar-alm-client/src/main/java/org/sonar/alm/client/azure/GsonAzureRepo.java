@@ -20,8 +20,11 @@
 package org.sonar.alm.client.azure;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.regex.Pattern;
 
 public class GsonAzureRepo {
+  private static final String BRANCH_FULL_NAME_PREFIX = "refs/heads/";
+
   @SerializedName("id")
   private String id;
 
@@ -34,15 +37,19 @@ public class GsonAzureRepo {
   @SerializedName("project")
   private GsonAzureProject project;
 
+  @SerializedName("defaultBranch")
+  private String defaultBranchFullName;
+
   public GsonAzureRepo() {
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public GsonAzureRepo(String id, String name, String url, GsonAzureProject project) {
+  public GsonAzureRepo(String id, String name, String url, GsonAzureProject project, String defaultBranchFullName) {
     this.id = id;
     this.name = name;
     this.url = url;
     this.project = project;
+    this.defaultBranchFullName = defaultBranchFullName;
   }
 
   public String getId() {
@@ -59,5 +66,16 @@ public class GsonAzureRepo {
 
   public GsonAzureProject getProject() {
     return project;
+  }
+
+  public String getDefaultBranchName() {
+    if (defaultBranchFullName == null || defaultBranchFullName.equals("")) {
+      return null;
+    }
+
+    return Pattern
+      .compile(Pattern.quote(BRANCH_FULL_NAME_PREFIX), Pattern.CASE_INSENSITIVE)
+      .matcher(defaultBranchFullName)
+      .replaceAll("");
   }
 }

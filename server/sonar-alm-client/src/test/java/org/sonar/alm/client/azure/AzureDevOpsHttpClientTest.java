@@ -243,6 +243,7 @@ public class AzureDevOpsHttpClientTest {
       "    \"name\": \"Project-Name\",\n" +
       "    \"description\": \"Project's description\" \n" +
       "  },\n" +
+      "  \"defaultBranch\": \"refs/heads/default-branch\",\n" +
       "  \"size\": 0" +
       "}");
 
@@ -260,6 +261,7 @@ public class AzureDevOpsHttpClientTest {
     assertThat(repo.getName()).isEqualTo("Repo-Name-1");
     assertThat(repo.getUrl()).isEqualTo("https://ado.sonarqube.com/DefaultCollection/Repo-Id-1");
     assertThat(repo.getProject().getName()).isEqualTo("Project-Name");
+    assertThat(repo.getDefaultBranchName()).isEqualTo("default-branch");
   }
 
   @Test
