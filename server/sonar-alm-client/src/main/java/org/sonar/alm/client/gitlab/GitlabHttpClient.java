@@ -86,8 +86,13 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to verify read permission. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalArgumentException(errorMessage);
     }
+  }
+
+  private static void logException(String url, IOException e) {
+    LOG.info(String.format("Gitlab API call to [%s] failed with error message : [%s]", url, e.getMessage()), e);
   }
 
   public void checkToken(String gitlabUrl, String personalAccessToken) {
@@ -108,6 +113,7 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to verify token. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalArgumentException(errorMessage);
     }
   }
@@ -131,6 +137,7 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to verify write permission. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalArgumentException(errorMessage);
     }
 
@@ -219,6 +226,7 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalStateException(e.getMessage(), e);
     }
   }
@@ -240,6 +248,7 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalStateException(e.getMessage(), e);
     }
   }
@@ -266,6 +275,7 @@ public class GitlabHttpClient {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to search projects. Got a non-json payload as result.");
     } catch (IOException e) {
+      logException(url, e);
       throw new IllegalStateException(e.getMessage(), e);
     }
   }
