@@ -39,9 +39,9 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/check_pat">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -50,13 +50,13 @@ public class AlmIntegrationsService extends BaseService {
       new GetRequest(path("check_pat"))
         .setParam("almSetting", request.getAlmSetting())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_bitbucketserver_project">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -71,11 +71,11 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_gitlab_project">Further information about this action online (including a response example)</a>
    * @since 8.5
-  */
+   */
   public Projects.CreateWsResponse importGitLabProject(ImportGitLabProjectRequest request) {
     return call(
       new PostRequest(path("import_gitlab_project"))
@@ -86,9 +86,27 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
+   * This is part of the internal API.
+   * This is a POST request.
    *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_azure_project">Further information about this action online (including a response example)</a>
+   * @since 8.6
+   */
+  public Projects.CreateWsResponse importAzureProject(ImportAzureProjectRequest request) {
+    return call(
+      new PostRequest(path("import_azure_project"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("projectName", request.getProjectName())
+        .setParam("repositoryName", request.getRepositoryName())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser()
+    );
+  }
+
+  /**
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_gitlab_repos">Further information about this action online (including a response example)</a>
    * @since 8.5
    */
@@ -102,9 +120,9 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_azure_projects">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -117,9 +135,9 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bitbucketserver_projects">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -132,9 +150,9 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bitbucketserver_repos">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -149,9 +167,9 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
@@ -161,6 +179,6 @@ public class AlmIntegrationsService extends BaseService {
         .setParam("almSetting", request.getAlmSetting())
         .setParam("pat", request.getPat())
         .setMediaType(MediaTypes.JSON)
-      ).content();
+    ).content();
   }
 }
