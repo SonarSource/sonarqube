@@ -35,6 +35,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -117,7 +118,7 @@ public class ShowAction implements RulesWsAction {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
     responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(),
-      ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules())));
+      ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules()), emptyMap()));
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
       activeRuleCompleter.completeShow(dbSession, rule.getDefinition()).forEach(responseBuilder::addActives);
     }

@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -69,13 +68,10 @@ public class ShowActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @org.junit.Rule
   public DbTester db = DbTester.create();
-  @org.junit.Rule
-  public ExpectedException thrown = ExpectedException.none();
 
-  private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  private Languages languages = new Languages(newLanguage("xoo", "Xoo"));
-
-  private WsActionTester ws = new WsActionTester(
+  private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private final Languages languages = new Languages(newLanguage("xoo", "Xoo"));
+  private final WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new RuleMapper(languages, macroInterpreter),
       new ActiveRuleCompleter(db.getDbClient(), languages),
       new RuleWsSupport(db.getDbClient(), userSession)));
@@ -110,7 +106,7 @@ public class ShowActionTest {
     assertThat(resultRule.getRepo()).isEqualTo(rule.getRepositoryKey());
     assertThat(resultRule.getName()).isEqualTo(rule.getName());
     assertThat(resultRule.getSeverity()).isEqualTo(rule.getSeverityString());
-    assertThat(resultRule.getStatus().toString()).isEqualTo(rule.getStatus().toString());
+    assertThat(resultRule.getStatus()).hasToString(rule.getStatus().toString());
     assertThat(resultRule.getInternalKey()).isEqualTo(rule.getConfigKey());
     assertThat(resultRule.getIsTemplate()).isEqualTo(rule.isTemplate());
     assertThat(resultRule.getLang()).isEqualTo(rule.getLanguage());
@@ -166,6 +162,7 @@ public class ShowActionTest {
     assertThat(resultRule.getRemFnGapMultiplier()).isEqualTo("5d");
     assertThat(resultRule.getRemFnBaseEffort()).isEqualTo("10h");
     assertThat(resultRule.getRemFnOverloaded()).isFalse();
+    assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 
   @Test
@@ -193,6 +190,7 @@ public class ShowActionTest {
     assertThat(resultRule.getRemFnGapMultiplier()).isEqualTo("5d");
     assertThat(resultRule.getRemFnBaseEffort()).isEqualTo("10h");
     assertThat(resultRule.getRemFnOverloaded()).isTrue();
+    assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 
   @Test
@@ -220,6 +218,7 @@ public class ShowActionTest {
     assertThat(resultRule.hasRemFnGapMultiplier()).isFalse();
     assertThat(resultRule.getRemFnBaseEffort()).isEqualTo("15h");
     assertThat(resultRule.getRemFnOverloaded()).isTrue();
+    assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 
   @Test
@@ -246,6 +245,7 @@ public class ShowActionTest {
     assertThat(resultRule.hasRemFnGapMultiplier()).isFalse();
     assertThat(resultRule.hasRemFnBaseEffort()).isFalse();
     assertThat(resultRule.getRemFnOverloaded()).isFalse();
+    assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 
   @Test
@@ -274,6 +274,7 @@ public class ShowActionTest {
     assertThat(resultRule.hasDebtRemFnCoeff()).isFalse();
     assertThat(resultRule.getDebtRemFnOffset()).isEqualTo("15h");
     assertThat(resultRule.getDebtOverloaded()).isTrue();
+    assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 
   @Test
@@ -388,7 +389,7 @@ public class ShowActionTest {
   public void show_rule_with_activation() {
     RuleDefinitionDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*"));
-    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
+    db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
     QProfileDto qProfile = db.qualityProfiles().insert();
     ActiveRuleDto activeRule = db.qualityProfiles().activateRule(qProfile, rule);
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule, new ActiveRuleParamDto()
@@ -414,9 +415,9 @@ public class ShowActionTest {
   @Test
   public void show_rule_without_activation() {
     RuleDefinitionDto rule = db.rules().insert();
-    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
+    db.rules().insertOrUpdateMetadata(rule, m -> m.setNoteData(null).setNoteUserUuid(null));
     QProfileDto qProfile = db.qualityProfiles().insert();
-    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(qProfile, rule);
+    db.qualityProfiles().activateRule(qProfile, rule);
 
     ShowResponse result = ws.newRequest()
       .setParam(PARAM_KEY, rule.getKey().toString())

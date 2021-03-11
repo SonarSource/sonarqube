@@ -224,6 +224,10 @@ public class RuleDao implements Dao {
     return mapper(session).selectAllDeprecatedRuleKeys();
   }
 
+  public Set<DeprecatedRuleKeyDto> selectDeprecatedRuleKeysByRuleUuids(DbSession session, Collection<String> ruleUuids) {
+    return mapper(session).selectDeprecatedRuleKeysByRuleUuids(ruleUuids);
+  }
+
   public void deleteDeprecatedRuleKeys(DbSession dbSession, Collection<String> uuids) {
     if (uuids.isEmpty()) {
       return;

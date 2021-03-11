@@ -20,6 +20,7 @@
 package org.sonar.api.batch.rule;
 
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -34,6 +35,11 @@ public class LoadedActiveRule {
   private long updatedAt;
   private String templateRuleKey;
   private String internalKey;
+  private Set<RuleKey> deprecatedKeys;
+
+  public LoadedActiveRule() {
+    // nothing to do here
+  }
 
   public RuleKey getRuleKey() {
     return ruleKey;
@@ -108,4 +114,11 @@ public class LoadedActiveRule {
     this.internalKey = internalKey;
   }
 
+  public Set<RuleKey> getDeprecatedKeys() {
+    return deprecatedKeys;
+  }
+
+  public void setDeprecatedKeys(Set<RuleKey> deprecatedKeys) {
+    this.deprecatedKeys = deprecatedKeys;
+  }
 }

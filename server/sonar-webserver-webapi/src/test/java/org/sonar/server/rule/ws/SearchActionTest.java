@@ -298,6 +298,39 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_deprecatedKeys_in_response_on_demand() {
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
+    db.rules().insertDeprecatedKey(r -> r.setRuleUuid(rule1.getUuid()).setOldRuleKey("oldrulekey").setOldRepositoryKey("oldrepositorykey"));
+    db.rules().insertDeprecatedKey(r -> r.setRuleUuid(rule1.getUuid()).setOldRuleKey("oldrulekey2").setOldRepositoryKey("oldrepositorykey2"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("javascript"));
+
+    indexRules();
+
+    Rules.SearchResponse response = ws.newRequest()
+      .setParam(WebService.Param.FIELDS, "deprecatedKeys")
+      .executeProtobuf(Rules.SearchResponse.class);
+
+    System.err.println(response.getRulesList());
+
+    assertThat(response.getRulesList()).satisfies(l -> {
+      assertThat(l).hasSize(2);
+
+      assertThat(l).anySatisfy(e -> {
+        assertThat(e.getKey()).isEqualTo(rule1.getKey().toString());
+        assertThat(e.getType().getNumber()).isEqualTo(rule1.getType());
+        assertThat(e.getDeprecatedKeys()).isNotNull();
+        assertThat(e.getDeprecatedKeys().getDeprecatedKeyList()).contains("oldrepositorykey:oldrulekey", "oldrepositorykey2:oldrulekey2");
+      });
+      assertThat(l).anySatisfy(e -> {
+        assertThat(e.getKey()).isEqualTo(rule2.getKey().toString());
+        assertThat(e.getType().getNumber()).isEqualTo(rule2.getType());
+        assertThat(e.getDeprecatedKeys()).isNotNull();
+        assertThat(e.getDeprecatedKeys().getDeprecatedKeyList()).isEmpty();
+      });
+    });
+  }
+
+  @Test
   public void should_filter_on_specific_tags() {
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
     RuleMetadataDto metadata1 = insertMetadata(rule1, setTags("tag1", "tag2"));

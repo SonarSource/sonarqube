@@ -82,7 +82,7 @@ message Rule {
   optional bool isTemplate = 13;
   optional string templateKey = 14;
   optional Tags tags = 15;
-  optional SysTags sysTags = 16; 
+  optional SysTags sysTags = 16;
   optional string lang = 19;
   optional string langName = 20;
   optional Params params = 21;
@@ -110,7 +110,7 @@ message Rule {
   optional string debtRemFnCoeff = 35;
   // Deprecated since 5.5, replaced by remFnBaseEffort
   optional string debtRemFnOffset = 36;
-
+  optional sonarqube.ws.commons.RuleType type = 37;
   optional string defaultRemFnType = 38;
   optional string defaultRemFnGapMultiplier = 39;
   optional string defaultRemFnBaseEffort = 40;
@@ -121,19 +121,22 @@ message Rule {
   optional string gapDescription = 44;
   optional sonarqube.ws.commons.RuleScope scope = 46;
   optional bool isExternal = 47;
-
-  optional sonarqube.ws.commons.RuleType type = 37;
+  optional DeprecatedKeys deprecatedKeys = 48;
 
   message Params {
     repeated Param params = 1;
   }
-  
+
   message Param {
     optional string key = 1;
     optional string htmlDesc = 2;
     optional string defaultValue = 3;
     optional string type = 4;
   }
+}
+
+message DeprecatedKeys {
+  repeated string deprecatedKey = 1;
 }
 
 message SysTags {
@@ -169,7 +172,7 @@ message Active {
 }
 
 message QProfiles {
-  map<string,QProfile> qProfiles = 1;
+  map<string, QProfile> qProfiles = 1;
 }
 
 message QProfile {

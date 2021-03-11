@@ -553,6 +553,24 @@
     LEFT OUTER JOIN rules r on r.uuid = drk.rule_uuid
   </select>
 
+  <select id="selectDeprecatedRuleKeysByRuleUuids" resultType="org.sonar.db.rule.DeprecatedRuleKeyDto">
+    SELECT
+      drk.uuid,
+      drk.rule_uuid as "ruleUuid",
+      drk.old_repository_key as "oldRepositoryKey",
+      drk.old_rule_key as "oldRuleKey",
+      r.plugin_rule_key as "newRuleKey",
+      r.plugin_name as "newRepositoryKey",
+      drk.created_at as "createdAt"
+    FROM
+      deprecated_rule_keys drk
+    LEFT OUTER JOIN rules r on r.uuid = drk.rule_uuid
+    WHERE
+      <foreach item="uuid" index="index" collection="ruleUuids" open="(" separator=" or " close=")">
+        drk.rule_uuid=#{uuid,jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
   <delete id="deleteDeprecatedRuleKeys">
     DELETE FROM
       deprecated_rule_keys

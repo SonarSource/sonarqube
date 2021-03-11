@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +63,7 @@ public class RuleDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private RuleDao underTest = db.getDbClient().ruleDao();
+  private final RuleDao underTest = db.getDbClient().ruleDao();
 
   @Test
   public void selectByKey() {
@@ -388,8 +389,8 @@ public class RuleDaoTest {
         .setLanguage("java"));
     db.rules().insertOrUpdateMetadata(rule1);
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(),singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
-      .extracting( RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+      .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 
@@ -901,6 +902,27 @@ public class RuleDaoTest {
 
     Set<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = underTest.selectAllDeprecatedRuleKeys(db.getSession());
     assertThat(deprecatedRuleKeyDtos).hasSize(2);
+  }
+
+  @Test
+  public void selectDeprecatedRuleKeysByRuleUuids() {
+    RuleDefinitionDto r1 = db.rules().insert();
+    RuleDefinitionDto r2 = db.rules().insert();
+    RuleDefinitionDto r3 = db.rules().insert();
+    RuleDefinitionDto r4 = db.rules().insert();
+
+    DeprecatedRuleKeyDto drk1 = db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r1.getUuid()));
+    DeprecatedRuleKeyDto drk2 = db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r1.getUuid()));
+    DeprecatedRuleKeyDto drk3 = db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r2.getUuid()));
+    db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r4.getUuid()));
+
+    db.getSession().commit();
+
+    Set<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = underTest.selectDeprecatedRuleKeysByRuleUuids(
+      db.getSession(), ImmutableSet.of(r1.getUuid(), r2.getUuid(), r3.getUuid()));
+    assertThat(deprecatedRuleKeyDtos)
+      .extracting(DeprecatedRuleKeyDto::getUuid)
+      .containsExactlyInAnyOrder(drk1.getUuid(), drk2.getUuid(), drk3.getUuid());
   }
 
   @Test

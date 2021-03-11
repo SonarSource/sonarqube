@@ -91,7 +91,7 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   private String urlOfPage(int page) {
-    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true"
+    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt,deprecatedKeys&activation=true"
       + ("") + "&qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
   }
 

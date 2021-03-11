@@ -47,6 +47,7 @@ import org.sonarqube.ws.Rules.UpdateResponse;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.rule.ws.CreateAction.KEY_MAXIMUM_LENGTH;
@@ -249,7 +250,8 @@ public class UpdateAction implements RulesWsAction {
       .setRuleParameters(ruleParameters)
       .setTotal(1L);
     responseBuilder
-      .setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(), ruleWsSupport.getUsersByUuid(dbSession, singletonList(rule))));
+      .setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(),
+        ruleWsSupport.getUsersByUuid(dbSession, singletonList(rule)), emptyMap()));
 
     return responseBuilder.build();
   }

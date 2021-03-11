@@ -20,16 +20,20 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Function;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -44,7 +48,6 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
 import org.sonarqube.ws.Rules;
 
-import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
@@ -52,6 +55,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_OVERLOADED;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
@@ -89,19 +93,21 @@ public class RuleMapper {
 
   public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
-    applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn);
+    applyRuleDefinition(ruleResponse, ruleDefinitionDto, result, fieldsToReturn, Collections.emptyMap());
     return ruleResponse.build();
   }
 
-  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinition, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata, Map<String, UserDto> usersByUuid) {
+  public Rules.Rule toWsRule(RuleDefinitionDto ruleDefinition, SearchResult result, Set<String> fieldsToReturn, RuleMetadataDto metadata,
+    Map<String, UserDto> usersByUuid, Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
-    applyRuleDefinition(ruleResponse, ruleDefinition, result, fieldsToReturn);
+    applyRuleDefinition(ruleResponse, ruleDefinition, result, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
     applyRuleMetadata(ruleResponse, ruleDefinition, metadata, usersByUuid, fieldsToReturn);
     setDebtRemediationFunctionFields(ruleResponse, ruleDefinition, metadata, fieldsToReturn);
     return ruleResponse.build();
   }
 
-  private Rules.Rule.Builder applyRuleDefinition(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDefinitionDto, SearchResult result, Set<String> fieldsToReturn) {
+  private Rules.Rule.Builder applyRuleDefinition(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDefinitionDto, SearchResult result,
+    Set<String> fieldsToReturn, Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
 
     // Mandatory fields
     ruleResponse.setKey(ruleDefinitionDto.getKey().toString());
@@ -125,6 +131,7 @@ public class RuleMapper {
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDefinitionDto, fieldsToReturn);
     setScope(ruleResponse, ruleDefinitionDto, fieldsToReturn);
+    setDeprecatedKeys(ruleResponse, ruleDefinitionDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
     return ruleResponse;
   }
 
@@ -178,6 +185,23 @@ public class RuleMapper {
   private static void setScope(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_SCOPE)) {
       ruleResponse.setScope(toWsRuleScope(ruleDto.getScope()));
+    }
+  }
+
+  private static void setDeprecatedKeys(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, Set<String> fieldsToReturn,
+    Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEPRECATED_KEYS)) {
+      List<DeprecatedRuleKeyDto> deprecatedRuleKeyDtos = deprecatedRuleKeysByRuleUuid.get(ruleDto.getUuid());
+      if (deprecatedRuleKeyDtos == null) {
+        return;
+      }
+
+      List<String> deprecatedKeys = deprecatedRuleKeyDtos.stream()
+        .map(r -> RuleKey.of(r.getOldRepositoryKey(), r.getOldRuleKey()).toString())
+        .collect(Collectors.toList());
+      if (!deprecatedKeys.isEmpty()) {
+        ruleResponse.setDeprecatedKeys(Rules.DeprecatedKeys.newBuilder().addAllDeprecatedKey(deprecatedKeys).build());
+      }
     }
   }
 
@@ -375,7 +399,7 @@ public class RuleMapper {
     }
   }
 
-  private static boolean shouldReturnField(Set<String> fieldsToReturn, String fieldName) {
+  public static boolean shouldReturnField(Set<String> fieldsToReturn, String fieldName) {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 

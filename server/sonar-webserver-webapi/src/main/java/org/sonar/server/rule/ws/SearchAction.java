@@ -27,6 +27,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -78,6 +80,7 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
@@ -205,7 +208,25 @@ public class SearchAction implements RulesWsAction {
 
   private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {
     Map<String, UserDto> usersByUuid = ruleWsSupport.getUsersByUuid(dbSession, result.rules);
-    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata(), usersByUuid)));
+    Map<String, List<DeprecatedRuleKeyDto>> deprecatedRuleKeysByRuleUuid = getDeprecatedRuleKeysByRuleUuid(dbSession, result.rules, context);
+    result.rules.forEach(rule -> response.addRules(mapper.toWsRule(rule.getDefinition(), result, context.getFields(), rule.getMetadata(), usersByUuid,
+      deprecatedRuleKeysByRuleUuid)));
+  }
+
+  private Map<String, List<DeprecatedRuleKeyDto>> getDeprecatedRuleKeysByRuleUuid(DbSession dbSession, List<RuleDto> rules, SearchOptions context) {
+    if (!RuleMapper.shouldReturnField(context.getFields(), FIELD_DEPRECATED_KEYS)) {
+      return Collections.emptyMap();
+    }
+
+    Set<String> ruleUuidsSet = rules.stream()
+      .map(RuleDto::getUuid)
+      .collect(Collectors.toSet());
+    if (ruleUuidsSet.isEmpty()) {
+      return Collections.emptyMap();
+    } else {
+      return dbClient.ruleDao().selectDeprecatedRuleKeysByRuleUuids(dbSession, ruleUuidsSet).stream()
+        .collect(Collectors.groupingBy(DeprecatedRuleKeyDto::getRuleUuid));
+    }
   }
 
   private static SearchOptions buildSearchOptions(SearchRequest request) {

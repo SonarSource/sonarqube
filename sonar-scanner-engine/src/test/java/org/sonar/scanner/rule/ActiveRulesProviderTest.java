@@ -21,6 +21,7 @@ package org.sonar.scanner.rule;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,6 +117,7 @@ public class ActiveRulesProviderTest {
     LoadedActiveRule r = new LoadedActiveRule();
     r.setName(name);
     r.setRuleKey(RuleKey.of(name, name));
+    r.setDeprecatedKeys(ImmutableSet.of(RuleKey.of(name + "old", name + "old")));
     return r;
   }
 }

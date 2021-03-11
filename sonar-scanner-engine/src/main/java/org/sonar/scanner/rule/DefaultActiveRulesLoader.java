@@ -25,12 +25,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
@@ -40,7 +41,8 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true";
+  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?" +
+    "f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt,deprecatedKeys&activation=true";
 
   private final ScannerWsClient wsClient;
 
@@ -125,6 +127,10 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
         params.put(param.getKey(), param.getValue());
       }
       loadedRule.setParams(params);
+      loadedRule.setDeprecatedKeys(r.getDeprecatedKeys().getDeprecatedKeyList()
+        .stream()
+        .map(RuleKey::parse)
+        .collect(Collectors.toSet()));
       loadedRules.add(loadedRule);
     }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
@@ -85,6 +86,8 @@ public interface RuleMapper {
   void deleteParameter(String paramUuid);
 
   Set<DeprecatedRuleKeyDto> selectAllDeprecatedRuleKeys();
+
+  Set<DeprecatedRuleKeyDto> selectDeprecatedRuleKeysByRuleUuids(@Param("ruleUuids") Collection<String> ruleUuids);
 
   void deleteDeprecatedRuleKeys(@Param("uuids") List<String> uuids);
 
