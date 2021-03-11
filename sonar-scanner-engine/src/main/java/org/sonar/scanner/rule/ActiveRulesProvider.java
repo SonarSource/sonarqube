@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
@@ -42,9 +42,9 @@ import org.sonar.api.utils.log.Profiler;
 public class ActiveRulesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ActiveRulesProvider.class);
   private static final String LOG_MSG = "Load active rules";
-  private ActiveRules singleton = null;
+  private DefaultActiveRules singleton = null;
 
-  public ActiveRules provide(ActiveRulesLoader loader, QualityProfiles qProfiles) {
+  public DefaultActiveRules provide(ActiveRulesLoader loader, QualityProfiles qProfiles) {
     if (singleton == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       singleton = load(loader, qProfiles);
@@ -53,7 +53,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return singleton;
   }
 
-  private static ActiveRules load(ActiveRulesLoader loader, QualityProfiles qProfiles) {
+  private static DefaultActiveRules load(ActiveRulesLoader loader, QualityProfiles qProfiles) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
     Set<RuleKey> loadedRulesKey = new HashSet<>();
@@ -65,7 +65,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
       for (LoadedActiveRule r : qProfileRules) {
         if (!loadedRulesKey.contains(r.getRuleKey())) {
           loadedRulesKey.add(r.getRuleKey());
-          builder.addRule(transform(r, qProfileKey));
+          builder.addRule(transform(r, qProfileKey, r.getDeprecatedKeys()));
         }
       }
     }
@@ -73,7 +73,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return builder.build();
   }
 
-  private static NewActiveRule transform(LoadedActiveRule activeRule, String qProfileKey) {
+  private static NewActiveRule transform(LoadedActiveRule activeRule, String qProfileKey, Set<RuleKey> deprecatedKeys) {
     NewActiveRule.Builder builder = new NewActiveRule.Builder();
     builder
       .setRuleKey(activeRule.getRuleKey())
@@ -84,7 +84,8 @@ public class ActiveRulesProvider extends ProviderAdapter {
       .setLanguage(activeRule.getLanguage())
       .setInternalKey(activeRule.getInternalKey())
       .setTemplateRuleKey(activeRule.getTemplateRuleKey())
-      .setQProfileKey(qProfileKey);
+      .setQProfileKey(qProfileKey)
+      .setDeprecatedKeys(deprecatedKeys);
     // load parameters
     if (activeRule.getParams() != null) {
       for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {

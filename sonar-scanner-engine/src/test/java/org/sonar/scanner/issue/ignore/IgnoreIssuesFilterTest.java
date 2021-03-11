@@ -19,27 +19,38 @@
  */
 package org.sonar.scanner.issue.ignore;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class IgnoreIssuesFilterTest {
+  @Rule
+  public LogTester logTester = new LogTester();
 
-  private DefaultFilterableIssue issue = mock(DefaultFilterableIssue.class);
-  private IssueFilterChain chain = mock(IssueFilterChain.class);
-  private IgnoreIssuesFilter underTest = new IgnoreIssuesFilter();
+  private final DefaultFilterableIssue issue = mock(DefaultFilterableIssue.class);
+  private final IssueFilterChain chain = mock(IssueFilterChain.class);
+  private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private final RuleKey ruleKey = RuleKey.of("foo", "bar");
+
   private DefaultInputFile component;
-  private RuleKey ruleKey = RuleKey.of("foo", "bar");
 
   @Before
   public void prepare() {
@@ -50,6 +61,9 @@ public class IgnoreIssuesFilterTest {
 
   @Test
   public void shouldPassToChainIfMatcherHasNoPatternForIssue() {
+    DefaultActiveRules activeRules = new DefaultActiveRules(ImmutableSet.of());
+    IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(activeRules, analysisWarnings);
+
     when(chain.accept(issue)).thenReturn(true);
     assertThat(underTest.accept(issue, chain)).isTrue();
     verify(chain).accept(any());
@@ -57,15 +71,39 @@ public class IgnoreIssuesFilterTest {
 
   @Test
   public void shouldRejectIfRulePatternMatches() {
+    DefaultActiveRules activeRules = new DefaultActiveRules(ImmutableSet.of());
+    IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(activeRules, analysisWarnings);
+
     WildcardPattern pattern = mock(WildcardPattern.class);
     when(pattern.match(ruleKey.toString())).thenReturn(true);
     underTest.addRuleExclusionPatternForComponent(component, pattern);
 
     assertThat(underTest.accept(issue, chain)).isFalse();
+    verifyNoInteractions(analysisWarnings);
+  }
+
+  @Test
+  public void shouldRejectIfRulePatternMatchesDeprecatedRule() {
+    DefaultActiveRules activeRules = new DefaultActiveRules(ImmutableSet.of(new NewActiveRule.Builder()
+      .setRuleKey(ruleKey)
+      .setDeprecatedKeys(singleton(RuleKey.of("repo", "rule")))
+      .build()));
+    IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(activeRules, analysisWarnings);
+
+    WildcardPattern pattern = WildcardPattern.create("repo:rule");
+    underTest.addRuleExclusionPatternForComponent(component, pattern);
+    assertThat(underTest.accept(issue, chain)).isFalse();
+
+    verify(analysisWarnings).addUnique("The issue multicriteria pattern 'repo:rule' matches a rule key that has been changed. The pattern should be updated to 'foo:bar'");
+    assertThat(logTester.logs())
+      .contains("The issue multicriteria pattern 'repo:rule' matches a rule key that has been changed. The pattern should be updated to 'foo:bar'");
   }
 
   @Test
   public void shouldAcceptIfRulePatternDoesNotMatch() {
+    DefaultActiveRules activeRules = new DefaultActiveRules(ImmutableSet.of());
+    IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(activeRules, analysisWarnings);
+
     WildcardPattern pattern = mock(WildcardPattern.class);
     when(pattern.match(ruleKey.toString())).thenReturn(false);
     underTest.addRuleExclusionPatternForComponent(component, pattern);

@@ -30,14 +30,15 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.AnalysisResult;
-import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -98,6 +99,7 @@ public class ChecksMediumTest {
     r.setTemplateRuleKey(templateRuleKey);
     r.setLanguage(languag);
     r.setSeverity(severity);
+    r.setDeprecatedKeys(emptySet());
 
     Map<String, String> params = new HashMap<>();
     params.put(paramKey, paramValue);

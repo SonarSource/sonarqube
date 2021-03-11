@@ -26,33 +26,24 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ActiveRulesProviderTest {
-  private ActiveRulesProvider provider;
-
-  @Mock
-  private DefaultActiveRulesLoader loader;
-
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    provider = new ActiveRulesProvider();
-  }
+  private final ActiveRulesProvider provider = new ActiveRulesProvider();
+  private final DefaultActiveRulesLoader loader = mock(DefaultActiveRulesLoader.class);
 
   @Test
   public void testCombinationOfRules() {
@@ -69,7 +60,7 @@ public class ActiveRulesProviderTest {
     when(loader.load(eq("qp3"))).thenReturn(qp3Rules);
 
     QualityProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
-    ActiveRules activeRules = provider.provide(loader, profiles);
+    DefaultActiveRules activeRules = provider.provide(loader, profiles);
 
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findAll()).extracting("ruleKey").containsOnly(
@@ -78,6 +69,8 @@ public class ActiveRulesProviderTest {
     verify(loader).load(eq("qp1"));
     verify(loader).load(eq("qp2"));
     verify(loader).load(eq("qp3"));
+
+    assertThat(activeRules.getDeprecatedRuleKeys(RuleKey.of("rule1", "rule1"))).containsOnly("rule1old:rule1old");
     verifyNoMoreInteractions(loader);
   }
 

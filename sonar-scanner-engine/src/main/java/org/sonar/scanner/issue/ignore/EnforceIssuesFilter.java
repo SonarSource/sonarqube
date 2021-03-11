@@ -21,16 +21,20 @@ package org.sonar.scanner.issue.ignore;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.issue.DefaultFilterableIssue;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
@@ -41,12 +45,15 @@ public class EnforceIssuesFilter implements IssueFilter {
 
   private final List<IssuePattern> multicriteriaPatterns;
   private final AnalysisWarnings analysisWarnings;
+  private final DefaultActiveRules activeRules;
+  private final Set<RuleKey> warnedDeprecatedRuleKeys = new LinkedHashSet<>();
 
   private boolean warnDeprecatedIssuePatternAlreadyLogged;
 
-  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, AnalysisWarnings analysisWarnings) {
+  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, AnalysisWarnings analysisWarnings, DefaultActiveRules activeRules) {
     this.multicriteriaPatterns = Collections.unmodifiableList(new ArrayList<>(patternInitializer.getMulticriteriaPatterns()));
     this.analysisWarnings = analysisWarnings;
+    this.activeRules = activeRules;
   }
 
   @Override
@@ -56,7 +63,7 @@ public class EnforceIssuesFilter implements IssueFilter {
     IssuePattern matchingPattern = null;
 
     for (IssuePattern pattern : multicriteriaPatterns) {
-      if (pattern.matchRule(issue.ruleKey())) {
+      if (ruleMatches(pattern, issue.ruleKey())) {
         atLeastOneRuleMatched = true;
         InputComponent component = ((DefaultFilterableIssue) issue).getComponent();
         if (component.isFile()) {
@@ -78,12 +85,25 @@ public class EnforceIssuesFilter implements IssueFilter {
 
     if (atLeastOneRuleMatched) {
       if (atLeastOnePatternFullyMatched) {
-        LOG.debug("Issue {} enforced by pattern {}", issue, matchingPattern);
+        LOG.debug("Issue '{}' enforced by pattern '{}'", issue, matchingPattern);
       }
       return atLeastOnePatternFullyMatched;
     } else {
       return chain.accept(issue);
     }
+  }
+
+  private boolean ruleMatches(IssuePattern pattern, RuleKey ruleKey) {
+    if (activeRules.matchesDeprecatedKeys(ruleKey, pattern.getRulePattern())) {
+      String msg = String.format("The issue multicriteria pattern '%s' matches a rule key that has been changed. The pattern should be updated to '%s'",
+        pattern.getRulePattern(), ruleKey);
+      analysisWarnings.addUnique(msg);
+      if (warnedDeprecatedRuleKeys.add(ruleKey)) {
+        LOG.warn(msg);
+      }
+      return true;
+    }
+    return pattern.matchRule(ruleKey);
   }
 
   private void warnOnceDeprecatedIssuePattern(String msg) {

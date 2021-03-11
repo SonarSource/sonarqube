@@ -21,7 +21,6 @@ package org.sonar.api.batch.rule.internal;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
 /**
@@ -42,7 +41,7 @@ public class ActiveRulesBuilder {
     return this;
   }
 
-  public ActiveRules build() {
+  public DefaultActiveRules build() {
     return new DefaultActiveRules(map.values());
   }
 }

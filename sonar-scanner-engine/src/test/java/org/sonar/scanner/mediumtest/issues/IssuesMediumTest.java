@@ -28,19 +28,20 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
-import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -385,6 +386,8 @@ public class IssuesMediumTest {
     r.setName("TODO");
     r.setLanguage("xoo");
     r.setSeverity("MAJOR");
+    r.setDeprecatedKeys(emptySet()
+    );
     r.setParams(ImmutableMap.of("tag", "TODO"));
     tester.activateRule(r);
   }

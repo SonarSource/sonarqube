@@ -21,7 +21,9 @@ package org.sonar.api.batch.rule.internal;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.rule.RuleKey;
@@ -37,6 +39,7 @@ public class DefaultActiveRule implements ActiveRule {
   private final long createdAt;
   private final long updatedAt;
   private final String qProfileKey;
+  private final Set<RuleKey> deprecatedKeys;
 
   public DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
@@ -48,6 +51,7 @@ public class DefaultActiveRule implements ActiveRule {
     this.createdAt = newActiveRule.createdAt;
     this.updatedAt = newActiveRule.updatedAt;
     this.qProfileKey = newActiveRule.qProfileKey;
+    this.deprecatedKeys = Collections.unmodifiableSet(new HashSet<>(newActiveRule.deprecatedKeys));
   }
 
   @Override
@@ -97,5 +101,10 @@ public class DefaultActiveRule implements ActiveRule {
   @Override
   public String qpKey() {
     return qProfileKey;
+  }
+
+  public Set<RuleKey> getDeprecatedKeys() {
+    // already immutable
+    return deprecatedKeys;
   }
 }

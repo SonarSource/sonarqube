@@ -20,7 +20,9 @@
 package org.sonar.api.batch.rule.internal;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +44,7 @@ public class NewActiveRule {
   final String language;
   final String templateRuleKey;
   final String qProfileKey;
+  final Set<RuleKey> deprecatedKeys;
 
   NewActiveRule(Builder builder) {
     this.ruleKey = builder.ruleKey;
@@ -54,6 +57,7 @@ public class NewActiveRule {
     this.language = builder.language;
     this.templateRuleKey = builder.templateRuleKey;
     this.qProfileKey = builder.qProfileKey;
+    this.deprecatedKeys = builder.deprecatedKeys;
   }
 
   public RuleKey ruleKey() {
@@ -71,6 +75,7 @@ public class NewActiveRule {
     private String language;
     private String templateRuleKey;
     private String qProfileKey;
+    private Set<RuleKey> deprecatedKeys = new HashSet<>();
 
     public Builder setRuleKey(RuleKey ruleKey) {
       this.ruleKey = ruleKey;
@@ -124,6 +129,11 @@ public class NewActiveRule {
 
     public Builder setQProfileKey(String qProfileKey) {
       this.qProfileKey = qProfileKey;
+      return this;
+    }
+
+    public Builder setDeprecatedKeys(Set<RuleKey> deprecatedKeys) {
+      this.deprecatedKeys = deprecatedKeys;
       return this;
     }
 

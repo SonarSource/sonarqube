@@ -21,11 +21,16 @@ package org.sonar.scanner.issue.ignore;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
+import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
@@ -36,9 +41,16 @@ import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 public class IgnoreIssuesFilter implements IssueFilter {
 
-  private Map<InputComponent, List<WildcardPattern>> rulePatternByComponent = new HashMap<>();
-
+  private final DefaultActiveRules activeRules;
+  private final AnalysisWarnings analysisWarnings;
+  private final Map<InputComponent, List<WildcardPattern>> rulePatternByComponent = new HashMap<>();
+  private final Set<RuleKey> warnedDeprecatedRuleKeys = new LinkedHashSet<>();
   private static final Logger LOG = Loggers.get(IgnoreIssuesFilter.class);
+
+  public IgnoreIssuesFilter(DefaultActiveRules activeRules, AnalysisWarnings analysisWarnings) {
+    this.activeRules = activeRules;
+    this.analysisWarnings = analysisWarnings;
+  }
 
   @Override
   public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
@@ -73,7 +85,18 @@ public class IgnoreIssuesFilter implements IssueFilter {
   private boolean hasRuleMatchFor(InputComponent component, FilterableIssue issue) {
     for (WildcardPattern pattern : rulePatternByComponent.getOrDefault(component, Collections.emptyList())) {
       if (pattern.match(issue.ruleKey().toString())) {
-        LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
+        LOG.debug("Issue '{}' ignored by exclusion pattern '{}'", issue, pattern);
+        return true;
+      }
+
+      RuleKey ruleKey = issue.ruleKey();
+      if (activeRules.matchesDeprecatedKeys(ruleKey, pattern)) {
+        String msg = String.format("The issue multicriteria pattern '%s' matches a rule key that has been changed. The pattern should be updated to '%s'", pattern, ruleKey);
+        analysisWarnings.addUnique(msg);
+        if (warnedDeprecatedRuleKeys.add(ruleKey)) {
+          LOG.warn(msg);
+        }
+        LOG.debug("Issue '{}' ignored by exclusion pattern '{}' matching a deprecated rule key", issue, pattern);
         return true;
       }
     }

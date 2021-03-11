@@ -23,16 +23,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.WildcardPattern;
+
+import static java.util.Collections.emptySet;
 
 @Immutable
 public class DefaultActiveRules implements ActiveRules {
+  private final Map<RuleKey, Set<String>> deprecatedRuleKeysByRuleKey = new LinkedHashMap<>();
   private final Map<String, List<ActiveRule>> activeRulesByRepository = new HashMap<>();
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndKey = new HashMap<>();
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndInternalKey = new HashMap<>();
@@ -52,7 +58,17 @@ public class DefaultActiveRules implements ActiveRules {
       if (internalKey != null) {
         activeRulesByRepositoryAndInternalKey.computeIfAbsent(repo, r -> new HashMap<>()).put(internalKey, ar);
       }
+
+      deprecatedRuleKeysByRuleKey.put(ar.ruleKey(), ar.getDeprecatedKeys().stream().map(RuleKey::toString).collect(Collectors.toSet()));
     }
+  }
+
+  public Set<String> getDeprecatedRuleKeys(RuleKey ruleKey) {
+    return deprecatedRuleKeysByRuleKey.getOrDefault(ruleKey, emptySet());
+  }
+
+  public boolean matchesDeprecatedKeys(RuleKey ruleKey, WildcardPattern rulePattern) {
+    return getDeprecatedRuleKeys(ruleKey).contains(rulePattern.toString());
   }
 
   @Override
