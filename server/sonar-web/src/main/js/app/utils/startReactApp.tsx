@@ -325,6 +325,14 @@ export default function startReactApp(
                     component={lazyLoadComponent(() => import('../components/ResetPassword'))}
                   />
                   <Route
+                    // We don't want this route to have any menu. This is why we define it here
+                    // rather than under the admin routes.
+                    path="admin/change_admin_password"
+                    component={lazyLoadComponent(() =>
+                      import('../../apps/change-admin-password/ChangeAdminPasswordApp')
+                    )}
+                  />
+                  <Route
                     path="not_found"
                     component={lazyLoadComponent(() => import('../components/NotFound'))}
                   />

@@ -90,6 +90,7 @@ declare namespace T {
     canAdmin?: boolean;
     edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
     globalPages?: Extension[];
+    instanceUsesDefaultAdminCredentials?: boolean;
     multipleAlmEnabled?: boolean;
     needIssueSync?: boolean;
     productionDatabase: boolean;
