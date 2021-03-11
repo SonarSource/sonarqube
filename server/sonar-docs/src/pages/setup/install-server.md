@@ -329,3 +329,13 @@ For some proxies, the exception "java.net.ProtocolException: Server redirected t
 ### Exception java.lang.RuntimeException: can not run elasticsearch as root
 
 SonarQube starts an Elasticsearch process, and the same account that is running SonarQube itself will be used for the Elasticsearch process. Since Elasticsearch cannot be run as `root`, that means SonarQube can't be either. You must choose some other, non-`root` account with which to run SonarQube, preferably an account dedicated to the purpose.
+
+### Sonarqube fails to decorate merge requests when DNS entry to ALM changes
+
+If you run SonarQube in an environment with a lot of DNS friction, you should define a DNS cache time to live policy as, by default, SonarQube will hold the DNS cache until it is restarted. You can set this policy to five seconds by doing the following: 
+
+```bash
+echo "networkaddress.cache.ttl=5" >> "${JAVA_HOME}/conf/security/java.security" 
+```
+
+Please be aware that this increases the risk of DNS spoofing attacks.
