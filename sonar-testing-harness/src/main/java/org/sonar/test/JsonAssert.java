@@ -94,6 +94,18 @@ public class JsonAssert {
     return isSimilarTo(urlToString(expected));
   }
 
+  public JsonAssert isNotSimilarTo(String expected) {
+    boolean similar = comparison.areSimilar(expected, actualJson);
+    if (similar) {
+      throw new ComparisonFailure("It's a super-set of expected JSON -", pretty(expected), pretty(actualJson));
+    }
+    return this;
+  }
+
+  public JsonAssert isNotSimilarTo(URL expected) {
+    return isNotSimilarTo(urlToString(expected));
+  }
+
   public static JsonAssert assertJson(String actualJson) {
     return new JsonAssert(actualJson);
   }

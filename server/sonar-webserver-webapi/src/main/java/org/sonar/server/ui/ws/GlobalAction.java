@@ -39,6 +39,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.branch.BranchFeatureProxy;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.WebServer;
@@ -83,10 +84,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider;
   private final WebAnalyticsLoader webAnalyticsLoader;
   private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
+  private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
-    MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker) {
+    MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
+    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -100,6 +103,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.webAnalyticsLoader = webAnalyticsLoader;
     this.systemSettingValuesByKey = new HashMap<>();
     this.issueIndexSyncChecker = issueIndexSyncChecker;
+    this.defaultAdminCredentialsVerifier = defaultAdminCredentialsVerifier;
   }
 
   @Override
@@ -140,6 +144,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeVersion(json);
       writeDatabaseProduction(json);
       writeBranchSupport(json);
+      writeInstanceUsesDefaultAdminCredentials(json);
       writeMultipleAlmEnabled(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
@@ -195,6 +200,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeBranchSupport(JsonWriter json) {
     json.prop("branchesEnabled", branchFeature.isEnabled());
+  }
+
+  private void writeInstanceUsesDefaultAdminCredentials(JsonWriter json) {
+    if (userSession.isSystemAdministrator()) {
+      json.prop("instanceUsesDefaultAdminCredentials", defaultAdminCredentialsVerifier.hasDefaultCredentialUser());
+    }
   }
 
   private void writeMultipleAlmEnabled(JsonWriter json) {

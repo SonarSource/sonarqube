@@ -38,6 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
+import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
@@ -68,6 +69,7 @@ public class GlobalActionTest {
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
   private final WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
+  private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier = mock(DefaultAdminCredentialsVerifier.class);
 
   private WsActionTester ws;
 
@@ -271,6 +273,22 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void instance_uses_default_admin_credentials() {
+    init();
+
+    when(defaultAdminCredentialsVerifier.hasDefaultCredentialUser()).thenReturn(true);
+
+    // Even if the default credentials are used, if the current user it not a system admin, the flag is not returned.
+    assertJson(call()).isNotSimilarTo("{\"instanceUsesDefaultAdminCredentials\":true}");
+
+    userSession.logIn().setSystemAdministrator();
+    assertJson(call()).isSimilarTo("{\"instanceUsesDefaultAdminCredentials\":true}");
+
+    when(defaultAdminCredentialsVerifier.hasDefaultCredentialUser()).thenReturn(false);
+    assertJson(call()).isSimilarTo("{\"instanceUsesDefaultAdminCredentials\":false}");
+  }
+
+  @Test
   public void standalone_flag() {
     init();
     userSession.logIn().setRoot();
@@ -374,7 +392,7 @@ public class GlobalActionTest {
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
       webServer, dbClient, branchFeature, userSession, editionProvider, multipleAlmFeatureProvider, webAnalyticsLoader,
-      indexSyncProgressChecker);
+      indexSyncProgressChecker, defaultAdminCredentialsVerifier);
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }
