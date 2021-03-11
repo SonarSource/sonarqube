@@ -374,6 +374,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
       wsComponent.setRefKey(referenceComponent.getKey());
+      String displayQualifier = getDisplayQualifier(component, referenceComponent);
+      wsComponent.setQualifier(displayQualifier);
     }
     Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();
     for (Map.Entry<MetricDto, ComponentTreeData.Measure> entry : measures.entrySet()) {
@@ -383,6 +385,16 @@ public class ComponentTreeAction implements MeasuresWsAction {
       measureBuilder.clear();
     }
     return wsComponent;
+  }
+
+  // https://jira.sonarsource.com/browse/SONAR-13703 - for apps that were added as a local reference to a portfolio, we want to
+  // show them as apps, not sub-portfolios
+  private static String getDisplayQualifier(ComponentDto component, ComponentDto referenceComponent) {
+    String qualifier = component.qualifier();
+    if (qualifier.equals(Qualifiers.SUBVIEW) && referenceComponent.qualifier().equals(Qualifiers.APP)) {
+      return Qualifiers.APP;
+    }
+    return qualifier;
   }
 
   private ComponentTreeData load(ComponentTreeRequest wsRequest) {

@@ -73,6 +73,8 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
@@ -655,6 +657,46 @@ public class ComponentTreeActionTest {
     assertThat(result.getComponentsList())
       .extracting(Component::getKey, Component::getRefKey)
       .containsExactlyInAnyOrder(tuple(projectCopy.getKey(), project.getKey()));
+  }
+
+  @Test
+  public void portfolio_local_reference_in_portfolio() {
+    ComponentDto view = db.components().insertComponent(newView("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
+    ComponentDto view2 = db.components().insertPrivatePortfolio();
+    ComponentDto localView = db.components().insertComponent(
+      newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(view2.uuid()));
+    db.components().insertSnapshot(view);
+    MetricDto ncloc = insertNclocMetric();
+    db.measures().insertLiveMeasure(localView, ncloc, m -> m.setValue(5d));
+
+    ComponentTreeWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT, view.getKey())
+      .setParam(PARAM_METRIC_KEYS, ncloc.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(result.getComponentsList())
+      .extracting(Component::getKey, Component::getRefKey, Component::getQualifier)
+      .containsExactlyInAnyOrder(tuple(localView.getKey(), view2.getKey(), "SVW"));
+  }
+
+  @Test
+  public void application_local_reference_in_portfolio() {
+    ComponentDto view = db.components().insertComponent(newView("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto localView = db.components().insertComponent(
+      newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(application.uuid()));
+    db.components().insertSnapshot(view);
+    MetricDto ncloc = insertNclocMetric();
+    db.measures().insertLiveMeasure(localView, ncloc, m -> m.setValue(5d));
+
+    ComponentTreeWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT, view.getKey())
+      .setParam(PARAM_METRIC_KEYS, ncloc.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(result.getComponentsList())
+      .extracting(Component::getKey, Component::getRefKey, Component::getQualifier)
+      .containsExactlyInAnyOrder(tuple(localView.getKey(), application.getKey(), "APP"));
   }
 
   @Test
