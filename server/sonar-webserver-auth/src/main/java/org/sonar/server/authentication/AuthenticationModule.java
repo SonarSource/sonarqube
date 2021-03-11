@@ -34,6 +34,7 @@ public class AuthenticationModule extends Module {
       CredentialsAuthentication.class,
       CredentialsExternalAuthentication.class,
       CredentialsLocalAuthentication.class,
+      DefaultAdminCredentialsVerifierFilter.class,
       HttpHeadersAuthentication.class,
       IdentityProviderRepository.class,
       InitFilter.class,

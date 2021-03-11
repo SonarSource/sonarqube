@@ -52,6 +52,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
+import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationTemplate;
 import org.sonar.server.authentication.LogOAuthWarning;
@@ -354,6 +355,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GitLabModule.class,
       LdapModule.class,
       SamlModule.class,
+      DefaultAdminCredentialsVerifierImpl.class,
       DefaultAdminCredentialsVerifierNotificationTemplate.class,
       DefaultAdminCredentialsVerifierNotificationHandler.class,
 

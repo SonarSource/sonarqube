@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL;
 
-public class DefaultAdminCredentialsVerifierTest {
+public class DefaultAdminCredentialsVerifierImplTest {
 
   private static final String ADMIN_LOGIN = "admin";
 
@@ -48,11 +48,26 @@ public class DefaultAdminCredentialsVerifierTest {
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private final NotificationManager notificationManager = mock(NotificationManager.class);
 
-  private final DefaultAdminCredentialsVerifier underTest = new DefaultAdminCredentialsVerifier(db.getDbClient(), localAuthentication, notificationManager);
+  private final DefaultAdminCredentialsVerifierImpl underTest = new DefaultAdminCredentialsVerifierImpl(db.getDbClient(), localAuthentication, notificationManager);
 
   @After
   public void after() {
     underTest.stop();
+  }
+
+  @Test
+  public void correctly_detect_if_admin_account_is_used_with_default_credential() {
+    UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN));
+    changePassword(admin, "admin");
+    assertThat(underTest.hasDefaultCredentialUser()).isTrue();
+
+    changePassword(admin, "1234");
+    assertThat(underTest.hasDefaultCredentialUser()).isFalse();
+  }
+
+  @Test
+  public void does_not_break_if_admin_account_does_not_exist() {
+    assertThat(underTest.hasDefaultCredentialUser()).isFalse();
   }
 
   @Test
@@ -64,7 +79,7 @@ public class DefaultAdminCredentialsVerifierTest {
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isTrue();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
-    assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL).get()).isEqualTo("true");
+    assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL)).contains("true");
     verify(notificationManager).scheduleForSending(any(Notification.class));
   }
 
