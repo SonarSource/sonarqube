@@ -228,6 +228,8 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
     expandedCards={Array []}
     sysInfoData={
       Object {
+        "ALMs": Object {},
+        "Bundled": Object {},
         "Compute Engine Database Connection": Object {
           "Pool Active Connections": 0,
           "Pool Initial Size": 0,
@@ -258,6 +260,7 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
         },
         "Health": "GREEN",
         "Health Causes": Array [],
+        "Plugins": Object {},
         "Search Indexes": Object {
           "Index components - Docs": 30445,
           "Index components - Shards": 10,

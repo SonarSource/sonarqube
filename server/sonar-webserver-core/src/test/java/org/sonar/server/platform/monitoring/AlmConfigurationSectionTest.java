@@ -50,11 +50,11 @@ public class AlmConfigurationSectionTest {
     assertThat(section.getAttributesList())
       .extracting(Attribute::getKey, Attribute::getStringValue)
       .containsExactlyInAnyOrder(
-        tuple(azure.getKey(), String.format("alm:%s, url:%s", azure.getRawAlm(), azure.getUrl())),
-        tuple(github.getKey(), String.format("alm:%s, url:%s, appId:%s, clientId:%s", github.getRawAlm(), github.getUrl(), github.getAppId(), github.getClientId())),
-        tuple(gitlab.getKey(), String.format("alm:%s, url:%s", gitlab.getRawAlm(), gitlab.getUrl())),
-        tuple(bitbucket.getKey(), String.format("alm:%s, url:%s", bitbucket.getRawAlm(), bitbucket.getUrl())),
-        tuple(bitbucketCloud.getKey(), String.format("alm:%s, workspace id:%s, OAuth Key:%s", bitbucketCloud.getRawAlm(), bitbucketCloud.getAppId(), bitbucketCloud.getClientId())));
+        tuple(azure.getKey(), String.format("Alm:%s, Url:%s", azure.getRawAlm(), azure.getUrl())),
+        tuple(github.getKey(), String.format("Alm:%s, Url:%s, App Id:%s, Client Id:%s", github.getRawAlm(), github.getUrl(), github.getAppId(), github.getClientId())),
+        tuple(gitlab.getKey(), String.format("Alm:%s, Url:%s", gitlab.getRawAlm(), gitlab.getUrl())),
+        tuple(bitbucket.getKey(), String.format("Alm:%s, Url:%s", bitbucket.getRawAlm(), bitbucket.getUrl())),
+        tuple(bitbucketCloud.getKey(), String.format("Alm:%s, Workspace Id:%s, OAuth Key:%s", bitbucketCloud.getRawAlm(), bitbucketCloud.getAppId(), bitbucketCloud.getClientId())));
   }
 
   @Test
@@ -68,8 +68,8 @@ public class AlmConfigurationSectionTest {
     assertThat(section.getAttributesList())
       .extracting(Attribute::getKey, Attribute::getStringValue)
       .containsExactlyInAnyOrder(
-        tuple(gitlab1.getKey(), String.format("alm:%s, url:%s", gitlab1.getRawAlm(), gitlab1.getUrl())),
-        tuple(gitlab2.getKey(), String.format("alm:%s, url:%s", gitlab2.getRawAlm(), gitlab2.getUrl())));
+        tuple(gitlab1.getKey(), String.format("Alm:%s, Url:%s", gitlab1.getRawAlm(), gitlab1.getUrl())),
+        tuple(gitlab2.getKey(), String.format("Alm:%s, Url:%s", gitlab2.getRawAlm(), gitlab2.getUrl())));
   }
 
   @Test
@@ -82,7 +82,7 @@ public class AlmConfigurationSectionTest {
     assertThat(section.getAttributesList())
       .extracting(Attribute::getKey, Attribute::getStringValue)
       .containsExactlyInAnyOrder(
-        tuple(azure.getKey(), String.format("alm:%s", azure.getRawAlm())));
+        tuple(azure.getKey(), String.format("Alm:%s", azure.getRawAlm())));
   }
 
 }

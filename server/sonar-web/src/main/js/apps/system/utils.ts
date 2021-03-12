@@ -35,6 +35,8 @@ export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 const DEFAULT_LOG_LEVEL = LOGS_LEVELS[0];
 
 export const APP_NODES_FIELD = 'Application Nodes';
+export const ALMS_FIELD = 'ALMs';
+export const BUNDLED_FIELD = 'Bundled';
 export const CE_FIELD_PREFIX = 'Compute Engine';
 export const CE_LOGGING_FIELD = 'Compute Engine Logging';
 export const HA_FIELD = 'High Availability';
@@ -57,6 +59,8 @@ export const WEB_PREFIX = 'Web';
 
 export function ignoreInfoFields(sysInfoObject: T.SysInfoValueObject) {
   return omit(sysInfoObject, [
+    ALMS_FIELD,
+    BUNDLED_FIELD,
     HEALTH_FIELD,
     HEALTH_CAUSES_FIELD,
     NAME_FIELD,

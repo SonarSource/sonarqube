@@ -54,18 +54,18 @@ public class AlmConfigurationSection implements SystemInfoSection {
   }
 
   private static String buildValue(AlmSettingDto almSettingDto) {
-    String value = String.format("alm:%s", almSettingDto.getRawAlm());
+    String value = String.format("Alm:%s", almSettingDto.getRawAlm());
     if (almSettingDto.getUrl() != null) {
-      value += String.format(", url:%s", almSettingDto.getUrl());
+      value += String.format(", Url:%s", almSettingDto.getUrl());
     }
     switch (almSettingDto.getAlm()) {
       case GITHUB:
         // add APP_ID and CLIENT_ID
-        value += String.format(", appId:%s, clientId:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
+        value += String.format(", App Id:%s, Client Id:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
         break;
       case BITBUCKET_CLOUD:
         // WORKSPACE ID & OAuth key
-        value += String.format(", workspace id:%s, OAuth Key:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
+        value += String.format(", Workspace Id:%s, OAuth Key:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
         break;
       default:
         // no additional information for the other ALMs

@@ -78,6 +78,9 @@ function shallowRender(props = {}) {
             'Web Logging': { 'Logs Level': 'INFO' }
           }
         ],
+        ALMs: [{}],
+        Bundled: [{}],
+        Plugins: [{}],
         'Search Nodes': [
           {
             Name: 'Baz',

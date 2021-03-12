@@ -679,6 +679,9 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): T.SysInfoSt
       'file.encoding': 'UTF-8',
       'file.separator': '/'
     },
+    ALMs: {},
+    Bundled: {},
+    Plugins: {},
     ...overrides
   };
 }
