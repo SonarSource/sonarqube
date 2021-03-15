@@ -88,7 +88,7 @@ fi
 # now make ES_PATH_CONF absolute
 ES_PATH_CONF=`cd "$ES_PATH_CONF"; pwd`
 
-ES_DISTRIBUTION_FLAVOR=oss
+ES_DISTRIBUTION_FLAVOR=default
 ES_DISTRIBUTION_TYPE=tar
 ES_BUNDLED_JDK=false
 
@@ -123,7 +123,7 @@ if [[ "$ES_DISTRIBUTION_TYPE" == "docker" ]]; then
         es_arg_array+=("${es_opt}")
       fi
     fi
-  done < <(env)
+  done <<< "$(env)"
 
   # Reset the positional parameters to the es_arg_array values and any existing positional params
   set -- "$@" "${es_arg_array[@]}"
