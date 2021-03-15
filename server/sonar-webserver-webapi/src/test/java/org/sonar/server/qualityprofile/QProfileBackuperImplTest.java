@@ -187,6 +187,72 @@ public class QProfileBackuperImplTest {
   }
 
   @Test
+  public void restore_detects_deprecated_rule_keys() {
+    String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
+    db.rules().insertDeprecatedKey(c -> c.setRuleUuid(ruleUuid).setOldRuleKey("oldkey").setOldRepositoryKey("oldrepo"));
+
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+      "<profile><name>foo</name>" +
+      "<language>js</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>oldrepo</repositoryKey>" +
+      "<key>oldkey</key>" +
+      "<priority>BLOCKER</priority>" +
+      "<parameters>" +
+      "<parameter><key>bar</key><value>baz</value></parameter>" +
+      "</parameters>" +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+
+    underTest.restore(db.getSession(), backup, (String) null);
+
+    assertThat(reset.calledActivations).hasSize(1);
+    RuleActivation activation = reset.calledActivations.get(0);
+    assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
+    assertThat(activation.getParameter("bar")).isEqualTo("baz");
+  }
+
+  @Test
+  public void restore_ignores_deprecated_rule_keys_if_new_key_is_already_present() {
+    String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
+    db.rules().insertDeprecatedKey(c -> c.setRuleUuid(ruleUuid).setOldRuleKey("oldkey").setOldRepositoryKey("oldrepo"));
+
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+      "<profile><name>foo</name>" +
+      "<language>js</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>oldrepo</repositoryKey>" +
+      "<key>oldkey</key>" +
+      "<priority>MAJOR</priority>" +
+      "<parameters>" +
+      "<parameter><key>bar</key><value>baz</value></parameter>" +
+      "</parameters>" +
+      "</rule>" +
+      "<rule>" +
+      "<repositoryKey>sonarjs</repositoryKey>" +
+      "<key>s001</key>" +
+      "<priority>BLOCKER</priority>" +
+      "<parameters>" +
+      "<parameter><key>bar2</key><value>baz2</value></parameter>" +
+      "</parameters>" +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+
+    underTest.restore(db.getSession(), backup, (String) null);
+
+    assertThat(reset.calledActivations).hasSize(1);
+    RuleActivation activation = reset.calledActivations.get(0);
+    assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
+    assertThat(activation.getParameter("bar2")).isEqualTo("baz2");
+  }
+
+  @Test
   public void restore_backup_on_profile_having_different_name() {
     Reader backup = new StringReader(EMPTY_BACKUP);
 

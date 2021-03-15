@@ -22,11 +22,12 @@ package org.sonar.server.qualityprofile;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -35,17 +36,18 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ExportRuleDto;
 import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.function.Function.identity;
 
 @ServerSide
 public class QProfileBackuperImpl implements QProfileBackuper {
@@ -133,7 +135,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     List<ImportedRule> importedRules = qProfile.getRules();
 
     Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey = getImportedRulesDefinitions(dbSession, importedRules);
-    checkIfRulesFromExternalEngines(ruleDefinitionsByKey);
+    checkIfRulesFromExternalEngines(ruleDefinitionsByKey.values());
 
     Map<RuleKey, RuleDefinitionDto> customRulesDefinitions = createCustomRulesIfNotExist(dbSession, importedRules, ruleDefinitionsByKey);
     ruleDefinitionsByKey.putAll(customRulesDefinitions);
@@ -144,17 +146,42 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     return new QProfileRestoreSummary(targetProfile, changes);
   }
 
+  /**
+   * Returns map of rule definition for an imported rule key.
+   * The imported rule key may refer to a deprecated rule key, in which case the the RuleDefinitionDto will correspond to a different key (the new key).
+   */
   private Map<RuleKey, RuleDefinitionDto> getImportedRulesDefinitions(DbSession dbSession, List<ImportedRule> rules) {
-    List<RuleKey> ruleKeys = rules.stream()
+    Set<RuleKey> ruleKeys = rules.stream()
       .map(ImportedRule::getRuleKey)
-      .collect(MoreCollectors.toList());
-    return db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
-      .stream()
-      .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
+      .collect(Collectors.toSet());
+    Map<RuleKey, RuleDefinitionDto> rulesDefinitions = db.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys).stream()
+      .collect(Collectors.toMap(RuleDefinitionDto::getKey, identity()));
+
+    Set<RuleKey> unrecognizedRuleKeys = ruleKeys.stream()
+      .filter(r -> !rulesDefinitions.containsKey(r))
+      .collect(Collectors.toSet());
+
+    if (!unrecognizedRuleKeys.isEmpty()) {
+      Map<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByUuid = db.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
+        .filter(r -> r.getNewRepositoryKey() != null && r.getNewRuleKey() != null)
+        .filter(r -> unrecognizedRuleKeys.contains(RuleKey.of(r.getOldRepositoryKey(), r.getOldRuleKey())))
+        // ignore deprecated rule if the new rule key was already found in the list of imported rules
+        .filter(r -> !ruleKeys.contains(RuleKey.of(r.getNewRepositoryKey(), r.getNewRuleKey())))
+        .collect(Collectors.toMap(DeprecatedRuleKeyDto::getRuleUuid, identity()));
+
+      List<RuleDefinitionDto> rulesBasedOnDeprecatedKeys = db.ruleDao().selectDefinitionByUuids(dbSession, deprecatedRuleKeysByUuid.keySet());
+      for (RuleDefinitionDto rule : rulesBasedOnDeprecatedKeys) {
+        DeprecatedRuleKeyDto deprecatedRuleKey = deprecatedRuleKeysByUuid.get(rule.getUuid());
+        RuleKey oldRuleKey = RuleKey.of(deprecatedRuleKey.getOldRepositoryKey(), deprecatedRuleKey.getOldRuleKey());
+        rulesDefinitions.put(oldRuleKey, rule);
+      }
+    }
+
+    return rulesDefinitions;
   }
 
-  private static void checkIfRulesFromExternalEngines(Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
-    List<RuleDefinitionDto> externalRules = ruleDefinitionsByKey.values().stream()
+  private static void checkIfRulesFromExternalEngines(Collection<RuleDefinitionDto> ruleDefinitions) {
+    List<RuleDefinitionDto> externalRules = ruleDefinitions.stream()
       .filter(RuleDefinitionDto::isExternal)
       .collect(Collectors.toList());
 
@@ -173,7 +200,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     if (!customRulesToCreate.isEmpty()) {
       return db.ruleDao().selectDefinitionByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate))
         .stream()
-        .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
+        .collect(Collectors.toMap(RuleDefinitionDto::getKey, identity()));
     }
     return Collections.emptyMap();
   }
@@ -190,16 +217,16 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   private static List<RuleActivation> toRuleActivations(List<ImportedRule> rules, Map<RuleKey, RuleDefinitionDto> ruleDefinitionsByKey) {
-    return rules.stream()
-      .map(r -> {
-        RuleDefinitionDto ruleDefinition = ruleDefinitionsByKey.get(r.getRuleKey());
-        if (ruleDefinition == null) {
-          return null;
-        }
-        return RuleActivation.create(ruleDefinition.getUuid(), r.getSeverity(), r.getParameters());
-      })
-      .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList(rules.size()));
+    List<RuleActivation> activatedRule = new ArrayList<>();
+
+    for (ImportedRule r : rules) {
+      RuleDefinitionDto ruleDefinition = ruleDefinitionsByKey.get(r.getRuleKey());
+      if (ruleDefinition == null) {
+        continue;
+      }
+      activatedRule.add(RuleActivation.create(ruleDefinition.getUuid(), r.getSeverity(), r.getParameters()));
+    }
+    return activatedRule;
   }
 
   private enum BackupActiveRuleComparator implements Comparator<ExportRuleDto> {
