@@ -91,6 +91,45 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
       exclude 'elasticsearch/modules/reindex/**'
       exclude 'elasticsearch/modules/repository-url/**'
       exclude 'elasticsearch/modules/tasks/**'
+      exclude 'elasticsearch/modules/constant-keyword/**'
+      exclude 'elasticsearch/modules/flattened/**'
+      exclude 'elasticsearch/modules/frozen-indices/**'
+      exclude 'elasticsearch/modules/mapper-version/**'
+      exclude 'elasticsearch/modules/repositories-metering-api/**'
+      exclude 'elasticsearch/modules/search-business-rules/**'
+      exclude 'elasticsearch/modules/searchable-snapshots/**'
+      exclude 'elasticsearch/modules/spatial/**'
+      exclude 'elasticsearch/modules/transform/**'
+      exclude 'elasticsearch/modules/unsigned-long/**'
+      exclude 'elasticsearch/modules/vectors/**'
+      exclude 'elasticsearch/modules/wildcard/**'
+      exclude 'elasticsearch/modules/x-pack-*/**'
+      exclude 'elasticsearch/modules/x-pack-analytics/**'
+      exclude 'elasticsearch/modules/x-pack-async/**'
+      exclude 'elasticsearch/modules/x-pack-async-search/**'
+      exclude 'elasticsearch/modules/x-pack-autoscaling/**'
+      exclude 'elasticsearch/modules/x-pack-ccr/**'
+      exclude 'elasticsearch/modules/x-pack-core/**'
+      exclude 'elasticsearch/modules/x-pack-data-streams/**'
+      exclude 'elasticsearch/modules/x-pack-deprecation/**'
+      exclude 'elasticsearch/modules/x-pack-enrich/**'
+      exclude 'elasticsearch/modules/x-pack-eql/**'
+      exclude 'elasticsearch/modules/x-pack-fleet/**'
+      exclude 'elasticsearch/modules/x-pack-graph/**'
+      exclude 'elasticsearch/modules/x-pack-identity-provider/**'
+      exclude 'elasticsearch/modules/x-pack-ilm/**'
+      exclude 'elasticsearch/modules/x-pack-ingest/**'
+      exclude 'elasticsearch/modules/x-pack-logstash/**'
+      exclude 'elasticsearch/modules/x-pack-ml/**'
+      exclude 'elasticsearch/modules/x-pack-monitoring/**'
+      exclude 'elasticsearch/modules/x-pack-ql/**'
+      exclude 'elasticsearch/modules/x-pack-rollup/**'
+      exclude 'elasticsearch/modules/x-pack-runtime-fields/**'
+      exclude 'elasticsearch/modules/x-pack-security/**'
+      exclude 'elasticsearch/modules/x-pack-sql/**'
+      exclude 'elasticsearch/modules/x-pack-stack/**'
+      exclude 'elasticsearch/modules/x-pack-voting-only-node/**'
+      exclude 'elasticsearch/modules/x-pack-watcher/**'
   }
 
   into("${archiveDir}/conf/") {
@@ -164,8 +203,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 340000000
-  def maxLength = 360000000
+  def minLength = 270000000
+  def maxLength = 290000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
