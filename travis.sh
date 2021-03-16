@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cat test.bin
+
 ./.travis/setup_ramdisk.sh
 
 #
