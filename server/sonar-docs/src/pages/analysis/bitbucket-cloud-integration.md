@@ -168,7 +168,7 @@ You can set the `sonar.qualitygate.timeout` property to an amount of time (in se
 ### For more information
 For more information on configuring your build with Bitbucket Pipelines, see the [Configure bitbucket-pipelines.yml](https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/) documentation provided by Atlassian.
 
-## Adding Pull Request decoration to Bitbucket cloud
+## Adding Pull Request decoration to Bitbucket Cloud
 
 Pull request decoration shows your Quality Gate and analysis metrics directly in Bitbucket Cloud. To set up pull request decoration, you need to do the following:
 
@@ -202,3 +202,34 @@ From here, set your:
 
 - **Configuration name** – The configuration name that corresponds to your Bitbucket Cloud instance.
 - **Repository SLUG** – The repository SLUG is part of your bitbucket cloud URL `https://bitbucket.org/{workspace-id}/{REPOSITORY-SLUG}`
+
+### Advanced pull request decoration configuration
+
+[[collapse]]
+| ## Adding pull request decoration to projects that are part of a mono repository
+|
+| _Pull request decoration for a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
+|
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same Bitbucket Cloud repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
+|
+| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true.
+|
+| After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
+|
+| ### Ensuring the correct project is analyzed
+| You need to adjust the analysis scope to make sure SonarQube doesn't analyze code from other projects in your mono repository. To do this set up a **Source File Inclusion** for your  project at **Project Settings > Analysis Scope** with a pattern that will only include files from the appropriate folder. For example, adding `./MyFolderName/**/*` to your inclusions would only include analysis of code in the `MyFolderName` folder. See [Narrowing the Focus](/project-administration/narrowing-the-focus/) for more information on setting your analysis scope.
+|
+| ### Passing project names to the scanner
+| Because of the nature of a mono repository, SonarQube scanners might read all project names of your mono repository as identical. To avoid having multiple projects with the same name, you need to pass the `sonar.projectName` parameter to the scanner. For example, if you're using the Maven scanner, you would pass `mvn sonar:sonar -Dsonar.projectName=YourProjectName`.
+
+[[collapse]]
+| ## Configuring multiple ALM instances
+|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+|
+|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+|
+|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+
+[[collapse]]
+| ## Linking issues
+| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
