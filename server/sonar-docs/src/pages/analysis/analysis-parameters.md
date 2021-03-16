@@ -91,6 +91,12 @@ Key | Description | Default
 `sonar.scanner.dumpToFile` | Outputs to the specified file the full list of properties passed to the scanner API as a means to debug analysis. |  
 `sonar.scanner.metadataFilePath` | Set the location where the scanner writes the `report-task.txt` file containing among other things the `ceTaskId`. | value of `sonar.working.directory`
 
+### Quality Gate 
+Key | Description | Default
+---|----|---
+`sonar.qualitygate.wait` | Forces the analysis step to poll the SonarQube instance and wait for the Quality Gate status. If there are no other options, you can use this to fail a pipeline build when the Quality Gate is failing. See the [CI Integration](/analysis/branch-pr-analysis-overview/) page for more information. | 
+`sonar.qualitygate.timeout` | Sets the amount of time (in seconds) that the scanner should wait for a report to be processed. | 300
+
 ### Deprecated
 [[danger]]
 | These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
