@@ -23,23 +23,17 @@ import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmSpecificForm, { AlmSpecificFormProps } from '../AlmSpecificForm';
 
 it.each([
-  [AlmKeys.Azure, false],
-  [AlmKeys.Azure, true],
-  [AlmKeys.BitbucketServer, false],
-  [AlmKeys.BitbucketServer, true],
-  [AlmKeys.BitbucketCloud, false],
-  [AlmKeys.GitHub, false],
-  [AlmKeys.GitHub, true],
-  [AlmKeys.GitLab, false],
-  [AlmKeys.GitLab, true]
-])('it should render correctly for %s and monorepo=%s', (alm, monorepoEnabled) => {
-  expect(shallowRender(alm, { monorepoEnabled })).toMatchSnapshot();
+  [AlmKeys.Azure],
+  [AlmKeys.BitbucketServer],
+  [AlmKeys.BitbucketCloud],
+  [AlmKeys.GitHub],
+  [AlmKeys.GitLab]
+])('it should render correctly for %s', alm => {
+  expect(shallowRender(alm)).toMatchSnapshot();
 });
 
-it('should render an alert for azure when the monorepo option is activated', () => {
-  expect(
-    shallowRender(AlmKeys.Azure, { monorepoEnabled: true, formData: { key: '', monorepo: true } })
-  ).toMatchSnapshot();
+it('should render the monorepo field when the feature is supported', () => {
+  expect(shallowRender(AlmKeys.Azure, { monorepoEnabled: true })).toMatchSnapshot();
 });
 
 function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) {
@@ -49,7 +43,8 @@ function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) 
       formData={{
         key: '',
         repository: '',
-        slug: ''
+        slug: '',
+        monorepo: false
       }}
       onFieldChange={jest.fn()}
       monorepoEnabled={false}

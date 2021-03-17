@@ -75,7 +75,7 @@ const REQUIRED_FIELDS_BY_ALM: {
 export class PRDecorationBinding extends React.PureComponent<Props & StateProps, State> {
   mounted = false;
   state: State = {
-    formData: { key: '' },
+    formData: { key: '', monorepo: false },
     instances: [],
     isChanged: false,
     isConfigured: false,
@@ -145,7 +145,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
             formData: {
               key: '',
               repository: '',
-              slug: ''
+              slug: '',
+              monorepo: false
             },
             orignalData: undefined,
             isChanged: false,
@@ -202,7 +203,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         return setProjectBitbucketCloudBinding({
           almSetting,
           project,
-          repository
+          repository,
+          monorepo
         });
       }
       case AlmKeys.GitHub: {
@@ -285,7 +287,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
-        isChanged: !this.isDataSame(newFormData, orignalData || { key: '' }),
+        isChanged: !this.isDataSame(newFormData, orignalData || { key: '', monorepo: false }),
         success: false
       };
     });

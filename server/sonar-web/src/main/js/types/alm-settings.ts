@@ -65,7 +65,7 @@ export interface ProjectAlmBindingResponse {
   repository?: string;
   slug?: string;
   summaryCommentEnabled?: boolean;
-  monorepo?: boolean;
+  monorepo: boolean;
 }
 
 export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
@@ -73,44 +73,39 @@ export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
   repository: string;
   slug: string;
   url: string;
-  monorepo: boolean;
 }
 
 export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.BitbucketServer;
   repository: string;
   slug: string;
-  monorepo: boolean;
 }
 
 export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitHub;
   repository: string;
-  monorepo: boolean;
 }
 
 export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitLab;
   repository: string;
   url: string;
-  monorepo: boolean;
 }
 
 export interface ProjectAlmBindingParams {
   almSetting: string;
   project: string;
+  monorepo: boolean;
 }
 
 export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {
   projectName: string;
   repositoryName: string;
-  monorepo: boolean;
 }
 
 export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   slug: string;
-  monorepo: boolean;
 }
 
 export interface BitbucketCloudProjectAlmBindingParams extends ProjectAlmBindingParams {
@@ -120,12 +115,10 @@ export interface BitbucketCloudProjectAlmBindingParams extends ProjectAlmBinding
 export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   summaryCommentEnabled: boolean;
-  monorepo: boolean;
 }
 
 export interface GitlabProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository?: string;
-  monorepo: boolean;
 }
 
 export interface AlmSettingsInstance {

@@ -79,7 +79,8 @@ it('should handle reset', async () => {
   wrapper.setState({
     formData: {
       key: 'whatever',
-      repository: 'something/else'
+      repository: 'something/else',
+      monorepo: false
     }
   });
 
@@ -87,7 +88,7 @@ it('should handle reset', async () => {
   await waitAndUpdate(wrapper);
 
   expect(deleteProjectAlmBinding).toBeCalledWith(PROJECT_KEY);
-  expect(wrapper.state().formData).toEqual({ key: '', repository: '', slug: '' });
+  expect(wrapper.state().formData).toEqual({ key: '', repository: '', slug: '', monorepo: false });
   expect(wrapper.state().isChanged).toBe(false);
 });
 
@@ -196,19 +197,21 @@ describe('handleSubmit', () => {
     await waitAndUpdate(wrapper);
     const bitbucketKey = 'bitbucketcloud';
     const repository = 'repoKey';
-    wrapper.setState({ formData: { key: bitbucketKey, repository }, instances: [] });
+    const monorepo = true;
+    wrapper.setState({ formData: { key: bitbucketKey, repository, monorepo }, instances: [] });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
     expect(setProjectBitbucketCloudBinding).not.toBeCalled();
 
-    wrapper.setState({ formData: { key: bitbucketKey, repository }, instances });
+    wrapper.setState({ formData: { key: bitbucketKey, repository, monorepo }, instances });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
     expect(setProjectBitbucketCloudBinding).toBeCalledWith({
       almSetting: bitbucketKey,
       project: PROJECT_KEY,
-      repository
+      repository,
+      monorepo
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -218,7 +221,8 @@ describe.each([[500], [404]])('For status %i', status => {
   it('should handle failures gracefully', async () => {
     const newFormData = {
       key: 'whatever',
-      repository: 'something/else'
+      repository: 'something/else',
+      monorepo: false
     };
 
     (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status });
@@ -256,20 +260,23 @@ it('should handle field changes', async () => {
   wrapper.instance().handleFieldChange('key', 'instance2');
   await waitAndUpdate(wrapper);
   expect(wrapper.state().formData).toEqual({
-    key: 'instance2'
+    key: 'instance2',
+    monorepo: false
   });
 
   wrapper.instance().handleFieldChange('repository', repository);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().formData).toEqual({
     key: 'instance2',
-    repository
+    repository,
+    monorepo: false
   });
 
   wrapper.instance().handleFieldChange('summaryCommentEnabled', true);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().formData).toEqual({
     key: 'instance2',
+    monorepo: false,
     repository,
     summaryCommentEnabled: true
   });
@@ -285,23 +292,26 @@ it('should handle field changes', async () => {
 });
 
 it.each([
-  [AlmKeys.Azure, {}],
-  [AlmKeys.Azure, { slug: 'test' }],
-  [AlmKeys.Azure, { repository: 'test' }],
-  [AlmKeys.BitbucketServer, {}],
-  [AlmKeys.BitbucketServer, { slug: 'test' }],
-  [AlmKeys.BitbucketServer, { repository: 'test' }],
-  [AlmKeys.BitbucketCloud, {}],
-  [AlmKeys.GitHub, {}],
-  [AlmKeys.GitLab, {}]
-])('should properly reject promise for %s & %s', async (almKey: AlmKeys, params: {}) => {
-  const wrapper = shallowRender();
+  [AlmKeys.Azure, { monorepo: false }],
+  [AlmKeys.Azure, { slug: 'test', monorepo: false }],
+  [AlmKeys.Azure, { repository: 'test', monorepo: false }],
+  [AlmKeys.BitbucketServer, { monorepo: false }],
+  [AlmKeys.BitbucketServer, { slug: 'test', monorepo: false }],
+  [AlmKeys.BitbucketServer, { repository: 'test', monorepo: false }],
+  [AlmKeys.BitbucketCloud, { monorepo: false }],
+  [AlmKeys.GitHub, { monorepo: false }],
+  [AlmKeys.GitLab, { monorepo: false }]
+])(
+  'should properly reject promise for %s & %s',
+  async (almKey: AlmKeys, params: { monorepo: boolean }) => {
+    const wrapper = shallowRender();
 
-  expect.assertions(1);
-  await expect(
-    wrapper.instance().submitProjectAlmBinding(almKey, 'binding', params)
-  ).rejects.toBeUndefined();
-});
+    expect.assertions(1);
+    await expect(
+      wrapper.instance().submitProjectAlmBinding(almKey, 'binding', params)
+    ).rejects.toBeUndefined();
+  }
+);
 
 it('should validate form', async () => {
   const wrapper = shallowRender();
@@ -309,8 +319,8 @@ it('should validate form', async () => {
 
   const validateMethod = wrapper.instance().validateForm;
 
-  expect(validateMethod({ key: '', repository: '' })).toBe(false);
-  expect(validateMethod({ key: '', repository: 'c' })).toBe(false);
+  expect(validateMethod({ key: '', repository: '', monorepo: false })).toBe(false);
+  expect(validateMethod({ key: '', repository: 'c', monorepo: false })).toBe(false);
 
   wrapper.setState({
     instances: [
@@ -323,17 +333,23 @@ it('should validate form', async () => {
   });
 
   [
-    { values: { key: 'azure', repository: 'rep' }, result: false },
-    { values: { key: 'azure', slug: 'project' }, result: false },
-    { values: { key: 'azure', repository: 'repo', slug: 'project' }, result: true },
-    { values: { key: 'github', repository: '' }, result: false },
-    { values: { key: 'github', repository: 'asdf' }, result: true },
-    { values: { key: 'bitbucket', repository: 'key' }, result: false },
-    { values: { key: 'bitbucket', repository: 'key', slug: 'slug' }, result: true },
-    { values: { key: 'bitbucketcloud', repository: '' }, result: false },
-    { values: { key: 'bitbucketcloud', repository: 'key' }, result: true },
-    { values: { key: 'gitlab' }, result: false },
-    { values: { key: 'gitlab', repository: 'key' }, result: true }
+    { values: { key: 'azure', monorepo: false, repository: 'rep' }, result: false },
+    { values: { key: 'azure', monorepo: false, slug: 'project' }, result: false },
+    {
+      values: { key: 'azure', monorepo: false, repository: 'repo', slug: 'project' },
+      result: true
+    },
+    { values: { key: 'github', monorepo: false, repository: '' }, result: false },
+    { values: { key: 'github', monorepo: false, repository: 'asdf' }, result: true },
+    { values: { key: 'bitbucket', monorepo: false, repository: 'key' }, result: false },
+    {
+      values: { key: 'bitbucket', monorepo: false, repository: 'key', slug: 'slug' },
+      result: true
+    },
+    { values: { key: 'bitbucketcloud', monorepo: false, repository: '' }, result: false },
+    { values: { key: 'bitbucketcloud', monorepo: false, repository: 'key' }, result: true },
+    { values: { key: 'gitlab', monorepo: false }, result: false },
+    { values: { key: 'gitlab', monorepo: false, repository: 'key' }, result: true }
   ].forEach(({ values, result }) => {
     expect(validateMethod(values)).toBe(result);
   });

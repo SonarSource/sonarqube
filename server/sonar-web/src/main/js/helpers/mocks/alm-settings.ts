@@ -107,6 +107,7 @@ export function mockProjectAlmBindingResponse(
   return {
     alm: AlmKeys.GitHub,
     key: 'foo',
+    monorepo: false,
     ...overrides
   };
 }

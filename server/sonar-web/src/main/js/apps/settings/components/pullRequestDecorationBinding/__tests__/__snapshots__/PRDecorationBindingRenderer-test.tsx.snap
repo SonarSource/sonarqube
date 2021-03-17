@@ -421,6 +421,7 @@ exports[`should render multiple instances correctly 2`] = `
       formData={
         Object {
           "key": "i1",
+          "monorepo": false,
           "repository": "account/repo",
         }
       }

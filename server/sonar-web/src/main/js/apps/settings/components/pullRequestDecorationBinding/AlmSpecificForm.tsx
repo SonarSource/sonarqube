@@ -115,37 +115,6 @@ function renderField(
   );
 }
 
-function renderMonoRepoField(props: {
-  monorepoEnabled: boolean;
-  value?: boolean;
-  docLink: string;
-  onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
-}) {
-  if (!props.monorepoEnabled) {
-    return null;
-  }
-
-  return renderBooleanField({
-    help: true,
-    helpParams: {
-      doc_link: (
-        <Link to={props.docLink} target="_blank">
-          {translate('learn_more')}
-        </Link>
-      )
-    },
-    id: 'monorepo',
-    onFieldChange: props.onFieldChange,
-    propKey: 'monorepo',
-    value: props.value ?? false,
-    inputExtra: props.value && (
-      <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
-        {translate('settings.pr_decoration.binding.form.monorepo.warning')}
-      </Alert>
-    )
-  });
-}
-
 export default function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
@@ -153,18 +122,11 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
     monorepoEnabled
   } = props;
 
-  const renderMonoRepoFieldWithDocLink = (docLink: string) => {
-    return renderMonoRepoField({
-      monorepoEnabled,
-      value: monorepo,
-      docLink,
-      onFieldChange: props.onFieldChange
-    });
-  };
+  let formFields: JSX.Element;
 
   switch (alm) {
     case AlmKeys.Azure:
-      return (
+      formFields = (
         <>
           {renderField({
             help: true,
@@ -180,11 +142,11 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}
         </>
       );
+      break;
     case AlmKeys.BitbucketServer:
-      return (
+      formFields = (
         <>
           {renderField({
             help: true,
@@ -218,11 +180,11 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'slug',
             value: slug || ''
           })}
-          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer])}
         </>
       );
+      break;
     case AlmKeys.BitbucketCloud:
-      return (
+      formFields = (
         <>
           {renderField({
             help: true,
@@ -241,8 +203,9 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
           })}
         </>
       );
+      break;
     case AlmKeys.GitHub:
-      return (
+      formFields = (
         <>
           {renderField({
             help: true,
@@ -259,11 +222,11 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'summaryCommentEnabled',
             value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
           })}
-          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub])}
         </>
       );
+      break;
     case AlmKeys.GitLab:
-      return (
+      formFields = (
         <>
           {renderField({
             id: 'gitlab.repository',
@@ -271,10 +234,34 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || ''
           })}
-          {renderMonoRepoFieldWithDocLink(ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab])}
         </>
       );
-    default:
-      return null;
+      break;
   }
+
+  return (
+    <>
+      {formFields}
+      {monorepoEnabled &&
+        renderBooleanField({
+          help: true,
+          helpParams: {
+            doc_link: (
+              <Link to={ALM_DOCUMENTATION_PATHS[alm]} target="_blank">
+                {translate('learn_more')}
+              </Link>
+            )
+          },
+          id: 'monorepo',
+          onFieldChange: props.onFieldChange,
+          propKey: 'monorepo',
+          value: monorepo,
+          inputExtra: monorepo && (
+            <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
+              {translate('settings.pr_decoration.binding.form.monorepo.warning')}
+            </Alert>
+          )
+        })}
+    </>
+  );
 }

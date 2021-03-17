@@ -5,6 +5,7 @@ exports[`should render correctly 1`] = `
   formData={
     Object {
       "key": "",
+      "monorepo": false,
     }
   }
   instances={Array []}

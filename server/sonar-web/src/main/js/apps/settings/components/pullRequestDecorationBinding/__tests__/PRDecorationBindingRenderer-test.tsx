@@ -82,7 +82,8 @@ it('should render multiple instances correctly', () => {
     shallowRender({
       formData: {
         key: 'i1',
-        repository: 'account/repo'
+        repository: 'account/repo',
+        monorepo: false
       },
       isChanged: false,
       isConfigured: true,
@@ -134,7 +135,8 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
     <PRDecorationBindingRenderer
       formData={{
         key: '',
-        repository: ''
+        repository: '',
+        monorepo: false
       }}
       instances={[]}
       isChanged={false}
