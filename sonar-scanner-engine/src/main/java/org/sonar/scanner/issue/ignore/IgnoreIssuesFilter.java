@@ -91,7 +91,7 @@ public class IgnoreIssuesFilter implements IssueFilter {
 
       RuleKey ruleKey = issue.ruleKey();
       if (activeRules.matchesDeprecatedKeys(ruleKey, pattern)) {
-        String msg = String.format("The issue multicriteria pattern '%s' matches a rule key that has been changed. The pattern should be updated to '%s'", pattern, ruleKey);
+        String msg = String.format("A multicriteria issue exclusion uses the rule key '%s' that has been changed. The pattern should be updated to '%s'", pattern, ruleKey);
         analysisWarnings.addUnique(msg);
         if (warnedDeprecatedRuleKeys.add(ruleKey)) {
           LOG.warn(msg);

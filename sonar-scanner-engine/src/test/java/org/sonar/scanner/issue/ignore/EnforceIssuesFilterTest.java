@@ -115,7 +115,7 @@ public class EnforceIssuesFilterTest {
     ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, analysisWarnings, activeRules);
     assertThat(ignoreFilter.accept(issue, chain)).isTrue();
     verify(analysisWarnings)
-      .addUnique("The issue multicriteria pattern 'repo2:deprecated' matches a rule key that has been changed. The pattern should be updated to 'repo:rule'");
+      .addUnique("A multicriteria issue enforce uses the rule key 'repo2:deprecated' that has been changed. The pattern should be updated to 'repo:rule'");
     verifyNoInteractions(chain);
   }
 

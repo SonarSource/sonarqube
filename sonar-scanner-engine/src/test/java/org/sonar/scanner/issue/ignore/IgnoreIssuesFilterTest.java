@@ -94,9 +94,9 @@ public class IgnoreIssuesFilterTest {
     underTest.addRuleExclusionPatternForComponent(component, pattern);
     assertThat(underTest.accept(issue, chain)).isFalse();
 
-    verify(analysisWarnings).addUnique("The issue multicriteria pattern 'repo:rule' matches a rule key that has been changed. The pattern should be updated to 'foo:bar'");
+    verify(analysisWarnings).addUnique("A multicriteria issue exclusion uses the rule key 'repo:rule' that has been changed. The pattern should be updated to 'foo:bar'");
     assertThat(logTester.logs())
-      .contains("The issue multicriteria pattern 'repo:rule' matches a rule key that has been changed. The pattern should be updated to 'foo:bar'");
+      .contains("A multicriteria issue exclusion uses the rule key 'repo:rule' that has been changed. The pattern should be updated to 'foo:bar'");
   }
 
   @Test

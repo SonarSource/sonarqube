@@ -95,7 +95,7 @@ public class EnforceIssuesFilter implements IssueFilter {
 
   private boolean ruleMatches(IssuePattern pattern, RuleKey ruleKey) {
     if (activeRules.matchesDeprecatedKeys(ruleKey, pattern.getRulePattern())) {
-      String msg = String.format("The issue multicriteria pattern '%s' matches a rule key that has been changed. The pattern should be updated to '%s'",
+      String msg = String.format("A multicriteria issue enforce uses the rule key '%s' that has been changed. The pattern should be updated to '%s'",
         pattern.getRulePattern(), ruleKey);
       analysisWarnings.addUnique(msg);
       if (warnedDeprecatedRuleKeys.add(ruleKey)) {
