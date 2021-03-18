@@ -23,7 +23,7 @@ import javax.annotation.Generated;
 
 /**
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_azure_binding">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_bitbucket_binding">Further information about this action online (including a response example)</a>
  * @since 8.1
  */
 @Generated("sonar-ws-generator")
