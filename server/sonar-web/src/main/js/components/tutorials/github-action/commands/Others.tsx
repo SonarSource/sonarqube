@@ -19,32 +19,39 @@
  */
 import * as React from 'react';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
+import CreateYmlFile from './CreateYmlFile';
 
-export interface OtherProps {
+export interface OthersProps {
+  branchesEnabled?: boolean;
   component: T.Component;
 }
 
-const JENKINSFILE_SNIPPET = `node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner"
-    }
-  }
-}`;
+const dotnetYamlTemplate = (branchesEnabled: boolean) => `name: Build
+on:
+  push:
+    branches:
+      - master # or the name of your main branch
+${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: docker://sonarsource/sonar-scanner-cli:latest
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`;
 
-export default function Other({ component }: OtherProps) {
+export default function Others(props: OthersProps) {
+  const { component, branchesEnabled } = props;
   return (
     <>
       <DefaultProjectKey component={component} />
-      <CreateJenkinsfileBulletPoint
-        alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-        snippet={JENKINSFILE_SNIPPET}
-      />
+      <CreateYmlFile yamlTemplate={dotnetYamlTemplate(!!branchesEnabled)} />
     </>
   );
 }

@@ -18,37 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CodeSnippet from '../../../common/CodeSnippet';
-import SentenceWithFilename from '../../components/SentenceWithFilename';
-import { buildGradleSnippet } from '../../utils';
-import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
+import CodeSnippet from '../../common/CodeSnippet';
+import SentenceWithFilename from './SentenceWithFilename';
 
-export interface GradleProps {
+export interface DefaultProjectKeyProps {
   component: T.Component;
 }
 
-const JENKINSFILE_SNIPPET = `node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    withSonarQubeEnv() {
-      sh "./gradlew sonarqube"
-    }
-  }
-}`;
+const sonarProjectSnippet = (key: string) => `sonar.projectKey=${key}`;
 
-export default function Gradle({ component }: GradleProps) {
+export default function DefaultProjectKey(props: DefaultProjectKeyProps) {
+  const { component } = props;
   return (
-    <>
-      <li className="abs-width-600">
-        <SentenceWithFilename
-          filename="build.gradle"
-          translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
-        />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
-      </li>
-      <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
-    </>
+    <li className="abs-width-600">
+      <SentenceWithFilename
+        filename="sonar-project.properties"
+        translationKey="onboarding.tutorial.other.project_key"
+      />
+      <CodeSnippet snippet={sonarProjectSnippet(component.key)} />
+    </li>
   );
 }

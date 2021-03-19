@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <ol
+    className="list-styled big-spacer-top big-spacer-bottom"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        name="language"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "dotnet",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <Connect(withAppState(AnalysisCommand))
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </ol>
+</Fragment>
+`;

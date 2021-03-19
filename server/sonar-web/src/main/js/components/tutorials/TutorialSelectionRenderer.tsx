@@ -22,6 +22,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmBindingDefinition, AlmKeys, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
+import GitHubActionTutorial from './github-action/GitHubActionTutorial';
 import GitLabCITutorial from './gitlabci/GitLabCITutorial';
 import JenkinsTutorial from './jenkins/JenkinsTutorial';
 import ManualTutorial from './manual/ManualTutorial';
@@ -68,6 +69,23 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           </header>
 
           <div className="display-flex-justify-center">
+            {projectBinding?.alm === AlmKeys.GitHub && (
+              <button
+                className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+                onClick={() => props.onSelectTutorial(TutorialModes.GitHubActions)}
+                type="button">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  height={64}
+                  className="spacer-bottom spacer-top"
+                  src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+                />
+                <div className="medium big-spacer-top">
+                  {translate('onboarding.tutorial.choose_method.github_action')}
+                </div>
+              </button>
+            )}
+
             {projectBinding?.alm === AlmKeys.GitLab && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
@@ -135,6 +153,15 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial === TutorialModes.Manual && (
         <ManualTutorial component={component} currentUser={currentUser} />
+      )}
+
+      {selectedTutorial === TutorialModes.GitHubActions && projectBinding !== undefined && (
+        <GitHubActionTutorial
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+          projectBinding={projectBinding}
+        />
       )}
 
       {selectedTutorial === TutorialModes.Jenkins && projectBinding !== undefined && (

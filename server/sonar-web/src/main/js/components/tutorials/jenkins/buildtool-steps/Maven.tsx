@@ -20,15 +20,12 @@
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
+import { mavenPomSnippet } from '../../utils';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 export interface MavenProps {
   component: T.Component;
 }
-
-const pomSnippet = (key: string) => `<properties>
-  <sonar.projectKey>${key}</sonar.projectKey>
-</properties>`;
 
 const JENKINSFILE_SNIPPET = `node {
   stage('SCM') {
@@ -50,7 +47,7 @@ export default function Maven({ component }: MavenProps) {
           filename="pom.xml"
           translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step2"
         />
-        <CodeSnippet snippet={pomSnippet(component.key)} />
+        <CodeSnippet snippet={mavenPomSnippet(component.key)} />
       </li>
       <CreateJenkinsfileBulletPoint
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"

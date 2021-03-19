@@ -18,37 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
-import SentenceWithFilename from '../../components/SentenceWithFilename';
-import { buildGradleSnippet } from '../../utils';
-import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
-export interface GradleProps {
-  component: T.Component;
+export interface CreateYmlFileProps {
+  yamlTemplate: string;
 }
 
-const JENKINSFILE_SNIPPET = `node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    withSonarQubeEnv() {
-      sh "./gradlew sonarqube"
-    }
-  }
-}`;
-
-export default function Gradle({ component }: GradleProps) {
+export default function CreateYmlFile(props: CreateYmlFileProps) {
+  const { yamlTemplate } = props;
   return (
-    <>
-      <li className="abs-width-600">
-        <SentenceWithFilename
-          filename="build.gradle"
-          translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
-        />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
-      </li>
-      <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
-    </>
+    <li className="abs-width-800">
+      <FormattedMessage
+        defaultMessage={translate('onboarding.tutorial.with.github_action.yaml.create_yml')}
+        id="onboarding.tutorial.with.github_action.yaml.create_yml"
+        values={{
+          file: (
+            <>
+              <code className="rule">.github/workflows/build.yml</code>
+              <ClipboardIconButton copyValue=".github/workflows/build.yml" />
+            </>
+          )
+        }}
+      />
+      <CodeSnippet snippet={yamlTemplate} />
+    </li>
   );
 }

@@ -23,6 +23,24 @@ export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
 }
 
+export function mavenPomSnippet(key: string) {
+  return `<properties>
+  <sonar.projectKey>${key}</sonar.projectKey>
+</properties>`;
+}
+
+export function buildGradleSnippet(key: string) {
+  return `plugins {
+  id "org.sonarqube" version "3.1.1"
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "${key}"
+  }
+}`;
+}
+
 export function getUniqueTokenName(tokens: T.UserToken[], initialTokenName = '') {
   const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
 

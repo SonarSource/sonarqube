@@ -19,10 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { withAppState } from '../../hoc/withAppState';
+import AllSet from '../components/AllSet';
 import RenderOptions from '../components/RenderOptions';
-import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 import { BuildTools } from '../types';
 import DotNet from './buildtool-steps/DotNet';
@@ -31,7 +29,6 @@ import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
-  appState: T.AppState;
   component: T.Component;
   open: boolean;
 }
@@ -48,12 +45,8 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.Other]: Other
 };
 
-export function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const {
-    appState: { branchesEnabled },
-    component,
-    open
-  } = props;
+export default function JenkinsfileStep(props: JenkinsfileStepProps) {
+  const { component, open } = props;
   const [buildTool, setBuildTool] = React.useState<BuildToolsWithoutCFamily | undefined>(undefined);
   return (
     <Step
@@ -78,50 +71,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
           {buildTool !== undefined && (
             <>
               <hr className="huge-spacer-top huge-spacer-bottom" />
-              <div className="abs-width-600">
-                <p className="big-spacer-bottom">
-                  <SentenceWithHighlights
-                    highlightKeys={['all_set']}
-                    translationKey="onboarding.tutorial.with.jenkins.all_set"
-                  />
-                </p>
-                <div className="display-flex-row big-spacer-bottom">
-                  <div>
-                    <img
-                      alt="" // Should be ignored by screen readers
-                      className="big-spacer-right"
-                      width={30}
-                      src={`${getBaseUrl()}/images/tutorials/commit.svg`}
-                    />
-                  </div>
-                  <div>
-                    <p className="little-spacer-bottom">
-                      <strong>{translate('onboarding.tutorial.with.jenkins.commit')}</strong>
-                    </p>
-                    <p>
-                      {branchesEnabled
-                        ? translate('onboarding.tutorial.with.jenkins.commit.why')
-                        : translate('onboarding.tutorial.with.jenkins.commit.why.no_branches')}
-                    </p>
-                  </div>
-                </div>
-                <div className="display-flex-row huge-spacer-bottom">
-                  <div>
-                    <img
-                      alt="" // Should be ignored by screen readers
-                      className="big-spacer-right"
-                      width={30}
-                      src={`${getBaseUrl()}/images/tutorials/refresh.svg`}
-                    />
-                  </div>
-                  <div>
-                    <p className="little-spacer-bottom">
-                      <strong>{translate('onboarding.tutorial.with.jenkins.refresh')}</strong>
-                    </p>
-                    <p>{translate('onboarding.tutorial.with.jenkins.refresh.why')}</p>
-                  </div>
-                </div>
-              </div>
+              <AllSet />
             </>
           )}
         </div>
@@ -131,5 +81,3 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
     />
   );
 }
-
-export default withAppState(JenkinsfileStep);

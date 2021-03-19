@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import EditTokenModal from '../components/EditTokenModal';
 import Step from '../components/Step';
+import TokenStepGenerator from '../components/TokenStepGenerator';
 
 export interface EnvironmentVariablesStepProps {
   baseUrl: string;
@@ -42,14 +42,7 @@ const pipelineDescriptionLinkLabel = translate(
 export default function EnvironmentVariablesStep(props: EnvironmentVariablesStepProps) {
   const { baseUrl, component, currentUser, finished, open } = props;
 
-  const [isModalVisible, toggleModal] = React.useState(false);
-
-  const toggleTokenModal = () => toggleModal(!isModalVisible);
-  const closeTokenModal = () => toggleModal(false);
-
-  const fieldValueTranslation = translate(
-    'onboarding.tutorial.with.gitlab_ci.env_variables.enter_field_value'
-  );
+  const fieldValueTranslation = translate('onboarding.tutorial.env_variables');
 
   const renderForm = () => (
     <div className="boxed-group-inner">
@@ -75,28 +68,16 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
             id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
             values={{
               extra: <ClipboardIconButton copyValue="SONAR_TOKEN" />,
-              field: translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1'),
+              field: (
+                <strong>
+                  {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
+                </strong>
+              ),
               value: <code className="rule">SONAR_TOKEN</code>
             }}
           />
         </li>
-        <li className="big-spacer-bottom">
-          <FormattedMessage
-            defaultMessage={fieldValueTranslation}
-            id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
-            values={{
-              extra: (
-                <Button className="spacer-left" onClick={toggleTokenModal}>
-                  {translate('onboarding.token.generate_token')}
-                </Button>
-              ),
-              field: translate('onboarding.tutorial.with.gitlab_ci.env_variables.step2'),
-              value: translate(
-                'onboarding.tutorial.with.gitlab_ci.env_variables.section.step2.value'
-              )
-            }}
-          />
-        </li>
+        <TokenStepGenerator component={component} currentUser={currentUser} />
         <li className="big-spacer-bottom">
           {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3')}
         </li>
@@ -129,7 +110,11 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
             id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
             values={{
               extra: <ClipboardIconButton copyValue="SONAR_HOST_URL" />,
-              field: translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1'),
+              field: (
+                <strong>
+                  {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
+                </strong>
+              ),
               value: <code className="rule">SONAR_HOST_URL</code>
             }}
           />
@@ -140,7 +125,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
             id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
             values={{
               extra: <ClipboardIconButton copyValue={baseUrl} />,
-              field: translate('onboarding.tutorial.with.gitlab_ci.env_variables.step2'),
+              field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
               value: <code className="rule">{baseUrl}</code>
             }}
           />
@@ -160,19 +145,13 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
   );
 
   return (
-    <>
-      {isModalVisible && (
-        <EditTokenModal component={component} currentUser={currentUser} onClose={closeTokenModal} />
-      )}
-
-      <Step
-        finished={finished}
-        onOpen={props.onOpen}
-        open={open}
-        renderForm={renderForm}
-        stepNumber={2}
-        stepTitle={translate('onboarding.tutorial.with.gitlab_ci.env_variables.title')}
-      />
-    </>
+    <Step
+      finished={finished}
+      onOpen={props.onOpen}
+      open={open}
+      renderForm={renderForm}
+      stepNumber={2}
+      stepTitle={translate('onboarding.tutorial.with.gitlab_ci.env_variables.title')}
+    />
   );
 }

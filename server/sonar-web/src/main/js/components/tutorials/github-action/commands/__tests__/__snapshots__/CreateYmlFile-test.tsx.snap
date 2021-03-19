@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<li
+  className="abs-width-800"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.tutorial.with.github_action.yaml.create_yml"
+    id="onboarding.tutorial.with.github_action.yaml.create_yml"
+    values={
+      Object {
+        "file": <React.Fragment>
+          <code
+            className="rule"
+          >
+            .github/workflows/build.yml
+          </code>
+          <ClipboardIconButton
+            copyValue=".github/workflows/build.yml"
+          />
+        </React.Fragment>,
+      }
+    }
+  />
+  <CodeSnippet
+    snippet="temaplate"
+  />
+</li>
+`;

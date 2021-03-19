@@ -33,11 +33,17 @@ import TutorialSelectionRenderer, {
 } from '../TutorialSelectionRenderer';
 import { TutorialModes } from '../types';
 
+it.each([
+  ['bitbucket server', mockProjectBitbucketBindingResponse()],
+  ['github', mockProjectGithubBindingResponse()],
+  ['gitlab', mockProjectGitLabBindingResponse()],
+  ['azure', mockProjectAzureBindingResponse()]
+])('should render correctly for %s', (_, projectBinding) => {
+  expect(shallowRender({ projectBinding })).toMatchSnapshot();
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('selection');
-  expect(shallowRender({ projectBinding: mockProjectBitbucketBindingResponse() })).toMatchSnapshot(
-    'selection with jenkins available'
-  );
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
   expect(shallowRender({ selectedTutorial: TutorialModes.Manual })).toMatchSnapshot(
     'manual tutorial'
@@ -48,6 +54,12 @@ it('should render correctly', () => {
       projectBinding: mockProjectBitbucketBindingResponse()
     })
   ).toMatchSnapshot('jenkins tutorial');
+  expect(
+    shallowRender({
+      selectedTutorial: TutorialModes.GitHubActions,
+      projectBinding: mockProjectGitLabBindingResponse()
+    })
+  ).toMatchSnapshot('github actions tutorial');
   expect(
     shallowRender({
       selectedTutorial: TutorialModes.GitLabCI,
@@ -88,6 +100,9 @@ it('should allow mode selection for Github', () => {
 
   click(wrapper.find('button.tutorial-mode-manual'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+
+  click(wrapper.find('button.tutorial-mode-github'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitHubActions);
 });
 
 it('should allow mode selection for GitLab', () => {

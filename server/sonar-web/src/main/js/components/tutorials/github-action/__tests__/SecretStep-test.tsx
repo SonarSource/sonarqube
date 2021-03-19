@@ -17,34 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import DefaultProjectKey from '../../components/DefaultProjectKey';
-import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
+import { mockProjectGithubBindingResponse } from '../../../../helpers/mocks/alm-settings';
+import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import SecretStep, { SecretStepProps } from '../SecretStep';
 
-export interface OtherProps {
-  component: T.Component;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-const JENKINSFILE_SNIPPET = `node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner"
-    }
-  }
-}`;
-
-export default function Other({ component }: OtherProps) {
-  return (
-    <>
-      <DefaultProjectKey component={component} />
-      <CreateJenkinsfileBulletPoint
-        alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-        snippet={JENKINSFILE_SNIPPET}
-      />
-    </>
+function shallowRender(props: Partial<SecretStepProps> = {}) {
+  return shallow<SecretStepProps>(
+    <SecretStep
+      baseUrl="test"
+      component={mockComponent()}
+      currentUser={mockLoggedInUser()}
+      projectBinding={mockProjectGithubBindingResponse()}
+      onDone={jest.fn()}
+      {...props}
+    />
   );
 }

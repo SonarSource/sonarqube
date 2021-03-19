@@ -21,6 +21,7 @@ export enum TutorialModes {
   Manual = 'manual',
   Jenkins = 'jenkins',
   GitLabCI = 'gitlab-ci',
+  GitHubActions = 'github-actions',
   AzurePipelines = 'azure-pipelines'
 }
 
