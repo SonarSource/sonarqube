@@ -250,6 +250,24 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_bitbucketcloud_binding">Further information about this action online (including a response example)</a>
+   * @since 8.7
+   */
+  public void setBitbucketcloudBinding(SetBitbucketCloudBindingRequest request) {
+    call(
+      new PostRequest(path("set_bitbucketcloud_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("monorepo", request.getMonorepo())
+        .setParam("project", request.getProject())
+        .setParam("repository", request.getRepository())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_github_binding">Further information about this action online (including a response example)</a>
    * @since 8.1
