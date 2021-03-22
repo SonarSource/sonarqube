@@ -3,6 +3,9 @@ title: Marketplace
 url: /instance-administration/marketplace/
 ---
 
+[[info]]
+| You can only install and update plugins from the Marketplace in SonarQube Community Edition. With commercial editions, you need manually install and update your plugins. See [Install a Plugin](/setup/install-plugin/) for more information.
+
 Administrators can access the Marketplace via **[Administration > Marketplace](/#sonarqube-admin#/admin/marketplace)**. The Marketplace is the place for keeping the pieces of the SonarQube platform up to date. It lets you:
 
 See
@@ -34,11 +37,11 @@ Restarting SonarQube can be done manually from the command line by running `sona
 * in the System Info page at any time
 
 ## Manual Updates
-If your server doesn't have internet access, you won't be able to rely on the Marketplace for plugins, and will have to handle plugin installations and upgrades manually.
+If you're using a commercial edition or your server doesn't have internet access, you won't be able to rely on the Marketplace for plugins, and you will have to handle plugin installations and upgrades manually.
 
 To see what plugins are available and which version of a plugin is appropriate for your server, use the [plugin version matrix](/instance-administration/plugin-version-matrix/), which is kept up to date with current plugin availability and compatibility.
 
-To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in _$SONARQUBE-HOME/extensions/downloads_, and restart the server.
+To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in `$SONARQUBE-HOME/extensions/plugins`, and restart the server.
 
 ### Stopping the Marketplace from searching for plugin updates
 Your SonarQube server needs internet access for the Marketplace to search for plugin updates. If your server doesn't have internet access, you may get errors in your logs when the Marketplace tries to search for new plugins. You can stop this by updating `sonar.updatecenter.activate` in `$SONARQUBE-HOME/conf/sonar.properties`.
