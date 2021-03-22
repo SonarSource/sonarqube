@@ -20,16 +20,21 @@
 package org.sonar.core.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 
 public class CorePropertyDefinitions {
 
@@ -39,14 +44,16 @@ public class CorePropertyDefinitions {
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
 
-  //TODO remove
+  // TODO remove
   @Deprecated
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
+
+  public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -99,6 +106,14 @@ public class CorePropertyDefinitions {
         .defaultValue(Boolean.toString(false))
         .category(CoreProperties.CATEGORY_GENERAL)
         .type(BOOLEAN)
+        .build(),
+      PropertyDefinition.builder(PLUGINS_RISK_CONSENT)
+        .name("State of user plugins risk consent")
+        .description("Determine whether user is required to accept plugins risk consent")
+        .defaultValue(NOT_ACCEPTED.name())
+        .options(Arrays.stream(PluginRiskConsent.values()).map(Enum::name).collect(Collectors.toList()))
+        .hidden()
+        .type(SINGLE_SELECT_LIST)
         .build(),
 
       // WEB LOOK&FEEL
