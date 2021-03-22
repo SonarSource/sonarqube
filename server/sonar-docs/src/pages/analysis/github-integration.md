@@ -8,6 +8,7 @@ SonarQube's integration with GitHub Enterprise and GitHub.com allows you to main
 With this integration, you'll be able to:
 
 - **Import your GitHub repositories** - Import your GitHub repositories into SonarQube to easily set up SonarQube projects.  
+- **Analyze projects with GitHub Actions** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in GitHub Actions jobs can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner.
 - **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in GitHub so you know if it's safe to merge your changes.
 - **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.  
 
@@ -77,6 +78,226 @@ Navigate to **Administration > Configuration > General Settings > ALM Integratio
 - **Client ID** – The Client ID is found on your GitHub App's page.
 - **Client secret** – The Client secret is found on your GitHub App's page.
 - **Private Key** – Your GitHub App's private key. You can generate a `.pem` file from your GitHub App's page under **Private keys**. Copy and paste the contents of the file here.
+
+## Analyzing projects with GitHub Actions
+SonarScanners running in GitHub Actions can automatically detect branches and pull requests being built so you don't need to specifically pass them as parameters to the scanner.
+
+To analyze your projects with GitHub Actions, you need to:
+- Create your GitHub Secrets.
+- Create your workflow YAML file.
+- Commit and push your code to start the analysis
+
+### Community Edition
+
+Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `on.push.branches` configuration in your workflow YAML file, and not using the `on.pull_request` part.
+
+### Creating your GitHub Secrets
+You can create repository secrets from your GitHub repository. See GitHub's documentation on [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more information. 
+
+You need to set the following GitHub repository secrets to analyze your projects with GitHub Actions:
+
+- `SONAR_TOKEN` – Generate a SonarQube [token](/user-guide/user-token/) and, in GitHub, create a new repository secret in GitHub with `SONAR_TOKEN` as the **Name** and the token you generated as the **Value**.
+
+- `SONAR_HOST_URL` – In GitHub, create a new repository secret with `SONAR_HOST_URL` as the **Name** and your SonarQube server URL as the **Value**.
+
+### Creating your configuration file
+The following examples show you how to configure your `.github/workflows/build.yml` file. Click the scanner you're using below to expand the example configuration:
+
+[[collapse]]
+| ## SonarScanner for Maven
+|
+| **Note:** A project key might have to be provided through a `pom.xml` file, or through the command line parameter. For more information, see the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/) documentation.
+| 
+| Write the following in your workflow YAML file:
+|
+|```
+| name: Build
+| on:
+|   push:
+|     branches:
+|       - master # or the name of your main branch
+|   pull_request:
+|     types: [opened, synchronize, reopened]
+| jobs:
+|   build:
+|     name: Build
+|     runs-on: ubuntu-latest
+|     steps:
+|       - uses: actions/checkout@v2
+|         with:
+|           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+|       - name: Set up JDK 11
+|         uses: actions/setup-java@v1
+|         with:
+|           java-version: 11
+|       - name: Cache SonarQube packages
+|         uses: actions/cache@v1
+|         with:
+|           path: ~/.sonar/cache
+|           key: ${{ runner.os }}-sonar
+|           restore-keys: ${{ runner.os }}-sonar
+|       - name: Cache Maven packages
+|         uses: actions/cache@v1
+|         with:
+|           path: ~/.m2
+|           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+|           restore-keys: ${{ runner.os }}-m2
+|       - name: Build and analyze
+|         env:
+|           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+|           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+|           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+|         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+| ```
+
+[[collapse]]
+| ## SonarScanner for Gradle
+|
+| **Note:** A project key might have to be provided through a `build.gradle` file, or through the command line parameter. For more information, see the [SonarScanner for Gradle](/analysis/scan/sonarscanner-for-gradle/) documentation.
+|
+| Add the following to your `build.gradle` file:
+|
+| ```
+| plugins {
+|   id "org.sonarqube" version "3.1"
+| }
+| ```
+|
+| Write the following in your workflow YAML file:
+|
+| ```
+| name: Build
+| on:
+|   push:
+|     branches:
+|       - master # or the name of your main branch
+|   pull_request:
+|     types: [opened, synchronize, reopened]
+| jobs:
+|   build:
+|     name: Build
+|     runs-on: ubuntu-latest
+|     steps:
+|       - uses: actions/checkout@v2
+|         with:
+|           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+|       - name: Set up JDK 11
+|         uses: actions/setup-java@v1
+|         with:
+|           java-version: 11
+|       - name: Cache SonarQube packages
+|         uses: actions/cache@v1
+|         with:
+|           path: ~/.sonar/cache
+|           key: ${{ runner.os }}-sonar
+|           restore-keys: ${{ runner.os }}-sonar
+|       - name: Cache Gradle packages
+|         uses: actions/cache@v1
+|         with:
+|           path: ~/.gradle/caches
+|           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+|           restore-keys: ${{ runner.os }}-gradle
+|       - name: Build and analyze
+|         env:
+|           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+|           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+|           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+|         run: ./gradlew build sonarqube --info 
+| ```
+
+
+[[collapse]]
+| ## SonarScanner for .NET
+| 
+| Write the following in your workflow YAML file:
+| 
+| ```
+| name: Build
+| on:
+|   push:
+|     branches:
+|       - master # or the name of your main branch
+|   pull_request:
+|     types: [opened, synchronize, reopened]
+| jobs:
+|   build:
+|     name: Build
+|     runs-on: windows-latest
+|     steps:
+|       - name: Set up JDK 11
+|         uses: actions/setup-java@v1
+|         with:
+|           java-version: 1.11
+|       - uses: actions/checkout@v2
+|         with:
+|           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+|       - name: Cache SonarQube packages
+|         uses: actions/cache@v1
+|         with:
+|           path: ~\sonar\cache
+|           key: ${{ runner.os }}-sonar
+|           restore-keys: ${{ runner.os }}-sonar
+|       - name: Cache SonarQube scanner
+|         id: cache-sonar-scanner
+|         uses: actions/cache@v1
+|         with:
+|           path: .\.sonar\scanner
+|           key: ${{ runner.os }}-sonar-scanner
+|           restore-keys: ${{ runner.os }}-sonar-scanner
+|       - name: Install SonarQube scanner
+|         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+|         shell: powershell
+|         run: |
+|           New-Item -Path .\.sonar\scanner -ItemType Directory
+|           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+|       - name: Build and analyze
+|         env:
+|           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+|         shell: powershell
+|         run: |
+|           .\.sonar\scanner\dotnet-sonarscanner begin /k:"example" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
+|           dotnet build
+|           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+| ```
+
+
+[[collapse]]
+| ## SonarScanner CLI
+| 
+| **Note:** A project key has to be provided through a `sonar-project.properties` file, or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
+| 
+| Write the following in your workflow YAML file:
+|
+| ```
+| name: Build
+| on:
+|   push:
+|     branches:
+|       - master # or the name of your main branch
+|   pull_request:
+|     types: [opened, synchronize, reopened]
+| jobs:
+|   build:
+|     name: Build
+|     runs-on: ubuntu-latest
+|     steps:
+|       - uses: actions/checkout@v2
+|         with:
+|           fetch-depth: 0
+|       - uses: docker://sonarsource/sonar-scanner-cli:latest
+|         env:
+|           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+|           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+|           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+| ```
+
+#### **Failing the pipeline job when the Quality Gate fails**
+In order for the Quality Gate to fail on the GitLab side when it fails on the SonarQube side, the scanner needs to wait for the SonarQube Quality Gate status. To enable this, set the `sonar.qualitygate.wait` property to `true` (check the above scanners' documentation to know where to set this property).
+
+You can set the `sonar.qualitygate.timeout` property to an amount of time (in seconds) that the scanner should wait for a report to be processed. The default is 300 seconds. 
+
+### Commit and push your code
+Commit and push your code to start the analysis. Each new push you make on your branches or pull requests will trigger a new analysis in SonarQube.
 
 ## Adding pull request decoration to GitHub
 After creating and installing your GitHub App above, you can add pull request decoration to show your Quality Gate and analysis metrics directly in GitHub: 

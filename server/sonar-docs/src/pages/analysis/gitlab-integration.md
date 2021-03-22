@@ -64,7 +64,7 @@ To import your GitLab projects into SonarQube, you need to first set your global
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
-- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used for merge request decoration. You'll be asked for another personal access token for importing projects in the following section. 
+- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used to merge request decoration. You'll be asked for another personal access token for importing projects in the following section. 
 
 ### Adding a personal access token for importing projects
 After setting these global settings, you can add a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.
@@ -89,7 +89,7 @@ Set up your build according to your SonarQube edition:
 - **Developer Edition and above** By default, GitLab will build all branches but not Merge Requests. To build Merge Requests, you need to update the `.gitlab-ci.yml` file by adding `merge_requests` to the `only` parameter in your .yml. See the example configurations below for more information.
 
 ### Setting environment variables 
-You can set environment variables securely for all pipelines in GitLab's settings. See [Creating a Custom Environment Variable](https://docs.gitlab.com/ee/ci/variables/#creating-a-custom-environment-variable) for more information.
+You can set environment variables securely for all pipelines in GitLab's settings. See GitLab's documentation on [Creating a Custom Environment Variable](https://docs.gitlab.com/ee/ci/variables/#creating-a-custom-environment-variable) for more information.
  
 You need to set the following environment variables in GitLab for analysis:
  

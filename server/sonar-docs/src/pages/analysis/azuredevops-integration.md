@@ -46,12 +46,6 @@ SonarScanners running in Azure Pipelines jobs can automatically detect branches 
 [[info]]
 | Automatic branch detection is only available when using Git.
 
-You can find a tutorial on setting up analysis with Azure Pipelines by selecting **Azure Pipelines** when asked how you want to analyze your repository:
-
-![Analyzing repositories with Azure Pipelines](/images/AzurePipelinesAnalysis.png)
-
-Or, You can also use the following sections to set up analysis with Azure Pipelines. 
-
 ### Installing your extension
 From Visual Studio Marketplace, install the [SonarQube extension](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube) by clicking the **Get it free** button. 
 
