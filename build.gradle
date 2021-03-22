@@ -196,10 +196,10 @@ subprojects {
       //    updateCenterKey: Update Center Plugin key, last release will be resolved from repox when not provided
       //    githubRepository: name of github repository of the plugin in the SonarSource organisation
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.9.0.2739' // bundled_plugin:abap:sonar-abap
-      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.6.0.4639' // bundled_plugin:cobol:sonar-cobol
+      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.6.1.4781' // bundled_plugin:cobol:sonar-cobol
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.17.0.27551' // bundled_plugin:cpp:sonar-cpp
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.11.0.2617' // bundled_plugin:pli:sonar-pli
-      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.5.1.3594' // bundled_plugin:plsql:sonar-plsql
+      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.6.0.3724' // bundled_plugin:plsql:sonar-plsql
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.7.0.2497' // bundled_plugin:vb:sonar-vb
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.5.0.2338' // bundled_plugin:rpg:sonar-rpg
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:8.7.0.7826' // bundled_plugin::sonar-security
@@ -211,21 +211,21 @@ subprojects {
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.8.2.1946' // bundled_plugin:sonarapex:slang-enterprise
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.3.0.4687' // bundled_plugin:swift:sonar-swift
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.5.0.3958' // bundled_plugin:tsql:sonar-tsql
-      dependency 'org.sonarsource.css:sonar-css-plugin:1.3.2.1782' // bundled_plugin:cssfamily:sonar-css
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.18.0.27296' // bundled_plugin:csharp:sonar-dotnet
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.18.0.27296' // bundled_plugin:vbnet:sonar-dotnet
+      dependency 'org.sonarsource.css:sonar-css-plugin:1.4.0.1899' // bundled_plugin:cssfamily:sonar-css
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.19.0.28253' // bundled_plugin:csharp:sonar-dotnet
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.19.0.28253' // bundled_plugin:vbnet:sonar-dotnet
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.6.0.2294' // bundled_plugin:flex:sonar-flex
       dependency 'org.sonarsource.html:sonar-html-plugin:3.3.0.2534' // bundled_plugin:web:sonar-html
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.1.0.898' // bundled_plugin:jacoco:sonar-jacoco
-      dependency 'org.sonarsource.java:sonar-java-plugin:6.12.0.24852' // bundled_plugin:java:sonar-java
+      dependency 'org.sonarsource.java:sonar-java-plugin:6.14.0.25463' // bundled_plugin:java:sonar-java
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:7.2.0.14938' // bundled_plugin:javascript:SonarJS
       dependency 'org.sonarsource.php:sonar-php-plugin:3.15.0.7197' // bundled_plugin:php:sonar-php
-      dependency 'org.sonarsource.python:sonar-python-plugin:3.2.0.7856' // bundled_plugin:python:sonar-python
+      dependency 'org.sonarsource.python:sonar-python-plugin:3.3.0.7945' // bundled_plugin:python:sonar-python
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.8.2.1946' // bundled_plugin:go:slang-enterprise
       dependency 'org.sonarsource.slang:sonar-kotlin-plugin:1.8.2.1946' // bundled_plugin:kotlin:slang-enterprise
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.8.2.1946' // bundled_plugin:ruby:slang-enterprise
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.8.2.1946' // bundled_plugin:sonarscala:slang-enterprise
-      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.0.1.2020' // bundled_plugin:xml:sonar-xml
+      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.1.0.2861' // bundled_plugin:xml:sonar-xml
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.2.3') {
