@@ -51,6 +51,13 @@ Specify the following settings in your app:
   |---------------------|--------------|
   | Email addresses     | Read-only    |
 
+  And grant access for the following **Organization permissions**:
+
+  | Permission          | Access       |
+  |---------------------|--------------|
+  | Members             | Read-only    |
+  | Projects            | Read-only    |
+
 - Under "Where can this GitHub App be installed?," select **Any account**.
 
 [[warning]]
