@@ -30,6 +30,10 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/fileHashes/
   - rm -fr $HOME/.gradle/caches/*/scripts/
 
+before_install:
+  - echo -e "machine github.com\n  login $GITHUB_TOKEN" > ~/.netrc
+  - git lfs pull
+
 notifications:
   email: false
   webhooks:
