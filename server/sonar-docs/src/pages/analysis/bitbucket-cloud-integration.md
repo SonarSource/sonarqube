@@ -212,7 +212,7 @@ From here, set your:
 |
 | In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same Bitbucket Cloud repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
 |
-| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true.
+| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration**.
 |
 | After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
 |
