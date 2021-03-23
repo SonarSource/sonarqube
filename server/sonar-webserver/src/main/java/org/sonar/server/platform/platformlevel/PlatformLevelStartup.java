@@ -28,6 +28,7 @@ import org.sonar.server.ce.queue.CeQueueCleaner;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
+import org.sonar.server.plugins.PluginConsentVerifier;
 import org.sonar.server.qualitygate.ProjectsInWarningDaemon;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.BuiltInQProfileInsertImpl;
@@ -72,7 +73,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       RenameDeprecatedPropertyKeys.class,
       CeQueueCleaner.class,
       UpgradeSuggestionsCleaner.class,
-      DefaultAdminCredentialsVerifierImpl.class);
+      DefaultAdminCredentialsVerifierImpl.class,
+      PluginConsentVerifier.class);
 
     // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefore it
     // must be started after all the other startup tasks
