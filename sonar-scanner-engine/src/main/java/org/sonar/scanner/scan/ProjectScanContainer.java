@@ -74,7 +74,6 @@ import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.mediumtest.AnalysisObservers;
-import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobsExecutor;
@@ -230,8 +229,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // context
       ContextPropertiesCache.class,
       ContextPropertiesPublisher.class,
-
-      DefaultAnalysisWarnings.class,
 
       SensorStrategy.class,
 
