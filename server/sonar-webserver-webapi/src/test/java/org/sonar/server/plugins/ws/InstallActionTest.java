@@ -23,14 +23,19 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+
 import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.tester.UserSessionRule;
@@ -43,10 +48,12 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
 
 @RunWith(DataProviderRunner.class)
 public class InstallActionTest {
@@ -62,12 +69,14 @@ public class InstallActionTest {
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private InstallAction underTest = new InstallAction(updateCenterFactory, pluginDownloader, userSessionRule);
+  private Configuration configuration = mock(Configuration.class);
+  private InstallAction underTest = new InstallAction(updateCenterFactory, pluginDownloader, userSessionRule, configuration);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void wireMocks() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
+    when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.ACCEPTED.name()));
   }
 
   @Test
@@ -142,7 +151,7 @@ public class InstallActionTest {
 
   @DataProvider
   public static Object[][] editionBundledOrganizationAndLicense() {
-    return new Object[][] {
+    return new Object[][]{
       {"SonarSource", "SonarSource"},
       {"SonarSource", "Commercial"},
       {"sonarsource", "SOnArSOURCE"}
@@ -175,6 +184,20 @@ public class InstallActionTest {
 
     verify(pluginDownloader).download(PLUGIN_KEY, version);
     response.assertNoContent();
+  }
+
+  @Test
+  public void handle_givenRiskConsentNotAccepted_expectServerError() {
+    logInAsSystemAdministrator();
+
+    when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.NOT_ACCEPTED.name()));
+
+    assertThatThrownBy(() -> tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY)
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can't install plugin without accepting firstly plugins risk consent");
+
   }
 
   private void logInAsSystemAdministrator() {

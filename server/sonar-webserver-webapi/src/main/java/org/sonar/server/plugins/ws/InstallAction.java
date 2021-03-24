@@ -19,11 +19,16 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.net.HttpURLConnection;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.extension.PluginRiskConsent;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
@@ -31,6 +36,7 @@ import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
 import static java.lang.String.format;
+import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
 import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 /**
@@ -43,12 +49,14 @@ public class InstallAction implements PluginsWsAction {
   private final UpdateCenterMatrixFactory updateCenterFactory;
   private final PluginDownloader pluginDownloader;
   private final UserSession userSession;
+  private final Configuration configuration;
 
-  public InstallAction(UpdateCenterMatrixFactory updateCenterFactory,
-    PluginDownloader pluginDownloader, UserSession userSession) {
+  public InstallAction(UpdateCenterMatrixFactory updateCenterFactory, PluginDownloader pluginDownloader,
+    UserSession userSession, Configuration configuration) {
     this.updateCenterFactory = updateCenterFactory;
     this.pluginDownloader = pluginDownloader;
     this.userSession = userSession;
+    this.configuration = configuration;
   }
 
   @Override
@@ -70,11 +78,19 @@ public class InstallAction implements PluginsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
+    if (!hasPluginInstallConsent()) {
+      throw new IllegalArgumentException("Can't install plugin without accepting firstly plugins risk consent");
+    }
 
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findAvailablePluginByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());
     response.noContent();
+  }
+
+  private boolean hasPluginInstallConsent() {
+    Optional<String> pluginRiskConsent = configuration.get(PLUGINS_RISK_CONSENT);
+    return pluginRiskConsent.filter(s -> PluginRiskConsent.valueOf(s) == PluginRiskConsent.ACCEPTED).isPresent();
   }
 
   private PluginUpdate findAvailablePluginByKey(String key) {
