@@ -24,6 +24,7 @@ import withIndexationContext, {
 } from '../../../components/hoc/withIndexationContext';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { IndexationNotificationType } from '../../../types/indexation';
+import { Permissions } from '../../../types/permissions';
 import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
@@ -44,7 +45,8 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     super(props);
 
     this.isSystemAdmin =
-      isLoggedIn(this.props.currentUser) && hasGlobalPermission(this.props.currentUser, 'admin');
+      isLoggedIn(this.props.currentUser) &&
+      hasGlobalPermission(this.props.currentUser, Permissions.Admin);
   }
 
   componentDidMount() {

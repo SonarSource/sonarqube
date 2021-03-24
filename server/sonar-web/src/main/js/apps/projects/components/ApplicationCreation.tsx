@@ -28,6 +28,7 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
+import { Permissions } from '../../../types/permissions';
 
 export interface ApplicationCreationProps {
   appState: Pick<T.AppState, 'qualifiers'>;
@@ -43,7 +44,7 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
 
   const canCreateApplication =
     appState.qualifiers.includes(ComponentQualifier.Application) &&
-    hasGlobalPermission(currentUser, 'applicationcreator');
+    hasGlobalPermission(currentUser, Permissions.ApplicationCreation);
 
   if (!canCreateApplication) {
     return null;

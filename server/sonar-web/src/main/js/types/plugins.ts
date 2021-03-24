@@ -76,6 +76,12 @@ export enum PluginType {
   External = 'EXTERNAL'
 }
 
+export enum RiskConsent {
+  Accepted = 'ACCEPTED',
+  NotAccepted = 'NOT_ACCEPTED',
+  Required = 'REQUIRED'
+}
+
 export function isAvailablePlugin(plugin: Plugin): plugin is AvailablePlugin {
   return (plugin as any).release !== undefined;
 }

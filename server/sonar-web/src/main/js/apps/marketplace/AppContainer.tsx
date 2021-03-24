@@ -43,12 +43,14 @@ const mapStateToProps = (state: Store) => {
   };
 };
 
-const WithAdminContext = (props: StateToProps & OwnProps) => (
-  <AdminContext.Consumer>
-    {({ fetchPendingPlugins, pendingPlugins }) => (
-      <App fetchPendingPlugins={fetchPendingPlugins} pendingPlugins={pendingPlugins} {...props} />
-    )}
-  </AdminContext.Consumer>
-);
+function WithAdminContext(props: StateToProps & OwnProps) {
+  return (
+    <AdminContext.Consumer>
+      {({ fetchPendingPlugins, pendingPlugins }) => (
+        <App fetchPendingPlugins={fetchPendingPlugins} pendingPlugins={pendingPlugins} {...props} />
+      )}
+    </AdminContext.Consumer>
+  );
+}
 
 export default connect(mapStateToProps)(WithAdminContext);

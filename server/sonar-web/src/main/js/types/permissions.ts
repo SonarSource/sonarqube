@@ -17,21 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockRouter } from '../../../../helpers/testMocks';
-import { EmptyInstance } from '../EmptyInstance';
 
-it('renders correctly for SQ', () => {
-  expect(
-    shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} router={mockRouter()} />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <EmptyInstance
-        currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
-        router={mockRouter()}
-      />
-    )
-  ).toMatchSnapshot();
-});
+export enum Permissions {
+  Admin = 'admin',
+  ProjectCreation = 'provisioning',
+  ApplicationCreation = 'applicationcreator'
+}

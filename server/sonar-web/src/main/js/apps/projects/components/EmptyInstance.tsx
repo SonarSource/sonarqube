@@ -23,6 +23,7 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { Permissions } from '../../../types/permissions';
 
 export interface EmptyInstanceProps {
   currentUser: T.CurrentUser;
@@ -32,7 +33,7 @@ export interface EmptyInstanceProps {
 export function EmptyInstance(props: EmptyInstanceProps) {
   const { currentUser, router } = props;
   const showNewProjectButton =
-    isLoggedIn(currentUser) && hasGlobalPermission(currentUser, 'provisioning');
+    isLoggedIn(currentUser) && hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
   return (
     <div className="projects-empty-list">

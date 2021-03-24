@@ -19,19 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockRouter } from '../../../../helpers/testMocks';
-import { EmptyInstance } from '../EmptyInstance';
+import { EditionKey } from '../../../../types/editions';
+import { RiskConsent } from '../../../../types/plugins';
+import PluginRiskConsentBox, { PluginRiskConsentBoxProps } from '../PluginRiskConsentBox';
 
-it('renders correctly for SQ', () => {
-  expect(
-    shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} router={mockRouter()} />)
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <EmptyInstance
-        currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
-        router={mockRouter()}
-      />
-    )
-  ).toMatchSnapshot();
+it.each([[undefined], [RiskConsent.Accepted], [RiskConsent.NotAccepted], [RiskConsent.Required]])(
+  'should render correctly for risk consent %s',
+  (riskConsent?: RiskConsent) => {
+    expect(shallowRender({ riskConsent })).toMatchSnapshot();
+  }
+);
+
+it('should render correctly for community edition', () => {
+  expect(shallowRender({ currentEdition: EditionKey.community })).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<PluginRiskConsentBoxProps> = {}) {
+  return shallow(<PluginRiskConsentBox acknowledgeRisk={jest.fn()} {...props} />);
+}

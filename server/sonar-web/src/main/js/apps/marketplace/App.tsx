@@ -20,6 +20,8 @@
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
@@ -28,10 +30,13 @@ import {
   getInstalledPluginsWithUpdates,
   getPluginUpdates
 } from '../../api/plugins';
+import { getValues, setSimpleSettingValue } from '../../api/settings';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { EditionKey } from '../../types/editions';
-import { PendingPluginResult, Plugin } from '../../types/plugins';
+import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
+import { SettingsKey } from '../../types/settings';
+import PluginRiskConsentBox from './components/PluginRiskConsentBox';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import Header from './Header';
@@ -53,6 +58,7 @@ interface Props {
 interface State {
   loadingPlugins: boolean;
   plugins: Plugin[];
+  riskConsent?: RiskConsent;
 }
 
 export class App extends React.PureComponent<Props, State> {
@@ -62,6 +68,7 @@ export class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchQueryPlugins();
+    this.fetchRiskConsent();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -102,6 +109,27 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
+  fetchRiskConsent = async () => {
+    const result = await getValues({ keys: SettingsKey.PluginRiskConsent });
+
+    if (!result || result.length < 1) {
+      return;
+    }
+
+    const [consent] = result;
+
+    this.setState({ riskConsent: consent.value as RiskConsent | undefined });
+  };
+
+  acknowledgeRisk = async () => {
+    await setSimpleSettingValue({
+      key: SettingsKey.PluginRiskConsent,
+      value: RiskConsent.Accepted
+    });
+
+    await this.fetchRiskConsent();
+  };
+
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
     this.props.router.push({ pathname: this.props.location.pathname, query });
@@ -115,7 +143,7 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     const { currentEdition, standaloneMode, pendingPlugins } = this.props;
-    const { loadingPlugins, plugins } = this.state;
+    const { loadingPlugins, plugins, riskConsent } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = filterPlugins(plugins, query.search);
 
@@ -128,9 +156,33 @@ export class App extends React.PureComponent<Props, State> {
         <header className="page-header">
           <h1 className="page-title">{translate('marketplace.page.plugins')}</h1>
           <div className="page-description">
-            {translate('marketplace.page.plugins.description')}
+            <p>{translate('marketplace.page.plugins.description')}</p>
+            {currentEdition !== EditionKey.community && (
+              <p className="spacer-top">
+                <FormattedMessage
+                  id="marketplace.page.plugins.description2"
+                  defaultMessage={translate('marketplace.page.plugins.description2')}
+                  values={{
+                    link: (
+                      <Link
+                        to="/documentation/instance-administration/marketplace/"
+                        target="_blank">
+                        {translate('marketplace.page.plugins.description2.link')}
+                      </Link>
+                    )
+                  }}
+                />
+              </p>
+            )}
           </div>
         </header>
+
+        <PluginRiskConsentBox
+          acknowledgeRisk={this.acknowledgeRisk}
+          currentEdition={currentEdition}
+          riskConsent={riskConsent}
+        />
+
         <Search
           query={query}
           updateCenterActive={this.props.updateCenterActive}
@@ -144,7 +196,7 @@ export class App extends React.PureComponent<Props, State> {
               <PluginsList
                 pending={pendingPlugins}
                 plugins={filteredPlugins}
-                readOnly={!standaloneMode}
+                readOnly={!standaloneMode || riskConsent !== RiskConsent.Accepted}
                 refreshPending={this.props.fetchPendingPlugins}
               />
               <Footer total={filteredPlugins.length} />

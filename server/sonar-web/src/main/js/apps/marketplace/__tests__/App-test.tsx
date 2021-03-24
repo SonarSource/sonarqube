@@ -26,7 +26,10 @@ import {
   getInstalledPluginsWithUpdates,
   getPluginUpdates
 } from '../../../api/plugins';
+import { getValues, setSimpleSettingValue } from '../../../api/settings';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { RiskConsent } from '../../../types/plugins';
+import { SettingsKey } from '../../../types/settings';
 import { App } from '../App';
 
 jest.mock('../../../api/plugins', () => {
@@ -40,6 +43,11 @@ jest.mock('../../../api/plugins', () => {
   };
 });
 
+jest.mock('../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([]),
+  setSimpleSettingValue: jest.fn().mockResolvedValue(true)
+}));
+
 beforeEach(jest.clearAllMocks);
 
 it('should render correctly', async () => {
@@ -48,6 +56,25 @@ it('should render correctly', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('loaded');
+});
+
+it('should handle accepting the risk', async () => {
+  (getValues as jest.Mock)
+    .mockResolvedValueOnce([{ value: RiskConsent.NotAccepted }])
+    .mockResolvedValueOnce([{ value: RiskConsent.Accepted }]);
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+  expect(getValues).toBeCalledWith({ keys: SettingsKey.PluginRiskConsent });
+
+  wrapper.instance().acknowledgeRisk();
+
+  await new Promise(setImmediate);
+
+  expect(setSimpleSettingValue).toBeCalled();
+  expect(getValues).toBeCalledWith({ keys: SettingsKey.PluginRiskConsent });
+  expect(wrapper.state().riskConsent).toBe(RiskConsent.Accepted);
 });
 
 it('should fetch plugin info', async () => {
@@ -69,6 +96,7 @@ it('should fetch plugin info', async () => {
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(
     <App
+      currentEdition={EditionKey.developer}
       fetchPendingPlugins={jest.fn()}
       location={mockLocation()}
       pendingPlugins={{

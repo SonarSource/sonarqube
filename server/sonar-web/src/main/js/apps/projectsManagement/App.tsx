@@ -30,6 +30,7 @@ import { getValues } from '../../api/settings';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { hasGlobalPermission } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
+import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
@@ -205,7 +206,7 @@ export class App extends React.PureComponent<Props, State> {
 
         <Header
           defaultProjectVisibility={defaultProjectVisibility}
-          hasProvisionPermission={hasGlobalPermission(currentUser, 'provisioning')}
+          hasProvisionPermission={hasGlobalPermission(currentUser, Permissions.ProjectCreation)}
           onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
           onProjectCreate={this.openCreateProjectForm}
         />

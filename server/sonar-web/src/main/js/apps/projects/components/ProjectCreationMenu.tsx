@@ -27,6 +27,7 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { Permissions } from '../../../types/permissions';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
@@ -37,8 +38,6 @@ interface Props {
 interface State {
   boundAlms: Array<string>;
 }
-
-const PROJECT_CREATION_PERMISSION = 'provisioning';
 
 const almSettingsValidators = {
   [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
@@ -68,7 +67,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
   fetchAlmBindings = async () => {
     const { currentUser } = this.props;
-    const canCreateProject = hasGlobalPermission(currentUser, PROJECT_CREATION_PERMISSION);
+    const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     // getAlmSettings requires branchesEnabled
     if (!canCreateProject) {
@@ -94,7 +93,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     const { className, currentUser } = this.props;
     const { boundAlms } = this.state;
 
-    const canCreateProject = hasGlobalPermission(currentUser, PROJECT_CREATION_PERMISSION);
+    const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     if (!canCreateProject) {
       return null;
