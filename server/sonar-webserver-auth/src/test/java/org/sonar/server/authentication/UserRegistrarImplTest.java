@@ -67,7 +67,7 @@ public class UserRegistrarImplTest {
     .setEnabled(true)
     .setAllowsUsersToSignUp(true);
 
-  private final MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -76,7 +76,7 @@ public class UserRegistrarImplTest {
   @Rule
   public EsTester es = EsTester.create();
   private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
   private final UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),

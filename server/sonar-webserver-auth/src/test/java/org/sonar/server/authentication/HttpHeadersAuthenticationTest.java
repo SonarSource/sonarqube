@@ -61,7 +61,7 @@ import static org.sonar.server.authentication.event.AuthenticationExceptionMatch
 
 public class HttpHeadersAuthenticationTest {
 
-  private final MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
   @Rule
   public ExpectedException expectedException = none();
@@ -92,7 +92,7 @@ public class HttpHeadersAuthenticationTest {
   private GroupDto sonarUsers;
 
   private final System2 system2 = mock(System2.class);
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
   private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 

@@ -72,8 +72,8 @@ public class UserUpdaterUpdateTest {
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final DbSession session = db.getSession();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private final MapSettings settings = new MapSettings();
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 

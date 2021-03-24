@@ -54,8 +54,8 @@ public class ChangePasswordActionTest {
   public EsTester es = EsTester.createCustom(UserIndexDefinition.createForTest());
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
-
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(),
     new UserIndexer(db.getDbClient(), es.client()), new DefaultGroupFinder(db.getDbClient()),

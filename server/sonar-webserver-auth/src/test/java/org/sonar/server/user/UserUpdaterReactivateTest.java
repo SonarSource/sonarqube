@@ -59,8 +59,8 @@ public class UserUpdaterReactivateTest {
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final DbSession session = db.getSession();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private final MapSettings settings = new MapSettings();
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
     new DefaultGroupFinder(dbClient),
     settings.asConfig(), localAuthentication);
@@ -86,8 +86,8 @@ public class UserUpdaterReactivateTest {
     assertThat(reloaded.getEmail()).isEqualTo("marius2@mail.com");
     assertThat(reloaded.getScmAccounts()).isNull();
     assertThat(reloaded.isLocal()).isTrue();
-    assertThat(reloaded.getSalt()).isNull();
-    assertThat(reloaded.getHashMethod()).isEqualTo(HashMethod.BCRYPT.name());
+    assertThat(reloaded.getSalt()).isNotNull();
+    assertThat(reloaded.getHashMethod()).isEqualTo(HashMethod.PBKDF2.name());
     assertThat(reloaded.getCryptedPassword()).isNotNull().isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(reloaded.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(reloaded.getUpdatedAt()).isGreaterThan(user.getCreatedAt());

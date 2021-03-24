@@ -50,7 +50,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
 
-  private final MapSettings settings = new MapSettings();
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final System2 system2 = new System2();
 
   @Rule
@@ -65,7 +65,7 @@ public class UpdateActionTest {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));

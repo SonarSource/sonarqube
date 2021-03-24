@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -45,7 +46,8 @@ public class DefaultAdminCredentialsVerifierImplTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final NotificationManager notificationManager = mock(NotificationManager.class);
 
   private final DefaultAdminCredentialsVerifierImpl underTest = new DefaultAdminCredentialsVerifierImpl(db.getDbClient(), localAuthentication, notificationManager);

@@ -74,8 +74,8 @@ public class UserUpdaterCreateTest {
   private final ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
   private final DbSession session = db.getSession();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private final MapSettings settings = new MapSettings();
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
@@ -100,8 +100,8 @@ public class UserUpdaterCreateTest {
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.isLocal()).isTrue();
 
-    assertThat(dto.getSalt()).isNull();
-    assertThat(dto.getHashMethod()).isEqualTo(HashMethod.BCRYPT.name());
+    assertThat(dto.getSalt()).isNotNull();
+    assertThat(dto.getHashMethod()).isEqualTo(HashMethod.PBKDF2.name());
     assertThat(dto.getCryptedPassword()).isNotNull();
     assertThat(dto.getCreatedAt())
       .isPositive()

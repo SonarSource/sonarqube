@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,9 +39,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class CredentialsAuthenticationTest {
@@ -58,8 +59,9 @@ public class CredentialsAuthenticationTest {
   private DbSession dbSession = dbTester.getSession();
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient);
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
   private CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication);
 
   @Test
