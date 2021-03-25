@@ -2,6 +2,12 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.8 Upgrade Notes  
+**Deprecated web services have been dropped**  
+Web services that were deprecated in 6.x versions have been dropped. ([SONAR-13848](https://jira.sonarsource.com/browse/SONAR-13848)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16674)  
+
 ## Release 8.7 Upgrade Notes  
 **JavaScript and TypeScript analysis now requires Node.js 10+**  
 In order to analyze JavaScript or TypeScript code, you now need to have Node.js 10+ installed on the machine running the scan.
