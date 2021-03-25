@@ -12,6 +12,7 @@ The SonarScanner for Azure DevOps is compatible with:
 * TFS 2017 Update 2+
 * TFS 2018
 * Azure DevOps Server 2019
+* Azure DevOps Server 2020
 * Azure DevOps Services
 
 ## Analysis
