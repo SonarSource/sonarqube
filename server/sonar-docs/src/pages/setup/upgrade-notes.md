@@ -9,6 +9,9 @@ In order to analyze JavaScript or TypeScript code, you now need to have Node.js 
 **Azure DevOps Services and Bitbucket Cloud are now supported**  
 SonarQube now officially supports Azure DevOps Services and Bitbucket Cloud. If you were running analysis using Bitbucket Pipelines previously, when you upgrade, the Main branch name in your SonarQube project needs to match the branch name in your code repository to continue writing history to the branch. You may have to rename it before running analysis again.
 
+**Microsoft SQL Server and Integrated Authentication**  
+If you are using Microsoft SQL Server with Integrated Authentication, you will need to replace the `sqljdbc_auth.dll` file on your `PATH` with `mssql-jdbc_auth-9.2.0.x64.dll` from the [Microsoft SQL JDBC Driver 9.2.0 package](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92). See [Install the Server](/setup/install-server/) for more information.
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16540)  
 
 ## Release 8.6 Upgrade Notes  
