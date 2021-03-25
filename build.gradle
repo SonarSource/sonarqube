@@ -190,7 +190,7 @@ subprojects {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.9.0.2739'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.6.1.4781'
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.17.0.27551'
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.18.0.29274'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.11.0.2617'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.6.0.3724'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.7.0.2497'
