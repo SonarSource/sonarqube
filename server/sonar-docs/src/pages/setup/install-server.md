@@ -238,7 +238,7 @@ If you're using [Docker Compose](https://docs.docker.com/compose/), use the foll
 | 
 | services:
 |   sonarqube:
-|     image: sonarqube:8-community
+|     image: sonarqube:community
 |     depends_on:
 |       - db
 |     environment:

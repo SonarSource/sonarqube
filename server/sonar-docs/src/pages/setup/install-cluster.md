@@ -248,7 +248,7 @@ You'll use the following volumes in your configuration:
 |
 |services:
 |  sonarqube:
-|    image: sonarqube:8.6-datacenter-app
+|    image: sonarqube:datacenter-app
 |    depends_on:
 |      - db
 |      - search-1
@@ -272,7 +272,7 @@ You'll use the following volumes in your configuration:
 |      - sonarqube_extensions:/opt/sonarqube/extensions
 |      - sonarqube_logs:/opt/sonarqube/logs
 |  search-1:
-|    image: sonarqube:8.6-datacenter-search
+|    image: sonarqube:datacenter-search
 |    hostname: "search-1"
 |    depends_on:
 |      - db
