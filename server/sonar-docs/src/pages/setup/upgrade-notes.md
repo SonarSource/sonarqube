@@ -3,6 +3,9 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 ## Release 8.8 Upgrade Notes  
+**CSS analysis now requires Node.js 10+**  
+In order to analyze CSS code, you now need to have Node.js 10+ installed on the machine running the scan.
+
 **Deprecated web services have been dropped**  
 Web services that were deprecated in 6.x versions have been dropped. ([SONAR-13848](https://jira.sonarsource.com/browse/SONAR-13848)).
 
