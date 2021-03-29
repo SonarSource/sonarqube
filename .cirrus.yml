@@ -85,7 +85,19 @@ screenshots_on_failure_template: &REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
   screenshots_artifacts:
     path: "**/build/screenshots/**/*"
 
+node_modules_cache_template: &NODE_MODULES_CACHE_TEMPLATE
+  node_modules_cache:
+    folder: "**/node_modules"
+    fingerprint_script: |
+      cat \
+        server/sonar-web/yarn.lock \
+        server/sonar-docs/yarn.lock \
+        private/core-extension-governance/yarn.lock \
+        private/core-extension-license/yarn.lock \
+        private/core-extension-securityreport/yarn.lock
+
 build_task:
+  <<: *NODE_MODULES_CACHE_TEMPLATE
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
@@ -108,6 +120,7 @@ build_task:
 
 validate_task: &VALIDATE_TASK
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *NODE_MODULES_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -133,6 +146,7 @@ validate_license_change_task:
 
 yarn_check-ci_task:
   <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *NODE_MODULES_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
