@@ -74,6 +74,7 @@ public class JsonWriter implements AutoCloseable {
     this.stream = new com.google.gson.stream.JsonWriter(writer);
     this.stream.setSerializeNulls(false);
     this.stream.setLenient(false);
+    this.stream.setHtmlSafe(true);
     this.serializeEmptyStrings = true;
   }
 
