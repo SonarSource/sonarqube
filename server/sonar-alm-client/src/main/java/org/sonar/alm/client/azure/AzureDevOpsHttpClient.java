@@ -45,7 +45,10 @@ import static org.sonar.api.internal.apachecommons.lang.StringUtils.substringBef
 
 @ServerSide
 public class AzureDevOpsHttpClient {
+
   private static final Logger LOG = Loggers.get(AzureDevOpsHttpClient.class);
+
+  public static final String API_VERSION_3 = "api-version=3.0";
 
   protected static final String GET = "GET";
   protected static final String UNABLE_TO_CONTACT_AZURE_SERVER = "Unable to contact Azure DevOps server";
@@ -60,13 +63,13 @@ public class AzureDevOpsHttpClient {
   }
 
   public void checkPAT(String serverUrl, String token) {
-    String url = String.format("%s/_apis/projects", getTrimmedUrl(serverUrl));
+    String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
     LOG.debug(String.format("check pat : [%s]", url));
     doGet(token, url);
   }
 
   public GsonAzureProjectList getProjects(String serverUrl, String token) {
-    String url = String.format("%s/_apis/projects", getTrimmedUrl(serverUrl));
+    String url = String.format("%s/_apis/projects?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
     LOG.debug(String.format("get projects : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProjectList.class));
   }
@@ -74,16 +77,16 @@ public class AzureDevOpsHttpClient {
   public GsonAzureRepoList getRepos(String serverUrl, String token, @Nullable String projectName) {
     String url;
     if (projectName != null && !projectName.isEmpty()) {
-      url = String.format("%s/%s/_apis/git/repositories", getTrimmedUrl(serverUrl), projectName);
+      url = String.format("%s/%s/_apis/git/repositories?%s", getTrimmedUrl(serverUrl), projectName, API_VERSION_3);
     } else {
-      url = String.format("%s/_apis/git/repositories", getTrimmedUrl(serverUrl));
+      url = String.format("%s/_apis/git/repositories?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
     }
     LOG.debug(String.format("get repos : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepoList.class));
   }
 
   public GsonAzureRepo getRepo(String serverUrl, String token, String projectName, String repositoryName) {
-    String url = String.format("%s/%s/_apis/git/repositories/%s", getTrimmedUrl(serverUrl), projectName, repositoryName);
+    String url = String.format("%s/%s/_apis/git/repositories/%s?%s", getTrimmedUrl(serverUrl), projectName, repositoryName, API_VERSION_3);
     LOG.debug(String.format("get repo : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepo.class));
   }

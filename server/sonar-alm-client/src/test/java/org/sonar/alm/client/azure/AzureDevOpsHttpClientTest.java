@@ -78,12 +78,12 @@ public class AzureDevOpsHttpClientTest {
 
     RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
     String azureDevOpsUrlCall = request.getRequestUrl().toString();
-    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects");
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("check pat : [" + server.url("").toString() + "_apis/projects]");
+      .contains("check pat : [" + server.url("").toString() + "_apis/projects?api-version=3.0]");
   }
 
   @Test
@@ -132,12 +132,12 @@ public class AzureDevOpsHttpClientTest {
 
     RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
     String azureDevOpsUrlCall = request.getRequestUrl().toString();
-    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects");
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get projects : [" + server.url("").toString() + "_apis/projects]");
+      .contains("get projects : [" + server.url("").toString() + "_apis/projects?api-version=3.0]");
     assertThat(projects.getValues()).hasSize(2);
     assertThat(projects.getValues())
       .extracting(GsonAzureProject::getName, GsonAzureProject::getDescription)
@@ -198,12 +198,12 @@ public class AzureDevOpsHttpClientTest {
 
     RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
     String azureDevOpsUrlCall = request.getRequestUrl().toString();
-    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "projectName/_apis/git/repositories");
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "projectName/_apis/git/repositories?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get repos : [" + server.url("").toString() + "projectName/_apis/git/repositories]");
+      .contains("get repos : [" + server.url("").toString() + "projectName/_apis/git/repositories?api-version=3.0]");
     assertThat(repos.getValues()).hasSize(1);
     assertThat(repos.getValues())
       .extracting(GsonAzureRepo::getName, GsonAzureRepo::getUrl, r -> r.getProject().getName())
@@ -218,7 +218,7 @@ public class AzureDevOpsHttpClientTest {
 
     RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
     String azureDevOpsUrlCall = request.getRequestUrl().toString();
-    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/git/repositories");
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/git/repositories?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(repos.getValues()).isEmpty();
   }
@@ -251,12 +251,12 @@ public class AzureDevOpsHttpClientTest {
 
     RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
     String azureDevOpsUrlCall = request.getRequestUrl().toString();
-    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "Project-Name/_apis/git/repositories/Repo-Name-1");
+    assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("get repo : [" + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1]");
+      .contains("get repo : [" + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0]");
     assertThat(repo.getId()).isEqualTo("Repo-Id-1");
     assertThat(repo.getName()).isEqualTo("Repo-Name-1");
     assertThat(repo.getUrl()).isEqualTo("https://ado.sonarqube.com/DefaultCollection/Repo-Id-1");
