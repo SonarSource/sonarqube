@@ -4,9 +4,9 @@
 
 Developer Edition functionality plus:
 
+* Faster analysis with parallel processing
+* OWASP/CWE security reports
 * Portfolio management
-* OWASP/SANS security reports
 * Executive reporting
 * Project transfer
-* Compute Engine parallel processing
-* Additional language analysis: Apex, COBOL, PL/I, RPG & VB6
+* Additional languages: Apex, COBOL, PL/I, RPG & VB6
