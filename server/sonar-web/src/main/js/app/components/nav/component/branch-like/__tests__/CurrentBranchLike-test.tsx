@@ -19,13 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import {
+  mockProjectGithubBindingResponse,
+  mockProjectGitLabBindingResponse
+} from '../../../../../../helpers/mocks/alm-settings';
 import { mockMainBranch } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { CurrentBranchLike, CurrentBranchLikeProps } from '../CurrentBranchLike';
 
-describe('CurrentBranchLikeRenderer should render correctly for application when', () => {
-  it('there is only one branch and the user can admin the application', () => {
+describe('applications', () => {
+  it('should render correctly when there is only one branch and the user can admin the application', () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: true },
@@ -36,7 +40,7 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
     expect(wrapper).toMatchSnapshot();
   });
 
-  it("there is only one branch and the user CAN'T admin the application", () => {
+  it("should render correctly when there is only one branch and the user CAN'T admin the application", () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: false },
@@ -47,7 +51,7 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
     expect(wrapper).toMatchSnapshot();
   });
 
-  it('there are many branchlikes', () => {
+  it('should render correctly when there are many branchlikes', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
@@ -59,18 +63,37 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
   });
 });
 
-describe('CurrentBranchLikeRenderer should render correctly for project when', () => {
-  it('branches support is disabled', () => {
-    const wrapper = shallowRender({
-      branchesEnabled: false,
-      component: mockComponent({
-        qualifier: ComponentQualifier.Project
+describe('projects', () => {
+  it('should render correctly when branches support is disabled', () => {
+    expect(
+      shallowRender({
+        branchesEnabled: false,
+        component: mockComponent({
+          qualifier: ComponentQualifier.Project
+        })
       })
-    });
-    expect(wrapper).toMatchSnapshot();
+    ).toMatchSnapshot('default');
+    expect(
+      shallowRender({
+        branchesEnabled: false,
+        component: mockComponent({
+          qualifier: ComponentQualifier.Project
+        }),
+        projectBinding: mockProjectGithubBindingResponse()
+      })
+    ).toMatchSnapshot('alm with prs');
+    expect(
+      shallowRender({
+        branchesEnabled: false,
+        component: mockComponent({
+          qualifier: ComponentQualifier.Project
+        }),
+        projectBinding: mockProjectGitLabBindingResponse()
+      })
+    ).toMatchSnapshot('alm with mrs');
   });
 
-  it('there is only one branchlike', () => {
+  it('should render correctly when there is only one branchlike', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
@@ -81,7 +104,7 @@ describe('CurrentBranchLikeRenderer should render correctly for project when', (
     expect(wrapper).toMatchSnapshot();
   });
 
-  it('there are many branchlikes', () => {
+  it('should render correctly when there are many branchlikes', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({

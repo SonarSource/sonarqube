@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getProjectAlmBinding } from '../../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
@@ -27,6 +28,7 @@ import { getComponentNavigation } from '../../../api/nav';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockTask } from '../../../helpers/mocks/tasks';
 import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses } from '../../../types/tasks';
 import { ComponentContainer } from '../ComponentContainer';
@@ -65,6 +67,10 @@ jest.mock('../../../api/nav', () => ({
   })
 }));
 
+jest.mock('../../../api/alm-settings', () => ({
+  getProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
+}));
+
 // mock this, because some of its children are using redux store
 jest.mock('../nav/component/ComponentNav', () => ({
   default: () => null
@@ -86,6 +92,22 @@ it('changes component', () => {
 
   (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
   expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+});
+
+it('loads the project binding, if any', async () => {
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(undefined).mockResolvedValueOnce({
+    alm: AlmKeys.GitHub,
+    key: 'foo'
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(getProjectAlmBinding).toBeCalled();
+  expect(wrapper.state().projectBinding).toBeUndefined();
+
+  wrapper.setProps({ location: mockLocation({ query: { id: 'bar' } }) });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().projectBinding).toEqual({ alm: AlmKeys.GitHub, key: 'foo' });
 });
 
 it("doesn't load branches portfolio", async () => {

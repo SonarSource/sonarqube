@@ -21,6 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { withAppState } from '../../../../../components/hoc/withAppState';
+import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
@@ -31,6 +32,7 @@ export interface BranchLikeNavigationProps {
   branchLikes: BranchLike[];
   component: T.Component;
   currentBranchLike: BranchLike;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
@@ -39,7 +41,8 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     branchLikes,
     component,
     component: { configuration },
-    currentBranchLike
+    currentBranchLike,
+    projectBinding
   } = props;
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -54,6 +57,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
       component={component}
       currentBranchLike={currentBranchLike}
       hasManyBranches={hasManyBranches}
+      projectBinding={projectBinding}
     />
   );
 

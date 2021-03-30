@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
@@ -33,10 +34,11 @@ export interface HeaderProps {
   component: T.Component;
   currentBranchLike: BranchLike | undefined;
   currentUser: T.CurrentUser;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function Header(props: HeaderProps) {
-  const { branchLikes, component, currentBranchLike, currentUser } = props;
+  const { branchLikes, component, currentBranchLike, currentUser, projectBinding } = props;
 
   return (
     <>
@@ -57,6 +59,7 @@ export function Header(props: HeaderProps) {
               branchLikes={branchLikes}
               component={component}
               currentBranchLike={currentBranchLike}
+              projectBinding={projectBinding}
             />
             <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
           </>

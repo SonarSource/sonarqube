@@ -21,9 +21,12 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { getAlmDefinitionsNoCatch, getProjectAlmBinding } from '../../../api/alm-settings';
+import { getAlmDefinitionsNoCatch } from '../../../api/alm-settings';
 import { getValues } from '../../../api/settings';
-import { mockBitbucketBindingDefinition } from '../../../helpers/mocks/alm-settings';
+import {
+  mockBitbucketBindingDefinition,
+  mockProjectBitbucketBindingResponse
+} from '../../../helpers/mocks/alm-settings';
 import {
   mockComponent,
   mockLocation,
@@ -40,7 +43,6 @@ jest.mock('sonar-ui-common/helpers/urls', () => ({
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
-  getProjectAlmBinding: jest.fn().mockRejectedValue(null),
   getAlmDefinitionsNoCatch: jest.fn().mockRejectedValue(null)
 }));
 
@@ -61,8 +63,7 @@ it('should select manual if project is not bound', async () => {
 });
 
 it('should not select anything if project is bound', async () => {
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.BitbucketServer });
-  const wrapper = shallowRender();
+  const wrapper = shallowRender({ projectBinding: mockProjectBitbucketBindingResponse() });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().forceManual).toBe(false);
 });
@@ -70,11 +71,10 @@ it('should not select anything if project is bound', async () => {
 it('should correctly find the global ALM binding definition', async () => {
   const key = 'foo';
   const almBinding = mockBitbucketBindingDefinition({ key });
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.BitbucketServer, key });
   (getAlmDefinitionsNoCatch as jest.Mock).mockResolvedValueOnce({
     [AlmKeys.BitbucketServer]: [almBinding]
   });
-  const wrapper = shallowRender();
+  const wrapper = shallowRender({ projectBinding: mockProjectBitbucketBindingResponse({ key }) });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().almBinding).toBe(almBinding);
 });

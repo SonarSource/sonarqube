@@ -26,19 +26,21 @@ import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 
-interface Props {
+export interface EmptyOverviewProps {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component: T.Component;
   currentUser: T.CurrentUser;
   hasAnalyses?: boolean;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
-export function EmptyOverview(props: Props) {
-  const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
+export function EmptyOverview(props: EmptyOverviewProps) {
+  const { branchLike, branchLikes, component, currentUser, hasAnalyses, projectBinding } = props;
 
   if (component.qualifier === ComponentQualifier.Application) {
     return (
@@ -87,7 +89,13 @@ export function EmptyOverview(props: Props) {
       {isLoggedIn(currentUser) ? (
         <>
           {showWarning && <Alert variant="warning">{warning}</Alert>}
-          {showTutorial && <TutorialSelection component={component} currentUser={currentUser} />}
+          {showTutorial && (
+            <TutorialSelection
+              component={component}
+              currentUser={currentUser}
+              projectBinding={projectBinding}
+            />
+          )}
         </>
       ) : (
         <Alert variant="warning">{warning}</Alert>

@@ -20,6 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
+import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
@@ -42,6 +43,7 @@ export interface ComponentNavProps {
   isPending?: boolean;
   onComponentChange: (changes: Partial<T.Component>) => void;
   onWarningDismiss: () => void;
+  projectBinding?: ProjectAlmBindingResponse;
   warnings: TaskWarning[];
 }
 
@@ -54,6 +56,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     currentTaskOnSameBranch,
     isInProgress,
     isPending,
+    projectBinding,
     warnings
   } = props;
   const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
@@ -100,6 +103,7 @@ export default function ComponentNav(props: ComponentNavProps) {
           branchLikes={branchLikes}
           component={component}
           currentBranchLike={currentBranchLike}
+          projectBinding={projectBinding}
         />
         <HeaderMeta
           branchLike={currentBranchLike}

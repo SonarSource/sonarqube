@@ -19,15 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockProjectGithubBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
-import { EmptyOverview } from '../EmptyOverview';
+import { EmptyOverview, EmptyOverviewProps } from '../EmptyOverview';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ hasAnalyses: true })).toMatchSnapshot();
   expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot();
+  expect(shallowRender({ projectBinding: mockProjectGithubBindingResponse() })).toMatchSnapshot();
 });
 
 it('should render another message when there are branches', () => {
@@ -49,8 +51,8 @@ it('should not render the tutorial for applications', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
-  return shallow(
+function shallowRender(props: Partial<EmptyOverviewProps> = {}) {
+  return shallow<EmptyOverviewProps>(
     <EmptyOverview
       branchLike={mockMainBranch()}
       branchLikes={[mockMainBranch()]}

@@ -22,14 +22,16 @@ import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequired
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { isLoggedIn } from '../../../helpers/users';
+import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 
 export interface TutorialsAppProps {
   component: T.Component;
   currentUser: T.CurrentUser;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function TutorialsApp(props: TutorialsAppProps) {
-  const { component, currentUser } = props;
+  const { component, currentUser, projectBinding } = props;
 
   if (!isLoggedIn(currentUser)) {
     handleRequiredAuthentication();
@@ -38,7 +40,11 @@ export function TutorialsApp(props: TutorialsAppProps) {
 
   return (
     <div className="page page-limited">
-      <TutorialSelection component={component} currentUser={currentUser} />
+      <TutorialSelection
+        component={component}
+        currentUser={currentUser}
+        projectBinding={projectBinding}
+      />
     </div>
   );
 }

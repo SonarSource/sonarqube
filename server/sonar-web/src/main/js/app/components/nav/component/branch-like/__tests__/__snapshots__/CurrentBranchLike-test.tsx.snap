@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CurrentBranchLikeRenderer should render correctly for application when there are many branchlikes 1`] = `
+exports[`applications should render correctly when there are many branchlikes 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >
@@ -24,7 +24,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
 </span>
 `;
 
-exports[`CurrentBranchLikeRenderer should render correctly for application when there is only one branch and the user CAN'T admin the application 1`] = `
+exports[`applications should render correctly when there is only one branch and the user CAN'T admin the application 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >
@@ -47,7 +47,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
 </span>
 `;
 
-exports[`CurrentBranchLikeRenderer should render correctly for application when there is only one branch and the user can admin the application 1`] = `
+exports[`applications should render correctly when there is only one branch and the user can admin the application 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >
@@ -101,7 +101,89 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
 </span>
 `;
 
-exports[`CurrentBranchLikeRenderer should render correctly for project when branches support is disabled 1`] = `
+exports[`projects should render correctly when branches support is disabled: alm with mrs 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
+    title="master"
+  >
+    master
+  </span>
+  <DocumentationTooltip
+    content="branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab"
+    data-test="branches-support-disabled"
+    links={
+      Array [
+        Object {
+          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "label": "learn_more",
+        },
+      ]
+    }
+    title="branch_like_navigation.no_branch_support.title.mr"
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </DocumentationTooltip>
+</span>
+`;
+
+exports[`projects should render correctly when branches support is disabled: alm with prs 1`] = `
+<span
+  className="display-flex-center flex-shrink text-ellipsis"
+>
+  <BranchLikeIcon
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+  />
+  <span
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
+    title="master"
+  >
+    master
+  </span>
+  <DocumentationTooltip
+    content="branch_like_navigation.no_branch_support.content_x.pr.alm.github"
+    data-test="branches-support-disabled"
+    links={
+      Array [
+        Object {
+          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "label": "learn_more",
+        },
+      ]
+    }
+    title="branch_like_navigation.no_branch_support.title.pr"
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </DocumentationTooltip>
+</span>
+`;
+
+exports[`projects should render correctly when branches support is disabled: default 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >
@@ -142,7 +224,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when bran
 </span>
 `;
 
-exports[`CurrentBranchLikeRenderer should render correctly for project when there are many branchlikes 1`] = `
+exports[`projects should render correctly when there are many branchlikes 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >
@@ -166,7 +248,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when ther
 </span>
 `;
 
-exports[`CurrentBranchLikeRenderer should render correctly for project when there is only one branchlike 1`] = `
+exports[`projects should render correctly when there is only one branchlike 1`] = `
 <span
   className="display-flex-center flex-shrink text-ellipsis"
 >

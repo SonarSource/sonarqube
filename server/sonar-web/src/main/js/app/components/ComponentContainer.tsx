@@ -20,6 +20,7 @@
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
@@ -33,6 +34,7 @@ import {
 } from '../../helpers/branch-like';
 import { getPortfolioUrl } from '../../helpers/urls';
 import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
+import { ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../types/tasks';
@@ -56,6 +58,7 @@ interface State {
   currentTask?: Task;
   isPending: boolean;
   loading: boolean;
+  projectBinding?: ProjectAlmBindingResponse;
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
 }
@@ -108,9 +111,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     Promise.all([
       getComponentNavigation({ component: key, branch, pullRequest }),
-      getComponentData({ component: key, branch, pullRequest })
+      getComponentData({ component: key, branch, pullRequest }),
+      getProjectAlmBinding(key).catch(() => undefined)
     ])
-      .then(([nav, { component }]) => {
+      .then(([nav, { component }, projectBinding]) => {
         const componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
         /*
@@ -123,6 +127,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           isPortfolioLike(componentWithQualifier.qualifier)
         ) {
           this.props.router.replace(getPortfolioUrl(component.key));
+        }
+
+        if (this.mounted) {
+          this.setState({ projectBinding });
         }
 
         return componentWithQualifier;
@@ -333,7 +341,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <PageUnavailableDueToIndexation component={component} />;
     }
 
-    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress } = this.state;
+    const {
+      branchLike,
+      branchLikes,
+      currentTask,
+      isPending,
+      projectBinding,
+      tasksInProgress
+    } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
@@ -349,6 +364,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             isPending={isPending}
             onComponentChange={this.handleComponentChange}
             onWarningDismiss={this.handleWarningDismiss}
+            projectBinding={projectBinding}
             warnings={this.state.warnings}
           />
         )}
@@ -365,7 +381,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isInProgress,
               isPending,
               onBranchesChange: this.handleBranchesChange,
-              onComponentChange: this.handleComponentChange
+              onComponentChange: this.handleComponentChange,
+              projectBinding
             })}
           </ComponentContext.Provider>
         )}

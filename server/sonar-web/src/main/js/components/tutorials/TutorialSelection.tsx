@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { getAlmDefinitionsNoCatch, getProjectAlmBinding } from '../../api/alm-settings';
+import { getAlmDefinitionsNoCatch } from '../../api/alm-settings';
 import { getValues } from '../../api/settings';
 import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { SettingsKey } from '../../types/settings';
@@ -31,6 +31,7 @@ import { TutorialModes } from './types';
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
   component: T.Component;
   currentUser: T.LoggedInUser;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 interface State {
@@ -38,7 +39,6 @@ interface State {
   baseUrl: string;
   forceManual: boolean;
   loading: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export class TutorialSelection extends React.PureComponent<Props, State> {
@@ -64,23 +64,19 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   }
 
   fetchAlmBindings = async () => {
-    const { component } = this.props;
+    const { projectBinding } = this.props;
 
-    const [almDefinitions, projectBinding] = await Promise.all([
-      getAlmDefinitionsNoCatch().catch(() => undefined),
-      getProjectAlmBinding(component.key).catch(() => undefined)
-    ]);
-
-    if (this.mounted) {
-      if (projectBinding === undefined) {
-        this.setState({ forceManual: true });
-      } else {
+    if (projectBinding === undefined) {
+      this.setState({ forceManual: true });
+    } else {
+      const almDefinitions = await getAlmDefinitionsNoCatch().catch(() => undefined);
+      if (this.mounted) {
         let almBinding;
         if (almDefinitions !== undefined) {
           const specificDefinitions = almDefinitions[projectBinding.alm] as AlmBindingDefinition[];
           almBinding = specificDefinitions.find(d => d.key === projectBinding.key);
         }
-        this.setState({ almBinding, forceManual: false, projectBinding });
+        this.setState({ almBinding, forceManual: false });
       }
     }
   };
@@ -106,8 +102,8 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, currentUser, location } = this.props;
-    const { almBinding, baseUrl, forceManual, loading, projectBinding } = this.state;
+    const { component, currentUser, location, projectBinding } = this.props;
+    const { almBinding, baseUrl, forceManual, loading } = this.state;
 
     const selectedTutorial: TutorialModes | undefined = forceManual
       ? TutorialModes.Manual

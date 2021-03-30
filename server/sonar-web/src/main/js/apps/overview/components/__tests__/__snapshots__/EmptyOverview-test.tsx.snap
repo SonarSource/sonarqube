@@ -67,6 +67,55 @@ exports[`renders correctly 3`] = `
 </div>
 `;
 
+exports[`renders correctly 4`] = `
+<div
+  className="page page-limited"
+>
+  <withRouter(TutorialSelection)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+        "version": "0.0.1",
+      }
+    }
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+    projectBinding={
+      Object {
+        "alm": "github",
+        "key": "foo",
+        "monorepo": true,
+        "repository": "PROJECT_KEY",
+      }
+    }
+  />
+</div>
+`;
+
 exports[`should not render the tutorial for applications 1`] = `
 <div
   className="page page-limited"

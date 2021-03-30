@@ -22,11 +22,12 @@ import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DocumentationTooltip from '../../../../../components/common/DocumentationTooltip';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
+import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { colors } from '../../../../theme';
@@ -36,6 +37,7 @@ export interface CurrentBranchLikeProps {
   component: T.Component;
   currentBranchLike: BranchLike;
   hasManyBranches: boolean;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function CurrentBranchLike(props: CurrentBranchLikeProps) {
@@ -44,12 +46,14 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
     component,
     component: { configuration },
     currentBranchLike,
-    hasManyBranches
+    hasManyBranches,
+    projectBinding
   } = props;
 
   const displayName = getBranchLikeDisplayName(currentBranchLike);
   const isApplication = component.qualifier === ComponentQualifier.Application;
   const canAdminComponent = configuration && configuration.showSettings;
+  const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;
 
   const additionalIcon = () => {
     const plusIcon = <PlusCircleIcon fill={colors.blue} size={12} />;
@@ -79,7 +83,14 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
       if (!branchesEnabled) {
         return (
           <DocumentationTooltip
-            content={translate('branch_like_navigation.no_branch_support.content')}
+            content={
+              projectBinding !== undefined
+                ? translateWithParameters(
+                    `branch_like_navigation.no_branch_support.content_x.${isGitLab ? 'mr' : 'pr'}`,
+                    translate('alm', projectBinding.alm)
+                  )
+                : translate('branch_like_navigation.no_branch_support.content')
+            }
             data-test="branches-support-disabled"
             links={[
               {
@@ -87,7 +98,14 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
                 label: translate('learn_more')
               }
             ]}
-            title={translate('branch_like_navigation.no_branch_support.title')}>
+            title={
+              projectBinding !== undefined
+                ? translate(
+                    'branch_like_navigation.no_branch_support.title',
+                    isGitLab ? 'mr' : 'pr'
+                  )
+                : translate('branch_like_navigation.no_branch_support.title')
+            }>
             {plusIcon}
           </DocumentationTooltip>
         );
