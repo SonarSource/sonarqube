@@ -569,8 +569,8 @@ public class IssueIndexFiltersTest {
 
     indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().rules(singletonList(ruleDefinitionDto)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(new RuleDefinitionDto().setUuid("uuid-abc"))));
+    assertThatSearchReturnsOnly(IssueQuery.builder().ruleUuids(singletonList(ruleDefinitionDto.getUuid())), "I1");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().ruleUuids(singletonList("uuid-abc")));
   }
 
   @Test

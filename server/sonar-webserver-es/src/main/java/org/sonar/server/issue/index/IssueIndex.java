@@ -437,7 +437,7 @@ public class IssueIndex {
     filters.addFilter(
       FIELD_ISSUE_RULE_UUID, RULES.getFilterScope(), createTermsFilter(
         FIELD_ISSUE_RULE_UUID,
-        query.rules().stream().map(RuleDefinitionDto::getUuid).collect(toList())));
+        query.ruleUuids()));
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
 
     // security category
@@ -669,7 +669,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, FILES, query.files().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, SCOPES, query.scopes().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, LANGUAGES, query.languages().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.ruleUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHORS, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHOR, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());

@@ -109,13 +109,22 @@ public class IssueQueryFactory {
   public IssueQuery create(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       final ZoneId timeZone = parseTimeZone(request.getTimeZone()).orElse(clock.getZone());
+
+      Collection<RuleDefinitionDto> ruleDefinitionDtos = ruleKeysToRuleId(dbSession, request.getRules());
+      Collection<String> ruleUuids = ruleDefinitionDtos.stream().map(RuleDefinitionDto::getUuid).collect(Collectors.toSet());
+
+      if (request.getRules() != null && request.getRules().stream().collect(toSet()).size() != ruleDefinitionDtos.size()) {
+        ruleUuids.add("non-existing-uuid");
+      }
+
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(request.getIssues())
         .severities(request.getSeverities())
         .statuses(request.getStatuses())
         .resolutions(request.getResolutions())
         .resolved(request.getResolved())
-        .rules(ruleKeysToRuleId(dbSession, request.getRules()))
+        .rules(ruleDefinitionDtos)
+        .ruleUuids(ruleUuids)
         .assigneeUuids(request.getAssigneeUuids())
         .authors(request.getAuthors())
         .scopes(request.getScopes())
@@ -367,7 +376,6 @@ public class IssueQueryFactory {
     return componentDtos;
   }
 
-  @CheckForNull
   private Collection<RuleDefinitionDto> ruleKeysToRuleId(DbSession dbSession, @Nullable Collection<String> rules) {
     if (rules != null) {
       return dbClient.ruleDao().selectDefinitionByKeys(dbSession, transform(rules, RuleKey::parse));

@@ -461,7 +461,7 @@ public class SearchAction implements IssuesWsAction {
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
-    addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).collect(toList()));
+    addMandatoryValuesToFacet(facets, PARAM_RULES, query.ruleUuids());
     addMandatoryValuesToFacet(facets, PARAM_SCOPES, ISSUE_SCOPES);
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());

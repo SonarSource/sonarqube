@@ -119,12 +119,29 @@ public class IssueQueryFactoryTest {
     assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).hasSize(2);
+    assertThat(query.ruleUuids()).hasSize(2);
     assertThat(query.directories()).containsOnly("aDirPath");
     assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdAfter().inclusive()).isTrue();
     assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void create_with_rule_key_that_does_not_exist_in_the_db() {
+    db.users().insertUser(u -> u.setLogin("joanna"));
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newModuleDto(project));
+    db.components().insertComponent(newFileDto(project));
+    newRule(RuleKey.of("findbugs", "NullReference"));
+    SearchRequest request = new SearchRequest()
+      .setRules(asList("unknown:key1", "unknown:key2"));
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.rules()).isEmpty();
+    assertThat(query.ruleUuids()).containsExactly("non-existing-uuid");
   }
 
   @Test

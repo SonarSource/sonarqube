@@ -398,6 +398,27 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_by_non_existing_rule_key() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY").setLanguage("java"));
+
+    db.issues().insertIssue(rule.getDefinition(), project, file);
+    session.commit();
+    indexIssues();
+
+    userSession.logIn("john")
+      .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
+    indexPermissions();
+
+    TestResponse execute = ws.newRequest()
+      .setParam(PARAM_RULES, "nonexisting:rulekey")
+      .setParam("additionalFields", "_all")
+      .execute();
+    execute.assertJson(this.getClass(), "no_issue.json");
+  }
+
+  @Test
   public void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));

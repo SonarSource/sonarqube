@@ -74,6 +74,7 @@ public class IssueQuery {
   private final Collection<String> files;
   private final Collection<String> views;
   private final Collection<RuleDefinitionDto> rules;
+  private final Collection<String> ruleUuids;
   private final Collection<String> assignees;
   private final Collection<String> authors;
   private final Collection<String> scopes;
@@ -111,6 +112,7 @@ public class IssueQuery {
     this.files = defaultCollection(builder.files);
     this.views = defaultCollection(builder.views);
     this.rules = defaultCollection(builder.rules);
+    this.ruleUuids = defaultCollection(builder.ruleUuids);
     this.assignees = defaultCollection(builder.assigneeUuids);
     this.authors = defaultCollection(builder.authors);
     this.scopes = defaultCollection(builder.scopes);
@@ -182,6 +184,10 @@ public class IssueQuery {
 
   public Collection<RuleDefinitionDto> rules() {
     return rules;
+  }
+
+  public Collection<String> ruleUuids() {
+    return ruleUuids;
   }
 
   public Collection<String> assignees() {
@@ -308,6 +314,7 @@ public class IssueQuery {
     private Collection<String> files;
     private Collection<String> views;
     private Collection<RuleDefinitionDto> rules;
+    private Collection<String> ruleUuids;
     private Collection<String> assigneeUuids;
     private Collection<String> authors;
     private Collection<String> scopes;
@@ -393,6 +400,11 @@ public class IssueQuery {
 
     public Builder rules(@Nullable Collection<RuleDefinitionDto> rules) {
       this.rules = rules;
+      return this;
+    }
+
+    public Builder ruleUuids(@Nullable Collection<String> ruleUuids) {
+      this.ruleUuids = ruleUuids;
       return this;
     }
 
