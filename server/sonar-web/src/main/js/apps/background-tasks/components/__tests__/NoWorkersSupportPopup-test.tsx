@@ -17,26 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 
-export default function NoWorkersSupportPopup() {
-  return (
-    <>
-      <p className="spacer-bottom">
-        <strong>{translate('background_tasks.add_more_workers')}</strong>
-      </p>
-      <p className="big-spacer-bottom markdown">
-        {translate('background_tasks.add_more_workers.text')}
-      </p>
-      <p>
-        <a
-          href="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
-          rel="noopener noreferrer"
-          target="_blank">
-          {translate('learn_more')}
-        </a>
-      </p>
-    </>
-  );
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import NoWorkersSupportPopup from '../NoWorkersSupportPopup';
+
+it('should render correctly', () => {
+  expect(shallow(<NoWorkersSupportPopup />)).toMatchSnapshot();
+});

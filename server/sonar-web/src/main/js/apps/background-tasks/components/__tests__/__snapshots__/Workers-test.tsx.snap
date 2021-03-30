@@ -158,7 +158,12 @@ exports[`renders 4`] = `
   <HelpTooltip
     className="spacer-left"
     overlay={<NoWorkersSupportPopup />}
-  />
+  >
+    <PlusCircleIcon
+      fill="#4b9fd5"
+      size={12}
+    />
+  </HelpTooltip>
 </div>
 `;
 

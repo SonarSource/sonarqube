@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <p
+    className="spacer-bottom"
+  >
+    <strong>
+      background_tasks.add_more_workers
+    </strong>
+  </p>
+  <p
+    className="big-spacer-bottom markdown"
+  >
+    background_tasks.add_more_workers.text
+  </p>
+  <p>
+    <a
+      href="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      learn_more
+    </a>
+  </p>
+</Fragment>
+`;
