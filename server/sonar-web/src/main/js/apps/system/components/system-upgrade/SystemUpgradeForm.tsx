@@ -56,9 +56,7 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
               }
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
-              type={
-                idx === 0 ? translate('system.latest_version') : translate('system.lts_version')
-              }
+              isLatestVersion={idx === 0}
             />
           ))}
         </div>

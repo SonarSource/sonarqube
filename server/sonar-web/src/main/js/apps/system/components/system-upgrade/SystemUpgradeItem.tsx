@@ -30,14 +30,14 @@ import { EditionKey } from '../../../../types/editions';
 import { SystemUpgrade } from '../../../../types/system';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
-interface Props {
+export interface SystemUpgradeItemProps {
   edition: EditionKey | undefined;
-  type: string;
+  isLatestVersion: boolean;
   systemUpgrades: SystemUpgrade[];
 }
 
-export default function SystemUpgradeItem(props: Props) {
-  const { edition, type, systemUpgrades } = props;
+export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
+  const { edition, isLatestVersion, systemUpgrades } = props;
   const lastUpgrade = systemUpgrades[0];
   const downloadUrl = getEditionDownloadUrl(
     getEdition(edition || EditionKey.community),
@@ -47,7 +47,18 @@ export default function SystemUpgradeItem(props: Props) {
   return (
     <div className="system-upgrade-version">
       <h3 className="h1 spacer-bottom">
-        <strong>{type}</strong>
+        <strong>
+          {isLatestVersion ? translate('system.latest_version') : translate('system.lts_version')}
+        </strong>
+        {isLatestVersion && (
+          <a
+            className="spacer-left medium"
+            href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+            rel="noopener noreferrer"
+            target="_blank">
+            {translate('system.see_whats_new')}
+          </a>
+        )}
       </h3>
       <p>
         <FormattedMessage

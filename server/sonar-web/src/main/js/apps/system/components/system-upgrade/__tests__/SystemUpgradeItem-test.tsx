@@ -20,17 +20,17 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { EditionKey } from '../../../../../types/editions';
-import SystemUpgradeItem from '../SystemUpgradeItem';
+import SystemUpgradeItem, { SystemUpgradeItemProps } from '../SystemUpgradeItem';
 
 it('should display correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ isLatestVersion: false })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.developer })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.enterprise })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.datacenter })).toMatchSnapshot();
   // Fallback to Community.
   expect(
     shallowRender({
-      edition: EditionKey.datacenter,
       systemUpgrades: [
         {
           version: '5.6.7',
@@ -44,8 +44,8 @@ it('should display correctly', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
-  return shallow(
+function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
+  return shallow<SystemUpgradeItemProps>(
     <SystemUpgradeItem
       edition={EditionKey.community}
       systemUpgrades={[
@@ -76,7 +76,7 @@ function shallowRender(props = {}) {
           downloadDeveloperUrl: 'http://download.url/developer'
         }
       ]}
-      type="Latest Version"
+      isLatestVersion={true}
       {...props}
     />
   );
