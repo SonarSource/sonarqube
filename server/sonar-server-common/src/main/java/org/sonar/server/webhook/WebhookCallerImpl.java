@@ -52,9 +52,9 @@ public class WebhookCallerImpl implements WebhookCaller {
   private final System2 system;
   private final OkHttpClient okHttpClient;
 
-  public WebhookCallerImpl(System2 system, OkHttpClient okHttpClient) {
+  public WebhookCallerImpl(System2 system, OkHttpClient okHttpClient, WebhookCustomDns webhookCustomDns) {
     this.system = system;
-    this.okHttpClient = newClientWithoutRedirect(okHttpClient);
+    this.okHttpClient = newClientWithoutRedirect(okHttpClient, webhookCustomDns);
   }
 
   @Override
@@ -139,10 +139,11 @@ public class WebhookCallerImpl implements WebhookCaller {
     return okHttpClient.newCall(redirectRequest.url(url).build()).execute();
   }
 
-  private static OkHttpClient newClientWithoutRedirect(OkHttpClient client) {
+  private static OkHttpClient newClientWithoutRedirect(OkHttpClient client, WebhookCustomDns webhookCustomDns) {
     return client.newBuilder()
       .followRedirects(false)
       .followSslRedirects(false)
+      .dns(webhookCustomDns)
       .build();
   }
 
@@ -150,4 +151,5 @@ public class WebhookCallerImpl implements WebhookCaller {
     return webhook.getSecret()
       .map(secret -> new HmacUtils(HmacAlgorithms.HMAC_SHA_256, secret).hmacHex(payload.getJson()));
   }
+
 }

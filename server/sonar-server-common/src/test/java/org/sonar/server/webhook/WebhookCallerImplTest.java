@@ -19,6 +19,7 @@
  */
 package org.sonar.server.webhook;
 
+import java.util.Optional;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -29,9 +30,11 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.mockito.Mockito;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -41,6 +44,8 @@ import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
 
 public class WebhookCallerImplTest {
 
@@ -57,6 +62,8 @@ public class WebhookCallerImplTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
+  Configuration configuration = Mockito.mock(Configuration.class);
+
   private System2 system = new TestSystem2().setNow(NOW);
 
   @Test
@@ -65,11 +72,11 @@ public class WebhookCallerImplTest {
       "my-webhook", server.url("/ping").toString(), null);
 
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).hasValue(201);
     assertThat(delivery.getWebhook().getUuid()).isEqualTo(WEBHOOK_UUID);
-    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
     assertThat(delivery.getError()).isEmpty();
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
@@ -91,7 +98,7 @@ public class WebhookCallerImplTest {
       "my-webhook", server.url("/ping").toString(), "my_secret");
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
 
-    newSender().call(webhook, PAYLOAD);
+    newSender(false).call(webhook, PAYLOAD);
 
     RecordedRequest recordedRequest = server.takeRequest();
     assertThat(recordedRequest.getHeader("X-Sonar-Webhook-HMAC-SHA256")).isEqualTo("ef35d3420a3df3d05f8f7eb3b53384abc41395f164245d6c7e78a70e61703dde");
@@ -103,10 +110,10 @@ public class WebhookCallerImplTest {
       randomAlphanumeric(40), "my-webhook", server.url("/ping").toString(), null);
 
     server.shutdown();
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
-    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
     // message can be "Connection refused" or "connect timed out"
     assertThat(delivery.getErrorMessage().get()).matches("(.*Connection refused.*)|(.*connect timed out.*)");
     assertThat(delivery.getAt()).isEqualTo(NOW);
@@ -119,12 +126,12 @@ public class WebhookCallerImplTest {
     Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
       randomAlphanumeric(40), "my-webhook", "this_is_not_an_url", null);
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     assertThat(delivery.getHttpStatus()).isEmpty();
-    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
     assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
-    assertThat(delivery.getErrorMessage().get()).isEqualTo("Webhook URL is not valid: this_is_not_an_url");
+    assertThat(delivery.getErrorMessage()).contains("Webhook URL is not valid: this_is_not_an_url");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
@@ -142,10 +149,10 @@ public class WebhookCallerImplTest {
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
     server.enqueue(new MockResponse().setResponseCode(200));
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
-    assertThat(delivery.getHttpStatus().get()).isEqualTo(200);
-    assertThat(delivery.getDurationInMs().get()).isGreaterThanOrEqualTo(0);
+    assertThat(delivery.getHttpStatus()).contains(200);
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
     assertThat(delivery.getError()).isEmpty();
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
@@ -165,9 +172,9 @@ public class WebhookCallerImplTest {
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
     server.enqueue(new MockResponse().setResponseCode(200));
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
-    assertThat(delivery.getHttpStatus().get()).isEqualTo(200);
+    assertThat(delivery.getHttpStatus()).contains(200);
 
     RecordedRequest redirectedRequest = takeAndVerifyPostRequest("/redirect");
     assertThat(redirectedRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
@@ -184,7 +191,7 @@ public class WebhookCallerImplTest {
 
     server.enqueue(new MockResponse().setResponseCode(307));
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     Throwable error = delivery.getError().get();
     assertThat(error)
@@ -200,7 +207,7 @@ public class WebhookCallerImplTest {
 
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "ftp://foo"));
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     Throwable error = delivery.getError().get();
     assertThat(error)
@@ -215,13 +222,30 @@ public class WebhookCallerImplTest {
       randomAlphanumeric(40), "my-webhook", url.toString(), null);
     server.enqueue(new MockResponse().setBody("pong"));
 
-    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
 
     assertThat(delivery.getWebhook().getUrl())
       .isEqualTo(url.toString())
       .contains("://theLogin:thePassword@");
     RecordedRequest recordedRequest = takeAndVerifyPostRequest("/ping");
     assertThat(recordedRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
+  }
+
+  @Test
+  public void silently_catch_error_when_url_is_localhost(){
+    String url = server.url("/").toString();
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url, null);
+
+    WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage()).contains("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
+    assertThat(delivery.getAt()).isEqualTo(NOW);
+    assertThat(delivery.getWebhook()).isSameAs(webhook);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
   }
 
   private RecordedRequest takeAndVerifyPostRequest(String expectedPath) throws Exception {
@@ -233,8 +257,10 @@ public class WebhookCallerImplTest {
     return request;
   }
 
-  private WebhookCaller newSender() {
+  private WebhookCaller newSender(boolean validateWebhook) {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
-    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(validateWebhook));
+    WebhookCustomDns webhookCustomDns = new WebhookCustomDns(configuration);
+    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime), webhookCustomDns);
   }
 }
