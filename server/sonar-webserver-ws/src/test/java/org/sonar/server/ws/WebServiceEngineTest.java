@@ -208,7 +208,7 @@ public class WebServiceEngineTest {
 
     DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> request.param("unknown"))));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter \\u0027unknown\\u0027 is undefined for action \\u0027foo\\u0027\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'foo'\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
   }
 
@@ -221,7 +221,7 @@ public class WebServiceEngineTest {
       a.setHandler((req, resp) -> request.mandatoryParam("bar"));
     }));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The \\u0027bar\\u0027 parameter is missing\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'bar' parameter is missing\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
   }
 
@@ -235,7 +235,7 @@ public class WebServiceEngineTest {
       a.setHandler((req, resp) -> request.param("bar"));
     }));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The \\u0027bar\\u0027 parameter is missing\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'bar' parameter is missing\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
   }
 
@@ -287,7 +287,7 @@ public class WebServiceEngineTest {
       a.setHandler((req, resp) -> resp.stream().output().write(req.mandatoryParam("format").getBytes(UTF_8)));
     }));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter \\u0027format\\u0027 (yml) must be one of: [json, xml]\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' (yml) must be one of: [json, xml]\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
   }
 

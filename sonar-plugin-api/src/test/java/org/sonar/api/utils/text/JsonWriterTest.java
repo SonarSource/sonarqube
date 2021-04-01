@@ -152,15 +152,7 @@ public class JsonWriterTest {
     underTest.beginObject()
       .prop("foo", "<hello \"world\">")
       .endObject().close();
-    expect("{\"foo\":\"\\u003chello \\\"world\\\"\\u003e\"}");
-  }
-
-  @Test
-  public void escape_html_characters() {
-    underTest.beginObject()
-            .prop("foo", "123<>abc")
-            .endObject().close();
-    expect("{\"foo\":\"123\\u003c\\u003eabc\"}");
+    expect("{\"foo\":\"<hello \\\"world\\\">\"}");
   }
 
   @Test
