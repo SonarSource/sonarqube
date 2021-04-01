@@ -302,8 +302,19 @@ public class ComponentDao implements Dao {
    * Returns components with open issues from P/Rs that use a certain branch as reference (reference branch).
    * Excludes components from the current branch.
    */
-  public List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {
-    return mapper(dbSession).selectAllSiblingComponentKeysHavingOpenIssues(referenceBranchUuid, currentBranchUuid);
+  public List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {
+    return mapper(dbSession).selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(referenceBranchUuid, currentBranchUuid);
+  }
+
+  /**
+   * Returns components with open issues from the given branches
+   */
+  public List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(DbSession dbSession, Set<String> branchUuids) {
+    if (branchUuids.isEmpty()) {
+      return emptyList();
+    }
+
+    return executeLargeInputs(branchUuids, input -> mapper(dbSession).selectComponentsFromBranchesThatHaveOpenIssues(input));
   }
 
   /**

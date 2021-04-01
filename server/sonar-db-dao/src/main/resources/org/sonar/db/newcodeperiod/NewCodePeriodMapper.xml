@@ -70,6 +70,31 @@
     </choose>
   </update>
 
+  <select id="selectBranchesReferencing" parameterType="map" resultType="string">
+    <!-- branch setting -->
+    SELECT ncp.branch_uuid
+    FROM new_code_periods ncp
+    WHERE
+    ncp.branch_uuid IS NOT NULL
+    AND ncp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    AND ncp.type='REFERENCE_BRANCH'
+    AND ncp.value=#{referenceBranchName, jdbcType=VARCHAR}
+    UNION
+
+    <!-- project default setting-->
+    SELECT pb.uuid
+    FROM project_branches pb, new_code_periods ncp1
+    WHERE
+    ncp1.project_uuid = pb.project_uuid
+    AND ncp1.branch_uuid IS NULL
+    AND ncp1.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    AND ncp1.type='REFERENCE_BRANCH'
+    AND ncp1.value=#{referenceBranchName, jdbcType=VARCHAR}
+    AND NOT EXISTS (select ncp2.value from new_code_periods ncp2 where ncp2.branch_uuid = pb.uuid)
+    AND pb.kee != #{referenceBranchName, jdbcType=VARCHAR}
+  </select>
+
+
   <select id="selectByProject" parameterType="map" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
     SELECT
     <include refid="newCodePeriodMapperColumns"/>

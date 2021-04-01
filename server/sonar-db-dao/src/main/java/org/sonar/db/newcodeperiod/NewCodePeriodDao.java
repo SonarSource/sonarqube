@@ -21,6 +21,7 @@ package org.sonar.db.newcodeperiod;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -87,6 +88,10 @@ public class NewCodePeriodDao implements Dao {
     requireNonNull(projectUuid, MSG_PROJECT_UUID_NOT_SPECIFIED);
     requireNonNull(branchUuid, "Branch uuid must be specified.");
     return ofNullable(mapper(dbSession).selectByBranch(projectUuid, branchUuid));
+  }
+
+  public Set<String> selectBranchesReferencing(DbSession dbSession, String projectUuid, String referenceBranchName) {
+    return mapper(dbSession).selectBranchesReferencing(projectUuid, referenceBranchName);
   }
 
   public boolean existsByProjectAnalysisUuid(DbSession dbSession, String projectAnalysisUuid) {

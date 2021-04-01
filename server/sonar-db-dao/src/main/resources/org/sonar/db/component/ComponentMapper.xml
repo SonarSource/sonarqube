@@ -678,7 +678,7 @@
     DELETE FROM components WHERE uuid=#{componentUuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectAllSiblingComponentKeysHavingOpenIssues" resultType="KeyWithUuid">
+  <select id="selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues" resultType="KeyWithUuid">
     SELECT DISTINCT p.kee as kee, p.uuid as uuid FROM components p
     JOIN issues i
       ON p.uuid = i.component_uuid
@@ -687,6 +687,19 @@
       AND b.branch_type = 'PULL_REQUEST'
       AND b.merge_branch_uuid = #{referenceBranchUuid,jdbcType=VARCHAR}
       AND b.uuid != #{currentBranchUuid,jdbcType=VARCHAR}
+      AND i.status != 'CLOSED'
+  </select>
+
+  <select id="selectComponentsFromBranchesThatHaveOpenIssues" resultType="KeyWithUuid">
+    SELECT DISTINCT p.kee as kee, p.uuid as uuid
+    FROM components p
+    JOIN issues i
+      ON p.uuid = i.component_uuid
+    JOIN project_branches b
+      ON i.project_uuid = b.uuid
+      AND b.uuid in <foreach collection="branchUuids" open="(" close=")" item="branchUuid" separator=",">
+      #{branchUuid,jdbcType=VARCHAR}
+      </foreach>
       AND i.status != 'CLOSED'
   </select>
 

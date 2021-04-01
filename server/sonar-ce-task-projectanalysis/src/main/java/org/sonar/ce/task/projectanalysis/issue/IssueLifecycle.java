@@ -31,6 +31,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.component.BranchType;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
@@ -58,8 +59,7 @@ public class IssueLifecycle {
     this(analysisMetadataHolder, IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator, ruleRepository);
   }
 
-  @VisibleForTesting
-  IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,
+  @VisibleForTesting IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,
     DebtCalculator debtCalculator, RuleRepository ruleRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.workflow = workflow;
@@ -102,9 +102,9 @@ public class IssueLifecycle {
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, branchName, analysisMetadataHolder.getBranch().getName());
   }
 
-  public void mergeConfirmedOrResolvedFromPr(DefaultIssue raw, DefaultIssue base, String pr) {
+  public void mergeConfirmedOrResolvedFromPrOrBranch(DefaultIssue raw, DefaultIssue base, BranchType branchType, String prOrBranchKey) {
     copyAttributesOfIssueFromAnotherBranch(raw, base);
-    String from = "#" + pr;
+    String from = (branchType == BranchType.PULL_REQUEST) ? "#" + prOrBranchKey : prOrBranchKey;
     String to = analysisMetadataHolder.isPullRequest() ? ("#" + analysisMetadataHolder.getPullRequestKey()) : analysisMetadataHolder.getBranch().getName();
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_BRANCH, from, to);
   }

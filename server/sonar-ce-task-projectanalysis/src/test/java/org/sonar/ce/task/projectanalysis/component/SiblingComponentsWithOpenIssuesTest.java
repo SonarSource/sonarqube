@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,8 +30,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,6 +65,7 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Before
   public void setUp() {
     ComponentDto project = db.components().insertPublicProject();
+    metadataHolder.setProject(new Project(project.uuid(), project.getKey(), project.name(), project.description(), Collections.emptyList()));
 
     branch1 = db.components().insertProjectBranch(project, b -> b.setKey("branch1"), b -> b.setBranchType(BranchType.BRANCH));
     branch1pr1 = db.components().insertProjectBranch(project,

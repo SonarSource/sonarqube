@@ -20,17 +20,23 @@
 package org.sonar.db.newcodeperiod;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 
 public class NewCodePeriodDaoTest {
 
@@ -38,30 +44,23 @@ public class NewCodePeriodDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
-  private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE, uuidFactory);
-
-  private static final String NEW_CODE_PERIOD_UUID = "ncp-uuid-1";
-
+  
   @Test
   public void insert_new_code_period() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
+    insert("proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5");
 
-    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
 
     assertThat(resultOpt).isNotNull()
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getType()).isEqualTo(NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -77,31 +76,25 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void update_new_code_period() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
+    insert("proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5");
 
     underTest.update(dbSession, new NewCodePeriodDto()
-      .setUuid(NEW_CODE_PERIOD_UUID)
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setUuid("1")
+      .setType(SPECIFIC_ANALYSIS)
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
       .setValue("analysis-uuid"));
 
-    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
 
     assertThat(resultOpt).isNotNull()
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.SPECIFIC_ANALYSIS);
+    assertThat(result.getType()).isEqualTo(SPECIFIC_ANALYSIS);
     assertThat(result.getValue()).isEqualTo("analysis-uuid");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -112,26 +105,19 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void insert_with_upsert() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+    insert("proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5");
 
-    underTest.upsert(dbSession, new NewCodePeriodDto()
-      .setUuid(NEW_CODE_PERIOD_UUID)
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
-
-    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
 
     assertThat(resultOpt)
       .isNotNull()
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getType()).isEqualTo(NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -142,32 +128,26 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void update_with_upsert() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
+    insert("proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5");
 
     underTest.upsert(dbSession, new NewCodePeriodDto()
-      .setUuid(NEW_CODE_PERIOD_UUID)
+      .setUuid("1")
       .setProjectUuid("proj-uuid")
       .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
+      .setType(SPECIFIC_ANALYSIS)
       .setValue("analysis-uuid"));
 
-    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, NEW_CODE_PERIOD_UUID);
+    Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
 
     assertThat(resultOpt)
       .isNotNull()
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.SPECIFIC_ANALYSIS);
+    assertThat(result.getType()).isEqualTo(SPECIFIC_ANALYSIS);
     assertThat(result.getValue()).isEqualTo("analysis-uuid");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -178,13 +158,7 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void select_by_project_and_branch_uuids() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
+    insert("proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5");
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByBranch(dbSession, "proj-uuid", "branch-uuid");
     assertThat(resultOpt)
@@ -192,24 +166,34 @@ public class NewCodePeriodDaoTest {
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isEqualTo("branch-uuid");
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getType()).isEqualTo(NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
   }
 
   @Test
-  public void select_by_project_uuid() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
+  public void select_branches_referencing() {
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    BranchDto mainBranch = db.getDbClient().branchDao().selectByUuid(dbSession, project.getUuid()).get();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+    BranchDto branch3 = db.components().insertProjectBranch(project);
 
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid(null)
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("5"));
+    insert(project.getUuid(), null, REFERENCE_BRANCH, mainBranch.getKey());
+    insert(project.getUuid(), branch1.getUuid(), REFERENCE_BRANCH,  mainBranch.getKey());
+    insert(project.getUuid(), branch2.getUuid(), NUMBER_OF_DAYS, "5");
+    insert(project.getUuid(), project.getUuid(), PREVIOUS_VERSION, null);
+    db.commit();
+    assertThat(underTest.selectBranchesReferencing(dbSession, project.getUuid(), mainBranch.getKey())).containsOnly(branch1.getUuid(), branch3.getUuid());
+  }
+
+  @Test
+  public void select_by_project_uuid() {
+    insert("proj-uuid", null, NUMBER_OF_DAYS, "5");
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByProject(dbSession, "proj-uuid");
     assertThat(resultOpt)
@@ -217,10 +201,10 @@ public class NewCodePeriodDaoTest {
       .isNotEmpty();
 
     NewCodePeriodDto result = resultOpt.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isEqualTo("proj-uuid");
     assertThat(result.getBranchUuid()).isNull();
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getType()).isEqualTo(NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("5");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -228,22 +212,16 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void select_global() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid(null)
-      .setBranchUuid(null)
-      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("30"));
+    insert(null, null, NUMBER_OF_DAYS, "30");
 
     Optional<NewCodePeriodDto> newCodePeriodDto = underTest.selectGlobal(dbSession);
     assertThat(newCodePeriodDto).isNotEmpty();
 
     NewCodePeriodDto result = newCodePeriodDto.get();
-    assertThat(result.getUuid()).isEqualTo(NEW_CODE_PERIOD_UUID);
+    assertThat(result.getUuid()).isEqualTo("1");
     assertThat(result.getProjectUuid()).isNull();
     assertThat(result.getBranchUuid()).isNull();
-    assertThat(result.getType()).isEqualTo(NewCodePeriodType.NUMBER_OF_DAYS);
+    assertThat(result.getType()).isEqualTo(NUMBER_OF_DAYS);
     assertThat(result.getValue()).isEqualTo("30");
     assertThat(result.getCreatedAt()).isNotZero();
     assertThat(result.getUpdatedAt()).isNotZero();
@@ -251,13 +229,7 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void exists_by_project_analysis_is_true() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-      .setValue("analysis-uuid"));
+    insert("proj-uuid", "branch-uuid", SPECIFIC_ANALYSIS, "analysis-uuid");
 
     boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
     assertThat(exists).isTrue();
@@ -265,13 +237,7 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void delete_by_project_uuid_and_branch_uuid() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setBranchUuid("branch-uuid")
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-      .setValue("analysis-uuid"));
+    insert("proj-uuid", "branch-uuid", SPECIFIC_ANALYSIS, "analysis-uuid");
 
     underTest.delete(dbSession, "proj-uuid", "branch-uuid");
     db.commit();
@@ -280,12 +246,7 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void delete_by_project_uuid() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setProjectUuid("proj-uuid")
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-      .setValue("analysis-uuid"));
+    insert("proj-uuid", null, SPECIFIC_ANALYSIS, "analysis-uuid");
 
     underTest.delete(dbSession, "proj-uuid", null);
     db.commit();
@@ -294,11 +255,7 @@ public class NewCodePeriodDaoTest {
 
   @Test
   public void delete_global() {
-    when(uuidFactory.create()).thenReturn(NEW_CODE_PERIOD_UUID);
-
-    underTest.insert(dbSession, new NewCodePeriodDto()
-      .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
-      .setValue("analysis-uuid"));
+    insert(null, null, SPECIFIC_ANALYSIS, "analysis-uuid");
 
     underTest.delete(dbSession, null, null);
     db.commit();
@@ -335,5 +292,13 @@ public class NewCodePeriodDaoTest {
   private void assertNewCodePeriodRowCount(int expected) {
     assertThat(db.countRowsOfTable("new_code_periods"))
       .isEqualTo(expected);
+  }
+
+  private void insert(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {
+    underTest.insert(dbSession, new NewCodePeriodDto()
+      .setProjectUuid(projectUuid)
+      .setBranchUuid(branchUuid)
+      .setType(type)
+      .setValue(value));
   }
 }

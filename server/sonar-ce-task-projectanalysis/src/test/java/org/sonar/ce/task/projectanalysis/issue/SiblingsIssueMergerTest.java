@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -48,9 +46,11 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -58,11 +58,8 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class SiblingsIssueMergerTest {
-  @Mock
-  private IssueLifecycle issueLifecycle;
-
-  @Mock
-  private Branch branch;
+  private final IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
+  private final Branch branch = mock(Branch.class);
 
   @Rule
   public DbTester db = DbTester.create();
@@ -102,7 +99,6 @@ public class SiblingsIssueMergerTest {
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
     DbClient dbClient = db.getDbClient();
     ComponentIssuesLoader componentIssuesLoader = new ComponentIssuesLoader(dbClient, null, null, new MapSettings().asConfig(), System2.INSTANCE);
     copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader),
@@ -124,6 +120,7 @@ public class SiblingsIssueMergerTest {
     rule = db.rules().insert();
     when(branch.getReferenceBranchUuid()).thenReturn(projectDto.uuid());
     metadataHolder.setBranch(branch);
+    metadataHolder.setProject(new Project(projectDto.uuid(), projectDto.getKey(), projectDto.name(), projectDto.description(), Collections.emptyList()));
   }
 
   @Test
@@ -150,7 +147,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPrOrBranch(eq(newIssue), issueToMerge.capture(), eq(BranchType.PULL_REQUEST), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -169,7 +166,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPrOrBranch(eq(newIssue), issueToMerge.capture(), eq(BranchType.PULL_REQUEST), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -186,7 +183,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromPr(eq(newIssue), issueToMerge.capture(), eq("myBranch2"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromPrOrBranch(eq(newIssue), issueToMerge.capture(), eq(BranchType.PULL_REQUEST), eq("myBranch2"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue");
     assertThat(issueToMerge.getValue().defaultIssueComments()).isNotEmpty();

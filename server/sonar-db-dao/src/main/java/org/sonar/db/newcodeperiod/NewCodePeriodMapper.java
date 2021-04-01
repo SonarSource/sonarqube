@@ -21,6 +21,7 @@ package org.sonar.db.newcodeperiod;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface NewCodePeriodMapper {
@@ -38,6 +39,8 @@ public interface NewCodePeriodMapper {
   void delete(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
   NewCodePeriodDto selectByBranch(@Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
+
+  Set<String> selectBranchesReferencing(@Param("projectUuid") String projectUuid, @Param("referenceBranchName") String referenceBranchName);
 
   long countByProjectAnalysis(String projectAnalysisUuid);
 

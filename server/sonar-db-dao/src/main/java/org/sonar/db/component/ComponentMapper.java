@@ -138,8 +138,10 @@ public interface ComponentMapper {
 
   void delete(String componentUuid);
 
-  List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
-    @Param("currentBranchUuid") String currentBranchUuid);
+  List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
+                                                                                                @Param("currentBranchUuid") String currentBranchUuid);
+
+  List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(@Param("branchUuids") List<String> branchUuids);
 
   List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc();
 

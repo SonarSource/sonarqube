@@ -145,7 +145,7 @@ public class IssueLifecycleTest {
     when(branch.getName()).thenReturn("master");
     analysisMetadataHolder.setBranch(branch);
 
-    underTest.mergeConfirmedOrResolvedFromPr(raw, fromShort, "2");
+    underTest.mergeConfirmedOrResolvedFromPrOrBranch(raw, fromShort, BranchType.PULL_REQUEST, "2");
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");

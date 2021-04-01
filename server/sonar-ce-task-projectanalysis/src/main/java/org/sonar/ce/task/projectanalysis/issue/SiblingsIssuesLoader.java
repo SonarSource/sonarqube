@@ -25,13 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.Preconditions;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.PrIssueDto;
@@ -69,9 +67,8 @@ public class SiblingsIssuesLoader {
   }
 
   private static SiblingIssue toSiblingIssue(PrIssueDto dto) {
-    Preconditions.checkState(dto.getBranchType().equals(BranchType.PULL_REQUEST), "Expected all issues to belong to P/Rs");
     return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchKey(),
-      longToDate(dto.getIssueUpdateDate()));
+      dto.getBranchType(), longToDate(dto.getIssueUpdateDate()));
   }
 
   public Map<SiblingIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<SiblingIssue> lightIssues) {

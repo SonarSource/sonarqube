@@ -91,11 +91,12 @@ public class NewCodePeriodDto {
     return this;
   }
 
+  @CheckForNull
   public String getValue() {
     return value;
   }
 
-  public NewCodePeriodDto setValue(String value) {
+  public NewCodePeriodDto setValue(@Nullable String value) {
     this.value = value;
     return this;
   }

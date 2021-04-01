@@ -39,7 +39,6 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class GitlabHttpClientTest {
 
-
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -132,7 +131,7 @@ public class GitlabHttpClientTest {
   }
 
   @Test
-  public void get_branches(){
+  public void get_branches() {
     MockResponse response = new MockResponse()
       .setResponseCode(200)
       .setBody("[{\n"
@@ -219,12 +218,12 @@ public class GitlabHttpClientTest {
     assertThat(projectList.getProjects()).hasSize(3);
     assertThat(projectList.getProjects()).extracting(
       Project::getId, Project::getName, Project::getNameWithNamespace, Project::getPath, Project::getPathWithNamespace, Project::getWebUrl).containsExactly(
-        tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
-          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"),
-        tuple(2L, "SonarQube example 2", "SonarSource / SonarQube / SonarQube example 2", "sonarqube-example-2", "sonarsource/sonarqube/sonarqube-example-2",
-          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"),
-        tuple(3L, "SonarQube example 3", "SonarSource / SonarQube / SonarQube example 3", "sonarqube-example-3", "sonarsource/sonarqube/sonarqube-example-3",
-          "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3"));
+      tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
+        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"),
+      tuple(2L, "SonarQube example 2", "SonarSource / SonarQube / SonarQube example 2", "sonarqube-example-2", "sonarsource/sonarqube/sonarqube-example-2",
+        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"),
+      tuple(3L, "SonarQube example 3", "SonarSource / SonarQube / SonarQube example 3", "sonarqube-example-3", "sonarsource/sonarqube/sonarqube-example-3",
+        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-3"));
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
@@ -320,8 +319,8 @@ public class GitlabHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab read permission. Got an unexpected answer.");
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/projects] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains("Gitlab API call to [" + server.url("/projects") + "] " +
+        "failed with error message : [Failed to connect to " + server.getHostName());
   }
 
   @Test
@@ -332,8 +331,8 @@ public class GitlabHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab token. Got an unexpected answer.");
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/user] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains("Gitlab API call to [" + server.url("user") + "] " +
+        "failed with error message : [Failed to connect to " + server.getHostName());
   }
 
   @Test
@@ -344,8 +343,8 @@ public class GitlabHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not validate GitLab write permission. Got an unexpected answer.");
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/markdown] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains("Gitlab API call to [" + server.url("/markdown") + "] " +
+        "failed with error message : [Failed to connect to " + server.getHostName());
   }
 
   @Test
@@ -354,10 +353,10 @@ public class GitlabHttpClientTest {
 
     assertThatThrownBy(() -> underTest.getProject(gitlabUrl, "token", 0L))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Failed to connect to localhost");
+      .hasMessageContaining("Failed to connect to");
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/projects/0] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains("Gitlab API call to [" + server.url("/projects/0") + "] " +
+        "failed with error message : [Failed to connect to " + server.getHostName());
   }
 
   @Test
@@ -366,10 +365,10 @@ public class GitlabHttpClientTest {
 
     assertThatThrownBy(() -> underTest.getBranches(gitlabUrl, "token", 0L))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Failed to connect to localhost");
+      .hasMessageContaining("Failed to connect to " + server.getHostName());
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/projects/0/repository/branches] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains("Gitlab API call to [" + server.url("/projects/0/repository/branches") + "] " +
+        "failed with error message : [Failed to connect to " + server.getHostName());
   }
 
   @Test
@@ -378,9 +377,11 @@ public class GitlabHttpClientTest {
 
     assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "token", null, 1, 1))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Failed to connect to localhost");
+      .hasMessageContaining("Failed to connect to");
     assertThat(logTester.logs(LoggerLevel.INFO).get(0))
-      .contains("Gitlab API call to [http://localhost:"+server.getPort()+"/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=&page=1&per_page=1] " +
-        "failed with error message : [Failed to connect to localhost");
+      .contains(
+        "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=&page=1&per_page=1")
+          + "] " +
+          "failed with error message : [Failed to connect to " + server.getHostName());
   }
 }
