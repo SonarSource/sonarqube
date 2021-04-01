@@ -23,7 +23,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +35,7 @@ import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.server.qualitygate.ConditionEvaluatorTest.FakeMeasure.newFakeMeasureOnLeak;
+import static org.sonar.server.qualitygate.FakeMeasure.newMeasureOnLeak;
 
 @RunWith(DataProviderRunner.class)
 public class ConditionEvaluatorTest {
@@ -63,9 +62,9 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
 
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
   }
 
   @Test
@@ -74,9 +73,9 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
 
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
   }
 
   @Test
@@ -153,56 +152,4 @@ public class ConditionEvaluatorTest {
       return Optional.ofNullable(measure);
     }
   }
-
-  static class FakeMeasure implements QualityGateEvaluator.Measure {
-    private Double leakValue;
-    private Double value;
-    private Metric.ValueType valueType;
-
-    private FakeMeasure() {
-
-    }
-
-    FakeMeasure(Metric.ValueType valueType) {
-      this.valueType = valueType;
-    }
-
-    FakeMeasure(@Nullable Double value) {
-      this.value = value;
-      this.valueType = Metric.ValueType.FLOAT;
-    }
-
-    FakeMeasure(@Nullable Integer value) {
-      this.value = value == null ? null : value.doubleValue();
-      this.valueType = Metric.ValueType.INT;
-    }
-
-    static FakeMeasure newFakeMeasureOnLeak(@Nullable Integer value) {
-      FakeMeasure that = new FakeMeasure();
-      that.leakValue = value == null ? null : value.doubleValue();
-      that.valueType = Metric.ValueType.INT;
-      return that;
-    }
-
-    @Override
-    public Metric.ValueType getType() {
-      return valueType;
-    }
-
-    @Override
-    public OptionalDouble getValue() {
-      return value == null ? OptionalDouble.empty() : OptionalDouble.of(value);
-    }
-
-    @Override
-    public Optional<String> getStringValue() {
-      return Optional.empty();
-    }
-
-    @Override
-    public OptionalDouble getNewMetricValue() {
-      return leakValue == null ? OptionalDouble.empty() : OptionalDouble.of(leakValue);
-    }
-  }
-
 }

@@ -92,6 +92,11 @@ public interface CoreProperties {
   String SUBCATEGORY_ISSUES = "issues";
 
   /**
+   * @since 8.9
+   */
+  String SUBCATEGORY_QUALITY_GATE = "qualityGate";
+
+  /**
    * @since 4.0
    */
   String SUBCATEGORY_L10N = "localization";
@@ -403,4 +408,9 @@ public interface CoreProperties {
    * @since 7.6
    */
   String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.subproject.settings.archived";
+
+  /**
+   * since 8.9
+   */
+  String QUALITY_GATE_IGNORE_SMALL_CHANGES = "sonar.qualitygate.ignoreSmallChanges";
 }

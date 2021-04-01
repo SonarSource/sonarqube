@@ -21,8 +21,12 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -52,10 +56,14 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     .add(CoreMetrics.NEW_BUGS);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  private final SmallChangesetQualityGateSpecialCase underTest = new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository);
+
+  private final MapSettings mapSettings = new MapSettings();
+  private final TestSettingsRepository settings = new TestSettingsRepository(new ConfigurationBridge(mapSettings));
+  private final SmallChangesetQualityGateSpecialCase underTest = new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository, settings);
 
   @Test
   public void ignore_errors_about_new_coverage_for_small_changesets() {
+    mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, true);
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
@@ -63,6 +71,18 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
     assertThat(result).isTrue();
+  }
+
+  @Test
+  public void dont_ignore_errors_about_new_coverage_for_small_changesets_if_disabled() {
+    mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, false);
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isFalse();
   }
 
   @Test

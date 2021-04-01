@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
@@ -34,7 +35,7 @@ public interface QualityGateEvaluator {
    * @param measures must provide the measures related to the metrics
    *                 defined by {@link #getMetricKeys(QualityGate)}
    */
-  EvaluatedQualityGate evaluate(QualityGate gate, Measures measures);
+  EvaluatedQualityGate evaluate(QualityGate gate, Measures measures, Configuration configuration);
 
   /**
    * Keys of the metrics involved in the computation of gate status.

@@ -159,6 +159,17 @@ public class CorePropertyDefinitions {
         .type(PropertyType.USER_LOGIN)
         .build(),
 
+      // QUALITY GATE
+      PropertyDefinition.builder(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES)
+        .name("Ignore duplication and coverage on small changes")
+        .description("Quality Gate conditions about duplications in new code and coverage on new code are ignored until the number of new lines is at least 20.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_QUALITY_GATE)
+        .onQualifiers(Qualifiers.PROJECT)
+        .type(BOOLEAN)
+        .defaultValue(Boolean.toString(true))
+        .build(),
+
       // CPD
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
         .defaultValue(Boolean.toString(false))

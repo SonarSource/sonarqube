@@ -19,44 +19,36 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Collection;
 import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResult;
 import org.sonar.ce.task.projectanalysis.step.QualityGateMeasuresStep.MetricEvaluationResult;
 
-import static java.util.Arrays.asList;
+import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
+import static org.sonar.server.qualitygate.QualityGateEvaluatorImpl.METRICS_TO_IGNORE_ON_SMALL_CHANGESETS;
 
 public class SmallChangesetQualityGateSpecialCase {
-
-  /**
-   * Some metrics will be ignored on very small change sets.
-   */
-  private static final Collection<String> METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = asList(
-    CoreMetrics.NEW_COVERAGE_KEY,
-    CoreMetrics.NEW_LINE_COVERAGE_KEY,
-    CoreMetrics.NEW_BRANCH_COVERAGE_KEY,
-    CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
-    CoreMetrics.NEW_DUPLICATED_LINES_KEY,
-    CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY);
-  private static final int MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS = 19;
-
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
+  private final ConfigurationRepository config;
 
-  public SmallChangesetQualityGateSpecialCase(MeasureRepository measureRepository, MetricRepository metricRepository) {
+  public SmallChangesetQualityGateSpecialCase(MeasureRepository measureRepository, MetricRepository metricRepository, ConfigurationRepository config) {
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
+    this.config = config;
   }
 
   public boolean appliesTo(Component project, @Nullable MetricEvaluationResult metricEvaluationResult) {
     return metricEvaluationResult != null
       && metricEvaluationResult.evaluationResult.getLevel() != Measure.Level.OK
       && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricEvaluationResult.condition.getMetric().getKey())
+      && config.getConfiguration().getBoolean(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES).orElse(true)
       && isSmallChangeset(project);
   }
 
@@ -67,7 +59,7 @@ public class SmallChangesetQualityGateSpecialCase {
 
   private boolean isSmallChangeset(Component project) {
     return measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_KEY))
-      .map(newLines -> newLines.hasVariation() && newLines.getVariation() <= MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
+      .map(newLines -> newLines.hasVariation() && newLines.getVariation() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
       .orElse(false);
   }
 }

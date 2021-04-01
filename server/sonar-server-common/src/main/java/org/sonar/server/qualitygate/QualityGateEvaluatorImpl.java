@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
@@ -31,11 +33,11 @@ import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
 
 public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
 
-  private static final int MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS = 20;
+  public static final int MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS = 20;
   /**
    * Some metrics will be ignored on very small change sets.
    */
-  private static final Set<String> METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = ImmutableSet.of(
+  public static final Set<String> METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = ImmutableSet.of(
     CoreMetrics.NEW_COVERAGE_KEY,
     CoreMetrics.NEW_LINE_COVERAGE_KEY,
     CoreMetrics.NEW_BRANCH_COVERAGE_KEY,
@@ -44,11 +46,13 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY);
 
   @Override
-  public EvaluatedQualityGate evaluate(QualityGate gate, Measures measures) {
+  public EvaluatedQualityGate evaluate(QualityGate gate, Measures measures, Configuration configuration) {
     EvaluatedQualityGate.Builder result = EvaluatedQualityGate.newBuilder()
       .setQualityGate(gate);
 
-    boolean isSmallChangeset = isSmallChangeset(measures);
+    boolean ignoreSmallChanges = configuration.getBoolean(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES).orElse(true);
+    boolean isSmallChangeset = ignoreSmallChanges && isSmallChangeset(measures);
+
     gate.getConditions().forEach(condition -> {
       String metricKey = condition.getMetricKey();
       EvaluatedCondition evaluation = ConditionEvaluator.evaluate(condition, measures);

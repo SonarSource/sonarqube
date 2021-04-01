@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
@@ -84,7 +85,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
   }
 
   @Override
-  public EvaluatedQualityGate refreshGateStatus(ComponentDto project, QualityGate gate, MeasureMatrix measureMatrix) {
+  public EvaluatedQualityGate refreshGateStatus(ComponentDto project, QualityGate gate, MeasureMatrix measureMatrix, Configuration configuration) {
     QualityGateEvaluator.Measures measures = metricKey -> {
       Optional<LiveMeasureDto> liveMeasureDto = measureMatrix.getMeasure(project, metricKey);
       if (!liveMeasureDto.isPresent()) {
@@ -94,7 +95,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       return Optional.of(new LiveMeasure(liveMeasureDto.get(), metric));
     };
 
-    EvaluatedQualityGate evaluatedGate = evaluator.evaluate(gate, measures);
+    EvaluatedQualityGate evaluatedGate = evaluator.evaluate(gate, measures, configuration);
 
     measureMatrix.setValue(project, CoreMetrics.ALERT_STATUS_KEY, evaluatedGate.getStatus().name());
     measureMatrix.setValue(project, CoreMetrics.QUALITY_GATE_DETAILS_KEY, QualityGateConverter.toJson(evaluatedGate));

@@ -34,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
@@ -369,7 +370,7 @@ public class LiveMeasureComputerImplTest {
       .containsExactly(Optional.of(newQualityGate));
     verify(qGateComputer).loadQualityGate(any(DbSession.class), argThat(p -> p.getUuid().equals(projectDto.getUuid())), eq(branch));
     verify(qGateComputer).getMetricsRelatedTo(qualityGate);
-    verify(qGateComputer).refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class));
+    verify(qGateComputer).refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class), any(Configuration.class));
   }
 
   @Test
@@ -395,7 +396,7 @@ public class LiveMeasureComputerImplTest {
     when(qGateComputer.loadQualityGate(any(DbSession.class), any(ProjectDto.class), any(BranchDto.class)))
       .thenReturn(qualityGate);
     when(qGateComputer.getMetricsRelatedTo(qualityGate)).thenReturn(singleton(CoreMetrics.ALERT_STATUS_KEY));
-    when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class)))
+    when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class), any(Configuration.class)))
       .thenReturn(newQualityGate);
     MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
     ProjectConfigurationLoader configurationLoader = new TestProjectConfigurationLoader(settings.asConfig());

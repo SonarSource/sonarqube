@@ -31,9 +31,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -86,10 +89,11 @@ public class QualityGateMeasuresStepTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-
   private EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
+  private MapSettings mapSettings = new MapSettings();
+  private TestSettingsRepository settings = new TestSettingsRepository(new ConfigurationBridge(mapSettings));
   private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
-    resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository));
+    resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository, settings));
 
   @Before
   public void setUp() {

@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbTester;
@@ -61,6 +64,8 @@ public class LiveQualityGateComputerImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private final MapSettings settings = new MapSettings();
+  private final Configuration configuration = new ConfigurationBridge(settings);
   private final TestQualityGateEvaluator qualityGateEvaluator = new TestQualityGateEvaluator();
   private final LiveQualityGateComputerImpl underTest = new LiveQualityGateComputerImpl(db.getDbClient(), new QualityGateFinder(db.getDbClient()), qualityGateEvaluator);
 
@@ -124,7 +129,7 @@ public class LiveQualityGateComputerImplTest {
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(conditionMetric, statusMetric, detailsMetric), emptyList());
 
-    EvaluatedQualityGate result = underTest.refreshGateStatus(project, gate, matrix);
+    EvaluatedQualityGate result = underTest.refreshGateStatus(project, gate, matrix, configuration);
 
     QualityGateEvaluator.Measures measures = qualityGateEvaluator.getCalledMeasures();
     assertThat(measures.get(conditionMetric.getKey())).isEmpty();
@@ -155,7 +160,7 @@ public class LiveQualityGateComputerImplTest {
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric),
       asList(numericMeasure, numericNewMeasure, stringMeasure));
 
-    underTest.refreshGateStatus(project, gate, matrix);
+    underTest.refreshGateStatus(project, gate, matrix, configuration);
 
     QualityGateEvaluator.Measures measures = qualityGateEvaluator.getCalledMeasures();
 
@@ -179,7 +184,7 @@ public class LiveQualityGateComputerImplTest {
     private Measures measures;
 
     @Override
-    public EvaluatedQualityGate evaluate(QualityGate gate, Measures measures) {
+    public EvaluatedQualityGate evaluate(QualityGate gate, Measures measures, Configuration configuration) {
       checkState(this.measures == null);
       this.measures = measures;
       EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder().setQualityGate(gate).setStatus(Metric.Level.OK);
