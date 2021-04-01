@@ -9,6 +9,9 @@ In order to analyze CSS code, you now need to have Node.js 10+ installed on the 
 **Deprecated web services have been dropped**  
 Web services that were deprecated in 6.x versions have been dropped. ([SONAR-13848](https://jira.sonarsource.com/browse/SONAR-13848)).
 
+**JavaScript security analysis can take longer**  
+The JavaScript security analysis in commercial editions has been overhauled for far better accuracy. This overhaul results in an expected increase in memory requirement for analysis. Additionally, there is an impact on the duration of JavaScript taint analysis which can be significant for some projects. 
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16674)  
 
 ## Release 8.7 Upgrade Notes  
