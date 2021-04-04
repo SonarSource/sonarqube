@@ -47,6 +47,8 @@ public class QualityGateConditionDto {
 
   private Date updatedAt;
 
+  private int minimumEffectiveLines;
+
   public String getUuid() {
     return uuid;
   }
@@ -120,4 +122,12 @@ public class QualityGateConditionDto {
     return this;
   }
 
+  public int getMinimumEffectiveLines() {
+    return minimumEffectiveLines;
+  }
+
+  public QualityGateConditionDto setMinimumEffectiveLines(int minimumEffectiveLines) {
+    this.minimumEffectiveLines = minimumEffectiveLines;
+    return this;
+  }
 }

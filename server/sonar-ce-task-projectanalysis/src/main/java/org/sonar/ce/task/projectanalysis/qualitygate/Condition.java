@@ -48,12 +48,14 @@ public class Condition {
   private final Operator operator;
   private final String errorThreshold;
   private final boolean useVariation;
+  private final int minimumEffectiveLines;
 
-  public Condition(Metric metric, String operator, String errorThreshold) {
+  public Condition(Metric metric, String operator, String errorThreshold, int minimumEffectiveLines) {
     this.metric = requireNonNull(metric);
     this.operator = parseFromDbValue(requireNonNull(operator));
     this.useVariation = metric.getKey().startsWith("new_");
     this.errorThreshold = errorThreshold;
+    this.minimumEffectiveLines = minimumEffectiveLines;
   }
 
   private static Operator parseFromDbValue(String str) {
@@ -81,6 +83,10 @@ public class Condition {
     return errorThreshold;
   }
 
+  public int getMinimumEffectiveLines() {
+    return minimumEffectiveLines;
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
@@ -104,6 +110,7 @@ public class Condition {
       .add("metric", metric)
       .add("operator", operator)
       .add("errorThreshold", errorThreshold)
+      .add("minimumEffectiveLines", minimumEffectiveLines)
       .toString();
   }
 }

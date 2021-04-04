@@ -64,8 +64,8 @@ public class ShowActionTest {
     db.qualityGates().setDefaultQualityGate(qualityGate);
     MetricDto metric1 = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric1, c -> c.setOperator("GT"));
-    QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric2, c -> c.setOperator("LT"));
+    QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric1, c -> c.setOperator("GT"), c -> c.setMinimumEffectiveLines(1));
+    QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric2, c -> c.setOperator("LT"), c -> c.setMinimumEffectiveLines(234));
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -76,10 +76,10 @@ public class ShowActionTest {
     assertThat(response.getIsBuiltIn()).isFalse();
     assertThat(response.getConditionsList()).hasSize(2);
     assertThat(response.getConditionsList())
-      .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError)
+      .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError, Condition::getMinimumEffectiveLines)
       .containsExactlyInAnyOrder(
-        tuple(condition1.getUuid(), metric1.getKey(), "GT", condition1.getErrorThreshold()),
-        tuple(condition2.getUuid(), metric2.getKey(), "LT", condition2.getErrorThreshold()));
+        tuple(condition1.getUuid(), metric1.getKey(), "GT", condition1.getErrorThreshold(), condition1.getMinimumEffectiveLines()),
+        tuple(condition2.getUuid(), metric2.getKey(), "LT", condition2.getErrorThreshold(), condition2.getMinimumEffectiveLines()));
   }
 
   @Test
@@ -271,8 +271,8 @@ public class ShowActionTest {
     db.qualityGates().setDefaultQualityGate(qualityGate2);
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("tests"));
-    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0"));
-    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold("10"));
+    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0").setMinimumEffectiveLines(10));
+    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold("10").setMinimumEffectiveLines(0));
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())

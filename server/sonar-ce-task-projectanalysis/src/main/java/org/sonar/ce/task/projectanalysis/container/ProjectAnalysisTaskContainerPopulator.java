@@ -134,7 +134,6 @@ import org.sonar.ce.task.projectanalysis.source.SourceLinesHashCache;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.step.ReportComputationSteps;
-import org.sonar.ce.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
 import org.sonar.ce.task.projectanalysis.webhook.WebhookPostTask;
 import org.sonar.ce.task.setting.SettingsLoader;
 import org.sonar.ce.task.step.ComputationStepExecutor;
@@ -314,7 +313,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       BranchLoader.class,
       MeasureToMeasureDto.class,
-      SmallChangesetQualityGateSpecialCase.class,
 
       // webhooks
       WebhookPostTask.class,

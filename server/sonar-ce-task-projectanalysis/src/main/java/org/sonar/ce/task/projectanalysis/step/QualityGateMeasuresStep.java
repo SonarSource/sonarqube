@@ -78,19 +78,17 @@ public class QualityGateMeasuresStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
   private final EvaluationResultTextConverter evaluationResultTextConverter;
-  private final SmallChangesetQualityGateSpecialCase smallChangesetQualityGateSpecialCase;
 
   public QualityGateMeasuresStep(TreeRootHolder treeRootHolder,
     QualityGateHolder qualityGateHolder, MutableQualityGateStatusHolder qualityGateStatusHolder,
     MeasureRepository measureRepository, MetricRepository metricRepository,
-    EvaluationResultTextConverter evaluationResultTextConverter, SmallChangesetQualityGateSpecialCase smallChangesetQualityGateSpecialCase) {
+    EvaluationResultTextConverter evaluationResultTextConverter) {
     this.treeRootHolder = treeRootHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;
     this.evaluationResultTextConverter = evaluationResultTextConverter;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
-    this.smallChangesetQualityGateSpecialCase = smallChangesetQualityGateSpecialCase;
   }
 
   @Override
@@ -166,6 +164,12 @@ public class QualityGateMeasuresStep implements ComputationStep {
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {
     Multimap<Metric, Condition> conditionsPerMetric = conditions.stream().collect(MoreCollectors.index(Condition::getMetric, java.util.function.Function.identity()));
     boolean ignoredConditions = false;
+
+    final double changedLines = measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_KEY))
+      .filter(Measure::hasVariation)
+      .map(Measure::getVariation)
+      .orElse(0d);
+
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
       Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
@@ -175,8 +179,10 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
       final MetricEvaluationResult metricEvaluationResult = evaluateQualityGate(measure.get(), entry.getValue());
       final MetricEvaluationResult finalMetricEvaluationResult;
-      if (smallChangesetQualityGateSpecialCase.appliesTo(project, metricEvaluationResult)) {
-        finalMetricEvaluationResult = smallChangesetQualityGateSpecialCase.apply(metricEvaluationResult);
+
+      if (changedLines < metricEvaluationResult.condition.getMinimumEffectiveLines()) {
+        finalMetricEvaluationResult = new MetricEvaluationResult(
+                new EvaluationResult(Measure.Level.OK, metricEvaluationResult.evaluationResult.getValue()), metricEvaluationResult.condition);
         ignoredConditions = true;
       } else {
         finalMetricEvaluationResult = metricEvaluationResult;

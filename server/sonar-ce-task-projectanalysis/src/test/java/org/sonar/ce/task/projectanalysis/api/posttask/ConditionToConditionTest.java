@@ -44,8 +44,10 @@ public class ConditionToConditionTest {
   private static final String ERROR_THRESHOLD = "error threshold";
   private static final Map<Condition, ConditionStatus> NO_STATUS_PER_CONDITIONS = Collections.emptyMap();
   private static final String SOME_VALUE = "some value";
+  private static final int ALL_LINES_EFFECTIVE = 1;
   private static final ConditionStatus SOME_CONDITION_STATUS = ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, SOME_VALUE);
-  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD);
+  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD,
+                                                                ALL_LINES_EFFECTIVE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -95,7 +97,8 @@ public class ConditionToConditionTest {
   @Test
   @UseDataProvider("allOperatorValues")
   public void apply_converts_all_values_of_operator(Condition.Operator operator) {
-    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD);
+    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD,
+                                        ALL_LINES_EFFECTIVE);
     ConditionToCondition underTest = new ConditionToCondition(of(condition, SOME_CONDITION_STATUS));
 
     assertThat(underTest.apply(condition).getOperator().name()).isEqualTo(operator.name());
@@ -103,7 +106,8 @@ public class ConditionToConditionTest {
 
   @Test
   public void apply_copies_value() {
-    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD);
+    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD,
+                                             ALL_LINES_EFFECTIVE);
     ConditionToCondition underTest = new ConditionToCondition(of(
       SOME_CONDITION, SOME_CONDITION_STATUS,
       otherCondition, ConditionStatus.NO_VALUE_STATUS));

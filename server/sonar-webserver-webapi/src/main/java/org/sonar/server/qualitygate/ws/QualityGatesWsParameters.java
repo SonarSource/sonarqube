@@ -47,6 +47,7 @@ public class QualityGatesWsParameters {
   public static final String PARAM_GATE_NAME = "gateName";
   public static final String PARAM_ID = "id";
   public static final String PARAM_SOURCE_NAME = "sourceName";
+  public static final String PARAM_MINIMUM_EFFECTIVE_LINES = "minimumEffectiveLines";
 
   private QualityGatesWsParameters() {
     // prevent instantiation

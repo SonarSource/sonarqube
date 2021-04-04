@@ -6,13 +6,15 @@
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "metric": "blocker_violations",
       "op": "GT",
-      "error": "0"
+      "error": "0",
+      "minimumEffectiveLines": 10
     },
     {
       "id": "AU-Tpxb--iU5OvuD2FLz",
       "metric": "tests",
       "op": "LT",
-      "error": "10"
+      "error": "10",
+      "minimumEffectiveLines": 0
     }
   ],
   "isBuiltIn": false,

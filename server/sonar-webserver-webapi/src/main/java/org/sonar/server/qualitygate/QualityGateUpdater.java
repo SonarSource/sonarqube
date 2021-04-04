@@ -57,7 +57,8 @@ public class QualityGateUpdater {
         .setQualityGateUuid(destinationGate.getUuid())
         .setMetricUuid(sourceCondition.getMetricUuid())
         .setOperator(sourceCondition.getOperator())
-        .setErrorThreshold(sourceCondition.getErrorThreshold()),
+        .setErrorThreshold(sourceCondition.getErrorThreshold())
+        .setMinimumEffectiveLines(sourceCondition.getMinimumEffectiveLines()),
         dbSession);
     }
 

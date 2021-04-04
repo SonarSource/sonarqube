@@ -36,9 +36,9 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.fail;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.BOOL;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.DATA;
@@ -128,7 +128,7 @@ public class ConditionEvaluatorTest {
     assertThat(underTest.evaluate(createCondition(metric, LESS_THAN, "10.3"), measure)).hasLevel(ERROR);
     assertThat(underTest.evaluate(createCondition(metric, LESS_THAN, "10.1"), measure)).hasLevel(OK);
 
-    assertThat(underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "10.3"), measure)).hasLevel(Measure.Level.ERROR);
+    assertThat(underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "10.3", 0), measure)).hasLevel(Measure.Level.ERROR);
   }
 
   @Test
@@ -169,8 +169,8 @@ public class ConditionEvaluatorTest {
     Metric metric = createNewMetric(metricType);
     Measure measure = newMeasureBuilder().setVariation(3d).createNoValue();
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3"), measure)).hasLevel(OK);
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2"), measure)).hasLevel(ERROR);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", 0), measure)).hasLevel(OK);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", 0), measure)).hasLevel(ERROR);
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ConditionEvaluatorTest {
     Metric metric = createNewMetric(metricType);
     Measure measure = newMeasureBuilder().createNoValue();
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3"), measure)).hasLevel(OK).hasValue(null);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", 0), measure)).hasLevel(OK).hasValue(null);
   }
 
   @DataProvider
@@ -199,7 +199,7 @@ public class ConditionEvaluatorTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported metric type LEVEL");
 
-    underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "3"), measure);
+    underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "3", 0), measure);
   }
 
   @Test
@@ -207,12 +207,12 @@ public class ConditionEvaluatorTest {
     Metric metric = createMetric(RATING);
     Measure measure = newMeasureBuilder().create(4, "D");
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4"), measure)).hasLevel(OK).hasValue(4);
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2"), measure)).hasLevel(ERROR).hasValue(4);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", 0), measure)).hasLevel(OK).hasValue(4);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", 0), measure)).hasLevel(ERROR).hasValue(4);
   }
 
   private static Condition createCondition(Metric metric, Condition.Operator operator, String errorThreshold) {
-    return new Condition(metric, operator.getDbValue(), errorThreshold);
+    return new Condition(metric, operator.getDbValue(), errorThreshold, 0);
   }
 
   private static MetricImpl createMetric(MetricType metricType) {

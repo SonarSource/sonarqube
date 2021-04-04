@@ -50,9 +50,9 @@ public class QualityGateServiceImplTest {
   private static final Metric METRIC_1 = mock(Metric.class);
   private static final Metric METRIC_2 = mock(Metric.class);
   private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setUuid("321").setMetricUuid(METRIC_UUID_1).setOperator("LT")
-    .setErrorThreshold("error_th");
+    .setErrorThreshold("error_th").setMinimumEffectiveLines(1);
   private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setUuid("456").setMetricUuid(METRIC_UUID_2).setOperator("GT")
-    .setErrorThreshold("error_th");
+    .setErrorThreshold("error_th").setMinimumEffectiveLines(10);
 
   private final QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private final QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
@@ -103,8 +103,8 @@ public class QualityGateServiceImplTest {
     assertThat(res.get().getUuid()).isEqualTo(SOME_UUID);
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
-      new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold()),
-      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
+      new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold(), 1),
+      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), 10));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class QualityGateServiceImplTest {
     assertThat(res.get().getUuid()).isEqualTo(SOME_UUID);
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
-      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
+      new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), 10));
   }
 
   @Test(expected = IllegalStateException.class)

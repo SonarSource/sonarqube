@@ -61,8 +61,10 @@ public class LoadQualityGateStepTest {
   public void filter_conditions_on_pull_request() {
     Metric newMetric = new MetricImpl("1", "new_key", "name", Metric.MetricType.INT);
     Metric metric = new MetricImpl("2", "key", "name", Metric.MetricType.INT);
-    Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
-    Condition condition = new Condition(metric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
+    Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0",
+                                        0);
+    Condition condition = new Condition(metric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0",
+                                        0);
 
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
     QualityGate defaultGate = new QualityGate("1", "qg", Arrays.asList(variation, condition));

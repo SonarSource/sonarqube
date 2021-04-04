@@ -28,6 +28,7 @@ import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
+import MinimumEffectiveLinesInput from './MinimumEffectiveLinesInput';
 
 interface Props {
   condition?: T.Condition;
@@ -45,6 +46,7 @@ interface State {
   metric?: T.Metric;
   op?: string;
   scope: 'new' | 'overall';
+  minimumEffectiveLines: string;
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
@@ -54,7 +56,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       error: props.condition ? props.condition.error : '',
       scope: 'new',
       metric: props.metric ? props.metric : undefined,
-      op: props.condition ? props.condition.op : undefined
+      op: props.condition ? props.condition.op : undefined,
+      minimumEffectiveLines: props.condition ? props.condition.minimumEffectiveLines : ''
     };
   }
 
@@ -69,7 +72,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       const newCondition: T.Omit<T.Condition, 'id'> = {
         metric: this.state.metric.key,
         op: this.getSinglePossibleOperator(this.state.metric) || this.state.op,
-        error: this.state.error
+        error: this.state.error,
+        minimumEffectiveLines: this.state.minimumEffectiveLines
       };
       const submitPromise = condition
         ? updateCondition({ id: condition.id, ...newCondition })
@@ -102,13 +106,17 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ op });
   };
 
+  handleMinimumEffectiveLinesChange = (minimumEffectiveLines: string) => {
+    this.setState({ minimumEffectiveLines });
+  };
+
   handleErrorChange = (error: string) => {
     this.setState({ error });
   };
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { op, error, scope, metric } = this.state;
+    const { op, error, scope, metric, minimumEffectiveLines } = this.state;
     return (
       <ConfirmModal
         confirmButtonText={header}
@@ -177,6 +185,15 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
                 name="error"
                 onChange={this.handleErrorChange}
                 value={error}
+              />
+            </div>
+            <div className="modal-field display-inline-block spacer-left">
+              <label htmlFor="condition-minimum-effective-lines">
+                {translate('quality_gates.conditions.minimum_effective_lines')}
+              </label>
+              <MinimumEffectiveLinesInput
+                minimumEffectiveLines={minimumEffectiveLines}
+                onChange={this.handleMinimumEffectiveLinesChange}
               />
             </div>
           </>

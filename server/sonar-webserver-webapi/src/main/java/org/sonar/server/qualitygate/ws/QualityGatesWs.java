@@ -33,6 +33,7 @@ import static org.sonar.server.qualitygate.QualityGateConditionsUpdater.INVALID_
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 
 public class QualityGatesWs implements WebService {
@@ -98,6 +99,12 @@ public class QualityGatesWs implements WebService {
       .setMaximumLength(CONDITION_MAX_LENGTH)
       .setDescription("Condition error threshold")
       .setRequired(true)
+      .setExampleValue("10");
+
+    action.createParam(PARAM_MINIMUM_EFFECTIVE_LINES)
+      .setDescription("Minimum number of lines that must be modified in the change-set size before this condition will be evaluated")
+      .setRequired(true)
+      .setSince("8.9")
       .setExampleValue("10");
   }
 

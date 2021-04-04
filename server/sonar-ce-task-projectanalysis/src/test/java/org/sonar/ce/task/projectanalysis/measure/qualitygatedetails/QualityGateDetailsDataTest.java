@@ -52,7 +52,8 @@ public class QualityGateDetailsDataTest {
   @Test
   public void verify_json_for_each_type_of_condition() {
     String value = "actualValue";
-    Condition condition = new Condition(new MetricImpl("1", "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh");
+    Condition condition = new Condition(new MetricImpl("1", "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh",
+                                        0);
     ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.ERROR, value));
@@ -82,7 +83,8 @@ public class QualityGateDetailsDataTest {
   @Test
   public void verify_json_for_condition_on_leak_metric() {
     String value = "actualValue";
-    Condition condition = new Condition(new MetricImpl("1", "new_key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh");
+    Condition condition = new Condition(new MetricImpl("1", "new_key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh",
+                                        0);
     ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.ERROR, value));

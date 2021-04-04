@@ -42,7 +42,8 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 public class EvaluationResultTextConverterTest {
   private static final Metric INT_METRIC = new MetricImpl("1", "key", "int_metric_name", Metric.MetricType.INT);
   private static final Metric SOME_VARIATION_METRIC = new MetricImpl("2", "new_variation_of_trololo", "variation_of_trololo_name", Metric.MetricType.INT);
-  private static final Condition LT_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.LESS_THAN.getDbValue(), "10");
+  private static final Condition LT_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.LESS_THAN.getDbValue(), "10",
+                                                                 0);
   private static final EvaluationResult OK_EVALUATION_RESULT = new EvaluationResult(Measure.Level.OK, null);
   private static final String ERROR_THRESHOLD = "error_threshold";
 
@@ -82,7 +83,7 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "metric." + INT_METRIC.getKey() + ".name", INT_METRIC.getName()))
       .thenReturn(metricMsg);
 
-    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD);
+    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD, 0);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + toSign(operator) + " " + ERROR_THRESHOLD);
@@ -96,7 +97,8 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "metric." + SOME_VARIATION_METRIC.getKey() + ".name", SOME_VARIATION_METRIC.getName()))
       .thenReturn(metricMsg);
 
-    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD);
+    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD,
+                                        0);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + toSign(operator) + " " + ERROR_THRESHOLD);

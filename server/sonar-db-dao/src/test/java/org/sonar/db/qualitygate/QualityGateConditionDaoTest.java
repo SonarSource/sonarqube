@@ -19,10 +19,6 @@
  */
 package org.sonar.db.qualitygate;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,6 +26,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testInsert() {
-    QualityGateConditionDto newCondition = insertQGCondition("1", "2", "GT", "20");
+    QualityGateConditionDto newCondition = insertQGCondition("1", "2", "GT", "20", 23);
 
     assertThat(newCondition.getUuid()).isNotNull();
     QualityGateConditionDto actual = underTest.selectByUuid(newCondition.getUuid(), dbSession);
@@ -83,7 +84,7 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testSelectByUuid() {
-    QualityGateConditionDto condition = insertQGCondition("1", "2", "GT", "20");
+    QualityGateConditionDto condition = insertQGCondition("1", "2", "GT", "20", 1);
 
     assertEquals(underTest.selectByUuid(condition.getUuid(), dbSession), condition);
     assertThat(underTest.selectByUuid("uuid1", dbSession)).isNull();
@@ -111,7 +112,8 @@ public class QualityGateConditionDaoTest {
       .setQualityGateUuid(condition1.getQualityGateUuid())
       .setMetricUuid("7")
       .setOperator(">")
-      .setErrorThreshold("80");
+      .setErrorThreshold("80")
+      .setMinimumEffectiveLines(0);
     underTest.update(newCondition1, dbSession);
     dbSession.commit();
 
@@ -142,16 +144,17 @@ public class QualityGateConditionDaoTest {
   }
 
   private QualityGateConditionDto insertQGCondition(String qualityGateUuid, String metricUuid) {
-    return insertQGCondition(qualityGateUuid, metricUuid, randomAlphabetic(2), randomAlphabetic(3));
+    return insertQGCondition(qualityGateUuid, metricUuid, randomAlphabetic(2), randomAlphabetic(3), 12);
   }
 
-  private QualityGateConditionDto insertQGCondition(String qualityGateUuid, String metricUuid, String operator, String threshold) {
+  private QualityGateConditionDto insertQGCondition(String qualityGateUuid, String metricUuid, String operator, String threshold, int minimumEffectiveLines) {
     QualityGateConditionDto res = new QualityGateConditionDto()
       .setUuid(Uuids.create())
       .setQualityGateUuid(qualityGateUuid)
       .setMetricUuid(metricUuid)
       .setOperator(operator)
-      .setErrorThreshold(threshold);
+      .setErrorThreshold(threshold)
+      .setMinimumEffectiveLines(minimumEffectiveLines);
     underTest.insert(res, dbTester.getSession());
     dbTester.commit();
     return res;
@@ -162,5 +165,6 @@ public class QualityGateConditionDaoTest {
     assertThat(actual.getMetricUuid()).isEqualTo(expected.getMetricUuid());
     assertThat(actual.getOperator()).isEqualTo(expected.getOperator());
     assertThat(actual.getErrorThreshold()).isEqualTo(expected.getErrorThreshold());
+    assertThat(actual.getMinimumEffectiveLines()).isEqualTo(expected.getMinimumEffectiveLines());
   }
 }

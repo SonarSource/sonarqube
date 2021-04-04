@@ -360,5 +360,18 @@ exports[`should render correctly 2`] = `
       value=""
     />
   </div>
+  <div
+    className="modal-field display-inline-block spacer-left"
+  >
+    <label
+      htmlFor="condition-minimum-effective-lines"
+    >
+      quality_gates.conditions.minimum_effective_lines
+    </label>
+    <MinimumEffectiveLinesInput
+      minimumEffectiveLines=""
+      onChange={[Function]}
+    />
+  </div>
 </ConfirmModal>
 `;

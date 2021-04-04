@@ -4,13 +4,13 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
 
   <insert id="insert" parameterType="QualityGateCondition">
-    insert into quality_gate_conditions (uuid, qgate_uuid, metric_uuid, operator, value_error, created_at, updated_at)
-    values (#{uuid}, #{qualityGateUuid}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
+    insert into quality_gate_conditions (uuid, qgate_uuid, metric_uuid, operator, value_error, created_at, updated_at, minimum_effective_lines)
+    values (#{uuid}, #{qualityGateUuid}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt}, #{minimumEffectiveLines})
   </insert>
 
   <sql id="conditionColumns">
     uuid, qgate_uuid as qualityGateUuid, metric_uuid as metricUuid, operator, value_error as errorThreshold,
-    created_at as createdAt, updated_at as updatedAt
+    created_at as createdAt, updated_at as updatedAt, minimum_effective_lines as minimumEffectiveLines
   </sql>
 
   <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="String">
@@ -35,7 +35,8 @@
     metric_uuid=#{metricUuid},
     operator=#{operator},
     value_error=#{errorThreshold},
-    updated_at=#{updatedAt}
+    updated_at=#{updatedAt},
+    minimum_effective_lines=#{minimumEffectiveLines}
     where uuid=#{uuid}
   </update>
 

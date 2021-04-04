@@ -3,5 +3,6 @@
   "metric": "blocker_violations",
   "op": "LT",
   "error": "10",
-  "warning": "5"
+  "warning": "5",
+  "minimumEffectiveLines": 0
 }

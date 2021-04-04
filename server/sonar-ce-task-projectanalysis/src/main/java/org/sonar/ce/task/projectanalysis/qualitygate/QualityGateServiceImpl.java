@@ -89,7 +89,7 @@ public class QualityGateServiceImpl implements QualityGateService {
 
     Iterable<Condition> conditions = dtos.stream()
       .map(input -> metricRepository.getOptionalByUuid(input.getMetricUuid())
-        .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
+        .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getMinimumEffectiveLines()))
         .orElse(null))
       .filter(Objects::nonNull)
       .collect(toList(dtos.size()));

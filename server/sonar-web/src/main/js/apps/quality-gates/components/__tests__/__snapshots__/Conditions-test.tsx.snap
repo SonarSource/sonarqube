@@ -60,6 +60,11 @@ exports[`should render correctly 1`] = `
           >
             quality_gates.conditions.value
           </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.minimum_effective_lines
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -70,6 +75,7 @@ exports[`should render correctly 1`] = `
               "error": "10",
               "id": 1,
               "metric": "coverage",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -99,6 +105,7 @@ exports[`should render correctly 1`] = `
               "error": "10",
               "id": 2,
               "metric": "duplicated_lines",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -218,6 +225,11 @@ exports[`should render correctly with an updated condition 1`] = `
           >
             quality_gates.conditions.value
           </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.minimum_effective_lines
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -228,6 +240,7 @@ exports[`should render correctly with an updated condition 1`] = `
               "error": "10",
               "id": 1,
               "metric": "coverage",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -257,6 +270,7 @@ exports[`should render correctly with an updated condition 1`] = `
               "error": "10",
               "id": 2,
               "metric": "duplicated_lines",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -345,6 +359,11 @@ exports[`should render correctly with new code conditions 1`] = `
           >
             quality_gates.conditions.value
           </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.minimum_effective_lines
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -355,6 +374,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "error": "10",
               "id": 3,
               "metric": "new_coverage",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -384,6 +404,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "error": "10",
               "id": 4,
               "metric": "new_duplicated_lines",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -446,6 +467,11 @@ exports[`should render correctly with new code conditions 1`] = `
           >
             quality_gates.conditions.value
           </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.minimum_effective_lines
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -456,6 +482,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "error": "10",
               "id": 1,
               "metric": "coverage",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -485,6 +512,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "error": "10",
               "id": 2,
               "metric": "duplicated_lines",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -583,6 +611,11 @@ exports[`should render the add conditions button and modal 1`] = `
             quality_gates.conditions.value
           </th>
           <th
+            className="nowrap"
+          >
+            quality_gates.conditions.minimum_effective_lines
+          </th>
+          <th
             className="thin"
           >
             edit
@@ -602,6 +635,7 @@ exports[`should render the add conditions button and modal 1`] = `
               "error": "10",
               "id": 1,
               "metric": "coverage",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }
@@ -631,6 +665,7 @@ exports[`should render the add conditions button and modal 1`] = `
               "error": "10",
               "id": 2,
               "metric": "duplicated_lines",
+              "minimumEffectiveLines": "1",
               "op": "LT",
             }
           }

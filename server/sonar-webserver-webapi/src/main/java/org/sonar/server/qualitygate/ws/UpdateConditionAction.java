@@ -37,6 +37,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_UP
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -63,7 +64,8 @@ public class UpdateConditionAction implements QualityGatesWsAction {
         new Change("8.4", "Parameter 'id' format changes from integer to string. "),
         new Change("7.6", "Removed optional 'warning' and 'period' parameters"),
         new Change("7.6", "Made 'error' parameter mandatory"),
-        new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"))
+        new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"),
+        new Change("8.9", "Added 'minimumEffectiveLines' parameter to control the minimum size a change-set must be before the condition is applied by the Quality Gate"))
       .setHandler(this);
 
     createCondition
@@ -81,18 +83,20 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
+    int minimumLines = request.mandatoryParamAsInt(PARAM_MINIMUM_EFFECTIVE_LINES);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByUuid(dbSession, condition.getQualityGateUuid());
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateUuid());
       wsSupport.checkCanEdit(qualityGateDto);
-      QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
+      QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error, minimumLines);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
         .setId(updatedCondition.getUuid())
         .setMetric(updatedCondition.getMetricKey())
         .setError(updatedCondition.getErrorThreshold())
-        .setOp(updatedCondition.getOperator());
+        .setOp(updatedCondition.getOperator())
+        .setMinimumEffectiveLines(updatedCondition.getMinimumEffectiveLines());
       writeProtobuf(updateConditionResponse.build(), request, response);
       dbSession.commit();
     }

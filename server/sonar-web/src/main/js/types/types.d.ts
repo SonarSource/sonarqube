@@ -179,6 +179,7 @@ declare namespace T {
     id: number;
     metric: string;
     op?: string;
+    minimumEffectiveLines: string;
   }
 
   export interface CoveredFile {

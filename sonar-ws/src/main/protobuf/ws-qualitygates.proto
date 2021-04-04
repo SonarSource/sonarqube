@@ -113,6 +113,7 @@ message CreateConditionResponse {
   optional string metric = 2;
   optional string op = 3;
   optional string error = 5;
+  optional int32 minimumEffectiveLines = 6;
 }
 
 // POST api/qualitygates/update_condition
@@ -121,6 +122,7 @@ message UpdateConditionResponse {
   optional string metric = 2;
   optional string op = 3;
   optional string error = 5;
+  optional int32 minimumEffectiveLines = 6;
 }
 
 // GET api/qualitygates/show
@@ -136,6 +138,7 @@ message ShowWsResponse {
     optional string metric = 2;
     optional string op = 4;
     optional string error = 6;
+    optional int32 minimumEffectiveLines = 7;
   }
 }
 

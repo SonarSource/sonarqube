@@ -59,12 +59,12 @@ public class RegisterQualityGates implements Startable {
   private static final String A_RATING = Integer.toString(Rating.A.getIndex());
 
   private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
-    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
-    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"),
-    new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100"));
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING).setMinimumEffectiveLines(0),
+    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING).setMinimumEffectiveLines(0),
+    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING).setMinimumEffectiveLines(0),
+    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80").setMinimumEffectiveLines(20),
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3").setMinimumEffectiveLines(20),
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100").setMinimumEffectiveLines(0));
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
@@ -131,7 +131,7 @@ public class RegisterQualityGates implements Startable {
     qgConditionsToBeCreated.removeAll(qualityGateConditions);
     qgConditionsToBeCreated
       .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(),
-        qgc.getErrorThreshold()));
+        qgc.getErrorThreshold(), qgc.getMinimumEffectiveLines()));
 
     if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
       LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
@@ -157,13 +157,15 @@ public class RegisterQualityGates implements Startable {
     private String metricKey;
     private String operator;
     private String errorThreshold;
+    private int minimumEffectiveLines;
 
     public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<String, String> mapping) {
       return new QualityGateCondition()
         .setUuid(qualityGateConditionDto.getUuid())
         .setMetricKey(mapping.get(qualityGateConditionDto.getMetricUuid()))
         .setOperator(qualityGateConditionDto.getOperator())
-        .setErrorThreshold(qualityGateConditionDto.getErrorThreshold());
+        .setErrorThreshold(qualityGateConditionDto.getErrorThreshold())
+        .setMinimumEffectiveLines(qualityGateConditionDto.getMinimumEffectiveLines());
     }
 
     @CheckForNull
@@ -203,13 +205,23 @@ public class RegisterQualityGates implements Startable {
       return this;
     }
 
+    public int getMinimumEffectiveLines() {
+      return minimumEffectiveLines;
+    }
+
+    public QualityGateCondition setMinimumEffectiveLines(int minimumEffectiveLines) {
+      this.minimumEffectiveLines = minimumEffectiveLines;
+      return this;
+    }
+
     public QualityGateConditionDto toQualityGateDto(String qualityGateUuid) {
       return new QualityGateConditionDto()
         .setUuid(uuid)
         .setMetricKey(metricKey)
         .setOperator(operator)
         .setErrorThreshold(errorThreshold)
-        .setQualityGateUuid(qualityGateUuid);
+        .setQualityGateUuid(qualityGateUuid)
+        .setMinimumEffectiveLines(minimumEffectiveLines);
     }
 
     // id does not belongs to equals to be able to be compared with builtin
