@@ -13,11 +13,9 @@ With this integration, you'll be able to:
 ## Analyzing projects with Bitbucket Pipelines
 SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner.
 
-### Activating builds  
-Set up your build according to your SonarQube edition:
-
-- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `branches` pipeline in your `bitbucket-pipelines.yml` file and not using the `pull-requests` pipeline.
-- **Developer Edition and above** – Bitbucket Pipelines can build specific branches and pull requests if you use the `branches` and `pull-requests` pipelines as shown in the example configurations below.
+To analyze your projects with Bitbucket Pipelines, you need to:
+- Set your environment variables.
+- Configure your `bitbucket-pipelines.yml file`.
 
 ### Setting environment variables
 You can set environment variables securely for all pipelines in Bitbucket Cloud's settings. See [User-defined variables](https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/#User-defined-variables) for more information.
@@ -31,7 +29,12 @@ You need to set the following environment variables in Bitbucket Cloud for analy
 - `SONAR_HOST_URL` – Create a custom environment variable with `SONAR_HOST_URL` as the **Name** and your SonarQube server URL as the **Value**.
 
 ### Configuring your bitbucket-pipelines.yml file
-The following examples show you how to configure your `bitbucket-pipelines.yml` file.
+This section shows you how to configure your `bitbucket-pipelines.yml` file.
+
+You'll set up your build according to your SonarQube edition:
+
+- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `branches` pipeline in your `bitbucket-pipelines.yml` file and not using the `pull-requests` pipeline.
+- **Developer Edition and above** – Bitbucket Pipelines can build specific branches and pull requests if you use the `branches` and `pull-requests` pipelines as shown in the example configurations below.
 
 Click the scanner you're using below to expand the example configuration:
 
@@ -212,7 +215,7 @@ From here, set your:
 |
 | In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Bitbucket Cloud repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
 |
-| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration**.
+| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration** .
 |
 | After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
 |

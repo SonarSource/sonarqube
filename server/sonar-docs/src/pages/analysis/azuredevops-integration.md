@@ -49,7 +49,7 @@ SonarScanners running in Azure Pipelines jobs can automatically detect branches 
 ### Installing your extension
 From Visual Studio Marketplace, install the [SonarQube extension](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube) by clicking the **Get it free** button. 
 
-#### Azure DevOps Server - build agents
+#### **Azure DevOps Server - build agents**
 
 If you are using [Microsoft-hosted build agents](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops) then there is nothing else to install. The extension will work with all of the hosted agents (Windows, Linux, and macOS).
 

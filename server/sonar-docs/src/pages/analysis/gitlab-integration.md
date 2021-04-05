@@ -78,15 +78,14 @@ For information on analyzing your projects with GitLab CI/CD, see the following 
 ## Analyzing projects with GitLab CI/CD
 SonarScanners running in GitLab CI/CD jobs can automatically detect branches or merge requests being built so you don't need to specifically pass them as parameters to the scanner.
 
+To analyze your projects with GitLab CI/CD, you need to:
+- Set your environment variables.
+- Configure your gilab-ci.yml file.
+
+The following sections detail these steps.
+
 [[warning]]
 | You need to disable git shallow clone to make sure the scanner has access to all of your history when running analysis with GitLab CI/CD. For more information, see [Git shallow clone](https://docs.gitlab.com/ee/user/project/pipelines/settings.html#git-shallow-clone).
-
-### Activating builds  
-Set up your build according to your SonarQube edition:
-
-- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by adding the branch name to the `only` parameter in your .yml file.
-
-- **Developer Edition and above** By default, GitLab will build all branches but not Merge Requests. To build Merge Requests, you need to update the `.gitlab-ci.yml` file by adding `merge_requests` to the `only` parameter in your .yml. See the example configurations below for more information.
 
 ### Setting environment variables 
 You can set environment variables securely for all pipelines in GitLab's settings. See GitLab's documentation on [Creating a Custom Environment Variable](https://docs.gitlab.com/ee/ci/variables/#creating-a-custom-environment-variable) for more information.
@@ -98,9 +97,16 @@ You need to set the following environment variables in GitLab for analysis:
 - `SONAR_HOST_URL` – Create a custom environment variable with `SONAR_HOST_URL` as the **Key** and your SonarQube server URL as the **Value**.
 
 ### Configuring your gitlab-ci.yml file
-The following examples show you how to configure your GitLab CI/CD `gitlab-ci.yml` file. The `allow_failure` parameter in the examples allows a job to fail without impacting the rest of the CI suite.
 
-Click the scanner you're using below to expand the example configuration:
+This section shows you how to configure your GitLab CI/CD `gitlab-ci.yml` file. The `allow_failure` parameter in the examples allows a job to fail without impacting the rest of the CI suite.
+
+You'll set up your build according to your SonarQube edition:
+
+- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by adding the branch name to the `only` parameter in your .yml file.
+
+- **Developer Edition and above** By default, GitLab will build all branches but not Merge Requests. To build Merge Requests, you need to update the `.gitlab-ci.yml` file by adding `merge_requests` to the `only` parameter in your .yml. See the example configurations below for more information.
+
+Click the scanner you're using below to expand an example configuration:
 
 [[collapse]]
 | ## SonarScanner for Gradle

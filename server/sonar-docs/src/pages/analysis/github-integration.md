@@ -84,12 +84,8 @@ SonarScanners running in GitHub Actions can automatically detect branches and pu
 
 To analyze your projects with GitHub Actions, you need to:
 - Create your GitHub Secrets.
-- Create your workflow YAML file.
-- Commit and push your code to start the analysis
-
-### Community Edition
-
-Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `on.push.branches` configuration in your workflow YAML file, and not using the `on.pull_request` part.
+- Configure your workflow YAML file.
+- Commit and push your code to start the analysis.
 
 ### Creating your GitHub Secrets
 You can create repository secrets from your GitHub repository. See GitHub's documentation on [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more information. 
@@ -100,8 +96,16 @@ You need to set the following GitHub repository secrets to analyze your projects
 
 - `SONAR_HOST_URL` – In GitHub, create a new repository secret with `SONAR_HOST_URL` as the **Name** and your SonarQube server URL as the **Value**.
 
-### Creating your configuration file
-The following examples show you how to configure your `.github/workflows/build.yml` file. Click the scanner you're using below to expand the example configuration:
+### Configuring your .github/workflows/build.yml file
+This section shows you how to configure your `.github/workflows/build.yml` file. 
+
+You'll set up your build according to your SonarQube edition:
+
+- **Community Edition** – Community Edition doesn't support multiple branches, so you should only analyze your main branch. You can restrict analysis to your main branch by setting it as the only branch in your `on.push.branches` configuration in your workflow YAML file, and not using `on.pull_request`.
+
+- **Developer Edition and above** – GitHub Actions can build specific branches and pull requests if you use `on.push.branches` and `on.pull-requests` configurations as shown in the examples below.
+
+Click the scanner you're using below to expand the example configuration:
 
 [[collapse]]
 | ## SonarScanner for Maven
