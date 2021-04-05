@@ -56,9 +56,11 @@ fi
 
 ### Issue Creation and Synchronization
 
-During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the Main Branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'master' to branch yyy".
+During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the Main Branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'master' to branch 'yyy'".
 
-At each subsequent analysis of the branch, any new issue that comes from a pull request automatically inherits the attributes (type, severity, ...) the issue had in the pull request. A comment is added to the change log of the issue on the branch: "The issue has been merged from 'xxx' into 'yyy'"
+At each subsequent analysis of the branch, any new issue in the Main Branch that comes from a pull request automatically inherits its attributes (type, severity, ...) from the pull request. A comment is added to the change log of the issue on the branch: "The issue has been merged from 'xxx' into 'yyy'"
+
+Issues can be synchronized between branches if you're using the **Reference Branch** [New Code](/project-administration/new-code-period/) definition. When using this New Code definition, any new issue in the reference branch that comes from a feature branch automatically inherits its attributes (type, severity, ...) from the feature branch. A comment is added to the change log of the issue on the branch: "The issue has been merged from 'xxx' into 'yyy'".
 
 ### Fetching full Git history
 
