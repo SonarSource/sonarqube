@@ -11,11 +11,11 @@ SonarScanners running in GitLab CI/CD, Azure Pipelines, Cirrus CI, and Jenkins w
 | Automatic configuration is disabled if any branch or pull request properties have been set manually.
 
 ## Failing a pipeline job when the Quality Gate fails
-If you're using Jenkins or Azure Pipelines, there are specific ways to fail the pipeline when your Quality Gate is failing for your CI tool. For more information, see the corresponding section below.
+If you're using Jenkins, you can suspend pipeline execution until the analysis' Quality Gate status is known. See the [Jenkins](/analysis/jenkins/) integration page.
 
-For other CIs, you can use the `sonar.qualitygate.wait=true` analysis parameter in your configuration file. Using the `sonar.qualitygate.wait` parameter forces the analysis step to poll the SonarQube instance and wait for the Quality Gate status. This increases the pipeline duration and causes the analysis step to fail any time the Quality Gate is failing, even if the actual analysis is successful. You should only use this parameter if it's necessary.
+For other CIs, you can use the `sonar.qualitygate.wait=true` analysis parameter in your configuration file. Setting `sonar.qualitygate.wait` to true forces the analysis step to poll your SonarQube instance until the Quality Gate status is available. This increases the pipeline duration and causes the analysis step to fail any time the Quality Gate fails, even if the actual analysis is successful. You should only use this parameter if it's necessary.
 
-You can set the `sonar.qualitygate.timeout` property to an amount of time (in seconds) that the scanner should wait for a report to be processed. The default is 300 seconds.
+You can set the `sonar.qualitygate.timeout` property to the number of seconds that the scanner should wait for a report to be processed. The default is 300 seconds.
 
 ## GitLab CI/CD
 For GitLab CI/CD configuration, see the [GitLab ALM integration](/analysis/gitlab-integration/) page.

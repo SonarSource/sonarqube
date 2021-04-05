@@ -95,7 +95,7 @@ Key | Description | Default
 Key | Description | Default
 ---|----|---
 `sonar.qualitygate.wait` | Forces the analysis step to poll the SonarQube instance and wait for the Quality Gate status. If there are no other options, you can use this to fail a pipeline build when the Quality Gate is failing. See the [CI Integration](/analysis/branch-pr-analysis-overview/) page for more information. | 
-`sonar.qualitygate.timeout` | Sets the amount of time (in seconds) that the scanner should wait for a report to be processed. | 300
+`sonar.qualitygate.timeout` | Sets the number of seconds that the scanner should wait for a report to be processed. | 300
 
 ### Deprecated
 [[danger]]
