@@ -4,5 +4,6 @@
   "op": "LT",
   "error": "10",
   "warning": "5",
-  "minimumEffectiveLines": 0
+  "minimumEffectiveLines": 0,
+  "onlyIncludeCoverableLines": true
 }

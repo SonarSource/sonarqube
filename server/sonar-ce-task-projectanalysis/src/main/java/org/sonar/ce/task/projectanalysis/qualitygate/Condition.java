@@ -49,13 +49,15 @@ public class Condition {
   private final String errorThreshold;
   private final boolean useVariation;
   private final int minimumEffectiveLines;
+  private final boolean onlyIncludeCoveredLines;
 
-  public Condition(Metric metric, String operator, String errorThreshold, int minimumEffectiveLines) {
+  public Condition(Metric metric, String operator, String errorThreshold, int minimumEffectiveLines, boolean onlyIncludeCoveredLines) {
     this.metric = requireNonNull(metric);
     this.operator = parseFromDbValue(requireNonNull(operator));
     this.useVariation = metric.getKey().startsWith("new_");
     this.errorThreshold = errorThreshold;
     this.minimumEffectiveLines = minimumEffectiveLines;
+    this.onlyIncludeCoveredLines = onlyIncludeCoveredLines;
   }
 
   private static Operator parseFromDbValue(String str) {
@@ -87,6 +89,10 @@ public class Condition {
     return minimumEffectiveLines;
   }
 
+  public boolean isOnlyIncludeCoveredLines() {
+    return onlyIncludeCoveredLines;
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
@@ -111,6 +117,7 @@ public class Condition {
       .add("operator", operator)
       .add("errorThreshold", errorThreshold)
       .add("minimumEffectiveLines", minimumEffectiveLines)
+      .add("onlyIncludeCoveredLines", onlyIncludeCoveredLines)
       .toString();
   }
 }

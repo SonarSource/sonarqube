@@ -58,7 +58,8 @@ public class QualityGateUpdater {
         .setMetricUuid(sourceCondition.getMetricUuid())
         .setOperator(sourceCondition.getOperator())
         .setErrorThreshold(sourceCondition.getErrorThreshold())
-        .setMinimumEffectiveLines(sourceCondition.getMinimumEffectiveLines()),
+        .setMinimumEffectiveLines(sourceCondition.getMinimumEffectiveLines())
+        .setOnlyIncludeCoverableLines(sourceCondition.isOnlyIncludeCoverableLines()),
         dbSession);
     }
 

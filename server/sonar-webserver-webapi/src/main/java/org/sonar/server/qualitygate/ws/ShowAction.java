@@ -72,7 +72,8 @@ public class ShowAction implements QualityGatesWsAction {
         new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
         new Change("7.0", "'isBuiltIn' field is added to the response"),
         new Change("7.0", "'actions' field is added in the response"),
-        new Change("8.9", "'minimumEffectiveLines' field is added in the response"))
+        new Change("8.9", "'minimumEffectiveLines' field is added in the response"),
+        new Change("8.9", "'onlyIncludeCoverableLines' field is added in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
@@ -142,7 +143,8 @@ public class ShowAction implements QualityGatesWsAction {
         .setId(condition.getUuid())
         .setMetric(metric.getKey())
         .setOp(condition.getOperator())
-        .setMinimumEffectiveLines(condition.getMinimumEffectiveLines());
+        .setMinimumEffectiveLines(condition.getMinimumEffectiveLines())
+        .setOnlyIncludeCoverableLines(condition.isOnlyIncludeCoverableLines());
       ofNullable(condition.getErrorThreshold()).ifPresent(builder::setError);
       return builder.build();
     };

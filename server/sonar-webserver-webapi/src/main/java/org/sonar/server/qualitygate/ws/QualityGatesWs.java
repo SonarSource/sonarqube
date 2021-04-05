@@ -34,6 +34,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLE
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ONLY_INCLUDE_COVERABLE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 
 public class QualityGatesWs implements WebService {
@@ -106,6 +107,12 @@ public class QualityGatesWs implements WebService {
       .setRequired(true)
       .setSince("8.9")
       .setExampleValue("10");
+
+    action.createParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES)
+      .setDescription(String.format("Whether '%s' should only take into account lines that can be covered by a test framework", PARAM_MINIMUM_EFFECTIVE_LINES))
+      .setRequired(true)
+      .setSince("8.9")
+      .setExampleValue("false");
   }
 
   private static String getInvalidMetrics() {

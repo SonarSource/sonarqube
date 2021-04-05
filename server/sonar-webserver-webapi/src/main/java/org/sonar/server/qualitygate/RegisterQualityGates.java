@@ -131,7 +131,7 @@ public class RegisterQualityGates implements Startable {
     qgConditionsToBeCreated.removeAll(qualityGateConditions);
     qgConditionsToBeCreated
       .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(),
-        qgc.getErrorThreshold(), qgc.getMinimumEffectiveLines()));
+        qgc.getErrorThreshold(), qgc.getMinimumEffectiveLines(), qgc.isOnlyIncludeCoverableLines()));
 
     if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
       LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
@@ -158,6 +158,7 @@ public class RegisterQualityGates implements Startable {
     private String operator;
     private String errorThreshold;
     private int minimumEffectiveLines;
+    private boolean onlyIncludeCoverableLines;
 
     public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<String, String> mapping) {
       return new QualityGateCondition()
@@ -165,7 +166,8 @@ public class RegisterQualityGates implements Startable {
         .setMetricKey(mapping.get(qualityGateConditionDto.getMetricUuid()))
         .setOperator(qualityGateConditionDto.getOperator())
         .setErrorThreshold(qualityGateConditionDto.getErrorThreshold())
-        .setMinimumEffectiveLines(qualityGateConditionDto.getMinimumEffectiveLines());
+        .setMinimumEffectiveLines(qualityGateConditionDto.getMinimumEffectiveLines())
+        .setOnlyIncludeCoverableLines(qualityGateConditionDto.isOnlyIncludeCoverableLines());
     }
 
     @CheckForNull
@@ -214,6 +216,15 @@ public class RegisterQualityGates implements Startable {
       return this;
     }
 
+    public boolean isOnlyIncludeCoverableLines() {
+      return onlyIncludeCoverableLines;
+    }
+
+    public QualityGateCondition setOnlyIncludeCoverableLines(boolean onlyIncludeCoverableLines) {
+      this.onlyIncludeCoverableLines = onlyIncludeCoverableLines;
+      return this;
+    }
+
     public QualityGateConditionDto toQualityGateDto(String qualityGateUuid) {
       return new QualityGateConditionDto()
         .setUuid(uuid)
@@ -221,7 +232,8 @@ public class RegisterQualityGates implements Startable {
         .setOperator(operator)
         .setErrorThreshold(errorThreshold)
         .setQualityGateUuid(qualityGateUuid)
-        .setMinimumEffectiveLines(minimumEffectiveLines);
+        .setMinimumEffectiveLines(minimumEffectiveLines)
+        .setOnlyIncludeCoverableLines(onlyIncludeCoverableLines);
     }
 
     // id does not belongs to equals to be able to be compared with builtin
@@ -244,5 +256,6 @@ public class RegisterQualityGates implements Startable {
     public int hashCode() {
       return Objects.hash(metricKey, operator, errorThreshold);
     }
+
   }
 }

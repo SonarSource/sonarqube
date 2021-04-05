@@ -29,6 +29,7 @@ import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
 import MinimumEffectiveLinesInput from './MinimumEffectiveLinesInput';
+import OnlyIncludeCoverableLinesInput from './OnlyIncludeCoverableLinesInput';
 
 interface Props {
   condition?: T.Condition;
@@ -47,6 +48,7 @@ interface State {
   op?: string;
   scope: 'new' | 'overall';
   minimumEffectiveLines: string;
+  onlyIncludeCoverableLines: boolean;
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
@@ -57,7 +59,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       scope: 'new',
       metric: props.metric ? props.metric : undefined,
       op: props.condition ? props.condition.op : undefined,
-      minimumEffectiveLines: props.condition ? props.condition.minimumEffectiveLines : ''
+      minimumEffectiveLines: props.condition ? props.condition.minimumEffectiveLines : '',
+      onlyIncludeCoverableLines: props.condition ? props.condition.onlyIncludeCoverableLines : false
     };
   }
 
@@ -73,7 +76,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         metric: this.state.metric.key,
         op: this.getSinglePossibleOperator(this.state.metric) || this.state.op,
         error: this.state.error,
-        minimumEffectiveLines: this.state.minimumEffectiveLines
+        minimumEffectiveLines: this.state.minimumEffectiveLines,
+        onlyIncludeCoverableLines: this.state.onlyIncludeCoverableLines
       };
       const submitPromise = condition
         ? updateCondition({ id: condition.id, ...newCondition })
@@ -110,13 +114,24 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ minimumEffectiveLines });
   };
 
+  handleOnlyIncludeCoverableLinesChange = (onlyIncludeCoverableLines: boolean) => {
+    this.setState({ onlyIncludeCoverableLines });
+  };
+
   handleErrorChange = (error: string) => {
     this.setState({ error });
   };
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { op, error, scope, metric, minimumEffectiveLines } = this.state;
+    const {
+      op,
+      error,
+      scope,
+      metric,
+      minimumEffectiveLines,
+      onlyIncludeCoverableLines
+    } = this.state;
     return (
       <ConfirmModal
         confirmButtonText={header}
@@ -194,6 +209,15 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               <MinimumEffectiveLinesInput
                 minimumEffectiveLines={minimumEffectiveLines}
                 onChange={this.handleMinimumEffectiveLinesChange}
+              />
+            </div>
+            <div className="modal-field display-inline-block spacer-left">
+              <label htmlFor="condition-only-coverable-lines">
+                {translate('quality_gates.conditions.only_coverable_lines')}
+              </label>
+              <OnlyIncludeCoverableLinesInput
+                onlyIncludeCoverableLines={onlyIncludeCoverableLines}
+                onChange={this.handleOnlyIncludeCoverableLinesChange}
               />
             </div>
           </>

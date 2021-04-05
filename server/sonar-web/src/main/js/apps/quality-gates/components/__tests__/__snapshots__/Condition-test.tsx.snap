@@ -24,6 +24,11 @@ exports[`should render correctly: default 1`] = `
   >
     1
   </td>
+  <td
+    className="text-middle nowrap"
+  >
+    no
+  </td>
 </tr>
 `;
 
@@ -51,6 +56,11 @@ exports[`should render correctly: updated 1`] = `
   >
     1
   </td>
+  <td
+    className="text-middle nowrap"
+  >
+    no
+  </td>
 </tr>
 `;
 
@@ -77,6 +87,11 @@ exports[`should render correctly: with edit rights 1`] = `
     className="text-middle nowrap"
   >
     1
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    no
   </td>
   <td
     className="text-center thin"
@@ -122,6 +137,11 @@ exports[`should render the delete modal correctly 1`] = `
     1
   </td>
   <td
+    className="text-middle nowrap"
+  >
+    no
+  </td>
+  <td
     className="text-center thin"
   >
     <EditButton
@@ -145,6 +165,7 @@ exports[`should render the delete modal correctly 1`] = `
         "id": 1,
         "metric": "coverage",
         "minimumEffectiveLines": "1",
+        "onlyIncludeCoverableLines": false,
         "op": "LT",
       }
     }
@@ -183,6 +204,11 @@ exports[`should render the update modal correctly 1`] = `
     1
   </td>
   <td
+    className="text-middle nowrap"
+  >
+    no
+  </td>
+  <td
     className="text-center thin"
   >
     <EditButton
@@ -205,6 +231,7 @@ exports[`should render the update modal correctly 1`] = `
         "id": 1,
         "metric": "coverage",
         "minimumEffectiveLines": "1",
+        "onlyIncludeCoverableLines": false,
         "op": "LT",
       }
     }

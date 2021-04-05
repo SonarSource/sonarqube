@@ -44,12 +44,12 @@ public class ConditionTest {
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_metric_argument() {
-    new Condition(null, SOME_OPERATOR, null, 0);
+    new Condition(null, SOME_OPERATOR, null, 0, false);
   }
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_operator_argument() {
-    new Condition(SOME_METRIC, null, null, 0);
+    new Condition(SOME_METRIC, null, null, 0, false);
   }
 
   @Test
@@ -57,27 +57,28 @@ public class ConditionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported operator value: 'troloto'");
 
-    new Condition(SOME_METRIC, "troloto", null, 0);
+    new Condition(SOME_METRIC, "troloto", null, 0, false);
   }
 
   @Test
   public void verify_getters() {
     String error = "error threshold";
 
-    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, 123);
+    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, 123, true);
 
     assertThat(condition.getMetric()).isSameAs(SOME_METRIC);
     assertThat(condition.getOperator()).isSameAs(Condition.Operator.LESS_THAN);
     assertThat(condition.getErrorThreshold()).isEqualTo(error);
     assertThat(condition.getMinimumEffectiveLines()).isEqualTo(123);
+    assertThat(condition.isOnlyIncludeCoveredLines()).isTrue();
   }
 
   @Test
   public void all_fields_are_displayed_in_toString() {
     when(SOME_METRIC.toString()).thenReturn("metric1");
 
-    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", 123).toString())
-      .isEqualTo("Condition{metric=metric1, operator=LESS_THAN, errorThreshold=error_l, minimumEffectiveLines=123}");
+    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", 123, false).toString())
+      .isEqualTo("Condition{metric=metric1, operator=LESS_THAN, errorThreshold=error_l, minimumEffectiveLines=123, onlyIncludeCoveredLines=false}");
 
   }
 

@@ -52,6 +52,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ONLY_INCLUDE_COVERABLE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 
 @RunWith(DataProviderRunner.class)
@@ -87,9 +88,10 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "99")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", 99);
+    assertCondition(qualityGate, metric, "LT", "90", 99, false);
   }
 
   @Test
@@ -98,7 +100,7 @@ public class UpdateConditionActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setErrorThreshold("80"));
+      c -> c.setOperator("GT").setErrorThreshold("80").setMinimumEffectiveLines(1).setOnlyIncludeCoverableLines(true));
 
     CreateConditionResponse response = ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
@@ -106,6 +108,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "45")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "10")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .executeProtobuf(CreateConditionResponse.class);
 
     assertThat(response.getId()).isEqualTo(condition.getUuid());
@@ -113,6 +116,7 @@ public class UpdateConditionActionTest {
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getError()).isEqualTo("45");
     assertThat(response.getMinimumEffectiveLines()).isEqualTo(10);
+    assertThat(response.getOnlyIncludeCoverableLines()).isTrue();
   }
 
   @Test
@@ -131,6 +135,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "10")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "99")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -150,6 +155,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "8")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -172,6 +178,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "1")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -192,6 +199,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "1")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -213,6 +221,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, updateOperator)
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "0")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -232,6 +241,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "123")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
   }
 
@@ -249,7 +259,8 @@ public class UpdateConditionActionTest {
         tuple("metric", true),
         tuple("error", true),
         tuple("op", false),
-        tuple("minimumEffectiveLines", true));
+        tuple("minimumEffectiveLines", true),
+        tuple("onlyIncludeCoverableLines", true));
   }
 
   @DataProvider
@@ -260,11 +271,11 @@ public class UpdateConditionActionTest {
     };
   }
 
-  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error, int minimumEffectiveLines) {
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error, int minimumEffectiveLines, boolean onlyIncludeCoverableLines) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid()))
       .extracting(QualityGateConditionDto::getQualityGateUuid, QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getMinimumEffectiveLines)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getUuid(), metric.getUuid(), operator, error, minimumEffectiveLines));
+        QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getMinimumEffectiveLines, QualityGateConditionDto::isOnlyIncludeCoverableLines)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getUuid(), metric.getUuid(), operator, error, minimumEffectiveLines, onlyIncludeCoverableLines));
   }
 
   private MetricDto insertMetric() {

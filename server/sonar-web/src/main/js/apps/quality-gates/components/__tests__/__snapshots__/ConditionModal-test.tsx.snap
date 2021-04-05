@@ -373,5 +373,18 @@ exports[`should render correctly 2`] = `
       onChange={[Function]}
     />
   </div>
+  <div
+    className="modal-field display-inline-block spacer-left"
+  >
+    <label
+      htmlFor="condition-only-coverable-lines"
+    >
+      quality_gates.conditions.only_coverable_lines
+    </label>
+    <OnlyIncludeCoverableLinesInput
+      onChange={[Function]}
+      onlyIncludeCoverableLines={false}
+    />
+  </div>
 </ConfirmModal>
 `;

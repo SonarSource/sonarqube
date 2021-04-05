@@ -28,6 +28,9 @@ public class DbVersion89 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry.add(4400, "Add column 'minimum_effective_lines' to 'change_set_condition", AddMinimumEffectiveLinesColumnToQualityGateConditionsTable.class)
       .add(4401, "Set default values in 'minimum_effective_lines' to 'change_set_condition", PopulateQualityGateConditionsMinimumEffectiveLinesDefaultValue.class)
-      .add(4402, "Make column 'minimum_effective_lines' in 'change_set_condition not nullable", MakeMinimumEffectiveLinesColumnInQualityGateConditionsTableNonNullable.class);
+      .add(4402, "Make column 'minimum_effective_lines' in 'change_set_condition not nullable", MakeMinimumEffectiveLinesColumnInQualityGateConditionsTableNonNullable.class)
+      .add(4403, "Add column 'only_coverable_lines' to 'change_set_condition", AddOnlyCoverableLinesColumnToQualityGateConditionsTable.class)
+      .add(4404, "Set default values in 'only_coverable_lines' of 'change_set_condition", PopulateQualityGateConditionsOnlyCoverableLinesDefaultValue.class)
+      .add(4405, "Make column 'only_coverable_lines' in 'change_set_condition' not nullable", MakeOnlyCoverableLinesColumnInQualityGateConditionsTableNonNullable.class);
   }
 }

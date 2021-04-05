@@ -306,6 +306,7 @@ export function mockCondition(overrides: Partial<T.Condition> = {}): T.Condition
     metric: 'coverage',
     op: 'LT',
     minimumEffectiveLines: '1',
+    onlyIncludeCoverableLines: false,
     ...overrides
   };
 }

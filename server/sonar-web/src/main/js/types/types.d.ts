@@ -180,6 +180,7 @@ declare namespace T {
     metric: string;
     op?: string;
     minimumEffectiveLines: string;
+    onlyIncludeCoverableLines: boolean;
   }
 
   export interface CoveredFile {

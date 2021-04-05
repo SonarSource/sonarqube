@@ -7,14 +7,16 @@
       "metric": "blocker_violations",
       "op": "GT",
       "error": "0",
-      "minimumEffectiveLines": 10
+      "minimumEffectiveLines": 10,
+      "onlyIncludeCoverableLines": true
     },
     {
       "id": "AU-Tpxb--iU5OvuD2FLz",
       "metric": "tests",
       "op": "LT",
       "error": "10",
-      "minimumEffectiveLines": 0
+      "minimumEffectiveLines": 0,
+      "onlyIncludeCoverableLines": false
     }
   ],
   "isBuiltIn": false,

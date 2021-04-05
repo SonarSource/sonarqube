@@ -35,7 +35,7 @@ public class EvaluatedConditionTest {
     when(SOME_METRIC.getKey()).thenReturn("dummy key");
   }
   private static final Condition SOME_CONDITION = new Condition(SOME_METRIC, Condition.Operator.LESS_THAN.getDbValue(), "1",
-                                                                0);
+                                                                0, true);
   private static final Measure.Level SOME_LEVEL = Measure.Level.OK;
   private static final String SOME_VALUE = "some value";
 

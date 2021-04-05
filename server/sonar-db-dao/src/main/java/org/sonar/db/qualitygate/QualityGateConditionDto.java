@@ -49,6 +49,8 @@ public class QualityGateConditionDto {
 
   private int minimumEffectiveLines;
 
+  private boolean onlyIncludeCoverableLines;
+
   public String getUuid() {
     return uuid;
   }
@@ -128,6 +130,15 @@ public class QualityGateConditionDto {
 
   public QualityGateConditionDto setMinimumEffectiveLines(int minimumEffectiveLines) {
     this.minimumEffectiveLines = minimumEffectiveLines;
+    return this;
+  }
+
+  public boolean isOnlyIncludeCoverableLines() {
+    return onlyIncludeCoverableLines;
+  }
+
+  public QualityGateConditionDto setOnlyIncludeCoverableLines(boolean onlyIncludeCoverableLines) {
+    this.onlyIncludeCoverableLines = onlyIncludeCoverableLines;
     return this;
   }
 }

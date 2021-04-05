@@ -38,6 +38,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GAT
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ONLY_INCLUDE_COVERABLE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -67,7 +68,8 @@ public class CreateConditionAction implements QualityGatesWsAction {
         new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"),
         new Change("8.4", "Parameter 'gateName' added"),
         new Change("8.4", "Parameter 'gateId' is deprecated. Use 'gateName' instead."),
-        new Change("8.9", "Added 'minimumEffectiveLines' parameter to control the minimum change-set size must be before the condition is applied"))
+        new Change("8.9", "Added 'minimumEffectiveLines' parameter to control the minimum change-set size must be before the condition is applied"),
+        new Change("8.9", "Added 'onlyIncludeCoverableLines' parameter to control the lines bing included in 'minimumEffectiveLines'"))
       .setHandler(this);
 
     createCondition
@@ -94,6 +96,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
     int minimumLines = request.mandatoryParamAsInt(PARAM_MINIMUM_EFFECTIVE_LINES);
+    boolean onlyIncludeCoverableLines = request.mandatoryParamAsBoolean(PARAM_ONLY_INCLUDE_COVERABLE_LINES);
     checkArgument(gateName != null ^ gateUuid != null, "One of 'gateId' or 'gateName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -104,13 +107,14 @@ public class CreateConditionAction implements QualityGatesWsAction {
         qualityGate = wsSupport.getByName(dbSession, gateName);
       }
       wsSupport.checkCanEdit(qualityGate);
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error, minimumLines);
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error, minimumLines, onlyIncludeCoverableLines);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getUuid())
         .setMetric(condition.getMetricKey())
         .setError(condition.getErrorThreshold())
         .setOp(condition.getOperator())
-        .setMinimumEffectiveLines(condition.getMinimumEffectiveLines());
+        .setMinimumEffectiveLines(condition.getMinimumEffectiveLines())
+        .setOnlyIncludeCoverableLines(condition.isOnlyIncludeCoverableLines());
       writeProtobuf(createConditionResponse.build(), request, response);
       dbSession.commit();
     }

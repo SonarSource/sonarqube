@@ -170,6 +170,12 @@ public class QualityGateMeasuresStep implements ComputationStep {
       .map(Measure::getVariation)
       .orElse(0d);
 
+    final double changedCoverableLines = measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_TO_COVER_KEY))
+      .filter(Measure::hasVariation)
+      .map(Measure::getVariation)
+      .orElse(0d);
+
+
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
       Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
@@ -178,9 +184,11 @@ public class QualityGateMeasuresStep implements ComputationStep {
       }
 
       final MetricEvaluationResult metricEvaluationResult = evaluateQualityGate(measure.get(), entry.getValue());
+      final double targetValue = metricEvaluationResult.condition.isOnlyIncludeCoveredLines() ? changedCoverableLines : changedLines;
+
       final MetricEvaluationResult finalMetricEvaluationResult;
 
-      if (changedLines < metricEvaluationResult.condition.getMinimumEffectiveLines()) {
+      if (targetValue < metricEvaluationResult.condition.getMinimumEffectiveLines()) {
         finalMetricEvaluationResult = new MetricEvaluationResult(
                 new EvaluationResult(Measure.Level.OK, metricEvaluationResult.evaluationResult.getValue()), metricEvaluationResult.condition);
         ignoredConditions = true;

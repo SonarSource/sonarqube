@@ -87,7 +87,7 @@ public class QualityGateConditionsUpdater {
   }
 
   public QualityGateConditionDto createCondition(DbSession dbSession, QualityGateDto qualityGate, String metricKey, String operator,
-    String errorThreshold, int minimumEffectiveLines) {
+    String errorThreshold, int minimumEffectiveLines, boolean onlyIncludeCoverableLines) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, errorThreshold);
     checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getUuid()), metric);
@@ -97,13 +97,14 @@ public class QualityGateConditionsUpdater {
       .setMetricUuid(metric.getUuid()).setMetricKey(metric.getKey())
       .setOperator(operator)
       .setErrorThreshold(errorThreshold)
-      .setMinimumEffectiveLines(minimumEffectiveLines);
+      .setMinimumEffectiveLines(minimumEffectiveLines)
+      .setOnlyIncludeCoverableLines(onlyIncludeCoverableLines);
     dbClient.gateConditionDao().insert(newCondition, dbSession);
     return newCondition;
   }
 
   public QualityGateConditionDto updateCondition(DbSession dbSession, QualityGateConditionDto condition, String metricKey, String operator,
-    String errorThreshold, int minimumEffectiveLines) {
+    String errorThreshold, int minimumEffectiveLines, boolean onlyIncludeCoverableLines) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, errorThreshold);
 
@@ -112,7 +113,8 @@ public class QualityGateConditionsUpdater {
       .setMetricKey(metric.getKey())
       .setOperator(operator)
       .setErrorThreshold(errorThreshold)
-      .setMinimumEffectiveLines(minimumEffectiveLines);
+      .setMinimumEffectiveLines(minimumEffectiveLines)
+      .setOnlyIncludeCoverableLines(onlyIncludeCoverableLines);
     dbClient.gateConditionDao().update(condition, dbSession);
     return condition;
   }

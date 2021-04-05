@@ -51,6 +51,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ONLY_INCLUDE_COVERABLE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 
 @RunWith(DataProviderRunner.class)
@@ -84,9 +85,10 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "10")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", 10);
+    assertCondition(qualityGate, metric, "LT", "90", 10, true);
   }
 
   @Test
@@ -101,9 +103,10 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "123")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "false")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", 123);
+    assertCondition(qualityGate, metric, "LT", "90", 123, false);
   }
 
   @Test
@@ -121,6 +124,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "0")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .execute();
   }
 
@@ -139,6 +143,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "1")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .execute();
   }
 
@@ -158,6 +163,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, operator)
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "1")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .execute();
   }
 
@@ -173,6 +179,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "45")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "1")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .executeProtobuf(CreateConditionResponse.class);
 
     QualityGateConditionDto condition = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid())).get(0);
@@ -181,6 +188,7 @@ public class CreateConditionActionTest {
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getError()).isEqualTo("45");
     assertThat(response.getMinimumEffectiveLines()).isEqualTo(1);
+    assertThat(response.getOnlyIncludeCoverableLines()).isTrue();
   }
 
   @Test
@@ -198,6 +206,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
       .setParam(PARAM_MINIMUM_EFFECTIVE_LINES, "101")
+      .setParam(PARAM_ONLY_INCLUDE_COVERABLE_LINES, "true")
       .execute();
   }
 
@@ -216,7 +225,8 @@ public class CreateConditionActionTest {
         tuple("metric", true),
         tuple("error", true),
         tuple("op", false),
-        tuple("minimumEffectiveLines", true));
+        tuple("minimumEffectiveLines", true),
+        tuple("onlyIncludeCoverableLines", true));
   }
 
   @DataProvider
@@ -227,11 +237,11 @@ public class CreateConditionActionTest {
     };
   }
 
-  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error, int minimumEffectiveLines) {
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error, int minimumEffectiveLines, boolean onlyIncludeCoverableLines) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid()))
       .extracting(QualityGateConditionDto::getQualityGateUuid, QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getMinimumEffectiveLines)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getUuid(), metric.getUuid(), operator, error, minimumEffectiveLines));
+        QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getMinimumEffectiveLines, QualityGateConditionDto::isOnlyIncludeCoverableLines)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getUuid(), metric.getUuid(), operator, error, minimumEffectiveLines, onlyIncludeCoverableLines));
   }
 
   private void logInAsQualityGateAdmin() {

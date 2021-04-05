@@ -4,13 +4,13 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
 
   <insert id="insert" parameterType="QualityGateCondition">
-    insert into quality_gate_conditions (uuid, qgate_uuid, metric_uuid, operator, value_error, created_at, updated_at, minimum_effective_lines)
-    values (#{uuid}, #{qualityGateUuid}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt}, #{minimumEffectiveLines})
+    insert into quality_gate_conditions (uuid, qgate_uuid, metric_uuid, operator, value_error, created_at, updated_at, minimum_effective_lines, only_coverable_lines)
+    values (#{uuid}, #{qualityGateUuid}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt}, #{minimumEffectiveLines}, #{onlyIncludeCoverableLines})
   </insert>
 
   <sql id="conditionColumns">
     uuid, qgate_uuid as qualityGateUuid, metric_uuid as metricUuid, operator, value_error as errorThreshold,
-    created_at as createdAt, updated_at as updatedAt, minimum_effective_lines as minimumEffectiveLines
+    created_at as createdAt, updated_at as updatedAt, minimum_effective_lines as minimumEffectiveLines, only_coverable_lines as onlyIncludeCoverableLines
   </sql>
 
   <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="String">
@@ -36,7 +36,8 @@
     operator=#{operator},
     value_error=#{errorThreshold},
     updated_at=#{updatedAt},
-    minimum_effective_lines=#{minimumEffectiveLines}
+    minimum_effective_lines=#{minimumEffectiveLines},
+    only_coverable_lines=#{onlyIncludeCoverableLines}
     where uuid=#{uuid}
   </update>
 

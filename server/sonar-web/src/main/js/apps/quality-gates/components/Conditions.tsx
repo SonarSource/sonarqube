@@ -72,6 +72,7 @@ export class Conditions extends React.PureComponent<Props> {
             <th className="nowrap">
               {translate('quality_gates.conditions.minimum_effective_lines')}
             </th>
+            <th className="nowrap">{translate('quality_gates.conditions.only_coverable_lines')}</th>
             {canEdit && (
               <>
                 <th className="thin">{translate('edit')}</th>

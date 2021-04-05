@@ -60,11 +60,15 @@ Each Quality Gate condition is a combination of:
 * a measure
 * a comparison operator
 * an error value
+* the minimum changed lines for the condition to be executed
+* the type of lines to include when calculating minimum lines
 
 For instance, a condition might be:
 
 * measure: Blocker issue
 * comparison operator: >
 * error value: 0
+* minimum lines: 20
+* coverable lines: true
 
-Which can be stated as: No blocker issues.
+Which can be stated as: No blocker issues where the changeset is 20 or more lines that could be covered by tests.

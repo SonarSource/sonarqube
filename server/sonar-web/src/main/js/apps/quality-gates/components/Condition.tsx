@@ -107,6 +107,10 @@ export default class Condition extends React.PureComponent<Props, State> {
 
         <td className="text-middle nowrap">{condition.minimumEffectiveLines}</td>
 
+        <td className="text-middle nowrap">
+          {translate(condition.onlyIncludeCoverableLines ? 'yes' : 'no')}
+        </td>
+
         {canEdit && (
           <>
             <td className="text-center thin">

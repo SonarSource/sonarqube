@@ -38,6 +38,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MINIMUM_EFFECTIVE_LINES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ONLY_INCLUDE_COVERABLE_LINES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -65,7 +66,8 @@ public class UpdateConditionAction implements QualityGatesWsAction {
         new Change("7.6", "Removed optional 'warning' and 'period' parameters"),
         new Change("7.6", "Made 'error' parameter mandatory"),
         new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"),
-        new Change("8.9", "Added 'minimumEffectiveLines' parameter to control the minimum size a change-set must be before the condition is applied by the Quality Gate"))
+        new Change("8.9", "Added 'minimumEffectiveLines' parameter to control the minimum size a change-set must be before the condition is applied by the Quality Gate"),
+        new Change("8.9", "Added 'onlyIncludeCoverableLines' parameter to control whether non-code changes should be included in the 'minimumEffectiveLines' comparison"))
       .setHandler(this);
 
     createCondition
@@ -84,19 +86,21 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
     int minimumLines = request.mandatoryParamAsInt(PARAM_MINIMUM_EFFECTIVE_LINES);
+    boolean onlyIncludeCoverableLines = request.mandatoryParamAsBoolean(PARAM_ONLY_INCLUDE_COVERABLE_LINES);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByUuid(dbSession, condition.getQualityGateUuid());
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateUuid());
       wsSupport.checkCanEdit(qualityGateDto);
-      QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error, minimumLines);
+      QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error, minimumLines, onlyIncludeCoverableLines);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
         .setId(updatedCondition.getUuid())
         .setMetric(updatedCondition.getMetricKey())
         .setError(updatedCondition.getErrorThreshold())
         .setOp(updatedCondition.getOperator())
-        .setMinimumEffectiveLines(updatedCondition.getMinimumEffectiveLines());
+        .setMinimumEffectiveLines(updatedCondition.getMinimumEffectiveLines())
+        .setOnlyIncludeCoverableLines(updatedCondition.isOnlyIncludeCoverableLines());
       writeProtobuf(updateConditionResponse.build(), request, response);
       dbSession.commit();
     }
