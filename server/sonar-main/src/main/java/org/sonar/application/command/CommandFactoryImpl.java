@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.Version;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsLogging;
 import org.sonar.application.es.EsSettings;
@@ -32,8 +34,6 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
-import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
-import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
@@ -50,8 +50,10 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_ADDITIONA
 import static org.sonar.process.ProcessProperties.Property.SEARCH_JAVA_OPTS;
 import static org.sonar.process.ProcessProperties.Property.SOCKS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.SOCKS_PROXY_PORT;
+import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class CommandFactoryImpl implements CommandFactory {
   private static final String ENV_VAR_JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
@@ -69,6 +71,7 @@ public class CommandFactoryImpl implements CommandFactory {
     SOCKS_PROXY_HOST.getKey(),
     SOCKS_PROXY_PORT.getKey()};
 
+  private static final Version SQ_VERSION = MetadataLoader.loadVersion(org.sonar.api.utils.System2.INSTANCE);
   private final Props props;
   private final File tempDir;
   private final System2 system2;
@@ -166,7 +169,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEnvVariable(PATH_LOGS.getKey(), props.nonNullValue(PATH_LOGS.getKey()))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
       .setClassName("org.sonar.server.app.WebServer")
-      .addClasspath("./lib/common/*");
+      .addClasspath("./lib/sonar-application-" + SQ_VERSION + ".jar");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);
@@ -190,7 +193,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setJvmOptions(jvmOptions)
       .setGracefulStopTimeoutMs(getGracefulStopTimeoutMs(props, CE_GRACEFUL_STOP_TIMEOUT))
       .setClassName("org.sonar.ce.app.CeServer")
-      .addClasspath("./lib/common/*");
+      .addClasspath("./lib/sonar-application-" + SQ_VERSION + ".jar");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
     if (driverPath != null) {
       command.addClasspath(driverPath);

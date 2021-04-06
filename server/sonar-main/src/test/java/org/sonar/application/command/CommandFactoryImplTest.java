@@ -224,8 +224,7 @@ public class CommandFactoryImplTest {
 
     assertThat(command.getClassName()).isEqualTo("org.sonar.server.app.WebServer");
     assertThat(command.getWorkDir().getAbsolutePath()).isEqualTo(homeDir.getAbsolutePath());
-    assertThat(command.getClasspath())
-      .containsExactly("./lib/common/*");
+    assertThat(command.getClasspath()).hasSize(1).allMatch(p -> p.toString().startsWith("./lib/sonar-application-"));
     assertThat(command.getJvmOptions().getAll())
       // enforced values
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
@@ -249,8 +248,7 @@ public class CommandFactoryImplTest {
 
     assertThat(command.getClassName()).isEqualTo("org.sonar.ce.app.CeServer");
     assertThat(command.getWorkDir().getAbsolutePath()).isEqualTo(homeDir.getAbsolutePath());
-    assertThat(command.getClasspath())
-      .containsExactly("./lib/common/*");
+    assertThat(command.getClasspath()).hasSize(1).allMatch(p -> p.toString().startsWith("./lib/sonar-application-"));
     assertThat(command.getJvmOptions().getAll())
       // enforced values
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
@@ -298,9 +296,9 @@ public class CommandFactoryImplTest {
     props.setProperty("sonar.jdbc.driverPath", driverFile.getAbsolutePath());
 
     JavaCommand command = newFactory(props).createWebCommand(true);
-
-    assertThat(command.getClasspath())
-      .containsExactlyInAnyOrder("./lib/common/*", driverFile.getAbsolutePath());
+    assertThat(command.getClasspath()).hasSize(2);
+    assertThat(command.getClasspath().get(0).toString()).startsWith("./lib/sonar-application-");
+    assertThat(command.getClasspath().get(1)).isEqualTo(driverFile.getAbsolutePath());
   }
 
   private void prepareEsFileSystem() throws IOException {
