@@ -89,7 +89,11 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
         ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
         : undefined;
 
-    if (locations.length > 0) {
+    const startLines = locations.map(l => l.textRange.startLine);
+    const showCrossComponentSourceViewer =
+      startLines.length > 0 ? Math.max(...startLines) !== Math.min(...startLines) : false;
+
+    if (showCrossComponentSourceViewer) {
       return (
         <div ref={node => (this.node = node)}>
           <CrossComponentSourceViewer

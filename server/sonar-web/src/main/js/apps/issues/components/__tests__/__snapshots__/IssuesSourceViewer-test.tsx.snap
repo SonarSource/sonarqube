@@ -35,39 +35,9 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
               "component": "main.js",
               "index": 1,
               "textRange": Object {
-                "endLine": 2,
+                "endLine": 12,
                 "endOffset": 2,
-                "startLine": 1,
-                "startOffset": 1,
-              },
-            },
-            Object {
-              "component": "main.js",
-              "index": 2,
-              "textRange": Object {
-                "endLine": 2,
-                "endOffset": 2,
-                "startLine": 1,
-                "startOffset": 1,
-              },
-            },
-          ],
-          Array [
-            Object {
-              "component": "main.js",
-              "textRange": Object {
-                "endLine": 2,
-                "endOffset": 2,
-                "startLine": 1,
-                "startOffset": 1,
-              },
-            },
-            Object {
-              "component": "main.js",
-              "textRange": Object {
-                "endLine": 2,
-                "endOffset": 2,
-                "startLine": 1,
+                "startLine": 10,
                 "startOffset": 1,
               },
             },
@@ -232,6 +202,55 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
           "component": "main.js",
           "index": 1,
           "textRange": Object {
+            "endLine": 12,
+            "endOffset": 2,
+            "startLine": 10,
+            "startOffset": 1,
+          },
+        },
+      ]
+    }
+    onIssueChange={[MockFunction]}
+    onLoaded={[Function]}
+    onLocationSelect={[MockFunction]}
+    scroll={[Function]}
+  />
+</div>
+`;
+
+exports[`should render SourceViewer correctly: all secondary locations on same line 1`] = `
+<div>
+  <SourceViewer
+    aroundLine={26}
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component="main.js"
+    displayAllIssues={true}
+    displayIssueLocationsCount={true}
+    displayIssueLocationsLink={false}
+    displayLocationMarkers={false}
+    highlightedLocations={
+      Array [
+        Object {
+          "component": "main.js",
+          "index": 0,
+          "textRange": Object {
+            "endLine": 2,
+            "endOffset": 2,
+            "startLine": 1,
+            "startOffset": 1,
+          },
+        },
+        Object {
+          "component": "main.js",
+          "index": 1,
+          "textRange": Object {
             "endLine": 2,
             "endOffset": 2,
             "startLine": 1,
@@ -250,15 +269,19 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
         },
       ]
     }
+    loadIssues={[MockFunction]}
     onIssueChange={[MockFunction]}
+    onIssueSelect={[MockFunction]}
     onLoaded={[Function]}
     onLocationSelect={[MockFunction]}
     scroll={[Function]}
+    selectedIssue="AVsae-CQS-9G3txfbFN2"
+    slimHeader={true}
   />
 </div>
 `;
 
-exports[`should render SourceViewer correctly 1`] = `
+exports[`should render SourceViewer correctly: default 1`] = `
 <div>
   <SourceViewer
     aroundLine={26}
@@ -276,6 +299,49 @@ exports[`should render SourceViewer correctly 1`] = `
     displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     highlightedLocations={Array []}
+    loadIssues={[MockFunction]}
+    onIssueChange={[MockFunction]}
+    onIssueSelect={[MockFunction]}
+    onLoaded={[Function]}
+    onLocationSelect={[MockFunction]}
+    scroll={[Function]}
+    selectedIssue="AVsae-CQS-9G3txfbFN2"
+    slimHeader={true}
+  />
+</div>
+`;
+
+exports[`should render SourceViewer correctly: single secondary location 1`] = `
+<div>
+  <SourceViewer
+    aroundLine={26}
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component="main.js"
+    displayAllIssues={true}
+    displayIssueLocationsCount={true}
+    displayIssueLocationsLink={false}
+    displayLocationMarkers={false}
+    highlightedLocations={
+      Array [
+        Object {
+          "component": "main.js",
+          "index": 0,
+          "textRange": Object {
+            "endLine": 2,
+            "endOffset": 2,
+            "startLine": 1,
+            "startOffset": 1,
+          },
+        },
+      ]
+    }
     loadIssues={[MockFunction]}
     onIssueChange={[MockFunction]}
     onIssueSelect={[MockFunction]}

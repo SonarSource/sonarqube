@@ -20,16 +20,47 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockIssue } from '../../../../helpers/testMocks';
+import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import IssuesSourceViewer from '../IssuesSourceViewer';
 
 it('should render SourceViewer correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({
+      issues: [mockIssue(true)],
+      openIssue: mockIssue(true, { flows: [[mockFlowLocation()]] })
+    })
+  ).toMatchSnapshot('single secondary location');
+  expect(
+    shallowRender({
+      issues: [mockIssue(true)],
+      openIssue: mockIssue(true, {
+        flows: [[mockFlowLocation(), mockFlowLocation(), mockFlowLocation()]]
+      })
+    })
+  ).toMatchSnapshot('all secondary locations on same line');
 });
 
 it('should render CrossComponentSourceViewer correctly', () => {
   expect(
-    shallowRender({ issues: [mockIssue(true)], openIssue: mockIssue(true) })
+    shallowRender({
+      issues: [mockIssue(true)],
+      openIssue: mockIssue(true, {
+        flows: [
+          [
+            mockFlowLocation(),
+            mockFlowLocation({
+              textRange: {
+                startLine: 10,
+                startOffset: 1,
+                endLine: 12,
+                endOffset: 2
+              }
+            })
+          ]
+        ]
+      })
+    })
   ).toMatchSnapshot();
 });
 
