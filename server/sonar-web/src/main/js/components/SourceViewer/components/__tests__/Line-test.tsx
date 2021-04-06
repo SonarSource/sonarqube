@@ -98,6 +98,7 @@ function shallowRender(props: Partial<Line['props']> = {}) {
       displayLocationMarkers={false}
       duplications={[]}
       duplicationsCount={0}
+      firstLineNumber={1}
       highlighted={false}
       highlightedLocationMessage={undefined}
       highlightedSymbols={undefined}

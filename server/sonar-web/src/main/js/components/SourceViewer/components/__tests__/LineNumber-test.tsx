@@ -24,8 +24,9 @@ import { LineNumber, LineNumberProps } from '../LineNumber';
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ line: { line: 0 } })).toMatchSnapshot('no line number');
+  expect(shallowRender({ line: { line: 12 } })).toMatchSnapshot('first line');
 });
 
 function shallowRender(props: Partial<LineNumberProps> = {}) {
-  return shallow(<LineNumber line={{ line: 3 }} {...props} />);
+  return shallow(<LineNumber firstLineNumber={10} line={{ line: 20 }} {...props} />);
 }

@@ -18,29 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { ActionsDropdownItem } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { getCodeUrl } from '../../../helpers/urls';
 import { SourceViewerContext } from '../SourceViewerContext';
 
-interface LineOptionsPopupProps {
+export interface LineOptionsPopupProps {
+  firstLineNumber: number;
   line: T.SourceLine;
 }
 
-export function LineOptionsPopup({ line }: LineOptionsPopupProps) {
+export function LineOptionsPopup({ firstLineNumber, line }: LineOptionsPopupProps) {
   return (
     <SourceViewerContext.Consumer>
-      {({ branchLike, file }) => (
-        <div className="source-viewer-bubble-popup nowrap">
-          <Link
-            className="js-get-permalink"
-            rel="noopener noreferrer"
-            target="_blank"
-            to={getCodeUrl(file.project, branchLike, file.key, line.line)}>
-            {translate('component_viewer.get_permalink')}
-          </Link>
-        </div>
-      )}
+      {({ branchLike, file }) => {
+        const codeLocation = getCodeUrl(file.project, branchLike, file.key, line.line);
+        const codeUrl = getPathUrlAsString(codeLocation, false);
+        const isAtTop = line.line - 4 < firstLineNumber;
+        return (
+          <DropdownOverlay
+            className="big-spacer-left"
+            noPadding={true}
+            placement={isAtTop ? PopupPlacement.BottomLeft : PopupPlacement.TopLeft}>
+            <ul className="padded source-viewer-bubble-popup nowrap">
+              <ActionsDropdownItem copyValue={codeUrl}>
+                {translate('component_viewer.copy_permalink')}
+              </ActionsDropdownItem>
+            </ul>
+          </DropdownOverlay>
+        );
+      }}
     </SourceViewerContext.Consumer>
   );
 }

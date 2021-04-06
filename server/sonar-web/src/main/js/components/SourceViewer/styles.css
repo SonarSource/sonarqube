@@ -115,13 +115,6 @@
   border-top: 1px solid var(--barBorderColor);
 }
 
-.source-viewer-bubble-popup {
-  font-family: var(--baseFontFamily);
-  font-size: var(--baseFontSize);
-  text-align: left;
-  user-select: text;
-}
-
 .issue-location.highlighted {
   border-color: var(--issueLocationHighlighted);
   background-color: var(--issueLocationHighlighted);

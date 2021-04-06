@@ -1,28 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="source-viewer-bubble-popup nowrap"
+<DropdownOverlay
+  className="big-spacer-left"
+  noPadding={true}
+  placement="top-left"
 >
-  <Link
-    className="js-get-permalink"
-    onlyActiveOnIndex={false}
-    rel="noopener noreferrer"
-    style={Object {}}
-    target="_blank"
-    to={
-      Object {
-        "pathname": "/code",
-        "query": Object {
-          "branch": "feature",
-          "id": "prj",
-          "line": 3,
-          "selected": "foo",
-        },
-      }
-    }
+  <ul
+    className="padded source-viewer-bubble-popup nowrap"
   >
-    component_viewer.get_permalink
-  </Link>
-</div>
+    <ActionsDropdownItem
+      copyValue="http://localhost/code?id=prj&branch=feature&selected=foo&line=10"
+    >
+      component_viewer.copy_permalink
+    </ActionsDropdownItem>
+  </ul>
+</DropdownOverlay>
+`;
+
+exports[`should render correctly: first line 1`] = `
+<DropdownOverlay
+  className="big-spacer-left"
+  noPadding={true}
+  placement="bottom-left"
+>
+  <ul
+    className="padded source-viewer-bubble-popup nowrap"
+  >
+    <ActionsDropdownItem
+      copyValue="http://localhost/code?id=prj&branch=feature&selected=foo&line=2"
+    >
+      component_viewer.copy_permalink
+    </ActionsDropdownItem>
+  </ul>
+</DropdownOverlay>
 `;

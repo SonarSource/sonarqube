@@ -241,3 +241,13 @@
 .source-line-duplicated {
   background-color: #797979 !important;
 }
+
+.source-viewer-bubble-popup a {
+  font-family: var(--baseFontFamily);
+  font-size: var(--baseFontSize);
+  text-align: left;
+  user-select: text;
+  border-bottom: none;
+  transition: none;
+  color: unset;
+}

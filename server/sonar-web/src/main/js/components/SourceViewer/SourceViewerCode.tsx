@@ -129,6 +129,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     const duplicationsCount = this.props.duplications ? this.props.duplications.length : 0;
 
     const issuesForLine = this.getIssuesForLine(line);
+    const firstLineNumber = sources && sources.length ? sources[0].line : 0;
 
     let scrollToUncoveredLine = false;
     if (
@@ -155,6 +156,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
+        firstLineNumber={firstLineNumber}
         highlighted={line.line === this.props.highlightedLine}
         highlightedLocationMessage={optimizeLocationMessage(
           highlightedLocationMessage,

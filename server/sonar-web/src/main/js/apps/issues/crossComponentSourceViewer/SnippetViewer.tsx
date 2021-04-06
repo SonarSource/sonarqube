@@ -136,6 +136,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
       (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
 
     const isSinkLine = issuesForLine.some(i => i.key === this.props.issue.key);
+    const firstLineNumber = snippet && snippet.length ? snippet[0].line : 0;
     const noop = () => {};
 
     return (
@@ -149,6 +150,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         displaySCM={displaySCM}
         duplications={lineDuplications}
         duplicationsCount={duplicationsCount}
+        firstLineNumber={firstLineNumber}
         highlighted={false}
         highlightedLocationMessage={optimizeLocationMessage(
           this.props.highlightedLocationMessage,

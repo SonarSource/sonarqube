@@ -41,6 +41,7 @@ interface Props {
   displaySCM?: boolean;
   duplications: number[];
   duplicationsCount: number;
+  firstLineNumber: number;
   highlighted: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
@@ -99,6 +100,7 @@ export default class Line extends React.PureComponent<Props> {
       displaySCM = true,
       duplications,
       duplicationsCount,
+      firstLineNumber,
       highlighted,
       highlightedSymbols,
       issueLocations,
@@ -127,7 +129,7 @@ export default class Line extends React.PureComponent<Props> {
 
     return (
       <tr className={className} data-line-number={line.line}>
-        <LineNumber line={line} />
+        <LineNumber firstLineNumber={firstLineNumber} line={line} />
 
         {displaySCM && <LineSCM line={line} previousLine={previousLine} />}
         {displayIssues && !displayAllIssues ? (

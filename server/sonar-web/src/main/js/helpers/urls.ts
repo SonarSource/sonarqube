@@ -249,10 +249,10 @@ export function getCodeUrl(
   branchLike?: BranchLike,
   selected?: string,
   line?: number
-) {
+): Location {
   return {
     pathname: '/code',
-    query: { id: project, ...getBranchLikeQuery(branchLike), selected, line }
+    query: { id: project, ...getBranchLikeQuery(branchLike), selected, line: line?.toFixed() }
   };
 }
 

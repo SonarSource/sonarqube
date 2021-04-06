@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -144,6 +145,7 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -282,6 +284,7 @@ exports[`should render correctly with coverage 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -436,6 +439,7 @@ exports[`should render correctly with duplication information 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -635,6 +639,7 @@ exports[`should render correctly with issues info 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -849,6 +854,7 @@ exports[`should render correctly: no SCM 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    firstLineNumber={1}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",

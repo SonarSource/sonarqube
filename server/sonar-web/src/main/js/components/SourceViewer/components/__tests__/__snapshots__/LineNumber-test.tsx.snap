@@ -3,27 +3,68 @@
 exports[`should render correctly: default 1`] = `
 <td
   className="source-meta source-line-number"
-  data-line-number={3}
+  data-line-number={20}
 >
-  <Dropdown
+  <Toggler
+    closeOnClickOutside={true}
+    onRequestClose={[Function]}
+    open={false}
     overlay={
       <Memo(LineOptionsPopup)
+        firstLineNumber={10}
         line={
           Object {
-            "line": 3,
+            "line": 20,
           }
         }
       />
     }
-    overlayPlacement="right-top"
   >
     <span
-      aria-label="source_viewer.line_X.3"
+      aria-expanded={false}
+      aria-haspopup={true}
+      aria-label="source_viewer.line_X.20"
+      onClick={[Function]}
       role="button"
+      tabIndex={0}
     >
-      3
+      20
     </span>
-  </Dropdown>
+  </Toggler>
+</td>
+`;
+
+exports[`should render correctly: first line 1`] = `
+<td
+  className="source-meta source-line-number"
+  data-line-number={12}
+>
+  <Toggler
+    closeOnClickOutside={true}
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <Memo(LineOptionsPopup)
+        firstLineNumber={10}
+        line={
+          Object {
+            "line": 12,
+          }
+        }
+      />
+    }
+  >
+    <span
+      aria-expanded={false}
+      aria-haspopup={true}
+      aria-label="source_viewer.line_X.12"
+      onClick={[Function]}
+      role="button"
+      tabIndex={0}
+    >
+      12
+    </span>
+  </Toggler>
 </td>
 `;
 
