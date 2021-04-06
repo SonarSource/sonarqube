@@ -29,6 +29,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -39,11 +40,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
-import org.sonar.server.setting.ProjectConfigurationLoader;
-import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,10 +67,9 @@ public class BranchPersisterImplTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  private final MapSettings globalSettings = new MapSettings();
-  private final ProjectConfigurationLoader projectConfiguration = new ProjectConfigurationLoaderImpl(globalSettings, dbTester.getDbClient());
-  private final BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder,
-    projectConfiguration);
+  private final MapSettings settings = new MapSettings();
+  private final ConfigurationRepository configurationRepository = new TestSettingsRepository(new ConfigurationBridge(settings));
+  private final BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder, configurationRepository);
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_main_branches() {
@@ -146,7 +143,7 @@ public class BranchPersisterImplTest {
 
   @Test
   public void non_main_branch_is_excluded_from_branch_purge_if_matches_sonar_dbcleaner_keepFromPurge_property() {
-    globalSettings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
+    settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
     analysisMetadataHolder.setProject(PROJECT);
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
     treeRootHolder.setRoot(BRANCH1);
@@ -164,7 +161,7 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  public void branch_is_excluded_from_purge_when_it_matches_project_level_but_not_global_level_keepFromPurge_setting() {
+  public void branch_is_excluded_from_purge_when_it_matches_setting() {
     analysisMetadataHolder.setProject(PROJECT);
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
     treeRootHolder.setRoot(BRANCH1);
@@ -172,8 +169,7 @@ public class BranchPersisterImplTest {
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
-    globalSettings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "abc.*");
-    insertProjectProperty(mainComponent, BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
+    settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
     dbTester.commit();
 
     underTest.persist(dbTester.getSession());
@@ -184,7 +180,7 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  public void branch_is_not_excluded_from_purge_when_it_does_not_match_overriden_global_keepFromPurge_setting_on_project_level() {
+  public void branch_is_not_excluded_from_purge_when_it_does_not_match_setting() {
     analysisMetadataHolder.setProject(PROJECT);
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
     treeRootHolder.setRoot(BRANCH1);
@@ -192,8 +188,8 @@ public class BranchPersisterImplTest {
     ComponentDto component = ComponentTesting.newBranchComponent(mainComponent,
       new BranchDto().setUuid(BRANCH1.getUuid()).setKey(BRANCH1.getKey()).setBranchType(BRANCH));
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), component);
-    globalSettings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "BRANCH.*");
-    insertProjectProperty(mainComponent, BRANCHES_TO_KEEP_WHEN_INACTIVE, "abc.*");
+    settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "abc.*");
+
     dbTester.commit();
 
     underTest.persist(dbTester.getSession());
@@ -205,7 +201,7 @@ public class BranchPersisterImplTest {
 
   @Test
   public void pull_request_is_never_excluded_from_branch_purge_even_if_its_source_branch_name_matches_sonar_dbcleaner_keepFromPurge_property() {
-    globalSettings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "develop");
+    settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "develop");
     analysisMetadataHolder.setBranch(createPullRequest(PR1.getKey(), MAIN.getUuid()));
     analysisMetadataHolder.setPullRequestKey(PR1.getKey());
     treeRootHolder.setRoot(PR1);
@@ -228,7 +224,7 @@ public class BranchPersisterImplTest {
 
   @Test
   public void non_main_branch_is_included_in_branch_purge_if_branch_name_does_not_match_sonar_dbcleaner_keepFromPurge_property() {
-    globalSettings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "foobar-.*");
+    settings.setProperty(BRANCHES_TO_KEEP_WHEN_INACTIVE, "foobar-.*");
     analysisMetadataHolder.setProject(PROJECT);
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY"));
     treeRootHolder.setRoot(BRANCH1);
@@ -310,9 +306,5 @@ public class BranchPersisterImplTest {
     assertThatThrownBy(callable)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Component has been deleted by end-user during analysis");
-  }
-
-  private void insertProjectProperty(ComponentDto project, String propertyKey, String propertyValue) {
-    dbTester.properties().insertProperties(new PropertyDto().setKey(propertyKey).setValue(propertyValue).setComponentUuid(project.uuid()));
   }
 }

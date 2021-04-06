@@ -19,10 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -32,11 +31,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbProjectBranches;
-import org.sonar.server.setting.ProjectConfigurationLoader;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
 import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
 
 /**
@@ -46,14 +41,13 @@ public class BranchPersisterImpl implements BranchPersister {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final ProjectConfigurationLoader projectConfigurationLoader;
+  private final ConfigurationRepository configurationRepository;
 
-  public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    ProjectConfigurationLoader projectConfigurationLoader) {
+  public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, ConfigurationRepository configurationRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.projectConfigurationLoader = projectConfigurationLoader;
+    this.configurationRepository = configurationRepository;
   }
 
   public void persist(DbSession dbSession) {
@@ -64,10 +58,10 @@ public class BranchPersisterImpl implements BranchPersister {
       .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
-    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge(dbSession)));
+    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge()));
   }
 
-  private boolean checkIfExcludedFromPurge(DbSession dbSession) {
+  private boolean checkIfExcludedFromPurge() {
     if (analysisMetadataHolder.getBranch().isMain()) {
       return true;
     }
@@ -76,12 +70,8 @@ public class BranchPersisterImpl implements BranchPersister {
       return false;
     }
 
-    ComponentDto projectDto = dbClient.componentDao().selectByUuid(dbSession, analysisMetadataHolder.getProject().getUuid())
-      .orElseThrow(() -> new IllegalStateException(format("Component '%s' is missing.", analysisMetadataHolder.getProject().getKey())));
-    Configuration projectConfiguration = projectConfigurationLoader.loadProjectConfiguration(dbSession, projectDto);
-    String[] branchesToKeep = projectConfiguration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE);
-    List<String> excludeFromPurgeEntries = asList(ofNullable(branchesToKeep).orElse(new String[0]));
-    return excludeFromPurgeEntries.stream()
+    String[] branchesToKeep = configurationRepository.getConfiguration().getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE);
+    return Arrays.stream(branchesToKeep)
       .map(Pattern::compile)
       .anyMatch(excludePattern -> excludePattern.matcher(analysisMetadataHolder.getBranch().getName()).matches());
   }
