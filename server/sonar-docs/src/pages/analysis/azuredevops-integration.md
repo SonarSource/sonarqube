@@ -312,7 +312,7 @@ To add pull request decoration to a manually created or existing project, make s
 |
 | _Pull request decoration for a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 |
-| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate mono repository project, are all bound to the same Azure DevOps repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Azure DevOps repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
 |
 | To add pull request decoration to a project that's part of a mono repository, set your project up manually as shown in the **Adding pull request decoration to a manually created or existing project** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration**.
 |
