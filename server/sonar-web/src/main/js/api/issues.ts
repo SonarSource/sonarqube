@@ -44,7 +44,7 @@ type FacetName =
   | 'types';
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
-  return getJSON('/api/issues/search', query);
+  return getJSON('/api/issues/search', query).catch(throwGlobalError);
 }
 
 export function getFacets(

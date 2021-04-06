@@ -20,11 +20,11 @@
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { searchIssues } from '../../../api/issues';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { FetchIssuesPromise } from '../../../types/issues';
 
 const IssuesAppContainer = lazyLoadComponent(() => import('./App'), 'IssuesAppContainer');
 
@@ -38,14 +38,12 @@ const fetchIssues = (query: T.RawQuery) => {
     ...query,
     additionalFields: '_all',
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-  })
-    .then(response => {
-      const parsedIssues = response.issues.map(issue =>
-        parseIssueFromResponse(issue, response.components, response.users, response.rules)
-      );
-      return { ...response, issues: parsedIssues };
-    })
-    .catch(throwGlobalError);
+  }).then(response => {
+    const parsedIssues = response.issues.map(issue =>
+      parseIssueFromResponse(issue, response.components, response.users, response.rules)
+    );
+    return { ...response, issues: parsedIssues } as FetchIssuesPromise;
+  });
 };
 
 const mapDispatchToProps = { fetchBranchStatus };
