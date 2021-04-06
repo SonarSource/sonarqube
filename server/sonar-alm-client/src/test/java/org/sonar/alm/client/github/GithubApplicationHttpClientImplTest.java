@@ -46,7 +46,9 @@ import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationHttpClientImplTest {
-  private static final String BETA_API_HEADER = "application/vnd.github.antiope-preview+json, application/vnd.github.machine-man-preview+json";
+  private static final String BETA_API_HEADER = "application/vnd.github.antiope-preview+json, " +
+    "application/vnd.github.machine-man-preview+json, " +
+    "application/vnd.github.v3+json";
   @Rule
   public MockWebServer server = new MockWebServer();
 

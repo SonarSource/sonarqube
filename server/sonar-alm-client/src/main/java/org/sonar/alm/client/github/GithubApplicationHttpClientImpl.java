@@ -51,8 +51,9 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
   private static final Logger LOG = Loggers.get(GithubApplicationHttpClientImpl.class);
   private static final Pattern NEXT_LINK_PATTERN = Pattern.compile(".*<(.*)>; rel=\"next\"");
-  private static final String MACHINE_MAN_PREVIEW_JSON = "application/vnd.github.machine-man-preview+json";
+  private static final String GITHUB_API_VERSION_JSON = "application/vnd.github.v3+json";
   private static final String ANTIOPE_PREVIEW_JSON = "application/vnd.github.antiope-preview+json";
+  private static final String MACHINE_MAN_PREVIEW_JSON = "application/vnd.github.machine-man-preview+json";
 
   private final OkHttpClient client;
 
@@ -162,13 +163,10 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
   }
 
   private static Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint) {
-    Request.Builder url = new Request.Builder()
-        .url(toAbsoluteEndPoint(appUrl, endPoint));
+    Request.Builder url = new Request.Builder().url(toAbsoluteEndPoint(appUrl, endPoint));
     if (token != null) {
-      url
-          .addHeader("Authorization", token.getAuthorizationHeaderPrefix() + " " + token)
-          // TODO: Remove when CheckAPI is no longer in beta
-          .addHeader("Accept", ANTIOPE_PREVIEW_JSON + ", " + MACHINE_MAN_PREVIEW_JSON);
+      url.addHeader("Authorization", token.getAuthorizationHeaderPrefix() + " " + token);
+      url.addHeader("Accept", String.format("%s, %s, %s", ANTIOPE_PREVIEW_JSON, MACHINE_MAN_PREVIEW_JSON, GITHUB_API_VERSION_JSON));
     }
     return url;
   }
