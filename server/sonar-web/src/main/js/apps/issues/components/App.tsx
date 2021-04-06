@@ -1124,8 +1124,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { openIssue, paging } = this.state;
-    const selectedIndex = this.getSelectedIndex();
+    const { openIssue } = this.state;
     return (
       <div className="layout-page issues" id="issues-page">
         <Suggestions suggestions="issues" />

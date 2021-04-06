@@ -30,7 +30,7 @@ export function enableLocationsNavigator(state: State) {
       selectedFlowIndex,
       // Also reset index = -1 to 0, we don't want to start on the issue when enabling the location navigator
       selectedLocationIndex:
-        !selectedLocationIndex || selectedLocationIndex < 0 ? 0 : selectedLocationIndex
+        selectedLocationIndex && selectedLocationIndex < 0 ? 0 : selectedLocationIndex
     };
   }
   return null;
@@ -61,7 +61,7 @@ export function selectLocation(nextIndex: number) {
 export function selectNextLocation(
   state: Pick<State, 'selectedFlowIndex' | 'selectedLocationIndex' | 'openIssue'>
 ) {
-  const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
+  const { selectedFlowIndex, selectedLocationIndex: index = -1, openIssue } = state;
   if (openIssue) {
     const locations =
       selectedFlowIndex !== undefined

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockIssue } from '../../../helpers/testMocks';
-import { selectFlow, selectLocation } from '../actions';
+import { enableLocationsNavigator, selectFlow, selectLocation } from '../actions';
+import { State } from '../components/App';
 
 describe('selectFlow', () => {
   it('should select flow and enable locations navigator', () => {
@@ -27,6 +28,73 @@ describe('selectFlow', () => {
       selectedFlowIndex: 5,
       selectedLocationIndex: 0
     });
+  });
+});
+
+describe('enableLocationsNavigator', () => {
+  it('should compute the correct flow index', () => {
+    expect(
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedFlowIndex: 20 } as State)
+    ).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedFlowIndex: 20
+      })
+    );
+    expect(enableLocationsNavigator({ openIssue: mockIssue(true) } as State)).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedFlowIndex: 0
+      })
+    );
+    expect(
+      enableLocationsNavigator({ openIssue: mockIssue(true, { flows: [] }) } as State)
+    ).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedFlowIndex: undefined
+      })
+    );
+  });
+
+  it('should compute the correct selected location index', () => {
+    expect(enableLocationsNavigator({ openIssue: mockIssue(true) } as State)).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedLocationIndex: undefined
+      })
+    );
+
+    expect(
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: -1 } as State)
+    ).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedLocationIndex: 0
+      })
+    );
+
+    expect(
+      enableLocationsNavigator({ openIssue: mockIssue(true), selectedLocationIndex: 20 } as State)
+    ).toEqual(
+      expect.objectContaining({
+        locationsNavigator: true,
+        selectedLocationIndex: 20
+      })
+    );
+  });
+
+  it('should do nothing if the open issue has no secondary locations or any flows', () => {
+    expect(enableLocationsNavigator({ openIssue: mockIssue() } as State)).toBeNull();
+    expect(
+      enableLocationsNavigator({
+        openIssue: mockIssue(true, { flows: [], secondaryLocations: [] })
+      } as State)
+    ).toBeNull();
+  });
+
+  it('should do nothing if there is no open issue', () => {
+    expect(enableLocationsNavigator({} as State)).toBeNull();
   });
 });
 
