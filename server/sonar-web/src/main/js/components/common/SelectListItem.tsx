@@ -27,7 +27,7 @@ interface Props {
   item: string;
   onHover?: (item: string) => void;
   onSelect?: (item: string) => void;
-  title?: string;
+  title?: React.ReactNode;
 }
 
 export default class SelectListItem extends React.PureComponent<Props> {

@@ -17,28 +17,92 @@ exports[`should render transition popup correctly 1`] = `
     <SelectListItem
       item="confirm"
       key="confirm"
-      title="issue.transition.confirm.description"
+      title={
+        <FormattedMessage
+          defaultMessage="issue.transition.confirm.description"
+          id="issue.transition.confirm.description"
+          values={
+            Object {
+              "community_plug_link": <a
+                href="https://community.sonarsource.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                issue.transition.community_plug_link
+              </a>,
+            }
+          }
+        />
+      }
     >
       issue.transition.confirm
     </SelectListItem>
     <SelectListItem
       item="resolve"
       key="resolve"
-      title="issue.transition.resolve.description"
+      title={
+        <FormattedMessage
+          defaultMessage="issue.transition.resolve.description"
+          id="issue.transition.resolve.description"
+          values={
+            Object {
+              "community_plug_link": <a
+                href="https://community.sonarsource.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                issue.transition.community_plug_link
+              </a>,
+            }
+          }
+        />
+      }
     >
       issue.transition.resolve
     </SelectListItem>
     <SelectListItem
       item="falsepositive"
       key="falsepositive"
-      title="issue.transition.falsepositive.description"
+      title={
+        <FormattedMessage
+          defaultMessage="issue.transition.falsepositive.description"
+          id="issue.transition.falsepositive.description"
+          values={
+            Object {
+              "community_plug_link": <a
+                href="https://community.sonarsource.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                issue.transition.community_plug_link
+              </a>,
+            }
+          }
+        />
+      }
     >
       issue.transition.falsepositive
     </SelectListItem>
     <SelectListItem
       item="wontfix"
       key="wontfix"
-      title="issue.transition.wontfix.description"
+      title={
+        <FormattedMessage
+          defaultMessage="issue.transition.wontfix.description"
+          id="issue.transition.wontfix.description"
+          values={
+            Object {
+              "community_plug_link": <a
+                href="https://community.sonarsource.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                issue.transition.community_plug_link
+              </a>,
+            }
+          }
+        />
+      }
     >
       issue.transition.wontfix
     </SelectListItem>
@@ -68,7 +132,23 @@ exports[`should render transition popup correctly for vulnerability 1`] = `
     <SelectListItem
       item="confirm"
       key="confirm"
-      title="issue.transition.confirm.description"
+      title={
+        <FormattedMessage
+          defaultMessage="issue.transition.confirm.description"
+          id="issue.transition.confirm.description"
+          values={
+            Object {
+              "community_plug_link": <a
+                href="https://community.sonarsource.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                issue.transition.community_plug_link
+              </a>,
+            }
+          }
+        />
+      }
     >
       issue.transition.confirm
     </SelectListItem>
