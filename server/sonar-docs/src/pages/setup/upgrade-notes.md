@@ -2,6 +2,10 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.9 Upgrade Notes
+**GitHub Enterprise compatibility**  
+SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration (the previous minimum version was 2.15).
+
 ## Release 8.8 Upgrade Notes  
 **CSS analysis now requires Node.js 10+**  
 In order to analyze CSS code, you now need to have Node.js 10+ installed on the machine running the scan.
