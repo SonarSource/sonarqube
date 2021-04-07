@@ -1625,10 +1625,10 @@
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/domhandler/-/domhandler-2.4.1.tgz#7b3b347f7762180fbcb1ece1ce3dd0ebbb8c64cf"
   integrity sha1-ezs0f3diGA+8sezhzj3Q67uMZM8=
 
-"@types/dompurify@2.0.1":
-  version "2.0.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/dompurify/-/dompurify-2.0.1.tgz#0bf3a9f8ee21d81adb20b8c374ab034d6a74dbf7"
-  integrity sha1-C/Op+O4h2BrbILjDdKsDTWp02/c=
+"@types/dompurify@2.2.1":
+  version "2.2.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/dompurify/-/dompurify-2.2.1.tgz#eebf3af8afe2f577a53acab9d98a3a4cb04bbbe7"
+  integrity sha1-7r86+K/i9XelOsq52Yo6TLBLu+c=
   dependencies:
     "@types/trusted-types" "*"
 
@@ -4458,10 +4458,10 @@ domhandler@^2.3.0:
   dependencies:
     domelementtype "1"
 
-dompurify@2.2.0:
-  version "2.2.0"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/dompurify/-/dompurify-2.2.0.tgz#51d34e76faa38b5d6b4e83a0678530f27fe3965c"
-  integrity sha1-UdNOdvqji11rToOgZ4Uw8n/jllw=
+dompurify@2.2.7:
+  version "2.2.7"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/dompurify/-/dompurify-2.2.7.tgz#a5f055a2a471638680e779bd08fc334962d11fd8"
+  integrity sha1-pfBVoqRxY4aA53m9CPwzSWLRH9g=
 
 domutils@1.5.1:
   version "1.5.1"
