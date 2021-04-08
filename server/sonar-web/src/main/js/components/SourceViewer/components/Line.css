@@ -78,11 +78,6 @@
   padding-bottom: 160px;
 }
 
-.source-viewer pre {
-  height: 18px;
-  padding: 0;
-}
-
 .source-viewer pre,
 .source-line-number,
 .source-line-scm {
@@ -98,6 +93,8 @@
 
 .source-line-code pre {
   float: left;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .source-line-code .issue-list {
