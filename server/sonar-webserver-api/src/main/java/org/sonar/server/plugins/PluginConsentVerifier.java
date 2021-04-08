@@ -22,6 +22,8 @@ package org.sonar.server.plugins;
 import java.util.Optional;
 
 import org.picocontainer.Startable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -30,8 +32,11 @@ import org.sonar.db.property.PropertyDto;
 import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 import static org.sonar.core.extension.PluginRiskConsent.REQUIRED;
+import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 
 public class PluginConsentVerifier implements Startable {
+  private static final Logger LOGGER = Loggers.get(STARTUP_LOGGER_NAME);
+
   private final ServerPluginRepository pluginRepository;
   private final DbClient dbClient;
 
@@ -47,12 +52,12 @@ public class PluginConsentVerifier implements Startable {
       PropertyDto property = Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(session, PLUGINS_RISK_CONSENT))
         .orElse(defaultPluginRiskConsentProperty());
       if (hasExternalPlugins && NOT_ACCEPTED == PluginRiskConsent.valueOf(property.getValue())) {
+        addWarningInSonarDotLog();
         property.setValue(REQUIRED.name());
         dbClient.propertiesDao().saveProperty(session, property);
         session.commit();
       } else if (!hasExternalPlugins && REQUIRED == PluginRiskConsent.valueOf(property.getValue())) {
-        property.setValue(NOT_ACCEPTED.name());
-        dbClient.propertiesDao().saveProperty(session, property);
+        dbClient.propertiesDao().deleteGlobalProperty(PLUGINS_RISK_CONSENT, session);
         session.commit();
       }
     }
@@ -63,6 +68,15 @@ public class PluginConsentVerifier implements Startable {
     property.setKey(PLUGINS_RISK_CONSENT);
     property.setValue(NOT_ACCEPTED.name());
     return property;
+  }
+
+  private static void addWarningInSonarDotLog() {
+    String highlighter = "####################################################################################################################";
+    String msg = "Plugin(s) detected. The risk associated with installing plugins has not been accepted. The SonarQube admin needs to log in and accept the risk.";
+
+    LOGGER.warn(highlighter);
+    LOGGER.warn(msg);
+    LOGGER.warn(highlighter);
   }
 
   @Override

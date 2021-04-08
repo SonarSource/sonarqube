@@ -22,6 +22,8 @@ package org.sonar.server.plugins;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.extension.PluginRiskConsent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -41,10 +43,12 @@ import static org.sonar.server.plugins.PluginType.EXTERNAL;
 public class PluginConsentVerifierTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = db.getDbClient();
-  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private PluginConsentVerifier underTest = new PluginConsentVerifier(pluginRepository, dbClient);
+  private final DbClient dbClient = db.getDbClient();
+  private final ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+  private final PluginConsentVerifier underTest = new PluginConsentVerifier(pluginRepository, dbClient);
 
   @Test
   public void require_consent_when_exist_external_plugins_and_not_accepted() {
@@ -64,6 +68,7 @@ public class PluginConsentVerifierTest {
 
     underTest.start();
 
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Plugin(s) detected. The risk associated with installing plugins has not been accepted. The SonarQube admin needs to log in and accept the risk.");
     assertThat(dbClient.propertiesDao().selectGlobalProperty(PLUGINS_RISK_CONSENT))
       .extracting(PropertyDto::getValue)
       .isEqualTo(REQUIRED.name());
@@ -100,9 +105,7 @@ public class PluginConsentVerifierTest {
 
     underTest.start();
 
-    assertThat(dbClient.propertiesDao().selectGlobalProperty(PLUGINS_RISK_CONSENT))
-            .extracting(PropertyDto::getValue)
-            .isEqualTo(NOT_ACCEPTED.name());
+    assertThat(dbClient.propertiesDao().selectGlobalProperty(PLUGINS_RISK_CONSENT)).isNull();
   }
 
   @Test
