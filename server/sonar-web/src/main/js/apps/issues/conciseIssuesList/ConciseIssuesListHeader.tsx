@@ -19,33 +19,28 @@
  */
 import * as React from 'react';
 import BackButton from 'sonar-ui-common/components/controls/BackButton';
-import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
-import IssuesCounter from '../components/IssuesCounter';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 
-interface Props {
-  displayBackButton?: boolean;
+export interface ConciseIssuesListHeaderProps {
+  displayBackButton: boolean;
   loading: boolean;
   onBackClick: () => void;
-  onReload: () => void;
-  paging: T.Paging | undefined;
-  selectedIndex: number | undefined;
 }
 
-export default function ConciseIssuesListHeader(props: Props) {
-  const { displayBackButton = true, paging, selectedIndex } = props;
+export default function ConciseIssuesListHeader(props: ConciseIssuesListHeaderProps) {
+  const { displayBackButton, loading } = props;
 
   return (
     <header className="layout-page-header-panel concise-issues-list-header">
-      <div className="layout-page-header-panel-inner concise-issues-list-header-inner">
-        {displayBackButton && (
-          <BackButton className="pull-left" disabled={props.loading} onClick={props.onBackClick} />
-        )}
-        {props.loading ? (
-          <i className="spinner pull-right" />
-        ) : (
-          <ReloadButton className="pull-right" onClick={props.onReload} />
-        )}
-        {paging && <IssuesCounter current={selectedIndex} total={paging.total} />}
+      <div className="layout-page-header-panel-inner concise-issues-list-header-inner display-flex-center display-flex-space-between">
+        {displayBackButton && <BackButton disabled={loading} onClick={props.onBackClick} />}
+        <PageShortcutsTooltip
+          leftLabel={translate('issues.to_navigate_back')}
+          upAndDownLabel={translate('issues.to_select_issues')}
+          metaModifierLabel={translate('issues.to_navigate_issue_locations')}
+        />
+        {loading && <i className="spinner" />}
       </div>
     </header>
   );

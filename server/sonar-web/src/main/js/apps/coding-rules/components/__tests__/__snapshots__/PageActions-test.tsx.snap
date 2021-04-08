@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="display-flex-center display-flex-justify-end"
+>
+  <PageShortcutsTooltip
+    className="big-spacer-right"
+    leftAndRightLabel="issues.to_navigate"
+    upAndDownLabel="coding_rules.to_select_rules"
+  />
+  <DeferredSpinner
+    loading={false}
+  >
+    <ReloadButton
+      onClick={[MockFunction]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="display-flex-center display-flex-justify-end"
+>
+  <PageShortcutsTooltip
+    className="big-spacer-right"
+    leftAndRightLabel="issues.to_navigate"
+    upAndDownLabel="coding_rules.to_select_rules"
+  />
+  <DeferredSpinner
+    loading={true}
+  >
+    <ReloadButton
+      onClick={[MockFunction]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: with paging 1`] = `
+<div
+  className="display-flex-center display-flex-justify-end"
+>
+  <PageShortcutsTooltip
+    className="big-spacer-right"
+    leftAndRightLabel="issues.to_navigate"
+    upAndDownLabel="coding_rules.to_select_rules"
+  />
+  <DeferredSpinner
+    loading={false}
+  >
+    <ReloadButton
+      onClick={[MockFunction]}
+    />
+  </DeferredSpinner>
+  <PageCounter
+    className="spacer-left"
+    label="coding_rules._rules"
+    total={100}
+  />
+</div>
+`;

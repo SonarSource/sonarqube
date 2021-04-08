@@ -17,24 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import PageActions, { PageActionsProps } from '../PageActions';
 
-export interface Props {
-  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'> | undefined;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ paging: { total: 100 } as T.Paging })).toMatchSnapshot('with paging');
+});
 
-export default function LocationNavigationKeyboardShortcuts({ issue }: Props) {
-  if (!issue || (!issue.secondaryLocations.length && !issue.flows.length)) {
-    return null;
-  }
-  const hasSeveralFlows = issue.flows.length > 1;
-  return (
-    <div className="navigation-keyboard-shortcuts big-spacer-top text-center">
-      <span>
-        alt + ↑ ↓ {hasSeveralFlows && <>←→</>}
-        {translate('issues.to_navigate_issue_locations')}
-      </span>
-    </div>
-  );
+function shallowRender(props: Partial<PageActionsProps> = {}) {
+  return shallow<PageActionsProps>(<PageActions loading={false} onReload={jest.fn()} {...props} />);
 }

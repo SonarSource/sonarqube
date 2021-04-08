@@ -18,60 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { isSonarCloud } from '../../../helpers/system';
 import IssuesCounter from './IssuesCounter';
 import TotalEffort from './TotalEffort';
 
-interface Props {
+export interface PageActionsProps {
   canSetHome: boolean;
   effortTotal: number | undefined;
-  onReload: () => void;
-  paging: T.Paging | undefined;
-  selectedIndex: number | undefined;
+  paging?: T.Paging;
+  selectedIndex?: number;
 }
 
-export default class PageActions extends React.PureComponent<Props> {
-  renderShortcuts() {
-    return (
-      <span className="note big-spacer-right">
-        <span className="big-spacer-right">
-          <span className="shortcut-button little-spacer-right">↑</span>
-          <span className="shortcut-button little-spacer-right">↓</span>
-          {translate('issues.to_select_issues')}
-        </span>
+export default function PageActions(props: PageActionsProps) {
+  const { canSetHome, effortTotal, paging, selectedIndex } = props;
 
-        <span>
-          <span className="shortcut-button little-spacer-right">←</span>
-          <span className="shortcut-button little-spacer-right">→</span>
-          {translate('issues.to_navigate')}
-        </span>
-      </span>
-    );
-  }
+  return (
+    <div className="display-flex-center display-flex-justify-end">
+      <PageShortcutsTooltip
+        leftAndRightLabel={translate('issues.to_navigate')}
+        upAndDownLabel={translate('issues.to_select_issues')}
+      />
 
-  render() {
-    const { effortTotal, paging, selectedIndex } = this.props;
-
-    return (
-      <div className="pull-right">
-        {this.renderShortcuts()}
-
-        <div className="issues-page-actions">
-          <ReloadButton onClick={this.props.onReload} />
-          {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
-          {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
-        </div>
-
-        {this.props.canSetHome && (
-          <HomePageSelect
-            className="huge-spacer-left"
-            currentPage={isSonarCloud() ? { type: 'MY_ISSUES' } : { type: 'ISSUES' }}
-          />
-        )}
+      <div className="spacer-left issues-page-actions">
+        {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
+        {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
       </div>
-    );
-  }
+
+      {canSetHome && (
+        <HomePageSelect
+          className="huge-spacer-left"
+          currentPage={isSonarCloud() ? { type: 'MY_ISSUES' } : { type: 'ISSUES' }}
+        />
+      )}
+    </div>
+  );
 }

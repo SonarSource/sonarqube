@@ -467,10 +467,6 @@ it('should refresh branch status if issues are updated', async () => {
   fetchBranchStatus.mockClear();
   instance.handleBulkChangeDone();
   expect(fetchBranchStatus).toBeCalled();
-
-  fetchBranchStatus.mockClear();
-  instance.handleReload();
-  expect(fetchBranchStatus).toBeCalled();
 });
 
 it('should update the open issue when it is changed', async () => {

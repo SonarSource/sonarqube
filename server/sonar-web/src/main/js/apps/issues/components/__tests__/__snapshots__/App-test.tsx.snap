@@ -82,7 +82,6 @@ exports[`should switch to source view if an issue is selected 1`] = `
           <PageActions
             canSetHome={false}
             effortTotal={1}
-            onReload={[Function]}
             paging={
               Object {
                 "pageIndex": 1,

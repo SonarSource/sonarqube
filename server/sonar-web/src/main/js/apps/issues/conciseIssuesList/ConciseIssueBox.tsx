@@ -20,7 +20,6 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import TypeHelper from '../../../components/shared/TypeHelper';
-import LocationNavigationKeyboardShortcuts from '../components/LocationNavigationKeyboardShortcuts';
 import ConciseIssueLocations from './ConciseIssueLocations';
 import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
 
@@ -105,16 +104,13 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           />
         </div>
         {selected && (
-          <>
-            <ConciseIssueLocationsNavigator
-              issue={issue}
-              onLocationSelect={this.props.onLocationSelect}
-              scroll={this.props.scroll}
-              selectedFlowIndex={this.props.selectedFlowIndex}
-              selectedLocationIndex={this.props.selectedLocationIndex}
-            />
-            <LocationNavigationKeyboardShortcuts issue={issue} />
-          </>
+          <ConciseIssueLocationsNavigator
+            issue={issue}
+            onLocationSelect={this.props.onLocationSelect}
+            scroll={this.props.scroll}
+            selectedFlowIndex={this.props.selectedFlowIndex}
+            selectedLocationIndex={this.props.selectedLocationIndex}
+          />
         )}
       </div>
     );

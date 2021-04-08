@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockFlowLocation } from '../../../../helpers/testMocks';
-import LocationNavigationKeyboardShortcuts, { Props } from '../LocationNavigationKeyboardShortcuts';
+import ConciseIssuesListHeader, { ConciseIssuesListHeaderProps } from '../ConciseIssuesListHeader';
 
 it('should render correctly', () => {
-  expect(shallowRender().type()).toBeNull();
-  expect(shallowRender({ issue: { flows: [], secondaryLocations: [] } }).type()).toBeNull();
-  expect(
-    shallowRender({ issue: { flows: [], secondaryLocations: [mockFlowLocation()] } })
-  ).toMatchSnapshot();
-  expect(
-    shallowRender({ issue: { flows: [[mockFlowLocation()]], secondaryLocations: [] } })
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ displayBackButton: true })).toMatchSnapshot('with back button');
 });
 
-const shallowRender = (props: Partial<Props> = {}) => {
-  return shallow(<LocationNavigationKeyboardShortcuts issue={undefined} {...props} />);
-};
+function shallowRender(props: Partial<ConciseIssuesListHeaderProps> = {}) {
+  return shallow<ConciseIssuesListHeaderProps>(
+    <ConciseIssuesListHeader
+      displayBackButton={false}
+      loading={false}
+      onBackClick={jest.fn()}
+      {...props}
+    />
+  );
+}

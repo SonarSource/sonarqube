@@ -22,18 +22,23 @@ import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import PageCounter from '../../../components/common/PageCounter';
+import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 
-interface Props {
+export interface PageActionsProps {
   loading: boolean;
   onReload: () => void;
   paging?: T.Paging;
   selectedIndex?: number;
 }
 
-export default function PageActions(props: Props) {
+export default function PageActions(props: PageActionsProps) {
   return (
-    <div className="pull-right">
-      <Shortcuts />
+    <div className="display-flex-center display-flex-justify-end">
+      <PageShortcutsTooltip
+        className="big-spacer-right"
+        leftAndRightLabel={translate('issues.to_navigate')}
+        upAndDownLabel={translate('coding_rules.to_select_rules')}
+      />
 
       <DeferredSpinner loading={props.loading}>
         <ReloadButton onClick={props.onReload} />
@@ -48,23 +53,5 @@ export default function PageActions(props: Props) {
         />
       )}
     </div>
-  );
-}
-
-function Shortcuts() {
-  return (
-    <span className="note big-spacer-right">
-      <span className="big-spacer-right">
-        <span className="shortcut-button little-spacer-right">↑</span>
-        <span className="shortcut-button little-spacer-right">↓</span>
-        {translate('coding_rules.to_select_rules')}
-      </span>
-
-      <span>
-        <span className="shortcut-button little-spacer-right">←</span>
-        <span className="shortcut-button little-spacer-right">→</span>
-        {translate('issues.to_navigate')}
-      </span>
-    </span>
   );
 }

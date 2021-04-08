@@ -797,26 +797,6 @@ export default class App extends React.PureComponent<Props, State> {
     this.handleCloseBulkChange();
   };
 
-  handleReload = () => {
-    this.fetchFirstIssues();
-    this.refreshBranchStatus();
-    const { branchLike, onBranchesChange } = this.props;
-    if (onBranchesChange && isPullRequest(branchLike)) {
-      onBranchesChange();
-    }
-  };
-
-  handleReloadAndOpenFirst = () => {
-    this.fetchFirstIssues().then(
-      (issues: T.Issue[]) => {
-        if (issues.length > 0) {
-          this.openIssue(issues[0].key);
-        }
-      },
-      () => {}
-    );
-  };
-
   selectLocation = (index: number) => {
     this.setState(actions.selectLocation(index));
   };
@@ -946,9 +926,6 @@ export default class App extends React.PureComponent<Props, State> {
           displayBackButton={query.issues.length !== 1}
           loading={this.state.loading}
           onBackClick={this.closeIssue}
-          onReload={this.handleReloadAndOpenFirst}
-          paging={paging}
-          selectedIndex={this.getSelectedIndex()}
         />
         <ConciseIssuesList
           issues={issues}
@@ -1070,7 +1047,6 @@ export default class App extends React.PureComponent<Props, State> {
             <PageActions
               canSetHome={!this.props.component}
               effortTotal={this.state.effortTotal}
-              onReload={this.handleReload}
               paging={paging}
               selectedIndex={selectedIndex}
             />
@@ -1124,7 +1100,8 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { openIssue } = this.state;
+    const { openIssue, paging } = this.state;
+    const selectedIndex = this.getSelectedIndex();
     return (
       <div className="layout-page issues" id="issues-page">
         <Suggestions suggestions="issues" />

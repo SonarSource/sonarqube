@@ -41,6 +41,19 @@
   margin-right: 4px;
 }
 
+.shortcut-button-tiny {
+  width: 14px;
+  min-width: auto;
+  padding: 0;
+  height: 14px;
+  line-height: inherit;
+  font-size: 6px;
+}
+
+.page-shortcuts-tooltip {
+  line-height: 12px;
+}
+
 .identity-provider {
   display: inline-block;
   line-height: 14px;

@@ -2,50 +2,15 @@
 
 exports[`should render 1`] = `
 <div
-  className="pull-right"
+  className="display-flex-center display-flex-justify-end"
 >
-  <span
-    className="note big-spacer-right"
-  >
-    <span
-      className="big-spacer-right"
-    >
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        ↑
-      </span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        ↓
-      </span>
-      issues.to_select_issues
-    </span>
-    <span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        ←
-      </span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        →
-      </span>
-      issues.to_navigate
-    </span>
-  </span>
+  <PageShortcutsTooltip
+    leftAndRightLabel="issues.to_navigate"
+    upAndDownLabel="issues.to_select_issues"
+  />
   <div
-    className="issues-page-actions"
+    className="spacer-left issues-page-actions"
   >
-    <ReloadButton
-      onClick={[MockFunction]}
-    />
-    <IssuesCounter
-      current={5}
-      total={12345}
-    />
     <TotalEffort
       effort={125}
     />
