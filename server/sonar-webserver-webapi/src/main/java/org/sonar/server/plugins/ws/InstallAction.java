@@ -19,16 +19,15 @@
  */
 package org.sonar.server.plugins.ws;
 
-import java.net.HttpURLConnection;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.extension.PluginRiskConsent;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
@@ -44,19 +43,23 @@ import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBu
  */
 public class InstallAction implements PluginsWsAction {
 
+  private static final String BR_HTML_TAG = "<br/>";
   private static final String PARAM_KEY = "key";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
   private final PluginDownloader pluginDownloader;
   private final UserSession userSession;
   private final Configuration configuration;
+  private final PlatformEditionProvider editionProvider;
 
   public InstallAction(UpdateCenterMatrixFactory updateCenterFactory, PluginDownloader pluginDownloader,
-    UserSession userSession, Configuration configuration) {
+    UserSession userSession, Configuration configuration,
+    PlatformEditionProvider editionProvider) {
     this.updateCenterFactory = updateCenterFactory;
     this.pluginDownloader = pluginDownloader;
     this.userSession = userSession;
     this.configuration = configuration;
+    this.editionProvider = editionProvider;
   }
 
   @Override
@@ -65,9 +68,11 @@ public class InstallAction implements PluginsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Installs the latest version of a plugin specified by its key." +
-        "<br/>" +
+        BR_HTML_TAG +
         "Plugin information is retrieved from Update Center." +
-        "<br/>" +
+        BR_HTML_TAG +
+        "Fails if used on commercial editions or plugin risk consent has not been accepted." +
+        BR_HTML_TAG +
         "Requires user to be authenticated with Administer System permissions")
       .setHandler(this);
 
@@ -78,6 +83,8 @@ public class InstallAction implements PluginsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
+    checkEdition();
+
     if (!hasPluginInstallConsent()) {
       throw new IllegalArgumentException("Can't install plugin without accepting firstly plugins risk consent");
     }
@@ -86,6 +93,13 @@ public class InstallAction implements PluginsWsAction {
     PluginUpdate pluginUpdate = findAvailablePluginByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());
     response.noContent();
+  }
+
+  private void checkEdition() {
+    Edition edition = editionProvider.get().orElse(Edition.COMMUNITY);
+    if (!Edition.COMMUNITY.equals(edition)) {
+      throw new IllegalArgumentException("This WS is unsupported in commercial edition. Please install plugin manually.");
+    }
   }
 
   private boolean hasPluginInstallConsent() {

@@ -23,22 +23,21 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
 import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.extension.PluginRiskConsent;
+import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
@@ -63,38 +62,40 @@ public class InstallActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private Configuration configuration = mock(Configuration.class);
-  private InstallAction underTest = new InstallAction(updateCenterFactory, pluginDownloader, userSessionRule, configuration);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private InstallAction underTest = new InstallAction(updateCenterFactory, pluginDownloader, userSessionRule, configuration,
+    editionProvider);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void wireMocks() {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.ACCEPTED.name()));
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    TestRequest wsRequest = tester.newRequest();
+    assertThatThrownBy(wsRequest::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    TestRequest request = tester.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+    ;
   }
 
   @Test
@@ -115,20 +116,22 @@ public class InstallActionTest {
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() {
     logInAsSystemAdministrator();
-    expectedException.expect(IllegalArgumentException.class);
 
-    tester.newRequest().execute();
+    TestRequest request = tester.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void IAE_is_raised_when_there_is_no_available_plugin_for_the_key() {
     logInAsSystemAdministrator();
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No plugin with key 'pluginKey'");
 
-    tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute();
+    TestRequest request = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("No plugin with key 'pluginKey'");
   }
 
   @Test
@@ -141,17 +144,16 @@ public class InstallActionTest {
         .setLicense(license)
         .setOrganization(organization), version), PluginUpdate.Status.COMPATIBLE)));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("SonarSource commercial plugin with key '" + PLUGIN_KEY + "' can only be installed as part of a SonarSource edition");
-
-    tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute();
+    TestRequest request = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("SonarSource commercial plugin with key '" + PLUGIN_KEY + "' can only be installed as part of a SonarSource edition");
   }
 
   @DataProvider
   public static Object[][] editionBundledOrganizationAndLicense() {
-    return new Object[][]{
+    return new Object[][] {
       {"SonarSource", "SonarSource"},
       {"SonarSource", "Commercial"},
       {"sonarsource", "SOnArSOURCE"}
@@ -159,16 +161,31 @@ public class InstallActionTest {
   }
 
   @Test
+  public void IAE_is_raised_when_WS_used_on_commercial_edition() {
+    logInAsSystemAdministrator();
+    Version version = Version.create("1.0");
+    when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)));
+
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
+
+    TestRequest request = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("This WS is unsupported in commercial edition. Please install plugin manually.");
+  }
+
+  @Test
   public void IAE_is_raised_when_update_center_is_unavailable() {
     logInAsSystemAdministrator();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No plugin with key 'pluginKey'");
-
-    tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute();
+    TestRequest request = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("No plugin with key 'pluginKey'");
   }
 
   @Test
@@ -192,9 +209,9 @@ public class InstallActionTest {
 
     when(configuration.get(PLUGINS_RISK_CONSENT)).thenReturn(Optional.of(PluginRiskConsent.NOT_ACCEPTED.name()));
 
-    assertThatThrownBy(() -> tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute())
+    TestRequest request = tester.newRequest()
+      .setParam(KEY_PARAM, PLUGIN_KEY);
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Can't install plugin without accepting firstly plugins risk consent");
 
