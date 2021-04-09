@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import java.util.List;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
@@ -181,6 +180,7 @@ import org.sonar.server.qualityprofile.QProfileTreeImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
+import org.sonar.server.plugins.PluginsRiskConsentFilter;
 import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.RuleCreator;
@@ -234,6 +234,7 @@ import org.sonar.server.ws.ws.WebServicesWsModule;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
+import java.util.List;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -557,7 +558,9 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryDataLoaderImpl.class,
       TelemetryDataJsonWriter.class,
       TelemetryDaemon.class,
-      TelemetryClient.class
+      TelemetryClient.class,
+
+      PluginsRiskConsentFilter.class
 
     );
 
