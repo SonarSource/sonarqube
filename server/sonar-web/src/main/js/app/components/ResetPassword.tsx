@@ -21,19 +21,17 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import ResetPasswordForm from '../../components/common/ResetPassword';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
-import { Router, withRouter } from '../../components/hoc/withRouter';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import './ResetPassword.css';
 
 export interface ResetPasswordProps {
   currentUser: T.LoggedInUser;
-  router: Router;
 }
 
 export function ResetPassword(props: ResetPasswordProps) {
-  const { router, currentUser } = props;
+  const { currentUser } = props;
   const redirect = () => {
-    router.replace('/');
+    window.location.href = `/`; // force a refresh for the backend to handle additional redirects
   };
 
   return (
@@ -50,4 +48,4 @@ export function ResetPassword(props: ResetPasswordProps) {
   );
 }
 
-export default whenLoggedIn(withRouter(ResetPassword));
+export default whenLoggedIn(ResetPassword);

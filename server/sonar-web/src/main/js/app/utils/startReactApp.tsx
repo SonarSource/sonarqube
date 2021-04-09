@@ -333,6 +333,12 @@ export default function startReactApp(
                     )}
                   />
                   <Route
+                    // We don't want this route to have any menu. This is why we define it here
+                    // rather than under the admin routes.
+                    path="admin/plugin_risk_consent"
+                    component={lazyLoadComponent(() => import('../components/PluginRiskConsent'))}
+                  />
+                  <Route
                     path="not_found"
                     component={lazyLoadComponent(() => import('../components/NotFound'))}
                   />

@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
+.plugin-risk-consent-page {
+  padding-top: 10vh;
+}
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+.plugin-risk-consent-page h1 {
+  line-height: 1.5;
+  font-size: 24px;
+  font-weight: 300;
+  text-align: center;
+}
 
-function shallowRender(props: Partial<ResetPasswordProps> = {}) {
-  return shallow(<ResetPassword currentUser={mockLoggedInUser()} {...props} />);
+.plugin-risk-consent-content {
+  min-width: 500px;
+  width: 40%;
+  margin: 0 auto;
 }
