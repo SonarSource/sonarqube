@@ -126,8 +126,10 @@ import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.DropMetricIdColumnOfManualMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.MakeManualMeasuresMetricUuidNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.PopulateManualMeasuresMetricUuid;
+import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.AddIndexOnMetricUuidOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.AddMetricUuidColumnToProjectMeasures;
+import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.DeleteSecurityReviewRatingProjectMeasures;
 import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.DropIndexOnMetricIdOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.DropMetricIdColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures.MakeProjectMeasuresMetricUuidNotNullable;
@@ -525,7 +527,7 @@ public class DbVersion84 implements DbVersion {
       .add(3533, "Populate 'metric_uuid' for 'PROJECT_MEASURES'", PopulateProjectMeasuresMetricUuid.class)
       .add(3534, "Make 'metric_uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresMetricUuidNotNullable.class)
       .add(3535, "Drop index on 'metric_id' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", DropIndexOnMetricIdOfProjectMeasuresTable.class)
-      .add(3536, "Add index on 'metric_uuid' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidOfProjectMeasuresTable.class)
+      .add(3536, "Add index on 'metric_uuid' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTable.class)
 
       // Migration of FK in QUALITY_GATE_CONDITIONS to METRICS
       .add(3537, "Add 'metric_uuid' column on 'QUALITY_GATE_CONDITIONS' table", AddMetricUuidColumnToQualityGateConditions.class)
@@ -788,6 +790,11 @@ public class DbVersion84 implements DbVersion {
 
       // Migration of ALM_SETTINGS table
       .add(3807, "Add columns 'CLIENT_ID' and 'CLIENT_SECRET' to 'ALM_SETTINGS' table", AddClientIdAndClientSecretColumns.class)
+
+
+      // Removing old data from project_measures
+      .add(3808, "Add index on 'metric_uuid' column of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidOfProjectMeasuresTable.class)
+      .add(3809, "Remove old Security Review Rating ProjectMeasures", DeleteSecurityReviewRatingProjectMeasures.class)
     ;
   }
 }

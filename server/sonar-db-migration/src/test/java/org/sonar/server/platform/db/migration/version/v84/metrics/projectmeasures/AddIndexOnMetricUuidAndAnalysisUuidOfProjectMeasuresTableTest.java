@@ -25,17 +25,17 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class AddIndexOnMetricUuidOfProjectMeasuresTableTest {
+public class AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTableTest {
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(AddIndexOnMetricUuidOfProjectMeasuresTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTableTest.class, "schema.sql");
 
-  private MigrationStep underTest = new AddIndexOnMetricUuidOfProjectMeasuresTable(db.database());
+  private MigrationStep underTest = new AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTable(db.database());
 
   @Test
   public void execute() throws SQLException {
     underTest.execute();
 
-    db.assertIndex("project_measures", "project_measures_metric", "metric_uuid");
+    db.assertIndex("project_measures", "measures_analysis_metric", "analysis_uuid", "metric_uuid");
   }
 
   @Test
@@ -45,6 +45,6 @@ public class AddIndexOnMetricUuidOfProjectMeasuresTableTest {
     // re-entrant
     underTest.execute();
 
-    db.assertIndex("project_measures", "project_measures_metric", "metric_uuid");
+    db.assertIndex("project_measures", "measures_analysis_metric", "analysis_uuid", "metric_uuid");
   }
 }

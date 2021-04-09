@@ -29,11 +29,11 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddIndexOnMetricUuidOfProjectMeasuresTable extends DdlChange {
+public class AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTable extends DdlChange {
   private static final String TABLE_NAME = "project_measures";
-  private static final String INDEX_NAME = "project_measures_metric";
+  private static final String INDEX_NAME = "measures_analysis_metric";
 
-  public AddIndexOnMetricUuidOfProjectMeasuresTable(Database db) {
+  public AddIndexOnMetricUuidAndAnalysisUuidOfProjectMeasuresTable(Database db) {
     super(db);
   }
 
@@ -44,6 +44,11 @@ public class AddIndexOnMetricUuidOfProjectMeasuresTable extends DdlChange {
         .setUnique(false)
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
+        .addColumn(newVarcharColumnDefBuilder()
+          .setColumnName("analysis_uuid")
+          .setIsNullable(false)
+          .setLimit(VarcharColumnDef.UUID_SIZE)
+          .build())
         .addColumn(newVarcharColumnDefBuilder()
           .setColumnName("metric_uuid")
           .setIsNullable(false)

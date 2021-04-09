@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v82;
+package org.sonar.server.platform.db.migration.version.v84.metrics.projectmeasures;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
@@ -29,7 +29,6 @@ public class DeleteSecurityReviewRatingProjectMeasures extends DataChange {
 
   private static final String SECURITY_REVIEW_RATING_METRIC_KEY = "security_review_rating";
   private static final String SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY = "security_review_rating_effort";
-  private static final String SELECT_COMPONENTS_STATEMENT = "select c.uuid from components c where c.scope in ('PRJ')";
 
   public DeleteSecurityReviewRatingProjectMeasures(Database db) {
     super(db);
@@ -37,37 +36,38 @@ public class DeleteSecurityReviewRatingProjectMeasures extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    Integer reviewRatingId = getMetricId(context, SECURITY_REVIEW_RATING_METRIC_KEY);
-    Integer reviewRatingEffortId = getMetricId(context, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
-    if (reviewRatingId != null) {
-      deleteFromProjectMeasures(context, reviewRatingId, reviewRatingEffortId);
+    String reviewRatingUuid = getMetricUuid(context, SECURITY_REVIEW_RATING_METRIC_KEY);
+    String reviewRatingEffortUuid = getMetricUuid(context, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
+    if (reviewRatingUuid != null) {
+      deleteFromProjectMeasures(context, reviewRatingUuid, reviewRatingEffortUuid);
     }
   }
 
   @Nullable
-  private static Integer getMetricId(Context context, String metricName) throws SQLException {
-    return context.prepareSelect("select id from metrics where name = ?")
+  private static String getMetricUuid(Context context, String metricName) throws SQLException {
+    return context.prepareSelect("select uuid from metrics where name = ?")
       .setString(1, metricName)
-      .get(row -> row.getNullableInt(1));
+      .get(row -> row.getNullableString(1));
   }
 
-  private static void deleteFromProjectMeasures(Context context, Integer reviewRatingId, @Nullable Integer reviewRatingEffortId) throws SQLException {
-    MassUpdate deleteFromProjectMeasures = context.prepareMassUpdate();
+  private static void deleteFromProjectMeasures(Context context, String reviewRatingUuid, @Nullable String reviewRatingEffortUuid) throws SQLException {
+    deleteFromProjectMeasures(context, reviewRatingUuid);
 
-    deleteFromProjectMeasures.select(SELECT_COMPONENTS_STATEMENT);
-    if (reviewRatingEffortId != null) {
-      deleteFromProjectMeasures.update("delete from project_measures where component_uuid = ? and metric_id in (?, ?)");
-    } else {
-      deleteFromProjectMeasures.update("delete from project_measures where component_uuid = ? and metric_id = ?");
+    if (reviewRatingEffortUuid != null) {
+      deleteFromProjectMeasures(context, reviewRatingEffortUuid);
     }
+  }
 
-    deleteFromProjectMeasures.execute((row, update) -> {
-      String componentUuid = row.getString(1);
-      update.setString(1, componentUuid)
-        .setInt(2, reviewRatingId);
-      if (reviewRatingEffortId != null) {
-        update.setInt(3, reviewRatingEffortId);
-      }
+  private static void deleteFromProjectMeasures(Context context, @Nullable String metricUuid) throws SQLException {
+    if (metricUuid == null) {
+      return;
+    }
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select uuid from project_measures where metric_uuid = ?")
+      .setString(1, metricUuid);
+    massUpdate.update("delete from project_measures where uuid = ?");
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }
