@@ -25,13 +25,13 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class DeleteSecurityReviewRatingMeasures extends DataChange {
+public class DeleteSecurityReviewRatingProjectMeasures extends DataChange {
 
   private static final String SECURITY_REVIEW_RATING_METRIC_KEY = "security_review_rating";
   private static final String SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY = "security_review_rating_effort";
-  private static final String SELECT_COMPONENTS_STATEMENT = "select c.uuid from components c where c.scope in ('PRJ') and c.qualifier in ('VW', 'SVW', 'APP', 'TRK')";
+  private static final String SELECT_COMPONENTS_STATEMENT = "select c.uuid from components c where c.scope in ('PRJ')";
 
-  public DeleteSecurityReviewRatingMeasures(Database db) {
+  public DeleteSecurityReviewRatingProjectMeasures(Database db) {
     super(db);
   }
 
@@ -41,7 +41,6 @@ public class DeleteSecurityReviewRatingMeasures extends DataChange {
     Integer reviewRatingEffortId = getMetricId(context, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
     if (reviewRatingId != null) {
       deleteFromProjectMeasures(context, reviewRatingId, reviewRatingEffortId);
-      deleteFromLiveMeasures(context, reviewRatingId, reviewRatingEffortId);
     }
   }
 
@@ -50,27 +49,6 @@ public class DeleteSecurityReviewRatingMeasures extends DataChange {
     return context.prepareSelect("select id from metrics where name = ?")
       .setString(1, metricName)
       .get(row -> row.getNullableInt(1));
-  }
-
-  private static void deleteFromLiveMeasures(Context context, Integer reviewRatingId, @Nullable Integer reviewRatingEffortId) throws SQLException {
-    MassUpdate deleteFromLiveMeasures = context.prepareMassUpdate();
-
-    deleteFromLiveMeasures.select(SELECT_COMPONENTS_STATEMENT);
-    if (reviewRatingEffortId != null) {
-      deleteFromLiveMeasures.update("delete from live_measures where project_uuid = ? and metric_id in (?, ?)");
-    } else {
-      deleteFromLiveMeasures.update("delete from live_measures where project_uuid = ? and metric_id = ?");
-    }
-
-    deleteFromLiveMeasures.execute((row, update) -> {
-      String projectUuid = row.getString(1);
-      update.setString(1, projectUuid)
-        .setInt(2, reviewRatingId);
-      if (reviewRatingEffortId != null) {
-        update.setInt(3, reviewRatingEffortId);
-      }
-      return true;
-    });
   }
 
   private static void deleteFromProjectMeasures(Context context, Integer reviewRatingId, @Nullable Integer reviewRatingEffortId) throws SQLException {

@@ -34,9 +34,11 @@ public class DbVersion82 implements DbVersion {
       .add(3205, "Add PROJECTS table", CreateProjectsTable.class)
       .add(3206, "Populate PROJECTS table", PopulateProjectsTable.class)
       .add(3207, "Drop 'TAGS' column from COMPONENTS table", DropTagsColumnFromComponentsTable.class)
-      .add(3208, "Remove old Security Review Rating measures", DeleteSecurityReviewRatingMeasures.class)
       .add(3209, "Create ALM_PATS table", CreateAlmPatsTable.class)
       .add(3210, "Add index on ALM_slug", AddIndexOnSlugOfProjectAlmSettings.class)
-      .add(3211, "Delete conditions using 'security_hotspots' and 'new_security_hotspots' metrics", DeleteQgateConditionsUsingSecurityHotspotMetrics.class);
+      .add(3211, "Delete conditions using 'security_hotspots' and 'new_security_hotspots' metrics", DeleteQgateConditionsUsingSecurityHotspotMetrics.class)
+      .add(3212, "Remove old Security Review Rating LiveMeasures", DeleteSecurityReviewRatingLiveMeasures.class)
+
+    ;
   }
 }

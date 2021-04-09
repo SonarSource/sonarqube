@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,8 +32,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DeleteSecurityReviewRatingMeasuresTest {
-  private static final String PROJECT_MEASURES_TABLE_NAME = "PROJECT_MEASURES";
+public class DeleteSecurityReviewRatingLiveMeasuresTest {
   private static final String LIVE_MEASURES_TABLE_NAME = "LIVE_MEASURES";
 
   private static final int SECURITY_REVIEW_RATING_METRIC_ID = 200;
@@ -47,9 +45,9 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   private static final int OTHER_METRIC_MEASURES_COUNT = 20;
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DeleteSecurityReviewRatingMeasuresTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteSecurityReviewRatingLiveMeasuresTest.class, "schema.sql");
 
-  private final DataChange underTest = new DeleteSecurityReviewRatingMeasures(db.database());
+  private final DataChange underTest = new DeleteSecurityReviewRatingLiveMeasures(db.database());
 
   @Before
   public void before() {
@@ -59,13 +57,11 @@ public class DeleteSecurityReviewRatingMeasuresTest {
 
   @Test
   public void not_fail_if_metrics_not_defined() throws SQLException {
-    String projectUuid = insertComponent("PRJ", "TRK");
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, projectUuid);
+    String projectUuid = insertComponent("TRK");
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, projectUuid);
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(1);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(1);
   }
 
@@ -73,20 +69,16 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   public void not_fail_if_security_review_rating_effort_metric_not_found() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
 
-    String applicationUuid = insertComponent("PRJ", "TRK");
+    String applicationUuid = insertComponent("TRK");
 
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
 
-    generateOtherMetricMeasures(2, applicationUuid);
     generateOtherMetricsLiveMeasures(applicationUuid);
 
     underTest.execute();
 
-    assertSecurityReviewRatingMeasuresDeleted();
     assertSecurityReviewRatingLiveMeasuresDeleted();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
 
     // should not fail if called twice
@@ -94,24 +86,20 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   }
 
   @Test
-  public void remove_security_rating_review_from_measures_and_live_measures_projects() throws SQLException {
+  public void remove_security_rating_review_from_live_measures_projects() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
     insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
 
-    String applicationUuid = insertComponent("PRJ", "TRK");
+    String applicationUuid = insertComponent("TRK");
 
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
 
-    generateOtherMetricMeasures(2, applicationUuid);
     generateOtherMetricsLiveMeasures(applicationUuid);
 
     underTest.execute();
 
-    assertSecurityReviewRatingMeasuresDeleted();
     assertSecurityReviewRatingLiveMeasuresDeleted();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
 
     // should not fail if called twice
@@ -119,18 +107,12 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   }
 
   @Test
-  public void remove_security_rating_review_from_measures_and_live_measures_for_portfolios() throws SQLException {
+  public void remove_security_rating_review_from_live_measures_for_portfolios() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
     insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
 
-    String portfolioUuid = insertComponent("PRJ", "VW");
-    String subPortfolioUuid = insertComponent("PRJ", "SVW");
-
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid);
-    insertMeasure(2, SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid);
-
-    insertMeasure(3, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid);
-    insertMeasure(4, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid);
+    String portfolioUuid = insertComponent("VW");
+    String subPortfolioUuid = insertComponent("SVW");
 
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid, portfolioUuid);
     insertLiveMeasure("uuid-2", SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
@@ -138,16 +120,12 @@ public class DeleteSecurityReviewRatingMeasuresTest {
     insertLiveMeasure("uuid-3", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid, portfolioUuid);
     insertLiveMeasure("uuid-4", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
 
-
-    generateOtherMetricMeasures(5, portfolioUuid);
     generateOtherMetricsLiveMeasures(portfolioUuid);
 
     underTest.execute();
 
-    assertSecurityReviewRatingMeasuresDeleted();
     assertSecurityReviewRatingLiveMeasuresDeleted();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
 
     // should not fail if called twice
@@ -155,67 +133,20 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   }
 
   @Test
-  public void remove_security_rating_review_from_measures_and_live_measures_applications() throws SQLException {
+  public void remove_security_rating_review_from_live_measures_applications() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
     insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
 
-    String applicationUuid = insertComponent("PRJ", "APP");
+    String applicationUuid = insertComponent("APP");
 
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
 
-    generateOtherMetricMeasures(2, applicationUuid);
     generateOtherMetricsLiveMeasures(applicationUuid);
 
     underTest.execute();
 
-    assertSecurityReviewRatingMeasuresDeleted();
     assertSecurityReviewRatingLiveMeasuresDeleted();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
-    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
-
-    // should not fail if called twice
-    underTest.execute();
-  }
-
-  @Test
-  public void remove_security_rating_review_from_measures_and_live_measures_mixed() throws SQLException {
-    insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
-    insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
-
-    String portfolioUuid = insertComponent("PRJ", "VW");
-    String subPortfolioUuid = insertComponent("PRJ", "SVW");
-    String applicationUuid = insertComponent("PRJ", "APP");
-    String projectUuid = insertComponent("PRJ", "TRK");
-
-    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid);
-    insertMeasure(2, SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid);
-    insertMeasure(3, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
-    insertMeasure(4, SECURITY_REVIEW_RATING_METRIC_ID, projectUuid);
-
-    insertMeasure(5, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid);
-    insertMeasure(6, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid);
-
-    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid, portfolioUuid);
-    insertLiveMeasure("uuid-2", SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
-    insertLiveMeasure("uuid-3", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
-    insertLiveMeasure("uuid-4", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, projectUuid);
-    insertLiveMeasure("uuid-5", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, getRandomUuid());
-    insertLiveMeasure("uuid-6", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, getRandomUuid());
-
-    insertLiveMeasure("uuid-7", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid, portfolioUuid);
-    insertLiveMeasure("uuid-8", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
-
-    generateOtherMetricMeasures(7, projectUuid);
-    generateOtherMetricsLiveMeasures(projectUuid);
-
-    underTest.execute();
-
-    assertSecurityReviewRatingMeasuresDeleted();
-    assertSecurityReviewRatingLiveMeasuresDeleted();
-
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
 
     // should not fail if called twice
@@ -228,7 +159,6 @@ public class DeleteSecurityReviewRatingMeasuresTest {
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isZero();
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isZero();
   }
 
@@ -239,29 +169,9 @@ public class DeleteSecurityReviewRatingMeasuresTest {
       .collect(Collectors.toList());
   }
 
-  private void generateOtherMetricMeasures(int startId, String componentUuid) {
-    IntStream.range(startId, startId + OTHER_METRIC_MEASURES_COUNT)
-      .peek(i -> insertMeasure(i, new Random().nextBoolean() ? OTHER_METRIC_ID_1 : OTHER_METRIC_ID_2, componentUuid))
-      .boxed()
-      .collect(Collectors.toList());
-  }
-
   private void assertSecurityReviewRatingLiveMeasuresDeleted() {
     assertThat(db.countSql("select count(uuid) from LIVE_MEASURES where metric_id = " + SECURITY_REVIEW_RATING_METRIC_ID))
       .isZero();
-  }
-
-  private void assertSecurityReviewRatingMeasuresDeleted() {
-    assertThat(db.countSql("select count(id) from project_measures where metric_id = " + SECURITY_REVIEW_RATING_METRIC_ID))
-      .isZero();
-  }
-
-  private void insertMeasure(int id, int metricId, String componentUuid) {
-    db.executeInsert("PROJECT_MEASURES",
-      "ID", id,
-      "METRIC_ID", metricId,
-      "ANALYSIS_UUID", getRandomUuid(),
-      "COMPONENT_UUID", componentUuid);
   }
 
   private String getRandomUuid() {
@@ -286,7 +196,7 @@ public class DeleteSecurityReviewRatingMeasuresTest {
       "QUALITATIVE", true);
   }
 
-  private String insertComponent(String scope, String qualifier) {
+  private String insertComponent(String qualifier) {
     int id = nextInt();
     String uuid = getRandomUuid();
     db.executeInsert("COMPONENTS",
@@ -297,7 +207,7 @@ public class DeleteSecurityReviewRatingMeasuresTest {
       "UUID_PATH", ".",
       "ROOT_UUID", uuid,
       "PRIVATE", Boolean.toString(false),
-      "SCOPE", scope,
+      "SCOPE", "PRJ",
       "QUALIFIER", qualifier);
     return uuid;
   }
