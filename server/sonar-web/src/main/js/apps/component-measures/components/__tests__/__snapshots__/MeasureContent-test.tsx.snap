@@ -97,6 +97,8 @@ exports[`should render correctly for a file 1`] = `
     >
       <SourceViewer
         component="foo:src/index.tsx"
+        metricKey="bugs"
+        scroll={[Function]}
       />
     </div>
   </div>

@@ -328,6 +328,7 @@ exports[`should render correctly with coverage 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
+    scroll={[MockFunction]}
   />
   <LineCode
     branchLike={

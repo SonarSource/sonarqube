@@ -37,6 +37,20 @@ it('should render correctly', () => {
   );
 });
 
+it('should correctly trigger a scroll', () => {
+  const element = { current: {} };
+  jest.spyOn(React, 'useEffect').mockImplementation(f => f());
+  jest.spyOn(React, 'useRef').mockImplementation(() => element);
+
+  const scroll = jest.fn();
+  shallowRender({ scroll, scrollToUncoveredLine: true });
+  expect(scroll).toHaveBeenCalledWith(element.current);
+
+  scroll.mockReset();
+  shallowRender({ scroll, scrollToUncoveredLine: false });
+  expect(scroll).not.toHaveBeenCalled();
+});
+
 function shallowRender(props: Partial<LineCoverageProps> = {}) {
   return shallow(<LineCoverage line={{ line: 3, coverageStatus: 'covered' }} {...props} />);
 }

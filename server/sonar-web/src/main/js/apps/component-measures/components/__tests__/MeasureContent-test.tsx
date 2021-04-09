@@ -19,10 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponentTree } from '../../../../api/components';
 import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks';
 import MeasureContent from '../MeasureContent';
+
+jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
+}));
 
 jest.mock('../../../../api/components', () => {
   const { mockComponentMeasure } = jest.requireActual('../../../../helpers/testMocks');
@@ -57,8 +62,27 @@ const METRICS = {
   bugs: { id: '1', key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' }
 };
 
+const WINDOW_HEIGHT = 800;
+const originalHeight = window.innerHeight;
+
 beforeEach(() => {
   jest.clearAllMocks();
+});
+
+beforeAll(() => {
+  Object.defineProperty(window, 'innerHeight', {
+    writable: true,
+    configurable: true,
+    value: WINDOW_HEIGHT
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'innerHeight', {
+    writable: true,
+    configurable: true,
+    value: originalHeight
+  });
 });
 
 it('should render correctly for a project', async () => {
@@ -81,8 +105,19 @@ it('should render correctly for a file', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should correctly handle scrolling', () => {
+  const element = {} as Element;
+  const wrapper = shallowRender();
+  wrapper.instance().handleScroll(element);
+  expect(scrollToElement).toBeCalledWith(element, {
+    topOffset: 300,
+    bottomOffset: 400,
+    smooth: true
+  });
+});
+
 function shallowRender(props: Partial<MeasureContent['props']> = {}) {
-  return shallow(
+  return shallow<MeasureContent>(
     <MeasureContent
       metrics={METRICS}
       requestedMetric={{ direction: 1, key: 'bugs' }}

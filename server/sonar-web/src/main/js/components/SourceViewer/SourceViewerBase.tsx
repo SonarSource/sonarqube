@@ -90,6 +90,7 @@ export interface Props {
   scroll?: (element: HTMLElement) => void;
   selectedIssue?: string;
   showMeasures?: boolean;
+  metricKey?: string;
   slimHeader?: boolean;
 }
 
@@ -609,6 +610,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         openIssuesByLine={this.state.openIssuesByLine}
         renderDuplicationPopup={this.renderDuplicationPopup}
         scroll={this.props.scroll}
+        metricKey={this.props.metricKey}
         selectedIssue={this.state.selectedIssue}
         sources={sources}
         symbolsByLine={this.state.symbolsByLine}

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
+import { MetricKey } from '../../types/metrics';
 import Line from './components/Line';
 import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
 import {
@@ -75,12 +76,21 @@ interface Props {
   openIssuesByLine: { [line: number]: boolean };
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement) => void;
+  metricKey?: string;
   selectedIssue: string | undefined;
   sources: T.SourceLine[];
   symbolsByLine: { [line: number]: string[] };
 }
 
 export default class SourceViewerCode extends React.PureComponent<Props> {
+  firstUncoveredLineFound = false;
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.metricKey !== prevProps.metricKey) {
+      this.firstUncoveredLineFound = false;
+    }
+  }
+
   getDuplicationsForLine = (line: T.SourceLine): number[] => {
     return this.props.duplicationsByLine[line.line] || EMPTY_ARRAY;
   };
@@ -106,13 +116,32 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     displayDuplications: boolean;
     displayIssues: boolean;
   }) => {
-    const { highlightedLocationMessage, highlightedLocations, selectedIssue, sources } = this.props;
+    const {
+      highlightedLocationMessage,
+      highlightedLocations,
+      metricKey,
+      selectedIssue,
+      sources
+    } = this.props;
 
     const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, highlightedLocations);
 
     const duplicationsCount = this.props.duplications ? this.props.duplications.length : 0;
 
     const issuesForLine = this.getIssuesForLine(line);
+
+    let scrollToUncoveredLine = false;
+    if (
+      !this.firstUncoveredLineFound &&
+      displayCoverage &&
+      line.coverageStatus &&
+      ['uncovered', 'partially-covered'].includes(line.coverageStatus)
+    ) {
+      scrollToUncoveredLine =
+        (metricKey === MetricKey.new_uncovered_lines && line.isNew) ||
+        metricKey === MetricKey.uncovered_lines;
+      this.firstUncoveredLineFound = scrollToUncoveredLine;
+    }
 
     return (
       <Line
@@ -154,6 +183,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         previousLine={index > 0 ? sources[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         scroll={this.props.scroll}
+        scrollToUncoveredLine={scrollToUncoveredLine}
         secondaryIssueLocations={secondaryIssueLocations}
         selectedIssue={optimizeSelectedIssue(selectedIssue, issuesForLine)}
       />

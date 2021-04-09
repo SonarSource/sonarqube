@@ -23,16 +23,25 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 
 export interface LineCoverageProps {
   line: T.SourceLine;
+  scroll?: (element: HTMLElement) => void;
+  scrollToUncoveredLine?: boolean;
 }
 
-export function LineCoverage({ line }: LineCoverageProps) {
+export function LineCoverage({ line, scroll, scrollToUncoveredLine }: LineCoverageProps) {
+  const coverageMarker = React.useRef<HTMLTableDataCellElement>(null);
+  React.useEffect(() => {
+    if (scrollToUncoveredLine && scroll && coverageMarker.current) {
+      scroll(coverageMarker.current);
+    }
+  }, [scrollToUncoveredLine, scroll, coverageMarker]);
+
   const className =
     'source-meta source-line-coverage' +
     (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
   const status = getStatusTooltip(line);
 
   return (
-    <td className={className} data-line-number={line.line}>
+    <td className={className} data-line-number={line.line} ref={coverageMarker}>
       <Tooltip overlay={status} placement="right">
         <div aria-label={status} className="source-line-bar" />
       </Tooltip>

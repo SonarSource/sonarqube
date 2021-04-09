@@ -22,6 +22,7 @@ import { InjectedRouter } from 'react-router';
 import PageActions from 'sonar-ui-common/components/ui/PageActions';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { RequestData } from 'sonar-ui-common/helpers/request';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -252,6 +253,11 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   };
 
+  handleScroll = (element: Element) => {
+    const offset = window.innerHeight / 2;
+    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth: true });
+  };
+
   renderMeasure() {
     const { view } = this.props;
     const { metric } = this.state;
@@ -365,7 +371,9 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
               <SourceViewer
                 branchLike={branchLike}
                 component={baseComponent.key}
+                metricKey={this.state.metric?.key}
                 onIssueChange={this.props.onIssueChange}
+                scroll={this.handleScroll}
               />
             </div>
           ) : (
