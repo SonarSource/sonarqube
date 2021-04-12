@@ -28,6 +28,7 @@ import {
 } from '../../../api/plugins';
 import { getValues, setSimpleSettingValue } from '../../../api/settings';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { EditionKey } from '../../../types/editions';
 import { RiskConsent } from '../../../types/plugins';
 import { SettingsKey } from '../../../types/settings';
 import { App } from '../App';
@@ -56,6 +57,11 @@ it('should render correctly', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('loaded');
+
+  wrapper.setProps({ currentEdition: EditionKey.community, standaloneMode: true });
+  wrapper.setState({ riskConsent: RiskConsent.Accepted });
+
+  expect(wrapper).toMatchSnapshot('not readonly');
 });
 
 it('should handle accepting the risk', async () => {

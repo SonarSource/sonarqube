@@ -147,6 +147,15 @@ export class App extends React.PureComponent<Props, State> {
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = filterPlugins(plugins, query.search);
 
+    /*
+     * standalone mode is true when cluster mode is not active. We preserve this
+     * condition if it ever becomes possible to have a community edition NOT in standalone mode.
+     */
+    const allowActions =
+      currentEdition === EditionKey.community &&
+      Boolean(standaloneMode) &&
+      riskConsent === RiskConsent.Accepted;
+
     return (
       <div className="page page-limited" id="marketplace-page">
         <Suggestions suggestions="marketplace" />
@@ -196,7 +205,7 @@ export class App extends React.PureComponent<Props, State> {
               <PluginsList
                 pending={pendingPlugins}
                 plugins={filteredPlugins}
-                readOnly={!standaloneMode || riskConsent !== RiskConsent.Accepted}
+                readOnly={!allowActions}
                 refreshPending={this.props.fetchPendingPlugins}
               />
               <Footer total={filteredPlugins.length} />
