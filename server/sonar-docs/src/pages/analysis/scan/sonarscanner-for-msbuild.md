@@ -3,21 +3,35 @@ url: /analysis/scan/sonarscanner-for-msbuild/
 title: SonarScanner for .NET
 ---
 
+<!-- sonarqube -->
 <update-center updatecenterkey="scannermsbuild"></update-center>
+<!-- /sonarqube -->
+
+<!-- sonarcloud -->
+[[info]]
+| **Download SonarScanner for .NET 5.2.0** - [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) - [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
+|
+| [Standalone executables](https://github.com/SonarSource/sonar-scanner-msbuild/releases/tag/5.2.0.29862) |
+| [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
+<!-- /sonarcloud -->
 
 [[info]]
 | Since version 5.0, the SonarScanner for MSBuild is now the SonarScanner for .NET. 
 | documentation is updated with that new name, artifacts and links will remain with the old name for now.
 
-The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](http://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
+The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](https://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
 
-SonarScanner for .NET is distributed as a standalone command line executable, as an extension for [Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/), and as a plugin for [Jenkins](/analysis/scan/sonarscanner-for-jenkins/).
+SonarScanner for .NET is distributed as a standalone command line executable, as an extension for <!-- sonarcloud -->[Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)<!-- /sonarcloud --><!-- sonarqube -->[Azure DevOps Server](/analysis/scan/sonarscanner-for-azure-devops/)<!-- /sonarqube -->, and as a plugin for [Jenkins](/analysis/scan/sonarscanner-for-jenkins/).
 
 It supports .Net Core on every platform (Windows, macOS, Linux).
 
 ## Prerequisites
-
+<!-- sonarqube -->
 * At least the minimal version of Java supported by your SonarQube server
+<!-- /sonarqube -->
+<!-- sonarcloud -->
+* Java 11 or greater
+<!-- /sonarcloud -->
 * The SDK corresponding to your build system:
    * [.NET Framework v4.6](https://www.microsoft.com/en-us/download/details.aspx?id=53344) - either [Build Tools for Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=615458) or the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/)
    * [.NET Core SDK 2.0 and above](https://dotnet.microsoft.com/download) (for .NET Core version of the scanner or if you plan to use [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
@@ -27,13 +41,14 @@ It supports .Net Core on every platform (Windows, macOS, Linux).
 | project you want to analyze has been built with. Concretely, you can analyze .NET Core code with the .NET Framework version of 
 | the Scanner. It's only relevant depending on your OS, and on the versions of .NET SDKs that are installed on your build machine.
 
+<!-- sonarqube -->
 ### Compatibility
 
 Scanner Version|SonarQube
 ---|---
 5.x| LTS 6.7+
 4.x| LTS 6.7+
-
+<!-- /sonarqube -->
 ## Installation
 
 ### Standalone executable
@@ -42,12 +57,12 @@ Scanner Version|SonarQube
   * On Windows, you might need to unblock the ZIP file first (right-click **file > Properties > Unblock**).
   * On Linux/OSX you may need to set execute permissions on the files in `$install_directory/sonar-scanner-(version)/bin`.
 
-* Uncomment, and update the global settings to point to your SonarQube server by editing `$install_directory/SonarQube.Analysis.xml`. Values set in this file will be applied to all analyses of all projects unless overwritten locally.  
+* Uncomment, and update the global settings to point to <!-- sonarqube -->your SonarQube server<!-- /sonarqube --><!-- sonarcloud -->SonarCloud<!-- /sonarcloud --> by editing `$install_directory/SonarQube.Analysis.xml`. Values set in this file will be applied to all analyses of all projects unless overwritten locally.  
 Consider setting file system permissions to restrict access to this file.:
 
 ```xml
 <SonarQubeAnalysisProperties  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <Property Name="sonar.host.url">http://localhost:9000</Property>
+  <Property Name="sonar.host.url"><!-- sonarqube -->http://localhost:9000<!-- /sonarqube --><!-- sonarcloud -->https://sonarcloud.io<!-- /sonarcloud --></Property>
   <Property Name="sonar.login">[my-user-token]</Property>
 </SonarQubeAnalysisProperties>
 ```
@@ -64,10 +79,12 @@ The _--version_ argument is optional. If it is omitted the latest version will b
 
 .NET Core Global Tool is available from .NET Core 2.1+
 
+<!-- sonarqube -->
 ### On Linux/OSX, if your SonarQube server is secured
 
 1. Copy the server's CA certs to `/usr/local/share/ca-certificates`
 2. Run `sudo update-ca-certificates`
+<!-- /sonarqube -->
 
 ## Use
 
@@ -82,9 +99,9 @@ There are two versions of the SonarScanner for .NET. In the following commands, 
 The first version is based on the "classic" .NET Framework. To use it, execute the following commands from the root folder of your project:
 
 ```
-SonarScanner.MSBuild.exe begin /k:"project-key" /d:sonar.login="myAuthenticationToken" 
+SonarScanner.MSBuild.exe begin /k:"project-key" <!-- sonarcloud -->/o:"<organization>" <!-- /sonarcloud -->/d:sonar.login="<token>"
 MSBuild.exe <path to solution.sln> /t:Rebuild
-SonarScanner.MSBuild.exe end /d:sonar.login="myAuthenticationToken"
+SonarScanner.MSBuild.exe end /d:sonar.login="<token>"
 ```
 
 Note: On macOS or Linux, you can also use `mono <path to SonarScanner.MSBuild.exe>`.
@@ -94,9 +111,9 @@ Note: On macOS or Linux, you can also use `mono <path to SonarScanner.MSBuild.ex
 The second version is based on .NET Core which has a very similar usage:
 
 ```bash
-dotnet <path to SonarScanner.MSBuild.dll> begin /k:"project-key" /d:sonar.login="<token>"
+dotnet <path to SonarScanner.MSBuild.dll> begin /k:"project-key" <!-- sonarcloud -->/o:"<organization>" <!-- /sonarcloud -->/d:sonar.login="<token>"
 dotnet build <path to solution.sln>
-dotnet <path to SonarScanner.MSBuild.dll> end /d:sonar.login="myAuthenticationToken" 
+dotnet <path to SonarScanner.MSBuild.dll> end /d:sonar.login="<token>" 
 ```
 
 The .NET Core version can also be used as a .NET Core Global Tool.
@@ -104,9 +121,9 @@ After installing the Scanner as a global tool as described above it can be invok
 
 ```bash
 dotnet tool install --global dotnet-sonarscanner
-dotnet sonarscanner begin /k:"project-key"  /d:sonar.login="myAuthenticationToken"
+dotnet sonarscanner begin /k:"project-key" <!-- sonarcloud -->/o:"<organization>" <!-- /sonarcloud -->/d:sonar.login="<token>"
 dotnet build <path to solution.sln>
-dotnet sonarscanner end /d:sonar.login="myAuthenticationToken"
+dotnet sonarscanner end /d:sonar.login="<token>"
 ```
 
 In summary, the invocation of the SonarScanner for .NET will depend on the scanner flavor:
@@ -117,7 +134,6 @@ In summary, the invocation of the SonarScanner for .NET will depend on the scann
  .NET Core Global Tool | `dotnet sonarscanner begin` etc.
  .NET Core 2.0+ | `dotnet <path to SonarScanner.MSBuild.dll>` etc.
  .NET Framework 4.6+|`SonarScanner.MSBuild.exe begin` etc.
-
 
 Notes:
 
@@ -131,35 +147,37 @@ Command Line Parameters:
 
 Parameter|Description
 ---|---
-`/k:<project-key>`|[required] Specifies the key of the analyzed project in SonarQube
-`/n:<project name>`|[optional] Specifies the name of the analyzed project in SonarQube. Adding this argument will overwrite the project name in SonarQube if it already exists.
+`/k:<project-key>`|[required] Specifies the key of the analyzed project in {instance}
+`/n:<project name>`|[optional] Specifies the name of the analyzed project in {instance}. Adding this argument will overwrite the project name in {instance} if it already exists.
 `/v:<version>`|[recommended] Specifies the version of your project.
-`/d:sonar.login=<token> or <username>`| [recommended] Specifies the [authentication token](/user-guide/user-token/) or username used to authenticate with to SonarQube. If this argument is added to the begin step, it must also be added to the end step.
-`/d:sonar.password=<password>`|[optional] Specifies the password for the SonarQube username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
+<!-- sonarcloud --> `/o:<organization>`|[required] Specifies the name of the target organization in SonarCloud. <!-- /sonarcloud -->
+`/d:sonar.login=<token> or <username>`| [recommended] Specifies the [authentication token](/user-guide/user-token/) or username used to authenticate with to {instance}. If this argument is added to the begin step, it must also be added to the end step.
+`/d:sonar.password=<password>`|[optional] Specifies the password for the {instance} username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
-`/d:<analysis-parameter>=<value>`|[optional] Specifies an additional SonarQube [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
+`/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
+`/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
 
 For detailed information about all available parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
 
 [[warning]]
 | ![](/images/exclamation.svg) The "begin" step will modify your build like this:
-| * the active `CodeAnalysisRuleSet` will be updated to match the SonarQube quality profile
+| * the active `CodeAnalysisRuleSet` will be updated to match the {instance} quality profile
 | * `WarningsAsErrors` will be turned off
 |
-| If your build process cannot tolerate these changes we recommend creating a second build job for SonarQube analysis.
+| If your build process cannot tolerate these changes we recommend creating a second build job for {instance} analysis.
 
 ### Build
 Between the `begin` and `end` steps, you need to build your project, execute tests and generate code coverage data. This part is specific to your needs and it is not detailed here.
 
 ### End
-The end step is executed when you add the "end" command line argument. It cleans the MSBuild/dotnet build hooks, collects the analysis data generated by the build, the test results, the code coverage and then uploads everything to SonarQube
+The end step is executed when you add the "end" command line argument. It cleans the MSBuild/dotnet build hooks, collects the analysis data generated by the build, the test results, the code coverage and then uploads everything to {instance}
 
 There are only two additional arguments that are allowed for the end step:
 
 Parameter|Description
 ---|---
 `/d:sonar.login=<token> or <username>`| This argument is required if it was added to the begin step.
-`/d:sonar.password=<password>`|[optional] This argument is required if it was added to the begin step and you are not using an authentication token.
+`/d:sonar.password=<password>`| This argument is required if it was added to the begin step and you are not using an authentication token.
 
 ### Known Limitations
 
@@ -173,7 +191,7 @@ In a Azure DevOps / TFS environment, test files are automatically retrieved foll
 * Search for .trx files in any TestResults folder located under the $Build.SourcesDirectory path
 * If not found, then a fallback search is made against $Agent.TempDirectory
 
-Once trx files have been found, their `.coverage` counterpart are searched as well and the scanner tries to convert them to `.coveragexml` files that will be uploaded to SonarQube.
+Once trx files have been found, their `.coverage` counterpart are searched as well and the scanner tries to convert them to `.coveragexml` files that will be uploaded to {instance}.
 CodeCoverage.exe tool is used for that, and the scanner also needs to find a path to that tool, following this search path
 * Search for the presence of `VsTestToolsInstallerInstalledToolLocation` environment variable, set by the VsTestToolsPlatformInstaller task or by the user
 * If not found, search for either the presence of that tool in well-known installation path, or via the registry.
@@ -202,7 +220,7 @@ Projects targeting older versions of the .NET Framework can be built using MSBui
 * [How to: Target a Version of the .NET Framework](https://msdn.microsoft.com/en-us/library/bb398202.aspx)
 * [MSBuild Target Framework and Target Platform](https://msdn.microsoft.com/en-us/library/hh264221.aspx)
 
-If you do not want to switch your production build to MSBuild 14.0, you can set up a separate build dedicated to the SonarQube analysis.
+If you do not want to switch your production build to MSBuild 14.0, you can set up a separate build dedicated to the {instance} analysis.
 
 **Detection of test projects**
 
@@ -219,20 +237,6 @@ Some analysis parameters can be set for a single MSBuild project by adding them 
   </SonarQubeSetting>
 </ItemGroup>
 ```
-
-**Concurrent Analyses on the Same Build Machine**  
-Concurrent analyses (i.e. parallel analysis of two solutions on the same build machine using a unique service account) are not supported by default by the Scanner for .NET. You can enable it as follows:
-
-1. Locate the folder containing the Scanner for .NET
-1. Go in the `Targets` folder and copy the folder `SonarQube.Integration.ImportBefore.targets`
-1. Paste it under your build tool global `ImportBefore` folder (if the folder doesn't exist, create it).
-   * For MSBuild, the path is `<MSBUILD_INSTALL_DIR>\<Version>\Microsoft.Common.targets\ImportBefore` where <MSBUILD_INSTALL_DIR> is:
-      * For v14, default path is: `C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.Targets\ImportBefore`
-      * For v15, default path is: `C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Microsoft.Common.targets\ImportBefore` (for VS Community Edition)
-      * For v16, default path is: `C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Microsoft.Common.targets` (for VS Enterprise Edition)
-   * For dotnet, the path is `<DOTNET_SDK_INSTALL_DIR>\15.0\Microsoft.Common.targets\ImportBefore` where `<DOTNET_SDK_INSTALL_DIR>` can be found using the `dotnet --info` and looking for the Base Path property.
-
-The performance impact of this global installation for projects that aren't analyzed is negligible as this target is only a bootstrapper and will bail out nearly instantaneously when the `.sonarqube` folder is not found under the folder being built.
 
 **Analyzing languages other than C# and VB**
 
@@ -253,7 +257,7 @@ You can also add `ItemTypes` to the default list by following the directions [he
 You can check which files the scanner will analyze by looking in the file .sonarqube\out\sonar-project.properties after MSBuild has finished.
 
 **Using SonarScanner for .NET with a Proxy**  
-On build machines that connect to the Internet through a proxy server you might experience difficulties connecting to SonarQube. To instruct the Java VM to use the system proxy settings, you need to set the following environment variable before running the SonarScanner for .NET:
+On build machines that connect to the Internet through a proxy server you might experience difficulties connecting to {instance}. To instruct the Java VM to use the system proxy settings, you need to set the following environment variable before running the SonarScanner for .NET:
 
 ```bash
 SONAR_SCANNER_OPTS = "-Djava.net.useSystemProxies=true"
@@ -266,4 +270,16 @@ SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyP
 ```
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html.
 
-Since version 5.0 of the scanner, HTTP_PROXY, HTTPS_PROXY, ALL_PROXY and NO_PROXY will be automatically recognized and use to make call against SonarQube. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
+HTTP_PROXY, HTTPS_PROXY, ALL_PROXY and NO_PROXY will be automatically recognized and use to make call against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
+
+## Known issues
+
+**I have multiple builds in the same pipeline, each of them getting analyzed even if the Run Code Analysis has already been executed**
+
+We don't uninstall the global `ImportBefore` targets to support concurrent analyses on the same machine. Main effect is that if you build a solution where a .sonarqube folder is located nearby, then the sonar-dotnet analyzer will be executed along your build task.
+
+To avoid that, you can disable the targets file by adding a build parameter:
+```
+msbuild /p:SonarQubeTargetsImported=true
+dotnet build -p:SonarQubeTargetsImported=true
+```
