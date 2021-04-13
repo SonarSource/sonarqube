@@ -19,8 +19,8 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,13 +38,13 @@ public class HazelcastMemberSelectorsTest {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(COMPUTE_ENGINE);
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
     assertThat(underTest.select(member)).isTrue();
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
     assertThat(underTest.select(member)).isFalse();
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
     assertThat(underTest.select(member)).isFalse();
   }
 
@@ -53,13 +53,13 @@ public class HazelcastMemberSelectorsTest {
     Member member = mock(Member.class);
     MemberSelector underTest = HazelcastMemberSelectors.selectorForProcessIds(WEB_SERVER, APP);
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(COMPUTE_ENGINE.getKey());
     assertThat(underTest.select(member)).isFalse();
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(WEB_SERVER.getKey());
     assertThat(underTest.select(member)).isTrue();
 
-    when(member.getStringAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
+    when(member.getAttribute(PROCESS_KEY.getKey())).thenReturn(APP.getKey());
     assertThat(underTest.select(member)).isTrue();
   }
 }

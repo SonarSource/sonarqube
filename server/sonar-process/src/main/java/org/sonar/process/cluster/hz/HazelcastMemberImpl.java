@@ -19,16 +19,17 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Cluster;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
 import com.hazelcast.core.MultiExecutionCallback;
+import com.hazelcast.cp.IAtomicReference;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +48,7 @@ class HazelcastMemberImpl implements HazelcastMember {
 
   @Override
   public <E> IAtomicReference<E> getAtomicReference(String name) {
-    return hzInstance.getAtomicReference(name);
+    return hzInstance.getCPSubsystem().getAtomicReference(name);
   }
 
   @Override
@@ -56,18 +57,18 @@ class HazelcastMemberImpl implements HazelcastMember {
   }
 
   @Override
-  public String getUuid() {
+  public UUID getUuid() {
     return hzInstance.getLocalEndpoint().getUuid();
   }
 
   @Override
-  public Set<String> getMemberUuids() {
+  public Set<UUID> getMemberUuids() {
     return hzInstance.getCluster().getMembers().stream().map(Member::getUuid).collect(Collectors.toSet());
   }
 
   @Override
   public Lock getLock(String s) {
-    return hzInstance.getLock(s);
+    return hzInstance.getCPSubsystem().getLock(s);
   }
 
   @Override

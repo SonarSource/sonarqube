@@ -24,6 +24,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.internal.util.AddressUtil;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-
-import com.hazelcast.util.AddressUtil;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
@@ -40,8 +41,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public class HazelcastMemberBuilder {
 
@@ -102,7 +101,7 @@ public class HazelcastMemberBuilder {
       return Collections.singletonList(host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue()));
     } else {
       List<String> membersToAdd = new ArrayList<>();
-      for (String memberIp : getAllByName(hostStripped)){
+      for (String memberIp : getAllByName(hostStripped)) {
         String prefix = memberIp.split("/")[1];
         LOG.debug("Found IP for: " + hostStripped + " : " + prefix);
         String memberPort = host.contains(":") ? host.split(":")[1] : CLUSTER_NODE_HZ_PORT.getDefaultValue();
@@ -129,7 +128,7 @@ public class HazelcastMemberBuilder {
     // Hazelcast does not fail when joining a cluster with different name.
     // Apparently this behavior exists since Hazelcast 3.8.2 (see note
     // at http://docs.hazelcast.org/docs/3.8.6/manual/html-single/index.html#creating-cluster-groups)
-    config.getGroupConfig().setName("SonarQube");
+    config.setClusterName("SonarQube");
 
     // Configure network
     NetworkConfig netConfig = config.getNetworkConfig();
@@ -162,8 +161,8 @@ public class HazelcastMemberBuilder {
       .setProperty("hazelcast.logging.type", "slf4j");
 
     MemberAttributeConfig attributes = config.getMemberAttributeConfig();
-    attributes.setStringAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));
-    attributes.setStringAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
+    attributes.setAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));
+    attributes.setAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
   }

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   public void writeMine(NodeHealth nodeHealth) {
     requireNonNull(nodeHealth, "nodeHealth can't be null");
 
-    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
+    Map<UUID, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and adding {}", new HashMap<>(sqHealthState), nodeHealth);
     }
@@ -59,8 +60,8 @@ public class SharedHealthStateImpl implements SharedHealthState {
 
   @Override
   public void clearMine() {
-    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    String clientUUID = hzMember.getUuid();
+    Map<UUID, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
+    UUID clientUUID = hzMember.getUuid();
     if (LOG.isTraceEnabled()) {
       LOG.trace("Reading {} and clearing for {}", new HashMap<>(sqHealthState), clientUUID);
     }
@@ -71,8 +72,8 @@ public class SharedHealthStateImpl implements SharedHealthState {
   public Set<NodeHealth> readAll() {
     long clusterTime = hzMember.getClusterTime();
     long timeout = clusterTime - TIMEOUT_30_SECONDS;
-    Map<String, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
-    Set<String> hzMemberUUIDs = hzMember.getMemberUuids();
+    Map<UUID, TimestampedNodeHealth> sqHealthState = readReplicatedMap();
+    Set<UUID> hzMemberUUIDs = hzMember.getMemberUuids();
     Set<NodeHealth> existingNodeHealths = sqHealthState.entrySet().stream()
       .filter(outOfDate(timeout))
       .filter(ofNonExistentMember(hzMemberUUIDs))
@@ -84,7 +85,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
     return ImmutableSet.copyOf(existingNodeHealths);
   }
 
-  private static Predicate<Map.Entry<String, TimestampedNodeHealth>> outOfDate(long timeout) {
+  private static Predicate<Map.Entry<UUID, TimestampedNodeHealth>> outOfDate(long timeout) {
     return entry -> {
       boolean res = entry.getValue().getTimestamp() > timeout;
       if (!res) {
@@ -94,7 +95,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
     };
   }
 
-  private static Predicate<Map.Entry<String, TimestampedNodeHealth>> ofNonExistentMember(Set<String> hzMemberUUIDs) {
+  private static Predicate<Map.Entry<UUID, TimestampedNodeHealth>> ofNonExistentMember(Set<UUID> hzMemberUUIDs) {
     return entry -> {
       boolean res = hzMemberUUIDs.contains(entry.getKey());
       if (!res) {
@@ -104,7 +105,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
     };
   }
 
-  private Map<String, TimestampedNodeHealth> readReplicatedMap() {
+  private Map<UUID, TimestampedNodeHealth> readReplicatedMap() {
     return hzMember.getReplicatedMap(HazelcastObjects.SQ_HEALTH_STATE);
   }
 

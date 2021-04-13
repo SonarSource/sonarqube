@@ -19,7 +19,7 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -77,7 +77,7 @@ public class DistributedAnswer<T> {
   public void propagateExceptions() {
     if (!failedMembers.isEmpty()) {
       String failedMemberNames = failedMembers.keySet().stream()
-        .map(m -> m.getStringAttribute(NODE_NAME.getKey()))
+        .map(m -> m.getAttribute(NODE_NAME.getKey()))
         .collect(Collectors.joining(", "));
       throw new IllegalStateException("Distributed cluster action in cluster nodes " + failedMemberNames + " (other nodes may have timed out)",
         failedMembers.values().iterator().next());
@@ -85,7 +85,7 @@ public class DistributedAnswer<T> {
 
     if (!timedOutMembers.isEmpty()) {
       String timedOutMemberNames = timedOutMembers.stream()
-        .map(m -> m.getStringAttribute(NODE_NAME.getKey()))
+        .map(m -> m.getAttribute(NODE_NAME.getKey()))
         .collect(Collectors.joining(", "));
       throw new IllegalStateException("Distributed cluster action timed out in cluster nodes " + timedOutMemberNames);
     }

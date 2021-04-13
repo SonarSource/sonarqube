@@ -19,6 +19,7 @@
  */
 package org.sonar.application.cluster;
 
+import java.util.UUID;
 import org.junit.Test;
 import org.sonar.process.ProcessId;
 
@@ -27,13 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClusterProcessTest {
   @Test
   public void test_equality() {
-    ClusterProcess clusterProcess = new ClusterProcess("A", ProcessId.WEB_SERVER);
+    UUID nodeUuid = UUID.randomUUID();
+    ClusterProcess clusterProcess = new ClusterProcess(nodeUuid, ProcessId.WEB_SERVER);
 
     assertThat(clusterProcess)
       .isNotEqualTo(null)
       .isEqualTo(clusterProcess)
-      .isNotEqualTo(new ClusterProcess("B", ProcessId.WEB_SERVER))
-      .isNotEqualTo(new ClusterProcess("A", ProcessId.ELASTICSEARCH))
-      .isEqualTo(new ClusterProcess("A", ProcessId.WEB_SERVER));
+      .isNotEqualTo(new ClusterProcess(UUID.randomUUID(), ProcessId.WEB_SERVER))
+      .isNotEqualTo(new ClusterProcess(nodeUuid, ProcessId.ELASTICSEARCH))
+      .isEqualTo(new ClusterProcess(nodeUuid, ProcessId.WEB_SERVER));
   }
 }

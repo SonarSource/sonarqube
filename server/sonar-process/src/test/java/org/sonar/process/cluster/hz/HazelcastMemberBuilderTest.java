@@ -24,7 +24,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,9 +48,9 @@ public class HazelcastMemberBuilderTest {
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   // use loopback for support of offline builds
-  private InetAddress loopback = InetAddress.getLoopbackAddress();
-  private InetAdressResolver inetAdressResolver = mock(InetAdressResolver.class);
-  private HazelcastMemberBuilder underTest = new HazelcastMemberBuilder(inetAdressResolver);
+  private final InetAddress loopback = InetAddress.getLoopbackAddress();
+  private final InetAdressResolver inetAdressResolver = mock(InetAdressResolver.class);
+  private final HazelcastMemberBuilder underTest = new HazelcastMemberBuilder(inetAdressResolver);
 
   @Before
   public void before() throws UnknownHostException {
@@ -79,8 +78,8 @@ public class HazelcastMemberBuilderTest {
       .setNetworkInterface(loopback.getHostAddress())
       .build();
 
-    assertThat(member.getUuid()).isNotEmpty();
-    assertThat(member.getClusterTime()).isGreaterThan(0);
+    assertThat(member.getUuid()).isNotNull();
+    assertThat(member.getClusterTime()).isPositive();
     assertThat(member.getCluster().getMembers()).hasSize(1);
     assertThat(member.getMemberUuids()).containsOnlyOnce(member.getUuid());
 

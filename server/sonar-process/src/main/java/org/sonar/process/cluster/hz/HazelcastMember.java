@@ -19,11 +19,12 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Cluster;
-import com.hazelcast.core.IAtomicReference;
-import com.hazelcast.core.MemberSelector;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.MemberSelector;
+import com.hazelcast.cp.IAtomicReference;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import org.sonar.process.ProcessId;
 
@@ -54,18 +55,18 @@ public interface HazelcastMember extends AutoCloseable {
 
   /**
    * Gets the replicated map shared by the cluster and identified by name.
-   * Result can be casted to {@link com.hazelcast.core.ReplicatedMap} if needed to
+   * Result can be casted to {@link com.hazelcast.replicatedmap.ReplicatedMap} if needed to
    * benefit from listeners.
    */
   <K, V> Map<K, V> getReplicatedMap(String name);
 
-  String getUuid();
+  UUID getUuid();
 
   /**
    * The UUIDs of all the members (both members and local clients of these members) currently connected to the
    * Hazelcast cluster.
    */
-  Set<String> getMemberUuids();
+  Set<UUID> getMemberUuids();
 
   /**
    * Gets lock among the cluster, identified by name

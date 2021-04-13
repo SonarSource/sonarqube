@@ -19,7 +19,7 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.MemberSelector;
+import com.hazelcast.cluster.MemberSelector;
 import java.util.List;
 import org.sonar.process.ProcessId;
 
@@ -35,7 +35,7 @@ public class HazelcastMemberSelectors {
   public static MemberSelector selectorForProcessIds(ProcessId... processIds) {
     List<ProcessId> processIdList = asList(processIds);
     return member -> {
-      ProcessId memberProcessId = fromKey(member.getStringAttribute(PROCESS_KEY.getKey()));
+      ProcessId memberProcessId = fromKey(member.getAttribute(PROCESS_KEY.getKey()));
       return processIdList.contains(memberProcessId);
     };
   }

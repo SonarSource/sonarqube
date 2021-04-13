@@ -20,6 +20,7 @@
 package org.sonar.application.cluster;
 
 import java.net.InetAddress;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -142,6 +143,23 @@ public class ClusterAppStateImplTest {
 
       // Registering a second different cluster name must trigger an exception
       underTest.registerClusterName("badClusterName");
+    }
+  }
+
+  @Test
+  public void return_hostname_if_node_is_leader() {
+    try (ClusterAppStateImpl underTest = createClusterAppState()) {
+      underTest.tryToLockWebLeader();
+      Optional<String> hostname = underTest.getLeaderHostName();
+      assertThat(hostname).isNotEmpty();
+    }
+  }
+
+  @Test
+  public void return_null_if_node_is_not_leader() {
+    try (ClusterAppStateImpl underTest = createClusterAppState()) {
+      Optional<String> hostname = underTest.getLeaderHostName();
+      assertThat(hostname).isEmpty();
     }
   }
 

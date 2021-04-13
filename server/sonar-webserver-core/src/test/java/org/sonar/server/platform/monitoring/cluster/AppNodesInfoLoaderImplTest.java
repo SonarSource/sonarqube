@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
-import com.hazelcast.nio.Address;
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collection;
@@ -41,7 +41,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 public class AppNodesInfoLoaderImplTest {
 
   private static final InetAddress AN_ADDRESS = InetAddress.getLoopbackAddress();
@@ -49,8 +48,8 @@ public class AppNodesInfoLoaderImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private HazelcastMember hzMember = mock(HazelcastMember.class);
-  private AppNodesInfoLoaderImpl underTest = new AppNodesInfoLoaderImpl(hzMember);
+  private final HazelcastMember hzMember = mock(HazelcastMember.class);
+  private final AppNodesInfoLoaderImpl underTest = new AppNodesInfoLoaderImpl(hzMember);
 
   @Test
   public void load_info_from_all_nodes() throws Exception {
@@ -90,7 +89,7 @@ public class AppNodesInfoLoaderImplTest {
 
   private Member newMember(String name) {
     Member member = mock(Member.class, Mockito.RETURNS_MOCKS);
-    when(member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME.getKey())).thenReturn(name);
+    when(member.getAttribute(HazelcastMember.Attribute.NODE_NAME.getKey())).thenReturn(name);
     when(member.getAddress()).thenReturn(new Address(AN_ADDRESS, 6789));
     return member;
   }

@@ -19,8 +19,8 @@
  */
 package org.sonar.process.cluster.hz;
 
+import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.memberselector.MemberSelectors;
-import com.hazelcast.core.Member;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;

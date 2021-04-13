@@ -22,6 +22,7 @@ package org.sonar.ce;
 import com.hazelcast.spi.exception.RetryableHazelcastException;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
@@ -50,7 +51,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
 
   @Override
   public Set<String> getWorkerUUIDs() {
-    Set<String> connectedWorkerUUIDs = hazelcastMember.getMemberUuids();
+    Set<UUID> connectedWorkerUUIDs = hazelcastMember.getMemberUuids();
 
     return getClusteredWorkerUUIDs().entrySet().stream()
       .filter(e -> connectedWorkerUUIDs.contains(e.getKey()))
@@ -86,7 +87,7 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
     }
   }
 
-  private Map<String, Set<String>> getClusteredWorkerUUIDs() {
+  private Map<UUID, Set<String>> getClusteredWorkerUUIDs() {
     return hazelcastMember.getReplicatedMap(WORKER_UUIDS);
   }
 }

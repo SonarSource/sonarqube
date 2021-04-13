@@ -20,10 +20,10 @@
 package org.sonar.application.cluster;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import com.hazelcast.cluster.memberselector.MemberSelectors;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
-import com.hazelcast.nio.Address;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

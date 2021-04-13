@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,16 +67,16 @@ public class SharedHealthStateImplTest {
   @Test
   public void write_put_arg_into_map_sq_health_state_under_current_client_uuid() {
     NodeHealth nodeHealth = randomNodeHealth();
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     long clusterTime = random.nextLong();
-    String uuid = randomAlphanumeric(5);
+    UUID uuid = UUID.randomUUID();
     when(hazelcastMember.getUuid()).thenReturn(uuid);
     when(hazelcastMember.getClusterTime()).thenReturn(clusterTime);
 
     underTest.writeMine(nodeHealth);
 
-    assertThat(map.size()).isEqualTo(1);
+    assertThat(map).hasSize(1);
     assertThat(map.get(uuid)).isEqualTo(new TimestampedNodeHealth(nodeHealth, clusterTime));
     assertThat(logging.getLogs()).isEmpty();
   }
@@ -87,7 +88,7 @@ public class SharedHealthStateImplTest {
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
     map.put(randomAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
     doReturn(new HashMap<>(map)).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
-    String uuid = randomAlphanumeric(5);
+    UUID uuid = UUID.randomUUID();
     when(hazelcastMember.getUuid()).thenReturn(uuid);
 
     underTest.writeMine(newNodeHealth);
@@ -99,15 +100,14 @@ public class SharedHealthStateImplTest {
   @Test
   public void readAll_returns_all_NodeHealth_in_map_sq_health_state_for_existing_client_uuids_aged_less_than_30_seconds() {
     NodeHealth[] nodeHealths = IntStream.range(0, 1 + random.nextInt(6)).mapToObj(i -> randomNodeHealth()).toArray(NodeHealth[]::new);
-    Map<String, TimestampedNodeHealth> allNodeHealths = new HashMap<>();
-    Map<String, NodeHealth> expected = new HashMap<>();
-    String randomUuidBase = randomAlphanumeric(5);
-    for (int i = 0; i < nodeHealths.length; i++) {
-      String memberUuid = randomUuidBase + i;
-      TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealths[i], clusterTime - random.nextInt(30 * 1000));
+    Map<UUID, TimestampedNodeHealth> allNodeHealths = new HashMap<>();
+    Map<UUID, NodeHealth> expected = new HashMap<>();
+    for (NodeHealth nodeHealth : nodeHealths) {
+      UUID memberUuid = UUID.randomUUID();
+      TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealth, clusterTime - random.nextInt(30 * 1000));
       allNodeHealths.put(memberUuid, timestampedNodeHealth);
       if (random.nextBoolean()) {
-        expected.put(memberUuid, nodeHealths[i]);
+        expected.put(memberUuid, nodeHealth);
       }
     }
     doReturn(allNodeHealths).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
@@ -122,8 +122,8 @@ public class SharedHealthStateImplTest {
   @Test
   public void readAll_ignores_NodeHealth_of_30_seconds_before_cluster_time() {
     NodeHealth nodeHealth = randomNodeHealth();
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String memberUuid = randomAlphanumeric(5);
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
+    UUID memberUuid = UUID.randomUUID();
     TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealth, clusterTime - 30 * 1000);
     map.put(memberUuid, timestampedNodeHealth);
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
@@ -136,8 +136,8 @@ public class SharedHealthStateImplTest {
   @Test
   public void readAll_ignores_NodeHealth_of_more_than_30_seconds_before_cluster_time() {
     NodeHealth nodeHealth = randomNodeHealth();
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String memberUuid = randomAlphanumeric(5);
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
+    UUID memberUuid = UUID.randomUUID();
     TimestampedNodeHealth timestampedNodeHealth = new TimestampedNodeHealth(nodeHealth, clusterTime - 30 * 1000 - random.nextInt(99));
     map.put(memberUuid, timestampedNodeHealth);
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
@@ -150,8 +150,8 @@ public class SharedHealthStateImplTest {
   @Test
   public void readAll_logs_map_sq_health_state_content_and_the_content_effectively_returned_if_TRACE() {
     logging.setLevel(Level.TRACE);
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String uuid = randomAlphanumeric(44);
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
+    UUID uuid = UUID.randomUUID();
     NodeHealth nodeHealth = randomNodeHealth();
     map.put(uuid, new TimestampedNodeHealth(nodeHealth, clusterTime - 1));
     when(hazelcastMember.getClusterTime()).thenReturn(clusterTime);
@@ -188,9 +188,9 @@ public class SharedHealthStateImplTest {
   @Test
   public void readAll_logs_message_for_each_timed_out_NodeHealth_ignored_if_TRACE() {
     logging.setLevel(Level.TRACE);
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String memberUuid1 = randomAlphanumeric(44);
-    String memberUuid2 = randomAlphanumeric(44);
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
+    UUID memberUuid1 = UUID.randomUUID();
+    UUID memberUuid2 = UUID.randomUUID();
     map.put(memberUuid1, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 30 * 1000));
     map.put(memberUuid2, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 30 * 1000));
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
@@ -209,9 +209,9 @@ public class SharedHealthStateImplTest {
 
   @Test
   public void clearMine_clears_entry_into_map_sq_health_state_under_current_client_uuid() {
-    Map<String, TimestampedNodeHealth> map = mock(Map.class);
+    Map<UUID, TimestampedNodeHealth> map = mock(Map.class);
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
-    String uuid = randomAlphanumeric(5);
+    UUID uuid = UUID.randomUUID();
     when(hazelcastMember.getUuid()).thenReturn(uuid);
 
     underTest.clearMine();
@@ -224,10 +224,10 @@ public class SharedHealthStateImplTest {
   @Test
   public void clearMine_logs_map_sq_health_state_and_current_client_uuid_if_TRACE() {
     logging.setLevel(Level.TRACE);
-    Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    map.put(randomAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
+    Map<UUID, TimestampedNodeHealth> map = new HashMap<>();
+    map.put(UUID.randomUUID(), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
     doReturn(map).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
-    String uuid = randomAlphanumeric(5);
+    UUID uuid = UUID.randomUUID();
     when(hazelcastMember.getUuid()).thenReturn(uuid);
 
     underTest.clearMine();

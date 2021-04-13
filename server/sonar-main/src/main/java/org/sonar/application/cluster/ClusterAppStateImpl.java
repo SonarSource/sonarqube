@@ -19,21 +19,21 @@
  */
 package org.sonar.application.cluster;
 
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.IAtomicReference;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.ReplicatedMap;
+import com.hazelcast.cp.IAtomicReference;
+import com.hazelcast.map.MapEvent;
+import com.hazelcast.replicatedmap.ReplicatedMap;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +63,8 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final Map<ProcessId, Boolean> operationalLocalProcesses = new EnumMap<>(ProcessId.class);
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
-  private final String operationalProcessListenerUUID;
-  private final String nodeDisconnectedListenerUUID;
+  private final UUID operationalProcessListenerUUID;
+  private final UUID nodeDisconnectedListenerUUID;
   private final EsConnector esConnector;
   private HealthStateSharing healthStateSharing = null;
 
@@ -120,7 +120,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
 
   @Override
   public boolean tryToLockWebLeader() {
-    IAtomicReference<String> leader = hzMember.getAtomicReference(LEADER);
+    IAtomicReference<UUID> leader = hzMember.getAtomicReference(LEADER);
     return leader.compareAndSet(null, hzMember.getUuid());
   }
 
@@ -159,9 +159,9 @@ public class ClusterAppStateImpl implements ClusterAppState {
 
   @Override
   public Optional<String> getLeaderHostName() {
-    String leaderId = (String) hzMember.getAtomicReference(LEADER).get();
-    if (leaderId != null) {
-      Optional<Member> leader = hzMember.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
+    UUID leaderUuid = (UUID) hzMember.getAtomicReference(LEADER).get();
+    if (leaderUuid != null) {
+      Optional<Member> leader = hzMember.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderUuid)).findFirst();
       if (leader.isPresent()) {
         return Optional.of(leader.get().getAddress().getHost());
       }
@@ -239,6 +239,11 @@ public class ClusterAppStateImpl implements ClusterAppState {
     public void mapEvicted(MapEvent event) {
       // Ignore it
     }
+
+    @Override
+    public void entryExpired(EntryEvent<ClusterProcess, Boolean> event) {
+      // Ignore it
+    }
   }
 
   private class NodeDisconnectedListener implements MembershipListener {
@@ -252,12 +257,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
       removeOperationalProcess(membershipEvent.getMember().getUuid());
     }
 
-    @Override
-    public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-      // Nothing to do
-    }
-
-    private void removeOperationalProcess(String uuid) {
+    private void removeOperationalProcess(UUID uuid) {
       for (ClusterProcess clusterProcess : operationalProcesses.keySet()) {
         if (clusterProcess.getNodeUuid().equals(uuid)) {
           LOGGER.debug("Set node process off for [{}:{}] : ", clusterProcess.getNodeUuid(), clusterProcess.getProcessId());

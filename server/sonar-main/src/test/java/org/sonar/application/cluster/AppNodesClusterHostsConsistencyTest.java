@@ -20,11 +20,11 @@
 package org.sonar.application.cluster;
 
 import com.google.common.collect.ImmutableMap;
-import com.hazelcast.core.Cluster;
-import com.hazelcast.core.IAtomicReference;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
-import com.hazelcast.nio.Address;
+import com.hazelcast.cluster.Address;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
+import com.hazelcast.cp.IAtomicReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 import org.junit.After;
@@ -164,12 +165,12 @@ public class AppNodesClusterHostsConsistencyTest {
     }
 
     @Override
-    public String getUuid() {
+    public UUID getUuid() {
       throw new IllegalStateException("not expected to be called");
     }
 
     @Override
-    public Set<String> getMemberUuids() {
+    public Set<UUID> getMemberUuids() {
       throw new IllegalStateException("not expected to be called");
     }
 

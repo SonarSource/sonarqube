@@ -19,8 +19,9 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 import java.io.IOException;
+import java.util.UUID;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,20 +31,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
 
-
 public class DistributedAnswerTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Member member = newMember("member1");
-  private DistributedAnswer underTest = new DistributedAnswer();
+  private final Member member = newMember(UUID.randomUUID());
+  private final DistributedAnswer<String> underTest = new DistributedAnswer<>();
 
   @Test
   public void getMembers_return_all_members() {
     underTest.setAnswer(member, "foo");
-    underTest.setTimedOut(newMember("bar"));
-    underTest.setFailed(newMember("baz"), new IOException("BOOM"));
+    underTest.setTimedOut(newMember(UUID.randomUUID()));
+    underTest.setFailed(newMember(UUID.randomUUID()), new IOException("BOOM"));
 
     assertThat(underTest.getMembers()).hasSize(3);
   }
@@ -103,7 +103,7 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_does_nothing_if_no_errors() {
-    underTest.setAnswer(newMember("foo"), "bar");
+    underTest.setAnswer(newMember(UUID.randomUUID()), "bar");
 
     // no errors
     underTest.propagateExceptions();
@@ -111,30 +111,36 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_throws_ISE_if_at_least_one_timeout() {
-    underTest.setAnswer(newMember("bar"), "baz");
-    underTest.setTimedOut(newMember("foo"));
+    UUID uuid = UUID.randomUUID();
+    UUID otherUuid = UUID.randomUUID();
+
+    underTest.setAnswer(newMember(uuid), "baz");
+    underTest.setTimedOut(newMember(otherUuid));
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Distributed cluster action timed out in cluster nodes foo");
+    expectedException.expectMessage("Distributed cluster action timed out in cluster nodes " + otherUuid);
 
     underTest.propagateExceptions();
   }
 
   @Test
   public void propagateExceptions_throws_ISE_if_at_least_one_failure() {
-    underTest.setAnswer(newMember("bar"), "baz");
-    underTest.setFailed(newMember("foo"), new IOException("BOOM"));
+    UUID foo = UUID.randomUUID();
+    UUID bar = UUID.randomUUID();
+
+    underTest.setAnswer(newMember(bar), "baz");
+    underTest.setFailed(newMember(foo), new IOException("BOOM"));
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Distributed cluster action in cluster nodes foo (other nodes may have timed out)");
+    expectedException.expectMessage("Distributed cluster action in cluster nodes " + foo + " (other nodes may have timed out)");
 
     underTest.propagateExceptions();
   }
 
-  private static Member newMember(String uuid) {
+  private static Member newMember(UUID uuid) {
     Member member = mock(Member.class);
     when(member.getUuid()).thenReturn(uuid);
-    when(member.getStringAttribute(NODE_NAME.getKey())).thenReturn(uuid);
+    when(member.getAttribute(NODE_NAME.getKey())).thenReturn(uuid.toString());
     return member;
   }
 }

@@ -19,7 +19,7 @@
  */
 package org.sonar.process.cluster.hz;
 
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 import java.util.Map;
 
 @FunctionalInterface

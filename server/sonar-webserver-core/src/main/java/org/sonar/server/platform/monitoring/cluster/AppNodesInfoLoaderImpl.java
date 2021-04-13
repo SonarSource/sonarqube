@@ -19,8 +19,8 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
     MemberSelector memberSelector = HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
     DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, memberSelector, DISTRIBUTED_TIMEOUT_MS);
     for (Member member : distributedAnswer.getMembers()) {
-      String nodeName = member.getStringAttribute(NODE_NAME.getKey());
+      String nodeName = member.getAttribute(NODE_NAME.getKey());
       NodeInfo nodeInfo = nodesByName.computeIfAbsent(nodeName, name -> {
         NodeInfo info = new NodeInfo(name);
         info.setHost(member.getAddress().getHost());

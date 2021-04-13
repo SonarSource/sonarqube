@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Test;
@@ -39,46 +40,54 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
 
 public class CeDistributedInformationImplTest {
-  private String clientUUID1 = "1";
-  private String clientUUID2 = "2";
-  private String clientUUID3 = "3";
-  private Map workerMap = ImmutableMap.of(
-    clientUUID1, ImmutableSet.of("1", "2"),
-    clientUUID2, ImmutableSet.of("3"),
-    clientUUID3, ImmutableSet.of("4", "5", "6"));
+  private final UUID clientUUID1 = UUID.randomUUID();
+  private final UUID clientUUID2 = UUID.randomUUID();
+  private final UUID clientUUID3 = UUID.randomUUID();
 
-  private HazelcastMember hzClientWrapper = mock(HazelcastMember.class);
+  private final String w1 = UUID.randomUUID().toString();
+  private final String w2 = UUID.randomUUID().toString();
+  private final String w3 = UUID.randomUUID().toString();
+  private final String w4 = UUID.randomUUID().toString();
+  private final String w5 = UUID.randomUUID().toString();
+  private final String w6 = UUID.randomUUID().toString();
+
+  private final Map<UUID, Set<String>> workerMap = ImmutableMap.of(
+    clientUUID1, ImmutableSet.of(w1, w2),
+    clientUUID2, ImmutableSet.of(w3),
+    clientUUID3, ImmutableSet.of(w4, w5, w6));
+
+  private final HazelcastMember hzClientWrapper = mock(HazelcastMember.class);
 
   @Test
   public void getWorkerUUIDs_returns_union_of_workers_uuids_of_local_and_cluster_worker_uuids() {
     when(hzClientWrapper.getUuid()).thenReturn(clientUUID1);
     when(hzClientWrapper.getMemberUuids()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2, clientUUID3));
-    when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
+    when(hzClientWrapper.<UUID, Set<String>>getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
 
     CeDistributedInformation ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
-    assertThat(ceDistributedInformation.getWorkerUUIDs()).containsExactly("1", "2", "3", "4", "5", "6");
+    assertThat(ceDistributedInformation.getWorkerUUIDs()).containsExactlyInAnyOrder(w1, w2, w3, w4, w5, w6);
   }
 
   @Test
   public void getWorkerUUIDs_must_filter_absent_client() {
     when(hzClientWrapper.getUuid()).thenReturn(clientUUID1);
     when(hzClientWrapper.getMemberUuids()).thenReturn(ImmutableSet.of(clientUUID1, clientUUID2));
-    when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
+    when(hzClientWrapper.<UUID, Set<String>>getReplicatedMap(WORKER_UUIDS)).thenReturn(workerMap);
 
     CeDistributedInformation ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
-    assertThat(ceDistributedInformation.getWorkerUUIDs()).containsExactly("1", "2", "3");
+    assertThat(ceDistributedInformation.getWorkerUUIDs()).containsExactlyInAnyOrder(w1, w2, w3);
   }
 
   @Test
   public void broadcastWorkerUUIDs_adds_local_workerUUIDs_to_shared_map_under_key_of_localendpoint_uuid() {
-    Set<String> connectedClients = new HashSet<>();
-    Map modifiableWorkerMap = new HashMap<>();
+    Set<UUID> connectedClients = new HashSet<>();
+    Map<UUID, Set<String>> modifiableWorkerMap = new HashMap<>();
     connectedClients.add(clientUUID1);
     connectedClients.add(clientUUID2);
 
     when(hzClientWrapper.getUuid()).thenReturn(clientUUID1);
     when(hzClientWrapper.getMemberUuids()).thenReturn(connectedClients);
-    when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
+    when(hzClientWrapper.<UUID, Set<String>>getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
 
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
     Set<CeWorker> ceWorkers = Stream.of("a10", "a11").map(uuid -> {
@@ -100,20 +109,19 @@ public class CeDistributedInformationImplTest {
 
   @Test
   public void stop_must_remove_local_workerUUIDs() {
-    Set<String> connectedClients = new HashSet<>();
+    Set<UUID> connectedClients = new HashSet<>();
     connectedClients.add(clientUUID1);
     connectedClients.add(clientUUID2);
     connectedClients.add(clientUUID3);
-    Map modifiableWorkerMap = new HashMap(workerMap);
+    Map<UUID, Set<String>> modifiableWorkerMap = new HashMap<>(workerMap);
 
     when(hzClientWrapper.getUuid()).thenReturn(clientUUID1);
     when(hzClientWrapper.getMemberUuids()).thenReturn(connectedClients);
-    when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
+    when(hzClientWrapper.<UUID, Set<String>>getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
 
     CeDistributedInformationImpl ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, mock(CeWorkerFactory.class));
     ceDistributedInformation.stop();
-    assertThat(modifiableWorkerMap).containsExactly(
-      entry(clientUUID2, ImmutableSet.of("3")),
-      entry(clientUUID3, ImmutableSet.of("4", "5", "6")));
+    assertThat(modifiableWorkerMap).containsExactlyInAnyOrderEntriesOf(
+      ImmutableMap.of(clientUUID2, ImmutableSet.of(w3), clientUUID3, ImmutableSet.of(w4, w5, w6)));
   }
 }

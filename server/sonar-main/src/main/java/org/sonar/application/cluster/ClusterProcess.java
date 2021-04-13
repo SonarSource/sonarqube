@@ -21,15 +21,16 @@ package org.sonar.application.cluster;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
 
 public class ClusterProcess implements Serializable {
   private final ProcessId processId;
-  private final String nodeUuid;
+  private final UUID nodeUuid;
 
-  public ClusterProcess(String nodeUuid, ProcessId processId) {
+  public ClusterProcess(UUID nodeUuid, ProcessId processId) {
     this.processId = requireNonNull(processId);
     this.nodeUuid = requireNonNull(nodeUuid);
   }
@@ -38,7 +39,7 @@ public class ClusterProcess implements Serializable {
     return processId;
   }
 
-  public String getNodeUuid() {
+  public UUID getNodeUuid() {
     return nodeUuid;
   }
 
