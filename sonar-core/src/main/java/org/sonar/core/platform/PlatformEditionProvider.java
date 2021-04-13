@@ -21,27 +21,9 @@ package org.sonar.core.platform;
 
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
-
 public class PlatformEditionProvider implements EditionProvider {
-  private static final EditionProvider[] NO_OTHER_PROVIDERS = new EditionProvider[0];
-  private final EditionProvider[] otherEditionProviders;
-
-  public PlatformEditionProvider() {
-    this(NO_OTHER_PROVIDERS);
-  }
-
-  public PlatformEditionProvider(EditionProvider[] otherEditionProviders) {
-    this.otherEditionProviders = otherEditionProviders;
-  }
-
   @Override
   public Optional<Edition> get() {
-    checkState(otherEditionProviders.length <= 1, "There can't be more than 1 other EditionProvider");
-    if (otherEditionProviders.length == 1) {
-      return otherEditionProviders[0].get();
-    }
-    return Optional.of(COMMUNITY);
+    return Optional.of(Edition.COMMUNITY);
   }
 }
