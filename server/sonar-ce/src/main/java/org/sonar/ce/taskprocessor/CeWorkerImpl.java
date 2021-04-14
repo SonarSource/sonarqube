@@ -61,7 +61,6 @@ public class CeWorkerImpl implements CeWorker {
   private final CeWorkerController ceWorkerController;
   private final List<ExecutionListener> listeners;
   private final AtomicReference<RunningState> runningState = new AtomicReference<>();
-  private boolean indexationTaskLookupEnabled;
   private boolean excludeIndexationJob;
 
   public CeWorkerImpl(int ordinal, String uuid,
@@ -74,8 +73,7 @@ public class CeWorkerImpl implements CeWorker {
     this.taskProcessorRepository = taskProcessorRepository;
     this.ceWorkerController = ceWorkerController;
     this.listeners = Arrays.asList(listeners);
-    indexationTaskLookupEnabled = true;
-    excludeIndexationJob = false;
+    this.excludeIndexationJob = true;
   }
 
   private static int checkOrdinal(int ordinal) {
@@ -167,32 +165,11 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
+    excludeIndexationJob = !excludeIndexationJob;
     try {
-      if (indexationTaskLookupEnabled) {
-        return tryAndFindTaskToExecuteIncludingIndexation();
-      } else {
-        return queue.peek(uuid, true, false);
-      }
+      return queue.peek(uuid, excludeIndexationJob);
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
-    }
-    return Optional.empty();
-  }
-
-  private Optional<CeTask> tryAndFindTaskToExecuteIncludingIndexation() {
-    excludeIndexationJob = !excludeIndexationJob;
-    Optional<CeTask> peek = queue.peek(uuid, excludeIndexationJob, true);
-    if (peek.isPresent()) {
-      return peek;
-    }
-    if (excludeIndexationJob) {
-      peek = queue.peek(uuid, false, true);
-      if (peek.isPresent()) {
-        return peek;
-      }
-      // do not lookup for indexation tasks anymore
-      indexationTaskLookupEnabled = false;
-      LOG.info(String.format("worker %s found no pending task (including indexation task). Disabling indexation task lookup for this worker until next SonarQube restart.", uuid));
     }
     return Optional.empty();
   }

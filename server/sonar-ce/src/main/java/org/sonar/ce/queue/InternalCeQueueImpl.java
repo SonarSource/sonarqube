@@ -72,7 +72,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob, boolean excludeViewRefresh) {
+  public Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob) {
     requireNonNull(workerUuid, "workerUuid can't be null");
 
     if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED || getWorkersPauseStatus() != WorkersPauseStatus.RESUMED) {
@@ -85,7 +85,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         dbSession.commit();
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob, excludeViewRefresh);
+      Optional<CeQueueDto> opt = findPendingTask(workerUuid, dbSession, ceQueueDao, excludeIndexationJob);
       if (!opt.isPresent()) {
         return Optional.empty();
       }
@@ -100,6 +100,17 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       queueStatus.addInProgress();
       return Optional.of(task);
     }
+  }
+
+  private Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, CeQueueDao ceQueueDao, boolean excludeIndexationJob) {
+    // try to find tasks including indexation job & excluding app/portfolio
+    // and if no match, try the opposite
+    // when excludeIndexationJob is false, search first excluding indexation jobs and including app/portfolio, then the opposite
+    Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob, !excludeIndexationJob);
+    if (!opt.isPresent()) {
+      opt = ceQueueDao.peek(dbSession, workerUuid, !excludeIndexationJob, excludeIndexationJob);
+    }
+    return opt;
   }
 
   @Override

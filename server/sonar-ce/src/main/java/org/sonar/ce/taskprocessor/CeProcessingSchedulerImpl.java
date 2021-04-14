@@ -207,8 +207,8 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
     public void stop(boolean interrupt) {
       keepRunning = false;
+      interrupted = true;
       if (workerFuture != null) {
-        interrupted = true;
         workerFuture.cancel(interrupt);
       }
     }

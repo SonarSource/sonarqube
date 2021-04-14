@@ -41,7 +41,6 @@ public interface InternalCeQueue extends CeQueue {
    * Does not return anything if workers are paused or being paused (see {@link #getWorkersPauseStatus()}.
    *
    * @param excludeIndexationJob change the underlying request to exclude indexation tasks.
-   * @param excludeViewRefresh change the underlying request to exclude portfolios (but still include APP)
    *
    * <p>Only a single task can be peeked by project.</p>
    *
@@ -50,7 +49,7 @@ public interface InternalCeQueue extends CeQueue {
    * <p>Tasks which have been executed twice already but are still {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}
    * are ignored</p>
    */
-  Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob, boolean excludeViewRefresh);
+  Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob);
 
   /**
    * Removes a task from the queue and registers it to past activities. This method

@@ -147,18 +147,18 @@ public class InternalCeQueueImplTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("workerUuid can't be null");
 
-    underTest.peek(null, false, false);
+    underTest.peek(null, true);
   }
 
   @Test
   public void test_remove() {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
     // queue is empty
     assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid())).isNotPresent();
-    assertThat(underTest.peek(WORKER_UUID_2, false, false)).isNotPresent();
+    assertThat(underTest.peek(WORKER_UUID_2, true)).isNotPresent();
 
     // available in history
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
@@ -187,7 +187,7 @@ public class InternalCeQueueImplTest {
   @Test
   public void remove_does_not_set_analysisUuid_in_CeActivity_when_CeTaskResult_has_no_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null), null);
 
     // available in history
@@ -200,7 +200,7 @@ public class InternalCeQueueImplTest {
   public void remove_sets_analysisUuid_in_CeActivity_when_CeTaskResult_has_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
 
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
 
     // available in history
@@ -214,7 +214,7 @@ public class InternalCeQueueImplTest {
     Throwable error = new NullPointerException("Fake NPE to test persistence to DB");
 
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
     Optional<CeActivityDto> activityDto = db.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
@@ -230,7 +230,7 @@ public class InternalCeQueueImplTest {
     Throwable error = new TypedExceptionImpl("aType", "aMessage");
 
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
     CeActivityDto activityDto = db.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid()).get();
@@ -335,7 +335,7 @@ public class InternalCeQueueImplTest {
   public void test_peek() {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
 
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
@@ -343,7 +343,7 @@ public class InternalCeQueueImplTest {
     assertThat(peek.get().getMainComponent()).contains(peek.get().getComponent().get());
 
     // no more pending tasks
-    peek = underTest.peek(WORKER_UUID_2, false, false);
+    peek = underTest.peek(WORKER_UUID_2, true);
     assertThat(peek.isPresent()).isFalse();
   }
 
@@ -353,7 +353,7 @@ public class InternalCeQueueImplTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     CeTask task = submit(CeTaskTypes.REPORT, branch);
 
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek.isPresent()).isTrue();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
@@ -361,7 +361,7 @@ public class InternalCeQueueImplTest {
     assertThat(peek.get().getMainComponent()).contains(new CeTask.Component(project.uuid(), project.getDbKey(), project.name()));
 
     // no more pending tasks
-    peek = underTest.peek(WORKER_UUID_2, false, false);
+    peek = underTest.peek(WORKER_UUID_2, true);
     assertThat(peek.isPresent()).isFalse();
   }
 
@@ -370,11 +370,11 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     underTest.pauseWorkers();
 
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek).isEmpty();
 
     underTest.resumeWorkers();
-    peek = underTest.peek(WORKER_UUID_1, false, false);
+    peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
   }
@@ -388,7 +388,7 @@ public class InternalCeQueueImplTest {
     makeInProgress(dto, "foo");
     db.commit();
 
-    assertThat(underTest.peek(WORKER_UUID_1, false, false)).isEmpty();
+    assertThat(underTest.peek(WORKER_UUID_1, true)).isEmpty();
   }
 
   @Test
@@ -396,7 +396,7 @@ public class InternalCeQueueImplTest {
     submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
 
-    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, false, false);
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
     assertThat(peek.isPresent()).isFalse();
   }
 
@@ -408,7 +408,7 @@ public class InternalCeQueueImplTest {
       .setStatus(CeQueueDto.Status.PENDING));
     db.commit();
 
-    assertThat(underTest.peek(WORKER_UUID_1, false, false).get().getUuid()).isEqualTo("uuid");
+    assertThat(underTest.peek(WORKER_UUID_1, true).get().getUuid()).isEqualTo("uuid");
   }
 
   @Test
@@ -417,7 +417,7 @@ public class InternalCeQueueImplTest {
     CeQueueDto u1 = insertPending("u1");// will be picked-because older than any of the reset ones
     CeQueueDto u2 = insertInProgress("u2", WORKER_UUID_1);// will be reset
 
-    assertThat(underTest.peek(WORKER_UUID_1, false, false).get().getUuid()).isEqualTo("u0");
+    assertThat(underTest.peek(WORKER_UUID_1, true).get().getUuid()).isEqualTo("u0");
 
     verifyUnmodifiedTask(u1);
     verifyResetTask(u2);
@@ -431,7 +431,7 @@ public class InternalCeQueueImplTest {
     CeQueueDto u3 = insertInProgress("u3", WORKER_UUID_1);
     CeQueueDto u4 = insertInProgress("u4", WORKER_UUID_2);
 
-    assertThat(underTest.peek(WORKER_UUID_1, false, false).get().getUuid()).isEqualTo("u0");
+    assertThat(underTest.peek(WORKER_UUID_1, true).get().getUuid()).isEqualTo("u0");
 
     verifyResetTask(u1);
     verifyUnmodifiedTask(u2);
@@ -489,7 +489,7 @@ public class InternalCeQueueImplTest {
   @Test
   public void fail_to_cancel_if_in_progress() {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    underTest.peek(WORKER_UUID_2, false, false);
+    underTest.peek(WORKER_UUID_2, true);
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     expectedException.expect(IllegalStateException.class);
@@ -503,7 +503,7 @@ public class InternalCeQueueImplTest {
     CeTask inProgressTask = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_2"));
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_3"));
-    underTest.peek(WORKER_UUID_2, false, false);
+    underTest.peek(WORKER_UUID_2, true);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
