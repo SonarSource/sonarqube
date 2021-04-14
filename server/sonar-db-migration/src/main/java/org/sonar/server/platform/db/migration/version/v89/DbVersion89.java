@@ -28,6 +28,7 @@ public class DbVersion89 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(4400, "Add indices on columns 'type' and 'value' to 'new_code_periods' table", AddIndicesToNewCodePeriodTable.class)
-      .add(4401, "Drop local webhooks", DropLocalWebhooks.class);
+      .add(4401, "Drop local webhooks", DropLocalWebhooks.class)
+      .add(4402, "Add Index on column 'main_branch_project_uuid' to 'components' table", AddMainBranchProjectUuidIndexToComponentTable.class);
   }
 }
