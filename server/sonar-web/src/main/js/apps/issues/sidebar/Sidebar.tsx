@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
 import {
   Facet,
   ReferencedComponent,
@@ -68,7 +68,9 @@ export interface Props {
 export class Sidebar extends React.PureComponent<Props> {
   renderComponentFacets() {
     const { component, facets, loadingFacets, openFacets, query, branchLike } = this.props;
-    if (!component) {
+    const hasFileOrDirectory =
+      !isApplication(component?.qualifier) && !isPortfolioLike(component?.qualifier);
+    if (!component || !hasFileOrDirectory) {
       return null;
     }
     const commonProps = {

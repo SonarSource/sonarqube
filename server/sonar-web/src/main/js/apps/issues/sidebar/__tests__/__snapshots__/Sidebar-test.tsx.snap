@@ -16,7 +16,44 @@ Array [
 ]
 `;
 
-exports[`should render facets for developer 1`] = `
+exports[`should render facets for "APP" 1`] = `
+Array [
+  "TypeFacet",
+  "SeverityFacet",
+  "ScopeFacet",
+  "ResolutionFacet",
+  "StatusFacet",
+  "StandardFacet",
+  "InjectIntl(CreationDateFacet)",
+  "Connect(LanguageFacet)",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+]
+`;
+
+exports[`should render facets for "BRC" 1`] = `
+Array [
+  "TypeFacet",
+  "SeverityFacet",
+  "ScopeFacet",
+  "ResolutionFacet",
+  "StatusFacet",
+  "StandardFacet",
+  "InjectIntl(CreationDateFacet)",
+  "Connect(LanguageFacet)",
+  "RuleFacet",
+  "TagFacet",
+  "DirectoryFacet",
+  "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+]
+`;
+
+exports[`should render facets for "DEV" 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
@@ -35,7 +72,7 @@ Array [
 ]
 `;
 
-exports[`should render facets for directory 1`] = `
+exports[`should render facets for "DIR" 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
@@ -48,6 +85,42 @@ Array [
   "RuleFacet",
   "TagFacet",
   "FileFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+]
+`;
+
+exports[`should render facets for "SVW" 1`] = `
+Array [
+  "TypeFacet",
+  "SeverityFacet",
+  "ScopeFacet",
+  "ResolutionFacet",
+  "StatusFacet",
+  "StandardFacet",
+  "InjectIntl(CreationDateFacet)",
+  "Connect(LanguageFacet)",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+  "AssigneeFacet",
+  "AuthorFacet",
+]
+`;
+
+exports[`should render facets for "VW" 1`] = `
+Array [
+  "TypeFacet",
+  "SeverityFacet",
+  "ScopeFacet",
+  "ResolutionFacet",
+  "StatusFacet",
+  "StandardFacet",
+  "InjectIntl(CreationDateFacet)",
+  "Connect(LanguageFacet)",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
   "AssigneeFacet",
   "AuthorFacet",
 ]
@@ -66,25 +139,6 @@ Array [
   "RuleFacet",
   "TagFacet",
   "ProjectFacet",
-  "AssigneeFacet",
-  "AuthorFacet",
-]
-`;
-
-exports[`should render facets for module 1`] = `
-Array [
-  "TypeFacet",
-  "SeverityFacet",
-  "ScopeFacet",
-  "ResolutionFacet",
-  "StatusFacet",
-  "StandardFacet",
-  "InjectIntl(CreationDateFacet)",
-  "Connect(LanguageFacet)",
-  "RuleFacet",
-  "TagFacet",
-  "DirectoryFacet",
-  "FileFacet",
   "AssigneeFacet",
   "AuthorFacet",
 ]

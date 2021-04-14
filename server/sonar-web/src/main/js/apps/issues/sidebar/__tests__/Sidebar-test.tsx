@@ -36,22 +36,15 @@ it('should render facets for project', () => {
   expect(renderSidebar({ component: mockComponent() })).toMatchSnapshot();
 });
 
-it('should render facets for module', () => {
-  expect(
-    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubProject }) })
-  ).toMatchSnapshot();
-});
-
-it('should render facets for directory', () => {
-  expect(
-    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Directory }) })
-  ).toMatchSnapshot();
-});
-
-it('should render facets for developer', () => {
-  expect(
-    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Developper }) })
-  ).toMatchSnapshot();
+it.each([
+  [ComponentQualifier.Application],
+  [ComponentQualifier.Portfolio],
+  [ComponentQualifier.SubPortfolio],
+  [ComponentQualifier.SubProject],
+  [ComponentQualifier.Directory],
+  [ComponentQualifier.Developper]
+])('should render facets for %p', qualifier => {
+  expect(renderSidebar({ component: mockComponent({ qualifier }) })).toMatchSnapshot();
 });
 
 it('should render facets when my issues are selected', () => {
