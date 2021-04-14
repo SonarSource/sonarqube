@@ -69,7 +69,8 @@ public class ListActionTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final Configuration configuration = mock(Configuration.class);
-  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration, networkInterfaceProvider);
   private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
   private final ComponentFinder componentFinder = new ComponentFinder(dbClient, resourceTypes);
   private final ListAction underTest = new ListAction(dbClient, userSession, webhookSupport, componentFinder);

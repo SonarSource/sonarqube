@@ -67,7 +67,8 @@ public class DeleteActionTest {
   private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
   private final ComponentDbTester componentDbTester = db.components();
   private final Configuration configuration = mock(Configuration.class);
-  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration, networkInterfaceProvider);
   private final DeleteAction underTest = new DeleteAction(dbClient, userSession, webhookSupport);
   private final WsActionTester wsActionTester = new WsActionTester(underTest);
 

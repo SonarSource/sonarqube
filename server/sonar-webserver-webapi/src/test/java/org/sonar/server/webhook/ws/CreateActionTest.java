@@ -68,7 +68,8 @@ public class CreateActionTest {
   private final ComponentDbTester componentDbTester = db.components();
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final Configuration configuration = mock(Configuration.class);
-  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration, networkInterfaceProvider);
   private final ResourceTypes resourceTypes = mock(ResourceTypes.class);
   private final ComponentFinder componentFinder = new ComponentFinder(dbClient, resourceTypes);
   private final CreateAction underTest = new CreateAction(dbClient, userSession, uuidFactory, webhookSupport, componentFinder);

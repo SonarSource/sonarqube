@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v89;
+package org.sonar.server.platform.db.migration.version.v89.util;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class DbVersion89 implements DbVersion {
+public class NetworkInterfaceProvider {
 
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4400, "Add indices on columns 'type' and 'value' to 'new_code_periods' table", AddIndicesToNewCodePeriodTable.class)
-      .add(4401, "Drop local webhooks", DropLocalWebhooks.class);
+  public List<InetAddress> getNetworkInterfaceAddresses() throws SocketException {
+    return Collections.list(NetworkInterface.getNetworkInterfaces())
+      .stream()
+      .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())
+      .collect(Collectors.toList());
   }
 }

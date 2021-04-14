@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v89;
+package org.sonar.server.webhook;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.net.SocketException;
+import java.util.List;
+import org.junit.Test;
 
-public class DbVersion89 implements DbVersion {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4400, "Add indices on columns 'type' and 'value' to 'new_code_periods' table", AddIndicesToNewCodePeriodTable.class)
-      .add(4401, "Drop local webhooks", DropLocalWebhooks.class);
+public class NetworkInterfaceProviderTest {
+  private NetworkInterfaceProvider underTest = new NetworkInterfaceProvider();
+
+  @Test
+  public void itGetsListOfNetworkInterfaceAddresses() throws SocketException {
+    assertThat(underTest.getNetworkInterfaceAddresses())
+      .isInstanceOf(List.class)
+      .hasSizeGreaterThan(0);
   }
 }

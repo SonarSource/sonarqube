@@ -20,6 +20,7 @@
 package org.sonar.server.webhook.ws;
 
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import okhttp3.HttpUrl;
 import org.sonar.api.config.Configuration;
@@ -34,10 +35,12 @@ public class WebhookSupport {
 
   private final UserSession userSession;
   private final Configuration configuration;
+  private final NetworkInterfaceProvider networkInterfaceProvider;
 
-  public WebhookSupport(UserSession userSession, Configuration configuration) {
+  public WebhookSupport(UserSession userSession, Configuration configuration, NetworkInterfaceProvider networkInterfaceProvider) {
     this.userSession = userSession;
     this.configuration = configuration;
+    this.networkInterfaceProvider = networkInterfaceProvider;
   }
 
   void checkPermission(ProjectDto projectDto) {
@@ -55,13 +58,21 @@ public class WebhookSupport {
         throw new IllegalArgumentException(String.format(message, messageArguments));
       }
       InetAddress address = InetAddress.getByName(okUrl.host());
+
       if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey()).orElse(true)
-        && (address.isLoopbackAddress() || address.isAnyLocalAddress())) {
+        && (address.isLoopbackAddress() || address.isAnyLocalAddress() || isLocalAddress(address))) {
         throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
       }
     } catch (UnknownHostException e) {
       // if a host can not be resolved the deliveries will fail - no need to block it from being set
       // this will only happen for public URLs
+    } catch (SocketException e) {
+      throw new IllegalStateException("Can not retrieve a network interfaces", e);
     }
+  }
+
+  private boolean isLocalAddress(InetAddress address) throws SocketException {
+    return networkInterfaceProvider.getNetworkInterfaceAddresses().stream()
+      .anyMatch(a -> a != null && a.equals(address));
   }
 }

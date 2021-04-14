@@ -19,6 +19,8 @@
  */
 package org.sonar.server.webhook;
 
+import com.google.common.collect.ImmutableList;
+import java.net.InetAddress;
 import java.util.Optional;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
@@ -63,6 +65,7 @@ public class WebhookCallerImplTest {
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   Configuration configuration = Mockito.mock(Configuration.class);
+  NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
 
   private System2 system = new TestSystem2().setNow(NOW);
 
@@ -248,6 +251,29 @@ public class WebhookCallerImplTest {
     assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
   }
 
+  @Test
+  public void silently_catch_error_when_url_is_local_network_interface() throws Exception {
+    String url = "https://192.168.1.21";
+
+    InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse(url).host());
+
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses())
+      .thenReturn(ImmutableList.of(inetAddress));
+
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url, null);
+
+    WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getDurationInMs().get()).isNotNegative();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage()).contains("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
+    assertThat(delivery.getAt()).isEqualTo(NOW);
+    assertThat(delivery.getWebhook()).isSameAs(webhook);
+    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
+  }
+
   private RecordedRequest takeAndVerifyPostRequest(String expectedPath) throws Exception {
     RecordedRequest request = server.takeRequest();
 
@@ -260,7 +286,7 @@ public class WebhookCallerImplTest {
   private WebhookCaller newSender(boolean validateWebhook) {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(validateWebhook));
-    WebhookCustomDns webhookCustomDns = new WebhookCustomDns(configuration);
+    WebhookCustomDns webhookCustomDns = new WebhookCustomDns(configuration, networkInterfaceProvider);
     return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime), webhookCustomDns);
   }
 }

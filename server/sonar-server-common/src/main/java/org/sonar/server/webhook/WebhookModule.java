@@ -25,6 +25,7 @@ public class WebhookModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      NetworkInterfaceProvider.class,
       WebhookCustomDns.class,
       WebhookCallerImpl.class,
       WebhookDeliveryStorage.class,

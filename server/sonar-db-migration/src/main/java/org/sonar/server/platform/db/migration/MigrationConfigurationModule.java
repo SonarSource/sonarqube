@@ -37,6 +37,7 @@ import org.sonar.server.platform.db.migration.version.v86.DbVersion86;
 import org.sonar.server.platform.db.migration.version.v87.DbVersion87;
 import org.sonar.server.platform.db.migration.version.v88.DbVersion88;
 import org.sonar.server.platform.db.migration.version.v89.DbVersion89;
+import org.sonar.server.platform.db.migration.version.v89.util.NetworkInterfaceProvider;
 
 public class MigrationConfigurationModule extends Module {
   @Override
@@ -65,6 +66,7 @@ public class MigrationConfigurationModule extends Module {
 
       // Utility classes
       DbPrimaryKeyConstraintFinder.class,
-      DropPrimaryKeySqlGenerator.class);
+      DropPrimaryKeySqlGenerator.class,
+      NetworkInterfaceProvider.class);
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
@@ -36,9 +37,11 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOO
 public class WebhookCustomDns implements Dns {
 
   private final Configuration configuration;
+  private final NetworkInterfaceProvider networkInterfaceProvider;
 
-  public WebhookCustomDns(Configuration configuration) {
+  public WebhookCustomDns(Configuration configuration, NetworkInterfaceProvider networkInterfaceProvider) {
     this.configuration = configuration;
+    this.networkInterfaceProvider = networkInterfaceProvider;
   }
 
   @NotNull
@@ -46,10 +49,19 @@ public class WebhookCustomDns implements Dns {
   public List<InetAddress> lookup(@NotNull String host) throws UnknownHostException {
     InetAddress address = InetAddress.getByName(host);
     if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey()).orElse(true)
-      && (address.isLoopbackAddress() || address.isAnyLocalAddress())) {
+      && (address.isLoopbackAddress() || address.isAnyLocalAddress() || isLocalAddress(address))) {
       throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
     }
     return Collections.singletonList(address);
+  }
+
+  private boolean isLocalAddress(InetAddress address)  {
+    try {
+      return networkInterfaceProvider.getNetworkInterfaceAddresses().stream()
+        .anyMatch(a -> a != null && a.equals(address));
+    } catch (SocketException e) {
+      throw new IllegalArgumentException("Network interfaces could not be fetched.");
+    }
   }
 
 }

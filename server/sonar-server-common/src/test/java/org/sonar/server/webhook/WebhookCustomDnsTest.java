@@ -19,9 +19,12 @@
  */
 package org.sonar.server.webhook;
 
+import com.google.common.collect.ImmutableList;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Optional;
+import okhttp3.HttpUrl;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,16 +34,19 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
 
 public class WebhookCustomDnsTest {
+  private static final String INVALID_URL = "Invalid URL: loopback and wildcard addresses are not allowed for webhooks.";
 
   private Configuration configuration = Mockito.mock(Configuration.class);
-  private WebhookCustomDns underTest = new WebhookCustomDns(configuration);
+  private NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
+
+  private WebhookCustomDns underTest = new WebhookCustomDns(configuration, networkInterfaceProvider);
 
   @Test
   public void lookup_fail_on_localhost() {
     when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup("localhost"))
-      .hasMessageContaining("")
+      .hasMessageContaining(INVALID_URL)
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -49,7 +55,30 @@ public class WebhookCustomDnsTest {
     when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup("127.0.0.1"))
-      .hasMessageContaining("")
+      .hasMessageContaining(INVALID_URL)
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void lookup_fail_on_192_168_1_21() throws UnknownHostException, SocketException {
+    InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse("https://192.168.1.21/").host());
+
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses())
+      .thenReturn(ImmutableList.of(inetAddress));
+
+    Assertions.assertThatThrownBy(() -> underTest.lookup("192.168.1.21"))
+      .hasMessageContaining(INVALID_URL)
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void lookup_fail_on_network_interface_throwing_socket_exception() throws SocketException {
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses())
+      .thenThrow(new SocketException());
+
+    Assertions.assertThatThrownBy(() -> underTest.lookup("good-url.com"))
+      .hasMessageContaining("Network interfaces could not be fetched.")
       .isInstanceOf(IllegalArgumentException.class);
   }
 

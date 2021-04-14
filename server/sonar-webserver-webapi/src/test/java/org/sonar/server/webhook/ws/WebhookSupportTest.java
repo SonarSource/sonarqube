@@ -19,15 +19,23 @@
  */
 package org.sonar.server.webhook.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import okhttp3.HttpUrl;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.of;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -36,7 +44,8 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class WebhookSupportTest {
   private final Configuration configuration = mock(Configuration.class);
-  private final WebhookSupport underTest = new WebhookSupport(mock(UserSession.class), configuration);
+  private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
+  private final WebhookSupport underTest = new WebhookSupport(mock(UserSession.class), configuration, networkInterfaceProvider);
 
   @DataProvider
   public static Object[][] validUrls() {
@@ -64,8 +73,18 @@ public class WebhookSupportTest {
       {"https://127.0.0.1:7777/some_webhook"},
       {"https://localhost/some_webhook"},
       {"https://localhost:9999/some_webhook"},
+      {"https://192.168.1.21/"},
     };
   }
+
+  @Before
+  public void prepare() throws IOException {
+    InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse("https://192.168.1.21/").host());
+
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses())
+      .thenReturn(ImmutableList.of(inetAddress));
+  }
+
 
   @Test
   @UseDataProvider("validUrls")
@@ -87,5 +106,14 @@ public class WebhookSupportTest {
     when(configuration.getBoolean("sonar.validateWebhooks")).thenReturn(of(false));
 
     assertThatCode(() -> underTest.checkUrlPattern(url, "msg")).doesNotThrowAnyException();
+  }
+
+  @Test
+  public void itThrowsIllegalExceptionIfGettingNetworkInterfaceAddressesFails() throws SocketException {
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses()).thenThrow(new SocketException());
+
+    assertThatThrownBy(() -> underTest.checkUrlPattern("good-url.com", "msg"))
+      .hasMessageContaining("")
+      .isInstanceOf(IllegalArgumentException.class);
   }
 }
