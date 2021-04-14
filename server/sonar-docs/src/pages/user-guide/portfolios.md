@@ -9,7 +9,7 @@ url: /user-guide/portfolios/
 
 The Portfolio Home Page is the central place for managers and tech leads to keep an eye on the Releasability of the projects under their supervision. Releasability is based on the project's quality gate: Passed is releasable and Failed is not. Each Portfolio home page offers an aggregate view of the releasability of all projects in the Portfolio.
 
-At the top of the page, you can easily see whether the overall Portfolio is currently rated as releasable and if any projects in the Portfolio have failed their Quality Gate. And the Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings show the overall health of the Portfolio in these three domains, along with an indicator of the worst-performing project(s) in each domain.
+At the top of the page, you can easily see whether the overall Portfolio is currently rated as releasable and if any projects in the Portfolio have failed their Quality Gate. And the Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings show the overall health of the Portfolio in these three domains, along with an indicator of the worst-performing project(s) in each domain. Note that Portfolios only focus on projects' main branches.
 
 For each domain, you'll see:
 
