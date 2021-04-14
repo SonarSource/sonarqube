@@ -42,7 +42,7 @@ export default function DotNet(props: DotNetProps): JSX.Element {
           />
         </li>
         <PrepareAnalysisCommand
-          buildTool={BuildTools.Gradle}
+          buildTool={BuildTools.DotNet}
           kind={PrepareType.MSBuild}
           projectKey={projectKey}
         />

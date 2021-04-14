@@ -19,7 +19,7 @@ exports[`should render correctly 1`] = `
       />
     </li>
     <PrepareAnalysisCommand
-      buildTool="gradle"
+      buildTool="dotnet"
       kind={2}
       projectKey="projectKey"
     />
