@@ -4,7 +4,7 @@ plugins {
   id 'com.github.hierynomus.license' version '0.15.0'
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
-  id 'com.jfrog.artifactory' version '4.18.0'
+  id 'com.jfrog.artifactory' version '4.21.0'
   id 'com.github.node-gradle.node' version '2.2.4' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
@@ -107,7 +107,7 @@ allprojects {
 
   artifactory {
     clientConfig.setIncludeEnvVars(true)
-    clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*,*key*,*KEY*')
+    clientConfig.setEnvVarsExcludePatterns('*password*,*PASSWORD*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*TOKEN*,*LOGIN*,*login*,*key*,*KEY*,*signing*')
     contextUrl = System.getenv('ARTIFACTORY_URL')
     publish {
       repository {
@@ -162,6 +162,7 @@ subprojects {
   apply plugin: 'jacoco'
   apply plugin: 'java'
   apply plugin: 'idea'
+  apply plugin: 'signing'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
@@ -570,6 +571,27 @@ subprojects {
           }
         }
       }
+    }
+  }
+
+  signing {
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    required {
+      def branch = System.getenv()["CIRRUS_BRANCH"]
+      return (branch == 'master' || branch ==~ 'branch-[\\d.]+') &&
+             gradle.taskGraph.hasTask(":artifactoryPublish")
+    }
+    sign publishing.publications
+  }
+
+  tasks.withType(Sign) {
+    onlyIf {
+      def branch = System.getenv()["CIRRUS_BRANCH"]
+      return !artifactoryPublish.skip &&
+             (branch == 'master' || branch ==~ 'branch-[\\d.]+') &&
+             gradle.taskGraph.hasTask(":artifactoryPublish")
     }
   }
 }

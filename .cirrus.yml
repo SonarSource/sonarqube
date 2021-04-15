@@ -112,6 +112,8 @@ build_task:
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
+    ORG_GRADLE_PROJECT_signingKey: ENCRYPTED[!54147bd7fb86bbe802fd432fab7d53bee19e71fe642d7b57703ec985b10f1976602adc743a906ea9851e5dd793be540c!]
+    ORG_GRADLE_PROJECT_signingPassword: ENCRYPTED[!15c41fa6fdc13ace4a011693a002664593e038f91a2597fad40f4295f0de9858a587c504f5b9f1f97250f19fd5f4a655!]
   script:
     - ./private/cirrus/cirrus-build.sh
   on_failure:
