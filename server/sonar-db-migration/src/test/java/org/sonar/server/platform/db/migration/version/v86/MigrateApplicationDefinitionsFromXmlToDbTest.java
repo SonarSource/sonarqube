@@ -78,6 +78,22 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
     "    </vw>\n" +
     "</views>";
 
+  private static final String APP_WITH_DUPLICATED_PROJECTS_XML = "<views>\n" +
+    "    <vw key=\"app1-key\" def=\"false\">\n" +
+    "        <name><![CDATA[app1-key]]></name>\n" +
+    "        <desc><![CDATA[]]></desc>\n" +
+    "        <qualifier><![CDATA[APP]]></qualifier>\n" +
+    "        <p>proj1-key</p>\n" +
+    "        <p>proj1-key</p>\n" +
+    "        <branch key=\"app1-branch1\">\n" +
+    "            <p branch=\"proj1-branch-1\">proj1-key</p>\n" +
+    "        </branch>\n" +
+    "        <branch key=\"app1-branch2\">\n" +
+    "            <p branch=\"proj1-branch-2\">proj1-key</p>\n" +
+    "        </branch>\n" +
+    "    </vw>\n" +
+    "</views>";
+
   private static final String COMPLEX_XML_BEFORE = "<views>\n" +
     "    <vw key=\"app1-key\" def=\"false\">\n" +
     "        <name><![CDATA[app1-key]]></name>\n" +
@@ -431,6 +447,26 @@ public class MigrateApplicationDefinitionsFromXmlToDbTest {
         tuple(APP_1_UUID, PROJECT_2_UUID, APP_1_BRANCH_2_UUID, PROJECT_2_BRANCH_1_UUID),
         tuple(APP_2_UUID, PROJECT_1_UUID, APP_2_BRANCH_1_UUID, PROJECT_1_BRANCH_1_UUID),
         tuple(APP_2_UUID, PROJECT_2_UUID, APP_2_BRANCH_1_UUID, PROJECT_2_BRANCH_1_UUID));
+  }
+
+  @Test
+  public void migrates_applications_handling_project_duplications_to_new_tables() throws SQLException {
+    setupProjectsAndApps();
+    insertViewsDefInternalProperty(APP_WITH_DUPLICATED_PROJECTS_XML);
+
+    underTest.execute();
+
+    assertThat(db.select("select uuid from projects"))
+      .extracting(r -> r.get("UUID"))
+      .containsExactlyInAnyOrder(PROJECT_1_UUID, PROJECT_2_UUID, APP_1_UUID, APP_2_UUID);
+    assertThat(db.select("select application_uuid, project_uuid from app_projects"))
+      .extracting(r -> r.get("APPLICATION_UUID"), r -> r.get("PROJECT_UUID"))
+      .containsExactly(tuple(APP_1_UUID, PROJECT_1_UUID));
+    assertThat(db.select("select application_uuid, project_uuid, application_branch_uuid, project_branch_uuid from app_branch_project_branch"))
+      .extracting(r -> r.get("APPLICATION_UUID"), r -> r.get("PROJECT_UUID"), r -> r.get("APPLICATION_BRANCH_UUID"), r -> r.get("PROJECT_BRANCH_UUID"))
+      .containsExactlyInAnyOrder(
+        tuple(APP_1_UUID, PROJECT_1_UUID, APP_1_BRANCH_1_UUID, PROJECT_1_BRANCH_1_UUID),
+        tuple(APP_1_UUID, PROJECT_1_UUID, APP_1_BRANCH_2_UUID, PROJECT_1_BRANCH_2_UUID));
   }
 
   @Test

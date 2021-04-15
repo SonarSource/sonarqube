@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,15 +123,15 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
     // skip migration if:
     // - application only exists in xml and not in the db. It will be removed from the xml at later stage of the migration.
     // - application contains no projects- it's already in a valid db state
-    List<String> projects = app.getProjects();
-    if (applicationUuid == null || projects.isEmpty()) {
+    Set<String> uniqueProjects = new HashSet<>(app.getProjects());
+    if (applicationUuid == null || uniqueProjects.isEmpty()) {
       return;
     }
 
     List<String> alreadyAddedProjects = context.prepareSelect(SELECT_PROJECTS_BY_APP).setString(1, applicationUuid)
       .list(r -> r.getString(1));
 
-    String queryParam = projects.stream().map(uuid -> "'" + uuid + "'").collect(Collectors.joining(","));
+    String queryParam = uniqueProjects.stream().map(uuid -> "'" + uuid + "'").collect(Collectors.joining(","));
     Map<String, String> projectUuidsByKeys = context.prepareSelect(format(SELECT_PROJECTS_BY_KEYS, queryParam))
       .list(r -> new AbstractMap.SimpleEntry<>(r.getString(1), r.getString(2)))
       .stream()
@@ -138,7 +139,7 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
       .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
     if (!projectUuidsByKeys.isEmpty()) {
-      insertApplicationProjects(context, app, applicationUuid, projectUuidsByKeys, now);
+      insertApplicationProjects(context, app, applicationUuid, projectUuidsByKeys, uniqueProjects, now);
     }
     if (!app.getApplicationBranches().isEmpty()) {
       insertApplicationBranchesProjects(context, app, applicationUuid, projectUuidsByKeys, now);
@@ -146,11 +147,11 @@ public class MigrateApplicationDefinitionsFromXmlToDb extends DataChange {
   }
 
   private void insertApplicationProjects(Context context, ViewXml.ViewDef app, String applicationUuid,
-    Map<String, String> projectUuidsByKeys, long createdTime) throws SQLException {
+    Map<String, String> projectUuidsByKeys, Set<String> uniqueProjects, long createdTime) throws SQLException {
     Upsert insertApplicationProjectsQuery = context.prepareUpsert("insert into " +
       "app_projects(uuid, application_uuid, project_uuid, created_at) " +
       "values (?, ?, ?, ?)");
-    for (String projectKey : app.getProjects()) {
+    for (String projectKey : uniqueProjects) {
       String applicationProjectUuid = uuidFactory.create();
       String projectUuid = projectUuidsByKeys.get(projectKey);
 
