@@ -19,17 +19,20 @@
  */
 package org.sonar.server.platform.db.migration.version.v89;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class DbVersion89 implements DbVersion {
+public class DropGithubEndpointOnProjectLevelSetting extends DataChange {
+
+  public DropGithubEndpointOnProjectLevelSetting(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4400, "Add indices on columns 'type' and 'value' to 'new_code_periods' table", AddIndicesToNewCodePeriodTable.class)
-      .add(4401, "Drop local webhooks", DropLocalWebhooks.class)
-      .add(4402, "Add Index on column 'main_branch_project_uuid' to 'components' table", AddMainBranchProjectUuidIndexToComponentTable.class)
-      .add(4403, "Drop Github endpoint on project level setting", DropGithubEndpointOnProjectLevelSetting.class);
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("delete from properties where prop_key='sonar.pullrequest.github.endpoint' and component_uuid is not null")
+      .execute()
+      .commit();
   }
 }
