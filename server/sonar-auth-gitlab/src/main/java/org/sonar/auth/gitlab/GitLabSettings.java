@@ -28,6 +28,7 @@ import org.sonar.api.config.PropertyDefinition;
 
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.PASSWORD;
 
 public class GitLabSettings {
 
@@ -106,6 +107,7 @@ public class GitLabSettings {
         .description("Secret provided by GitLab when registering the application.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
         .index(4)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP)

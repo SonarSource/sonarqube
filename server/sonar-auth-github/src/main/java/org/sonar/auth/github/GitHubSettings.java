@@ -29,6 +29,7 @@ import org.sonar.api.config.PropertyDefinition;
 
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;
 
 public class GitHubSettings {
@@ -117,6 +118,7 @@ public class GitHubSettings {
         .description("Client password provided by GitHub when registering the application.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
         .index(3)
         .build(),
       PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)

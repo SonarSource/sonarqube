@@ -28,6 +28,7 @@ import org.sonar.api.server.ServerSide;
 
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.PASSWORD;
 
 @ServerSide
 public class SamlSettings {
@@ -146,6 +147,7 @@ public class SamlSettings {
         .description("X.509 certificate for the identity provider.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
         .index(6)
         .build(),
       PropertyDefinition.builder(USER_LOGIN_ATTRIBUTE)
