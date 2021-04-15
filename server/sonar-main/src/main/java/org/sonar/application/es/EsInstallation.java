@@ -20,14 +20,25 @@
 package org.sonar.application.es;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.application.command.EsJvmOptions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Props;
 
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE_PASSWORD;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE_PASSWORD;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -53,6 +64,16 @@ public class EsInstallation {
   private String host;
   private int httpPort;
 
+  // ES authentication settings
+  private final boolean securityEnabled;
+  private final String bootstrapPassword;
+  private final Path keyStoreLocation;
+  private final Path trustStoreLocation;
+  @Nullable
+  private final String keyStorePassword;
+  @Nullable
+  private final String trustStorePassword;
+
   public EsInstallation(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
 
@@ -61,6 +82,17 @@ public class EsInstallation {
     this.dataDirectory = buildDataDir(props);
     this.confDirectory = buildConfDir(props);
     this.logDirectory = buildLogPath(props);
+
+    this.bootstrapPassword = props.value(CLUSTER_SEARCH_PASSWORD.getKey());
+    this.securityEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey()) && StringUtils.isNotBlank(bootstrapPassword);
+    this.keyStoreLocation = getPath(props.value(CLUSTER_ES_KEYSTORE.getKey()));
+    this.keyStorePassword = props.value(CLUSTER_ES_KEYSTORE_PASSWORD.getKey());
+    this.trustStoreLocation = getPath(props.value(CLUSTER_ES_TRUSTSTORE.getKey()));
+    this.trustStorePassword = props.value(CLUSTER_ES_TRUSTSTORE_PASSWORD.getKey());
+  }
+
+  private static Path getPath(@Nullable String path) {
+    return Optional.ofNullable(path).map(Paths::get).orElse(null);
   }
 
   private static List<File> buildOutdatedSearchDirs(Props props) {
@@ -167,5 +199,29 @@ public class EsInstallation {
   public EsInstallation setHttpPort(int httpPort) {
     this.httpPort = httpPort;
     return this;
+  }
+
+  public boolean isSecurityEnabled() {
+    return securityEnabled;
+  }
+
+  public String getBootstrapPassword() {
+    return bootstrapPassword;
+  }
+
+  public Path getKeyStoreLocation() {
+    return keyStoreLocation;
+  }
+
+  public Path getTrustStoreLocation() {
+    return trustStoreLocation;
+  }
+
+  public Optional<String> getKeyStorePassword() {
+    return Optional.ofNullable(keyStorePassword);
+  }
+
+  public Optional<String> getTrustStorePassword() {
+    return Optional.ofNullable(trustStorePassword);
   }
 }

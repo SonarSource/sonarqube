@@ -22,6 +22,7 @@ package org.sonar.application.command;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -34,6 +35,7 @@ import static java.util.Objects.requireNonNull;
 public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
   // program arguments
   private final Map<String, String> arguments = new LinkedHashMap<>();
+  private final List<String> parameters = new LinkedList<>();
   // entry point
   private String className;
   private JvmOptions<T> jvmOptions;
@@ -55,6 +57,19 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
       arguments.remove(key);
     } else {
       arguments.put(key, value);
+    }
+    return this;
+  }
+
+  public List<String> getParameters() {
+    return parameters;
+  }
+
+  public JavaCommand<T> addParameter(@Nullable String parameter) {
+    if (parameter == null) {
+      parameters.remove(parameter);
+    } else {
+      parameters.add(parameter);
     }
     return this;
   }

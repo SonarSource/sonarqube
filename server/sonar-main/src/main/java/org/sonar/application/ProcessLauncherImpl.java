@@ -24,10 +24,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -38,6 +43,7 @@ import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.application.es.EsInstallation;
+import org.sonar.application.es.EsKeyStoreCli;
 import org.sonar.application.process.EsManagedProcess;
 import org.sonar.application.process.ManagedProcess;
 import org.sonar.application.process.ProcessCommandsManagedProcess;
@@ -50,6 +56,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.application.es.EsKeyStoreCli.BOOTSTRAP_PASSWORD_PROPERTY_KEY;
+import static org.sonar.application.es.EsKeyStoreCli.KEYSTORE_PASSWORD_PROPERTY_KEY;
+import static org.sonar.application.es.EsKeyStoreCli.TRUSTSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_GRACEFUL_STOP_TIMEOUT_MS;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
@@ -97,7 +106,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
-        EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getHttpPort())));
+        EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(),
+          esInstallation.getHttpPort())));
         return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
@@ -140,16 +150,66 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       });
   }
 
-  private static void writeConfFiles(EsInstallation esInstallation) {
+  private void writeConfFiles(EsInstallation esInstallation) {
     File confDir = esInstallation.getConfDirectory();
-    if (!confDir.exists() && !confDir.mkdirs()) {
+
+    pruneElasticsearchConfDirectory(confDir);
+    createElasticsearchConfDirectory(confDir);
+    setupElasticsearchAuthentication(esInstallation);
+
+    esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
+    esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
+    storeElasticsearchLog4j2Properties(esInstallation);
+  }
+
+  private static void pruneElasticsearchConfDirectory(File confDir) {
+    try {
+      Files.deleteIfExists(confDir.toPath());
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not delete Elasticsearch temporary conf directory", e);
+    }
+  }
+
+  private static void createElasticsearchConfDirectory(File confDir) {
+    if (!confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
       LOG.error(error);
       throw new IllegalStateException(error);
     }
+  }
 
-    esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
-    esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
+  private void setupElasticsearchAuthentication(EsInstallation esInstallation) {
+    if (esInstallation.isSecurityEnabled()) {
+      EsKeyStoreCli keyStoreCli = EsKeyStoreCli.getInstance(esInstallation)
+        .store(BOOTSTRAP_PASSWORD_PROPERTY_KEY, esInstallation.getBootstrapPassword());
+
+      String esConfPath = esInstallation.getConfDirectory().getAbsolutePath();
+
+      Path trustStoreLocation = esInstallation.getTrustStoreLocation();
+      Path keyStoreLocation = esInstallation.getKeyStoreLocation();
+      if (trustStoreLocation.equals(keyStoreLocation)) {
+        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+      } else {
+        copyFile(trustStoreLocation, Paths.get(esConfPath, trustStoreLocation.toFile().getName()));
+        copyFile(keyStoreLocation, Paths.get(esConfPath, keyStoreLocation.toFile().getName()));
+      }
+
+      esInstallation.getTrustStorePassword().ifPresent(s -> keyStoreCli.store(TRUSTSTORE_PASSWORD_PROPERTY_KEY, s));
+      esInstallation.getKeyStorePassword().ifPresent(s -> keyStoreCli.store(KEYSTORE_PASSWORD_PROPERTY_KEY, s));
+
+      keyStoreCli.executeWith(this::launchJava);
+    }
+  }
+
+  private static void copyFile(Path from, Path to) {
+    try {
+      Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not copy file: " + from.toString(), e);
+    }
+  }
+
+  private static void storeElasticsearchLog4j2Properties(EsInstallation esInstallation) {
     try (FileOutputStream fileOutputStream = new FileOutputStream(esInstallation.getLog4j2PropertiesLocation())) {
       esInstallation.getLog4j2Properties().store(fileOutputStream, "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
@@ -193,6 +253,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.addAll(javaCommand.getJvmOptions().getAll());
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
+    commands.addAll(javaCommand.getParameters());
+
     if (javaCommand.getReadsArgumentsFromFile()) {
       commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
     } else {

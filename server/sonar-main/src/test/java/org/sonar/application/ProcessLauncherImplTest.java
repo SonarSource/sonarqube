@@ -22,6 +22,7 @@ package org.sonar.application;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import java.util.Properties;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.command.EsJvmOptions;
 import org.sonar.application.command.EsScriptCommand;
@@ -43,6 +43,7 @@ import org.sonar.process.Props;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
@@ -51,11 +52,9 @@ import static org.mockito.Mockito.when;
 public class ProcessLauncherImplTest {
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public final TemporaryFolder temp = new TemporaryFolder();
 
-  private AllProcessesCommands commands = mock(AllProcessesCommands.class, RETURNS_MOCKS);
+  private final AllProcessesCommands commands = mock(AllProcessesCommands.class, RETURNS_MOCKS);
 
   @Test
   public void launch_forks_a_new_process() throws Exception {
@@ -89,6 +88,99 @@ public class ProcessLauncherImplTest {
     assertThat(processBuilder.environment)
       .contains(entry("VAR1", "valueOfVar1"))
       .containsAllEntriesOf(command.getEnvVariables());
+  }
+
+  @Test
+  public void enabling_es_security_should_execute_keystore_cli_if_cert_password_provided() throws Exception {
+    File tempDir = temp.newFolder();
+    File certificateFile = temp.newFile("certificate.pk12");
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+
+    EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
+      .set("sonar.cluster.enabled", "true")
+      .set("sonar.cluster.search.password", "bootstrap-password")
+      .set("sonar.cluster.es.ssl.keystore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.keystorePassword", "keystore-password")
+      .set("sonar.cluster.es.ssl.truststore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.truststorePassword", "truststore-password"));
+
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    command.addClasspath("lib/*.class");
+    command.addClasspath("lib/*.jar");
+    command.setArgument("foo", "bar");
+    command.setClassName("org.sonarqube.Main");
+    command.setEnvVariable("VAR1", "valueOfVar1");
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
+    command.setEsInstallation(esInstallation);
+
+    ManagedProcess monitor = underTest.launch(command);
+    assertThat(monitor).isNotNull();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "certificate.pk12")).exists();
+  }
+
+  @Test
+  public void enabling_es_security_should_execute_keystore_cli_if_no_cert_password_provided() throws Exception {
+    File tempDir = temp.newFolder();
+    File certificateFile = temp.newFile("certificate.pk12");
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+
+    EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
+      .set("sonar.cluster.enabled", "true")
+      .set("sonar.cluster.search.password", "bootstrap-password")
+      .set("sonar.cluster.es.ssl.keystore", certificateFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.truststore", certificateFile.getAbsolutePath()));
+
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    command.addClasspath("lib/*.class");
+    command.addClasspath("lib/*.jar");
+    command.setArgument("foo", "bar");
+    command.setClassName("org.sonarqube.Main");
+    command.setEnvVariable("VAR1", "valueOfVar1");
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
+    command.setEsInstallation(esInstallation);
+
+    ManagedProcess monitor = underTest.launch(command);
+    assertThat(monitor).isNotNull();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "certificate.pk12")).exists();
+  }
+
+  @Test
+  public void enabling_es_security_should_execute_keystore_cli_if_truststore_and_keystore_provided() throws Exception {
+    File tempDir = temp.newFolder();
+    File truststoreFile = temp.newFile("truststore.pk12");
+    File keystoreFile = temp.newFile("keystore.pk12");
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+
+    EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
+      .set("sonar.cluster.enabled", "true")
+      .set("sonar.cluster.search.password", "bootstrap-password")
+      .set("sonar.cluster.es.ssl.keystore", keystoreFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.keystorePassword", "keystore-password")
+      .set("sonar.cluster.es.ssl.truststore", truststoreFile.getAbsolutePath())
+      .set("sonar.cluster.es.ssl.truststorePassword", "truststore-password"));
+
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    command.addClasspath("lib/*.class");
+    command.addClasspath("lib/*.jar");
+    command.setArgument("foo", "bar");
+    command.setClassName("org.sonarqube.Main");
+    command.setEnvVariable("VAR1", "valueOfVar1");
+    command.setJvmOptions(new JvmOptions<>()
+      .add("-Dfoo=bar")
+      .add("-Dfoo2=bar2"));
+    command.setEsInstallation(esInstallation);
+
+    ManagedProcess monitor = underTest.launch(command);
+    assertThat(monitor).isNotNull();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "truststore.pk12")).exists();
+    assertThat(Paths.get(esInstallation.getConfDirectory().getAbsolutePath(), "keystore.pk12")).exists();
   }
 
   @Test
@@ -127,7 +219,7 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
+    JavaCommand<JvmOptions<?>> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
     command.setReadsArgumentsFromFile(false);
     command.setArgument("foo", "bar");
     command.setArgument("baz", "woo");
@@ -146,16 +238,16 @@ public class ProcessLauncherImplTest {
     File homeDir = temp.newFolder();
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> new TestProcessBuilder());
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
     EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir.mkdir()).isTrue();
-    assertThat(outdatedEsDir.exists()).isTrue();
+    assertThat(outdatedEsDir).exists();
 
     underTest.launch(command);
 
-    assertThat(outdatedEsDir.exists()).isFalse();
+    assertThat(outdatedEsDir).doesNotExist();
   }
 
   @Test
@@ -168,11 +260,11 @@ public class ProcessLauncherImplTest {
     EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
-    assertThat(outdatedEsDir.exists()).isFalse();
+    assertThat(outdatedEsDir).doesNotExist();
 
     underTest.launch(command);
 
-    assertThat(outdatedEsDir.exists()).isFalse();
+    assertThat(outdatedEsDir).doesNotExist();
   }
 
   @Test
@@ -182,10 +274,10 @@ public class ProcessLauncherImplTest {
     when(processBuilder.start()).thenThrow(new IOException("error"));
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to launch process [es]");
-
-    underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder()));
+    JavaCommand<?> javaCommand = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    assertThatThrownBy(() -> underTest.launch(javaCommand))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to launch process [es]");
   }
 
   private EsScriptCommand createEsScriptCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
@@ -202,6 +294,20 @@ public class ProcessLauncherImplTest {
       .setHost("localhost")
       .setHttpPort(9001));
     return command;
+  }
+
+  private EsInstallation createEsInstallation(Props props) throws IOException {
+    File tempFolder = this.temp.newFolder("temp");
+    return new EsInstallation(props
+      .set("sonar.path.home", this.temp.newFolder("home").getAbsolutePath())
+      .set("sonar.path.data", this.temp.newFolder("data").getAbsolutePath())
+      .set("sonar.path.temp", tempFolder.getAbsolutePath())
+      .set("sonar.path.logs", this.temp.newFolder("logs").getAbsolutePath()))
+        .setHttpPort(9001)
+        .setHost("localhost")
+        .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
+        .setEsJvmOptions(new EsJvmOptions(new Props(new Properties()), tempFolder))
+        .setLog4j2Properties(new Properties());
   }
 
   private EsInstallation createEsInstallation() throws IOException {
@@ -256,7 +362,7 @@ public class ProcessLauncherImplTest {
     @Override
     public Process start() {
       this.started = true;
-      return mock(Process.class);
+      return mock(Process.class, RETURNS_MOCKS);
     }
   }
 }
