@@ -19,14 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockEvent } from '../../../../../helpers/testMocks';
 import AlmBindingDefinitionFormModalRenderer, {
   AlmBindingDefinitionFormModalProps
 } from '../AlmBindingDefinitionFormModalRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender().dive()).toMatchSnapshot();
-  expect(shallowRender({ help: <span>Help me</span> }).dive()).toMatchSnapshot('with help');
-  expect(shallowRender({ isSecondInstance: true }).dive()).toMatchSnapshot('second instance');
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ help: <span>Help me</span> })).toMatchSnapshot('with help');
+  expect(shallowRender({ isSecondInstance: true })).toMatchSnapshot('second instance');
+});
+
+it('should submit properly', () => {
+  const onSubmit = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ onSubmit });
+
+  const event: React.SyntheticEvent<HTMLFormElement> = mockEvent({ preventDefault: jest.fn() });
+
+  wrapper.find('form').simulate('submit', event);
+
+  expect(event.preventDefault).toBeCalled();
+  expect(onSubmit).toBeCalled();
 });
 
 function shallowRender(props: Partial<AlmBindingDefinitionFormModalProps> = {}) {

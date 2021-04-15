@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
+import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface AlmBindingDefinitionFormModalProps {
@@ -31,7 +30,7 @@ export interface AlmBindingDefinitionFormModalProps {
   help?: React.ReactNode;
   isSecondInstance: boolean;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<void | Response>;
 }
 
 export default function AlmBindingDefinitionFormModalRenderer(
@@ -40,43 +39,49 @@ export default function AlmBindingDefinitionFormModalRenderer(
   const { action, children, help, isSecondInstance } = props;
   const header = translate('settings.almintegration.form.header', action);
 
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    props.onSubmit();
+  };
+
   return (
-    <SimpleModal header={header} onClose={props.onCancel} onSubmit={props.onSubmit} size="medium">
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form className="views-form" onSubmit={onFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
+    <Modal
+      contentLabel={header}
+      onRequestClose={props.onCancel}
+      shouldCloseOnOverlayClick={false}
+      size="medium">
+      <form className="views-form" onSubmit={handleSubmit}>
+        <div className="modal-head">
+          <h2>{header}</h2>
+        </div>
 
-          <div className="modal-body modal-container">
-            {isSecondInstance && action === 'create' && (
-              <Alert className="big-spacer-bottom" variant="warning">
-                {translate('settings.almintegration.form.second_instance_warning')}
+        <div className="modal-body modal-container">
+          {isSecondInstance && action === 'create' && (
+            <Alert className="big-spacer-bottom" variant="warning">
+              {translate('settings.almintegration.form.second_instance_warning')}
+            </Alert>
+          )}
+
+          <div className="display-flex-start">
+            <div className="flex-1">{children}</div>
+
+            {help ? (
+              <Alert className="huge-spacer-left flex-1" variant="info">
+                {help}
               </Alert>
+            ) : (
+              <div className="flex-1" />
             )}
-
-            <div className="display-flex-start">
-              <div className="flex-1">{children}</div>
-
-              {help ? (
-                <Alert className="huge-spacer-left flex-1" variant="info">
-                  {help}
-                </Alert>
-              ) : (
-                <div className="flex-1" />
-              )}
-            </div>
           </div>
+        </div>
 
-          <div className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
-            <SubmitButton disabled={submitting || !props.canSubmit()}>
-              {translate('settings.almintegration.form.save')}
-            </SubmitButton>
-            <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
-          </div>
-        </form>
-      )}
-    </SimpleModal>
+        <div className="modal-foot">
+          <SubmitButton disabled={!props.canSubmit()}>
+            {translate('settings.almintegration.form.save')}
+          </SubmitButton>
+          <ResetButtonLink onClick={props.onCancel}>{translate('cancel')}</ResetButtonLink>
+        </div>
+      </form>
+    </Modal>
   );
 }
