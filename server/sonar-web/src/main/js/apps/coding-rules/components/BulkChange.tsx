@@ -75,7 +75,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   };
 
   render() {
-    // show "Bulk Change" button only if user has at least one QP which he administrates
+    // show "Bulk Change" button only if user is admin of at least one QP
     const canBulkChange = Object.values(this.props.referencedProfiles).some(profile =>
       Boolean(profile.actions && profile.actions.edit)
     );

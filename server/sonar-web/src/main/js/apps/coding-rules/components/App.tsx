@@ -150,7 +150,7 @@ export class App extends React.PureComponent<Props, State> {
       (prevState.selected !== this.state.selected || prevState.openRule)
     ) {
       // if user simply selected another issue
-      // or if he went from the source code back to the list of issues
+      // or if user went from the source code back to the list of issues
       this.scrollToSelectedRule();
     }
   }
