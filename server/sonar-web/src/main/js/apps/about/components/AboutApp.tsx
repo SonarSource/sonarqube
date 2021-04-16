@@ -28,7 +28,9 @@ import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import GlobalContainer from '../../../app/components/GlobalContainer';
+import withIndexationContext, {
+  WithIndexationContextProps
+} from '../../../components/hoc/withIndexationContext';
 import {
   getAppState,
   getCurrentUser,
@@ -47,7 +49,7 @@ import AboutScanners from './AboutScanners';
 import AboutStandards from './AboutStandards';
 import EntryIssueTypes from './EntryIssueTypes';
 
-interface Props {
+interface Props extends WithIndexationContextProps {
   currentUser: T.CurrentUser;
   customText?: string;
   fetchAboutPageSettings: () => Promise<void>;
@@ -94,7 +96,9 @@ export class AboutApp extends React.PureComponent<Props, State> {
   loadData() {
     Promise.all([
       this.loadProjects(),
-      this.loadIssues().catch(() => undefined),
+      this.props.indexationContext.status.isCompleted
+        ? this.loadIssues().catch(() => undefined)
+        : Promise.resolve(undefined),
       this.loadCustomText()
     ]).then(
       responses => {
@@ -126,69 +130,67 @@ export class AboutApp extends React.PureComponent<Props, State> {
     }
 
     return (
-      <GlobalContainer location={this.props.location}>
-        <div className="page page-limited about-page" id="about-page">
-          <A11ySkipTarget anchor="about_main" />
+      <div className="page page-limited about-page" id="about-page">
+        <A11ySkipTarget anchor="about_main" />
 
-          <div className="about-page-entry">
-            <div className="about-page-intro">
-              <h1 className="big-spacer-bottom">{translate('layout.sonar.slogan')}</h1>
-              {!this.props.currentUser.isLoggedIn && (
-                <Link className="button button-active big-spacer-right" to="/sessions/new">
-                  {translate('layout.login')}
-                </Link>
-              )}
-              <Link className="button" to="/documentation">
-                {translate('about_page.read_documentation')}
+        <div className="about-page-entry">
+          <div className="about-page-intro">
+            <h1 className="big-spacer-bottom">{translate('layout.sonar.slogan')}</h1>
+            {!this.props.currentUser.isLoggedIn && (
+              <Link className="button button-active big-spacer-right" to="/sessions/new">
+                {translate('layout.login')}
               </Link>
-            </div>
-
-            <div className="about-page-instance">
-              <AboutProjects count={projectsCount} loading={loading} />
-              {issueTypes && (
-                <EntryIssueTypes
-                  bugs={bugs}
-                  codeSmells={codeSmells}
-                  loading={loading}
-                  vulnerabilities={vulnerabilities}
-                />
-              )}
-            </div>
+            )}
+            <Link className="button" to="/documentation">
+              {translate('about_page.read_documentation')}
+            </Link>
           </div>
 
-          {customText && (
-            <div
-              className="about-page-section"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitize(customText) }}
-            />
-          )}
-
-          <AboutLanguages />
-
-          <AboutQualityModel />
-
-          <div className="flex-columns">
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutCleanCode />
-            </div>
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutLeakPeriod />
-            </div>
+          <div className="about-page-instance">
+            <AboutProjects count={projectsCount} loading={loading} />
+            {issueTypes && (
+              <EntryIssueTypes
+                bugs={bugs}
+                codeSmells={codeSmells}
+                loading={loading}
+                vulnerabilities={vulnerabilities}
+              />
+            )}
           </div>
-
-          <div className="flex-columns">
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutQualityGates />
-            </div>
-            <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutStandards />
-            </div>
-          </div>
-
-          <AboutScanners />
         </div>
-      </GlobalContainer>
+
+        {customText && (
+          <div
+            className="about-page-section"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitize(customText) }}
+          />
+        )}
+
+        <AboutLanguages />
+
+        <AboutQualityModel />
+
+        <div className="flex-columns">
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutCleanCode />
+          </div>
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutLeakPeriod />
+          </div>
+        </div>
+
+        <div className="flex-columns">
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutQualityGates />
+          </div>
+          <div className="flex-column flex-column-half about-page-group-boxes">
+            <AboutStandards />
+          </div>
+        </div>
+
+        <AboutScanners />
+      </div>
     );
   }
 }
@@ -204,4 +206,4 @@ const mapStateToProps = (state: Store) => {
 
 const mapDispatchToProps = { fetchAboutPageSettings } as any;
 
-export default connect(mapStateToProps, mapDispatchToProps)(AboutApp);
+export default withIndexationContext(connect(mapStateToProps, mapDispatchToProps)(AboutApp));

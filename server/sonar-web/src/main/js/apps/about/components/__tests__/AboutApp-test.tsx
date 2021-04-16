@@ -65,6 +65,14 @@ it('should render correctly', async () => {
 
   wrapper.unmount();
   expect(removeWhitePageClass).toBeCalled();
+
+  expect(
+    shallowRender({
+      indexationContext: {
+        status: { isCompleted: false, percentCompleted: 10, hasFailures: false }
+      }
+    })
+  ).toMatchSnapshot('when indexation not complete');
 });
 
 it('should load issues, projects, and custom text upon shallowing', () => {
@@ -92,6 +100,9 @@ function shallowRender(props: Partial<AboutApp['props']> = {}) {
       customText="Lorem ipsum"
       fetchAboutPageSettings={jest.fn().mockResolvedValue('')}
       location={mockLocation()}
+      indexationContext={{
+        status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
+      }}
       {...props}
     />
   );

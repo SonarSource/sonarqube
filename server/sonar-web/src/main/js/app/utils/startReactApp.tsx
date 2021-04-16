@@ -287,9 +287,9 @@ export default function startReactApp(
                   <IndexRoute
                     component={lazyLoadComponent(() => import('../components/Landing'))}
                   />
-                  <RouteWithChildRoutes path="about" childRoutes={aboutRoutes} />
 
                   <Route component={GlobalContainer}>
+                    <RouteWithChildRoutes path="about" childRoutes={aboutRoutes} />
                     <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
                     <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
                     <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
