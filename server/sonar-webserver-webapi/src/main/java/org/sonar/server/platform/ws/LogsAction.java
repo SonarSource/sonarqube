@@ -20,7 +20,14 @@
 package org.sonar.server.platform.ws;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -72,14 +79,30 @@ public class LogsAction implements SystemWsAction {
     ProcessId processId = ProcessId.fromKey(processKey);
 
     File logsDir = serverLogging.getLogsDir();
-    File file = new File(logsDir, processId.getLogFilenamePrefix() + ".log");
-    // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
-    // path is double-checked to prevent returning any file present on the file system.
-    if (file.exists() && file.getParentFile().equals(logsDir)) {
-      wsResponse.stream().setMediaType(MediaTypes.TXT);
-      FileUtils.copyFile(file, wsResponse.stream().output());
-    } else {
-      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+
+    try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
+      Optional<Path> path = stream
+        .filter(p -> p.getFileName().toString().contains(processId.getLogFilenamePrefix())
+          && p.getFileName().toString().endsWith(".log"))
+        .max(Comparator.comparing(Path::toString));
+
+      if (!path.isPresent()) {
+        wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+        return;
+      }
+
+      File file = new File(logsDir, path.get().getFileName().toString());
+
+      // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
+      // path is double-checked to prevent returning any file present on the file system.
+      if (file.exists() && file.getParentFile().equals(logsDir)) {
+        wsResponse.stream().setMediaType(MediaTypes.TXT);
+        FileUtils.copyFile(file, wsResponse.stream().output());
+      } else {
+        wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Could not fetch logs", e);
     }
   }
 }

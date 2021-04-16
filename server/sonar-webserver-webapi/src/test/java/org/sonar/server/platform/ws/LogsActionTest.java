@@ -149,6 +149,21 @@ public class LogsActionTest {
     assertThat(response.getInput()).isEqualTo("{recent}");
   }
 
+  @Test
+  public void create_latest_created_file() throws IOException {
+    logInAsSystemAdministrator();
+
+    File dir = createLogsDir();
+    FileUtils.write(new File(dir, "sonar.20210101.log"), "{old}");
+    FileUtils.write(new File(dir, "sonar.20210201.log"), "{recent}");
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "app")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{recent}");
+  }
+
   private File createAllLogsFiles() throws IOException {
     File dir = createLogsDir();
     FileUtils.write(new File(dir, "sonar.log"), "{app}");
