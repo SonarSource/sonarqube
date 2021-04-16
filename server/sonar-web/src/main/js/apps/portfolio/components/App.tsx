@@ -161,6 +161,11 @@ export class App extends React.PureComponent<Props, State> {
         <div className="page-actions">
           <Report component={component} />
         </div>
+        {component.description && (
+          <div className="portfolio-description display-inline-block big-spacer-bottom">
+            {component.description}
+          </div>
+        )}
         <h1>{translate('portfolio.health_factors')}</h1>
         <div className="portfolio-boxes">
           <MetricBox component={component.key} measures={measures!} metricKey="releasability" />

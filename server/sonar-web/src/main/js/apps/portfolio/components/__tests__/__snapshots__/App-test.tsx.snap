@@ -10,12 +10,18 @@ exports[`renders 1`] = `
     <Report
       component={
         Object {
+          "description": "accurate description",
           "key": "foo",
           "name": "Foo",
-          "qualifier": "TRK",
+          "qualifier": "VW",
         }
       }
     />
+  </div>
+  <div
+    className="portfolio-description display-inline-block big-spacer-bottom"
+  >
+    accurate description
   </div>
   <h1>
     portfolio.health_factors

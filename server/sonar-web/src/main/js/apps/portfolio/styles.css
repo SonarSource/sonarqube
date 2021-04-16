@@ -54,6 +54,10 @@
   white-space: nowrap;
 }
 
+.portfolio-description {
+  max-width: 60%;
+}
+
 .portfolio-boxes {
   display: flex;
   justify-content: space-between;

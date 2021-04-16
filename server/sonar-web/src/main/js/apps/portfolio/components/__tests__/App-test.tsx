@@ -28,15 +28,26 @@ jest.mock('../../../../api/components', () => ({
 
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
 
 const getMeasures = require('../../../../api/measures').getMeasures as jest.Mock<any>;
 const getChildren = require('../../../../api/components').getChildren as jest.Mock<any>;
 
-const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as T.Component;
+const component = {
+  key: 'foo',
+  name: 'Foo',
+  qualifier: ComponentQualifier.Portfolio
+} as T.Component;
 
 it('renders', () => {
-  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
+  const wrapper = shallow(
+    <App
+      component={{ ...component, description: 'accurate description' }}
+      fetchMetrics={jest.fn()}
+      metrics={{}}
+    />
+  );
   wrapper.setState({
     loading: false,
     measures: { ncloc: '173', reliability_rating: '1' },
