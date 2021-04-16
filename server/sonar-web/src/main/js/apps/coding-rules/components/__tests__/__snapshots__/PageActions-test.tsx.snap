@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <div
-  className="display-flex-center display-flex-justify-end"
+  className="display-flex-center"
 >
   <PageShortcutsTooltip
     className="big-spacer-right"
@@ -21,7 +21,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: loading 1`] = `
 <div
-  className="display-flex-center display-flex-justify-end"
+  className="display-flex-center"
 >
   <PageShortcutsTooltip
     className="big-spacer-right"
@@ -40,7 +40,7 @@ exports[`should render correctly: loading 1`] = `
 
 exports[`should render correctly: with paging 1`] = `
 <div
-  className="display-flex-center display-flex-justify-end"
+  className="display-flex-center"
 >
   <PageShortcutsTooltip
     className="big-spacer-right"

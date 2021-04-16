@@ -33,7 +33,7 @@ export interface PageActionsProps {
 
 export default function PageActions(props: PageActionsProps) {
   return (
-    <div className="display-flex-center display-flex-justify-end">
+    <div className="display-flex-center">
       <PageShortcutsTooltip
         className="big-spacer-right"
         leftAndRightLabel={translate('issues.to_navigate')}

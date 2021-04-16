@@ -155,53 +155,57 @@ exports[`should render correctly: loaded 1`] = `
             <A11ySkipTarget
               anchor="rules_main"
             />
-            <BulkChange
-              languages={
-                Object {
-                  "js": Object {
-                    "key": "js",
-                    "name": "JavaScript",
-                  },
+            <div
+              className="display-flex-space-between"
+            >
+              <BulkChange
+                languages={
+                  Object {
+                    "js": Object {
+                      "key": "js",
+                      "name": "JavaScript",
+                    },
+                  }
                 }
-              }
-              query={
-                Object {
-                  "activation": undefined,
-                  "activationSeverities": Array [],
-                  "availableSince": undefined,
-                  "compareToProfile": undefined,
-                  "cwe": Array [],
-                  "inheritance": undefined,
-                  "languages": Array [],
-                  "owaspTop10": Array [],
-                  "profile": undefined,
-                  "repositories": Array [],
-                  "ruleKey": undefined,
-                  "sansTop25": Array [],
-                  "searchQuery": undefined,
-                  "severities": Array [],
-                  "sonarsourceSecurity": Array [],
-                  "statuses": Array [],
-                  "tags": Array [],
-                  "template": undefined,
-                  "types": Array [],
+                query={
+                  Object {
+                    "activation": undefined,
+                    "activationSeverities": Array [],
+                    "availableSince": undefined,
+                    "compareToProfile": undefined,
+                    "cwe": Array [],
+                    "inheritance": undefined,
+                    "languages": Array [],
+                    "owaspTop10": Array [],
+                    "profile": undefined,
+                    "repositories": Array [],
+                    "ruleKey": undefined,
+                    "sansTop25": Array [],
+                    "searchQuery": undefined,
+                    "severities": Array [],
+                    "sonarsourceSecurity": Array [],
+                    "statuses": Array [],
+                    "tags": Array [],
+                    "template": undefined,
+                    "types": Array [],
+                  }
                 }
-              }
-              referencedProfiles={Object {}}
-              total={0}
-            />
-            <PageActions
-              loading={false}
-              onReload={[Function]}
-              paging={
-                Object {
-                  "pageIndex": 0,
-                  "pageSize": 100,
-                  "total": 0,
+                referencedProfiles={Object {}}
+                total={0}
+              />
+              <PageActions
+                loading={false}
+                onReload={[Function]}
+                paging={
+                  Object {
+                    "pageIndex": 0,
+                    "pageSize": 100,
+                    "total": 0,
+                  }
                 }
-              }
-              selectedIndex={0}
-            />
+                selectedIndex={0}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -315,10 +319,14 @@ exports[`should render correctly: loading 1`] = `
             <A11ySkipTarget
               anchor="rules_main"
             />
-            <PageActions
-              loading={true}
-              onReload={[Function]}
-            />
+            <div
+              className="display-flex-space-between"
+            >
+              <PageActions
+                loading={true}
+                onReload={[Function]}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -447,28 +455,32 @@ exports[`should render correctly: open rule 1`] = `
             <A11ySkipTarget
               anchor="rules_main"
             />
-            <a
-              className="js-back display-inline-flex-center link-no-underline"
-              href="#"
-              onClick={[Function]}
+            <div
+              className="display-flex-space-between"
             >
-              <BackIcon
-                className="spacer-right"
-              />
-              coding_rules.return_to_list
-            </a>
-            <PageActions
-              loading={false}
-              onReload={[Function]}
-              paging={
-                Object {
-                  "pageIndex": 0,
-                  "pageSize": 100,
-                  "total": 0,
+              <a
+                className="js-back display-inline-flex-center link-no-underline"
+                href="#"
+                onClick={[Function]}
+              >
+                <BackIcon
+                  className="spacer-right"
+                />
+                coding_rules.return_to_list
+              </a>
+              <PageActions
+                loading={false}
+                onReload={[Function]}
+                paging={
+                  Object {
+                    "pageIndex": 0,
+                    "pageSize": 100,
+                    "total": 0,
+                  }
                 }
-              }
-              selectedIndex={0}
-            />
+                selectedIndex={0}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -531,16 +543,20 @@ exports[`should render correctly: using permalink 1`] = `
             <A11ySkipTarget
               anchor="rules_main"
             />
-            <a
-              className="js-back display-inline-flex-center link-no-underline"
-              href="#"
-              onClick={[Function]}
+            <div
+              className="display-flex-space-between"
             >
-              <BackIcon
-                className="spacer-right"
-              />
-              coding_rules.see_all
-            </a>
+              <a
+                className="js-back display-inline-flex-center link-no-underline"
+                href="#"
+                onClick={[Function]}
+              >
+                <BackIcon
+                  className="spacer-right"
+                />
+                coding_rules.see_all
+              </a>
+            </div>
           </div>
         </div>
       </div>

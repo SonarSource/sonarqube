@@ -595,27 +595,29 @@ export class App extends React.PureComponent<Props, State> {
               <div className="layout-page-header-panel-inner layout-page-main-header-inner">
                 <div className="layout-page-main-inner">
                   <A11ySkipTarget anchor="rules_main" />
-                  {this.state.openRule ? (
-                    <a
-                      className="js-back display-inline-flex-center link-no-underline"
-                      href="#"
-                      onClick={this.handleBack}>
-                      <BackIcon className="spacer-right" />
-                      {this.state.usingPermalink
-                        ? translate('coding_rules.see_all')
-                        : translate('coding_rules.return_to_list')}
-                    </a>
-                  ) : (
-                    this.renderBulkButton()
-                  )}
-                  {!this.state.usingPermalink && (
-                    <PageActions
-                      loading={this.state.loading}
-                      onReload={this.handleReload}
-                      paging={paging}
-                      selectedIndex={selectedIndex}
-                    />
-                  )}
+                  <div className="display-flex-space-between">
+                    {this.state.openRule ? (
+                      <a
+                        className="js-back display-inline-flex-center link-no-underline"
+                        href="#"
+                        onClick={this.handleBack}>
+                        <BackIcon className="spacer-right" />
+                        {this.state.usingPermalink
+                          ? translate('coding_rules.see_all')
+                          : translate('coding_rules.return_to_list')}
+                      </a>
+                    ) : (
+                      this.renderBulkButton()
+                    )}
+                    {!this.state.usingPermalink && (
+                      <PageActions
+                        loading={this.state.loading}
+                        onReload={this.handleReload}
+                        paging={paging}
+                        selectedIndex={selectedIndex}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -100,7 +100,6 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     return (
       <>
         <Dropdown
-          className="pull-left"
           overlayPlacement={PopupPlacement.BottomLeft}
           overlay={
             <ul className="menu">

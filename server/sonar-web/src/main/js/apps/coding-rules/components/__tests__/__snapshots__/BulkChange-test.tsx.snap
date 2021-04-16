@@ -63,7 +63,6 @@ exports[`should not a disabled button when edition is not possible 1`] = `
 exports[`should render correctly 1`] = `
 <Fragment>
   <Dropdown
-    className="pull-left"
     overlay={
       <ul
         className="menu"
