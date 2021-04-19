@@ -26,11 +26,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
@@ -39,14 +44,17 @@ import org.slf4j.LoggerFactory;
 import static org.elasticsearch.common.unit.TimeValue.timeValueSeconds;
 
 public class EsConnectorImpl implements EsConnector {
+  private static final String ES_USERNAME = "elastic";
 
   private static final Logger LOG = LoggerFactory.getLogger(EsConnectorImpl.class);
 
   private final AtomicReference<RestHighLevelClient> restClient = new AtomicReference<>(null);
   private final Set<HostAndPort> hostAndPorts;
+  private final String searchPassword;
 
-  public EsConnectorImpl(Set<HostAndPort> hostAndPorts) {
+  public EsConnectorImpl(Set<HostAndPort> hostAndPorts, @Nullable String searchPassword) {
     this.hostAndPorts = hostAndPorts;
+    this.searchPassword = searchPassword;
   }
 
   @Override
@@ -95,7 +103,22 @@ public class EsConnectorImpl implements EsConnector {
         .collect(Collectors.joining(", "));
       LOG.debug("Connected to Elasticsearch node: [{}]", addresses);
     }
-    return new RestHighLevelClient(RestClient.builder(httpHosts));
+
+    RestClientBuilder builder = RestClient.builder(httpHosts)
+      .setHttpClientConfigCallback(httpClientBuilder -> {
+        if (searchPassword != null) {
+          BasicCredentialsProvider provider = getBasicCredentialsProvider(searchPassword);
+          httpClientBuilder.setDefaultCredentialsProvider(provider);
+        }
+        return httpClientBuilder;
+      });
+    return new RestHighLevelClient(builder);
+  }
+
+  private static BasicCredentialsProvider getBasicCredentialsProvider(String searchPassword) {
+    BasicCredentialsProvider provider = new BasicCredentialsProvider();
+    provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ES_USERNAME, searchPassword));
+    return provider;
   }
 
 }

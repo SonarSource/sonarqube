@@ -22,11 +22,15 @@ package org.sonar.server.es;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Objects;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
@@ -144,6 +148,9 @@ public class EsClientTest {
     "  }" +
     "}";
 
+  @Rule
+  public MockWebServer mockWebServer = new MockWebServer();
+
   RestClient restClient = mock(RestClient.class);
   RestHighLevelClient client = new EsClient.MinimalRestHighLevelClient(restClient);
 
@@ -229,6 +236,21 @@ public class EsClientTest {
       "/_cluster/stats"))))
         .thenThrow(IOException.class);
     underTest.clusterStats();
+  }
+
+  @Test
+  public void should_add_authentication_header() throws InterruptedException {
+    mockWebServer.enqueue(new MockResponse()
+      .setResponseCode(200)
+      .setBody(EXAMPLE_CLUSTER_STATS_JSON)
+      .setHeader("Content-Type", "application/json"));
+
+    String password = "test-password";
+    EsClient underTest = new EsClient(password, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
+
+    underTest.clusterStats();
+
+    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
   }
 
   static class RawRequestMatcher implements ArgumentMatcher<Request> {

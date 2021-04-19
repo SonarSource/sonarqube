@@ -41,6 +41,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 
 public class AppStateFactory {
   private final AppSettings settings;
@@ -74,6 +75,7 @@ public class AppStateFactory {
     Set<HostAndPort> hostAndPorts = Arrays.stream(searchHosts.split(","))
       .map(HostAndPort::fromString)
       .collect(Collectors.toSet());
-    return new EsConnectorImpl(hostAndPorts);
+    String searchPassword = props.value(CLUSTER_SEARCH_PASSWORD.getKey());
+    return new EsConnectorImpl(hostAndPorts, searchPassword);
   }
 }

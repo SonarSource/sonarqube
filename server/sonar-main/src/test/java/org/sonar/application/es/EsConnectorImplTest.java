@@ -59,7 +59,7 @@ public class EsConnectorImplTest {
   @Rule
   public MockWebServer mockWebServer = new MockWebServer();
 
-  EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())));
+  EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())), null);
 
   @After
   public void after() {
@@ -80,6 +80,18 @@ public class EsConnectorImplTest {
 
     assertThat(underTest.getClusterHealthStatus())
       .hasValue(ClusterHealthStatus.YELLOW);
+  }
+
+  @Test
+  public void should_add_authentication_header() throws InterruptedException {
+    mockServerResponse(200, JSON_SUCCESS_RESPONSE);
+    String password = "test-password";
+
+    EsConnectorImpl underTest = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(), mockWebServer.getPort())), password);
+
+    assertThat(underTest.getClusterHealthStatus())
+      .hasValue(ClusterHealthStatus.YELLOW);
+    assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic ZWxhc3RpYzp0ZXN0LXBhc3N3b3Jk");
   }
 
   private void mockServerResponse(int httpCode, String jsonResponse) {

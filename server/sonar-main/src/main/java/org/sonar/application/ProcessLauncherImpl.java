@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -107,7 +106,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
         EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(),
-          esInstallation.getHttpPort())));
+          esInstallation.getHttpPort())), esInstallation.getBootstrapPassword());
         return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());

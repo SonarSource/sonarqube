@@ -40,6 +40,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 import static org.sonar.process.cluster.NodeType.SEARCH;
@@ -67,7 +68,7 @@ public class EsClientProvider extends ProviderAdapter {
 
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(httpHosts));
       } else {
-        //defaults provided in:
+        // defaults provided in:
         // * in org.sonar.process.ProcessProperties.Property.SEARCH_HOST
         // * in org.sonar.process.ProcessProperties.Property.SEARCH_PORT
         HostAndPort host = HostAndPort.fromParts(config.get(SEARCH_HOST.getKey()).get(), config.getInt(SEARCH_PORT.getKey()).get());
@@ -75,7 +76,7 @@ public class EsClientProvider extends ProviderAdapter {
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(httpHosts));
       }
 
-      cache = new EsClient(httpHosts.toArray(new HttpHost[0]));
+      cache = new EsClient(config.get(CLUSTER_SEARCH_PASSWORD.getKey()).orElse(null), httpHosts.toArray(new HttpHost[0]));
     }
     return cache;
   }

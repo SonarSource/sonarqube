@@ -27,7 +27,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -65,6 +69,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
@@ -72,6 +77,7 @@ import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.Priority;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -86,13 +92,18 @@ import static org.sonar.server.es.EsRequestDetails.computeDetailsAsString;
  * with context) and profiling of requests.
  */
 public class EsClient implements Closeable {
+  private static final String ES_USERNAME = "elastic";
   private final RestHighLevelClient restHighLevelClient;
   private final Gson gson;
 
   public static final Logger LOGGER = Loggers.get("es");
 
   public EsClient(HttpHost... hosts) {
-    this(new MinimalRestHighLevelClient(hosts));
+    this(new MinimalRestHighLevelClient(null, hosts));
+  }
+
+  public EsClient(@Nullable String searchPassword, HttpHost... hosts) {
+    this(new MinimalRestHighLevelClient(searchPassword, hosts));
   }
 
   EsClient(RestHighLevelClient restHighLevelClient) {
@@ -256,9 +267,33 @@ public class EsClient implements Closeable {
   }
 
   static class MinimalRestHighLevelClient extends RestHighLevelClient {
+    private static final int CONNECT_TIMEOUT = 5000;
+    private static final int SOCKET_TIMEOUT = 60000;
 
-    public MinimalRestHighLevelClient(HttpHost... hosts) {
-      super(RestClient.builder(hosts));
+    public MinimalRestHighLevelClient(@Nullable String searchPassword, HttpHost... hosts) {
+      super(buildHttpClient(searchPassword, hosts));
+    }
+
+    @NotNull
+    private static RestClientBuilder buildHttpClient(@Nullable String searchPassword,
+      HttpHost[] hosts) {
+      return RestClient.builder(hosts)
+        .setRequestConfigCallback(r -> r
+          .setConnectTimeout(CONNECT_TIMEOUT)
+          .setSocketTimeout(SOCKET_TIMEOUT))
+        .setHttpClientConfigCallback(httpClientBuilder -> {
+          if (searchPassword != null) {
+            BasicCredentialsProvider provider = getBasicCredentialsProvider(searchPassword);
+            httpClientBuilder.setDefaultCredentialsProvider(provider);
+          }
+          return httpClientBuilder;
+        });
+    }
+
+    private static BasicCredentialsProvider getBasicCredentialsProvider(String searchPassword) {
+      BasicCredentialsProvider provider = new BasicCredentialsProvider();
+      provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ES_USERNAME, searchPassword));
+      return provider;
     }
 
     MinimalRestHighLevelClient(RestClient restClient) {
