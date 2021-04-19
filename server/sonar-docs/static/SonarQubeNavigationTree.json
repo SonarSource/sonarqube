@@ -79,7 +79,8 @@
         ]
       },
       "/analysis/scm-integration/",
-      "/analysis/security_configuration/"
+      "/analysis/security_configuration/",
+      "/analysis/analysis-with-java-11/"
     ]
   },
   {
