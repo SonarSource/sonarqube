@@ -562,3 +562,124 @@ exports[`should render correctly: validation failed 1`] = `
   </Alert>
 </div>
 `;
+
+exports[`should render correctly: validation failed, custom error message 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    className="width-50"
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.pat_form.title.bitbucket
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_form.help.bitbucket
+    </p>
+    <ValidationInput
+      error="error"
+      id="personal_access_token"
+      isInvalid={true}
+      isValid={false}
+      label="onboarding.create_project.enter_pat"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large is-invalid"
+        id="personal_access_token"
+        minLength={1}
+        name="personal_access_token"
+        onChange={[Function]}
+        type="text"
+      />
+    </ValidationInput>
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+    />
+  </form>
+  <Alert
+    className="big-spacer-left width-50"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.bitbucket",
+          }
+        }
+      />
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="http://www.example.com/plugins/servlet/access-tokens/add"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions2.bitbucket
+    </p>
+    <ul>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
+          id="onboarding.create_project.pat_help.bbs_permission_projects"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
+          id="onboarding.create_project.pat_help.bbs_permission_repos"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;

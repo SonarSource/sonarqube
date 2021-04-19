@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   checkPersonalAccessTokenIsValid,
   getGitlabProjects,
@@ -26,7 +27,7 @@ import {
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
 import { GitlabProject } from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -44,7 +45,7 @@ interface State {
   projectsPaging: T.Paging;
   submittingToken: boolean;
   tokenIsValid: boolean;
-  tokenValidationFailed: boolean;
+  tokenValidationErrorMessage?: string;
   searching: boolean;
   searchQuery: string;
   settings?: AlmSettingsInstance;
@@ -66,8 +67,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       searching: false,
       searchQuery: '',
       settings: props.settings.length === 1 ? props.settings[0] : undefined,
-      submittingToken: false,
-      tokenValidationFailed: false
+      submittingToken: false
     };
   }
 
@@ -92,10 +92,10 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   fetchInitialData = async () => {
     this.setState({ loading: true });
 
-    const tokenIsValid = await this.checkPersonalAccessToken();
+    const { status, error } = await this.checkPersonalAccessToken();
 
     let result;
-    if (tokenIsValid) {
+    if (status) {
       result = await this.fetchProjects();
     }
 
@@ -104,14 +104,15 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         const { projects, projectsPaging } = result;
 
         this.setState({
-          tokenIsValid,
+          tokenIsValid: status,
           loading: false,
           projects,
           projectsPaging
         });
       } else {
         this.setState({
-          loading: false
+          loading: false,
+          tokenValidationErrorMessage: !status ? error : undefined
         });
       }
     }
@@ -121,10 +122,13 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     const { settings } = this.state;
 
     if (!settings) {
-      return Promise.resolve(false);
+      return Promise.resolve({
+        status: false,
+        error: translate('onboarding.create_project.pat_incorrect', AlmKeys.GitLab)
+      });
     }
 
-    return checkPersonalAccessTokenIsValid(settings.key).catch(() => false);
+    return checkPersonalAccessTokenIsValid(settings.key);
   };
 
   handleError = () => {
@@ -231,21 +235,21 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       return;
     }
 
-    this.setState({ submittingToken: true, tokenValidationFailed: false });
+    this.setState({ submittingToken: true, tokenValidationErrorMessage: undefined });
 
     try {
       await setAlmPersonalAccessToken(settings.key, token);
 
-      const patIsValid = await this.checkPersonalAccessToken();
+      const { status, error } = await this.checkPersonalAccessToken();
 
       if (this.mounted) {
         this.setState({
           submittingToken: false,
-          tokenIsValid: patIsValid,
-          tokenValidationFailed: !patIsValid
+          tokenIsValid: status,
+          tokenValidationErrorMessage: error
         });
 
-        if (patIsValid) {
+        if (status) {
           this.cleanUrl();
           await this.fetchInitialData();
         }
@@ -270,7 +274,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       searchQuery,
       settings,
       submittingToken,
-      tokenValidationFailed
+      tokenValidationErrorMessage
     } = this.state;
 
     return (
@@ -290,7 +294,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         searchQuery={searchQuery}
         showPersonalAccessTokenForm={!tokenIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}
-        tokenValidationFailed={tokenValidationFailed}
+        tokenValidationErrorMessage={tokenValidationErrorMessage}
       />
     );
   }

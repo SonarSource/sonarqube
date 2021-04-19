@@ -43,7 +43,7 @@ export interface GitlabProjectCreateRendererProps {
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
-  tokenValidationFailed: boolean;
+  tokenValidationErrorMessage?: string;
 }
 
 export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
@@ -59,7 +59,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
     settings,
     showPersonalAccessTokenForm,
     submittingToken,
-    tokenValidationFailed
+    tokenValidationErrorMessage
   } = props;
 
   return (
@@ -91,7 +91,8 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
             almSetting={settings}
             onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
             submitting={submittingToken}
-            validationFailed={tokenValidationFailed}
+            validationFailed={Boolean(tokenValidationErrorMessage)}
+            validationErrorMessage={tokenValidationErrorMessage}
           />
         ) : (
           <GitlabProjectSelectionForm

@@ -26,6 +26,5 @@ exports[`should render correctly 1`] = `
   }
   showPersonalAccessTokenForm={true}
   submittingToken={false}
-  tokenValidationFailed={false}
 />
 `;

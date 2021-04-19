@@ -35,6 +35,9 @@ it('should render correctly', () => {
   expect(shallowRender({ showPersonalAccessTokenForm: false })).toMatchSnapshot(
     'project selection form'
   );
+  expect(shallowRender({ tokenValidationErrorMessage: 'error' })).toMatchSnapshot(
+    'pat validation error'
+  );
 });
 
 function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
@@ -53,7 +56,6 @@ function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
       searchQuery=""
       showPersonalAccessTokenForm={true}
       submittingToken={false}
-      tokenValidationFailed={false}
       settings={mockAlmSettingsInstance({ alm: AlmKeys.GitLab })}
       {...props}
     />

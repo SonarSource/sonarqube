@@ -30,6 +30,9 @@ it('should render correctly', () => {
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
   expect(shallowRender({ validationFailed: true })).toMatchSnapshot('validation failed');
   expect(
+    shallowRender({ validationFailed: true, validationErrorMessage: 'error' })
+  ).toMatchSnapshot('validation failed, custom error message');
+  expect(
     shallowRender({
       almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' })
     })

@@ -33,6 +33,7 @@ export interface PersonalAccessTokenFormProps {
   onPersonalAccessTokenCreate: (token: string) => void;
   submitting?: boolean;
   validationFailed: boolean;
+  validationErrorMessage?: string;
 }
 
 function getPatUrl(alm: AlmKeys, url: string) {
@@ -50,7 +51,8 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
   const {
     almSetting: { alm, url },
     submitting = false,
-    validationFailed
+    validationFailed,
+    validationErrorMessage
   } = props;
   const [touched, setTouched] = React.useState(false);
 
@@ -59,6 +61,8 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
   }, [submitting]);
 
   const isInvalid = validationFailed && !touched;
+  const errorMessage =
+    validationErrorMessage ?? translate('onboarding.create_project.pat_incorrect', alm);
 
   return (
     <div className="display-flex-start">
@@ -75,7 +79,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
         </p>
 
         <ValidationInput
-          error={isInvalid ? translate('onboarding.create_project.pat_incorrect', alm) : undefined}
+          error={isInvalid ? errorMessage : undefined}
           id="personal_access_token"
           isInvalid={isInvalid}
           isValid={false}

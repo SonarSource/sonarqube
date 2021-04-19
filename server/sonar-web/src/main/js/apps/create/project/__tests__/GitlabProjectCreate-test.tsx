@@ -33,7 +33,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import GitlabProjectCreate from '../GitlabProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({
-  checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
+  checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
   setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
   getGitlabProjects: jest.fn().mockRejectedValue('error'),
   importGitlabProject: jest.fn().mockRejectedValue('error')
@@ -65,7 +65,7 @@ it('should correctly check PAT when settings are added after mount', async () =>
 });
 
 it('should correctly handle a valid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
   (getGitlabProjects as jest.Mock).mockResolvedValueOnce({
     projects: [mockGitlabProject()],
     projectsPaging: {
@@ -80,7 +80,7 @@ it('should correctly handle a valid PAT', async () => {
 });
 
 it('should correctly handle an invalid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().tokenIsValid).toBe(false);
@@ -95,7 +95,8 @@ describe('setting a new PAT', () => {
   });
 
   it('should correctly handle it if invalid', async () => {
-    (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
+    const error = 'error message';
+    (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false, error });
 
     wrapper.instance().handlePersonalAccessTokenCreate('invalidtoken');
     expect(setAlmPersonalAccessToken).toBeCalledWith(almSettingKey, 'invalidtoken');
@@ -103,11 +104,11 @@ describe('setting a new PAT', () => {
     await waitAndUpdate(wrapper);
     expect(checkPersonalAccessTokenIsValid).toBeCalled();
     expect(wrapper.state().submittingToken).toBe(false);
-    expect(wrapper.state().tokenValidationFailed).toBe(true);
+    expect(wrapper.state().tokenValidationErrorMessage).toBe(error);
   });
 
   it('should correctly handle it if valid', async () => {
-    (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+    (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
 
     wrapper.instance().handlePersonalAccessTokenCreate('validtoken');
     expect(setAlmPersonalAccessToken).toBeCalledWith(almSettingKey, 'validtoken');
@@ -115,14 +116,14 @@ describe('setting a new PAT', () => {
     await waitAndUpdate(wrapper);
     expect(checkPersonalAccessTokenIsValid).toBeCalled();
     expect(wrapper.state().submittingToken).toBe(false);
-    expect(wrapper.state().tokenValidationFailed).toBe(false);
+    expect(wrapper.state().tokenValidationErrorMessage).toBeUndefined();
 
     expect(routerReplace).toBeCalled();
   });
 });
 
 it('should fetch more projects and preserve search', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
 
   const projects = [
     mockGitlabProject({ id: '1' }),
@@ -166,7 +167,7 @@ it('should fetch more projects and preserve search', async () => {
 });
 
 it('should search for projects', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
 
   const projects = [
     mockGitlabProject({ id: '1' }),
@@ -210,7 +211,7 @@ it('should search for projects', async () => {
 });
 
 it('should import', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
 
   const projects = [mockGitlabProject({ id: '1' }), mockGitlabProject({ id: '2' })];
   (getGitlabProjects as jest.Mock).mockResolvedValueOnce({

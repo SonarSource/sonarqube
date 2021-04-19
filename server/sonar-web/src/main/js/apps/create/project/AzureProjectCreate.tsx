@@ -240,7 +240,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       return Promise.resolve(false);
     }
 
-    return checkPersonalAccessTokenIsValid(settings.key);
+    return checkPersonalAccessTokenIsValid(settings.key).then(({ status }) => status);
   };
 
   handlePersonalAccessTokenCreate = async (token: string) => {

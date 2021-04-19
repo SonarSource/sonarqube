@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { get, getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
+import { get, getJSON, parseError, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import {
   AzureProject,
@@ -34,15 +34,17 @@ export function setAlmPersonalAccessToken(almSetting: string, pat: string): Prom
   return post('/api/alm_integrations/set_pat', { almSetting, pat }).catch(throwGlobalError);
 }
 
-export function checkPersonalAccessTokenIsValid(almSetting: string): Promise<boolean> {
+export function checkPersonalAccessTokenIsValid(
+  almSetting: string
+): Promise<{ status: boolean; error?: string }> {
   return get('/api/alm_integrations/check_pat', { almSetting })
-    .then(() => true)
-    .catch((response: Response) => {
+    .then(() => ({ status: true }))
+    .catch(async (response: Response) => {
       if (response.status === 400) {
-        return false;
-      } else {
-        return throwGlobalError(response);
+        const error = await parseError(response);
+        return { status: false, error };
       }
+      return throwGlobalError(response);
     });
 }
 

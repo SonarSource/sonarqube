@@ -39,7 +39,7 @@ jest.mock('../../../../api/alm-integrations', () => {
     '../../../../helpers/mocks/alm-integrations'
   );
   return {
-    checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
+    checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
     getBitbucketServerProjects: jest.fn().mockResolvedValue({
       projects: [
         mockBitbucketProject({ key: 'project1', name: 'Project 1' }),
@@ -76,7 +76,7 @@ it('should correctly fetch binding info on mount', async () => {
 });
 
 it('should correctly handle a valid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(checkPersonalAccessTokenIsValid).toBeCalled();
@@ -84,7 +84,7 @@ it('should correctly handle a valid PAT', async () => {
 });
 
 it('should correctly handle an invalid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(checkPersonalAccessTokenIsValid).toBeCalled();
@@ -97,7 +97,7 @@ it('should correctly handle setting a new PAT', async () => {
   expect(setAlmPersonalAccessToken).toBeCalledWith('foo', 'token');
   expect(wrapper.state().submittingToken).toBe(true);
 
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   await waitAndUpdate(wrapper);
   expect(checkPersonalAccessTokenIsValid).toBeCalled();
   expect(wrapper.state().submittingToken).toBe(false);

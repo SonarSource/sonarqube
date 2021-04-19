@@ -122,7 +122,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       return Promise.resolve(false);
     }
 
-    return checkPersonalAccessTokenIsValid(bitbucketSetting.key);
+    return checkPersonalAccessTokenIsValid(bitbucketSetting.key).then(({ status }) => status);
   };
 
   fetchBitbucketProjects = (): Promise<BitbucketProject[] | undefined> => {
