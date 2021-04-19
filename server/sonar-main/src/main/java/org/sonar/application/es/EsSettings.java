@@ -21,6 +21,8 @@ package org.sonar.application.es;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -35,12 +37,15 @@ import org.sonar.process.System2;
 import static java.lang.String.valueOf;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
@@ -92,6 +97,7 @@ public class EsSettings {
     configureFileSystem(builder);
     configureNetwork(builder);
     configureCluster(builder);
+    configureAuthentication(builder);
     configureOthers(builder);
     LOGGER.info("Elasticsearch listening on [HTTP: {}:{}, TCP: {}:{}]",
       builder.get(ES_HTTP_HOST_KEY), builder.get(ES_HTTP_PORT_KEY),
@@ -102,6 +108,39 @@ public class EsSettings {
   private void configureFileSystem(Map<String, String> builder) {
     builder.put("path.data", fileSystem.getDataDirectory().getAbsolutePath());
     builder.put("path.logs", fileSystem.getLogDirectory().getAbsolutePath());
+  }
+
+  private void configureAuthentication(Map<String, String> builder) {
+    if (clusterEnabled && props.value((CLUSTER_SEARCH_PASSWORD.getKey())) != null) {
+
+      String clusterESKeystoreFileName = getFileNameFromPathProperty(CLUSTER_ES_KEYSTORE);
+      String clusterESTruststoreFileName = getFileNameFromPathProperty(CLUSTER_ES_TRUSTSTORE);
+
+      builder.put("xpack.security.enabled", "true");
+      builder.put("xpack.security.transport.ssl.enabled", "true");
+      builder.put("xpack.security.transport.ssl.verification_mode", "certificate");
+      builder.put("xpack.security.transport.ssl.keystore.path", clusterESKeystoreFileName);
+      builder.put("xpack.security.transport.ssl.truststore.path", clusterESTruststoreFileName);
+    }
+  }
+
+  private String getFileNameFromPathProperty(ProcessProperties.Property processProperty) {
+    String processPropertyPath = props.value(processProperty.getKey());
+
+    if (processPropertyPath == null) {
+      throw new MessageException(processProperty.name() + " property need to be set " +
+        "when using elastic search authentication");
+    }
+    Path path = Paths.get(processPropertyPath);
+    if (!path.toFile().exists()) {
+      throw new MessageException("Unable to configure: " + processProperty.getKey() + ". "
+        + "File specified in [" + processPropertyPath + "] does not exist");
+    }
+    if (!path.toFile().canRead()) {
+      throw new MessageException("Unable to configure: " + processProperty.getKey() + ". "
+          + "Could not get read access to [" + processPropertyPath + "]");
+    }
+    return path.getFileName().toString();
   }
 
   private void configureNetwork(Map<String, String> builder) {

@@ -50,12 +50,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.ES_PORT;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -360,6 +363,76 @@ public class EsSettingsTest {
     assertThatThrownBy(settings::build)
       .isInstanceOf(MessageException.class)
       .hasMessage("Property 'node.store.allow_mmapfs' is no longer supported. Use 'node.store.allow_mmap' instead.");
+  }
+
+  @Test
+  public void configureAuthentication_givenClusterSearchPasswordNotProvided_dontAddXpackParameters() throws Exception {
+    Props props = minProps(true);
+
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    Map<String, String> outputParams = settings.build();
+
+    assertThat(outputParams.get("xpack.security.transport.ssl.enabled")).isNull();
+  }
+
+  @Test
+  public void configureAuthentication_givenClusterSearchPasswordProvided_addXpackParameters_file_exists() throws Exception {
+    Props props = minProps(true);
+    props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "qwerty");
+    File keystore = temp.newFile("keystore.p12");
+    File truststore = temp.newFile("truststore.p12");
+
+    props.set(CLUSTER_ES_KEYSTORE.getKey(), keystore.getAbsolutePath());
+    props.set(CLUSTER_ES_TRUSTSTORE.getKey(), truststore.getAbsolutePath());
+
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    Map<String, String> outputParams = settings.build();
+
+    assertThat(outputParams).containsEntry("xpack.security.transport.ssl.enabled", "true")
+      .containsEntry("xpack.security.transport.ssl.keystore.path", keystore.getName())
+      .containsEntry("xpack.security.transport.ssl.truststore.path", truststore.getName());
+  }
+
+  @Test
+  public void configureAuthentication_givenClusterSearchPasswordProvidedButKeystorePathMissing_throwException() throws Exception {
+    Props props = minProps(true);
+    props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "qwerty");
+
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    assertThatThrownBy(settings::build)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("CLUSTER_ES_KEYSTORE property need to be set when using elastic search authentication");
+  }
+
+  @Test
+  public void configureAuthentication_givenClusterModeFalse_dontAddXpackParameters() throws Exception {
+    Props props = minProps(false);
+    props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "qwerty");
+
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    Map<String, String> outputParams = settings.build();
+
+    assertThat(outputParams.get("xpack.security.transport.ssl.enabled")).isNull();
+  }
+
+  @Test
+  public void configureAuthentication_givenFileNotExist_throwException() throws Exception {
+    Props props = minProps(true);
+    props.set(CLUSTER_SEARCH_PASSWORD.getKey(), "qwerty");
+    File truststore = temp.newFile("truststore.p12");
+
+    props.set(CLUSTER_ES_KEYSTORE.getKey(), "not-existing-file");
+    props.set(CLUSTER_ES_TRUSTSTORE.getKey(), truststore.getAbsolutePath());
+
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    assertThatThrownBy(settings::build)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Unable to configure: sonar.cluster.es.ssl.keystore. File specified in [not-existing-file] does not exist");
   }
 
   @DataProvider
