@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
@@ -71,11 +73,16 @@ public class DbPrimaryKeyConstraintFinderTest {
   }
 
   @Test
-  public void getDbVendorSpecificQuery_postgresql() {
+  public void getDbVendorSpecificQuery_postgresql() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    Connection connection = mock(Connection.class);
+    when(dataSource.getConnection()).thenReturn(connection);
+    when(connection.getSchema()).thenReturn("SonarQube");
     when(dbMock.getDialect()).thenReturn(POSTGRESQL);
+    when(dbMock.getDataSource()).thenReturn(dataSource);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
-      .isEqualTo("SELECT conname FROM pg_constraint WHERE conrelid =     (SELECT oid     FROM pg_class     WHERE relname LIKE 'my_table')");
+      .isEqualTo("SELECT conname FROM pg_constraint c JOIN pg_namespace n on c.connamespace = n.oid JOIN pg_class cls on c.conrelid = cls.oid WHERE cls.relname = 'my_table' AND n.nspname = 'SonarQube'");
   }
 
   @Test

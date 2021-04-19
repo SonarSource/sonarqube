@@ -82,13 +82,16 @@ public class DbPrimaryKeyConstraintFinder {
     }
   }
 
-  private static String getPostgresSqlConstraintQuery(String tableName) {
-    return format("SELECT conname " +
-      "FROM pg_constraint " +
-      "WHERE conrelid = " +
-      "    (SELECT oid " +
-      "    FROM pg_class " +
-      "    WHERE relname LIKE '%s')", tableName);
+  private String getPostgresSqlConstraintQuery(String tableName) {
+    try (Connection connection = db.getDataSource().getConnection()) {
+      return format("SELECT conname " +
+        "FROM pg_constraint c " +
+        "JOIN pg_namespace n on c.connamespace = n.oid " +
+        "JOIN pg_class cls on c.conrelid = cls.oid " +
+        "WHERE cls.relname = '%s' AND n.nspname = '%s'", tableName, connection.getSchema());
+    } catch (SQLException throwables) {
+      throw new IllegalStateException("Can not get database connection");
+    }
   }
 
   private static String getMssqlConstraintQuery(String tableName) {
