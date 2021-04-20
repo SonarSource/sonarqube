@@ -62,7 +62,7 @@ oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
 
 postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   name: postgres
-  image: postgres:12.1
+  image: postgres:13.2
   port: 5432
   cpu: 1
   memory: 1Gb
@@ -427,16 +427,16 @@ sql_mssql2019_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 # this is the oldest compatible version of PostgreSQL
-sql_postgres93_task:
+sql_postgres96_task:
   <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
-        image: postgres:9.3
+        image: postgres:9.6
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh postgres93
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres96
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 

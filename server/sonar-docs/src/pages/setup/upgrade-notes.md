@@ -9,6 +9,9 @@ SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration 
 **Third-party plugins require risk consent**  
 If you are using third-party plugins, a SonarQube administrator needs to acknowledge the risk involved with third-party plugins when prompted in SonarQube after upgrading. ([MMF-2301](https://jira.sonarsource.com/browse/MMF-2301)).
 
+**PostgreSQL Support**
+SonarQube now supports PostgreSQL 13, and it no longer supports PostgreSQL 9.3, 9.4, or 9.5.
+
 ## Release 8.8 Upgrade Notes  
 **CSS analysis now requires Node.js 10+**  
 In order to analyze CSS code, you now need to have Node.js 10+ installed on the machine running the scan.
