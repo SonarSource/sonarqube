@@ -68,6 +68,14 @@ it('should filter alm bindings appropriately', async () => {
       { alm: AlmKeys.GitLab, url: 'gitlab.com' }
     ])
     .mockResolvedValueOnce([
+      // Special case for BBS with BBC
+      { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
+      { alm: AlmKeys.BitbucketServer, url: 'b1' },
+      { alm: AlmKeys.BitbucketCloud },
+      { alm: AlmKeys.GitHub },
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+    ])
+    .mockResolvedValueOnce([
       // Only duplicate ALMs; should all be ignored.
       { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
       { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
@@ -91,6 +99,10 @@ it('should filter alm bindings appropriately', async () => {
     AlmKeys.GitHub,
     AlmKeys.GitLab
   ]);
+
+  wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Azure, AlmKeys.GitHub, AlmKeys.GitLab]);
 
   wrapper = shallowRender();
   await waitAndUpdate(wrapper);

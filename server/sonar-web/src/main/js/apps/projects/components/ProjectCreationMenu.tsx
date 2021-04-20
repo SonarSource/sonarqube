@@ -78,7 +78,14 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     // Import is only available if exactly one binding is configured
     const boundAlms = IMPORT_COMPATIBLE_ALMS.filter(key => {
-      const currentAlmSettings = almSettings.filter(s => s.alm === key);
+      let currentAlmSettings: AlmSettingsInstance[];
+      if (key === AlmKeys.BitbucketServer || key === AlmKeys.BitbucketCloud) {
+        currentAlmSettings = almSettings.filter(
+          s => s.alm === AlmKeys.BitbucketCloud || s.alm === AlmKeys.BitbucketServer
+        );
+      } else {
+        currentAlmSettings = almSettings.filter(s => s.alm === key);
+      }
       return currentAlmSettings.length === 1 && this.almSettingIsValid(currentAlmSettings[0]);
     });
 
