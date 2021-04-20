@@ -3,7 +3,13 @@ title: SonarScanner
 url: /analysis/scan/sonarscanner/
 ---
 
+<!-- static -->
 <update-center updatecenterkey="scannercli"></update-center>
+<!-- /static -->
+<!-- embedded -->
+[[info]]
+| See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner.html) to get more details on the latest version of the scanner and how to download it.
+<!-- /embedded -->
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.
 

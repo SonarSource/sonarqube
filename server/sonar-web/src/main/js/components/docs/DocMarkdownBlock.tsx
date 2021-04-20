@@ -25,7 +25,6 @@ import rehypeSlug from 'rehype-slug';
 import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import remarkRehype from 'remark-rehype';
-import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
@@ -84,10 +83,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
             ? withChildProps(DocTooltipLink, childProps)
             : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
           // use custom img tag to render documentation images
-          img: DocImg,
-          'update-center': ({ updatecenterkey }: { updatecenterkey: string }) => (
-            <MetaData updateCenterKey={updatecenterkey} />
-          )
+          img: DocImg
         }
       });
 

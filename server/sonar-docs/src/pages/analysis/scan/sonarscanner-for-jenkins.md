@@ -3,7 +3,13 @@ title: SonarScanner for Jenkins
 url: /analysis/scan/sonarscanner-for-jenkins/
 ---
 
+<!-- static -->
 <update-center updatecenterkey="scannerjenkins"></update-center>
+<!-- /static -->
+<!-- embedded -->
+[[info]]
+| See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner-jenkins.html) to get more details on the latest version of the scanner and how to download it.
+<!-- /embedded -->
 
 This plugin lets you centralize the configuration of SonarQube server connection details in Jenkins global configuration.
 

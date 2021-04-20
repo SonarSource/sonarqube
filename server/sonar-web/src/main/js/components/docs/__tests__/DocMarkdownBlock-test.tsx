@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
 const CONTENT = `
@@ -78,13 +77,6 @@ it('should render a sticky TOC if available', () => {
   const wrapper = shallowRender({ content: CONTENT, stickyToc: true });
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('DocToc').exists()).toBe(true);
-});
-
-it('should correctly render update-center tags', () => {
-  const wrapper = mount(
-    <DocMarkdownBlock content='<update-center updatecenterkey="abap"></update-center>' />
-  );
-  expect(wrapper.find(MetaData).length).toBe(1);
 });
 
 function shallowRender(props: Partial<DocMarkdownBlock['props']> = {}) {

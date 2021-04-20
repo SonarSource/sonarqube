@@ -3,12 +3,17 @@ title: SonarScanner for Ant
 url: /analysis/scan/sonarscanner-for-ant/
 ---
 
+<!-- static -->
 <update-center updatecenterkey="scannerant"></update-center>
+<!-- /static -->
+<!-- embedded -->
+[[info]]
+| See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner-ant.html) to get more details on the latest version of the scanner and how to download it.
+<!-- /embedded -->
 
 The SonarScanner for Ant provides a `task` to allow integration of SonarQube analysis into an Apache Ant build script.
 
 The SonarScanner for Ant is an Ant Task that is a wrapper of [SonarScanner](/analysis/scan/sonarscanner/), which works by invoking SonarScanner and passing to it all [properties](/analysis/analysis-parameters/) named following a `sonar.*` convention. This has the downside of not being very Ant-y, but the upside of providing instant availability of any new analysis parameter introduced by a new version of SonarQube. Therefore, successful use of the SonarScanner for Ant requires strict adherence to the property names shown below.
-
 
 ## Using the SonarScanner for Ant
 Define a new sonar Ant target in your Ant build script:

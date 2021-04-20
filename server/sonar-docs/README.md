@@ -156,6 +156,12 @@ this content is displayed in SonarQube and in the static website
 this content is displayed only in the static website
 
 <!-- /static -->
+
+<!-- embedded -->
+
+this content is displayed only in the embedded documentation
+
+<!-- /embedded -->
 ```
 
 You can also use these comments inline:
@@ -302,6 +308,8 @@ Note that an iframe is **not** a self-closing tag. This means that the following
 ```
 
 #### Dynamic Scanner Version Info
+
+_Only supported by the static documentation_
 
 You can dynamically include a scanner version block to any page, using the following special tag:
 

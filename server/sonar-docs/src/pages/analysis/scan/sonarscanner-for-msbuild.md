@@ -4,7 +4,13 @@ title: SonarScanner for .NET
 ---
 
 <!-- sonarqube -->
+<!-- static -->
 <update-center updatecenterkey="scannermsbuild"></update-center>
+<!-- /static -->
+<!-- embedded -->
+[[info]]
+| See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner-msbuild.html) to get more details on the latest version of the scanner and how to download it.
+<!-- /embedded -->
 <!-- /sonarqube -->
 
 <!-- sonarcloud -->
@@ -17,7 +23,7 @@ title: SonarScanner for .NET
 
 [[info]]
 | Since version 5.0, the SonarScanner for MSBuild is now the SonarScanner for .NET. 
-| documentation is updated with that new name, artifacts and links will remain with the old name for now.
+| Documentation is updated with that new name, artifacts and links will remain with the old name for now.
 
 The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](https://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
 

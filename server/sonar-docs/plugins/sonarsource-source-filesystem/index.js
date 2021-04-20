@@ -133,26 +133,33 @@ function loadNodeContent(fileNode) {
 }
 
 function loadNodeContentSync(fileNode) {
-  const content = processPluginOverridesIfAvailable(
-    fs.readFileSync(fileNode.absolutePath, 'utf-8')
-  );
-  let newContent = cutSonarCloudContent(content);
-  newContent = removeRemainingContentTags(newContent);
-  newContent = handleIncludes(newContent, fileNode);
-  newContent = replaceInstanceTag(newContent);
-  return newContent;
+  let content = processPluginOverridesIfAvailable(fs.readFileSync(fileNode.absolutePath, 'utf-8'));
+
+  content = cleanContent(content);
+  content = handleIncludes(content, fileNode);
+
+  return content;
+}
+
+function cleanContent(content) {
+  content = cutAdditionalContent(content, 'sonarcloud');
+  content = cutAdditionalContent(content, 'embedded');
+  content = removeRemainingContentTags(content);
+  content = replaceInstanceTag(content);
+
+  return content;
 }
 
 function removeRemainingContentTags(content) {
-  const regexBase = '<!-- \\/?(sonarqube|sonarcloud|static) -->';
+  const regexBase = '<!-- \\/?(sonarqube|sonarcloud|static|embedded) -->';
   return content
     .replace(new RegExp(`^${regexBase}(\n|\r|\r\n|$)`, 'gm'), '')
     .replace(new RegExp(`${regexBase}`, 'g'), '');
 }
 
-function cutSonarCloudContent(content) {
-  const beginning = '<!-- sonarcloud -->';
-  const ending = '<!-- /sonarcloud -->';
+function cutAdditionalContent(content, tag) {
+  const beginning = '<!-- ' + tag + ' -->';
+  const ending = '<!-- /' + tag + ' -->';
 
   let newContent = content;
   let start = newContent.indexOf(beginning);
@@ -191,3 +198,5 @@ function replaceInstanceTag(content) {
 exports.createFilePath = createFilePath;
 exports.createRemoteFileNode = createRemoteFileNode;
 exports.loadNodeContent = loadNodeContent;
+exports.cleanContent = cleanContent;
+exports.cutAdditionalContent = cutAdditionalContent;

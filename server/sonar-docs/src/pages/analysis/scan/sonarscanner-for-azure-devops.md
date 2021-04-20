@@ -3,7 +3,13 @@ title: SonarScanner for Azure DevOps
 url: /analysis/scan/sonarscanner-for-azure-devops/
 ---
 
+<!-- static -->
 <update-center updatecenterkey="scannerazure"></update-center>
+<!-- /static -->
+<!-- embedded -->
+[[info]]
+| See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner-azure.html) to get more details on the latest version of the scanner and how to download it.
+<!-- /embedded -->
 
 The [SonarScanner for Azure DevOps](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube) makes it easy to integrate analysis into your build pipeline. The extension allows the analysis of all languages supported by SonarQube.
 
