@@ -150,6 +150,29 @@ Property  | Description | Default | Required
 `sonar.cluster.node.es.port`|Elasticsearch port of the current node used by Elasticsearch internal communication to form a cluster (TCP transport). Port must be accessible to all other search nodes|9002| yes
 `sonar.search.initialStateTimeout`|The timeout for the Elasticsearch nodes to elect a master node. The default value will be fine in most cases, but in a situation where startup is failing because of a timeout, this may need to be adjusted. The value must be set in the format: `{integer}{timeunit}`. Valid `{timeunit}` values are: `ms` (milliseconds); `s` (seconds); `m` (minutes); `h` (hours); `d` (days); `w` (weeks)|cluster: 120s; standalone: 30s|no
 
+### Elasticsearch authentication
+
+[[info]]
+| This configuration is optional. Configuring your network security correctly is sufficient, but Elasticsearch authentication adds another layer of security.
+
+For Elasticsearch authentication, the following properties need to be configured on specific nodes:
+
+#### Application nodes
+Property  | Description | Default | Required
+---|---|---|---
+`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be used on the client site. If provided, it enables authentication.| |no
+
+#### Search nodes
+Property  | Description | Default | Required
+---|---|---|---
+`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be set in ES. If provided, it enables authentication, and the instance will require additional properties to be set.| |no
+`sonar.cluster.es.ssl.keystore`|File path to a keystore in PKCS#12 format. The user running SonarQube must have READ permission to that file. Required if password provided.| |no
+`sonar.cluster.es.ssl.truststore`|File path to a truststore in PKCS#12 format. The user running SonarQube must have READ permission to that file. Required if password provided.| |no
+`sonar.cluster.es.ssl.keystorePassword`|Password to the keystore.| |no
+`sonar.cluster.es.ssl.truststorePassword`|Password to the truststore.| | no
+
+When you're using Docker image, truststore and keystore should be provided as volumes.
+
 ## Limitations
 * Cluster downtime is required for SonarQube upgrades or plugin installations.
 * All application nodes must be stopped when installing, uninstalling, or upgrading a plugin.
