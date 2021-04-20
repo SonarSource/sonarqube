@@ -100,6 +100,17 @@ public class GitlabHttpClientTest {
   }
 
   @Test
+  public void should_throw_IllegalArgumentException_when_redirected() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(308);
+    server.enqueue(response);
+
+    assertThatThrownBy(() -> underTest.searchProjects(gitlabUrl, "pat", "example", 1, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Request was redirected, please provide the correct URL");
+  }
+
+  @Test
   public void get_project() {
     MockResponse response = new MockResponse()
       .setResponseCode(200)

@@ -67,6 +67,7 @@ public class OkHttpClientBuilder {
   private String credentials;
   private String proxyLogin;
   private String proxyPassword;
+  private Boolean followRedirects;
   private long connectTimeoutMs = -1;
   private long readTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
@@ -159,6 +160,15 @@ public class OkHttpClientBuilder {
     return this;
   }
 
+  /**
+   * Set if redirects should be followed or not.
+   * Default is defined by OkHttp (true, follow redirects).
+   */
+  public OkHttpClientBuilder setFollowRedirects(Boolean followRedirects) {
+    this.followRedirects = followRedirects;
+    return this;
+  }
+
   public OkHttpClient build() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
     builder.proxy(proxy);
@@ -181,6 +191,10 @@ public class OkHttpClientBuilder {
         }
         return null;
       });
+    }
+    if (followRedirects != null) {
+      builder.followRedirects(followRedirects);
+      builder.followSslRedirects(followRedirects);
     }
 
     ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)

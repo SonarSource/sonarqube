@@ -42,6 +42,8 @@ public class OkHttpClientBuilderTest {
     assertThat(okHttpClient.proxy()).isNull();
     assertThat(okHttpClient.networkInterceptors()).hasSize(1);
     assertThat(okHttpClient.sslSocketFactory()).isNotNull();
+    assertThat(okHttpClient.followRedirects()).isTrue();
+    assertThat(okHttpClient.followSslRedirects()).isTrue();
   }
 
   @Test
@@ -52,6 +54,23 @@ public class OkHttpClientBuilderTest {
       .build();
 
     assertThat(okHttpClient.sslSocketFactory()).isEqualTo(sslSocketFactory);
+  }
+
+  @Test
+  public void build_follow_redirects() {
+    OkHttpClient okHttpClientWithRedirect = underTest
+      .setFollowRedirects(true)
+      .build();
+
+    assertThat(okHttpClientWithRedirect.followRedirects()).isTrue();
+    assertThat(okHttpClientWithRedirect.followSslRedirects()).isTrue();
+
+    OkHttpClient okHttpClientWithoutRedirect = underTest
+      .setFollowRedirects(false)
+      .build();
+
+    assertThat(okHttpClientWithoutRedirect.followRedirects()).isFalse();
+    assertThat(okHttpClientWithoutRedirect.followSslRedirects()).isFalse();
   }
 
   @Test

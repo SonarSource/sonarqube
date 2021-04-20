@@ -55,6 +55,7 @@ public class GitlabHttpClient {
     client = new OkHttpClientBuilder()
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
+      .setFollowRedirects(false)
       .build();
   }
 
@@ -167,6 +168,8 @@ public class GitlabHttpClient {
         throw new IllegalArgumentException("Your GitLab token has insufficient scope");
       } else if (response.code() == HTTP_UNAUTHORIZED) {
         throw new IllegalArgumentException("Invalid personal access token");
+      } else if (response.isRedirect()) {
+        throw new IllegalArgumentException("Request was redirected, please provide the correct URL");
       } else {
         throw new IllegalArgumentException(errorMessage);
       }
