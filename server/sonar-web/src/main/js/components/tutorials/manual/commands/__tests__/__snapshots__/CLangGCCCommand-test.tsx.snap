@@ -5,7 +5,7 @@ exports[`Shoud renders correctly 1`] = `
   <DownloadBuildWrapper
     os="linux"
   />
-  <SQScanner
+  <DownloadScanner
     os="linux"
   />
   <ExecBuildWrapper

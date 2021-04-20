@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { OSs } from '../../types';
 
@@ -27,7 +26,7 @@ interface Props {
   os: OSs;
 }
 
-export default function SQScanner(props: Props) {
+export default function DownloadScanner(props: Props) {
   const { os } = props;
   return (
     <div>
@@ -38,14 +37,17 @@ export default function SQScanner(props: Props) {
           id="onboarding.analysis.sq_scanner.text"
           values={{
             dir: <code>bin</code>,
-            env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>
+            env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>,
+            link: (
+              <a
+                href="https://redirect.sonarsource.com/doc/download-scanner.html"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate('onboarding.analysis.sq_scanner.docs_link')}
+              </a>
+            )
           }}
         />
-      </p>
-      <p>
-        <Link className="button" to="/documentation/analysis/scan/sonarscanner/" target="_blank">
-          {translate('download_verb')}
-        </Link>
       </p>
     </div>
   );

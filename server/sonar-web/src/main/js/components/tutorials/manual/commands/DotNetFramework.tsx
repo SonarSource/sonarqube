@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
@@ -39,20 +38,22 @@ export default function DotNetFramework(props: DotNetProps) {
         <h4 className="spacer-bottom huge-spacer-top">
           {translate('onboarding.analysis.msbuild.header')}
         </h4>
-        <p className="spacer-bottom markdown">
+        <p className="markdown">
           <FormattedMessage
             defaultMessage={translate('onboarding.analysis.msbuild.text')}
             id="onboarding.analysis.msbuild.text"
-            values={{ code: <code>%PATH%</code> }}
+            values={{
+              code: <code>%PATH%</code>,
+              link: (
+                <a
+                  href="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  {translate('onboarding.analysis.msbuild.docs_link')}
+                </a>
+              )
+            }}
           />
-        </p>
-        <p>
-          <Link
-            className="button"
-            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
-            target="_blank">
-            {translate('download_verb')}
-          </Link>
         </p>
       </div>
 

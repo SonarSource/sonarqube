@@ -2,7 +2,7 @@
 
 exports[`renders correctly 1`] = `
 <div>
-  <SQScanner
+  <DownloadScanner
     os="linux"
   />
   <ExecScanner
