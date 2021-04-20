@@ -91,7 +91,7 @@ You can add the following elements to your custom configuration:
 * **Source** – Where you get user data. You should always consider user data tainted and vulnerable to injection attacks.
   Example: Calling `HttpServletRequest#getParam("foo")` will return tainted content
 * **Sanitizer** – Finds and removes malicious content from tainted data.
-* **Passthrough** – Allows you to keep track of tainted data sent to a library outside of the current function. When you pass a tainted value to a library function outside of the current function, SonarQube automatically assumes it's being passed to a sanitizer. If the tainted data isn't being passed to a sanitizer, you can set up a passthrough to keep track of the data.
+* **Passthrough** – Allows you to keep track of tainted data sent to a library outside the current function. When you pass a tainted value to a library function outside the current function, SonarQube automatically assumes it's being passed to a sanitizer. If the tainted data isn't being passed to a sanitizer, you can set up a passthrough to keep track of the data.
 * **Sink** – A piece of code that can perform a security-sensitive task. Data should not contain any malicious content once it reaches a sink.
   Example: Running an SQL query with `java.sql.Statement#execute`
 
@@ -115,7 +115,7 @@ All custom configurations rely on the accuracy of the `methodIds` provided. The 
 | public static void callJDBCMethods(Req req) {
 |   String tainted = req.param("TAINTED");
 |   JdbcClient jdbc = JDBC.api();
-|   dbc.execute(tainted, req); // Noncompliant
+|   jdbc.execute(tainted, req); // Noncompliant
 | }      
 | ```
 | 
