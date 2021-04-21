@@ -31,6 +31,7 @@ public class DbVersion89 implements DbVersion {
       .add(4401, "Drop local webhooks", DropLocalWebhooks.class)
       .add(4402, "Add Index on column 'main_branch_project_uuid' to 'components' table", AddMainBranchProjectUuidIndexToComponentTable.class)
       .add(4403, "Drop Github endpoint on project level setting", DropGithubEndpointOnProjectLevelSetting.class)
-      .add(4404, "Increase size of 'value' column in 'new_code_periods' table ", IncreaseSizeOfValueColumnInNewCodePeriodsTable.class);
+      .add(4404, "Increase size of 'value' column in 'new_code_periods' table ", IncreaseSizeOfValueColumnInNewCodePeriodsTable.class)
+      .add(4405, "Add index on column 'webhook_uuid' to 'webhook_deliveries' table", AddIndexOnWebhookUuidInWebhookDeliveriesTable.class);
   }
 }
