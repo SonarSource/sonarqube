@@ -58,6 +58,8 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogAndArguments;
+import org.sonar.api.utils.log.LogTester;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
 public class GitScmProviderTest {
@@ -100,13 +103,18 @@ public class GitScmProviderTest {
     + "Deeper and more profound,\n"
     + "The door of all subtleties!";
 
+  private static final String BRANCH_NAME = "branch";
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
+  public LogTester logs = new LogTester();
+
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private GitIgnoreCommand gitIgnoreCommand = mock(GitIgnoreCommand.class);
+  private final GitIgnoreCommand gitIgnoreCommand = mock(GitIgnoreCommand.class);
   private static final Random random = new Random();
   private static final System2 system2 = mock(System2.class);
 
@@ -576,7 +584,7 @@ public class GitScmProviderTest {
         throw new IOException();
       }
     };
-    assertThat(provider.branchChangedFiles("branch", worktree)).isNull();
+    assertThat(provider.branchChangedFiles(BRANCH_NAME, worktree)).isNull();
     verifyNoInteractions(analysisWarnings);
   }
 
@@ -585,7 +593,7 @@ public class GitScmProviderTest {
     Repository repository = mock(Repository.class);
     RefDatabase refDatabase = mock(RefDatabase.class);
     when(repository.getRefDatabase()).thenReturn(refDatabase);
-    when(refDatabase.findRef("branch")).thenReturn(null);
+    when(refDatabase.findRef(BRANCH_NAME)).thenReturn(null);
 
     GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
       @Override
@@ -593,10 +601,15 @@ public class GitScmProviderTest {
         return repository;
       }
     };
-    assertThat(provider.branchChangedFiles("branch", worktree)).isNull();
+    assertThat(provider.branchChangedFiles(BRANCH_NAME, worktree)).isNull();
 
-    String warning = "Could not find ref 'branch' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin."
-      + " You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis.";
+    String refNotFound = "Could not find ref 'branch' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
+
+    LogAndArguments warnLog = logs.getLogs(WARN).get(0);
+    assertThat(warnLog.getRawMsg()).isEqualTo(refNotFound);
+
+    String warning = refNotFound
+      + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis.";
     verify(analysisWarnings).addUnique(warning);
   }
 
@@ -669,7 +682,7 @@ public class GitScmProviderTest {
         throw new IOException();
       }
     };
-    assertThat(provider.branchChangedLines("branch", worktree, emptySet())).isNull();
+    assertThat(provider.branchChangedLines(BRANCH_NAME, worktree, emptySet())).isNull();
   }
 
   @Test
@@ -710,9 +723,9 @@ public class GitScmProviderTest {
 
     createAndCommitFile("project/file1");
     String sha1after = provider.revisionId(projectDir);
-    assertThat(sha1after).hasSize(40);
-
-    assertThat(sha1after).isNotEqualTo(sha1before);
+    assertThat(sha1after)
+      .hasSize(40)
+      .isNotEqualTo(sha1before);
     assertThat(provider.revisionId(projectDir)).isEqualTo(sha1after);
   }
 

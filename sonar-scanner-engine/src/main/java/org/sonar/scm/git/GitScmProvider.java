@@ -254,7 +254,7 @@ public class GitScmProvider extends ScmProvider {
     }
 
     if (targetRef == null) {
-      LOG.warn(COULD_NOT_FIND_REF, targetBranchName);
+      LOG.warn(String.format(COULD_NOT_FIND_REF, targetBranchName));
     }
 
     return targetRef;
