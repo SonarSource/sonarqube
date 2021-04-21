@@ -42,10 +42,9 @@ public class DbPrimaryKeyConstraintFinder {
     this.db = db;
   }
 
-  public String findConstraintName(String tableName) throws SQLException {
+  public Optional<String> findConstraintName(String tableName) throws SQLException {
     String constraintQuery = getDbVendorSpecificQuery(tableName);
-    return executeQuery(constraintQuery)
-      .orElseThrow(() -> constraintNotFoundException(tableName));
+    return executeQuery(constraintQuery);
   }
 
   String getDbVendorSpecificQuery(String tableName) {

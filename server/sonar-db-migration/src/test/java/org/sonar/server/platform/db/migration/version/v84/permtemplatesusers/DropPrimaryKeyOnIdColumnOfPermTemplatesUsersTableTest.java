@@ -27,8 +27,6 @@ import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 public class DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTableTest {
 
   private static final String TABLE_NAME = "perm_templates_users";
@@ -48,9 +46,10 @@ public class DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTableTest {
   }
 
   @Test
-  public void migration_is_not_re_entrant() throws SQLException {
+  public void migration_is_re_entrant_but_fails_silently() throws SQLException {
+    underTest.execute();
     underTest.execute();
 
-    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 }

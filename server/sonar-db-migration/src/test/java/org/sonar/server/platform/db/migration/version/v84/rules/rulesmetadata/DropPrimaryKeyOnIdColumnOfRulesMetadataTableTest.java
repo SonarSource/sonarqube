@@ -27,9 +27,8 @@ import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 public class DropPrimaryKeyOnIdColumnOfRulesMetadataTableTest {
+  private static final String TABLE_NAME = "rules_metadata";
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfRulesMetadataTableTest.class, "schema.sql");
@@ -39,18 +38,19 @@ public class DropPrimaryKeyOnIdColumnOfRulesMetadataTableTest {
 
   @Test
   public void execute() throws SQLException {
-    db.assertTableExists("rules_metadata");
-    db.assertPrimaryKey("rules_metadata", "pk_rules_metadata", "rule_id", "organization_uuid");
+    db.assertTableExists(TABLE_NAME);
+    db.assertPrimaryKey(TABLE_NAME, "pk_rules_metadata", "rule_id", "organization_uuid");
 
     underTest.execute();
 
-    db.assertNoPrimaryKey("rules_metadata");
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 
   @Test
-  public void migration_is_not_re_entrant() throws SQLException {
+  public void migration_is_re_entrant_but_fails_silently() throws SQLException {
+    underTest.execute();
     underTest.execute();
 
-    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 }

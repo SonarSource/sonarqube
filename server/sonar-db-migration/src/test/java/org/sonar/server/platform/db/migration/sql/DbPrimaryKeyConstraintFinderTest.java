@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,16 +53,15 @@ public class DbPrimaryKeyConstraintFinderTest {
   @Test
   public void findConstraintName_constraint_exists() throws SQLException {
     DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(db.database());
-    String constraintName = underTest.findConstraintName("TEST_PRIMARY_KEY");
-    assertThat(constraintName).isEqualTo("PK_TEST_PRIMARY_KEY");
+    Optional<String> constraintName = underTest.findConstraintName("TEST_PRIMARY_KEY");
+    assertThat(constraintName).isPresent();
+    assertThat(constraintName.get()).contains("PK_TEST_PRIMARY_KEY");
   }
 
   @Test
-  public void findConstraintName_constraint_not_exist() {
+  public void findConstraintName_constraint_not_exist_fails_silently() throws SQLException {
     DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(db.database());
-    assertThatThrownBy(() -> underTest.findConstraintName("NOT_EXISTING_TABLE"))
-      .hasMessage("Cannot find constraint for table 'NOT_EXISTING_TABLE'")
-      .isInstanceOf(IllegalStateException.class);
+    assertThat(underTest.findConstraintName("NOT_EXISTING_TABLE")).isNotPresent();
   }
 
   @Test

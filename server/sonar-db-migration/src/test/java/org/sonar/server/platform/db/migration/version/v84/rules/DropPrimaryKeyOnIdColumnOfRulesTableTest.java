@@ -30,6 +30,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStep;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DropPrimaryKeyOnIdColumnOfRulesTableTest {
+  private static final String TABLE_NAME = "rules";
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfRulesTableTest.class, "schema.sql");
@@ -39,18 +40,19 @@ public class DropPrimaryKeyOnIdColumnOfRulesTableTest {
 
   @Test
   public void execute() throws SQLException {
-    db.assertTableExists("rules");
-    db.assertPrimaryKey("rules", "pk_rules", "id");
+    db.assertTableExists(TABLE_NAME);
+    db.assertPrimaryKey(TABLE_NAME, "pk_rules", "id");
 
     underTest.execute();
 
-    db.assertNoPrimaryKey("rules");
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 
   @Test
-  public void migration_is_not_re_entrant() throws SQLException {
+  public void migration_is_re_entrant_but_fails_silently() throws SQLException {
+    underTest.execute();
     underTest.execute();
 
-    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 }
