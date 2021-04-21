@@ -230,6 +230,9 @@ Follow these steps for your first installation:
 ####**Example Docker Compose configuration**
 If you're using [Docker Compose](https://docs.docker.com/compose/), use the following example as a reference when configuring your `.yml` file. Click the heading below to expand the `.yml` file.
 
+[[info]]
+| The example below will use the latest version of the SonarQube Docker image. If want to use the LTS version of SonarQube, you need to update the example with the `sonarqube:lts-community` image tag.
+
 [[collapse]]
 | ## Docker Compose .yml file example
 |

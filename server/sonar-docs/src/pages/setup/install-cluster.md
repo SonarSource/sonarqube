@@ -240,6 +240,11 @@ You'll use the following volumes in your configuration:
 
 ## Example Docker Compose configuration
 
+Click the heading below to expand the docker-compose.yml file example. 
+
+[[info]]
+| The example below will use the latest version of the SonarQube Docker image. If want to use the LTS version of SonarQube, you need to update the example with the `sonarqube:lts-datacenter-app` and `sonarqube:lts-datacenter-search` image tags.
+
 [[collapse]]
 | ## docker-compose.yml file example
 |
