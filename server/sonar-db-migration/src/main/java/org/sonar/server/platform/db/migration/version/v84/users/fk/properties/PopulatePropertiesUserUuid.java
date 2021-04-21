@@ -32,6 +32,11 @@ public class PopulatePropertiesUserUuid extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    populateUserUuid(context);
+    removeRowWithNonExistentUser(context);
+  }
+
+  private static void populateUserUuid(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
     massUpdate.select("select p.uuid, u.uuid " +
@@ -48,5 +53,11 @@ public class PopulatePropertiesUserUuid extends DataChange {
       update.setString(2, propertiesUuid);
       return true;
     });
+  }
+
+  private static void removeRowWithNonExistentUser(Context context) throws SQLException {
+    context.prepareUpsert("delete from properties where user_uuid is null and user_id is not null")
+      .execute()
+      .commit();
   }
 }

@@ -75,6 +75,30 @@ public class PopulatePropertiesUserUuidTest {
   }
 
   @Test
+  public void should_remove_property_for_non_existent_user() throws SQLException {
+    long userId_1 = 1L;
+    String userUuid_1 = "uuid-1";
+    insertUser(userId_1, userUuid_1);
+
+    long userId_2 = 2L;
+
+    long userId_3 = 3L;
+
+    String propertyUuid_1 = Uuids.createFast();
+    insertProperty(propertyUuid_1, userId_1);
+    String propertyUuid_2 = Uuids.createFast();
+    insertProperty(propertyUuid_2, userId_2);
+    String propertyUuid_3 = Uuids.createFast();
+    insertProperty(propertyUuid_3, userId_3);
+
+    underTest.execute();
+
+    assertThatPropertyUserUuidIsEqualTo(propertyUuid_1, userUuid_1);
+    assertPropertyIsRemoved(propertyUuid_2);
+    assertPropertyIsRemoved(propertyUuid_3);
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     long userId_1 = 1L;
     String userUuid_1 = "uuid-1";
@@ -129,6 +153,10 @@ public class PopulatePropertiesUserUuidTest {
       assertThat(optional).isEmpty();
     }
 
+  }
+
+  private void assertPropertyIsRemoved(String propertyUuid){
+    assertThat(db.select(String.format("select 1 from properties where uuid = '%s'", propertyUuid))).isEmpty();
   }
 
   private void insertProperty(String uuid, Long userId) {
