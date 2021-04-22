@@ -250,7 +250,9 @@ qa_gitlab_task:
     use_in_memory_disk: true
     additional_containers:
       - name: gitlab
-        image: gitlab/gitlab-ce:latest
+        matrix: 
+          - image: gitlab/gitlab-ce:latest
+          - image: gitlab/gitlab-ce:11.7.0-ce.0
         port: 8080:80
         cpu: 1
         memory: 5Gb
@@ -260,7 +262,7 @@ qa_gitlab_task:
           token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'token');
           token.set_token('token-here-456');
           token.save!;
-          token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_api], name: 'token_read');
+          token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user], name: 'token_read');
           token_read.set_token('token-read-123');
           token_read.save!;
           user = User.find_by_username('root');
