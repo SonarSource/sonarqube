@@ -61,8 +61,8 @@ export function buildGithubLink(
 ) {
   // strip the api path:
   const urlRoot = almBinding.url
-    .replace('/api/v3', '') // GH Enterprise
-    .replace('api.', '') // GH.com
+    .replace(/\/api\/v\d+\/?$/, '') // GH Enterprise
+    .replace(/^https?:\/\/api\.github\.com/, 'https://github.com') // GH.com
     .replace(/\/$/, '');
 
   return `${urlRoot}/${projectBinding.repository}`;

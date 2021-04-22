@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import Step from '../components/Step';
 import SecretStep from './SecretStep';
 import YamlFileStep from './YamlFileStep';
@@ -30,6 +30,7 @@ export enum Steps {
 }
 
 export interface GitHubActionTutorialProps {
+  almBinding?: GithubBindingDefinition;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
@@ -37,7 +38,7 @@ export interface GitHubActionTutorialProps {
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
-  const { baseUrl, currentUser, component, projectBinding } = props;
+  const { almBinding, baseUrl, currentUser, component, projectBinding } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.CREATE_SECRET);
   return (
@@ -48,6 +49,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
         open={step === Steps.CREATE_SECRET}
         renderForm={() => (
           <SecretStep
+            almBinding={almBinding}
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}

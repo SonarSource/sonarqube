@@ -22,6 +22,7 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockBitbucketBindingDefinition,
+  mockGithubBindingDefinition,
   mockProjectAzureBindingResponse,
   mockProjectBitbucketBindingResponse,
   mockProjectGithubBindingResponse,
@@ -56,8 +57,9 @@ it('should render correctly', () => {
   ).toMatchSnapshot('jenkins tutorial');
   expect(
     shallowRender({
+      almBinding: mockGithubBindingDefinition(),
       selectedTutorial: TutorialModes.GitHubActions,
-      projectBinding: mockProjectGitLabBindingResponse()
+      projectBinding: mockProjectGithubBindingResponse()
     })
   ).toMatchSnapshot('github actions tutorial');
   expect(

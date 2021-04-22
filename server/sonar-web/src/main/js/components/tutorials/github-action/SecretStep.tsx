@@ -22,11 +22,13 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';
+import { buildGithubLink } from '../utils';
 
 export interface SecretStepProps {
+  almBinding?: GithubBindingDefinition;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
@@ -35,12 +37,7 @@ export interface SecretStepProps {
 }
 
 export default function SecretStep(props: SecretStepProps) {
-  const {
-    baseUrl,
-    component,
-    currentUser,
-    projectBinding: { repository }
-  } = props;
+  const { almBinding, baseUrl, component, currentUser, projectBinding } = props;
 
   return (
     <div className="boxed-group-inner">
@@ -49,9 +46,9 @@ export default function SecretStep(props: SecretStepProps) {
           defaultMessage={translate('onboarding.tutorial.with.github_action.secret.intro')}
           id="onboarding.tutorial.with.github_action.secret.intro"
           values={{
-            settings_secret: repository ? (
+            settings_secret: almBinding ? (
               <a
-                href={`https://github.com/${repository}/settings/secrets`}
+                href={`${buildGithubLink(almBinding, projectBinding)}/settings/secrets`}
                 target="_blank"
                 rel="noopener noreferrer">
                 {translate('onboarding.tutorial.with.github_action.secret.intro.link')}

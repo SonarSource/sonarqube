@@ -19,7 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockProjectGithubBindingResponse } from '../../../../helpers/mocks/alm-settings';
+import {
+  mockGithubBindingDefinition,
+  mockProjectGithubBindingResponse
+} from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import Step from '../../components/Step';
 import GitHubActionTutorial, { GitHubActionTutorialProps } from '../GitHubActionTutorial';
@@ -35,6 +38,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<GitHubActionTutorialProps> = {}) {
   return shallow<GitHubActionTutorialProps>(
     <GitHubActionTutorial
+      almBinding={mockGithubBindingDefinition()}
       baseUrl="test"
       currentUser={mockLoggedInUser()}
       component={mockComponent()}

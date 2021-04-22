@@ -19,12 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockProjectGithubBindingResponse } from '../../../../helpers/mocks/alm-settings';
+import {
+  mockGithubBindingDefinition,
+  mockProjectGithubBindingResponse
+} from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import SecretStep, { SecretStepProps } from '../SecretStep';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({
+      almBinding: mockGithubBindingDefinition()
+    })
+  ).toMatchSnapshot('with binding information');
 });
 
 function shallowRender(props: Partial<SecretStepProps> = {}) {
@@ -33,8 +41,8 @@ function shallowRender(props: Partial<SecretStepProps> = {}) {
       baseUrl="test"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
-      projectBinding={mockProjectGithubBindingResponse()}
       onDone={jest.fn()}
+      projectBinding={mockProjectGithubBindingResponse()}
       {...props}
     />
   );

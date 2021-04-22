@@ -52,7 +52,7 @@ describe('buildGithubLink', () => {
   it('should work for GitHub Enterprise', () => {
     expect(
       buildGithubLink(
-        mockGithubBindingDefinition({ url: 'https://github.company.com/api/v3/' }),
+        mockGithubBindingDefinition({ url: 'https://github.company.com/api/v3' }),
         mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
       )
     ).toBe('https://github.company.com/owner/reponame');
@@ -61,7 +61,7 @@ describe('buildGithubLink', () => {
   it('should work for github.com', () => {
     expect(
       buildGithubLink(
-        mockGithubBindingDefinition({ url: 'https://api.github.com/' }),
+        mockGithubBindingDefinition({ url: 'http://api.github.com/' }),
         mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
       )
     ).toBe('https://github.com/owner/reponame');
