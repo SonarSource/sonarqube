@@ -8,7 +8,7 @@ plugins {
   id 'com.github.node-gradle.node' version '2.2.4' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
-  id 'org.owasp.dependencycheck' version '6.0.2'
+  id 'org.owasp.dependencycheck' version '6.1.5'
   id 'org.sonarqube' version '3.0'
 }
 
