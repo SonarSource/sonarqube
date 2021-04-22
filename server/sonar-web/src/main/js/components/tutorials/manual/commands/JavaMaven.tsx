@@ -52,7 +52,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <Link to="/documentation/analysis/scan/sonarscanner-for-gradle/" target="_blank">
+              <Link to="/documentation/analysis/scan/sonarscanner-for-maven/" target="_blank">
                 {translate('onboarding.analysis.java.maven.docs_link')}
               </Link>
             )

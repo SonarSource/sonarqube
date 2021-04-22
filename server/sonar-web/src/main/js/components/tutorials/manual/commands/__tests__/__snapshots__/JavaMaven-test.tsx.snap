@@ -36,7 +36,7 @@ exports[`renders correctly 1`] = `
             onlyActiveOnIndex={false}
             style={Object {}}
             target="_blank"
-            to="/documentation/analysis/scan/sonarscanner-for-gradle/"
+            to="/documentation/analysis/scan/sonarscanner-for-maven/"
           >
             onboarding.analysis.java.maven.docs_link
           </Link>,
