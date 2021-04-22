@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { getAlmDefinitionsNoCatch } from '../../api/alm-settings';
+import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getValues } from '../../api/settings';
-import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { SettingsKey } from '../../types/settings';
 import { withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
@@ -35,7 +35,7 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
 }
 
 interface State {
-  almBinding?: AlmBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   baseUrl: string;
   forceManual: boolean;
   loading: boolean;
@@ -64,17 +64,16 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   }
 
   fetchAlmBindings = async () => {
-    const { projectBinding } = this.props;
+    const { component, projectBinding } = this.props;
 
     if (projectBinding === undefined) {
       this.setState({ forceManual: true });
     } else {
-      const almDefinitions = await getAlmDefinitionsNoCatch().catch(() => undefined);
+      const almSettings = await getAlmSettingsNoCatch(component.key).catch(() => undefined);
       if (this.mounted) {
         let almBinding;
-        if (almDefinitions !== undefined) {
-          const specificDefinitions = almDefinitions[projectBinding.alm] as AlmBindingDefinition[];
-          almBinding = specificDefinitions.find(d => d.key === projectBinding.key);
+        if (almSettings !== undefined) {
+          almBinding = almSettings.find(d => d.key === projectBinding.key);
         }
         this.setState({ almBinding, forceManual: false });
       }

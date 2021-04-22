@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
-  mockGithubBindingDefinition,
+  mockAlmSettingsInstance,
   mockProjectGithubBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import WebhookStepGithub, { WebhookStepGithubProps } from '../WebhookStepGithub';
@@ -34,7 +34,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<WebhookStepGithubProps> = {}) {
   return shallow<WebhookStepGithubProps>(
     <WebhookStepGithub
-      almBinding={mockGithubBindingDefinition()}
+      almBinding={mockAlmSettingsInstance({ url: 'http://github.enterprise.com/api/v3' })}
       branchesEnabled={true}
       projectBinding={mockProjectGithubBindingResponse()}
       {...props}

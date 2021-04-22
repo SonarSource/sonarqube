@@ -21,13 +21,13 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { BitbucketBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 
 export interface WebhookStepBitbucketProps {
-  almBinding?: BitbucketBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   projectBinding: ProjectAlmBindingResponse;
 }
@@ -43,6 +43,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
 
   const linkUrl =
     almBinding &&
+    almBinding.url &&
     `${almBinding.url}/plugins/servlet/webhooks/projects/${projectBinding.repository}/repos/${projectBinding.slug}/create`;
 
   return (

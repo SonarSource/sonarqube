@@ -70,9 +70,8 @@ exports[`it should render correctly for bitbucket: content 1`] = `
     <WebhookStepBitbucket
       almBinding={
         Object {
+          "alm": "github",
           "key": "key",
-          "personalAccessToken": "asdf1234",
-          "url": "http://bbs.enterprise.com",
         }
       }
       branchesEnabled={true}
@@ -133,12 +132,8 @@ exports[`it should render correctly for github: content 1`] = `
     <WebhookStepGithub
       almBinding={
         Object {
-          "appId": "123456",
-          "clientId": "client1",
-          "clientSecret": "**clientsecret**",
+          "alm": "github",
           "key": "key",
-          "privateKey": "asdf1234",
-          "url": "http://github.enterprise.com",
         }
       }
       branchesEnabled={true}

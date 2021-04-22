@@ -21,10 +21,10 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { getAlmDefinitionsNoCatch } from '../../../api/alm-settings';
+import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
 import { getValues } from '../../../api/settings';
 import {
-  mockBitbucketBindingDefinition,
+  mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import {
@@ -33,7 +33,6 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
-import { AlmKeys } from '../../../types/alm-settings';
 import { SettingsKey } from '../../../types/settings';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
@@ -43,7 +42,7 @@ jest.mock('sonar-ui-common/helpers/urls', () => ({
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
-  getAlmDefinitionsNoCatch: jest.fn().mockRejectedValue(null)
+  getAlmSettingsNoCatch: jest.fn().mockRejectedValue(null)
 }));
 
 jest.mock('../../../api/settings', () => ({
@@ -70,10 +69,11 @@ it('should not select anything if project is bound', async () => {
 
 it('should correctly find the global ALM binding definition', async () => {
   const key = 'foo';
-  const almBinding = mockBitbucketBindingDefinition({ key });
-  (getAlmDefinitionsNoCatch as jest.Mock).mockResolvedValueOnce({
-    [AlmKeys.BitbucketServer]: [almBinding]
-  });
+  const almBinding = mockAlmSettingsInstance({ key });
+  (getAlmSettingsNoCatch as jest.Mock).mockResolvedValueOnce([
+    almBinding,
+    mockAlmSettingsInstance({ key: 'bar' })
+  ]);
   const wrapper = shallowRender({ projectBinding: mockProjectBitbucketBindingResponse({ key }) });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().almBinding).toBe(almBinding);

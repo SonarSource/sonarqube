@@ -20,10 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
-  mockAzureBindingDefinition,
-  mockBitbucketBindingDefinition,
-  mockGithubBindingDefinition,
-  mockGitlabBindingDefinition,
+  mockAlmSettingsInstance,
   mockProjectAlmBindingResponse,
   mockProjectBitbucketBindingResponse,
   mockProjectGithubBindingResponse
@@ -33,24 +30,12 @@ import { renderStepContent } from '../test-utils';
 import WebhookStep, { WebhookStepProps } from '../WebhookStep';
 
 it.each([
-  [
-    AlmKeys.Azure,
-    mockAzureBindingDefinition(),
-    mockProjectAlmBindingResponse({ alm: AlmKeys.Azure })
-  ],
-  [
-    AlmKeys.BitbucketServer,
-    mockBitbucketBindingDefinition(),
-    mockProjectBitbucketBindingResponse()
-  ],
-  [AlmKeys.GitHub, mockGithubBindingDefinition(), mockProjectGithubBindingResponse()],
-  [
-    AlmKeys.GitLab,
-    mockGitlabBindingDefinition(),
-    mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })
-  ]
-])('it should render correctly for %s', (_, almBinding, projectBinding) => {
-  const wrapper = shallowRender({ almBinding, projectBinding });
+  [AlmKeys.Azure, mockProjectAlmBindingResponse({ alm: AlmKeys.Azure })],
+  [AlmKeys.BitbucketServer, mockProjectBitbucketBindingResponse()],
+  [AlmKeys.GitHub, mockProjectGithubBindingResponse()],
+  [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })]
+])('it should render correctly for %s', (_, projectBinding) => {
+  const wrapper = shallowRender({ projectBinding });
   expect(wrapper).toMatchSnapshot('wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content');
 });
@@ -58,7 +43,7 @@ it.each([
 function shallowRender(props: Partial<WebhookStepProps> = {}) {
   return shallow<WebhookStepProps>(
     <WebhookStep
-      almBinding={mockBitbucketBindingDefinition()}
+      almBinding={mockAlmSettingsInstance()}
       branchesEnabled={true}
       finished={false}
       onDone={jest.fn()}

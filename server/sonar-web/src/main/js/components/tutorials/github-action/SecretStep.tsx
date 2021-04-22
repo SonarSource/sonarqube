@@ -22,13 +22,13 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';
 import { buildGithubLink } from '../utils';
 
 export interface SecretStepProps {
-  almBinding?: GithubBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;

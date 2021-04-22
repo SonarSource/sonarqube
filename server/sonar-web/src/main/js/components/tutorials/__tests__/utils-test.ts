@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  mockGithubBindingDefinition,
+  mockAlmSettingsInstance,
   mockProjectGithubBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import { buildGithubLink, getUniqueTokenName } from '../utils';
@@ -49,21 +49,24 @@ describe('getUniqueTokenName', () => {
 });
 
 describe('buildGithubLink', () => {
+  const projectBinding = mockProjectGithubBindingResponse({ repository: 'owner/reponame' });
+
   it('should work for GitHub Enterprise', () => {
     expect(
       buildGithubLink(
-        mockGithubBindingDefinition({ url: 'https://github.company.com/api/v3' }),
-        mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
+        mockAlmSettingsInstance({ url: 'https://github.company.com/api/v3' }),
+        projectBinding
       )
     ).toBe('https://github.company.com/owner/reponame');
   });
 
   it('should work for github.com', () => {
     expect(
-      buildGithubLink(
-        mockGithubBindingDefinition({ url: 'http://api.github.com/' }),
-        mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
-      )
+      buildGithubLink(mockAlmSettingsInstance({ url: 'http://api.github.com/' }), projectBinding)
     ).toBe('https://github.com/owner/reponame');
+  });
+
+  it('should return null if there is no url defined', () => {
+    expect(buildGithubLink(mockAlmSettingsInstance({ url: undefined }), projectBinding)).toBeNull();
   });
 });

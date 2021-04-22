@@ -20,12 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import {
-  AlmBindingDefinition,
-  AlmKeys,
-  isGithubBindingDefinition,
-  ProjectAlmBindingResponse
-} from '../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
 import GitLabCITutorial from './gitlabci/GitLabCITutorial';
@@ -34,7 +29,7 @@ import ManualTutorial from './manual/ManualTutorial';
 import { TutorialModes } from './types';
 
 export interface TutorialSelectionRendererProps {
-  almBinding?: AlmBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
@@ -160,17 +155,15 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         <ManualTutorial component={component} currentUser={currentUser} />
       )}
 
-      {selectedTutorial === TutorialModes.GitHubActions &&
-        isGithubBindingDefinition(almBinding) &&
-        projectBinding !== undefined && (
-          <GitHubActionTutorial
-            almBinding={almBinding}
-            baseUrl={baseUrl}
-            component={component}
-            currentUser={currentUser}
-            projectBinding={projectBinding}
-          />
-        )}
+      {selectedTutorial === TutorialModes.GitHubActions && projectBinding !== undefined && (
+        <GitHubActionTutorial
+          almBinding={almBinding}
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+          projectBinding={projectBinding}
+        />
+      )}
 
       {selectedTutorial === TutorialModes.Jenkins && projectBinding !== undefined && (
         <JenkinsTutorial

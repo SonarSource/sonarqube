@@ -303,12 +303,8 @@ exports[`should render correctly: github actions tutorial 1`] = `
   <GitHubActionTutorial
     almBinding={
       Object {
-        "appId": "123456",
-        "clientId": "client1",
-        "clientSecret": "**clientsecret**",
+        "alm": "github",
         "key": "key",
-        "privateKey": "asdf1234",
-        "url": "http://github.enterprise.com",
       }
     }
     baseUrl="http://localhost:9000"
@@ -408,9 +404,8 @@ exports[`should render correctly: jenkins tutorial 1`] = `
   <Connect(JenkinsTutorial)
     almBinding={
       Object {
+        "alm": "github",
         "key": "key",
-        "personalAccessToken": "asdf1234",
-        "url": "http://bbs.enterprise.com",
       }
     }
     component={

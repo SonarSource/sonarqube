@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
+  mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse,
   mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
@@ -32,7 +33,12 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot('Step wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content for bitbucket');
   expect(
-    renderStepContent(shallowRender({ projectBinding: mockProjectGithubBindingResponse() }))
+    renderStepContent(
+      shallowRender({
+        almBinding: mockAlmSettingsInstance({ url: 'https://api.github.com/' }),
+        projectBinding: mockProjectGithubBindingResponse()
+      })
+    )
   ).toMatchSnapshot('content for github');
   expect(
     renderStepContent(shallowRender({ projectBinding: mockProjectGitLabBindingResponse() }))

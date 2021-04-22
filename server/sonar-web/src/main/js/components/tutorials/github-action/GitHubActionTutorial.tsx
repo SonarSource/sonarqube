@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import Step from '../components/Step';
 import SecretStep from './SecretStep';
 import YamlFileStep from './YamlFileStep';
@@ -30,7 +30,7 @@ export enum Steps {
 }
 
 export interface GitHubActionTutorialProps {
-  almBinding?: GithubBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;

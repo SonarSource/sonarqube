@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import { buildGithubLink } from '../utils';
 
 export interface WebhookStepGithubProps {
-  almBinding?: GithubBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   projectBinding: ProjectAlmBindingResponse;
 }

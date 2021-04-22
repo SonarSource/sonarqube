@@ -21,8 +21,7 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  AlmBindingDefinition,
-  isGithubBindingDefinition,
+  AlmSettingsInstance,
   isProjectBitbucketBindingResponse,
   isProjectGitHubBindingResponse,
   isProjectGitLabBindingResponse,
@@ -37,7 +36,7 @@ import Step from '../components/Step';
 import { buildGithubLink } from '../utils';
 
 export interface MultiBranchPipelineStepProps {
-  almBinding?: AlmBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
@@ -101,10 +100,11 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
                     </li>
                     <li>
-                      {isGithubBindingDefinition(almBinding) ? (
+                      {almBinding !== undefined &&
+                      buildGithubLink(almBinding, projectBinding) !== null ? (
                         <LabelValuePair
                           translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
-                          value={buildGithubLink(almBinding, projectBinding)}
+                          value={buildGithubLink(almBinding, projectBinding) as string}
                         />
                       ) : (
                         <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url" />

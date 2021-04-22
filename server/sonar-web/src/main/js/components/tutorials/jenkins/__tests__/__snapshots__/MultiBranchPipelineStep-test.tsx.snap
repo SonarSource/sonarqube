@@ -169,8 +169,9 @@ exports[`should render correctly: content for github 1`] = `
             />
           </li>
           <li>
-            <LabelActionPair
+            <LabelValuePair
               translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
+              value="https://github.com/PROJECT_KEY"
             />
           </li>
         </React.Fragment>

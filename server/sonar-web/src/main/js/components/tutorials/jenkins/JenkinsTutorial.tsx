@@ -24,7 +24,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAppState, getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import {
-  AlmBindingDefinition,
+  AlmSettingsInstance,
   isProjectBitbucketBindingResponse,
   isProjectGitHubBindingResponse,
   isProjectGitLabBindingResponse,
@@ -37,7 +37,7 @@ import PreRequisitesStep from './PreRequisitesStep';
 import WebhookStep from './WebhookStep';
 
 export interface JenkinsTutorialProps {
-  almBinding?: AlmBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   component: T.Component;
   projectBinding: ProjectAlmBindingResponse;

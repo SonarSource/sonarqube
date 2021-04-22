@@ -36,17 +36,15 @@ import {
 } from '../types/alm-settings';
 
 export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {
-  return getAlmDefinitionsNoCatch().catch(throwGlobalError);
-}
-
-export function getAlmDefinitionsNoCatch(): Promise<AlmSettingsBindingDefinitions> {
   return getJSON('/api/alm_settings/list_definitions');
 }
 
 export function getAlmSettings(project?: string): Promise<AlmSettingsInstance[]> {
-  return getJSON('/api/alm_settings/list', { project })
-    .then(({ almSettings }) => almSettings)
-    .catch(throwGlobalError);
+  return getAlmSettingsNoCatch(project).catch(throwGlobalError);
+}
+
+export function getAlmSettingsNoCatch(project?: string): Promise<AlmSettingsInstance[]> {
+  return getJSON('/api/alm_settings/list', { project }).then(({ almSettings }) => almSettings);
 }
 
 export function validateAlmSettings(key: string): Promise<string> {

@@ -22,10 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { Button, ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  AlmBindingDefinition,
   AlmKeys,
-  isBitbucketBindingDefinition,
-  isGithubBindingDefinition,
+  AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import Step from '../components/Step';
@@ -34,7 +32,7 @@ import WebhookStepGithub from './WebhookStepGithub';
 import WebhookStepGitLab from './WebhookStepGitLab';
 
 export interface WebhookStepProps {
-  almBinding?: AlmBindingDefinition;
+  almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   finished: boolean;
   onDone: () => void;
@@ -50,7 +48,7 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
     case AlmKeys.BitbucketServer:
       return (
         <WebhookStepBitbucket
-          almBinding={isBitbucketBindingDefinition(almBinding) ? almBinding : undefined}
+          almBinding={almBinding}
           branchesEnabled={branchesEnabled}
           projectBinding={projectBinding}
         />
@@ -59,7 +57,7 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
     case AlmKeys.GitHub:
       return (
         <WebhookStepGithub
-          almBinding={isGithubBindingDefinition(almBinding) ? almBinding : undefined}
+          almBinding={almBinding}
           branchesEnabled={branchesEnabled}
           projectBinding={projectBinding}
         />

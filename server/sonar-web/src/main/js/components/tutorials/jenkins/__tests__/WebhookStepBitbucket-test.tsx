@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
-  mockBitbucketBindingDefinition,
+  mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import WebhookStepBitbucket, { WebhookStepBitbucketProps } from '../WebhookStepBitbucket';
@@ -34,7 +34,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<WebhookStepBitbucketProps> = {}) {
   return shallow<WebhookStepBitbucketProps>(
     <WebhookStepBitbucket
-      almBinding={mockBitbucketBindingDefinition()}
+      almBinding={mockAlmSettingsInstance({ url: 'http://bbs.enterprise.com' })}
       branchesEnabled={true}
       projectBinding={mockProjectBitbucketBindingResponse()}
       {...props}
