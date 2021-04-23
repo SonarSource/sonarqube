@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { setSimpleSettingValue } from '../../api/settings';
@@ -66,22 +64,11 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
         <div className="boxed-group-inner text-center">
           <h1 className="big-spacer-bottom">{translate('plugin_risk_consent.title')}</h1>
           <p className="big big-spacer-bottom">{translate('plugin_risk_consent.description')}</p>
-          <p className="big big-spacer-bottom">{translate('plugin_risk_consent.description2')}</p>
-          <p className="big huge-spacer-bottom">
-            <FormattedMessage
-              id="plugin_risk_consent.description3"
-              defaultMessage={translate('plugin_risk_consent.description3')}
-              values={{
-                link: (
-                  <Link to="/documentation/instance-administration/marketplace/" target="_blank">
-                    {translate('plugin_risk_consent.description3.link')}
-                  </Link>
-                )
-              }}
-            />
-          </p>
+          <p className="big huge-spacer-bottom">{translate('plugin_risk_consent.description2')}</p>
 
-          <Button onClick={acknowledgeRisk}>{translate('plugin_risk_consent.action')}</Button>
+          <Button className="big-spacer-bottom" onClick={acknowledgeRisk}>
+            {translate('plugin_risk_consent.action')}
+          </Button>
         </div>
       </div>
     </div>

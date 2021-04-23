@@ -22,31 +22,12 @@ exports[`should render correctly: default 1`] = `
         plugin_risk_consent.description
       </p>
       <p
-        className="big big-spacer-bottom"
+        className="big huge-spacer-bottom"
       >
         plugin_risk_consent.description2
       </p>
-      <p
-        className="big huge-spacer-bottom"
-      >
-        <FormattedMessage
-          defaultMessage="plugin_risk_consent.description3"
-          id="plugin_risk_consent.description3"
-          values={
-            Object {
-              "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/instance-administration/marketplace/"
-              >
-                plugin_risk_consent.description3.link
-              </Link>,
-            }
-          }
-        />
-      </p>
       <Button
+        className="big-spacer-bottom"
         onClick={[Function]}
       >
         plugin_risk_consent.action
