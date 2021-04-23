@@ -251,8 +251,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexCreator.class,
       MetadataIndexDefinition.class,
       MetadataIndexImpl.class,
-      EsDbCompatibilityImpl.class,
-      DefaultAdminCredentialsVerifierImpl.class);
+      EsDbCompatibilityImpl.class);
 
     addIfCluster(NodeHealthModule.class);
 
@@ -357,6 +356,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GitLabModule.class,
       LdapModule.class,
       SamlModule.class,
+      DefaultAdminCredentialsVerifierImpl.class,
       DefaultAdminCredentialsVerifierNotificationTemplate.class,
       DefaultAdminCredentialsVerifierNotificationHandler.class,
 
