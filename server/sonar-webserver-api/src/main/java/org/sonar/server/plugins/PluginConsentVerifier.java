@@ -72,7 +72,8 @@ public class PluginConsentVerifier implements Startable {
 
   private static void addWarningInSonarDotLog() {
     String highlighter = "####################################################################################################################";
-    String msg = "Plugin(s) detected. The risk associated with installing plugins has not been accepted. The SonarQube admin needs to log in and accept the risk.";
+    String msg = "Plugin(s) detected. Plugins are not provided by SonarSource and are therefore installed at your own risk."
+        + " A SonarQube administrator needs to acknowledge this risk once logged in.";
 
     LOGGER.warn(highlighter);
     LOGGER.warn(msg);
