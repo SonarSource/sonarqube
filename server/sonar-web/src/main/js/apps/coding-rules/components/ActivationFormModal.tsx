@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
@@ -28,6 +27,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
+import { sanitizeString } from '../../../helpers/sanitize';
 import { sortProfiles } from '../../quality-profiles/utils';
 
 interface Props {
@@ -222,11 +222,13 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                       value={this.state.params[param.key] || ''}
                     />
                   )}
-                  <div
-                    className="note"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: sanitize(param.htmlDesc || '') }}
-                  />
+                  {param.htmlDesc !== undefined && (
+                    <div
+                      className="note"
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+                    />
+                  )}
                 </div>
               ))
             )}

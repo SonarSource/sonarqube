@@ -568,6 +568,17 @@ export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
   } as T.Rule;
 }
 
+export function mockRuleActivation(overrides: Partial<T.RuleActivation> = {}): T.RuleActivation {
+  return {
+    createdAt: '2020-02-01',
+    inherit: 'NONE',
+    params: [{ key: 'foo', value: 'Bar' }],
+    qProfile: 'baz',
+    severity: 'MAJOR',
+    ...overrides
+  };
+}
+
 export function mockRuleDetails(overrides: Partial<T.RuleDetails> = {}): T.RuleDetails {
   return {
     key: 'squid:S1337',

@@ -21,13 +21,13 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createRule } from '../../../../api/rules';
-import { mockRule } from '../../../../helpers/testMocks';
+import { mockRule, mockRuleDetailsParameter } from '../../../../helpers/testMocks';
 import CustomRuleFormModal from '../CustomRuleFormModal';
 
 jest.mock('../../../../api/rules', () => ({ createRule: jest.fn() }));
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
 });
 
 it('should handle re-activation', async () => {
@@ -43,7 +43,16 @@ function shallowRender(props: Partial<CustomRuleFormModal['props']> = {}) {
     <CustomRuleFormModal
       onClose={jest.fn()}
       onDone={jest.fn()}
-      templateRule={{ ...mockRule(), createdAt: 'date', repo: 'squid' }}
+      templateRule={{
+        ...mockRule({
+          params: [
+            mockRuleDetailsParameter(),
+            mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined })
+          ]
+        }),
+        createdAt: 'date',
+        repo: 'squid'
+      }}
       {...props}
     />
   );

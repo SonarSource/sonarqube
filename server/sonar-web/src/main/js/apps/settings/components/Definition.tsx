@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import {
   getSettingsAppChangedValue,
   getSettingsAppValidationMessage,
@@ -36,8 +37,7 @@ import {
   getPropertyDescription,
   getPropertyName,
   getSettingValue,
-  isDefaultOrInherited,
-  sanitizeTranslation
+  isDefaultOrInherited
 } from '../utils';
 import DefinitionActions from './DefinitionActions';
 import Input from './inputs/Input';
@@ -154,7 +154,8 @@ export class Definition extends React.PureComponent<Props, State> {
           {description && (
             <div
               className="markdown small spacer-top"
-              dangerouslySetInnerHTML={{ __html: sanitizeTranslation(description) }}
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: sanitizeStringRestricted(description) }}
             />
           )}
 

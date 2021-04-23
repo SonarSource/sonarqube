@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { sanitizeString } from '../../../helpers/sanitize';
 
 interface Props {
   params: T.RuleParameter[];
@@ -30,10 +30,12 @@ export default class RuleDetailsParameters extends React.PureComponent<Props> {
     <tr className="coding-rules-detail-parameter" key={param.key}>
       <td className="coding-rules-detail-parameter-name">{param.key}</td>
       <td className="coding-rules-detail-parameter-description">
-        <p
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitize(param.htmlDesc || '') }}
-        />
+        {param.htmlDesc !== undefined && (
+          <p
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+          />
+        )}
         {param.defaultValue !== undefined && (
           <div className="note spacer-top">
             {translate('coding_rules.parameters.default_value')}

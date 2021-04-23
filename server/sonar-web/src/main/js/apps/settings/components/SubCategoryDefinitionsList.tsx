@@ -19,8 +19,9 @@
  */
 import { groupBy, isEqual, sortBy } from 'lodash';
 import * as React from 'react';
+import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { Setting, SettingCategoryDefinition } from '../../../types/settings';
-import { getSubCategoryDescription, getSubCategoryName, sanitizeTranslation } from '../utils';
+import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 
@@ -79,7 +80,10 @@ export default class SubCategoryDefinitionsList extends React.PureComponent<Prop
             {subCategory.description != null && (
               <div
                 className="settings-sub-category-description markdown"
-                dangerouslySetInnerHTML={{ __html: sanitizeTranslation(subCategory.description) }}
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeStringRestricted(subCategory.description)
+                }}
               />
             )}
             <DefinitionsList

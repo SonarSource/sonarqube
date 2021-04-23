@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { Button, DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown, { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
@@ -28,6 +27,7 @@ import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
+import { sanitizeString } from '../../../helpers/sanitize';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotCommentPopup from './HotspotCommentPopup';
@@ -89,7 +89,11 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
 
             {type === ReviewHistoryType.Comment && key && html && markdown && (
               <div className="spacer-top display-flex-space-between">
-                <div className="markdown" dangerouslySetInnerHTML={{ __html: sanitize(html) }} />
+                <div
+                  className="markdown"
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: sanitizeString(html) }}
+                />
                 {updatable && (
                   <div>
                     <div className="dropdown">

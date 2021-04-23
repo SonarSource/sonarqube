@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
@@ -33,6 +32,7 @@ import FormattingTips from '../../../components/common/FormattingTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { RULE_STATUSES, RULE_TYPES, SEVERITIES } from '../../../helpers/constants';
+import { sanitizeString } from '../../../helpers/sanitize';
 
 interface Props {
   customRule?: T.RuleDetails;
@@ -304,11 +304,13 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           value={this.state.params[param.key] || ''}
         />
       )}
-      <div
-        className="modal-field-description"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: sanitize(param.htmlDesc || '') }}
-      />
+      {param.htmlDesc !== undefined && (
+        <div
+          className="modal-field-description"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+        />
+      )}
     </div>
   );
 

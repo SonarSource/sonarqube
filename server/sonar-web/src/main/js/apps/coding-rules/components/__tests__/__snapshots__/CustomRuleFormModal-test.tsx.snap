@@ -205,6 +205,54 @@ exports[`should handle re-activation 1`] = `
           className="modal-field-descriptor text-right"
         />
       </div>
+      <div
+        className="modal-field"
+        key="1"
+      >
+        <label
+          className="capitalize"
+          htmlFor="1"
+        >
+          1
+        </label>
+        <input
+          disabled={false}
+          id="1"
+          name="1"
+          onChange={[Function]}
+          placeholder="1"
+          type="text"
+          value=""
+        />
+        <div
+          className="modal-field-description"
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "description",
+            }
+          }
+        />
+      </div>
+      <div
+        className="modal-field"
+        key="2"
+      >
+        <label
+          className="capitalize"
+          htmlFor="2"
+        >
+          2
+        </label>
+        <textarea
+          disabled={false}
+          id="2"
+          name="2"
+          onChange={[Function]}
+          placeholder="1"
+          rows={3}
+          value=""
+        />
+      </div>
     </div>
     <div
       className="modal-foot"
@@ -226,7 +274,7 @@ exports[`should handle re-activation 1`] = `
 </Modal>
 `;
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <Modal
   contentLabel="coding_rules.create_custom_rule"
   onRequestClose={[MockFunction]}
@@ -424,6 +472,54 @@ exports[`should render correctly 1`] = `
         />
         <FormattingTips
           className="modal-field-descriptor text-right"
+        />
+      </div>
+      <div
+        className="modal-field"
+        key="1"
+      >
+        <label
+          className="capitalize"
+          htmlFor="1"
+        >
+          1
+        </label>
+        <input
+          disabled={false}
+          id="1"
+          name="1"
+          onChange={[Function]}
+          placeholder="1"
+          type="text"
+          value=""
+        />
+        <div
+          className="modal-field-description"
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "description",
+            }
+          }
+        />
+      </div>
+      <div
+        className="modal-field"
+        key="2"
+      >
+        <label
+          className="capitalize"
+          htmlFor="2"
+        >
+          2
+        </label>
+        <textarea
+          disabled={false}
+          id="2"
+          name="2"
+          onChange={[Function]}
+          placeholder="1"
+          rows={3}
+          value=""
         />
       </div>
     </div>

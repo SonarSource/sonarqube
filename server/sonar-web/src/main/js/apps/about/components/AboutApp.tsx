@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import { Location } from 'history';
 import { keyBy } from 'lodash';
 import * as React from 'react';
@@ -31,6 +30,7 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
+import { sanitizeString } from '../../../helpers/sanitize';
 import {
   getAppState,
   getCurrentUser,
@@ -163,7 +163,7 @@ export class AboutApp extends React.PureComponent<Props, State> {
           <div
             className="about-page-section"
             // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitize(customText) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeString(customText) }}
           />
         )}
 

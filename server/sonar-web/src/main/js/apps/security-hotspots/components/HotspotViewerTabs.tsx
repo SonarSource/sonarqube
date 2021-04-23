@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import Tab from 'sonar-ui-common/components/controls/Tabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { sanitizeString } from '../../../helpers/sanitize';
 import { Hotspot } from '../../../types/security-hotspots';
 
 interface Props {
@@ -104,7 +104,8 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         <div className="bordered huge-spacer-bottom">
           <div
             className="markdown big-padded"
-            dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
           />
         </div>
       </>

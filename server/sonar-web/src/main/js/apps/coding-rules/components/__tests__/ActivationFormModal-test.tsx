@@ -17,21 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
+import {
+  mockQualityProfile,
+  mockRule,
+  mockRuleActivation,
+  mockRuleDetails,
+  mockRuleDetailsParameter
+} from '../../../../helpers/testMocks';
 import ActivationFormModal from '../ActivationFormModal';
 
-it('render correctly', () => {
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
   expect(
-    shallow(
-      <ActivationFormModal
-        modalHeader="title"
-        onClose={jest.fn()}
-        onDone={jest.fn()}
-        profiles={[mockQualityProfile()]}
-        rule={mockRule()}
-      />
-    )
-  ).toMatchSnapshot();
+    shallowRender({
+      profiles: [
+        mockQualityProfile(),
+        mockQualityProfile({ depth: 2, actions: { edit: true }, language: 'js' })
+      ]
+    })
+  ).toMatchSnapshot('with deep profiles');
+  expect(shallowRender({ rule: mockRuleDetails({ templateKey: 'foobar' }) })).toMatchSnapshot(
+    'custom rule'
+  );
+  expect(shallowRender({ activation: mockRuleActivation() })).toMatchSnapshot('update mode');
+  const wrapper = shallowRender();
+  wrapper.setState({ submitting: true });
+  expect(wrapper).toMatchSnapshot('submitting');
 });
+
+function shallowRender(props: Partial<ActivationFormModal['props']> = {}) {
+  return shallow<ActivationFormModal>(
+    <ActivationFormModal
+      modalHeader="title"
+      onClose={jest.fn()}
+      onDone={jest.fn()}
+      profiles={[mockQualityProfile()]}
+      rule={mockRule({
+        params: [
+          mockRuleDetailsParameter(),
+          mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined })
+        ]
+      })}
+      {...props}
+    />
+  );
+}

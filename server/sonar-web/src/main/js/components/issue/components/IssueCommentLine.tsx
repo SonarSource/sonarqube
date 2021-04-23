@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { sanitizeString } from '../../../helpers/sanitize';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
@@ -96,7 +96,8 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
         </div>
         <div
           className="issue-comment-text markdown"
-          dangerouslySetInnerHTML={{ __html: sanitize(comment.htmlText) }}
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: sanitizeString(comment.htmlText) }}
         />
         <div className="issue-comment-age">
           <span className="a11y-hidden">{translate('issue.comment.posted_on')}</span>

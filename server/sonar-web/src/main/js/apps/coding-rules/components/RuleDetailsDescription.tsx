@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { sanitizeString } from '../../../helpers/sanitize';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 interface Props {
@@ -112,7 +112,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         <div
           className="rule-desc spacer-bottom markdown"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitize(this.props.ruleDetails.htmlNote) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeString(this.props.ruleDetails.htmlNote) }}
         />
       )}
       {this.props.canWrite && (
@@ -190,11 +190,11 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     return (
       <div className="js-rule-description">
-        {hasDescription ? (
+        {hasDescription && ruleDetails.htmlDesc !== undefined ? (
           <div
             className="coding-rules-detail-description rule-desc markdown"
             // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitize(ruleDetails.htmlDesc || '') }}
+            dangerouslySetInnerHTML={{ __html: sanitizeString(ruleDetails.htmlDesc) }}
           />
         ) : (
           <div className="coding-rules-detail-description rule-desc markdown">
