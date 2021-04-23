@@ -9,7 +9,7 @@ There are two ways to install plugins in SonarQube:
 - **Manual Installation** - You need to manually install plugins when using commercial editions of SonarQube. You can also manually install plugins if your SonarQube instance doesn't have internet access or the plugin you're installing isn't in the Marketplace.
 
 [[warning]]
-| Installing third-party plugins is inherently risky. A SonarQube administrator needs to acknowledge this risk in the Marketplace before installing plugins or when prompted in SonarQube after installing a plugin manually.
+| Plugins are not provided by SonarSource, and you therefore install them at your own risk. A SonarQube administrator needs to acknowledge this risk in the Marketplace before installing plugins or when prompted in SonarQube after installing a plugin manually.
 
 ## Installing plugins from the Marketplace
 
