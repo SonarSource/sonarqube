@@ -26,13 +26,13 @@ env:
 
 auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
 
-task_only_nightly_depending_on_build_template: &TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+only_nightly_depending_on_build_template: &ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
   only_if: $CIRRUS_BRANCH == "branch-nightly-build"
 
-task_only_default_depending_on_build_template: &TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+only_default_depending_on_build_template: &ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
@@ -119,7 +119,7 @@ build_task:
       path: "**/build/reports/**/*"
 
 validate_task: &VALIDATE_TASK
-  <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *NODE_MODULES_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
@@ -145,7 +145,7 @@ validate_license_change_task:
   timeout_in: 180m # Increase timeout, as license changes impact all files, which slows down the analysis considerably.
 
 yarn_check-ci_task:
-  <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *NODE_MODULES_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
@@ -159,7 +159,7 @@ yarn_check-ci_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 qa_task:
-  <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
@@ -191,7 +191,7 @@ qa_task:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 qa_bitbucket_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
@@ -218,7 +218,7 @@ qa_bitbucket_task:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 qa_ha_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -242,7 +242,7 @@ qa_ha_task:
 
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -287,7 +287,7 @@ qa_gitlab_task:
 
 # Azure QA is executed in a dedicated task in order to not slow down the pipeline.
 qa_azure_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -312,7 +312,7 @@ qa_azure_task:
 
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -343,7 +343,7 @@ qa_saml_task:
 
 # LDAP QA is executed in a dedicated task in order to not slow down the pipeline, as a LDAP server and SonarQube server are re-started on each test.
 qa_ldap_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -364,7 +364,7 @@ qa_ldap_task:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 promote_task: &PROMOTE_TASK
-  <<: *TASK_ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on:
     - build
     - validate
@@ -409,7 +409,7 @@ deploy_docs_task:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
 sql_mssql2019_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -430,7 +430,7 @@ sql_mssql2019_task:
 
 # this is the oldest compatible version of PostgreSQL
 sql_postgres96_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -443,7 +443,7 @@ sql_postgres96_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 sql_oracle12_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -455,7 +455,7 @@ sql_oracle12_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 upgd_mssql2019_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
@@ -484,7 +484,7 @@ upgd_mssql2019_task:
 
 
 upgd_oracle12_task:
-  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
