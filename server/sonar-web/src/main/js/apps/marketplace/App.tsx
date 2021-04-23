@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
@@ -167,7 +168,7 @@ export class App extends React.PureComponent<Props, State> {
           <div className="page-description">
             <p>{translate('marketplace.page.plugins.description')}</p>
             {currentEdition !== EditionKey.community && (
-              <p className="spacer-top">
+              <Alert className="spacer-top" variant="info">
                 <FormattedMessage
                   id="marketplace.page.plugins.description2"
                   defaultMessage={translate('marketplace.page.plugins.description2')}
@@ -181,7 +182,7 @@ export class App extends React.PureComponent<Props, State> {
                     )
                   }}
                 />
-              </p>
+              </Alert>
             )}
           </div>
         </header>

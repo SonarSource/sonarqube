@@ -33,8 +33,9 @@ exports[`should render correctly: loaded 1`] = `
       <p>
         marketplace.page.plugins.description
       </p>
-      <p
+      <Alert
         className="spacer-top"
+        variant="info"
       >
         <FormattedMessage
           defaultMessage="marketplace.page.plugins.description2"
@@ -52,7 +53,7 @@ exports[`should render correctly: loaded 1`] = `
             }
           }
         />
-      </p>
+      </Alert>
     </div>
   </header>
   <PluginRiskConsentBox
@@ -131,8 +132,9 @@ exports[`should render correctly: loading 1`] = `
       <p>
         marketplace.page.plugins.description
       </p>
-      <p
+      <Alert
         className="spacer-top"
+        variant="info"
       >
         <FormattedMessage
           defaultMessage="marketplace.page.plugins.description2"
@@ -150,7 +152,7 @@ exports[`should render correctly: loading 1`] = `
             }
           }
         />
-      </p>
+      </Alert>
     </div>
   </header>
   <PluginRiskConsentBox
