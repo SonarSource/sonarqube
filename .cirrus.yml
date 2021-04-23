@@ -1,16 +1,16 @@
 # content of service-account-credentials.json, used to access to Google Cloud Platform
-gcp_credentials: ENCRYPTED[ec86f04ec57d8a7f29ad6b84b41262c9d576abc533485754fdfdb24db103adf0d33ba4ba89a57d29d2549790be5abc72]
+gcp_credentials: ENCRYPTED[!e5f7207bd8d02d383733bef47e18296ac32e3b7d22eb480354e8dd8fdc0004be45a8a4e72c797bd66ee94eb3340fa363!]
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
   # to be replaced by other credentials
   ARTIFACTORY_PRIVATE_USERNAME: ENCRYPTED[c0baa3376daa1e08d602435081d07653799cf34ab09ca92e575f3dc4176bc6cf2ebf87120e83f3aa6804f072013e8e2b]
-  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[f13d32d218c3da8008114d2c8857b2956047fbdab2163bbf186b8b89f789f0efa7504f499749a59ad5988c14e5360353]
+  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!921e2792ce1fc164aaea1146ab2478e7aefd8aaa87022ca745adccee4deaa470bb883ad3066738fceb37622f239296a7!]
   ARTIFACTORY_DEPLOY_USERNAME: public-qa-deployer
-  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[9362d735843b21b375b6e19d91e0de5216e053e229e39e2ce33a0c866306e6e3f9b08db8a0e126ca5e986fea97e975fd]
+  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!ee8f6410a42b81c6c91c7b760e7be7796a7774b6e6e6acf3ff2ecf8c7c04c732865a0300673ea41155c0d19a989c0a5a!]
   ARTIFACTORY_DEPLOY_USERNAME_PRIVATE: private-qa-deployer
   ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE: ENCRYPTED[61769719e9b775afe103dbee22141eeaa0116b3332eafb993be2a5919ff7bf017cdc519afed07dc6cac8ebbc0846f191]
-  ARTIFACTORY_API_KEY: ENCRYPTED[d52910db749f2678f43084b18c849486d68fbc02c2f5489c7ee1085c395de9dc7575313a8b348bb5361a693dd782e07e]
+  ARTIFACTORY_API_KEY: ENCRYPTED[!f9526e763214dcd6f0cac5fbf712664bcf05395cc5c8f9f122ccf3a4c6d42c2bc809bff8a6d9904c935a47a05676682c!]
   # download licenses for testing commercial editions
   GITHUB_TOKEN: ENCRYPTED[!f272985ea5b49b3cf9c414b98de6a8e9096be47bfcee52f33311ba3131a2af637c1b956f49585b7757dd84b7c030233a!]
   # use a permanent GitHub access token to perform a clone (by default CirrusCI uses a temporary one)
