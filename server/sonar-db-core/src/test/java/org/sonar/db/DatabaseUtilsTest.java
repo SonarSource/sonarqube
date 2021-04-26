@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,17 +46,23 @@ import org.sonar.db.dialect.Oracle;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.DatabaseUtils.ORACLE_DRIVER_NAME;
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 
 public class DatabaseUtilsTest {
+  private static final String DEFAULT_SCHEMA = "public";
 
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(DatabaseUtilsTest.class, "sql.sql", false);
@@ -229,6 +236,96 @@ public class DatabaseUtilsTest {
       .containsExactly(
         myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
   }
+
+  @Test
+  public void can_not_determine_database_driver() throws SQLException {
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+    when(connection.getMetaData()).thenReturn(metaData);
+    when(metaData.getDriverName()).thenThrow(new SQLException());
+    DatabaseUtils.getDriver(connection);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Fail to determine database driver.");
+  }
+
+  @Test
+  public void result_set_throw_exception() throws SQLException {
+    String indexName = "idx";
+    String schema = "TEST-SONAR";
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.next()).thenThrow(new SQLException());
+    assertThatThrownBy(() -> findExistingIndex(indexName, schema, resultSet, true))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Can not check that table test_table exists");
+  }
+
+  @Test
+  public void find_existing_index_on_oracle_double_quoted_schema() throws SQLException {
+    String indexName = "idx";
+    String schema = "TEST-SONAR";
+    ResultSet resultSet = newResultSet(true, indexName, schema);
+    Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+    assertThat(foundIndex).hasValue(indexName);
+  }
+
+  @Test
+  public void find_existing_index_on_oracle_standard_schema() throws SQLException {
+    String indexName = "idx";
+    String schema = DEFAULT_SCHEMA;
+    ResultSet resultSet = newResultSet(true, indexName, schema);
+    Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+    assertThat(foundIndex).hasValue(indexName);
+  }
+
+  @Test
+  public void no_existing_index_on_oracle_double_quoted_schema() throws SQLException {
+    String indexName = "idx";
+    String schema = "TEST-SONAR";
+    ResultSet resultSet = newResultSet(false, null, null);
+    Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+    assertThat(foundIndex).isEmpty();
+  }
+
+  @Test
+  public void no_matching_index_on_oracle_double_quoted_schema() throws SQLException {
+    String indexName = "idx";
+    String schema = "TEST-SONAR";
+    ResultSet resultSet = newResultSet(true, "different", "different");
+    Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+    assertThat(foundIndex).isEmpty();
+  }
+
+  @Test
+  public void find_existing_index_on_default_schema() throws SQLException {
+    String indexName = "idx";
+    String schema = DEFAULT_SCHEMA;
+    ResultSet resultSet = newResultSet(true, indexName, schema);
+    Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, false);
+    assertThat(foundIndex).hasValue(indexName);
+  }
+
+
+  private Optional<String> findExistingIndex(String indexName, String schema, ResultSet resultSet, boolean isOracle) throws SQLException {
+    Connection connection = mock(Connection.class);
+    DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+    if (isOracle) {
+      when(metaData.getDriverName()).thenReturn(ORACLE_DRIVER_NAME);
+    }
+    when(metaData.getIndexInfo(anyString(), eq(DEFAULT_SCHEMA.equals(schema) ? schema : null), anyString(), anyBoolean(), anyBoolean())).thenReturn(resultSet);
+    when(connection.getMetaData()).thenReturn(metaData);
+    when(connection.getSchema()).thenReturn(schema);
+    when(connection.getCatalog()).thenReturn("catalog");
+
+    return DatabaseUtils.findExistingIndex(connection, "test_table", indexName);
+  }
+
+  private ResultSet newResultSet(boolean hasNext, String indexName, String schema) throws SQLException {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.next()).thenReturn(hasNext).thenReturn(false);
+    when(resultSet.getString("INDEX_NAME")).thenReturn(indexName);
+    when(resultSet.getString("TABLE_SCHEM")).thenReturn(schema);
+    return resultSet;
+  }
+
 
   private static DatabaseUtilsTest.MyComparable myComparable(int ordinal) {
     return new DatabaseUtilsTest.MyComparable(ordinal);

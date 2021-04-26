@@ -44,8 +44,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -54,8 +57,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
 public class DatabaseUtils {
-
+  private static final String TABLE_NOT_EXIST_MESSAGE = "Can not check that table %s exists";
   public static final int PARTITION_SIZE_FOR_ORACLE = 1000;
+  public static final String ORACLE_DRIVER_NAME = "Oracle JDBC driver";
+  public static final Pattern ORACLE_OBJECT_NAME_RULE = Pattern.compile("\"[^\"\\u0000]+\"|\\p{L}[\\p{L}\\p{N}_$#@]*");
 
   /**
    * @see DatabaseMetaData#getTableTypes()
@@ -307,7 +312,7 @@ public class DatabaseUtils {
       }
       return false;
     } catch (SQLException e) {
-      throw wrapSqlException(e, "Can not check that table %s exists", table);
+      throw wrapSqlException(e, TABLE_NOT_EXIST_MESSAGE, table);
     }
   }
 
@@ -338,6 +343,18 @@ public class DatabaseUtils {
   private static Optional<String> findIndex(Connection connection, String tableName, String indexName) {
     String schema = getSchema(connection);
 
+    if (StringUtils.isNotEmpty(schema)) {
+      String driverName = getDriver(connection);
+//      Fix for double quoted schema name in Oracle
+      if (ORACLE_DRIVER_NAME.equals(driverName) && !ORACLE_OBJECT_NAME_RULE.matcher(schema).matches()) {
+        return getOracleIndex(connection, tableName, indexName, schema);
+      }
+    }
+
+    return getIndex(connection, tableName, indexName, schema);
+  }
+
+  private static Optional<String> getIndex(Connection connection, String tableName, String indexName, @Nullable String schema) {
     try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, tableName, false, true)) {
       while (rs.next()) {
         String idx = rs.getString("INDEX_NAME");
@@ -347,7 +364,22 @@ public class DatabaseUtils {
       }
       return Optional.empty();
     } catch (SQLException e) {
-      throw wrapSqlException(e, "Can not check that table %s exists", tableName);
+      throw wrapSqlException(e, TABLE_NOT_EXIST_MESSAGE, tableName);
+    }
+  }
+
+  private static Optional<String> getOracleIndex(Connection connection, String tableName, String indexName, @Nonnull String schema) {
+    try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), null, tableName, false, true)) {
+      while (rs.next()) {
+        String idx = rs.getString("INDEX_NAME");
+        String tableSchema = rs.getString("TABLE_SCHEM");
+        if (schema.equalsIgnoreCase(tableSchema) && indexName.equalsIgnoreCase(idx)) {
+          return Optional.of(idx);
+        }
+      }
+      return Optional.empty();
+    } catch (SQLException e) {
+      throw wrapSqlException(e, TABLE_NOT_EXIST_MESSAGE, tableName);
     }
   }
 
@@ -372,6 +404,16 @@ public class DatabaseUtils {
         }
       }
       return false;
+    }
+  }
+
+  @CheckForNull
+  static String getDriver(Connection connection) {
+    try {
+      return connection.getMetaData().getDriverName();
+    } catch (SQLException e) {
+      Loggers.get(DatabaseUtils.class).warn("Fail to determine database driver.", e);
+      return null;
     }
   }
 
