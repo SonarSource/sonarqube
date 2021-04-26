@@ -176,3 +176,18 @@
   color: var(--baseFontColor);
   cursor: default;
 }
+
+@media (max-width: 1320px) {
+  #settings-page .layout-page-side-outer,
+  #settings-page .layout-page-side {
+    width: 180px;
+  }
+
+  #settings-page .layout-page-side-inner {
+    margin-left: 20px;
+  }
+
+  #settings-page .top-bar-inner {
+    margin: 0 20px;
+  }
+}
