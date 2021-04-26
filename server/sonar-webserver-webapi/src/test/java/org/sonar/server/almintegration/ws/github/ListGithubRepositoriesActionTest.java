@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -63,7 +64,9 @@ public class ListGithubRepositoriesActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private final WsActionTester ws = new WsActionTester(new ListGithubRepositoriesAction(db.getDbClient(), userSession, appClient));
+  private final ProjectAlmSettingDao projectAlmSettingDao = db.getDbClient().projectAlmSettingDao();
+
+  private final WsActionTester ws = new WsActionTester(new ListGithubRepositoriesAction(db.getDbClient(), userSession, appClient, projectAlmSettingDao));
 
   @Test
   public void fail_when_missing_create_project_permission() {
@@ -112,6 +115,10 @@ public class ListGithubRepositoriesActionTest {
             .collect(Collectors.toList())));
 
     ProjectDto project = db.components().insertPrivateProjectDto(componentDto -> componentDto.setDbKey("github_HelloWorld"));
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSettings, project, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("github/HelloWorld"));
+
+    ProjectDto project2 = db.components().insertPrivateProjectDto(componentDto -> componentDto.setDbKey("github_HelloWorld2"));
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSettings, project2, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("github/HelloWorld"));
 
     ListGithubRepositoriesWsResponse response = ws.newRequest()
       .setParam(ListGithubRepositoriesAction.PARAM_ALM_SETTING, githubAlmSettings.getKey())
