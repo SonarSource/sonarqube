@@ -19,11 +19,48 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
 
+jest.mock('../../../helpers/system', () => ({
+  getBaseUrl: jest.fn().mockReturnValue('/context')
+}));
+
+const originalLocation = window.location;
+
+beforeAll(() => {
+  const location = {
+    ...window.location,
+    href: null
+  };
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: location
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: originalLocation
+  });
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should navigate to the homepage after submission', () => {
+  const wrapper = shallowRender();
+  const form = wrapper.find(ResetPasswordForm);
+  const { onPasswordChange } = form.props();
+
+  if (onPasswordChange) {
+    onPasswordChange();
+  }
+
+  expect(window.location.href).toBe('/context/');
 });
 
 function shallowRender(props: Partial<ResetPasswordProps> = {}) {

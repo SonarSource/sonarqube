@@ -137,7 +137,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
 
               <div className="form-field">
                 <SubmitButton disabled={!canSubmit || submitting}>
-                  {translate('change_verb')}
+                  {translate('update_verb')}
                   {submitting && <i className="spinner spacer-left" />}
                 </SubmitButton>
               </div>

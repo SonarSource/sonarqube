@@ -12,18 +12,28 @@ exports[`should render correctly: local user 1`] = `
   <Tokens
     login="luke"
   />
-  <ResetPassword
-    user={
-      Object {
-        "groups": Array [],
-        "isLoggedIn": true,
-        "local": true,
-        "login": "luke",
-        "name": "Skywalker",
-        "scmAccounts": Array [],
+  <section
+    className="boxed-group"
+  >
+    <h2
+      className="spacer-bottom"
+    >
+      my_profile.password.title
+    </h2>
+    <ResetPasswordForm
+      className="boxed-group-inner"
+      user={
+        Object {
+          "groups": Array [],
+          "isLoggedIn": true,
+          "local": true,
+          "login": "luke",
+          "name": "Skywalker",
+          "scmAccounts": Array [],
+        }
       }
-    }
-  />
+    />
+  </section>
 </div>
 `;
 

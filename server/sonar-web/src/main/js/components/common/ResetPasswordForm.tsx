@@ -26,6 +26,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changePassword } from '../../api/users';
 
 interface Props {
+  className?: string;
   user: T.LoggedInUser;
   onPasswordChange?: () => void;
 }
@@ -35,7 +36,7 @@ interface State {
   success: boolean;
 }
 
-export default class ResetPassword extends React.Component<Props, State> {
+export default class ResetPasswordForm extends React.Component<Props, State> {
   oldPassword: HTMLInputElement | null = null;
   password: HTMLInputElement | null = null;
   passwordConfirmation: HTMLInputElement | null = null;
@@ -84,72 +85,69 @@ export default class ResetPassword extends React.Component<Props, State> {
   };
 
   render() {
+    const { className } = this.props;
     const { success, errors } = this.state;
 
     return (
-      <section className="boxed-group">
-        <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
+      <form className={className} onSubmit={this.handleChangePassword}>
+        {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
 
-        <form className="boxed-group-inner" onSubmit={this.handleChangePassword}>
-          {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
+        {errors &&
+          errors.map((e, i) => (
+            /* eslint-disable-next-line react/no-array-index-key */
+            <Alert key={i} variant="error">
+              {e}
+            </Alert>
+          ))}
 
-          {errors &&
-            errors.map((e, i) => (
-              /* eslint-disable-next-line react/no-array-index-key */
-              <Alert key={i} variant="error">
-                {e}
-              </Alert>
-            ))}
+        <MandatoryFieldsExplanation className="form-field" />
 
-          <MandatoryFieldsExplanation className="form-field" />
-
-          <div className="form-field">
-            <label htmlFor="old_password">
-              {translate('my_profile.password.old')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
-              autoComplete="off"
-              id="old_password"
-              name="old_password"
-              ref={elem => (this.oldPassword = elem)}
-              required={true}
-              type="password"
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="password">
-              {translate('my_profile.password.new')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
-              autoComplete="off"
-              id="password"
-              name="password"
-              ref={elem => (this.password = elem)}
-              required={true}
-              type="password"
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="password_confirmation">
-              {translate('my_profile.password.confirm')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
-              autoComplete="off"
-              id="password_confirmation"
-              name="password_confirmation"
-              ref={elem => (this.passwordConfirmation = elem)}
-              required={true}
-              type="password"
-            />
-          </div>
-          <div className="form-field">
-            <SubmitButton id="change-password">{translate('update_verb')}</SubmitButton>
-          </div>
-        </form>
-      </section>
+        <div className="form-field">
+          <label htmlFor="old_password">
+            {translate('my_profile.password.old')}
+            <MandatoryFieldMarker />
+          </label>
+          <input
+            autoComplete="off"
+            id="old_password"
+            name="old_password"
+            ref={elem => (this.oldPassword = elem)}
+            required={true}
+            type="password"
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="password">
+            {translate('my_profile.password.new')}
+            <MandatoryFieldMarker />
+          </label>
+          <input
+            autoComplete="off"
+            id="password"
+            name="password"
+            ref={elem => (this.password = elem)}
+            required={true}
+            type="password"
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="password_confirmation">
+            {translate('my_profile.password.confirm')}
+            <MandatoryFieldMarker />
+          </label>
+          <input
+            autoComplete="off"
+            id="password_confirmation"
+            name="password_confirmation"
+            ref={elem => (this.passwordConfirmation = elem)}
+            required={true}
+            type="password"
+          />
+        </div>
+        <div className="form-field">
+          <SubmitButton id="change-password">{translate('update_verb')}</SubmitButton>
+        </div>
+      </form>
     );
   }
 }

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ResetPassword from '../../../components/common/ResetPassword';
+import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import Tokens from './Tokens';
 
@@ -34,7 +34,12 @@ export function Security({ user }: SecurityProps) {
     <div className="account-body account-container">
       <Helmet defer={false} title={translate('my_account.security')} />
       <Tokens login={user.login} />
-      {user.local && <ResetPassword user={user} />}
+      {user.local && (
+        <section className="boxed-group">
+          <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
+          <ResetPasswordForm className="boxed-group-inner" user={user} />
+        </section>
+      )}
     </div>
   );
 }

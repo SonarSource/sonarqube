@@ -19,30 +19,37 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import ResetPasswordForm from '../../components/common/ResetPassword';
+import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
+import { getBaseUrl } from '../../helpers/system';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
-import './ResetPassword.css';
 
 export interface ResetPasswordProps {
   currentUser: T.LoggedInUser;
 }
 
-export function ResetPassword(props: ResetPasswordProps) {
-  const { currentUser } = props;
-  const redirect = () => {
-    window.location.href = `/`; // force a refresh for the backend to handle additional redirects
-  };
-
+export function ResetPassword({ currentUser }: ResetPasswordProps) {
   return (
-    <div className="reset-page">
-      <h1 className="text-center spacer-bottom">{translate('my_account.reset_password')}</h1>
-      <h2 className="text-center huge-spacer-bottom">
-        {translate('my_account.reset_password.explain')}
-      </h2>
-      <GlobalMessagesContainer />
-      <div className="reset-form">
-        <ResetPasswordForm user={currentUser} onPasswordChange={redirect} />
+    <div className="page-wrapper-simple">
+      <div className="page-simple">
+        <GlobalMessagesContainer />
+
+        <h1 className="text-center huge">{translate('my_account.reset_password')}</h1>
+        <p className="text-center huge-spacer-top huge-spacer-bottom">
+          {translate('my_account.reset_password.explain')}
+        </p>
+
+        <div className="text-center">
+          <h2 className="big-spacer-bottom big">{translate('my_profile.password.title')}</h2>
+
+          <ResetPasswordForm
+            user={currentUser}
+            onPasswordChange={() => {
+              // Force a refresh for the backend to handle additional redirects.
+              window.location.href = getBaseUrl() + '/';
+            }}
+          />
+        </div>
       </div>
     </div>
   );

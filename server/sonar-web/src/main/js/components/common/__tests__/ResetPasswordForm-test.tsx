@@ -22,7 +22,7 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changePassword } from '../../../api/users';
 import { mockEvent, mockLoggedInUser } from '../../../helpers/testMocks';
-import ResetPassword from '../ResetPassword';
+import ResetPasswordForm from '../ResetPasswordForm';
 
 jest.mock('../../../api/users', () => ({
   changePassword: jest.fn().mockResolvedValue({})
@@ -74,6 +74,6 @@ it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<ResetPassword['props']>) {
-  return shallow<ResetPassword>(<ResetPassword user={mockLoggedInUser()} {...props} />);
+function shallowRender(props?: Partial<ResetPasswordForm['props']>) {
+  return shallow<ResetPasswordForm>(<ResetPasswordForm user={mockLoggedInUser()} {...props} />);
 }
