@@ -325,10 +325,6 @@ subprojects {
       dependency('org.codehaus.woodstox:woodstox-core-lgpl:4.4.1') {
         exclude 'javax.xml.stream:stax-api'
       }
-      dependency 'org.codehaus.sonar.runner:sonar-runner-api:2.4'
-      dependency('org.codehaus.sonar:sonar-squid:4.1') {
-        exclude 'org.codehaus.sonar:sonar-check-api'
-      }
       dependency('org.codehaus.staxmate:staxmate:2.0.1') {
         exclude 'org.codehaus.woodstox:stax2-api'
         exclude 'stax:stax-api'
