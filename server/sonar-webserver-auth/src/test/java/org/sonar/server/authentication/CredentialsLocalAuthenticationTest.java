@@ -25,24 +25,24 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.BCRYPT;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.PBKDF2;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.SHA1;
 
 public class CredentialsLocalAuthenticationTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -58,23 +58,23 @@ public class CredentialsLocalAuthenticationTest {
 
   @Test
   public void incorrect_hash_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     UserDto user = newUserDto()
       .setHashMethod("ALGON2");
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("Unknown hash method [ALGON2]");
-
-    underTest.authenticate(db.getSession(), user, "whatever", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "whatever", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(format(CredentialsLocalAuthentication.ERROR_UNKNOWN_HASH_METHOD, "ALGON2"));
   }
 
   @Test
   public void null_hash_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     UserDto user = newUserDto();
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("null hash method");
-
-    underTest.authenticate(db.getSession(), user, "whatever", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "whatever", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_HASH_METHOD);
   }
 
   @Test
@@ -107,6 +107,7 @@ public class CredentialsLocalAuthenticationTest {
   @Test
   public void authentication_with_sha1_with_incorrect_password_should_throw_AuthenticationException() {
     String password = randomAlphanumeric(60);
+    DbSession dbSession = db.getSession();
 
     byte[] saltRandom = new byte[20];
     RANDOM.nextBytes(saltRandom);
@@ -117,14 +118,14 @@ public class CredentialsLocalAuthenticationTest {
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))
       .setSalt(salt);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("wrong password");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_WRONG_PASSWORD);
   }
 
   @Test
   public void authentication_with_sha1_with_empty_password_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     byte[] saltRandom = new byte[20];
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
@@ -134,14 +135,14 @@ public class CredentialsLocalAuthenticationTest {
       .setHashMethod(SHA1.name())
       .setSalt(salt);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("null password in DB");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_PASSWORD_IN_DB);
   }
 
   @Test
   public void authentication_with_sha1_with_empty_salt_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     String password = randomAlphanumeric(60);
 
     UserDto user = newUserDto()
@@ -149,24 +150,35 @@ public class CredentialsLocalAuthenticationTest {
       .setCryptedPassword(DigestUtils.sha1Hex("--0242b0b4c0a93ddfe09dd886de50bc25ba000b51--" + password + "--"))
       .setSalt(null);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("null salt");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_SALT);
   }
 
   @Test
   public void authentication_with_bcrypt_with_incorrect_password_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     String password = randomAlphanumeric(60);
 
     UserDto user = newUserDto()
       .setHashMethod(BCRYPT.name())
       .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("wrong password");
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_WRONG_PASSWORD);
+  }
 
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+  @Test
+  public void authentication_with_bcrypt_with_empty_password_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
+    UserDto user = newUserDto()
+      .setCryptedPassword(null)
+      .setHashMethod(BCRYPT.name());
+
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_PASSWORD_IN_DB);
   }
 
   @Test
@@ -273,34 +285,39 @@ public class CredentialsLocalAuthenticationTest {
 
   @Test
   public void authentication_with_pbkdf2_with_incorrect_password_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     UserDto user = newUserDto()
       .setHashMethod(PBKDF2.name())
       .setCryptedPassword("1$hash")
       .setSalt("salt");
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("wrong password");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_WRONG_PASSWORD);
   }
 
   @Test
   public void authentication_with_pbkdf2_with_invalid_password_should_throw_AuthenticationException() {
+    DbSession dbSession = db.getSession();
     String password = randomAlphanumeric(60);
 
     byte[] saltRandom = new byte[20];
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
 
-    UserDto user = newUserDto()
+    UserDto userInvalidHash = newUserDto()
       .setHashMethod(PBKDF2.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))
       .setSalt(salt);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("invalid hash stored");
+    UserDto userInvalidIterations = newUserDto()
+      .setHashMethod(PBKDF2.name())
+      .setCryptedPassword("$$")
+      .setSalt(salt);
 
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, userInvalidIterations, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("invalid hash stored");
   }
 
   @Test
@@ -308,30 +325,30 @@ public class CredentialsLocalAuthenticationTest {
     byte[] saltRandom = new byte[20];
     RANDOM.nextBytes(saltRandom);
     String salt = DigestUtils.sha1Hex(saltRandom);
+    DbSession dbSession = db.getSession();
 
     UserDto user = newUserDto()
       .setCryptedPassword(null)
       .setHashMethod(PBKDF2.name())
       .setSalt(salt);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("null password in DB");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_PASSWORD_IN_DB);
   }
 
   @Test
   public void authentication_with_pbkdf2_with_empty_salt_should_throw_AuthenticationException() {
     String password = randomAlphanumeric(60);
+    DbSession dbSession = db.getSession();
 
     UserDto user = newUserDto()
       .setHashMethod(PBKDF2.name())
       .setCryptedPassword(DigestUtils.sha1Hex("--0242b0b4c0a93ddfe09dd886de50bc25ba000b51--" + password + "--"))
       .setSalt(null);
 
-    expectedException.expect(AuthenticationException.class);
-    expectedException.expectMessage("null salt");
-
-    underTest.authenticate(db.getSession(), user, "WHATEVER", AuthenticationEvent.Method.BASIC);
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, user, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(CredentialsLocalAuthentication.ERROR_NULL_SALT);
   }
 }
