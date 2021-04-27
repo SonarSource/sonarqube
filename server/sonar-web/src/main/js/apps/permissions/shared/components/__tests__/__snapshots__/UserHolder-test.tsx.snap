@@ -1,32 +1,120 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: creator 1`] = `
 <tr>
   <td
     className="nowrap text-middle"
   >
-    <Connect(Avatar)
-      className="text-middle big-spacer-right"
-      name="John Doe"
-      size={36}
-    />
+    <div>
+      <strong>
+        johndoe
+      </strong>
+    </div>
     <div
-      className="display-inline-block text-middle"
+      className="little-spacer-top"
+      style={
+        Object {
+          "whiteSpace": "normal",
+        }
+      }
     >
-      <div>
-        <strong>
-          John Doe
-        </strong>
-        <span
-          className="note spacer-left"
-        >
-          john doe
-        </span>
-      </div>
+      permission_templates.project_creators.explanation
+    </div>
+  </td>
+  <PermissionCell
+    key="admin"
+    loading={Array []}
+    onCheck={[Function]}
+    permission={
+      Object {
+        "category": "admin",
+        "permissions": Array [
+          Object {
+            "description": "",
+            "key": "foo",
+            "name": "Foo",
+          },
+          Object {
+            "description": "",
+            "key": "bar",
+            "name": "Bar",
+          },
+        ],
+      }
+    }
+    permissionItem={
+      Object {
+        "active": true,
+        "local": true,
+        "login": "<creator>",
+        "name": "johndoe",
+        "permissions": Array [
+          "provisioning",
+        ],
+      }
+    }
+    selectedPermission="bar"
+  />
+  <PermissionCell
+    key="baz"
+    loading={Array []}
+    onCheck={[Function]}
+    permission={
+      Object {
+        "description": "",
+        "key": "baz",
+        "name": "Baz",
+      }
+    }
+    permissionItem={
+      Object {
+        "active": true,
+        "local": true,
+        "login": "<creator>",
+        "name": "johndoe",
+        "permissions": Array [
+          "provisioning",
+        ],
+      }
+    }
+    selectedPermission="bar"
+  />
+</tr>
+`;
+
+exports[`should render correctly: default 1`] = `
+<tr>
+  <td
+    className="nowrap text-middle"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <Connect(Avatar)
+        className="text-middle big-spacer-right flex-0"
+        name="John Doe"
+        size={36}
+      />
       <div
-        className="little-spacer-top"
+        className="max-width-100"
       >
-        john.doe@sonarsource.com
+        <div
+          className="max-width-100 text-ellipsis"
+        >
+          <strong>
+            John Doe
+          </strong>
+          <span
+            className="note spacer-left"
+          >
+            john.doe
+          </span>
+        </div>
+        <div
+          className="little-spacer-top max-width-100 text-ellipsis"
+        >
+          john.doe@sonarsource.com
+        </div>
       </div>
     </div>
   </td>
@@ -53,11 +141,13 @@ exports[`should render correctly 1`] = `
     }
     permissionItem={
       Object {
+        "active": true,
         "email": "john.doe@sonarsource.com",
-        "login": "john doe",
+        "local": true,
+        "login": "john.doe",
         "name": "John Doe",
         "permissions": Array [
-          "bar",
+          "provisioning",
         ],
       }
     }
@@ -76,54 +166,17 @@ exports[`should render correctly 1`] = `
     }
     permissionItem={
       Object {
+        "active": true,
         "email": "john.doe@sonarsource.com",
-        "login": "john doe",
+        "local": true,
+        "login": "john.doe",
         "name": "John Doe",
         "permissions": Array [
-          "bar",
+          "provisioning",
         ],
       }
     }
     selectedPermission="bar"
   />
 </tr>
-`;
-
-exports[`should show user details for SonarCloud 1`] = `
-<div
-  className="display-inline-block text-middle"
->
-  <div>
-    <strong>
-      John Doe
-    </strong>
-  </div>
-  <div
-    className="note little-spacer-top"
-  >
-    john doe
-  </div>
-</div>
-`;
-
-exports[`should show user details for SonarQube 1`] = `
-<div
-  className="display-inline-block text-middle"
->
-  <div>
-    <strong>
-      John Doe
-    </strong>
-    <span
-      className="note spacer-left"
-    >
-      john doe
-    </span>
-  </div>
-  <div
-    className="little-spacer-top"
-  >
-    john.doe@sonarsource.com
-  </div>
-</div>
 `;

@@ -1,31 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <tr>
   <td
     className="nowrap text-middle"
   >
     <div
-      className="display-inline-block text-middle big-spacer-right"
+      className="display-flex-center"
     >
-      <GroupIcon />
-    </div>
-    <div
-      className="display-inline-block text-middle"
-    >
-      <div>
-        <strong>
-          Foobar
-        </strong>
-      </div>
-      <div
-        className="little-spacer-top"
-        style={
-          Object {
-            "whiteSpace": "normal",
-          }
-        }
+      <GroupIcon
+        className="big-spacer-right"
       />
+      <div
+        className="max-width-100"
+      >
+        <div
+          className="max-width-100 text-ellipsis"
+        >
+          <strong>
+            sonar-admins
+          </strong>
+        </div>
+        <div
+          className="little-spacer-top"
+          style={
+            Object {
+              "whiteSpace": "normal",
+            }
+          }
+        />
+      </div>
     </div>
   </td>
   <PermissionCell
@@ -52,9 +56,9 @@ exports[`should render correctly 1`] = `
     permissionItem={
       Object {
         "id": "foobar",
-        "name": "Foobar",
+        "name": "sonar-admins",
         "permissions": Array [
-          "bar",
+          "provisioning",
         ],
       }
     }
@@ -74,9 +78,9 @@ exports[`should render correctly 1`] = `
     permissionItem={
       Object {
         "id": "foobar",
-        "name": "Foobar",
+        "name": "sonar-admins",
         "permissions": Array [
-          "bar",
+          "provisioning",
         ],
       }
     }

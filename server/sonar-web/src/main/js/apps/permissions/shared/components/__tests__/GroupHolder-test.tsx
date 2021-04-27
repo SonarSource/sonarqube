@@ -20,39 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { mockPermissionGroup } from '../../../../../helpers/mocks/permissions';
 import GroupHolder from '../GroupHolder';
 
-const group = {
-  id: 'foobar',
-  name: 'Foobar',
-  permissions: ['bar']
-};
-
-const groupHolder = (
-  <GroupHolder
-    group={group}
-    key="foo"
-    onToggle={jest.fn(() => Promise.resolve())}
-    permissions={[
-      {
-        category: 'admin',
-        permissions: [
-          { key: 'foo', name: 'Foo', description: '' },
-          { key: 'bar', name: 'Bar', description: '' }
-        ]
-      },
-      { key: 'baz', name: 'Baz', description: '' }
-    ]}
-    selectedPermission="bar"
-  />
-);
-
 it('should render correctly', () => {
-  expect(shallow(groupHolder)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
 });
 
-it('should disabled PermissionCell checkboxes when waiting for promise to return', async () => {
-  const wrapper = shallow<GroupHolder>(groupHolder);
+it('should disable PermissionCell checkboxes when waiting for promise to return', async () => {
+  const wrapper = shallowRender();
   expect(wrapper.state().loading).toEqual([]);
 
   wrapper.instance().handleCheck(true, 'baz');
@@ -66,3 +42,24 @@ it('should disabled PermissionCell checkboxes when waiting for promise to return
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toEqual([]);
 });
+
+function shallowRender(props: Partial<GroupHolder['props']> = {}) {
+  return shallow<GroupHolder>(
+    <GroupHolder
+      group={mockPermissionGroup({ id: 'foobar' })}
+      onToggle={jest.fn().mockResolvedValue(null)}
+      permissions={[
+        {
+          category: 'admin',
+          permissions: [
+            { key: 'foo', name: 'Foo', description: '' },
+            { key: 'bar', name: 'Bar', description: '' }
+          ]
+        },
+        { key: 'baz', name: 'Baz', description: '' }
+      ]}
+      selectedPermission="bar"
+      {...props}
+    />
+  );
+}

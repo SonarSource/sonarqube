@@ -20,43 +20,18 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { isSonarCloud } from '../../../../../helpers/system';
+import { mockPermissionUser } from '../../../../../helpers/mocks/permissions';
 import UserHolder from '../UserHolder';
 
-jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
-const user = {
-  email: 'john.doe@sonarsource.com',
-  login: 'john doe',
-  name: 'John Doe',
-  permissions: ['bar']
-};
-
-const userHolder = (
-  <UserHolder
-    key="foo"
-    onToggle={jest.fn(() => Promise.resolve())}
-    permissions={[
-      {
-        category: 'admin',
-        permissions: [
-          { key: 'foo', name: 'Foo', description: '' },
-          { key: 'bar', name: 'Bar', description: '' }
-        ]
-      },
-      { key: 'baz', name: 'Baz', description: '' }
-    ]}
-    selectedPermission="bar"
-    user={user}
-  />
-);
-
 it('should render correctly', () => {
-  expect(shallow(userHolder)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ user: mockPermissionUser({ login: '<creator>' }) })).toMatchSnapshot(
+    'creator'
+  );
 });
 
 it('should disabled PermissionCell checkboxes when waiting for promise to return', async () => {
-  const wrapper = shallow<UserHolder>(userHolder);
+  const wrapper = shallowRender();
   expect(wrapper.state().loading).toEqual([]);
 
   wrapper.instance().handleCheck(true, 'baz');
@@ -71,16 +46,23 @@ it('should disabled PermissionCell checkboxes when waiting for promise to return
   expect(wrapper.state().loading).toEqual([]);
 });
 
-it('should show user details for SonarQube', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
-
-  const wrapper = shallow<UserHolder>(userHolder);
-  expect(wrapper.find('.display-inline-block.text-middle')).toMatchSnapshot();
-});
-
-it('should show user details for SonarCloud', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-
-  const wrapper = shallow<UserHolder>(userHolder);
-  expect(wrapper.find('.display-inline-block.text-middle')).toMatchSnapshot();
-});
+function shallowRender(props: Partial<UserHolder['props']> = {}) {
+  return shallow<UserHolder>(
+    <UserHolder
+      onToggle={jest.fn().mockResolvedValue(null)}
+      permissions={[
+        {
+          category: 'admin',
+          permissions: [
+            { key: 'foo', name: 'Foo', description: '' },
+            { key: 'bar', name: 'Bar', description: '' }
+          ]
+        },
+        { key: 'baz', name: 'Baz', description: '' }
+      ]}
+      selectedPermission="bar"
+      user={mockPermissionUser({ email: 'john.doe@sonarsource.com', name: 'John Doe' })}
+      {...props}
+    />
+  );
+}

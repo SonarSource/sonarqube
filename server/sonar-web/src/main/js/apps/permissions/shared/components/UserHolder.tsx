@@ -21,7 +21,6 @@ import { without } from 'lodash';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../../components/ui/Avatar';
-import { isSonarCloud } from '../../../../helpers/system';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 
@@ -81,17 +80,11 @@ export default class UserHolder extends React.PureComponent<Props, State> {
       return (
         <tr>
           <td className="nowrap text-middle">
-            <div className="display-inline-block text-middle">
-              <div>
-                <strong>{user.name}</strong>
-              </div>
-              <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-                {translate(
-                  isSonarCloud()
-                    ? 'permission_templates.project_creators.explanation.sonarcloud'
-                    : 'permission_templates.project_creators.explanation'
-                )}
-              </div>
+            <div>
+              <strong>{user.name}</strong>
+            </div>
+            <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+              {translate('permission_templates.project_creators.explanation')}
             </div>
           </td>
           {permissionCells}
@@ -102,29 +95,20 @@ export default class UserHolder extends React.PureComponent<Props, State> {
     return (
       <tr>
         <td className="nowrap text-middle">
-          <Avatar
-            className="text-middle big-spacer-right"
-            hash={user.avatar}
-            name={user.name}
-            size={36}
-          />
-          <div className="display-inline-block text-middle">
-            {isSonarCloud() ? (
-              <>
-                <div>
-                  <strong>{user.name}</strong>
-                </div>
-                <div className="note little-spacer-top">{user.login}</div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <strong>{user.name}</strong>
-                  <span className="note spacer-left">{user.login}</span>
-                </div>
-                <div className="little-spacer-top">{user.email}</div>
-              </>
-            )}
+          <div className="display-flex-center">
+            <Avatar
+              className="text-middle big-spacer-right flex-0"
+              hash={user.avatar}
+              name={user.name}
+              size={36}
+            />
+            <div className="max-width-100">
+              <div className="max-width-100 text-ellipsis">
+                <strong>{user.name}</strong>
+                <span className="note spacer-left">{user.login}</span>
+              </div>
+              <div className="little-spacer-top max-width-100 text-ellipsis">{user.email}</div>
+            </div>
           </div>
         </td>
         {permissionCells}

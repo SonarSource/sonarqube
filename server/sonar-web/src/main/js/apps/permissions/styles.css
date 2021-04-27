@@ -22,7 +22,7 @@
 }
 
 .permissions-table .permission-column-inner {
-  width: 100px;
+  width: 90px;
 }
 
 .permissions-table .divider {
@@ -35,4 +35,8 @@
   background: var(--barBorderColor);
   height: 1px;
   width: 100%;
+}
+
+.permissions-table td:first-of-type {
+  max-width: 320px;
 }
