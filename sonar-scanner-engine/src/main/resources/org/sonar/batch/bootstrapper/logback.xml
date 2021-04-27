@@ -18,9 +18,14 @@
     </encoder>
   </appender>
 
-  <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
+  <!-- BeanUtils generate too many DEBUG logs when sonar.verbose is set -->
   <logger name="org.apache.commons.beanutils.converters">
     <level value="WARN"/>
+  </logger>
+
+  <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.eclipse.jgit.internal.storage.file">
+    <level value="INFO"/>
   </logger>
 
   <!-- sonar.showSql -->
