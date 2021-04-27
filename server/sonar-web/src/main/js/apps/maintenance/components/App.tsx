@@ -200,36 +200,38 @@ export default class App extends React.PureComponent<Props, State> {
                 <h1 className="maintenance-title">
                   <InstanceMessage message={translate('maintenance.is_under_maintenance')} />
                 </h1>
-                {!isSonarCloud() && (
-                  <>
-                    <p className="maintenance-text">
-                      <FormattedMessage
-                        defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.1')}
-                        id="maintenance.sonarqube_is_under_maintenance.1"
-                        values={{
-                          link: (
-                            <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
-                              {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
-                            </a>
-                          )
-                        }}
-                      />
-                    </p>
-                    <p className="maintenance-text">
-                      <FormattedMessage
-                        defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.2')}
-                        id="maintenance.sonarqube_is_under_maintenance.2"
-                        values={{
-                          link: (
-                            <a href="https://redirect.sonarsource.com/doc/upgrading.html">
-                              {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
-                            </a>
-                          )
-                        }}
-                      />
-                    </p>
-                  </>
-                )}
+                <p className="maintenance-text">
+                  <FormattedMessage
+                    defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.1')}
+                    id="maintenance.sonarqube_is_under_maintenance.1"
+                    values={{
+                      link: (
+                        <a
+                          href="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
+                        </a>
+                      )
+                    }}
+                  />
+                </p>
+                <p className="maintenance-text">
+                  <FormattedMessage
+                    defaultMessage={translate('maintenance.sonarqube_is_under_maintenance.2')}
+                    id="maintenance.sonarqube_is_under_maintenance.2"
+                    values={{
+                      link: (
+                        <a
+                          href="https://redirect.sonarsource.com/doc/upgrading.html"
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
+                        </a>
+                      )
+                    }}
+                  />
+                </p>
               </>
             )}
 
