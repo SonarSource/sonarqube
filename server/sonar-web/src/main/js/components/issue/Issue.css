@@ -150,7 +150,6 @@
   line-height: 1.5;
   overflow: hidden;
   outline: none;
-  word-break: break-all;
 }
 
 .issue-comment-text.markdown pre {
