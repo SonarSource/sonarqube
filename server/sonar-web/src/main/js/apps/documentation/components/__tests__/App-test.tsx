@@ -22,16 +22,11 @@ import * as React from 'react';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { request } from 'sonar-ui-common/helpers/request';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { isSonarCloud } from '../../../../helpers/system';
 import { InstalledPlugin } from '../../../../types/plugins';
 import getPages from '../../pages';
 import App from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
-
-jest.mock('../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn().mockReturnValue(false)
-}));
 
 jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => ({
   default: [
@@ -40,28 +35,6 @@ jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => ({
       children: [
         '/lorem/ipsum/',
         '/analysis/languages/csharp/',
-        {
-          title: 'Child category',
-          children: [
-            '/lorem/ipsum/dolor',
-            {
-              title: 'Grandchild category',
-              children: ['/lorem/ipsum/sit']
-            },
-            '/lorem/ipsum/amet'
-          ]
-        }
-      ]
-    }
-  ]
-}));
-
-jest.mock('Docs/../static/SonarCloudNavigationTree.json', () => ({
-  default: [
-    {
-      title: 'SonarCloud',
-      children: [
-        '/lorem/ipsum/',
         {
           title: 'Child category',
           children: [
@@ -136,13 +109,6 @@ it('should render correctly for SonarQube', async () => {
   expect(removeSideBarClass).toBeCalled();
 });
 
-it('should render correctly for SonarCloud', async () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
 it("should show a 404 if the page doesn't exist", async () => {
   const wrapper = shallowRender({ params: { splat: 'unknown' } });
   await waitAndUpdate(wrapper);
@@ -150,8 +116,6 @@ it("should show a 404 if the page doesn't exist", async () => {
 });
 
 it('should try to fetch language plugin documentation if documentationPath matches', async () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
-
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
@@ -166,8 +130,6 @@ it('should try to fetch language plugin documentation if documentationPath match
 });
 
 it('should display the issue tracker url of the plugin if it exists', async () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
-
   const wrapper = shallowRender({ params: { splat: 'analysis/languages/csharp/' } });
   await waitAndUpdate(wrapper);
 
@@ -177,5 +139,5 @@ it('should display the issue tracker url of the plugin if it exists', async () =
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow(<App params={{ splat: 'lorem/ipsum' }} {...props} />);
+  return shallow(<App params={{ splat: 'lorem/ipsum' }} location={{ hash: '#foo' }} {...props} />);
 }

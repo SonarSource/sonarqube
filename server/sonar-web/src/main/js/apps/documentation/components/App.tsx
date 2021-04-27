@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
 import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
 import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
@@ -34,7 +33,6 @@ import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { ParsedContent, separateFrontMatter } from '../../../helpers/markdown';
-import { isSonarCloud } from '../../../helpers/system';
 import { InstalledPlugin, PluginType } from '../../../types/plugins';
 import { getUrlsList } from '../navTreeUtils';
 import getPages from '../pages';
@@ -44,6 +42,7 @@ import Sidebar from './Sidebar';
 
 interface Props {
   params: { splat?: string };
+  location: { hash: string };
 }
 
 interface State {
@@ -68,9 +67,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     this.setState({ loading: true });
 
-    const tree = isSonarCloud()
-      ? ((navigationTreeSonarCloud as any).default as DocNavigationItem[])
-      : ((navigationTreeSonarQube as any).default as DocNavigationItem[]);
+    const tree = (navigationTreeSonarQube as any).default as DocNavigationItem[];
 
     this.getLanguagePluginsDocumentation(tree).then(
       overrides => {
@@ -150,7 +147,10 @@ export default class App extends React.PureComponent<Props, State> {
 
   render() {
     const { loading, pages, tree } = this.state;
-    const { splat = '' } = this.props.params;
+    const {
+      params: { splat = '' },
+      location: { hash }
+    } = this.props;
 
     if (loading) {
       return (
@@ -161,10 +161,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     const page = pages.find(p => p.url === `/${splat}`);
-    const mainTitle = translate(
-      'documentation.page_title',
-      isSonarCloud() ? 'sonarcloud' : 'sonarqube'
-    );
+    const mainTitle = translate('documentation.page_title.sonarqube');
     const isIndex = splat === 'index';
 
     if (!page) {
@@ -184,7 +181,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Helmet
           defer={false}
           title={isIndex || !page.title ? mainTitle : `${page.title} | ${mainTitle}`}>
-          {!isSonarCloud() && <meta content="noindex nofollow" name="robots" />}
+          <meta content="noindex nofollow" name="robots" />
         </Helmet>
 
         <ScreenPositionHelper className="layout-page-side-outer">
@@ -220,6 +217,7 @@ export default class App extends React.PureComponent<Props, State> {
                 content={page.content}
                 stickyToc={true}
                 title={page.title}
+                scrollToHref={hash}
               />
             </div>
           </div>

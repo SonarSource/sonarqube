@@ -38,19 +38,35 @@ interface Props {
   className?: string;
   content: string;
   isTooltip?: boolean;
+  scrollToHref?: string;
   stickyToc?: boolean;
   title?: string;
 }
 
+const WAIT_TIMEOUT = 500;
+
 export default class DocMarkdownBlock extends React.PureComponent<Props> {
   node: HTMLElement | null = null;
 
-  handleAnchorClick = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
+  componentDidMount() {
+    const { scrollToHref } = this.props;
+    if (scrollToHref) {
+      setTimeout(() => {
+        this.handleAnchorClick(scrollToHref);
+      }, WAIT_TIMEOUT);
+    }
+  }
+
+  handleAnchorClick = (href: string, event?: React.MouseEvent<HTMLAnchorElement>) => {
     if (this.node) {
       const element = this.node.querySelector(href);
       if (element) {
-        event.preventDefault();
+        if (event) {
+          event.preventDefault();
+        }
         scrollToElement(element, { bottomOffset: window.innerHeight - 80 });
+
+        // We cannot use React Router here, because we cannot simply replace a hash.
         if (history.pushState) {
           history.pushState(null, '', href);
         }

@@ -1,43 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for SonarCloud 1`] = `
-<div
-  className="layout-page"
->
-  <Helmet
-    defer={false}
-    encodeSpecialCharacters={true}
-    title="Lorem | documentation.page_title.sonarcloud"
-  />
-  <ScreenPositionHelper
-    className="layout-page-side-outer"
-  >
-    <Component />
-  </ScreenPositionHelper>
-  <div
-    className="layout-page-main"
-  >
-    <div
-      className="layout-page-main-inner"
-    >
-      <div
-        className="boxed-group"
-      >
-        <A11ySkipTarget
-          anchor="documentation_main"
-        />
-        <DocMarkdownBlock
-          className="documentation-content cut-margins boxed-group-inner"
-          content="Lorem ipsum dolor sit amet fredum"
-          stickyToc={true}
-          title="Lorem"
-        />
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
 exports[`should render correctly for SonarQube 1`] = `
 <div
   className="layout-page"
@@ -72,6 +34,7 @@ exports[`should render correctly for SonarQube 1`] = `
         <DocMarkdownBlock
           className="documentation-content cut-margins boxed-group-inner"
           content="Lorem ipsum dolor sit amet fredum"
+          scrollToHref="#foo"
           stickyToc={true}
           title="Lorem"
         />
@@ -171,7 +134,7 @@ exports[`should show a 404 if the page doesn't exist 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="documentation.page_title.sonarcloud"
+    title="documentation.page_title.sonarqube"
   >
     <meta
       content="noindex nofollow"

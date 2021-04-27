@@ -1,6 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render a sticky TOC if available 1`] = `
+exports[`should render correctly: custom component for links 1`] = `
+<withChildProps
+  href="/quality-profiles"
+  key="h-2"
+>
+  link
+</withChildProps>
+`;
+
+exports[`should render correctly: custom props for links 1`] = `
+<withChildProps
+  href="#quality-profiles"
+  key="h-2"
+>
+  link
+</withChildProps>
+`;
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="markdown"
+>
+  <div
+    className="markdown-content"
+  >
+    <div>
+      <p
+        key="h-1"
+      >
+        this is 
+        <em
+          key="h-2"
+        >
+          bold
+        </em>
+         text
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: sticky TOC 1`] = `
 <div
   className="markdown has-toc"
 >
@@ -103,46 +145,4 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
     onAnchorClick={[Function]}
   />
 </div>
-`;
-
-exports[`should render simple markdown 1`] = `
-<div
-  className="markdown"
->
-  <div
-    className="markdown-content"
-  >
-    <div>
-      <p
-        key="h-1"
-      >
-        this is 
-        <em
-          key="h-2"
-        >
-          bold
-        </em>
-         text
-      </p>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should render with custom props for links 1`] = `
-<withChildProps
-  href="#quality-profiles"
-  key="h-2"
->
-  link
-</withChildProps>
-`;
-
-exports[`should use custom component for links 1`] = `
-<withChildProps
-  href="/quality-profiles"
-  key="h-2"
->
-  link
-</withChildProps>
 `;

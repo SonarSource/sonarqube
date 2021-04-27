@@ -19,6 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { mockEvent } from '../../../helpers/testMocks';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
 const CONTENT = `
@@ -48,37 +50,102 @@ jest.mock('rehype-raw', () => ({ default: jest.requireActual('rehype-raw') }));
 jest.mock('rehype-react', () => ({ default: jest.requireActual('rehype-react') }));
 jest.mock('rehype-slug', () => ({ default: jest.requireActual('rehype-slug') }));
 
-jest.mock('../../../helpers/system', () => ({
-  getInstance: jest.fn(),
-  isSonarCloud: jest.fn()
+jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
 }));
 
-it('should render simple markdown', () => {
-  expect(shallowRender({ content: 'this is *bold* text' })).toMatchSnapshot();
+const WINDOW_HEIGHT = 800;
+const originalWindowHeight = window.innerHeight;
+
+const historyPushState = jest.fn();
+const originalHistoryPushState = history.pushState;
+
+beforeEach(jest.clearAllMocks);
+
+beforeAll(() => {
+  Object.defineProperty(window, 'innerHeight', {
+    writable: true,
+    configurable: true,
+    value: WINDOW_HEIGHT
+  });
+  Object.defineProperty(history, 'pushState', {
+    writable: true,
+    configurable: true,
+    value: historyPushState
+  });
 });
 
-it('should use custom component for links', () => {
+afterAll(() => {
+  Object.defineProperty(window, 'innerHeight', {
+    writable: true,
+    configurable: true,
+    value: originalWindowHeight
+  });
+  Object.defineProperty(history, 'pushState', {
+    writable: true,
+    configurable: true,
+    value: originalHistoryPushState
+  });
+});
+
+it('should render correctly', () => {
+  expect(shallowRender({ content: 'this is *bold* text' })).toMatchSnapshot('default');
   expect(
     shallowRender({ content: 'some [link](/quality-profiles)' }).find('withChildProps')
-  ).toMatchSnapshot();
-});
-
-it('should render with custom props for links', () => {
+  ).toMatchSnapshot('custom component for links');
   expect(
     shallowRender({
       childProps: { foo: 'bar' },
       content: 'some [link](#quality-profiles)',
       isTooltip: true
     }).find('withChildProps')
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('custom props for links');
+  expect(shallowRender({ content: CONTENT, stickyToc: true })).toMatchSnapshot('sticky TOC');
 });
 
-it('should render a sticky TOC if available', () => {
-  const wrapper = shallowRender({ content: CONTENT, stickyToc: true });
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('DocToc').exists()).toBe(true);
+it('should correctly scroll to clicked headings', () => {
+  const element = {} as Element;
+  const querySelector: (selector: string) => Element | null = jest.fn((selector: string) =>
+    selector === '#id' ? element : null
+  );
+  const preventDefault = jest.fn();
+  const wrapper = shallowRender();
+  const instance = wrapper.instance();
+
+  // Node Ref isn't set yet.
+  instance.handleAnchorClick('#unknown', mockEvent());
+  expect(scrollToElement).not.toBeCalled();
+
+  // Set node Ref.
+  instance.node = { querySelector } as HTMLElement;
+
+  // Unknown element.
+  instance.handleAnchorClick('#unknown', mockEvent());
+  expect(scrollToElement).not.toBeCalled();
+
+  // Known element, should scroll.
+  instance.handleAnchorClick('#id', mockEvent({ preventDefault }));
+  expect(scrollToElement).toBeCalledWith(element, { bottomOffset: 720 });
+  expect(preventDefault).toBeCalled();
+  expect(historyPushState).toBeCalledWith(null, '', '#id');
+});
+
+it('should correctly scroll to a specific heading if passed as a prop', () => {
+  jest.useFakeTimers();
+
+  const element = {} as Element;
+  const querySelector: (_: string) => Element | null = jest.fn(() => element);
+  const wrapper = shallowRender({ scrollToHref: '#id' });
+  const instance = wrapper.instance();
+  instance.node = { querySelector } as HTMLElement;
+
+  expect(scrollToElement).not.toBeCalled();
+
+  jest.runAllTimers();
+
+  expect(scrollToElement).toBeCalledWith(element, { bottomOffset: 720 });
 });
 
 function shallowRender(props: Partial<DocMarkdownBlock['props']> = {}) {
-  return shallow(<DocMarkdownBlock content="" {...props} />);
+  return shallow<DocMarkdownBlock>(<DocMarkdownBlock content="" {...props} />);
 }
