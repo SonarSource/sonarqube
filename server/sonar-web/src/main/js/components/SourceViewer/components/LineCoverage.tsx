@@ -42,7 +42,7 @@ export function LineCoverage({ line, scroll, scrollToUncoveredLine }: LineCovera
 
   return (
     <td className={className} data-line-number={line.line} ref={coverageMarker}>
-      <Tooltip overlay={status} placement="right">
+      <Tooltip overlay={status} placement="bottom">
         <div aria-label={status} className="source-line-bar" />
       </Tooltip>
     </td>
