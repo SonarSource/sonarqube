@@ -131,8 +131,8 @@ artifactory {
   publish {
     repository {
       repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO_PRIVATE')
-      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME_PRIVATE') ?: project.properties.artifactoryUsername
-      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE') ?: project.properties.artifactoryPaswword
+      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME') ?: project.properties.artifactoryUsername
+      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD') ?: project.properties.artifactoryPaswword
     }
     defaults {
       properties = [

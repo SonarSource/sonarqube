@@ -571,9 +571,10 @@ subprojects {
   }
 
   signing {
+    def signingKeyId = findProperty("signingKeyId")
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
-    useInMemoryPgpKeys(signingKey, signingPassword)
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     required {
       def branch = System.getenv()["CIRRUS_BRANCH"]
       return (branch == 'master' || branch ==~ 'branch-[\\d.]+') &&
