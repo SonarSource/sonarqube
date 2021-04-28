@@ -9,11 +9,16 @@ Upgrading directly from SonarQube _v7.9 LTS_? Refer to the [LTS to LTS Release U
 **GitHub Enterprise compatibility**  
 SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration (the previous minimum version was 2.15).
 
-**Third-party plugins require risk consent**  
-If you are using third-party plugins, a SonarQube administrator needs to acknowledge the risk involved with third-party plugins when prompted in SonarQube after upgrading. ([MMF-2301](https://jira.sonarsource.com/browse/MMF-2301)).
+**Plugins require risk consent**  
+When upgrading, if you're using plugins, a SonarQube administrator needs to acknowledge the risk involved with plugin installation when prompted in SonarQube. ([MMF-2301](https://jira.sonarsource.com/browse/MMF-2301)).
 
-**PostgreSQL Support**
-SonarQube now supports PostgreSQL 13, and it no longer supports PostgreSQL 9.3, 9.4, or 9.5.
+**PostgreSQL support**  
+SonarQube 8.9 only supports PostgreSQL versions 9.6 to 13. PostgreSQL versions <9.6 are no longer supported.
+
+**Webhooks aren't allowed to target the instance**  
+To improve security, webhooks, by default, aren't allowed to point to the SonarQube server. You can change this behavior in the configuration. ([SONAR-14682](https://jira.sonarsource.com/browse/SONAR-14682)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16710)
 
 ## Release 8.8 Upgrade Notes  
 **CSS analysis now requires Node.js 10+**  
