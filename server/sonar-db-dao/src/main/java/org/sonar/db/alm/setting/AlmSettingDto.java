@@ -180,7 +180,7 @@ public class AlmSettingDto {
     return this;
   }
 
-  long getUpdatedAt() {
+  public long getUpdatedAt() {
     return updatedAt;
   }
 
