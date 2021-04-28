@@ -13,7 +13,8 @@ With this integration, you'll be able to:
 - **Authenticate with GitHub** - Sign in to SonarQube with your GitHub credentials.  
 
 ## Prerequisites
-To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.21+.
+- To add pull request decoration to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.21+.
+- To analyze projects with GitHub Actions in GitHub Enterprise, you must be running [GitHub Enterprise version 3.0+](https://docs.github.com/en/enterprise-server@2.22/admin/github-actions/getting-started-with-github-actions-for-github-enterprise-server).
 
 ### Branch Analysis
 Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
