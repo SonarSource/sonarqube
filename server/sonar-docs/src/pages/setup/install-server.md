@@ -173,10 +173,6 @@ wrapper.java.command=/path/to/my/jdk/bin/java
 
 ## Installing SonarQube from the Docker Image
 
-See your SonarQube version below for instructions on installing the server from a Docker image.
-
-### SonarQube 8.2+
-
 Follow these steps for your first installation:
 
 1.	Creating the following volumes helps prevent the loss of information when updating to a new version or upgrading to a higher edition:
@@ -270,47 +266,6 @@ If you're using [Docker Compose](https://docs.docker.com/compose/), use the foll
 |   postgresql:
 |   postgresql_data:
 | ```
-
-### SonarQube 7.9.x LTS
-
- Follow these steps for your first installation:
-
- 1.	Create volumes `sonarqube_conf`, `sonarqube_data`, `sonarqube_logs`, and `sonarqube_extensions` and start the image with the following command. This will populate all the volumes (copying default plugins, create the Elasticsearch data folder, create the sonar.properties configuration file). Watch the logs, and, once the container is properly started, you can force-exit (ctrl+c) and proceed to the next step.
-
-	```console
-	$ docker run --rm \
-	    -p 9000:9000 \
-	    -v sonarqube_conf:/opt/sonarqube/conf \
-	    -v sonarqube_extensions:/opt/sonarqube/extensions \
-	    -v sonarqube_logs:/opt/sonarqube/logs \
-	    -v sonarqube_data:/opt/sonarqube/data \
-	    <image_name>
-	```
-
-2.	Configure sonar.properties if needed. Please note that due to [SONAR-12501](https://jira.sonarsource.com/browse/SONAR-12501), providing `sonar.jdbc.url`, `sonar.jdbc.username`, `sonar.jdbc.password` and `sonar.web.javaAdditionalOpts` in `sonar.properties` is not working, and you will need to explicitly define theses values in the docker run command with the `-e` flag.
-
-	```plain
-	#Example for PostgreSQL
-	-e sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
-	```
-
-[[info]]
-| Drivers for supported databases (except Oracle) are already provided. Do not replace the provided drivers; they are the only ones supported. For Oracle, you need to copy the JDBC driver into `$SONARQUBE_HOME/extensions/jdbc-driver/oracle`.
-
-3.	Run the image with your JDBC username and password :
-
-	```console
-	$ docker run -d --name sonarqube \
-	    -p 9000:9000 \
-		-e sonar.jdbc.url=... \
-	    -e sonar.jdbc.username=... \
-	    -e sonar.jdbc.password=... \
-	    -v sonarqube_conf:/opt/sonarqube/conf \
-	    -v sonarqube_extensions:/opt/sonarqube/extensions \
-	    -v sonarqube_logs:/opt/sonarqube/logs \
-	    -v sonarqube_data:/opt/sonarqube/data \
-	    <image_name>
-	```
 
 ## Next Steps
 

@@ -25,9 +25,9 @@ Upgrading across multiple non-LTS versions is handled automatically. However, if
 
 **Migration Path Examples**:
 
-**Example 1** – From 6.1 > 8.1, the migration path is 6.1 > the latest 6.7 LTS patch > the latest 7.9 LTS patch > 8.1  
-**Example 2** – From 7.2 > 7.9 LTS, the migration path is 7.2 > the latest 7.9 LTS patch.  
-**Example 3** – From 5.6.3 LTS > 7.9 LTS, the migration path is 5.6.3 LTS > 6.7.7 LTS > the latest 7.9 LTS patch.
+**Example 1** – From 7.1 > 8.1, the migration path is 7.1 > 7.9.6 LTS > 8.1  
+**Example 2** – From 8.2 > 8.9 LTS, the migration path is 8.2 > the latest 8.9 LTS patch.  
+**Example 3** – From 6.7.7 LTS > 8.9 LTS, the migration path is 6.7.7 LTS > 7.9.6 LTS > the latest 8.9 LTS patch.
 
 ## Upgrade Guide
 
@@ -79,7 +79,7 @@ To upgrade SonarQube using the Docker image:
 
 4. Reanalyze your projects to get fresh data.
 
-#### **From 7.9.x LTS to another 7.9.x LTS**
+#### **From 8.9.x LTS to another 8.9.x LTS**
 
 No specific Docker operations are needed, just use the new tag.
 
