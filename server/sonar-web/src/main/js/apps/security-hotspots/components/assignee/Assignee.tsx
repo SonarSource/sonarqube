@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { assignSecurityHotspot } from '../../../../api/security-hotspots';
 import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
@@ -61,25 +61,25 @@ export class Assignee extends React.PureComponent<Props, State> {
     this.setState({ editing: false });
   };
 
-  handleAssign = (newAssignee?: T.UserActive) => {
-    if (newAssignee && newAssignee.login) {
-      this.setState({ loading: true });
-      assignSecurityHotspot(this.props.hotspot.key, {
-        assignee: newAssignee.login
+  handleAssign = (newAssignee: T.UserActive) => {
+    this.setState({ loading: true });
+    assignSecurityHotspot(this.props.hotspot.key, {
+      assignee: newAssignee?.login
+    })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({ editing: false, loading: false });
+          this.props.onAssigneeChange();
+        }
       })
-        .then(() => {
-          if (this.mounted) {
-            this.setState({ editing: false, loading: false });
-            this.props.onAssigneeChange();
-          }
-        })
-        .then(() =>
-          addGlobalSuccessMessage(
-            translateWithParameters('hotspots.assign.success', newAssignee.name)
-          )
+      .then(() =>
+        addGlobalSuccessMessage(
+          newAssignee.login
+            ? translateWithParameters('hotspots.assign.success', newAssignee.name)
+            : translate('hotspots.assign.unassign.success')
         )
-        .catch(() => this.setState({ loading: false }));
-    }
+      )
+      .catch(() => this.setState({ loading: false }));
   };
 
   render() {

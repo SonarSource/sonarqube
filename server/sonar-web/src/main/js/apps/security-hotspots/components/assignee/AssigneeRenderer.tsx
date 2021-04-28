@@ -33,7 +33,7 @@ export interface AssigneeRendererProps {
   assignee?: T.UserBase;
   loggedInUser?: T.LoggedInUser;
 
-  onAssign: (user?: T.UserActive) => void;
+  onAssign: (user: T.UserActive) => void;
   onEnterEditionMode: () => void;
   onExitEditionMode: () => void;
 }

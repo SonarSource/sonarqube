@@ -32,14 +32,14 @@ export interface HotspotAssigneeSelectRendererProps {
   loading: boolean;
   onKeyDown: (event: React.KeyboardEvent) => void;
   onSearch: (query: string) => void;
-  onSelect: (user: T.UserActive) => void;
-  open: boolean;
+  onSelect: (user?: T.UserActive) => void;
   query?: string;
   suggestedUsers?: T.UserActive[];
 }
 
 export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRendererProps) {
-  const { highlighted, loading, open, query, suggestedUsers } = props;
+  const { highlighted, loading, query, suggestedUsers } = props;
+
   return (
     <>
       <div className="display-flex-center">
@@ -50,35 +50,33 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
           placeholder={translate('hotspots.assignee.select_user')}
           value={query}
         />
-
         {loading && <DeferredSpinner className="spacer-left" />}
       </div>
 
-      {!loading && open && (
+      {!loading && (
         <div className="position-relative">
           <DropdownOverlay noPadding={true} placement={PopupPlacement.BottomLeft}>
-            {suggestedUsers && suggestedUsers.length > 0 ? (
-              <ul className="hotspot-assignee-search-results">
-                {suggestedUsers.map(suggestion => (
+            <ul className="hotspot-assignee-search-results">
+              {suggestedUsers &&
+                suggestedUsers.map(suggestion => (
                   <li
                     className={classNames('padded', {
                       active: highlighted && highlighted.login === suggestion.login
                     })}
                     key={suggestion.login}
                     onClick={() => props.onSelect(suggestion)}>
-                    <Avatar
-                      className="spacer-right"
-                      hash={suggestion.avatar}
-                      name={suggestion.name}
-                      size={16}
-                    />
+                    {suggestion.login && (
+                      <Avatar
+                        className="spacer-right"
+                        hash={suggestion.avatar}
+                        name={suggestion.name}
+                        size={16}
+                      />
+                    )}
                     {suggestion.name}
                   </li>
                 ))}
-              </ul>
-            ) : (
-              <div className="padded">{translate('no_results')}</div>
-            )}
+            </ul>
           </DropdownOverlay>
         </div>
       )}

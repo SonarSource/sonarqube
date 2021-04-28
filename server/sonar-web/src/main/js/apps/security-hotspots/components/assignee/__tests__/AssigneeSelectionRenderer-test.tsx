@@ -27,13 +27,11 @@ import AssigneeSelectionRenderer, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
-  expect(shallowRender({ open: true })).toMatchSnapshot('open');
 
   const highlightedUser = mockUser({ login: 'highlighted' }) as T.UserActive;
   expect(
     shallowRender({
       highlighted: highlightedUser,
-      open: true,
       suggestedUsers: [mockUser() as T.UserActive, highlightedUser]
     })
   ).toMatchSnapshot('open with results');
@@ -43,7 +41,6 @@ it('should call onSelect when clicked', () => {
   const user = mockUser() as T.UserActive;
   const onSelect = jest.fn();
   const wrapper = shallowRender({
-    open: true,
     onSelect,
     suggestedUsers: [user]
   });
@@ -63,7 +60,6 @@ function shallowRender(props?: Partial<HotspotAssigneeSelectRendererProps>) {
       onKeyDown={jest.fn()}
       onSearch={jest.fn()}
       onSelect={jest.fn()}
-      open={false}
       {...props}
     />
   );

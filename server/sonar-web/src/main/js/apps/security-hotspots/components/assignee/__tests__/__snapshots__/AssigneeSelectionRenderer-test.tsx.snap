@@ -12,6 +12,18 @@ exports[`should render correctly 1`] = `
       placeholder="hotspots.assignee.select_user"
     />
   </div>
+  <div
+    className="position-relative"
+  >
+    <DropdownOverlay
+      noPadding={true}
+      placement="bottom-left"
+    >
+      <ul
+        className="hotspot-assignee-search-results"
+      />
+    </DropdownOverlay>
+  </div>
 </Fragment>
 `;
 
@@ -29,35 +41,6 @@ exports[`should render correctly: loading 1`] = `
     <DeferredSpinner
       className="spacer-left"
     />
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly: open 1`] = `
-<Fragment>
-  <div
-    className="display-flex-center"
-  >
-    <SearchBox
-      autoFocus={true}
-      onChange={[MockFunction]}
-      onKeyDown={[MockFunction]}
-      placeholder="hotspots.assignee.select_user"
-    />
-  </div>
-  <div
-    className="position-relative"
-  >
-    <DropdownOverlay
-      noPadding={true}
-      placement="bottom-left"
-    >
-      <div
-        className="padded"
-      >
-        no_results
-      </div>
-    </DropdownOverlay>
   </div>
 </Fragment>
 `;

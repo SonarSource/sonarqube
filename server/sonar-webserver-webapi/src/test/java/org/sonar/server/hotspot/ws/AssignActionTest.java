@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -58,9 +59,11 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -100,11 +103,14 @@ public class AssignActionTest {
     assertThat(hotspotParam.isRequired()).isTrue();
     WebService.Param assigneeParam = wsDefinition.param("assignee");
     assertThat(assigneeParam).isNotNull();
-    assertThat(assigneeParam.isRequired()).isTrue();
+    assertThat(assigneeParam.isRequired()).isFalse();
     WebService.Param commentParam = wsDefinition.param("comment");
     assertThat(commentParam).isNotNull();
     assertThat(commentParam.isRequired()).isFalse();
     assertThat(wsDefinition.since()).isEqualTo("8.2");
+    assertThat(wsDefinition.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .contains(tuple("8.9", "Parameter 'assignee' is no longer mandatory"));
   }
 
   @Test
@@ -125,6 +131,23 @@ public class AssignActionTest {
   }
 
   @Test
+  public void unassign_hotspot_for_public_project() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    UserDto assignee = insertUser(randomAlphanumeric(15));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(assignee.getUuid()));
+
+    UserDto userDto = insertUser(randomAlphanumeric(10));
+    userSessionRule.logIn(userDto).registerComponents(project);
+    when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
+
+    executeRequest(hotspot, null, null);
+
+    verifyFieldSetters(null, null);
+  }
+
+  @Test
   public void assign_hotspot_to_me_for_public_project() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -141,6 +164,21 @@ public class AssignActionTest {
   }
 
   @Test
+  public void unassign_hotspot_myself_for_public_project() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    UserDto me = insertUser(randomAlphanumeric(10));
+    userSessionRule.logIn(me).registerComponents(project);
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(me.getUuid()));
+
+    when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
+
+    executeRequest(hotspot, null, null);
+
+    verifyFieldSetters(null, null);
+  }
+
+  @Test
   public void assign_hotspot_to_someone_for_private_project() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -154,6 +192,22 @@ public class AssignActionTest {
     executeRequest(hotspot, assignee.getLogin(), null);
 
     verifyFieldSetters(assignee, null);
+  }
+
+  @Test
+  public void unassign_hotspot_for_private_project() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    UserDto assignee = insertUser(randomAlphanumeric(15));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setAssigneeUuid(assignee.getUuid()));
+
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+
+    when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), isNull(), any(IssueChangeContext.class))).thenReturn(true);
+
+    executeRequest(hotspot, null, null);
+
+    verifyFieldSetters(null, null);
   }
 
   @Test
@@ -494,8 +548,12 @@ public class AssignActionTest {
   }
 
   private static UserDto userMatcher(UserDto user) {
-    return argThat(argument -> argument.getLogin().equals(user.getLogin()) &&
-      argument.getUuid().equals(user.getUuid()));
+    if (user == null) {
+      return isNull();
+    } else {
+      return argThat(argument -> argument.getLogin().equals(user.getLogin()) &&
+        argument.getUuid().equals(user.getUuid()));
+    }
   }
 
 }

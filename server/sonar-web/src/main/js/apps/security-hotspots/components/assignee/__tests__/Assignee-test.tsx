@@ -59,10 +59,12 @@ it('should handle edition event correctly', () => {
   expect(wrapper.state().editing).toBe(false);
 });
 
-it('should handle assign event correctly', async () => {
+it.each([
+  ['assign to user', mockUser() as T.UserActive],
+  ['unassign', { login: '', name: 'unassigned' } as T.UserActive]
+])('should handle %s event', async (_, user: T.UserActive) => {
   const hotspot = mockHotspot();
   const onAssigneeChange = jest.fn();
-  const user = mockUser() as T.UserActive;
 
   const wrapper = shallowRender({ hotspot, onAssigneeChange });
 
@@ -73,7 +75,7 @@ it('should handle assign event correctly', async () => {
     .onAssign(user);
 
   expect(wrapper.state().loading).toBe(true);
-  expect(assignSecurityHotspot).toHaveBeenCalledWith(hotspot.key, { assignee: user.login });
+  expect(assignSecurityHotspot).toHaveBeenCalledWith(hotspot.key, { assignee: user?.login });
 
   await waitAndUpdate(wrapper);
 

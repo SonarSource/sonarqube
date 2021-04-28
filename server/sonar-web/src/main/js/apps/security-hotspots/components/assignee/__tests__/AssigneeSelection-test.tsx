@@ -45,7 +45,7 @@ it('should handle keydown', () => {
   const wrapper = shallowRender({ onSelect });
 
   wrapper.instance().handleKeyDown(mockEvent(KeyCodes.UpArrow) as any);
-  expect(wrapper.state().highlighted).toBeUndefined();
+  expect(wrapper.state().highlighted).toEqual({ login: '', name: 'unassigned' });
 
   wrapper.setState({ suggestedUsers });
 
@@ -77,11 +77,10 @@ it('should handle search', async () => {
   const onSelect = jest.fn();
 
   const wrapper = shallowRender({ onSelect });
-  expect(wrapper.state().suggestedUsers.length).toBe(0);
+  expect(wrapper.state().suggestedUsers.length).toBe(1);
   wrapper.instance().handleSearch('j');
 
   expect(searchUsers).not.toBeCalled();
-  expect(wrapper.state().open).toBe(false);
 
   wrapper.instance().handleSearch('jo');
   expect(wrapper.state().loading).toBe(true);
@@ -90,14 +89,13 @@ it('should handle search', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().loading).toBe(false);
-  expect(wrapper.state().open).toBe(true);
-  expect(wrapper.state().suggestedUsers).toHaveLength(3);
+  expect(wrapper.state().suggestedUsers).toHaveLength(4);
 
   jest.clearAllMocks();
 
   wrapper.instance().handleSearch('');
   expect(searchUsers).not.toBeCalled();
-  expect(wrapper.state().suggestedUsers.length).toBe(0);
+  expect(wrapper.state().suggestedUsers.length).toBe(1);
 });
 
 it('should allow current user selection', async () => {
@@ -110,7 +108,7 @@ it('should allow current user selection', async () => {
 
   wrapper.instance().handleSearch('jo');
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().suggestedUsers).toHaveLength(3);
+  expect(wrapper.state().suggestedUsers).toHaveLength(4);
 
   wrapper.instance().handleSearch('');
   expect(wrapper.state().suggestedUsers[0]).toBe(loggedInUser);

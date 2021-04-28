@@ -20,6 +20,7 @@
 package org.sonar.server.hotspot.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,6 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.ws.IssueUpdater;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -66,7 +68,9 @@ public class AssignAction implements HotspotsWsAction {
       .setSince("8.2")
       .setHandler(this)
       .setInternal(true)
-      .setPost(true);
+      .setPost(true)
+      .setChangelog(
+        new Change("8.9", "Parameter 'assignee' is no longer mandatory"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Hotspot key")
@@ -75,7 +79,6 @@ public class AssignAction implements HotspotsWsAction {
 
     action.createParam(PARAM_ASSIGNEE)
       .setDescription("Login of the assignee with 'Browse' project permission")
-      .setRequired(true)
       .setExampleValue("admin");
 
     action.createParam(PARAM_COMMENT)
@@ -85,7 +88,7 @@ public class AssignAction implements HotspotsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String assignee = request.mandatoryParam(PARAM_ASSIGNEE);
+    String assignee = request.param(PARAM_ASSIGNEE);
     String key = request.mandatoryParam(PARAM_HOTSPOT_KEY);
     String comment = request.param(PARAM_COMMENT);
 
@@ -101,7 +104,7 @@ public class AssignAction implements HotspotsWsAction {
 
       checkIfHotspotToReview(hotspotDto);
       hotspotWsSupport.loadAndCheckProject(dbSession, hotspotDto, UserRole.USER);
-      UserDto assignee = getAssignee(dbSession, login);
+      UserDto assignee = isNullOrEmpty(login) ? null :getAssignee(dbSession, login);
 
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
 
@@ -111,7 +114,9 @@ public class AssignAction implements HotspotsWsAction {
         issueFieldsSetter.addComment(defaultIssue, comment, context);
       }
 
-      checkAssigneeProjectPermission(dbSession, assignee, hotspotDto.getProjectUuid());
+      if (assignee != null) {
+        checkAssigneeProjectPermission(dbSession, assignee, hotspotDto.getProjectUuid());
+      }
 
       if (issueFieldsSetter.assign(defaultIssue, assignee, context)) {
         issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, false);

@@ -150,6 +150,6 @@ export interface HotspotSetStatusRequest {
 }
 
 export interface HotspotAssignRequest {
-  assignee: string;
+  assignee?: string;
   comment?: string;
 }
