@@ -31,7 +31,7 @@ export function mavenPomSnippet(key: string) {
 
 export function buildGradleSnippet(key: string) {
   return `plugins {
-  id "org.sonarqube" version "3.1.1"
+  id "org.sonarqube" version "3.2.0"
 }
 
 sonarqube {
