@@ -153,19 +153,19 @@ Property  | Description | Default | Required
 ### Elasticsearch authentication
 
 [[info]]
-| This configuration is optional. Configuring your network security correctly is sufficient, but Elasticsearch authentication adds another layer of security.
+| This configuration is optional. To secure access to your setup, you may want to first limit access to the nodes in your network. Elasticsearch authentication just adds another layer of security.
 
 For Elasticsearch authentication, the following properties need to be configured on specific nodes:
 
 #### Application nodes
 Property  | Description | Default | Required
 ---|---|---|---
-`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be used on the client site. If provided, it enables authentication.| |no
+`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be used on the client site. If provided, it enables authentication. If this property is set, `sonar.cluster.search.password` on the search nodes must also be set to exact same value.| |no
 
 #### Search nodes
 Property  | Description | Default | Required
 ---|---|---|---
-`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be set in ES. If provided, it enables authentication, and the instance will require additional properties to be set.| |no
+`sonar.cluster.search.password`|Password for Elasticsearch built-in user (elastic) which will be set in ES. If provided, it enables authentication, and the instance will require additional properties to be set. If this property is set, `sonar.cluster.search.password` on the application nodes must also be set to exact same value.| |no
 `sonar.cluster.es.ssl.keystore`|File path to a keystore in PKCS#12 format. The user running SonarQube must have READ permission to that file. Required if password provided.| |no
 `sonar.cluster.es.ssl.truststore`|File path to a truststore in PKCS#12 format. The user running SonarQube must have READ permission to that file. Required if password provided.| |no
 `sonar.cluster.es.ssl.keystorePassword`|Password to the keystore.| |no
