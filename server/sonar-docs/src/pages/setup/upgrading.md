@@ -36,6 +36,9 @@ This is a generic guide for upgrading across versions of SonarQube. Carefully re
 [[warning]]
 | Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
 
+### Database disk usage recommendations
+During your upgrade, tables may be duplicated to speed up the migration process, and this could cause your database disk usage to double. Because of this, we recommend that your database disk usage is below 50% before starting a migration.
+
 ### Upgrading from the ZIP file
 
 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONAR_HOME`
