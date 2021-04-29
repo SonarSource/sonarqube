@@ -2,6 +2,9 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+
+Upgrading directly from SonarQube _v7.9 LTS_? Refer to the [LTS to LTS Release Upgrade Notes](/setup/lts-to-lts-upgrade-notes/).
+
 ## Release 8.9 LTS Upgrade Notes  
 **GitHub Enterprise compatibility**  
 SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration (the previous minimum version was 2.15).
