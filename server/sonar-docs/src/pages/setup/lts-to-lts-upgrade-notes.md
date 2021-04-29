@@ -82,6 +82,9 @@ When upgrading, if you're using plugins, a SonarQube administrator needs to ackn
 **PostgreSQL support (8.9)**  
 SonarQube 8.9 only supports PostgreSQL versions 9.6 to 13. PostgreSQL versions <9.6 are no longer supported.
 
+**Webhooks aren't allowed to target the instance (8.9)**  
+To improve security, webhooks, by default, aren't allowed to point to the SonarQube server. You can change this behavior in the configuration. ([SONAR-14682](https://jira.sonarsource.com/browse/SONAR-14682)).
+
 **Docker Images for commercial SonarQube Editions (8.2, 8.7)**  
 If you wish to deploy SonarQube in a containerized environment, we recommend using the Docker Images provided by SonarSource available on [Docker Hub](https://hub.docker.com/_/sonarqube), now for all SonarQube editions. 
 
