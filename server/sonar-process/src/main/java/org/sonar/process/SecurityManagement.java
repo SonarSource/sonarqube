@@ -89,7 +89,8 @@ public class SecurityManagement {
     }
 
     String getDomainClassLoaderName(ProtectionDomain domain) {
-      return domain.getClassLoader().getClass().getName();
+      ClassLoader classLoader = domain.getClassLoader();
+      return classLoader != null ? classLoader.getClass().getName() : null;
     }
   }
 }

@@ -22,6 +22,7 @@ package org.sonar.process;
 import java.security.Permission;
 import java.security.ProtectionDomain;
 import java.security.SecurityPermission;
+import javax.management.MBeanPermission;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,5 +66,14 @@ public class SecurityManagementTest {
     assertThat(policy.implies(pd, deniedSecurity)).isTrue();
     assertThat(policy.implies(pd, allowedRuntime)).isTrue();
     assertThat(policy.implies(pd, deniedRuntime)).isTrue();
+  }
+
+  @Test
+  public void protection_domain_can_have_no_classloader() {
+    SecurityManagement.CustomPolicy policy = new SecurityManagement.CustomPolicy();
+    ProtectionDomain domain = new ProtectionDomain(null, null, null, null);
+    Permission permission = new MBeanPermission("com.sun.management.internal.HotSpotThreadImpl", "getMBeanInfo");
+
+    assertThat(policy.implies(domain, permission)).isTrue();
   }
 }
