@@ -27,6 +27,9 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
+import org.sonar.server.measure.Rating;
+
+import java.util.regex.Pattern;
 
 /**
  * Creates email message for notification "alerts".
@@ -35,7 +38,9 @@ import org.sonar.server.issue.notification.EmailTemplate;
  */
 public class QGChangeEmailTemplate implements EmailTemplate {
 
-  private EmailSettings configuration;
+  private static final Pattern alertRatingRegex = Pattern.compile(".*>\\s\\d$");
+
+  private final EmailSettings configuration;
 
   public QGChangeEmailTemplate(EmailSettings configuration) {
     this.configuration = configuration;
@@ -111,11 +116,11 @@ public class QGChangeEmailTemplate implements EmailTemplate {
         messageBody.append("Quality gate threshold");
       }
       if (alerts.length == 1) {
-        messageBody.append(": ").append(alerts[0].trim()).append("\n");
+        messageBody.append(": ").append(formatRating(alerts[0].trim())).append("\n");
       } else {
         messageBody.append("s:\n");
         for (String alert : alerts) {
-          messageBody.append("  - ").append(alert.trim()).append("\n");
+          messageBody.append("  - ").append(formatRating(alert.trim())).append("\n");
         }
       }
     }
@@ -126,6 +131,31 @@ public class QGChangeEmailTemplate implements EmailTemplate {
     }
 
     return messageBody.toString();
+  }
+
+  /**
+   * Converts the ratings from digits to a rating letter {@see org.sonar.server.measure.Rating}, based on the
+   * raw text passed to this template.
+   *
+   * Examples:
+   * Reliability rating > 4 will be converted to Reliability rating worse than D
+   * Security rating on New Code > 1 will be converted to Security rating on New Code worse than A
+   * Code Coverage < 50% will not be converted and returned as is.
+   *
+   * @param alert
+   * @return full raw alert with converted ratings
+   */
+  private static String formatRating(String alert) {
+    if(!alertRatingRegex.matcher(alert).matches()) {
+      return alert;
+    }
+
+    StringBuilder builder = new StringBuilder();
+    builder.append(alert, 0, alert.length() - 3);
+    builder.append("worse than ");
+    String rating = alert.substring(alert.length() - 1);
+    builder.append(Rating.valueOf(Integer.parseInt(rating)).name());
+    return builder.toString();
   }
 
 }

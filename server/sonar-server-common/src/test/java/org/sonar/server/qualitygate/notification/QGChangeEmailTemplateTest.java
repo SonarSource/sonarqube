@@ -19,8 +19,12 @@
  */
 package org.sonar.server.qualitygate.notification;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.EmailMessage;
@@ -31,6 +35,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class QGChangeEmailTemplateTest {
 
   private QGChangeEmailTemplate template;
@@ -62,7 +67,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
-      "  - violations > 4\n" +
+      "  - violations worse than D\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
@@ -83,7 +88,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
-      "  - violations > 4\n" +
+      "  - violations worse than D\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
@@ -102,7 +107,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate thresholds:\n" +
-      "  - violations > 4\n" +
+      "  - violations worse than D\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
@@ -120,7 +125,7 @@ public class QGChangeEmailTemplateTest {
       "Version: V1-SNAP\n" +
       "Quality gate status: Failed\n" +
       "\n" +
-      "New quality gate threshold: violations > 4\n" +
+      "New quality gate threshold: violations worse than D\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
@@ -137,28 +142,9 @@ public class QGChangeEmailTemplateTest {
       "Project: Foo\n" +
       "Quality gate status: Failed\n" +
       "\n" +
-      "New quality gate threshold: violations > 4\n" +
+      "New quality gate threshold: violations worse than D\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
-  }
-
-  @Test
-  public void shouldFormatNewAlertWithOneMessageOnBranch() {
-    Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
-      .setFieldValue("branch", "feature");
-
-    EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("alerts/45"));
-    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo (feature)\""));
-    assertThat(message.getMessage(), is("" +
-      "Project: Foo\n" +
-      "Branch: feature\n" +
-      "Version: V1-SNAP\n" +
-      "Quality gate status: Failed\n" +
-      "\n" +
-      "New quality gate threshold: violations > 4\n" +
-      "\n" +
-      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
 
   @Test
@@ -178,6 +164,25 @@ public class QGChangeEmailTemplateTest {
   }
 
   @Test
+  public void shouldFormatNewAlertWithOneMessageOnBranch() {
+    Notification notification = createNotification("Failed", "violations > 4", "ERROR", "true")
+      .setFieldValue("branch", "feature");
+
+    EmailMessage message = template.format(notification);
+    assertThat(message.getMessageId(), is("alerts/45"));
+    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo (feature)\""));
+    assertThat(message.getMessage(), is("" +
+      "Project: Foo\n" +
+      "Branch: feature\n" +
+      "Version: V1-SNAP\n" +
+      "Quality gate status: Failed\n" +
+      "\n" +
+      "New quality gate threshold: violations worse than D\n" +
+      "\n" +
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
+  }
+
+  @Test
   public void shouldFormatBackToGreenMessageOnBranch() {
     Notification notification = createNotification("Passed", "", "OK", "false")
         .setFieldValue("branch", "feature");
@@ -194,6 +199,35 @@ public class QGChangeEmailTemplateTest {
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
+
+  @DataProvider
+  public static Object[][] alertTextAndFormattedText() {
+    return new Object[][] {
+      {"violations > 1", "violations worse than A"},
+      {"violations > 4", "violations worse than D"},
+      {"Code Coverage < 50%", "Code Coverage < 50%"},
+      {"custom metric condition not met", "custom metric condition not met"}
+    };
+  }
+
+  @UseDataProvider("alertTextAndFormattedText")
+  @Test
+  public void shouldFormatNewAlertWithThresholdProperlyFormatted(String alertText, String expectedFormattedAlertText) {
+    Notification notification = createNotification("Failed", alertText, "ERROR", "true");
+
+    EmailMessage message = template.format(notification);
+    assertThat(message.getMessageId(), is("alerts/45"));
+    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo\""));
+    assertThat(message.getMessage(), is("" +
+      "Project: Foo\n" +
+      "Version: V1-SNAP\n" +
+      "Quality gate status: Failed\n" +
+      "\n" +
+      "New quality gate threshold: " + expectedFormattedAlertText + "\n" +
+      "\n" +
+      "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
+  }
+
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {
     return new Notification("alerts")
