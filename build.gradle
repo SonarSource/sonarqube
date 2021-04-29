@@ -46,7 +46,6 @@ dependencyCheck {
     nugetconfEnabled = false
     rubygemsEnabled = false
     swiftEnabled = false
-
   }
   format = 'ALL'
   junitFailOnCVSS = 0
