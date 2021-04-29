@@ -28,7 +28,6 @@ public class DbVersion89 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(4400, "Add indices on columns 'type' and 'value' to 'new_code_periods' table", AddIndicesToNewCodePeriodTable.class)
-      .add(4401, "Drop local webhooks", DropLocalWebhooks.class)
       .add(4402, "Add Index on column 'main_branch_project_uuid' to 'components' table", AddMainBranchProjectUuidIndexToComponentTable.class)
       .add(4403, "Drop Github endpoint on project level setting", DropGithubEndpointOnProjectLevelSetting.class)
       .add(4404, "Increase size of 'value' column in 'new_code_periods' table ", IncreaseSizeOfValueColumnInNewCodePeriodsTable.class)

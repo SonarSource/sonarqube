@@ -786,8 +786,6 @@ public class DbVersion84 implements DbVersion {
       .add(3804, "Populate 'need_issue_sync' of 'project_branches'", PopulateProjectBranchesNeedIssueSync.class)
       .add(3805, "Make 'need_issue_sync' of 'project_branches' not null", MakeProjectBranchesNeedIssueSyncNonNull.class)
 
-      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)
-
       // Migration of ALM_SETTINGS table
       .add(3807, "Add columns 'CLIENT_ID' and 'CLIENT_SECRET' to 'ALM_SETTINGS' table", AddClientIdAndClientSecretColumns.class)
 

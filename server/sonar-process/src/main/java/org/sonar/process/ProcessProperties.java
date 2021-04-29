@@ -146,7 +146,6 @@ public class ProcessProperties {
     SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES("sonar.web.sso.refreshIntervalInMinutes", "5"),
     SONAR_SECURITY_REALM("sonar.security.realm"),
     SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
-    SONAR_VALIDATE_WEBHOOKS("sonar.validateWebhooks", Boolean.TRUE.toString()),
 
     LDAP_SERVERS("ldap.servers"),
     LDAP_URL("ldap.url"),

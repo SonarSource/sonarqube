@@ -205,6 +205,8 @@ public interface CoreProperties {
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = true;
   String CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY = "sonar.allowPermissionManagementForProjectAdmins";
   boolean CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE = true;
+  String SONAR_VALIDATE_WEBHOOKS_PROPERTY = "sonar.validateWebhooks";
+  boolean SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE = true;
 
   /**
    * @deprecated since 2.14. See http://jira.sonarsource.com/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.

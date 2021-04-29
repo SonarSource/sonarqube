@@ -38,8 +38,8 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.server.util.OkHttpClientProvider;
@@ -47,7 +47,7 @@ import org.sonar.server.util.OkHttpClientProvider;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
+import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 
 public class WebhookCallerImplTest {
 
@@ -285,7 +285,8 @@ public class WebhookCallerImplTest {
 
   private WebhookCaller newSender(boolean validateWebhook) {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(validateWebhook));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(validateWebhook));
     WebhookCustomDns webhookCustomDns = new WebhookCustomDns(configuration, networkInterfaceProvider);
     return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime), webhookCustomDns);
   }

@@ -30,7 +30,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 
-import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
+import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE;
+import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 
 @ServerSide
 @ComputeEngineSide
@@ -48,7 +49,7 @@ public class WebhookCustomDns implements Dns {
   @Override
   public List<InetAddress> lookup(@NotNull String host) throws UnknownHostException {
     InetAddress address = InetAddress.getByName(host);
-    if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey()).orElse(true)
+    if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY).orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)
       && (address.isLoopbackAddress() || address.isAnyLocalAddress() || isLocalAddress(address))) {
       throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
     }

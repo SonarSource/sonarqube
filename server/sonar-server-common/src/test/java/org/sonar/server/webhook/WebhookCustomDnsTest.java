@@ -34,7 +34,7 @@ import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 
 import static org.mockito.Mockito.when;
-import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
+import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 
 public class WebhookCustomDnsTest {
   private static final String INVALID_URL = "Invalid URL: loopback and wildcard addresses are not allowed for webhooks.";
@@ -46,7 +46,8 @@ public class WebhookCustomDnsTest {
 
   @Test
   public void lookup_fail_on_localhost() {
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(true));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup("localhost"))
       .hasMessageContaining(INVALID_URL)
@@ -55,7 +56,8 @@ public class WebhookCustomDnsTest {
 
   @Test
   public void lookup_fail_on_127_0_0_1() {
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(true));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup("127.0.0.1"))
       .hasMessageContaining(INVALID_URL)
@@ -66,7 +68,9 @@ public class WebhookCustomDnsTest {
   public void lookup_fail_on_192_168_1_21() throws UnknownHostException, SocketException {
     InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse("https://192.168.1.21/").host());
 
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(true));
+
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
       .thenReturn(ImmutableList.of(inetAddress));
 
@@ -88,7 +92,9 @@ public class WebhookCustomDnsTest {
 
     String differentCaseAddress = getDifferentCaseInetAddress(inet6Address.get());
 
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(true));
+
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
       .thenReturn(ImmutableList.of(inet6Address.get()));
 
@@ -109,7 +115,8 @@ public class WebhookCustomDnsTest {
 
   @Test
   public void lookup_dont_fail_on_localhost_if_validation_disabled() throws UnknownHostException {
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(false));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(false));
 
     Assertions.assertThat(underTest.lookup("localhost"))
       .extracting(InetAddress::toString)
@@ -118,7 +125,8 @@ public class WebhookCustomDnsTest {
 
   @Test
   public void lookup_dont_fail_on_classic_host_with_validation_enabled() throws UnknownHostException {
-    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey())).thenReturn(Optional.of(true));
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY))
+      .thenReturn(Optional.of(true));
 
     Assertions.assertThat(underTest.lookup("sonarsource.com").toString()).contains("sonarsource.com/");
   }
