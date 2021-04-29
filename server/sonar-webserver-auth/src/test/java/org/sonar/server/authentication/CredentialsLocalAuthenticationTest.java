@@ -310,9 +310,13 @@ public class CredentialsLocalAuthenticationTest {
       .setCryptedPassword(DigestUtils.sha1Hex("--" + salt + "--" + password + "--"))
       .setSalt(salt);
 
+    assertThatThrownBy(() -> underTest.authenticate(dbSession, userInvalidHash, "WHATEVER", AuthenticationEvent.Method.BASIC))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("invalid hash stored");
+
     UserDto userInvalidIterations = newUserDto()
       .setHashMethod(PBKDF2.name())
-      .setCryptedPassword("$$")
+      .setCryptedPassword("a$")
       .setSalt(salt);
 
     assertThatThrownBy(() -> underTest.authenticate(dbSession, userInvalidIterations, "WHATEVER", AuthenticationEvent.Method.BASIC))
