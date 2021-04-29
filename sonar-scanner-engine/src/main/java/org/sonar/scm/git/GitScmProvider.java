@@ -105,7 +105,8 @@ public class GitScmProvider extends ScmProvider {
       if (targetRef == null) {
         analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
           + ". You may see unexpected issues and changes. "
-          + "Please make sure to fetch this ref before pull request analysis.", targetBranchName));
+          + "Please make sure to fetch this ref before pull request analysis and refer to"
+          + " <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.", targetBranchName));
         return null;
       }
 
@@ -149,7 +150,8 @@ public class GitScmProvider extends ScmProvider {
       if (targetRef == null) {
         analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
           + ". You may see unexpected issues and changes. "
-          + "Please make sure to fetch this ref before pull request analysis.", targetBranchName));
+          + "Please make sure to fetch this ref before pull request analysis"
+          + " and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.", targetBranchName));
         return null;
       }
 

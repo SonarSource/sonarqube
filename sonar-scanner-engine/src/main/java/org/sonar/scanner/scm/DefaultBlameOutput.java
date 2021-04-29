@@ -134,7 +134,8 @@ class DefaultBlameOutput implements BlameOutput {
         LOG.warn("  * " + f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
-      analysisWarnings.addUnique(String.format("Missing blame information for %d %s. This may lead to some features not working correctly. Please check the analysis logs.",
+      analysisWarnings.addUnique(String.format("Missing blame information for %d %s. This may lead to some features not working correctly. " +
+          "Please check the analysis logs and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.",
         allFilesToBlame.size(),
         allFilesToBlame.size() > 1 ? "files" : "file"));
     }

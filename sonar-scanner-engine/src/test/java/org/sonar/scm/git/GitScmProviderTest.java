@@ -609,7 +609,8 @@ public class GitScmProviderTest {
     assertThat(warnLog.getRawMsg()).isEqualTo(refNotFound);
 
     String warning = refNotFound
-      + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis.";
+      + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis"
+      + " and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.";
     verify(analysisWarnings).addUnique(warning);
   }
 

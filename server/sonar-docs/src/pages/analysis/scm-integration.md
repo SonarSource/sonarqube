@@ -24,7 +24,7 @@ Git integration uses [JGit](https://www.eclipse.org/jgit/). JGit is a pure Java 
 
 * Git doesn't consider old "Mac" line ends (CR) as new lines. As a result the blame operation will contain fewer lines than expected by SonarQube and analysis will fail. The solution is to fix line ends to use either Windows (CR/LF) or Unix (LF) line ends.
 * JGit doesn't support .mailmap file to "clean" email adress during the blame
-* "Missing blame information..." can be caused by checking out with a partial / shallow clone, or using Git submodules.
+* "Missing blame information..." and "Could not find ref..." can be caused by checking out with a partial / shallow clone, or using Git submodules.
 
 ### How to investigate error during blame (only possible on Unix/Linux)?
 
