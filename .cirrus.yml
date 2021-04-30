@@ -36,8 +36,7 @@ only_default_depending_on_build_template: &ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLA
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
            $CIRRUS_BRANCH != "branch-nightly-build" &&
-           $CIRRUS_CRON == "" &&
-           $CIRRUS_CHANGE_MESSAGE !=~ '.*\[update headers\].*'
+           $CIRRUS_CRON == ""
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -119,7 +118,7 @@ build_task:
     reports_artifacts:
       path: "**/build/reports/**/*"
 
-validate_task: &VALIDATE_TASK
+validate_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *NODE_MODULES_CACHE_TEMPLATE
   timeout_in: 90m
@@ -133,17 +132,6 @@ validate_task: &VALIDATE_TASK
     - ./private/cirrus/cirrus-validate.sh postgres106
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-
-validate_license_change_task:
-  <<: *VALIDATE_TASK
-  name: validate # Give it the same name as its counterpart, so we can reference it on GitHub.
-  only_if: >- # Only execute if the commit message has the "[update headers]" tag.
-           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-           $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_BRANCH != "branch-nightly-build" &&
-           $CIRRUS_CRON == "" &&
-           $CIRRUS_CHANGE_MESSAGE =~ '.*\[update headers\].*'
-  timeout_in: 180m # Increase timeout, as license changes impact all files, which slows down the analysis considerably.
 
 yarn_check-ci_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
@@ -251,7 +239,7 @@ qa_gitlab_task:
     use_in_memory_disk: true
     additional_containers:
       - name: gitlab
-        matrix: 
+        matrix:
           - image: gitlab/gitlab-ce:latest
           - image: gitlab/gitlab-ce:11.7.0-ce.0
         port: 8080:80
@@ -364,7 +352,7 @@ qa_ldap_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
-promote_task: &PROMOTE_TASK
+promote_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on:
     - build
@@ -383,19 +371,6 @@ promote_task: &PROMOTE_TASK
   script:
     - ./private/cirrus/cirrus-promote.sh
 
-promote_license_change_task:
-  <<: *PROMOTE_TASK
-  name: promote # Give it the same name as its counterpart, so we can reference it on GitHub.
-  only_if: >- # Only execute if the commit message has the "[update headers]" tag.
-           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-           $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_BRANCH != "branch-nightly-build" &&
-           $CIRRUS_CRON == "" &&
-           $CIRRUS_CHANGE_MESSAGE =~ '.*\[update headers\].*'
-  depends_on:
-    - build
-    - validate
-
 deploy_docs_task:
   depends_on: promote
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
@@ -409,7 +384,7 @@ deploy_docs_task:
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
-sql_mssql2019_task:
+sql_mssql2017_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
