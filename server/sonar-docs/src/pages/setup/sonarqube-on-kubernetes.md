@@ -1,5 +1,5 @@
 ---
-title: Deploy Sonarqube on Kubernetes
+title: Deploy SonarQube on Kubernetes
 url: /setup/sonarqube-on-kubernetes/
 ---
 
@@ -19,7 +19,7 @@ When you want to operate SonarQube on Kubernetes, consider the following recomme
 
 ### Prerequisites
 
-| Kubernetes Version  | Helm Chart Version | Sonarqube Version |
+| Kubernetes Version  | Helm Chart Version | SonarQube Version |
 | -------- | ----------------------------- | ----------------- |
 | 1.19 | 1.0 | 8.9 |
 | 1.20 | 1.0 | 8.9 |
@@ -103,11 +103,14 @@ We try to provide a good default with the Helm chart, but there are some points 
 
 Currently only helm3 is supported.
 
+To install the Helm Chart from the [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube) Repository, you can use the following commands:
+
 ```bash 
-helm repo add <repo url>
-helm repo update
-kubectl create namespace <sonarqube namespace>
-helm upgrade --install -n <sonarqube namespace> <chart>  
+git clone https://github.com/SonarSource/helm-chart-sonarqube.git
+cd helm-chart-sonarqube
+helm dependency update
+kubectl create namespace sonarqube
+helm upgrade --install -f values.yaml -n sonarqube sonarqube ./
 ```
 
 ### Persistency 
