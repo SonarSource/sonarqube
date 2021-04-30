@@ -20,10 +20,6 @@ To improve security, webhooks, by default, aren't allowed to point to the SonarQ
 
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16710)
 
-**Enforced security on Webhooks**
-By default and to enforce security constraints, webhooks are not allowed to point to the IPs addresses of the local SonarQube instance. 
-However, that behavior can be changed in [Administration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/).
-
 ## Release 8.8 Upgrade Notes  
 **CSS analysis now requires Node.js 10+**  
 In order to analyze CSS code, you now need to have Node.js 10+ installed on the machine running the scan.
