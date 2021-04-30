@@ -44,6 +44,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
@@ -102,7 +103,7 @@ public class BitbucketServerRestClient {
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), ProjectList.class));
   }
 
-  public BranchesList getBranches(String serverUrl, String token, String projectSlug, String repositorySlug){
+  public BranchesList getBranches(String serverUrl, String token, String projectSlug, String repositorySlug) {
     HttpUrl url = buildUrl(serverUrl, format("/rest/api/1.0/projects/%s/repos/%s/branches", projectSlug, repositorySlug));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), BranchesList.class));
   }
@@ -119,13 +120,17 @@ public class BitbucketServerRestClient {
     return doCall(request, handler);
   }
 
-  protected static Request prepareRequestWithBearerToken(String token, String method, HttpUrl url, @Nullable RequestBody body) {
-    return new Request.Builder()
+  protected static Request prepareRequestWithBearerToken(@Nullable String token, String method, HttpUrl url, @Nullable RequestBody body) {
+    Request.Builder builder = new Request.Builder()
       .method(method, body)
       .url(url)
-      .addHeader("Authorization", "Bearer " + token)
-      .addHeader("x-atlassian-token", "no-check")
-      .build();
+      .addHeader("x-atlassian-token", "no-check");
+
+    if (!isNullOrEmpty(token)) {
+      builder.addHeader("Authorization", "Bearer " + token);
+    }
+
+    return builder.build();
   }
 
   protected <G> G doCall(Request request, Function<Response, G> handler) {
@@ -133,8 +138,10 @@ public class BitbucketServerRestClient {
       handleError(response);
       return handler.apply(response);
     } catch (JsonSyntaxException e) {
+      LOG.info(UNABLE_TO_CONTACT_BITBUCKET_SERVER + ": " + e.getMessage(), e);
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BITBUCKET_SERVER + ", got an unexpected response", e);
     } catch (IOException e) {
+      LOG.info(UNABLE_TO_CONTACT_BITBUCKET_SERVER + ": " + e.getMessage(), e);
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BITBUCKET_SERVER, e);
     }
   }
@@ -157,16 +164,17 @@ public class BitbucketServerRestClient {
   }
 
   protected static String getErrorMessage(ResponseBody body) throws IOException {
+    String bodyString = body.string();
     if (equals(MediaType.parse("application/json;charset=utf-8"), body.contentType())) {
       try {
-        return Stream.of(buildGson().fromJson(body.charStream(), Errors.class).errorData)
+        return Stream.of(buildGson().fromJson(bodyString, Errors.class).errorData)
           .map(e -> e.exceptionName + " " + e.message)
           .collect(Collectors.joining("\n"));
       } catch (JsonParseException e) {
-        return body.string();
+        return bodyString;
       }
     }
-    return body.string();
+    return bodyString;
   }
 
   protected static Gson buildGson() {

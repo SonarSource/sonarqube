@@ -24,8 +24,10 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
+import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,6 +35,10 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class BitbucketServerRestClientTest {
   private final MockWebServer server = new MockWebServer();
+
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private BitbucketServerRestClient underTest;
 
   @Before
@@ -319,6 +325,47 @@ public class BitbucketServerRestClientTest {
     assertThatThrownBy(() -> underTest.getRepo(serverUrl, "token", "", ""))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Invalid personal access token");
+  }
+
+  @Test
+  public void fail_validate_on_io_exception() throws IOException {
+    server.shutdown();
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unable to contact Bitbucket server");
+
+    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server: Failed to connect");
+  }
+
+  @Test
+  public void fail_validate_url_on_non_json_result_log_correctly_the_response(){
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setResponseCode(500)
+      .setBody("not json"));
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.validateReadPermission(serverUrl, "token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unable to contact Bitbucket server");
+
+    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server: 500 not json");
+  }
+
+  @Test
+  public void fail_validate_url_on_text_result_log_the_returned_payload(){
+    server.enqueue(new MockResponse()
+      .setResponseCode(500)
+      .setBody("this is a text payload"));
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.validateReadPermission(serverUrl, "token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unable to contact Bitbucket server");
+
+    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server: 500 this is a text payload");
   }
 
 }
