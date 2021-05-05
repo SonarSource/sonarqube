@@ -12,8 +12,12 @@ SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration 
 **Plugins require risk consent**  
 When upgrading, if you're using plugins, a SonarQube administrator needs to acknowledge the risk involved with plugin installation when prompted in SonarQube. ([MMF-2301](https://jira.sonarsource.com/browse/MMF-2301)).
 
-**PostgreSQL support**  
-SonarQube 8.9 only supports PostgreSQL versions 9.6 to 13. PostgreSQL versions <9.6 are no longer supported.
+**Database support updated**  
+SonarQube 8.9 supports the following database versions:
+
+* PostgreSQL versions 9.6 to 13. PostgreSQL versions <9.6 are no longer supported.
+* MSSQL Server 2014, 2016, 2017, and 2019.
+* Oracle XE, 12C, 18C, and 19C. Oracle 11G is no longer supported.
 
 **Webhooks aren't allowed to target the instance**  
 To improve security, webhooks, by default, aren't allowed to point to the SonarQube server. You can change this behavior in the configuration. ([SONAR-14682](https://jira.sonarsource.com/browse/SONAR-14682)).

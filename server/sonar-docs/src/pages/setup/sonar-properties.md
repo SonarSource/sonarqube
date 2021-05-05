@@ -22,17 +22,17 @@ Permissions to create tables, indices, and triggers must be granted to JDBC user
 **`SONAR_EMBEDDEDDATABASE_PORT=9092`**  
 H2 embedded database server listening port, defaults to 9092.  
 
-### Oracle 11g/12c/18c/19c
+### Oracle 12c/18c/19c
 
 **`SONAR_JDBC_URL=jdbc:oracle:thin:@localhost:1521/XE`**  
 The Oracle JDBC driver must be copied into the directory extensions/jdbc-driver/oracle/. Only the thin client is supported, and we recommend using the latest Oracle JDBC driver. See https://jira.sonarsource.com/browse/SONAR-9758 for more details. If you need to set the schema, please refer to http://jira.sonarsource.com/browse/SONAR-5000.
 
-### PostgreSQL 9.3 or greater
+### PostgreSQL 9.6 or greater
 
 **`SONAR_JDBC_URL=jdbc:postgresql://localhost/sonarqube?currentSchema=my_schema`**  
 By default the schema named "public" is used. It can be overridden with the parameter "currentSchema".
 
-### Microsoft SQLServer 2014/2016/2017 and SQL Azure
+### Microsoft SQLServer 2014/2016/2017/2019 and SQL Azure
 
 **`SONAR_JDBC_URL=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true`**  
 A database named sonar must exist and its collation must be case-sensitive (CS) and accent-sensitive (AS). Use this connection string if you want to use integrated security with Microsoft Sql Server. Do not set the `SONAR_JDBC_USERNAME` or `SONAR_JDBC_PASSWORD` property if you are using Integrated Security. 
