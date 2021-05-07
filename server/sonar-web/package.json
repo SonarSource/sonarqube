@@ -89,7 +89,7 @@
     "escape-string-regexp": "2.0.0",
     "eslint": "7.17.0",
     "eslint-config-sonarqube": "1.0.0",
-    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jest": "24.1.0",
     "eslint-plugin-jsx-a11y": "6.4.0",
     "eslint-plugin-promise": "4.2.1",
