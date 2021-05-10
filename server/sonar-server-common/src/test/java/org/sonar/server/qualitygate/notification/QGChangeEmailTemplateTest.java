@@ -67,7 +67,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
-      "  - violations worse than D\n" +
+      "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
@@ -88,7 +88,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "Quality gate thresholds:\n" +
-      "  - violations worse than D\n" +
+      "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
@@ -107,7 +107,7 @@ public class QGChangeEmailTemplateTest {
       "Quality gate status: Failed\n" +
       "\n" +
       "New quality gate thresholds:\n" +
-      "  - violations worse than D\n" +
+      "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
@@ -125,7 +125,7 @@ public class QGChangeEmailTemplateTest {
       "Version: V1-SNAP\n" +
       "Quality gate status: Failed\n" +
       "\n" +
-      "New quality gate threshold: violations worse than D\n" +
+      "New quality gate threshold: violations > 4\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
@@ -142,7 +142,7 @@ public class QGChangeEmailTemplateTest {
       "Project: Foo\n" +
       "Quality gate status: Failed\n" +
       "\n" +
-      "New quality gate threshold: violations worse than D\n" +
+      "New quality gate threshold: violations > 4\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo"));
   }
@@ -177,7 +177,7 @@ public class QGChangeEmailTemplateTest {
       "Version: V1-SNAP\n" +
       "Quality gate status: Failed\n" +
       "\n" +
-      "New quality gate threshold: violations worse than D\n" +
+      "New quality gate threshold: violations > 4\n" +
       "\n" +
       "More details at: http://nemo.sonarsource.org/dashboard?id=org.sonar.foo:foo&branch=feature"));
   }
@@ -203,10 +203,25 @@ public class QGChangeEmailTemplateTest {
   @DataProvider
   public static Object[][] alertTextAndFormattedText() {
     return new Object[][] {
-      {"violations > 1", "violations worse than A"},
-      {"violations > 4", "violations worse than D"},
+      {"violations > 0", "violations > 0"},
+      {"violations > 1", "violations > 1"},
+      {"violations > 4", "violations > 4"},
+      {"violations > 5", "violations > 5"},
+      {"violations > 6", "violations > 6"},
+      {"violations > 10", "violations > 10"},
+      {"Code Coverage < 0%", "Code Coverage < 0%"},
+      {"Code Coverage < 1%", "Code Coverage < 1%"},
       {"Code Coverage < 50%", "Code Coverage < 50%"},
-      {"custom metric condition not met", "custom metric condition not met"}
+      {"Code Coverage < 100%", "Code Coverage < 100%"},
+      {"Custom metric with big number > 100000000000", "Custom metric with big number > 100000000000"},
+      {"Custom metric with negative number > -1", "Custom metric with negative number > -1"},
+      {"custom metric condition not met", "custom metric condition not met"},
+
+      {"Security Review Rating > 1", "Security Review Rating worse than A"},
+      {"Security Review Rating on New Code > 4", "Security Review Rating on New Code worse than D"},
+      {"Security Rating > 1", "Security Rating worse than A"},
+      {"Maintainability Rating > 3", "Maintainability Rating worse than C"},
+      {"Reliability Rating > 4", "Reliability Rating worse than D" }
     };
   }
 
@@ -238,7 +253,11 @@ public class QGChangeEmailTemplateTest {
         .setFieldValue("alertName", alertName)
         .setFieldValue("alertText", alertText)
         .setFieldValue("alertLevel", alertLevel)
-        .setFieldValue("isNewAlert", isNewAlert);
+        .setFieldValue("isNewAlert", isNewAlert)
+        .setFieldValue("ratingMetrics", "Maintainability Rating,Reliability Rating on New Code," +
+          "Maintainability Rating on New Code,Reliability Rating," +
+          "Security Rating on New Code,Security Review Rating," +
+          "Security Review Rating on New Code,Security Rating");
   }
 
 }

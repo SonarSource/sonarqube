@@ -87,6 +87,13 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
     return metricsByKey.values();
   }
 
+  @Override
+  public List<Metric> getMetricsByType(Metric.MetricType type) {
+    verifyMetricsInitialized();
+    
+    return metricsByKey.values().stream().filter(m -> m.getType() == type).collect(Collectors.toList());
+  }
+
   private void verifyMetricsInitialized() {
     if (this.metricsByKey == null) {
       throw new IllegalStateException("Metric cache has not been initialized");

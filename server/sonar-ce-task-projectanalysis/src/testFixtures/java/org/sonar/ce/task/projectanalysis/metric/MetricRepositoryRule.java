@@ -20,8 +20,11 @@
 package org.sonar.ce.task.projectanalysis.metric;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.junit.rules.ExternalResource;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -111,5 +114,10 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
   @Override
   public Iterable<Metric> getAll() {
     return metricsByKey.values();
+  }
+
+  @Override
+  public List<Metric> getMetricsByType(Metric.MetricType type) {
+    return metricsByKey.values().stream().filter(m -> m.getType() == type).collect(Collectors.toList());
   }
 }

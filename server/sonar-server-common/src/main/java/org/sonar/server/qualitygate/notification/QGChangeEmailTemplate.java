@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.notification;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.measures.Metric;
@@ -29,7 +30,7 @@ import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.measure.Rating;
 
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 /**
  * Creates email message for notification "alerts".
@@ -37,8 +38,6 @@ import java.util.regex.Pattern;
  * @since 3.5
  */
 public class QGChangeEmailTemplate implements EmailTemplate {
-
-  private static final Pattern alertRatingRegex = Pattern.compile(".*>\\s\\d$");
 
   private final EmailSettings configuration;
 
@@ -62,12 +61,13 @@ public class QGChangeEmailTemplate implements EmailTemplate {
     String alertName = notification.getFieldValue("alertName");
     String alertText = notification.getFieldValue("alertText");
     String alertLevel = notification.getFieldValue("alertLevel");
+    String ratingMetricsInOneString = notification.getFieldValue("ratingMetrics");
     boolean isNewAlert = Boolean.parseBoolean(notification.getFieldValue("isNewAlert"));
     String fullProjectName = computeFullProjectName(projectName, branchName);
 
     // Generate text
     String subject = generateSubject(fullProjectName, alertLevel, isNewAlert);
-    String messageBody = generateMessageBody(projectName, projectKey, projectVersion, branchName, alertName, alertText, isNewAlert);
+    String messageBody = generateMessageBody(projectName, projectKey, projectVersion, branchName, alertName, alertText, isNewAlert, ratingMetricsInOneString);
 
     // And finally return the email that will be sent
     return new EmailMessage()
@@ -97,7 +97,7 @@ public class QGChangeEmailTemplate implements EmailTemplate {
 
   private String generateMessageBody(String projectName, String projectKey,
     @Nullable String projectVersion, @Nullable String branchName,
-    String alertName, String alertText, boolean isNewAlert) {
+    String alertName, String alertText, boolean isNewAlert, String ratingMetricsInOneString) {
     StringBuilder messageBody = new StringBuilder();
     messageBody.append("Project: ").append(projectName).append("\n");
     if (branchName != null) {
@@ -116,11 +116,11 @@ public class QGChangeEmailTemplate implements EmailTemplate {
         messageBody.append("Quality gate threshold");
       }
       if (alerts.length == 1) {
-        messageBody.append(": ").append(formatRating(alerts[0].trim())).append("\n");
+        messageBody.append(": ").append(formatRating(alerts[0].trim(), ratingMetricsInOneString)).append("\n");
       } else {
         messageBody.append("s:\n");
         for (String alert : alerts) {
-          messageBody.append("  - ").append(formatRating(alert.trim())).append("\n");
+          messageBody.append("  - ").append(formatRating(alert.trim(), ratingMetricsInOneString)).append("\n");
         }
       }
     }
@@ -143,16 +143,23 @@ public class QGChangeEmailTemplate implements EmailTemplate {
    * Code Coverage < 50% will not be converted and returned as is.
    *
    * @param alert
+   * @param ratingMetricsInOneString
    * @return full raw alert with converted ratings
    */
-  private static String formatRating(String alert) {
-    if(!alertRatingRegex.matcher(alert).matches()) {
+  private static String formatRating(String alert, String ratingMetricsInOneString) {
+    Optional<String> ratingToFormat = Optional.empty();
+    for(String rating : ratingMetricsInOneString.split(",")) {
+      if (alert.matches(rating + " > \\d$")) {
+        ratingToFormat = Optional.of(rating);
+        break;
+      }
+    }
+    if(!ratingToFormat.isPresent()){
       return alert;
     }
 
-    StringBuilder builder = new StringBuilder();
-    builder.append(alert, 0, alert.length() - 3);
-    builder.append("worse than ");
+    StringBuilder builder = new StringBuilder(ratingToFormat.get());
+    builder.append(" worse than ");
     String rating = alert.substring(alert.length() - 1);
     builder.append(Rating.valueOf(Integer.parseInt(rating)).name());
     return builder.toString();
