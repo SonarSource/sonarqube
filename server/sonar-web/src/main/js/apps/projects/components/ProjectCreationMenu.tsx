@@ -42,7 +42,7 @@ interface State {
 const almSettingsValidators = {
   [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
   [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => false,
+  [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url
 };
@@ -86,7 +86,11 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
       } else {
         currentAlmSettings = almSettings.filter(s => s.alm === key);
       }
-      return currentAlmSettings.length === 1 && this.almSettingIsValid(currentAlmSettings[0]);
+      return (
+        currentAlmSettings.length === 1 &&
+        key === currentAlmSettings[0].alm &&
+        this.almSettingIsValid(currentAlmSettings[0])
+      );
     });
 
     if (this.mounted) {

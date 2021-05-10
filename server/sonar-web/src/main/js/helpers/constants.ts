@@ -74,6 +74,7 @@ export const ALM_DOCUMENTATION_PATHS = {
 export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.Azure,
   AlmKeys.BitbucketServer,
+  AlmKeys.BitbucketCloud,
   AlmKeys.GitHub,
   AlmKeys.GitLab
 ];

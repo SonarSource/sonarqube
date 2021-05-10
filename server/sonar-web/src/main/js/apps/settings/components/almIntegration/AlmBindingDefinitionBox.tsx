@@ -28,8 +28,8 @@ import DeleteIcon from 'sonar-ui-common/components/icons/DeleteIcon';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
+import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import {
   AlmBindingDefinition,
   AlmKeys,
@@ -103,6 +103,7 @@ function getPRDecorationFeatureStatus(
 }
 
 function getImportFeatureStatus(
+  alm: AlmKeys,
   definition: AlmBindingDefinition,
   multipleDefinitions: boolean,
   type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
@@ -121,7 +122,7 @@ function getImportFeatureStatus(
     );
   }
 
-  if (!definition.url) {
+  if (!definition.url && alm !== AlmKeys.BitbucketCloud) {
     return (
       <div className="display-inline-flex-center">
         <strong className="spacer-left">
@@ -194,7 +195,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                       {translate('settings.almintegration.feature.alm_repo_import.title')}
                     </span>
                   </Tooltip>
-                  {getImportFeatureStatus(definition, multipleDefinitions, status.type)}
+                  {getImportFeatureStatus(alm, definition, multipleDefinitions, status.type)}
                 </div>
               )}
             </div>

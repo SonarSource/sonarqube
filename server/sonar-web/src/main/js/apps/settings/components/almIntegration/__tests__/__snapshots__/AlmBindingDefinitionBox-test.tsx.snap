@@ -332,6 +332,18 @@ exports[`should render correctly: success for Bitbucket Cloud 1`] = `
         className="spacer-left"
       />
     </div>
+    <div>
+      <Tooltip
+        overlay="settings.almintegration.feature.alm_repo_import.description"
+      >
+        <span>
+          settings.almintegration.feature.alm_repo_import.title
+        </span>
+      </Tooltip>
+      <AlertSuccessIcon
+        className="spacer-left"
+      />
+    </div>
   </div>
   <div
     className="width-50"

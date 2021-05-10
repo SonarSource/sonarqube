@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { AlmKeys } from '../../../types/alm-settings';
 
 export interface ProjectCreationMenuItemProps {
   alm: string;
@@ -29,6 +30,10 @@ export interface ProjectCreationMenuItemProps {
 
 export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemProps) {
   const { alm } = props;
+  let almIcon = alm;
+  if (alm === AlmKeys.BitbucketCloud) {
+    almIcon = 'bitbucket';
+  }
   return (
     <Link
       className="display-flex-center"
@@ -40,7 +45,7 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
           alt={alm}
           className="spacer-right"
           width={16}
-          src={`${getBaseUrl()}/images/alm/${alm}.svg`}
+          src={`${getBaseUrl()}/images/alm/${almIcon}.svg`}
         />
       )}
       {translate('my_account.add_project', alm)}
