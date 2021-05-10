@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.notification;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.notifications.Notification;
-
 public class QGChangeNotification extends Notification {
   public QGChangeNotification() {
     super("alerts");

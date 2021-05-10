@@ -19,10 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +28,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MetricRepositoryImplTest {
   private static final String SOME_KEY = "some_key";
@@ -179,6 +179,44 @@ public class MetricRepositoryImplTest {
     assertThat(underTest.getAll())
       .extracting(Metric::getKey)
       .containsOnly(enabledMetrics.stream().map(MetricDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void getMetricsByType_givenRatingType_returnRatingMetrics() {
+    List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(12))
+      .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("RATING")))
+      .collect(Collectors.toList());
+
+    underTest.start();
+    assertThat(underTest.getMetricsByType(Metric.MetricType.RATING))
+      .extracting(Metric::getKey)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getKey).toArray(String[]::new));
+  }
+
+  @Test
+  public void getMetricsByType_givenRatingTypeAndWantedMilisecType_returnEmptyList() {
+    IntStream.range(0, 1 + new Random().nextInt(12))
+      .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("RATING")))
+      .collect(Collectors.toList());
+
+    underTest.start();
+    assertThat(underTest.getMetricsByType(Metric.MetricType.MILLISEC).size()).isZero();
+  }
+
+  @Test
+  public void getMetricsByType_givenOnlyMilisecTypeAndWantedRatingMetrics_returnEmptyList() {
+    IntStream.range(0, 1 + new Random().nextInt(12))
+      .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("MILISEC")));
+
+    underTest.start();
+    assertThat(underTest.getMetricsByType(Metric.MetricType.RATING).size()).isZero();
+  }
+
+  @Test
+  public void getMetricsByType_givenMetricsAreNull_throwException() {
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.getMetricsByType(Metric.MetricType.RATING);
   }
 
 }

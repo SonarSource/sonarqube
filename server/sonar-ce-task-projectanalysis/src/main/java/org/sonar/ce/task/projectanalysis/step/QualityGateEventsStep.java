@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -38,12 +36,17 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.QualityGateStatus;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
+import org.sonar.ce.task.projectanalysis.metric.Metric.MetricType;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static java.util.Collections.singleton;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
@@ -142,6 +145,10 @@ public class QualityGateEventsStep implements ComputationStep {
     if (!branch.isMain()) {
       notification.setFieldValue("branch", branch.getName());
     }
+
+    List<Metric> ratingMetrics = metricRepository.getMetricsByType(MetricType.RATING);
+    String ratingMetricsInOneString = ratingMetrics.stream().map(Metric::getName).collect(Collectors.joining(","));
+    notification.setFieldValue("ratingMetrics", ratingMetricsInOneString);
     notificationService.deliverEmails(singleton(notification));
 
     // compatibility with old API

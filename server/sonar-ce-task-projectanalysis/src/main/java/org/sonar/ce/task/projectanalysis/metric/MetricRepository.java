@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MetricRepository {
@@ -50,5 +51,10 @@ public interface MetricRepository {
    * Get iterable of all {@link Metric}.
    */
   Iterable<Metric> getAll();
+
+  /**
+   * Returns all the {@link Metric}s for the specific type.
+   */
+  List<Metric> getMetricsByType(Metric.MetricType type);
 
 }
