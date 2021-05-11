@@ -32,6 +32,13 @@ message SearchBitbucketserverReposWsResponse {
   repeated BBSRepo repositories = 2;
 }
 
+// WS api/alm_integrations/search_bibucketcloud_repos
+message SearchBitbucketcloudReposWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional bool isLastPage = 2;
+  repeated BBCRepo repositories = 3;
+}
+
 // WS api/alm_integrations/search_azure_repos
 message SearchAzureReposWsResponse {
   repeated AzureRepo repositories = 2;
@@ -53,6 +60,15 @@ message BBSRepo {
   optional string name = 3;
   optional string sqProjectKey = 4;
   optional string projectKey = 5;
+}
+
+message BBCRepo {
+  optional string slug = 1;
+  optional string uuid = 2;
+  optional string name = 3;
+  optional string sqProjectKey = 4;
+  optional string projectKey = 5;
+  optional string workspace = 6;
 }
 
 message AzureRepo {

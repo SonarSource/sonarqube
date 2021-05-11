@@ -134,6 +134,12 @@ public class BitbucketCloudRestClient {
     }
   }
 
+  public RepositoryList searchRepos(String encodedCredentials, String workspace, @Nullable String repoName, Integer page, Integer pageSize) {
+    String filterQuery = String.format("q=name~\"%s\"", repoName != null ? repoName : "");
+    HttpUrl url = buildUrl(String.format("/repositories/%s?%s&page=%s&pagelen=%s", workspace, filterQuery, page, pageSize));
+    return doGetWithBasicAuth(encodedCredentials, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
+  }
+
   public String createAccessToken(String clientId, String clientSecret) {
     Request request = createAccessTokenRequest(clientId, clientSecret);
     return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class)).getAccessToken();

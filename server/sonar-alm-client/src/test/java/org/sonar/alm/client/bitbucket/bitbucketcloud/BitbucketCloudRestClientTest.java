@@ -19,6 +19,7 @@
  */
 package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -34,9 +35,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,6 +59,67 @@ public class BitbucketCloudRestClientTest {
   @After
   public void stopServer() throws IOException {
     server.shutdown();
+  }
+
+  @Test
+  public void get_repos() {
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody("{\n" +
+        "  \"values\": [\n" +
+        "    {\n" +
+        "      \"slug\": \"banana\",\n" +
+        "      \"uuid\": \"BANANA-UUID\",\n" +
+        "      \"name\": \"banana\",\n" +
+        "      \"project\": {\n" +
+        "        \"key\": \"HOY\",\n" +
+        "        \"uuid\": \"BANANA-PROJECT-UUID\",\n" +
+        "        \"name\": \"hoy\"\n" +
+        "      }\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"slug\": \"potato\",\n" +
+        "      \"uuid\": \"POTATO-UUID\",\n" +
+        "      \"name\": \"potato\",\n" +
+        "      \"project\": {\n" +
+        "        \"key\": \"HEY\",\n" +
+        "        \"uuid\": \"POTATO-PROJECT-UUID\",\n" +
+        "        \"name\": \"hey\"\n" +
+        "      }\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}"));
+
+    RepositoryList repositoryList = underTest.searchRepos("user:apppwd", "", null, 1, 100);
+    assertThat(repositoryList.getNext()).isNull();
+    assertThat(repositoryList.getValues())
+      .hasSize(2)
+      .extracting(Repository::getUuid, Repository::getName, Repository::getSlug,
+        g -> g.getProject().getUuid(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+      .containsExactlyInAnyOrder(
+        tuple("BANANA-UUID", "banana", "banana", "BANANA-PROJECT-UUID", "HOY", "hoy"),
+        tuple("POTATO-UUID", "potato", "potato", "POTATO-PROJECT-UUID", "HEY", "hey"));
+  }
+
+  @Test
+  public void bbc_object_serialization_deserialization() {
+    Project project = new Project("PROJECT-UUID-ONE", "projectKey", "projectName");
+    Repository repository = new Repository("REPO-UUID-ONE", "repo-slug", "repoName", project);
+    RepositoryList repos = new RepositoryList(null, asList(repository), 1, 100);
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(new Gson().toJson(repos)));
+
+    RepositoryList repositoryList = underTest.searchRepos("user:apppwd", "", null, 1, 100);
+    assertThat(repositoryList.getNext()).isNull();
+    assertThat(repositoryList.getPage()).isEqualTo(1);
+    assertThat(repositoryList.getPagelen()).isEqualTo(100);
+    assertThat(repositoryList.getValues())
+      .hasSize(1)
+      .extracting(Repository::getUuid, Repository::getName, Repository::getSlug,
+        g -> g.getProject().getUuid(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+      .containsExactlyInAnyOrder(
+              tuple("REPO-UUID-ONE", "repoName", "repo-slug", "PROJECT-UUID-ONE", "projectKey", "projectName"));
   }
 
   @Test

@@ -125,8 +125,6 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
       String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
       RepositoryList gsonBBSRepoList = bitbucketServerRestClient.getRepos(url, pat, projectKey, repoName);
 
-      LOG.info(gsonBBSRepoList.toString());
-
       Map<String, String> sqProjectsKeyByBBSKey = getSqProjectsKeyByBBSKey(dbSession, almSettingDto, gsonBBSRepoList);
       List<BBSRepo> bbsRepos = gsonBBSRepoList.getValues().stream().map(gsonBBSRepo -> toBBSRepo(gsonBBSRepo, sqProjectsKeyByBBSKey))
         .collect(toList());
