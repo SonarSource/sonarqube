@@ -35,7 +35,7 @@ public class OnePredefinedRuleExternalIssuePerLineSensor implements Sensor {
   public static final String RULE_ID = "OnePredefinedRuleExternalIssuePerLine";
   public static final String ENGINE_ID = "XooEngine";
   public static final String SEVERITY = "MAJOR";
-  public static final Long EFFORT = 10l;
+  public static final Long EFFORT = 10L;
   public static final RuleType TYPE = RuleType.BUG;
   public static final String ACTIVATE = "sonar.onePredefinedRuleExternalIssuePerLine.activate";
   private static final String NAME = "One External Issue Per Line With A Predefined Rule";

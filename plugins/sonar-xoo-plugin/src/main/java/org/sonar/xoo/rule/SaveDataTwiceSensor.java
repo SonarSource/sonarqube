@@ -36,7 +36,7 @@ public class SaveDataTwiceSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("SaveDataTwice IT Sensor ")
-      .requireProperty("sonar.it.savedatatwice");
+      .onlyWhenConfiguration(c -> c.getBoolean("sonar.it.savedatatwice").orElse(false));
   }
 
   @Override
