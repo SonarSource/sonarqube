@@ -19,15 +19,9 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  checkPersonalAccessTokenIsValid,
-  getGitlabProjects,
-  importGitlabProject,
-  setAlmPersonalAccessToken
-} from '../../../api/alm-integrations';
+import { getGitlabProjects, importGitlabProject } from '../../../api/alm-integrations';
 import { GitlabProject } from '../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { AlmSettingsInstance } from '../../../types/alm-settings';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -43,12 +37,11 @@ interface State {
   loadingMore: boolean;
   projects?: GitlabProject[];
   projectsPaging: T.Paging;
-  submittingToken: boolean;
-  tokenIsValid: boolean;
-  tokenValidationErrorMessage?: string;
+  resetPat: boolean;
   searching: boolean;
   searchQuery: string;
   settings?: AlmSettingsInstance;
+  showPersonalAccessTokenForm: boolean;
 }
 
 const GITLAB_PROJECTS_PAGESIZE = 30;
@@ -63,17 +56,16 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       loading: false,
       loadingMore: false,
       projectsPaging: { pageIndex: 1, total: 0, pageSize: GITLAB_PROJECTS_PAGESIZE },
-      tokenIsValid: false,
+      resetPat: false,
+      showPersonalAccessTokenForm: true,
       searching: false,
       searchQuery: '',
-      settings: props.settings.length === 1 ? props.settings[0] : undefined,
-      submittingToken: false
+      settings: props.settings.length === 1 ? props.settings[0] : undefined
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchInitialData();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -90,50 +82,30 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   }
 
   fetchInitialData = async () => {
-    this.setState({ loading: true });
+    const { showPersonalAccessTokenForm } = this.state;
 
-    const { status, error } = await this.checkPersonalAccessToken();
-
-    let result;
-    if (status) {
-      result = await this.fetchProjects();
-    }
-
-    if (this.mounted) {
-      if (result) {
+    if (!showPersonalAccessTokenForm) {
+      this.setState({ loading: true });
+      const result = await this.fetchProjects();
+      if (this.mounted && result) {
         const { projects, projectsPaging } = result;
 
         this.setState({
-          tokenIsValid: status,
           loading: false,
           projects,
           projectsPaging
         });
       } else {
         this.setState({
-          loading: false,
-          tokenValidationErrorMessage: !status ? error : undefined
+          loading: false
         });
       }
     }
   };
 
-  checkPersonalAccessToken = () => {
-    const { settings } = this.state;
-
-    if (!settings) {
-      return Promise.resolve({
-        status: false,
-        error: translate('onboarding.create_project.pat_incorrect', AlmKeys.GitLab)
-      });
-    }
-
-    return checkPersonalAccessTokenIsValid(settings.key);
-  };
-
   handleError = () => {
     if (this.mounted) {
-      this.setState({ tokenIsValid: false });
+      this.setState({ resetPat: true, showPersonalAccessTokenForm: true });
     }
 
     return undefined;
@@ -141,7 +113,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
 
   fetchProjects = async (pageIndex = 1, query?: string) => {
     const { settings } = this.state;
-
     if (!settings) {
       return Promise.resolve(undefined);
     }
@@ -228,37 +199,10 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     router.replace(location);
   };
 
-  handlePersonalAccessTokenCreate = async (token: string) => {
-    const { settings } = this.state;
-
-    if (!settings || token.length < 1) {
-      return;
-    }
-
-    this.setState({ submittingToken: true, tokenValidationErrorMessage: undefined });
-
-    try {
-      await setAlmPersonalAccessToken(settings.key, token);
-
-      const { status, error } = await this.checkPersonalAccessToken();
-
-      if (this.mounted) {
-        this.setState({
-          submittingToken: false,
-          tokenIsValid: status,
-          tokenValidationErrorMessage: error
-        });
-
-        if (status) {
-          this.cleanUrl();
-          await this.fetchInitialData();
-        }
-      }
-    } catch (e) {
-      if (this.mounted) {
-        this.setState({ submittingToken: false });
-      }
-    }
+  handlePersonalAccessTokenCreated = async () => {
+    this.setState({ showPersonalAccessTokenForm: false, resetPat: false });
+    this.cleanUrl();
+    await this.fetchInitialData();
   };
 
   render() {
@@ -269,12 +213,11 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       loadingMore,
       projects,
       projectsPaging,
-      tokenIsValid,
+      resetPat,
       searching,
       searchQuery,
       settings,
-      submittingToken,
-      tokenValidationErrorMessage
+      showPersonalAccessTokenForm
     } = this.state;
 
     return (
@@ -286,15 +229,16 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         loadingMore={loadingMore}
         onImport={this.handleImport}
         onLoadMore={this.handleLoadMore}
-        onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
+        onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onSearch={this.handleSearch}
         projects={projects}
         projectsPaging={projectsPaging}
+        resetPat={resetPat || Boolean(location.query.resetPat)}
         searching={searching}
         searchQuery={searchQuery}
-        showPersonalAccessTokenForm={!tokenIsValid || Boolean(location.query.resetPat)}
-        submittingToken={submittingToken}
-        tokenValidationErrorMessage={tokenValidationErrorMessage}
+        showPersonalAccessTokenForm={
+          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
+        }
       />
     );
   }

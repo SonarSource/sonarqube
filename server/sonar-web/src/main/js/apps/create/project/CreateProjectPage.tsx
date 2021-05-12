@@ -28,6 +28,7 @@ import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import AzureProjectCreate from './AzureProjectCreate';
+import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
 import GitHubProjectCreate from './GitHubProjectCreate';
@@ -44,6 +45,7 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
 interface State {
   azureSettings: AlmSettingsInstance[];
   bitbucketSettings: AlmSettingsInstance[];
+  bitbucketCloudSettings: AlmSettingsInstance[];
   githubSettings: AlmSettingsInstance[];
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
@@ -54,6 +56,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   state: State = {
     azureSettings: [],
     bitbucketSettings: [],
+    bitbucketCloudSettings: [],
     githubSettings: [],
     gitlabSettings: [],
     loading: true
@@ -76,6 +79,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
           this.setState({
             azureSettings: almSettings.filter(s => s.alm === AlmKeys.Azure),
             bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.BitbucketServer),
+            bitbucketCloudSettings: almSettings.filter(s => s.alm === AlmKeys.BitbucketCloud),
             githubSettings: almSettings.filter(s => s.alm === AlmKeys.GitHub),
             gitlabSettings: almSettings.filter(s => s.alm === AlmKeys.GitLab),
             loading: false
@@ -112,6 +116,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     const {
       azureSettings,
       bitbucketSettings,
+      bitbucketCloudSettings,
       githubSettings,
       gitlabSettings,
       loading
@@ -138,6 +143,19 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             loadingBindings={loading}
             location={location}
             onProjectCreate={this.handleProjectCreate}
+            router={router}
+          />
+        );
+      }
+      case CreateProjectModes.BitbucketCloud: {
+        return (
+          <BitbucketCloudProjectCreate
+            canAdmin={!!canAdmin}
+            loadingBindings={loading}
+            location={location}
+            onProjectCreate={this.handleProjectCreate}
+            router={router}
+            settings={bitbucketCloudSettings}
           />
         );
       }

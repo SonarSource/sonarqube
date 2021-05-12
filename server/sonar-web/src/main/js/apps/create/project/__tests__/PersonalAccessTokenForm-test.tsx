@@ -20,37 +20,59 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { change, submit } from 'sonar-ui-common/helpers/testUtils';
-import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
+import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import {
+  checkPersonalAccessTokenIsValid,
+  setAlmPersonalAccessToken
+} from '../../../../api/alm-integrations';
+import {
+  mockAlmSettingsInstance,
+  mockBitbucketCloudAlmSettingsInstance
+} from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
-import PersonalAccessTokenForm, { PersonalAccessTokenFormProps } from '../PersonalAccessTokenForm';
+import PersonalAccessTokenForm from '../PersonalAccessTokenForm';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('bitbucket');
-  expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
-  expect(shallowRender({ validationFailed: true })).toMatchSnapshot('validation failed');
-  expect(
-    shallowRender({ validationFailed: true, validationErrorMessage: 'error' })
-  ).toMatchSnapshot('validation failed, custom error message');
-  expect(
-    shallowRender({
-      almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' })
+jest.mock('../../../../api/alm-integrations', () => ({
+  checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
+  setAlmPersonalAccessToken: jest.fn().mockResolvedValue({})
+}));
+
+it('should render correctly', async () => {
+  expect(shallowRender()).toMatchSnapshot('no token needed');
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
+  let wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('bitbucket');
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
+  wrapper = shallowRender({ almSetting: mockBitbucketCloudAlmSettingsInstance() });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('bitbucket cloud');
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
+  wrapper = shallowRender({
+    almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('gitlab');
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
+  wrapper = shallowRender({
+    almSetting: mockAlmSettingsInstance({
+      alm: AlmKeys.GitLab,
+      url: 'https://gitlabapi.unexpectedurl.org'
     })
-  ).toMatchSnapshot('gitlab');
-  expect(
-    shallowRender({
-      almSetting: mockAlmSettingsInstance({
-        alm: AlmKeys.GitLab,
-        url: 'https://gitlabapi.unexpectedurl.org'
-      })
-    })
-  ).toMatchSnapshot('gitlab with non-standard api path');
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('gitlab with non-standard api path');
 });
 
-it('should correctly handle form interactions', () => {
-  const onPersonalAccessTokenCreate = jest.fn();
-  const wrapper = shallowRender({ onPersonalAccessTokenCreate });
+it('should correctly handle form interactions', async () => {
+  const onPersonalAccessTokenCreated = jest.fn();
+  const wrapper = shallowRender({ onPersonalAccessTokenCreated });
 
+  await waitAndUpdate(wrapper);
   // Submit button disabled by default.
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 
@@ -60,25 +82,62 @@ it('should correctly handle form interactions', () => {
 
   // Expect correct calls to be made when submitting.
   submit(wrapper.find('form'));
-  expect(onPersonalAccessTokenCreate).toBeCalled();
-
-  // If validation fails, we toggle the submitting flag and call useEffect()
-  // to set the `touched` flag to false again. Trigger a re-render, and mock
-  // useEffect(). This should de-activate the submit button again.
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
-  wrapper.setProps({ submitting: false });
-  expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
+  expect(onPersonalAccessTokenCreated).toBeCalled();
+  expect(setAlmPersonalAccessToken).toBeCalledWith('key', 'token', undefined);
 });
 
-function shallowRender(props: Partial<PersonalAccessTokenFormProps> = {}) {
-  return shallow<PersonalAccessTokenFormProps>(
+it('should correctly handle form for bitbucket interactions', async () => {
+  const onPersonalAccessTokenCreated = jest.fn();
+  const wrapper = shallowRender({
+    almSetting: mockBitbucketCloudAlmSettingsInstance(),
+    onPersonalAccessTokenCreated
+  });
+
+  await waitAndUpdate(wrapper);
+  // Submit button disabled by default.
+  expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
+
+  change(wrapper.find('#personal_access_token'), 'token');
+  expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
+
+  // Submit button enabled if there's a value.
+  change(wrapper.find('#username'), 'username');
+  expect(wrapper.find(SubmitButton).prop('disabled')).toBe(false);
+
+  // Expect correct calls to be made when submitting.
+  submit(wrapper.find('form'));
+  expect(onPersonalAccessTokenCreated).toBeCalled();
+  expect(setAlmPersonalAccessToken).toBeCalledWith('key', 'token', 'username');
+});
+
+it('should show error when issue', async () => {
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockRejectedValueOnce({});
+  const wrapper = shallowRender({
+    almSetting: mockBitbucketCloudAlmSettingsInstance()
+  });
+
+  await waitAndUpdate(wrapper);
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockRejectedValueOnce({});
+
+  change(wrapper.find('#personal_access_token'), 'token');
+  change(wrapper.find('#username'), 'username');
+
+  // Expect correct calls to be made when submitting.
+  submit(wrapper.find('form'));
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('issue submitting token');
+});
+
+function shallowRender(props: Partial<PersonalAccessTokenForm['props']> = {}) {
+  return shallow<PersonalAccessTokenForm>(
     <PersonalAccessTokenForm
       almSetting={mockAlmSettingsInstance({
         alm: AlmKeys.BitbucketServer,
         url: 'http://www.example.com'
       })}
-      onPersonalAccessTokenCreate={jest.fn()}
-      validationFailed={false}
+      onPersonalAccessTokenCreated={jest.fn()}
+      resetPat={false}
       {...props}
     />
   );

@@ -20,45 +20,24 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { GitlabProject } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
-import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
 import WrongBindingCountAlert from './WrongBindingCountAlert';
 
-export interface GitlabProjectCreateRendererProps {
-  canAdmin?: boolean;
-  importingGitlabProjectId?: string;
-  loading: boolean;
-  loadingMore: boolean;
-  onImport: (gitlabProjectId: string) => void;
-  onLoadMore: () => void;
-  onPersonalAccessTokenCreated: () => void;
-  onSearch: (searchQuery: string) => void;
-  projects?: GitlabProject[];
-  projectsPaging: T.Paging;
-  resetPat: boolean;
-  searching: boolean;
-  searchQuery: string;
+export interface BitbucketCloudProjectCreateRendererProps {
   settings?: AlmSettingsInstance;
-  showPersonalAccessTokenForm?: boolean;
+  canAdmin?: boolean;
+  loading: boolean;
+  onPersonalAccessTokenCreated: () => void;
+  resetPat: boolean;
+  showPersonalAccessTokenForm: boolean;
 }
 
-export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
-  const {
-    canAdmin,
-    importingGitlabProjectId,
-    loading,
-    loadingMore,
-    projects,
-    projectsPaging,
-    resetPat,
-    searching,
-    searchQuery,
-    settings,
-    showPersonalAccessTokenForm
-  } = props;
+export default function BitbucketCloudProjectCreateRenderer(
+  props: BitbucketCloudProjectCreateRendererProps
+) {
+  const { settings, canAdmin, loading, resetPat, showPersonalAccessTokenForm } = props;
 
   return (
     <>
@@ -69,17 +48,16 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
               alt="" // Should be ignored by screen readers
               className="spacer-right"
               height="24"
-              src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+              src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
             />
-            {translate('onboarding.create_project.gitlab.title')}
+            {translate('onboarding.create_project.bitbucketcloud.title')}
           </span>
         }
       />
-
       {loading && <i className="spinner" />}
 
       {!loading && !settings && (
-        <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />
+        <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
@@ -91,17 +69,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
           />
         ) : (
-          <GitlabProjectSelectionForm
-            importingGitlabProjectId={importingGitlabProjectId}
-            loadingMore={loadingMore}
-            onImport={props.onImport}
-            onLoadMore={props.onLoadMore}
-            onSearch={props.onSearch}
-            projects={projects}
-            projectsPaging={projectsPaging}
-            searching={searching}
-            searchQuery={searchQuery}
-          />
+          <p>Placeholder for next step</p>
         ))}
     </>
   );

@@ -30,8 +30,14 @@ import {
 } from '../types/alm-integration';
 import { ProjectBase } from './components';
 
-export function setAlmPersonalAccessToken(almSetting: string, pat: string): Promise<void> {
-  return post('/api/alm_integrations/set_pat', { almSetting, pat }).catch(throwGlobalError);
+export function setAlmPersonalAccessToken(
+  almSetting: string,
+  pat: string,
+  username?: string
+): Promise<void> {
+  return post('/api/alm_integrations/set_pat', { almSetting, pat, username }).catch(
+    throwGlobalError
+  );
 }
 
 export function checkPersonalAccessTokenIsValid(

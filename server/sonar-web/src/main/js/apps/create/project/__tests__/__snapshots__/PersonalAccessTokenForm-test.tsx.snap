@@ -19,7 +19,8 @@ exports[`should render correctly: bitbucket 1`] = `
       onboarding.create_project.pat_form.help.bitbucket
     </p>
     <ValidationInput
-      id="personal_access_token"
+      error="onboarding.create_project.pat_incorrect.bitbucket"
+      id="personal_access_token_validation"
       isInvalid={false}
       isValid={false}
       label="onboarding.create_project.enter_pat"
@@ -27,23 +28,31 @@ exports[`should render correctly: bitbucket 1`] = `
     >
       <input
         autoFocus={true}
-        className="input-super-large"
+        className="input-super-large is-invalid"
         id="personal_access_token"
         minLength={1}
-        name="personal_access_token"
         onChange={[Function]}
         type="text"
+        value=""
       />
     </ValidationInput>
-    <SubmitButton
-      disabled={true}
+    <ValidationInput
+      error="onboarding.create_project.pat_incorrect.bitbucket"
+      id="personal_access_token_submit"
+      isInvalid={true}
+      isValid={false}
+      label={null}
     >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-    />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+      />
+    </ValidationInput>
   </form>
   <Alert
     className="big-spacer-left width-50"
@@ -120,6 +129,139 @@ exports[`should render correctly: bitbucket 1`] = `
 </div>
 `;
 
+exports[`should render correctly: bitbucket cloud 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    className="width-50"
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.pat_form.title.bitbucketcloud
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_form.help.bitbucketcloud
+    </p>
+    <ValidationInput
+      id="enter_username_validation"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_username"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large is-invalid"
+        id="username"
+        minLength={1}
+        name="username"
+        onChange={[Function]}
+        type="text"
+      />
+    </ValidationInput>
+    <ValidationInput
+      error="onboarding.create_project.pat_incorrect.bitbucketcloud"
+      id="personal_access_token_validation"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_pat.bitbucketcloud"
+      required={true}
+    >
+      <input
+        autoFocus={false}
+        className="input-super-large is-invalid"
+        id="personal_access_token"
+        minLength={1}
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </ValidationInput>
+    <ValidationInput
+      error="onboarding.create_project.pat_incorrect.bitbucketcloud"
+      id="personal_access_token_submit"
+      isInvalid={true}
+      isValid={false}
+      label={null}
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+      />
+    </ValidationInput>
+  </form>
+  <Alert
+    className="big-spacer-left width-50"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.bitbucketcloud.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.bitbucketcloud.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.bitbucketcloud",
+          }
+        }
+      />
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="https://bitbucket.org/account/settings/app-passwords/new"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.bitbucketcloud.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions2.bitbucketcloud
+    </p>
+    <ul>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
+          id="onboarding.create_project.pat_help.bbs_permission_repos"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;
+
 exports[`should render correctly: gitlab 1`] = `
 <div
   className="display-flex-start"
@@ -139,7 +281,8 @@ exports[`should render correctly: gitlab 1`] = `
       onboarding.create_project.pat_form.help.gitlab
     </p>
     <ValidationInput
-      id="personal_access_token"
+      error="onboarding.create_project.pat_incorrect.gitlab"
+      id="personal_access_token_validation"
       isInvalid={false}
       isValid={false}
       label="onboarding.create_project.enter_pat"
@@ -147,23 +290,31 @@ exports[`should render correctly: gitlab 1`] = `
     >
       <input
         autoFocus={true}
-        className="input-super-large"
+        className="input-super-large is-invalid"
         id="personal_access_token"
         minLength={1}
-        name="personal_access_token"
         onChange={[Function]}
         type="text"
+        value=""
       />
     </ValidationInput>
-    <SubmitButton
-      disabled={true}
+    <ValidationInput
+      error="onboarding.create_project.pat_incorrect.gitlab"
+      id="personal_access_token_submit"
+      isInvalid={true}
+      isValid={false}
+      label={null}
     >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-    />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+      />
+    </ValidationInput>
   </form>
   <Alert
     className="big-spacer-left width-50"
@@ -240,7 +391,8 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
       onboarding.create_project.pat_form.help.gitlab
     </p>
     <ValidationInput
-      id="personal_access_token"
+      error="onboarding.create_project.pat_incorrect.gitlab"
+      id="personal_access_token_validation"
       isInvalid={false}
       isValid={false}
       label="onboarding.create_project.enter_pat"
@@ -248,23 +400,31 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
     >
       <input
         autoFocus={true}
-        className="input-super-large"
+        className="input-super-large is-invalid"
         id="personal_access_token"
         minLength={1}
-        name="personal_access_token"
         onChange={[Function]}
         type="text"
+        value=""
       />
     </ValidationInput>
-    <SubmitButton
-      disabled={true}
+    <ValidationInput
+      error="onboarding.create_project.pat_incorrect.gitlab"
+      id="personal_access_token_submit"
+      isInvalid={true}
+      isValid={false}
+      label={null}
     >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-    />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+      />
+    </ValidationInput>
   </form>
   <Alert
     className="big-spacer-left width-50"
@@ -322,7 +482,14 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
 </div>
 `;
 
-exports[`should render correctly: submitting 1`] = `
+exports[`should render correctly: no token needed 1`] = `
+<DeferredSpinner
+  className="spacer-left"
+  loading={true}
+/>
+`;
+
+exports[`should show error when issue: issue submitting token 1`] = `
 <div
   className="display-flex-start"
 >
@@ -333,281 +500,66 @@ exports[`should render correctly: submitting 1`] = `
     <h2
       className="big"
     >
-      onboarding.create_project.pat_form.title.bitbucket
+      onboarding.create_project.pat_form.title.bitbucketcloud
     </h2>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_form.help.bitbucket
+      onboarding.create_project.pat_form.help.bitbucketcloud
     </p>
     <ValidationInput
-      id="personal_access_token"
+      id="enter_username_validation"
       isInvalid={false}
       isValid={false}
-      label="onboarding.create_project.enter_pat"
-      required={true}
-    >
-      <input
-        autoFocus={true}
-        className="input-super-large"
-        id="personal_access_token"
-        minLength={1}
-        name="personal_access_token"
-        onChange={[Function]}
-        type="text"
-      />
-    </ValidationInput>
-    <SubmitButton
-      disabled={true}
-    >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={true}
-    />
-  </form>
-  <Alert
-    className="big-spacer-left width-50"
-    display="block"
-    variant="info"
-  >
-    <h3>
-      onboarding.create_project.pat_help.title
-    </h3>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.create_project.pat_help.instructions"
-        id="onboarding.create_project.pat_help.instructions"
-        values={
-          Object {
-            "alm": "onboarding.alm.bitbucket",
-          }
-        }
-      />
-    </p>
-    <div
-      className="text-middle"
-    >
-      <img
-        alt=""
-        className="spacer-right"
-        height="16"
-        src="/images/alm/bitbucket.svg"
-      />
-      <a
-        href="http://www.example.com/plugins/servlet/access-tokens/add"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        onboarding.create_project.pat_help.link
-      </a>
-    </div>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      onboarding.create_project.pat_help.instructions2.bitbucket
-    </p>
-    <ul>
-      <li>
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
-          id="onboarding.create_project.pat_help.bbs_permission_projects"
-          values={
-            Object {
-              "perm": <strong>
-                onboarding.create_project.pat_help.read_permission
-              </strong>,
-            }
-          }
-        />
-      </li>
-      <li>
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
-          id="onboarding.create_project.pat_help.bbs_permission_repos"
-          values={
-            Object {
-              "perm": <strong>
-                onboarding.create_project.pat_help.read_permission
-              </strong>,
-            }
-          }
-        />
-      </li>
-    </ul>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly: validation failed 1`] = `
-<div
-  className="display-flex-start"
->
-  <form
-    className="width-50"
-    onSubmit={[Function]}
-  >
-    <h2
-      className="big"
-    >
-      onboarding.create_project.pat_form.title.bitbucket
-    </h2>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      onboarding.create_project.pat_form.help.bitbucket
-    </p>
-    <ValidationInput
-      error="onboarding.create_project.pat_incorrect.bitbucket"
-      id="personal_access_token"
-      isInvalid={true}
-      isValid={false}
-      label="onboarding.create_project.enter_pat"
+      label="onboarding.create_project.enter_username"
       required={true}
     >
       <input
         autoFocus={true}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="username"
         minLength={1}
-        name="personal_access_token"
+        name="username"
         onChange={[Function]}
         type="text"
+        value="username"
       />
     </ValidationInput>
-    <SubmitButton
-      disabled={true}
-    >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-    />
-  </form>
-  <Alert
-    className="big-spacer-left width-50"
-    display="block"
-    variant="info"
-  >
-    <h3>
-      onboarding.create_project.pat_help.title
-    </h3>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.create_project.pat_help.instructions"
-        id="onboarding.create_project.pat_help.instructions"
-        values={
-          Object {
-            "alm": "onboarding.alm.bitbucket",
-          }
-        }
-      />
-    </p>
-    <div
-      className="text-middle"
-    >
-      <img
-        alt=""
-        className="spacer-right"
-        height="16"
-        src="/images/alm/bitbucket.svg"
-      />
-      <a
-        href="http://www.example.com/plugins/servlet/access-tokens/add"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        onboarding.create_project.pat_help.link
-      </a>
-    </div>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      onboarding.create_project.pat_help.instructions2.bitbucket
-    </p>
-    <ul>
-      <li>
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
-          id="onboarding.create_project.pat_help.bbs_permission_projects"
-          values={
-            Object {
-              "perm": <strong>
-                onboarding.create_project.pat_help.read_permission
-              </strong>,
-            }
-          }
-        />
-      </li>
-      <li>
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
-          id="onboarding.create_project.pat_help.bbs_permission_repos"
-          values={
-            Object {
-              "perm": <strong>
-                onboarding.create_project.pat_help.read_permission
-              </strong>,
-            }
-          }
-        />
-      </li>
-    </ul>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly: validation failed, custom error message 1`] = `
-<div
-  className="display-flex-start"
->
-  <form
-    className="width-50"
-    onSubmit={[Function]}
-  >
-    <h2
-      className="big"
-    >
-      onboarding.create_project.pat_form.title.bitbucket
-    </h2>
-    <p
-      className="big-spacer-top big-spacer-bottom"
-    >
-      onboarding.create_project.pat_form.help.bitbucket
-    </p>
     <ValidationInput
-      error="error"
-      id="personal_access_token"
-      isInvalid={true}
+      error="default_error_message"
+      id="personal_access_token_validation"
+      isInvalid={false}
       isValid={false}
-      label="onboarding.create_project.enter_pat"
+      label="onboarding.create_project.enter_pat.bitbucketcloud"
       required={true}
     >
       <input
-        autoFocus={true}
+        autoFocus={false}
         className="input-super-large is-invalid"
         id="personal_access_token"
         minLength={1}
-        name="personal_access_token"
         onChange={[Function]}
         type="text"
+        value="token"
       />
     </ValidationInput>
-    <SubmitButton
-      disabled={true}
+    <ValidationInput
+      error="default_error_message"
+      id="personal_access_token_submit"
+      isInvalid={true}
+      isValid={false}
+      label={null}
     >
-      save
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-    />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+      />
+    </ValidationInput>
   </form>
   <Alert
     className="big-spacer-left width-50"
@@ -615,17 +567,17 @@ exports[`should render correctly: validation failed, custom error message 1`] = 
     variant="info"
   >
     <h3>
-      onboarding.create_project.pat_help.title
+      onboarding.create_project.pat_help.bitbucketcloud.title
     </h3>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
       <FormattedMessage
-        defaultMessage="onboarding.create_project.pat_help.instructions"
+        defaultMessage="onboarding.create_project.pat_help.bitbucketcloud.instructions"
         id="onboarding.create_project.pat_help.instructions"
         values={
           Object {
-            "alm": "onboarding.alm.bitbucket",
+            "alm": "onboarding.alm.bitbucketcloud",
           }
         }
       />
@@ -640,32 +592,19 @@ exports[`should render correctly: validation failed, custom error message 1`] = 
         src="/images/alm/bitbucket.svg"
       />
       <a
-        href="http://www.example.com/plugins/servlet/access-tokens/add"
+        href="https://bitbucket.org/account/settings/app-passwords/new"
         rel="noopener noreferrer"
         target="_blank"
       >
-        onboarding.create_project.pat_help.link
+        onboarding.create_project.pat_help.bitbucketcloud.link
       </a>
     </div>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.instructions2.bitbucket
+      onboarding.create_project.pat_help.instructions2.bitbucketcloud
     </p>
     <ul>
-      <li>
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
-          id="onboarding.create_project.pat_help.bbs_permission_projects"
-          values={
-            Object {
-              "perm": <strong>
-                onboarding.create_project.pat_help.read_permission
-              </strong>,
-            }
-          }
-        />
-      </li>
       <li>
         <FormattedMessage
           defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"

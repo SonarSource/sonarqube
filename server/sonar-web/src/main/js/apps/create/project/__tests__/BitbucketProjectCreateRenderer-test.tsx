@@ -52,14 +52,14 @@ function shallowRender(props: Partial<BitbucketProjectCreateRendererProps> = {})
       importing={false}
       loading={false}
       onImportRepository={jest.fn()}
-      onPersonalAccessTokenCreate={jest.fn()}
+      onPersonalAccessTokenCreated={jest.fn()}
       onProjectCreate={jest.fn()}
       onSearch={jest.fn()}
       onSelectRepository={jest.fn()}
       projectRepositories={{ foo: { allShown: true, repositories: [mockBitbucketRepository()] } }}
       projects={[mockBitbucketProject({ key: 'foo' })]}
+      resetPat={false}
       searching={false}
-      tokenValidationFailed={false}
       {...props}
     />
   );

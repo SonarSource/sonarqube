@@ -21,6 +21,7 @@ export enum CreateProjectModes {
   Manual = 'manual',
   AzureDevOps = 'azure',
   BitbucketServer = 'bitbucket',
+  BitbucketCloud = 'bitbucketcloud',
   GitHub = 'github',
   GitLab = 'gitlab'
 }

@@ -21,16 +21,17 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
-  checkPersonalAccessTokenIsValid,
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
-  searchForBitbucketServerRepositories,
-  setAlmPersonalAccessToken
+  searchForBitbucketServerRepositories
 } from '../../../../api/alm-integrations';
-import { mockBitbucketRepository } from '../../../../helpers/mocks/alm-integrations';
+import {
+  mockBitbucketProject,
+  mockBitbucketRepository
+} from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { mockLocation } from '../../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import BitbucketProjectCreate from '../BitbucketProjectCreate';
 
@@ -39,7 +40,6 @@ jest.mock('../../../../api/alm-integrations', () => {
     '../../../../helpers/mocks/alm-integrations'
   );
   return {
-    checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
     getBitbucketServerProjects: jest.fn().mockResolvedValue({
       projects: [
         mockBitbucketProject({ key: 'project1', name: 'Project 1' }),
@@ -53,7 +53,6 @@ jest.mock('../../../../api/alm-integrations', () => {
       ]
     }),
     importBitbucketServerProject: jest.fn().mockResolvedValue({ project: { key: 'baz' } }),
-    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
     searchForBitbucketServerRepositories: jest.fn().mockResolvedValue({
       repositories: [
         mockBitbucketRepository(),
@@ -65,50 +64,21 @@ jest.mock('../../../../api/alm-integrations', () => {
 
 beforeEach(jest.clearAllMocks);
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
   expect(shallowRender()).toMatchSnapshot();
-});
+  expect(shallowRender({ bitbucketSettings: [] })).toMatchSnapshot('No setting');
 
-it('should correctly fetch binding info on mount', async () => {
   const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalledWith('foo');
-});
-
-it('should correctly handle a valid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: true });
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
-  expect(wrapper.state().patIsValid).toBe(true);
-});
-
-it('should correctly handle an invalid PAT', async () => {
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
-  expect(wrapper.state().patIsValid).toBe(false);
-});
-
-it('should correctly handle setting a new PAT', async () => {
-  const wrapper = shallowRender();
-  wrapper.instance().handlePersonalAccessTokenCreate('token');
-  expect(setAlmPersonalAccessToken).toBeCalledWith('foo', 'token');
-  expect(wrapper.state().submittingToken).toBe(true);
-
-  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
-  await waitAndUpdate(wrapper);
-  expect(checkPersonalAccessTokenIsValid).toBeCalled();
-  expect(wrapper.state().submittingToken).toBe(false);
-  expect(wrapper.state().tokenValidationFailed).toBe(true);
+  (getBitbucketServerRepositories as jest.Mock).mockRejectedValueOnce({});
+  await wrapper.instance().handlePersonalAccessTokenCreated();
+  expect(wrapper).toMatchSnapshot('No repository');
 });
 
 it('should correctly fetch projects and repos', async () => {
   const wrapper = shallowRender();
+  await wrapper.instance().handlePersonalAccessTokenCreated();
 
   // Opens first project on mount.
-  await waitAndUpdate(wrapper);
   expect(getBitbucketServerProjects).toBeCalledWith('foo');
   expect(wrapper.state().projects).toHaveLength(2);
 
@@ -159,6 +129,17 @@ it('should correctly handle search', async () => {
   expect(wrapper.state().searchResults).toHaveLength(2);
 });
 
+it('should behave correctly when no setting', async () => {
+  const wrapper = shallowRender({ bitbucketSettings: [] });
+  await wrapper.instance().handleSearch('');
+  await wrapper.instance().handleImportRepository();
+  await wrapper.instance().fetchBitbucketRepositories([mockBitbucketProject()]);
+
+  expect(searchForBitbucketServerRepositories).not.toHaveBeenCalled();
+  expect(importBitbucketServerProject).not.toHaveBeenCalled();
+  expect(getBitbucketServerRepositories).not.toHaveBeenCalled();
+});
+
 function shallowRender(props: Partial<BitbucketProjectCreate['props']> = {}) {
   return shallow<BitbucketProjectCreate>(
     <BitbucketProjectCreate
@@ -166,6 +147,7 @@ function shallowRender(props: Partial<BitbucketProjectCreate['props']> = {}) {
       bitbucketSettings={[mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, key: 'foo' })]}
       loadingBindings={false}
       location={mockLocation()}
+      router={mockRouter()}
       onProjectCreate={jest.fn()}
       {...props}
     />

@@ -35,9 +35,6 @@ it('should render correctly', () => {
   expect(shallowRender({ showPersonalAccessTokenForm: false })).toMatchSnapshot(
     'project selection form'
   );
-  expect(shallowRender({ tokenValidationErrorMessage: 'error' })).toMatchSnapshot(
-    'pat validation error'
-  );
 });
 
 function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
@@ -48,14 +45,14 @@ function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
       loadingMore={false}
       onImport={jest.fn()}
       onLoadMore={jest.fn()}
-      onPersonalAccessTokenCreate={jest.fn()}
+      onPersonalAccessTokenCreated={jest.fn()}
       onSearch={jest.fn()}
       projects={undefined}
       projectsPaging={{ pageIndex: 1, pageSize: 30, total: 0 }}
       searching={false}
       searchQuery=""
+      resetPat={false}
       showPersonalAccessTokenForm={true}
-      submittingToken={false}
       settings={mockAlmSettingsInstance({ alm: AlmKeys.GitLab })}
       {...props}
     />

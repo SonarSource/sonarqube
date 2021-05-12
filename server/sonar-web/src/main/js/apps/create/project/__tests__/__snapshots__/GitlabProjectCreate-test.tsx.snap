@@ -3,11 +3,11 @@
 exports[`should render correctly 1`] = `
 <GitlabProjectCreateRenderer
   canAdmin={false}
-  loading={true}
+  loading={false}
   loadingMore={false}
   onImport={[Function]}
   onLoadMore={[Function]}
-  onPersonalAccessTokenCreate={[Function]}
+  onPersonalAccessTokenCreated={[Function]}
   onSearch={[Function]}
   projectsPaging={
     Object {
@@ -16,6 +16,7 @@ exports[`should render correctly 1`] = `
       "total": 0,
     }
   }
+  resetPat={false}
   searchQuery=""
   searching={false}
   settings={
@@ -25,6 +26,5 @@ exports[`should render correctly 1`] = `
     }
   }
   showPersonalAccessTokenForm={true}
-  submittingToken={false}
 />
 `;

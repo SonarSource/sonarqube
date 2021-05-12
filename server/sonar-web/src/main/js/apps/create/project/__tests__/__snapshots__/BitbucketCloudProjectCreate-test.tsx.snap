@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should render correctly 1`] = `
+<BitbucketCloudProjectCreateRenderer
+  canAdmin={true}
+  loading={false}
+  onPersonalAccessTokenCreated={[Function]}
+  resetPat={false}
+  settings={
+    Object {
+      "alm": "bitbucketcloud",
+      "key": "key",
+    }
+  }
+  showPersonalAccessTokenForm={true}
+/>
+`;
+
+exports[`Should render correctly: Need App password 1`] = `
+<BitbucketCloudProjectCreateRenderer
+  canAdmin={true}
+  loading={false}
+  onPersonalAccessTokenCreated={[Function]}
+  resetPat={false}
+  settings={
+    Object {
+      "alm": "bitbucketcloud",
+      "key": "key",
+    }
+  }
+  showPersonalAccessTokenForm={true}
+/>
+`;

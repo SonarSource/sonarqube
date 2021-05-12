@@ -10,14 +10,66 @@ exports[`should render correctly 1`] = `
   }
   canAdmin={false}
   importing={false}
-  loading={true}
+  loading={false}
   onImportRepository={[Function]}
-  onPersonalAccessTokenCreate={[Function]}
+  onPersonalAccessTokenCreated={[Function]}
   onProjectCreate={[MockFunction]}
   onSearch={[Function]}
   onSelectRepository={[Function]}
+  resetPat={false}
   searching={false}
   showPersonalAccessTokenForm={true}
-  tokenValidationFailed={false}
+/>
+`;
+
+exports[`should render correctly: No repository 1`] = `
+<BitbucketProjectCreateRenderer
+  bitbucketSetting={
+    Object {
+      "alm": "bitbucket",
+      "key": "foo",
+    }
+  }
+  canAdmin={false}
+  importing={false}
+  loading={false}
+  onImportRepository={[Function]}
+  onPersonalAccessTokenCreated={[Function]}
+  onProjectCreate={[MockFunction]}
+  onSearch={[Function]}
+  onSelectRepository={[Function]}
+  projects={
+    Array [
+      Object {
+        "id": 1,
+        "key": "project1",
+        "name": "Project 1",
+      },
+      Object {
+        "id": 2,
+        "key": "project2",
+        "name": "Project",
+      },
+    ]
+  }
+  resetPat={false}
+  searching={false}
+  showPersonalAccessTokenForm={false}
+/>
+`;
+
+exports[`should render correctly: No setting 1`] = `
+<BitbucketProjectCreateRenderer
+  canAdmin={false}
+  importing={false}
+  loading={false}
+  onImportRepository={[Function]}
+  onPersonalAccessTokenCreated={[Function]}
+  onProjectCreate={[MockFunction]}
+  onSearch={[Function]}
+  onSelectRepository={[Function]}
+  resetPat={false}
+  searching={false}
+  showPersonalAccessTokenForm={true}
 />
 `;

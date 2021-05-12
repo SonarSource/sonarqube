@@ -20,12 +20,10 @@
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import {
-  checkPersonalAccessTokenIsValid,
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
-  searchForBitbucketServerRepositories,
-  setAlmPersonalAccessToken
+  searchForBitbucketServerRepositories
 } from '../../../api/alm-integrations';
 import {
   BitbucketProject,
@@ -36,7 +34,7 @@ import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 import { DEFAULT_BBS_PAGE_SIZE } from './constants';
 
-interface Props extends Pick<WithRouterProps, 'location'> {
+interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   bitbucketSettings: AlmSettingsInstance[];
   loadingBindings: boolean;
@@ -47,14 +45,12 @@ interface State {
   bitbucketSetting?: AlmSettingsInstance;
   importing: boolean;
   loading: boolean;
-  patIsValid?: boolean;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
   searching: boolean;
   searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
-  submittingToken?: boolean;
-  tokenValidationFailed: boolean;
+  showPersonalAccessTokenForm: boolean;
 }
 
 export default class BitbucketProjectCreate extends React.PureComponent<Props, State> {
@@ -69,13 +65,12 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       importing: false,
       loading: false,
       searching: false,
-      tokenValidationFailed: false
+      showPersonalAccessTokenForm: true
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchInitialData();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -91,38 +86,27 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   }
 
   fetchInitialData = async () => {
-    this.setState({ loading: true });
+    const { showPersonalAccessTokenForm } = this.state;
 
-    const patIsValid = await this.checkPersonalAccessToken().catch(() => false);
+    if (!showPersonalAccessTokenForm) {
+      this.setState({ loading: true });
+      const projects = await this.fetchBitbucketProjects().catch(() => undefined);
 
-    let projects;
-    if (patIsValid) {
-      projects = await this.fetchBitbucketProjects().catch(() => undefined);
+      let projectRepositories;
+      if (projects && projects.length > 0) {
+        projectRepositories = await this.fetchBitbucketRepositories(projects).catch(
+          () => undefined
+        );
+      }
+
+      if (this.mounted) {
+        this.setState({
+          projects,
+          projectRepositories,
+          loading: false
+        });
+      }
     }
-
-    let projectRepositories;
-    if (projects && projects.length > 0) {
-      projectRepositories = await this.fetchBitbucketRepositories(projects).catch(() => undefined);
-    }
-
-    if (this.mounted) {
-      this.setState({
-        patIsValid,
-        projects,
-        projectRepositories,
-        loading: false
-      });
-    }
-  };
-
-  checkPersonalAccessToken = () => {
-    const { bitbucketSetting } = this.state;
-
-    if (!bitbucketSetting) {
-      return Promise.resolve(false);
-    }
-
-    return checkPersonalAccessTokenIsValid(bitbucketSetting.key).then(({ status }) => status);
   };
 
   fetchBitbucketProjects = (): Promise<BitbucketProject[] | undefined> => {
@@ -184,29 +168,16 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     });
   };
 
-  handlePersonalAccessTokenCreate = (token: string) => {
-    const { bitbucketSetting } = this.state;
+  cleanUrl = () => {
+    const { location, router } = this.props;
+    delete location.query.resetPat;
+    router.replace(location);
+  };
 
-    if (!bitbucketSetting || token.length < 1) {
-      return;
-    }
-
-    this.setState({ submittingToken: true, tokenValidationFailed: false });
-    setAlmPersonalAccessToken(bitbucketSetting.key, token)
-      .then(this.checkPersonalAccessToken)
-      .then(patIsValid => {
-        if (this.mounted) {
-          this.setState({ submittingToken: false, patIsValid, tokenValidationFailed: !patIsValid });
-          if (patIsValid) {
-            this.fetchInitialData();
-          }
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ submittingToken: false });
-        }
-      });
+  handlePersonalAccessTokenCreated = async () => {
+    this.setState({ showPersonalAccessTokenForm: false });
+    this.cleanUrl();
+    await this.fetchInitialData();
   };
 
   handleImportRepository = () => {
@@ -271,14 +242,12 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       bitbucketSetting,
       importing,
       loading,
-      patIsValid,
       projectRepositories,
       projects,
       searching,
       searchResults,
       selectedRepository,
-      submittingToken,
-      tokenValidationFailed
+      showPersonalAccessTokenForm
     } = this.state;
 
     return (
@@ -288,18 +257,19 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         importing={importing}
         loading={loading || loadingBindings}
         onImportRepository={this.handleImportRepository}
-        onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
+        onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onProjectCreate={this.props.onProjectCreate}
         onSearch={this.handleSearch}
         onSelectRepository={this.handleSelectRepository}
         projectRepositories={projectRepositories}
         projects={projects}
+        resetPat={Boolean(location.query.resetPat)}
         searchResults={searchResults}
         searching={searching}
         selectedRepository={selectedRepository}
-        showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
-        submittingToken={submittingToken}
-        tokenValidationFailed={tokenValidationFailed}
+        showPersonalAccessTokenForm={
+          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
+        }
       />
     );
   }

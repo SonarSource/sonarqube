@@ -115,6 +115,19 @@ exports[`should render correctly if the BBS method is selected 1`] = `
         }
       }
       onProjectCreate={[Function]}
+      router={
+        Object {
+          "createHref": [MockFunction],
+          "createPath": [MockFunction],
+          "go": [MockFunction],
+          "goBack": [MockFunction],
+          "goForward": [MockFunction],
+          "isActive": [MockFunction],
+          "push": [MockFunction],
+          "replace": [MockFunction],
+          "setRouteLeaveHook": [MockFunction],
+        }
+      }
     />
   </div>
 </Fragment>

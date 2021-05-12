@@ -41,16 +41,15 @@ export interface BitbucketProjectCreateRendererProps {
   onImportRepository: () => void;
   onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
-  onPersonalAccessTokenCreate: (token: string) => void;
+  onPersonalAccessTokenCreated: () => void;
   onProjectCreate: (projectKeys: string[]) => void;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
+  resetPat: boolean;
   searching: boolean;
   searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
   showPersonalAccessTokenForm?: boolean;
-  submittingToken?: boolean;
-  tokenValidationFailed: boolean;
 }
 
 export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCreateRendererProps) {
@@ -65,8 +64,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     searching,
     searchResults,
     showPersonalAccessTokenForm,
-    submittingToken,
-    tokenValidationFailed
+    resetPat
   } = props;
 
   return (
@@ -109,9 +107,8 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         (showPersonalAccessTokenForm ? (
           <PersonalAccessTokenForm
             almSetting={bitbucketSetting}
-            onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
-            submitting={submittingToken}
-            validationFailed={tokenValidationFailed}
+            onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
+            resetPat={resetPat}
           />
         ) : (
           <BitbucketImportRepositoryForm

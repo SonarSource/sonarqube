@@ -44,6 +44,16 @@ export function mockAlmSettingsInstance(
   };
 }
 
+export function mockBitbucketCloudAlmSettingsInstance(
+  overrides: Partial<AlmSettingsInstance> = {}
+): AlmSettingsInstance {
+  return {
+    alm: AlmKeys.BitbucketCloud,
+    key: 'key',
+    ...overrides
+  };
+}
+
 export function mockAzureBindingDefinition(
   overrides: Partial<AzureBindingDefinition> = {}
 ): AzureBindingDefinition {

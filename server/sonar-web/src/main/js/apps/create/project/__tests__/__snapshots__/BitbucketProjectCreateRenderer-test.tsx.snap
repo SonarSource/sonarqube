@@ -281,8 +281,8 @@ exports[`should render correctly: pat form 1`] = `
         "key": "key",
       }
     }
-    onPersonalAccessTokenCreate={[MockFunction]}
-    validationFailed={false}
+    onPersonalAccessTokenCreated={[MockFunction]}
+    resetPat={false}
   />
 </Fragment>
 `;
