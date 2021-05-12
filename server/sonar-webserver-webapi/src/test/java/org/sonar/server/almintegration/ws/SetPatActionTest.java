@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -86,6 +87,28 @@ public class SetPatActionTest {
   }
 
   @Test
+  public void set_new_bitbucketcloud_pat() {
+    UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    String pat = "12345678987654321";
+    String username = "test-user";
+
+    ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("pat", pat)
+      .setParam("username", username)
+      .execute();
+
+    Optional<AlmPatDto> actualAlmPat = db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), user.getUuid(), almSetting);
+    assertThat(actualAlmPat).isPresent();
+    assertThat(actualAlmPat.get().getPersonalAccessToken()).isEqualTo(CredentialsEncoderHelper.encodeCredentials(ALM.BITBUCKET_CLOUD, pat, username));
+    assertThat(actualAlmPat.get().getUserUuid()).isEqualTo(user.getUuid());
+    assertThat(actualAlmPat.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
+  }
+
+  @Test
   public void set_new_gitlab_pat() {
     UserDto user = db.users().insertUser();
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
@@ -123,6 +146,21 @@ public class SetPatActionTest {
   }
 
   @Test
+  public void fail_when_bitbucketcloud_without_username() {
+    UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Username cannot be null for Bitbucket Cloud");
+
+    ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("pat", "12345678987654321")
+      .execute();
+  }
+
+  @Test
   public void fail_when_alm_setting_unknow() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
@@ -143,7 +181,7 @@ public class SetPatActionTest {
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only Azure DevOps, Bibucket Server and GitLab ALM Settings are supported.");
+    expectedException.expectMessage("Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
 
     ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -177,7 +215,7 @@ public class SetPatActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("almSetting", true), tuple("pat", true));
+      .containsExactlyInAnyOrder(tuple("almSetting", true), tuple("pat", true), tuple("username", false));
   }
 
 }

@@ -22,6 +22,7 @@ package org.sonar.server.almintegration.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.server.ws.WebService;
@@ -41,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,9 +59,11 @@ public class CheckPatActionTest {
   public DbTester db = DbTester.create();
 
   private final AzureDevOpsHttpClient azureDevOpsPrHttpClient = mock(AzureDevOpsHttpClient.class);
+  private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
   private final GitlabHttpClient gitlabPrHttpClient = mock(GitlabHttpClient.class);
-  private final WsActionTester ws = new WsActionTester(new CheckPatAction(db.getDbClient(), userSession, azureDevOpsPrHttpClient, bitbucketServerRestClient, gitlabPrHttpClient));
+  private final WsActionTester ws = new WsActionTester(new CheckPatAction(db.getDbClient(), userSession, azureDevOpsPrHttpClient,
+    bitbucketCloudRestClient, bitbucketServerRestClient, gitlabPrHttpClient));
 
   @Test
   public void check_pat_for_github() {
@@ -134,6 +139,25 @@ public class CheckPatActionTest {
   }
 
   @Test
+  public void check_pat_for_bitbucketcloud() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken(PAT_SECRET);
+    });
+
+    ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .execute();
+
+    assertThat(almSetting.getAppId()).isNotNull();
+    verify(bitbucketCloudRestClient).validateAppPassword(PAT_SECRET, almSetting.getAppId());
+  }
+
+  @Test
   public void fail_when_personal_access_token_is_invalid_for_bitbucket() {
     when(bitbucketServerRestClient.getRecentRepo(any(), any())).thenThrow(new IllegalArgumentException("Invalid personal access token"));
     UserDto user = db.users().insertUser();
@@ -157,6 +181,25 @@ public class CheckPatActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+
+    TestRequest request = ws.newRequest().setParam("almSetting", almSetting.getKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid personal access token");
+  }
+
+  @Test
+  public void fail_when_personal_access_token_is_invalid_for_bitbucketcloud() {
+    doThrow(new IllegalArgumentException("Invalid personal access token"))
+      .when(bitbucketCloudRestClient).validateAppPassword(anyString(), anyString());
+
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());

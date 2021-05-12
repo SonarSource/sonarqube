@@ -20,8 +20,10 @@
 package org.sonar.server.almintegration.ws;
 
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,22 +40,27 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 public class CheckPatAction implements AlmIntegrationsWsAction {
 
   private static final String PARAM_ALM_SETTING = "almSetting";
+  private static final String APP_PASSWORD_CANNOT_BE_NULL = "App Password and Username cannot be null";
   private static final String PAT_CANNOT_BE_NULL = "PAT cannot be null";
   private static final String URL_CANNOT_BE_NULL = "URL cannot be null";
+  private static final String WORKSPACE_CANNOT_BE_NULL = "Workspace cannot be null";
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final AzureDevOpsHttpClient azureDevOpsHttpClient;
+  private final BitbucketCloudRestClient bitbucketCloudRestClient;
   private final BitbucketServerRestClient bitbucketServerRestClient;
   private final GitlabHttpClient gitlabHttpClient;
 
   public CheckPatAction(DbClient dbClient, UserSession userSession,
     AzureDevOpsHttpClient azureDevOpsHttpClient,
+    BitbucketCloudRestClient bitbucketCloudRestClient,
     BitbucketServerRestClient bitbucketServerRestClient,
     GitlabHttpClient gitlabHttpClient) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
+    this.bitbucketCloudRestClient = bitbucketCloudRestClient;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
     this.gitlabHttpClient = gitlabHttpClient;
   }
@@ -66,7 +73,8 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
       .setPost(false)
       .setInternal(true)
       .setSince("8.2")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("9.0", "Bitbucket Cloud support was added"));
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
@@ -109,6 +117,11 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
             requireNonNull(almSettingDto.getUrl(), URL_CANNOT_BE_NULL),
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL),
             null, 1, 10);
+          break;
+        case BITBUCKET_CLOUD:
+          bitbucketCloudRestClient.validateAppPassword(
+            requireNonNull(almPatDto.getPersonalAccessToken(), APP_PASSWORD_CANNOT_BE_NULL),
+            requireNonNull(almSettingDto.getAppId(), WORKSPACE_CANNOT_BE_NULL));
           break;
         case GITHUB:
         default:

@@ -46,6 +46,7 @@ import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
 @ServerSide
 public class BitbucketCloudRestClient {
   private static final Logger LOG = Loggers.get(BitbucketCloudRestClient.class);
+  private static final String AUTHORIZATION = "Authorization";
   private static final String GET = "GET";
   private static final String ENDPOINT = "https://api.bitbucket.org";
   private static final String ACCESS_TOKEN_ENDPOINT = "https://bitbucket.org/site/oauth2/access_token";
@@ -83,6 +84,17 @@ public class BitbucketCloudRestClient {
 
     try {
       doGet(token.getAccessToken(), buildUrl("/repositories/" + workspace), r -> null);
+    } catch (NotFoundException | IllegalStateException e) {
+      throw new IllegalArgumentException(e.getMessage());
+    }
+  }
+
+  /**
+   * Validate parameters provided.
+   */
+  public void validateAppPassword(String encodedCredentials, String workspace) {
+    try {
+      doGetWithBasicAuth(encodedCredentials, buildUrl("/repositories/" + workspace), r -> null);
     } catch (NotFoundException | IllegalStateException e) {
       throw new IllegalArgumentException(e.getMessage());
     }
@@ -133,11 +145,7 @@ public class BitbucketCloudRestClient {
       .build();
     HttpUrl url = HttpUrl.parse(accessTokenEndpoint);
     String credential = Credentials.basic(clientId, clientSecret);
-    return new Request.Builder()
-      .method("POST", body)
-      .url(url)
-      .header("Authorization", credential)
-      .build();
+    return prepareRequestWithBasicAuthCredentials(credential, "POST", url, body);
   }
 
   protected HttpUrl buildUrl(String relativeUrl) {
@@ -146,6 +154,11 @@ public class BitbucketCloudRestClient {
 
   protected <G> G doGet(String accessToken, HttpUrl url, Function<Response, G> handler) {
     Request request = prepareRequestWithAccessToken(accessToken, GET, url, null);
+    return doCall(request, handler);
+  }
+
+  protected <G> G doGetWithBasicAuth(String encodedCredentials, HttpUrl url, Function<Response, G> handler) {
+    Request request = prepareRequestWithBasicAuthCredentials("Basic " + encodedCredentials, GET, url, null);
     return doCall(request, handler);
   }
 
@@ -232,7 +245,16 @@ public class BitbucketCloudRestClient {
     return new Request.Builder()
       .method(method, body)
       .url(url)
-      .header("Authorization", "Bearer " + accessToken)
+      .header(AUTHORIZATION, "Bearer " + accessToken)
+      .build();
+  }
+
+  protected static Request prepareRequestWithBasicAuthCredentials(String encodedCredentials, String method,
+    HttpUrl url, @Nullable RequestBody body) {
+    return new Request.Builder()
+      .method(method, body)
+      .url(url)
+      .header(AUTHORIZATION, encodedCredentials)
       .build();
   }
 

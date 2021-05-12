@@ -144,6 +144,33 @@ public class BitbucketCloudRestClientTest {
   }
 
   @Test
+  public void validate_app_password_success() throws Exception {
+    String reposResponse = "{\"pagelen\": 10,\n" +
+      "\"values\": [],\n" +
+      "\"page\": 1,\n" +
+      "\"size\": 0\n" +
+      "}";
+
+    server.enqueue(new MockResponse().setBody(reposResponse));
+    server.enqueue(new MockResponse().setBody("OK"));
+
+    underTest.validateAppPassword("user:password", "workspace");
+
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/2.0/repositories/workspace");
+    assertThat(request.getHeader("Authorization")).isNotNull();
+  }
+
+  @Test
+  public void validate_app_password_with_invalid_credentials() {
+    server.enqueue(new MockResponse().setResponseCode(401).setHeader("Content-Type", JSON_MEDIA_TYPE));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.validateAppPassword("wrong:wrong", "workspace"))
+      .withMessage("Unable to contact Bitbucket Cloud servers");
+  }
+
+  @Test
   public void nullErrorBodyIsSupported() throws IOException {
     OkHttpClient clientMock = mock(OkHttpClient.class);
     Call callMock = mock(Call.class);

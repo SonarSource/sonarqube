@@ -48,6 +48,7 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
+import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
@@ -500,6 +501,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // ALM integrations
       TimeoutConfigurationImpl.class,
+      CredentialsEncoderHelper.class,
       ImportHelper.class,
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,

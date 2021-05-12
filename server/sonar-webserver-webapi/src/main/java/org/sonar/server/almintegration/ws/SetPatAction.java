@@ -19,8 +19,10 @@
  */
 package org.sonar.server.almintegration.ws;
 
+import com.google.common.base.Strings;
 import java.util.Arrays;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,6 +38,7 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
 import static org.sonar.db.alm.setting.ALM.BITBUCKET;
+import static org.sonar.db.alm.setting.ALM.BITBUCKET_CLOUD;
 import static org.sonar.db.alm.setting.ALM.GITLAB;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
@@ -43,6 +46,7 @@ public class SetPatAction implements AlmIntegrationsWsAction {
 
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_PAT = "pat";
+  private static final String PARAM_USERNAME = "username";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -56,11 +60,12 @@ public class SetPatAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_pat")
       .setDescription("Set a Personal Access Token for the given ALM setting<br/>" +
-        "Only valid for Azure DevOps, Bitbucket Server & GitLab Alm Setting<br/>" +
+        "Only valid for Azure DevOps, Bitbucket Server, GitLab Alm and Bitbucket Cloud Setting<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.2")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("9.0", "Bitbucket Cloud support and optional Username parameter were added"));
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
@@ -69,6 +74,10 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       .setRequired(true)
       .setMaximumLength(2000)
       .setDescription("Personal Access Token");
+    action.createParam(PARAM_USERNAME)
+      .setRequired(false)
+      .setMaximumLength(2000)
+      .setDescription("Username");
   }
 
   @Override
@@ -83,22 +92,29 @@ public class SetPatAction implements AlmIntegrationsWsAction {
 
       String pat = request.mandatoryParam(PARAM_PAT);
       String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
+      String username = request.param(PARAM_USERNAME);
 
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
         .orElseThrow(() -> new NotFoundException(format("ALM Setting '%s' not found", almSettingKey)));
 
-      Preconditions.checkArgument(Arrays.asList(AZURE_DEVOPS, BITBUCKET, GITLAB)
-        .contains(almSetting.getAlm()), "Only Azure DevOps, Bibucket Server and GitLab ALM Settings are supported.");
+      Preconditions.checkArgument(Arrays.asList(AZURE_DEVOPS, BITBUCKET, GITLAB, BITBUCKET_CLOUD)
+        .contains(almSetting.getAlm()), "Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
+
+      if(almSetting.getAlm().equals(BITBUCKET_CLOUD)) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "Username cannot be null for Bitbucket Cloud");
+      }
+
+      String resultingPat = CredentialsEncoderHelper.encodeCredentials(almSetting.getAlm(), pat, username);
 
       Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSetting);
       if (almPatDto.isPresent()) {
         AlmPatDto almPat = almPatDto.get();
-        almPat.setPersonalAccessToken(pat);
+        almPat.setPersonalAccessToken(resultingPat);
         dbClient.almPatDao().update(dbSession, almPat);
       } else {
         AlmPatDto almPat = new AlmPatDto()
-          .setPersonalAccessToken(pat)
+          .setPersonalAccessToken(resultingPat)
           .setAlmSettingUuid(almSetting.getUuid())
           .setUserUuid(userUuid);
         dbClient.almPatDao().insert(dbSession, almPat);
@@ -106,5 +122,4 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       dbSession.commit();
     }
   }
-
 }
