@@ -16,4 +16,4 @@ Why? Well, it's useful to analyze a project frequently to see how its quality ev
 * All closed issues more than 30 days old are deleted
 * History at package/directory level is removed
 
-These settings can be changed at [Administration > General > Database Cleaner](/#sonarqube-admin#/admin/settings).
+These settings can be changed at [Administration > General Settings > Housekeeping](/#sonarqube-admin#/admin/settings?category=housekeeping).
