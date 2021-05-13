@@ -16,7 +16,7 @@ With this integration, you'll be able to:
 Integration with GitLab Self-Managed requires at least GitLab Self-Managed version 11.7.
 
 ### Branch Analysis
-Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
+Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and merge requests.
 
 ## Authenticating with GitLab
 You can delegate authentication to GitLab using a dedicated GitLab OAuth application.
