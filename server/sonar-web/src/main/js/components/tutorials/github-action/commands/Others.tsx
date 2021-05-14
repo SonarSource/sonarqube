@@ -26,12 +26,20 @@ export interface OthersProps {
   component: T.Component;
 }
 
-const dotnetYamlTemplate = (branchesEnabled: boolean) => `name: Build
+const yamlTemplate = (branchesEnabled: boolean) => {
+  let output = `name: Build
 on:
   push:
     branches:
-      - master # or the name of your main branch
-${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
+      - master # or the name of your main branch`;
+
+  if (branchesEnabled) {
+    output += `
+  pull_request:
+    types: [opened, synchronize, reopened]`;
+  }
+
+  output += `
 jobs:
   build:
     name: Build
@@ -40,18 +48,34 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: docker://sonarsource/sonar-scanner-cli:latest
+      - uses: sonarsource/sonarqube-scan-action@master
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`;
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.`;
+
+  if (branchesEnabled) {
+    output += `
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.`;
+  }
+
+  output += `
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}`;
+
+  return output;
+};
 
 export default function Others(props: OthersProps) {
   const { component, branchesEnabled } = props;
   return (
     <>
       <DefaultProjectKey component={component} />
-      <CreateYmlFile yamlTemplate={dotnetYamlTemplate(!!branchesEnabled)} />
+      <CreateYmlFile yamlTemplate={yamlTemplate(!!branchesEnabled)} />
     </>
   );
 }
