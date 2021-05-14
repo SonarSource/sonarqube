@@ -140,6 +140,11 @@ public class BitbucketCloudRestClient {
     return doGetWithBasicAuth(encodedCredentials, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
   }
 
+  public Repository getRepo(String encodedCredentials, String workspace, String slug) {
+    HttpUrl url = buildUrl(String.format("/repositories/%s/%s", workspace, slug));
+    return doGetWithBasicAuth(encodedCredentials, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
+  }
+
   public String createAccessToken(String clientId, String clientSecret) {
     Request request = createAccessTokenRequest(clientId, clientSecret);
     return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class)).getAccessToken();

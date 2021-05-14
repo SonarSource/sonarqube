@@ -23,6 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.almintegration.ws.azure.ImportAzureProjectAction;
 import org.sonar.server.almintegration.ws.azure.ListAzureProjectsAction;
 import org.sonar.server.almintegration.ws.azure.SearchAzureReposAction;
+import org.sonar.server.almintegration.ws.bitbucketcloud.ImportBitbucketCloudRepoAction;
 import org.sonar.server.almintegration.ws.bitbucketcloud.SearchBitbucketCloudReposAction;
 import org.sonar.server.almintegration.ws.bitbucketserver.ImportBitbucketServerProjectAction;
 import org.sonar.server.almintegration.ws.bitbucketserver.ListBitbucketServerProjectsAction;
@@ -41,6 +42,7 @@ public class AlmIntegrationsWSModule extends Module {
       CheckPatAction.class,
       SetPatAction.class,
       ImportBitbucketServerProjectAction.class,
+      ImportBitbucketCloudRepoAction.class,
       ListBitbucketServerProjectsAction.class,
       SearchBitbucketServerReposAction.class,
       SearchBitbucketCloudReposAction.class,
