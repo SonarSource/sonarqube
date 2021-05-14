@@ -265,39 +265,17 @@ Click the scanner you're using below to expand the example configuration:
 |           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 | ```
 
-
 [[collapse]]
 | ## SonarScanner CLI
 | 
-| **Note:** A project key has to be provided through a `sonar-project.properties` file, or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
-| 
-| Write the following in your workflow YAML file:
-|
-| ```
-| name: Build
-| on:
-|   push:
-|     branches:
-|       - master # or the name of your main branch
-|   pull_request:
-|     types: [opened, synchronize, reopened]
-| jobs:
-|   build:
-|     name: Build
-|     runs-on: ubuntu-latest
-|     steps:
-|       - uses: actions/checkout@v2
-|         with:
-|           fetch-depth: 0
-|       - uses: docker://sonarsource/sonar-scanner-cli:latest
-|         env:
-|           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-|           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-|           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-| ```
+| You can easily set up a basic configuration using the SonarQube Scan GitHub Action. You'll find the GitHub Action and configuration instructions on the [SonarQube Scan GitHub Action](https://github.com/marketplace/actions/official-sonarqube-scan) page on the GitHub Marketplace.
 
 #### **Failing the pipeline job when the Quality Gate fails**
-In order for the Quality Gate to fail on the GitLab side when it fails on the SonarQube side, the scanner needs to wait for the SonarQube Quality Gate status. To enable this, set the `sonar.qualitygate.wait` property to `true` (check the above scanners' documentation to know where to set this property).
+You can use the [SonarQube Quality Gate Check GitHub Action](https://github.com/marketplace/actions/sonarqube-quality-gate-check) to ensure your code meets your quality standards by failing your pipeline job when your [Quality Gate](/user-guide/quality-gates/) fails.
+
+If you do not want to use the SonarQube Quality Gate Check Action, you can instruct the scanner to wait for the SonarQube Quality Gate status at the end of the analysis. To enable this, pass the `-Dsonar.qualitygate.wait=true` parameter to the scanner in the workflow YAML file.
+
+This will make the analysis step poll SonarQube regularly until the Quality Gate is computed. This will increase your pipeline duration. Note that, if the Quality Gate is red, this will make the analysis step fail, even if the actual analysis itself is successful. We advise only using this parameter when necessary (for example, to block a deployment pipeline if the Quality Gate is red). It should not be used to report the Quality Gate status in a pull request, as this is already done with pull request decoration.
 
 You can set the `sonar.qualitygate.timeout` property to an amount of time (in seconds) that the scanner should wait for a report to be processed. The default is 300 seconds. 
 
