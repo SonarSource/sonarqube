@@ -166,48 +166,52 @@ Click the scanner you're using below to expand the example configuration:
 [[collapse]]
 | ## SonarScanner CLI
 |
-| **Note:** A project key has to be provided through a `sonar-project.properties` file, or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
+| You can set up the SonarScanner CLI configuration the following ways:
 |
-| Write the following in your `bitbucket-pipelines.yml`:
+| - **SonarQube Scan Bitbucket Pipe** – Using the SonarQube Scan Bitbucket Pipe is an easy way to set up a basic configuration. You'll find the Bitbucket Pipe and configuration instructions on the [SonarQube Scan Bitbucket Pipe](https://bitbucket.org/sonarsource/sonarqube-scan/) page.
 |
-| ```
-| clone:
-|   depth: full
+| - **Advanced Configuration** – If you need an advanced setup that allows for scanner caching, you can add the following to your `bitbucket-pipelines.yml` file:
 |
-| pipelines:
-|   branches:
-|     '{master,develop}':
-|       - step:
-|           name: SonarQube analysis
-|           image: sonarsource/sonar-scanner-cli:latest
-|           caches:
-|             - sonar
-|           script:
-|             - sonar-scanner
+|   [[info]]
+|   | This configuration is an alternative to the SonarQube Scan Bitbucket Pipe. If you do not need a setup that allows for scanner caching, we recommend using the Bitbucket Pipe.
 |
-|   pull-requests:
-|     '**':
-|       - step:
-|           name: SonarQube analysis
-|           image: sonarsource/sonar-scanner-cli:latest
-|           caches:
-|             - sonar
-|           script:
-|             - sonar-scanner
+|    ```
+|    clone:
+|      depth: full
 |
-| definitions:
-|   caches:
-|     sonar: /opt/sonar-scanner/.sonar
-| ```
+|    pipelines:
+|      branches:
+|        '{master,develop}':
+|          - step:
+|              name: SonarQube analysis
+|              image: sonarsource/sonar-scanner-cli:latest
+|              caches:
+|                - sonar
+|              script:
+|                - sonar-scanner
+|
+|      pull-requests:
+|        '**':
+|          - step:
+|              name: SonarQube analysis
+|              image: sonarsource/sonar-scanner-cli:latest
+|              caches:
+|                - sonar
+|              script:
+|                - sonar-scanner
+|
+|    definitions:
+|      caches:
+|        sonar: /opt/sonar-scanner/.sonar
+|    ```
+|
+| [[info]]
+| | A project key has to be provided through a `sonar-project.properties` file, or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
 
 #### **Failing the pipeline job when the Quality Gate fails**
-In order for the Quality Gate to fail the pipeline when it is red on the SonarQube side, the scanner needs to wait for the SonarQube Quality Gate status. To enable this, pass the `-Dsonar.qualitygate.wait=true` parameter to the scanner in the `bitbucket-pipelines.yml` file.
+You can use the [SonarQube Quality Gate Check Bitbucket Pipe](https://bitbucket.org/sonarsource/sonarqube-quality-gate) to ensure your code meets your quality standards by failing your pipeline job when your [Quality Gate](/user-guide/quality-gates/) fails.
 
-Example:
-
-```
-mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
-```
+If you do not want to use the SonarQube Quality Gate Check Pipe, you can instruct the scanner to wait for the SonarQube Quality Gate status at the end of the analysis. To enable this, pass the `-Dsonar.qualitygate.wait=true` parameter to the scanner in the `bitbucket-pipelines.yml` file.
 
 This will make the analysis step poll SonarQube regularly until the Quality Gate is computed. This will increase your pipeline duration. Note that, if the Quality Gate is red, this will make the analysis step fail, even if the actual analysis itself is successful. We advise only using this parameter when necessary (for example, to block a deployment pipeline if the Quality Gate is red). It should not be used to report the Quality Gate status in a pull request, as this is already done with pull request decoration.
 

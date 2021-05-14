@@ -74,7 +74,7 @@
 	  {
         "title": "CI Integration",
         "children": [
-          "/analysis/branch-pr-analysis-overview/",
+          "/analysis/ci-integration-overview/",
 		  "/analysis/jenkins/"
         ]
       },
@@ -88,8 +88,13 @@
     "children": [
       "/analysis/github-integration/",
       "/analysis/gitlab-integration/",
-      "/analysis/bitbucket-integration/",
-      "/analysis/bitbucket-cloud-integration/",
+	  {
+        "title": "Bitbucket Integration",
+        "children": [
+          "/analysis/bitbucket-integration/",
+		  "/analysis/bitbucket-cloud-integration/"
+        ]
+      },
       "/analysis/azuredevops-integration/"
 	 ]
   },
