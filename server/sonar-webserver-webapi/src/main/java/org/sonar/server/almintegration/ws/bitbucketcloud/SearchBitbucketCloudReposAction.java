@@ -20,8 +20,11 @@
 package org.sonar.server.almintegration.ws.bitbucketcloud;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BinaryOperator;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList;
 import org.sonar.api.server.ws.Request;
@@ -31,16 +34,20 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmIntegrations.BBCRepo;
 import org.sonarqube.ws.AlmIntegrations.SearchBitbucketcloudReposWsResponse;
-import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.Paging;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -48,6 +55,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction {
 
+  private static final BinaryOperator<String> resolveCollisionByNaturalOrder = (a, b) -> a.compareTo(b) < 0 ? a : b;
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_REPO_NAME = "repositoryName";
   private static final int DEFAULT_PAGE_SIZE = 20;
@@ -112,29 +120,45 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
 
       RepositoryList repositoryList = bitbucketCloudRestClient.searchRepos(pat, workspace, repoName, page, pageSize);
 
+      Map<String, String> sqProjectKeyByRepoSlug = getSqProjectKeyByRepoSlug(dbSession, almSettingDto, repositoryList.getValues());
+
       List<BBCRepo> bbcRepos = repositoryList.getValues().stream()
-        .map(repository -> toBBCRepo(repository, workspace))
+        .map(repository -> toBBCRepo(repository, workspace, sqProjectKeyByRepoSlug))
         .collect(toList());
 
       SearchBitbucketcloudReposWsResponse.Builder builder = SearchBitbucketcloudReposWsResponse.newBuilder()
         .setIsLastPage(repositoryList.getNext() == null)
-        .setPaging(Common.Paging.newBuilder()
-          .setPageIndex(page)
-          .setPageSize(pageSize)
-          .build())
+        .setPaging(Paging.newBuilder().setPageIndex(page).setPageSize(pageSize).build())
         .addAllRepositories(bbcRepos);
       return builder.build();
     }
   }
 
-  private static BBCRepo toBBCRepo(Repository gsonBBCRepo, String workspace) {
-    return BBCRepo.newBuilder()
+  private Map<String, String> getSqProjectKeyByRepoSlug(DbSession dbSession, AlmSettingDto almSettingDto, List<Repository> repositories) {
+    Set<String> slugs = repositories.stream().map(Repository::getSlug).collect(toSet());
+
+    List<ProjectAlmSettingDto> projectAlmSettingDtos = dbClient.projectAlmSettingDao().selectByAlmSettingAndSlugs(dbSession, almSettingDto, slugs);
+
+    Map<String, String> repoSlugByProjectUuid = projectAlmSettingDtos.stream()
+      .collect(toMap(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getAlmSlug));
+
+    return dbClient.projectDao().selectByUuids(dbSession, repoSlugByProjectUuid.keySet())
+      .stream()
+      .collect(toMap(p -> repoSlugByProjectUuid.get(p.getUuid()), ProjectDto::getKey, resolveCollisionByNaturalOrder));
+  }
+
+  private static BBCRepo toBBCRepo(Repository gsonBBCRepo, String workspace, Map<String, String> sqProjectKeyByRepoSlug) {
+    BBCRepo.Builder builder = BBCRepo.newBuilder()
       .setSlug(gsonBBCRepo.getSlug())
       .setUuid(gsonBBCRepo.getUuid())
       .setName(gsonBBCRepo.getName())
       .setWorkspace(workspace)
-      .setProjectKey(gsonBBCRepo.getProject().getKey())
-      .build();
+      .setProjectKey(gsonBBCRepo.getProject().getKey());
+
+    String sqProjectKey = sqProjectKeyByRepoSlug.get(gsonBBCRepo.getSlug());
+    ofNullable(sqProjectKey).ifPresent(builder::setSqProjectKey);
+
+    return builder.build();
   }
 
 }

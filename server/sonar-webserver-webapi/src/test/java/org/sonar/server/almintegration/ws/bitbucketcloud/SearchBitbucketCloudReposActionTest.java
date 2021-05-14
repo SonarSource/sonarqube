@@ -76,6 +76,8 @@ public class SearchBitbucketCloudReposActionTest {
       dto.setPersonalAccessToken("abc:xyz");
       dto.setUserUuid(user.getUuid());
     });
+    ProjectDto projectDto = db.components().insertPrivateProjectDto();
+    db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmSlug("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -87,9 +89,36 @@ public class SearchBitbucketCloudReposActionTest {
     assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
     assertThat(response.getRepositoriesList())
-      .extracting(BBCRepo::getUuid, BBCRepo::getName, BBCRepo::getSlug, BBCRepo::getProjectKey, BBCRepo::getWorkspace)
+      .extracting(BBCRepo::getUuid, BBCRepo::getName, BBCRepo::getSlug, BBCRepo::getProjectKey, BBCRepo::getSqProjectKey, BBCRepo::getWorkspace)
       .containsExactlyInAnyOrder(
-        tuple("REPO-UUID-ONE", "repoName1", "repo-slug-1", "projectKey1", almSetting.getAppId()));
+        tuple("REPO-UUID-ONE", "repoName1", "repo-slug-1", "projectKey1", "", almSetting.getAppId()),
+        tuple("REPO-UUID-TWO", "repoName2", "repo-slug-2", "projectKey2", projectDto.getKey(), almSetting.getAppId()));
+  }
+
+  @Test
+  public void use_projectKey_to_disambiguate_when_multiple_projects_are_binded_on_one_bitbucket_repo() {
+    when(bitbucketCloudRestClient.searchRepos(any(), any(), any(), any(), any())).thenReturn(getRepositoryList());
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("B"));
+    ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("A"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project1, s -> s.setAlmSlug("repo-slug-2"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project2, s -> s.setAlmSlug("repo-slug-2"));
+
+    SearchBitbucketcloudReposWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .executeProtobuf(SearchBitbucketcloudReposWsResponse.class);
+
+    assertThat(response.getRepositoriesList())
+      .extracting(BBCRepo::getUuid, BBCRepo::getName, BBCRepo::getSlug, BBCRepo::getProjectKey, BBCRepo::getSqProjectKey)
+      .containsExactlyInAnyOrder(
+        tuple("REPO-UUID-ONE", "repoName1", "repo-slug-1", "projectKey1", ""),
+        tuple("REPO-UUID-TWO", "repoName2", "repo-slug-2", "projectKey2", "A"));
   }
 
   @Test
@@ -168,7 +197,7 @@ public class SearchBitbucketCloudReposActionTest {
   private RepositoryList getRepositoryList() {
     return new RepositoryList(
       "http://next.url",
-      asList(getBBCRepo1()),
+      asList(getBBCRepo1(), getBBCRepo2()),
       1,
       100);
   }
@@ -176,6 +205,12 @@ public class SearchBitbucketCloudReposActionTest {
   private Repository getBBCRepo1() {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
     return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, null);
+  }
+
+  private Repository getBBCRepo2() {
+    Project project2 = new Project("PROJECT-UUID-TWO", "projectKey2", "projectName2");
+    Repository repo2 = new Repository("REPO-UUID-TWO", "repo-slug-2", "repoName2", project2, null);
+    return repo2;
   }
 
 }
