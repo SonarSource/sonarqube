@@ -175,7 +175,7 @@ public class SearchBitbucketCloudReposActionTest {
 
   private Repository getBBCRepo1() {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
-    return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1);
+    return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, null);
   }
 
 }

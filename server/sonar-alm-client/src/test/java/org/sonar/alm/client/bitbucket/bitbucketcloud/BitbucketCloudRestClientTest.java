@@ -102,9 +102,42 @@ public class BitbucketCloudRestClientTest {
   }
 
   @Test
+  public void get_repo() {
+    server.enqueue(new MockResponse()
+            .setHeader("Content-Type", "application/json;charset=UTF-8")
+            .setBody(
+                    "    {\n" +
+                            "      \"slug\": \"banana\",\n" +
+                            "      \"uuid\": \"BANANA-UUID\",\n" +
+                            "      \"name\": \"banana\",\n" +
+                            "      \"mainbranch\": {\n" +
+                            "        \"type\": \"branch\",\n" +
+                            "        \"name\": \"develop\"\n" +
+                            "       },"+
+                            "      \"project\": {\n" +
+                            "        \"key\": \"HOY\",\n" +
+                            "        \"uuid\": \"BANANA-PROJECT-UUID\",\n" +
+                            "        \"name\": \"hoy\"\n" +
+                            "      }\n" +
+                            "    }"));
+
+    Repository repository = underTest.getRepo("user:apppwd", "workspace", "rep");
+    assertThat(repository.getUuid()).isEqualTo("BANANA-UUID");
+    assertThat(repository.getName()).isEqualTo("banana");
+    assertThat(repository.getSlug()).isEqualTo("banana");
+    assertThat(repository.getProject())
+            .extracting(Project::getUuid, Project::getKey, Project::getName)
+            .contains("BANANA-PROJECT-UUID", "HOY", "hoy");
+    assertThat(repository.getMainBranch())
+            .extracting(MainBranch::getType, MainBranch::getName)
+            .contains("branch", "develop");
+  }
+
+  @Test
   public void bbc_object_serialization_deserialization() {
     Project project = new Project("PROJECT-UUID-ONE", "projectKey", "projectName");
-    Repository repository = new Repository("REPO-UUID-ONE", "repo-slug", "repoName", project);
+    MainBranch mainBranch = new MainBranch("branch", "develop");
+    Repository repository = new Repository("REPO-UUID-ONE", "repo-slug", "repoName", project, mainBranch);
     RepositoryList repos = new RepositoryList(null, asList(repository), 1, 100);
     server.enqueue(new MockResponse()
       .setHeader("Content-Type", "application/json;charset=UTF-8")
@@ -117,9 +150,12 @@ public class BitbucketCloudRestClientTest {
     assertThat(repositoryList.getValues())
       .hasSize(1)
       .extracting(Repository::getUuid, Repository::getName, Repository::getSlug,
-        g -> g.getProject().getUuid(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+        g -> g.getProject().getUuid(), g -> g.getProject().getKey(), g -> g.getProject().getName(),
+              g -> g.getMainBranch().getType(), g -> g.getMainBranch().getName())
       .containsExactlyInAnyOrder(
-              tuple("REPO-UUID-ONE", "repoName", "repo-slug", "PROJECT-UUID-ONE", "projectKey", "projectName"));
+              tuple("REPO-UUID-ONE", "repoName", "repo-slug",
+                      "PROJECT-UUID-ONE", "projectKey", "projectName",
+                      "branch", "develop"));
   }
 
   @Test

@@ -21,52 +21,28 @@ package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Repository {
-
-  @SerializedName("slug")
-  private String slug;
+public class MainBranch {
+  @SerializedName("type")
+  private String type;
 
   @SerializedName("name")
   private String name;
 
-  @SerializedName("uuid")
-  private String uuid;
-
-  @SerializedName("project")
-  private Project project;
-
-  @SerializedName("mainbranch")
-  private MainBranch mainBranch;
-
-  public Repository() {
+  public MainBranch() {
     // http://stackoverflow.com/a/18645370/229031
   }
 
-  public Repository(String uuid, String slug, String name, Project project, MainBranch mainBranch) {
-    this.uuid = uuid;
-    this.slug = slug;
+  public MainBranch(String type, String name) {
+    this.type = type;
     this.name = name;
-    this.project = project;
-    this.mainBranch = mainBranch;
   }
 
-  public String getSlug() {
-    return slug;
+  public String getType() {
+    return type;
   }
 
   public String getName() {
     return name;
   }
 
-  public String getUuid() {
-    return uuid;
-  }
-
-  public Project getProject() {
-    return project;
-  }
-
-  public MainBranch getMainBranch() {
-    return mainBranch;
-  }
 }

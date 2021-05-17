@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.MainBranch;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Project;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.api.server.ws.WebService;
@@ -33,6 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -106,6 +108,10 @@ public class ImportBitbucketCloudRepoActionTest {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+
+    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.get().getUuid(), "develop");
+    assertThat(branchDto).isPresent();
+    assertThat(branchDto.get().isMain()).isTrue();
   }
 
   @Test
@@ -217,7 +223,8 @@ public class ImportBitbucketCloudRepoActionTest {
 
   private Repository getGsonBBCRepo() {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
-    Repository repo1 = new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1);
+    MainBranch mainBranch = new MainBranch("branch", "develop");
+    Repository repo1 = new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
     return repo1;
   }
 

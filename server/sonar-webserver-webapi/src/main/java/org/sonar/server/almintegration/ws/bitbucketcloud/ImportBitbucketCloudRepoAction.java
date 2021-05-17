@@ -112,7 +112,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
       Repository repo = bitbucketCloudRestClient.getRepo(pat, workspace, repoSlug);
 
-      ComponentDto componentDto = createProject(dbSession, workspace, repo, null);
+      ComponentDto componentDto = createProject(dbSession, workspace, repo, repo.getMainBranch().getName());
 
       populatePRSetting(dbSession, repo, componentDto, almSettingDto);
 
