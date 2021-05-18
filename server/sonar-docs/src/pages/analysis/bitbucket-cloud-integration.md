@@ -7,8 +7,45 @@ SonarQube's integration with Bitbucket Cloud allows you to maintain code quality
 
 With this integration, you'll be able to:
 
-- **Analyze projects with Bitbucket Pipelines** - Integrate analysis into your build pipeline. SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
-- **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Bitbucket Cloud so you know if it's safe to merge your changes.
+- **Import your BitBucket Cloud repositories** – Import your Bitbucket Cloud repositories into SonarQube to easily set up SonarQube projects.
+- **Analyze projects with Bitbucket Pipelines** – Integrate analysis into your build pipeline. SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
+- **Add pull request decoration** – (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Bitbucket Cloud so you know if it's safe to merge your changes.
+
+## Importing your Bitbucket Cloud repositories into SonarQube
+
+Setting up the import of BitBucket Cloud repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Cloud repositories. If you're using Developer Edition or above, this is also the first step in adding pull request decoration.
+
+[[info]]
+| To import your Bitbucket repositories into SonarQube, you can only have one global configuration of Bitbucket, including Bitbucket Server and Bitbucket Cloud. See the **Configuring multiple ALM instances** section below for more information.
+
+To set up the import of BitBucket Cloud repositories:
+
+1. Create an OAuth consumer.
+1. Set your global ALM integration settings.
+1. Add your Bitbucket username and an app password.
+
+### Creating your OAuth consumer
+SonarQube uses a dedicated [OAuth consumer](https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/) to import repositories and decorate pull requests. Create the OAuth consumer in your Bitbucket Cloud workspace settings and specify the following:
+
+- **Name** – the name of your OAuth consumer
+- **Callback URL** – Bitbucket Cloud requires this field, but it's not used by SonarQube so you can use any URL.
+- **This is a private consumer** – Your OAuth consumer needs to be private. Make sure this check box is selected.
+- **Permissions** – Grant **Read** access for the **Pull requests** permission.
+
+### Setting your global ALM Integration settings
+To set your global ALM Integration settings, navigate to **Administration > ALM Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
+
+- **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Cloud configuration at the project level. Use something succinct and easily recognizable.
+- **Workspace ID** – The workspace ID is part of your bitbucket cloud URL `https://bitbucket.org/{WORKSPACE-ID}/{repository-slug}`
+- **OAuth Key** – Bitbucket automatically creates an OAuth key when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
+- **OAuth Secret** – Bitbucket automatically creates an OAuth secret when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
+
+### Adding your Bitbucket username and an app password
+After setting your global settings, you can add a project from Bitbucket Cloud by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **Bitbucket**.
+
+Then, you'll be asked to provide your Bitbucket username and an [app password](https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/). Your app password needs the **repository:read** permission.
+
+After adding your Bitbucket username and app password, you'll see a list of your Bitbucket Cloud projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for pull request decoration.
 
 ## Analyzing projects with Bitbucket Pipelines
 SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner.
@@ -38,7 +75,7 @@ You'll set up your build according to your SonarQube edition:
 
 Click the scanner you're using below to expand the example configuration:
 
-**Note:** This assumes a typical Gitflow workflow. See [Use glob patterns on the Pipelines yaml file](https://support.atlassian.com/bitbucket-cloud/docs/use-glob-patterns-on-the-pipelines-yaml-file/) provided by Atlassian for more information on customizing what branches or pull requests trigger an analysis.
+**Note:** This assumes a typical Gitflow workflow. See [Use glob patterns on the Pipelines YAML file](https://support.atlassian.com/bitbucket-cloud/docs/use-glob-patterns-on-the-pipelines-yaml-file/) provided by Atlassian for more information on customizing what branches or pull requests trigger an analysis.
 
 [[collapse]]
 | ## SonarScanner for Gradle
@@ -181,38 +218,20 @@ For more information on configuring your build with Bitbucket Pipelines, see the
 
 ## Adding Pull Request decoration to Bitbucket Cloud
 
-Pull request decoration shows your Quality Gate and analysis metrics directly in Bitbucket Cloud. To set up pull request decoration, you need to do the following:
+After creating and installing your OAuth consumer above, you can add pull request decoration to show your Quality Gate and analysis metrics directly in Bitbucket Cloud.
 
-1. Set up a dedicated OAuth consumer to decorate your pull requests.
-1. Set your global **ALM Integration** settings.
-1. Set your project-level **Pull Request Decoration** settings.
+The simplest way to add pull request decoration is by adding a project from Bitbucket by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **Bitbucket**.
+
+Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
 
 [[info]]
 | To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
-### Setting up your OAuth consumer
-SonarQube uses a dedicated OAuth consumer to decorate pull requests. You need to create the OAuth consumer in your Bitbucket Cloud workspace settings and specify the following:
+### Adding pull request decoration to a manually created or existing project.
+To add pull request decoration to a manually created or existing project, after you've created and installed your OAuth consumer and updated your global  settings as shown in the **Importing your Bitbucket Cloud repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 
 
-- **Name** – the name of your OAuth consumer
-- **Callback URL** – Bitbucket Cloud requires this field, but it's not used by SonarQube so you can use any URL.
-- **This is a private consumer** – Your OAuth consumer needs to be private. Make sure this check box is selected.
-- **Permissions** – Grant **Read** access for the **Pull requests** permission.
-
-### Setting your global ALM Integration settings
-To set your global ALM Integration settings, navigate to **Administration > ALM Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
-
-- **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitHub configuration at the project level. Use something succinct and easily recognizable.
-- **Workspace ID** – The workspace ID is part of your bitbucket cloud URL `https://bitbucket.org/{WORKSPACE-ID}/{repository-slug}`
-- **OAuth Key** – Bitbucket automatically creates an OAuth key when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
-- **OAuth Secret** – Bitbucket automatically creates an OAuth secret when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
-
-### Setting your project-level Pull Request Decoration settings
-From your project **Overview**, navigate to **Project Settings > General Settings > Pull Request Decoration**.
-
-From here, set your:
-
-- **Configuration name** – The configuration name that corresponds to your Bitbucket Cloud instance.
-- **Repository SLUG** – The repository SLUG is part of your bitbucket cloud URL `https://bitbucket.org/{workspace-id}/{REPOSITORY-SLUG}`
+- **Configuration name** – The configuration name that corresponds to your GitHub instance. 
+- **Repository SLUG** – The Repository SLUG is part of your Bitbucket Cloud URL. For example, `https://bitbucket.org/{workspace}/{repository}`
 
 ### Advanced pull request decoration configuration
 

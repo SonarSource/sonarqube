@@ -18,6 +18,9 @@ Community Edition doesn't support the analysis of multiple branches, so you can 
 ## Importing your Bitbucket Server repositories into SonarQube
 Setting up the import of BitBucket Server repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Server repositories. If you're using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above, this is also the first step in adding pull request decoration.
 
+[[info]]
+| To import your Bitbucket repositories into SonarQube, you can only have one global configuration of Bitbucket, including Bitbucket Server and Bitbucket Cloud. See the **Configuring multiple ALM instances** section below for more information.
+
 To set up the import of BitBucket Server repositories:
 
 1. Set your global ALM integration settings
