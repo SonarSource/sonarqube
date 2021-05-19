@@ -36,8 +36,10 @@ import { ComponentQualifier } from '../../../types/component';
 import { CreateProjectModes } from './types';
 
 export interface BitbucketCloudSearchFormProps {
+  importingSlug?: string;
   isLastPage: boolean;
   loadingMore: boolean;
+  onImport: (repositorySlug: string) => void;
   onLoadMore: () => void;
   onSearch: (searchQuery: string) => void;
   repositories?: BitbucketCloudRepository[];
@@ -50,7 +52,14 @@ function getRepositoryUrl(workspace: string, slug: string) {
 }
 
 export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchFormProps) {
-  const { isLastPage, loadingMore, repositories = [], searching, searchQuery } = props;
+  const {
+    importingSlug,
+    isLastPage,
+    loadingMore,
+    repositories = [],
+    searching,
+    searchQuery
+  } = props;
 
   if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
     return (
@@ -136,11 +145,14 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                 ) : (
                   <td className="text-right">
                     <Button
+                      disabled={Boolean(importingSlug)}
                       onClick={() => {
-                        /* Todo for import repo */
+                        props.onImport(repository.slug);
                       }}>
                       {translate('onboarding.create_project.set_up')}
-                      {false && <DeferredSpinner className="spacer-left" />}
+                      {importingSlug === repository.slug && (
+                        <DeferredSpinner className="spacer-left" />
+                      )}
                     </Button>
                   </td>
                 )}
@@ -150,11 +162,12 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
         </table>
       )}
       <footer className="spacer-top note text-center">
-        {translateWithParameters(
-          'x_of_y_shown',
-          formatMeasure(repositories.length, 'INT', null),
-          isLastPage ? formatMeasure(repositories.length, 'INT', null) : translate('unknown')
-        )}
+        {isLastPage &&
+          translateWithParameters(
+            'x_of_y_shown',
+            formatMeasure(repositories.length, 'INT', null),
+            formatMeasure(repositories.length, 'INT', null)
+          )}
         {!isLastPage && (
           <Button
             className="spacer-left"

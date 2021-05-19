@@ -20,6 +20,7 @@ exports[`Should render correctly 1`] = `
   <BitbucketCloudSearchForm
     isLastPage={true}
     loadingMore={false}
+    onImport={[MockFunction]}
     onLoadMore={[MockFunction]}
     onSearch={[MockFunction]}
     searchQuery=""

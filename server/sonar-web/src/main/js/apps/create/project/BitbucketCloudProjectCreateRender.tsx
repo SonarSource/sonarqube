@@ -28,11 +28,12 @@ import PersonalAccessTokenForm from './PersonalAccessTokenForm';
 import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface BitbucketCloudProjectCreateRendererProps {
+  importingSlug?: string;
   isLastPage: boolean;
-  settings?: AlmSettingsInstance;
   canAdmin?: boolean;
   loading: boolean;
   loadingMore: boolean;
+  onImport: (repositorySlug: string) => void;
   onLoadMore: () => void;
   onPersonalAccessTokenCreated: () => void;
   onSearch: (searchQuery: string) => void;
@@ -41,12 +42,14 @@ export interface BitbucketCloudProjectCreateRendererProps {
   searching: boolean;
   searchQuery: string;
   showPersonalAccessTokenForm: boolean;
+  settings?: AlmSettingsInstance;
 }
 
 export default function BitbucketCloudProjectCreateRenderer(
   props: BitbucketCloudProjectCreateRendererProps
 ) {
   const {
+    importingSlug,
     isLastPage,
     settings,
     canAdmin,
@@ -90,10 +93,12 @@ export default function BitbucketCloudProjectCreateRenderer(
           />
         ) : (
           <BitbucketCloudSearchForm
+            importingSlug={importingSlug}
             isLastPage={isLastPage}
             loadingMore={loadingMore}
             searchQuery={searchQuery}
             searching={searching}
+            onImport={props.onImport}
             onSearch={props.onSearch}
             onLoadMore={props.onLoadMore}
             repositories={repositories}

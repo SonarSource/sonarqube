@@ -19,8 +19,11 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { searchForBitbucketCloudRepositories } from '../../../api/alm-integrations';
-import { BitbucketCloudRepository, BitbucketRepository } from '../../../types/alm-integration';
+import {
+  importBitbucketCloudRepository,
+  searchForBitbucketCloudRepositories
+} from '../../../api/alm-integrations';
+import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
@@ -32,21 +35,20 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
 }
 
 interface State {
-  settings: AlmSettingsInstance;
+  importingSlug?: string;
+  isLastPage?: boolean;
   loading: boolean;
   loadingMore: boolean;
-  isLastPage?: boolean;
   projectsPaging: Omit<T.Paging, 'total'>;
+  resetPat: boolean;
   repositories: BitbucketCloudRepository[];
-  searchResults?: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
   searching: boolean;
   searchQuery: string;
+  settings: AlmSettingsInstance;
   showPersonalAccessTokenForm: boolean;
-  resetPat: boolean;
 }
 
-export const BITBUCKET_PROJECTS_PAGESIZE = 30;
+export const BITBUCKET_CLOUD_PROJECTS_PAGESIZE = 30;
 export default class BitbucketCloudProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -55,14 +57,14 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     this.state = {
       // For now, we only handle a single instance. So we always use the first
       // one from the list.
-      settings: props.settings[0],
       loading: false,
       loadingMore: false,
       resetPat: false,
-      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
       repositories: [],
       searching: false,
       searchQuery: '',
+      settings: props.settings[0],
       showPersonalAccessTokenForm: true
     };
   }
@@ -80,7 +82,9 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
   handlePersonalAccessTokenCreated = async () => {
     this.setState({ showPersonalAccessTokenForm: false });
     this.cleanUrl();
+    this.setState({ loading: true });
     await this.fetchData();
+    this.setState({ loading: false });
   };
 
   cleanUrl = () => {
@@ -122,7 +126,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
   handleError = () => {
     if (this.mounted) {
       this.setState({
-        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
         repositories: [],
         resetPat: true,
         showPersonalAccessTokenForm: true
@@ -136,7 +140,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     this.setState(
       {
         searching: true,
-        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
         searchQuery
       },
       async () => {
@@ -166,9 +170,32 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     );
   };
 
+  handleImport = async (repositorySlug: string) => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return;
+    }
+
+    this.setState({ importingSlug: repositorySlug });
+
+    const result = await importBitbucketCloudRepository(settings.key, repositorySlug).catch(
+      () => undefined
+    );
+
+    if (this.mounted) {
+      this.setState({ importingSlug: undefined });
+
+      if (result) {
+        this.props.onProjectCreate([result.project.key]);
+      }
+    }
+  };
+
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
     const {
+      importingSlug,
       isLastPage = true,
       settings,
       loading,
@@ -181,11 +208,13 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     } = this.state;
     return (
       <BitbucketCloudProjectCreateRenderer
+        importingSlug={importingSlug}
         isLastPage={isLastPage}
         settings={settings}
         canAdmin={canAdmin}
         loadingMore={loadingMore}
         loading={loading || loadingBindings}
+        onImport={this.handleImport}
         onLoadMore={this.handleLoadMore}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onSearch={this.handleSearch}

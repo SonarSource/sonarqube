@@ -38,6 +38,7 @@ it('Should render correctly', () => {
 function shallowRender(props?: Partial<BitbucketCloudProjectCreateRendererProps>) {
   return shallow(
     <BitbucketCloudProjectCreateRenderer
+      onImport={jest.fn()}
       isLastPage={true}
       loading={false}
       loadingMore={false}
@@ -46,7 +47,7 @@ function shallowRender(props?: Partial<BitbucketCloudProjectCreateRendererProps>
       onSearch={jest.fn()}
       resetPat={false}
       searching={false}
-      searchQuery={''}
+      searchQuery=""
       settings={mockBitbucketCloudAlmSettingsInstance()}
       showPersonalAccessTokenForm={false}
       {...props}

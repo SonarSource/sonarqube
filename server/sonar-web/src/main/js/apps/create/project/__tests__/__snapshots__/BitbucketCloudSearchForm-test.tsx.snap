@@ -31,6 +31,157 @@ exports[`Should render correctly 1`] = `
 </Alert>
 `;
 
+exports[`Should render correctly: Importing 1`] = `
+<div
+  className="boxed-group big-padded create-project-import"
+>
+  <SearchBox
+    className="spacer"
+    loading={false}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_prompt"
+  />
+  <hr />
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="import-slug"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Repo
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="import-slug"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              import-slug
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/worksapce/import-slug"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td
+          className="text-right"
+        >
+          <Button
+            disabled={true}
+            onClick={[Function]}
+          >
+            onboarding.create_project.set_up
+            <DeferredSpinner
+              className="spacer-left"
+            />
+          </Button>
+        </td>
+      </tr>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="project__repo"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "sq-key",
+                    },
+                  }
+                }
+              >
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier="TRK"
+                />
+                sq-key
+              </Link>
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="project__repo"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              project__repo
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/worksapce/project__repo"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td>
+          <span
+            className="display-flex-center display-flex-justify-end already-set-up"
+          >
+            <CheckIcon
+              className="little-spacer-right"
+              size={12}
+            />
+            onboarding.create_project.repository_imported
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <footer
+    className="spacer-top note text-center"
+  >
+    <Button
+      className="spacer-left"
+      data-test="show-more"
+      disabled={false}
+      onClick={[MockFunction]}
+    >
+      show_more
+    </Button>
+  </footer>
+</div>
+`;
+
 exports[`Should render correctly: Loading more 1`] = `
 <div
   className="boxed-group big-padded create-project-import"
@@ -74,7 +225,7 @@ exports[`Should render correctly: Loading more 1`] = `
         <td>
           <a
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/undefined/project__repo"
+            href="https://bitbucket.org/worksapce/project__repo"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -88,6 +239,7 @@ exports[`Should render correctly: Loading more 1`] = `
           className="text-right"
         >
           <Button
+            disabled={false}
             onClick={[Function]}
           >
             onboarding.create_project.set_up
@@ -99,7 +251,6 @@ exports[`Should render correctly: Loading more 1`] = `
   <footer
     className="spacer-top note text-center"
   >
-    x_of_y_shown.1.unknown
     <Button
       className="spacer-left"
       data-test="show-more"
@@ -135,7 +286,6 @@ exports[`Should render correctly: Searching 1`] = `
   <footer
     className="spacer-top note text-center"
   >
-    x_of_y_shown.0.unknown
     <Button
       className="spacer-left"
       data-test="show-more"
@@ -191,7 +341,7 @@ exports[`Should render correctly: Show more 1`] = `
         <td>
           <a
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/undefined/project__repo"
+            href="https://bitbucket.org/worksapce/project__repo"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -205,6 +355,7 @@ exports[`Should render correctly: Show more 1`] = `
           className="text-right"
         >
           <Button
+            disabled={false}
             onClick={[Function]}
           >
             onboarding.create_project.set_up
@@ -256,7 +407,7 @@ exports[`Should render correctly: Show more 1`] = `
         <td>
           <a
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/undefined/project__repo"
+            href="https://bitbucket.org/worksapce/project__repo"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -283,7 +434,6 @@ exports[`Should render correctly: Show more 1`] = `
   <footer
     className="spacer-top note text-center"
   >
-    x_of_y_shown.2.unknown
     <Button
       className="spacer-left"
       data-test="show-more"
@@ -339,7 +489,7 @@ exports[`Should render correctly: Show no more 1`] = `
         <td>
           <a
             className="display-inline-flex-center big-spacer-right"
-            href="https://bitbucket.org/undefined/project__repo"
+            href="https://bitbucket.org/worksapce/project__repo"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -353,6 +503,7 @@ exports[`Should render correctly: Show no more 1`] = `
           className="text-right"
         >
           <Button
+            disabled={false}
             onClick={[Function]}
           >
             onboarding.create_project.set_up

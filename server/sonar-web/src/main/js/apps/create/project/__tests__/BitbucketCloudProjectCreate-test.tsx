@@ -20,19 +20,23 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
 import {
-  mockBitbucketCloudRepository,
-  mockBitbucketRepository
-} from '../../../../helpers/mocks/alm-integrations';
+  importBitbucketCloudRepository,
+  searchForBitbucketCloudRepositories
+} from '../../../../api/alm-integrations';
+import { mockBitbucketCloudRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockBitbucketCloudAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import BitbucketCloudProjectCreate, {
-  BITBUCKET_PROJECTS_PAGESIZE
+  BITBUCKET_CLOUD_PROJECTS_PAGESIZE
 } from '../BitbucketCloudProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => {
+  const { mockProject } = jest.requireActual('../../../../helpers/mocks/projects');
   return {
+    importBitbucketCloudRepository: jest
+      .fn()
+      .mockResolvedValue({ project: mockProject({ key: 'project-key' }) }),
     searchForBitbucketCloudRepositories: jest
       .fn()
       .mockResolvedValue({ isLastPage: true, repositories: [] }),
@@ -65,7 +69,7 @@ it('Should handle error correctly', async () => {
   wrapper.setState({
     showPersonalAccessTokenForm: false,
     repositories: [mockBitbucketCloudRepository()],
-    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_PROJECTS_PAGESIZE }
+    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE }
   });
   await wrapper.instance().handlePersonalAccessTokenCreated();
   expect(wrapper.state().repositories).toHaveLength(0);
@@ -77,7 +81,10 @@ it('Should handle error correctly', async () => {
 it('Should load repository', async () => {
   (searchForBitbucketCloudRepositories as jest.Mock).mockResolvedValueOnce({
     isLastPage: true,
-    repositories: [mockBitbucketRepository(), mockBitbucketRepository({ sqProjectKey: 'sq-key' })]
+    repositories: [
+      mockBitbucketCloudRepository(),
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+    ]
   });
 
   const wrapper = shallowRender();
@@ -88,7 +95,10 @@ it('Should load repository', async () => {
 it('Should load more repository', async () => {
   (searchForBitbucketCloudRepositories as jest.Mock).mockResolvedValueOnce({
     isLastPage: true,
-    repositories: [mockBitbucketRepository(), mockBitbucketRepository({ sqProjectKey: 'sq-key' })]
+    repositories: [
+      mockBitbucketCloudRepository(),
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+    ]
   });
 
   const wrapper = shallowRender();
@@ -102,14 +112,17 @@ it('Should load more repository', async () => {
 it('Should handle search repository', async () => {
   (searchForBitbucketCloudRepositories as jest.Mock).mockResolvedValueOnce({
     isLastPage: true,
-    repositories: [mockBitbucketRepository(), mockBitbucketRepository({ sqProjectKey: 'sq-key' })]
+    repositories: [
+      mockBitbucketCloudRepository(),
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+    ]
   });
 
   const wrapper = shallowRender();
   wrapper.setState({
     isLastPage: false,
     showPersonalAccessTokenForm: false,
-    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
     repositories: [mockBitbucketCloudRepository()]
   });
   wrapper.instance().handleSearch('test');
@@ -119,9 +132,38 @@ it('Should handle search repository', async () => {
   expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
     'key',
     'test',
-    BITBUCKET_PROJECTS_PAGESIZE,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
     1
   );
+});
+
+it('Should import repository', async () => {
+  const onProjectCreate = jest.fn();
+  const wrapper = shallowRender({ onProjectCreate });
+  wrapper.setState({
+    isLastPage: false,
+    showPersonalAccessTokenForm: false,
+    projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
+    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })]
+  });
+  await wrapper.instance().handleImport('slug-test');
+  expect(importBitbucketCloudRepository).toHaveBeenCalledWith('key', 'slug-test');
+  expect(onProjectCreate).toHaveBeenCalledWith(['project-key']);
+});
+
+it('Should behave correctly when import fail', async () => {
+  (importBitbucketCloudRepository as jest.Mock).mockRejectedValueOnce({});
+  const onProjectCreate = jest.fn();
+  const wrapper = shallowRender({ onProjectCreate });
+  wrapper.setState({
+    isLastPage: false,
+    showPersonalAccessTokenForm: false,
+    projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
+    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })]
+  });
+  await wrapper.instance().handleImport('slug-test');
+  expect(importBitbucketCloudRepository).toHaveBeenCalledWith('key', 'slug-test');
+  expect(onProjectCreate).not.toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<BitbucketCloudProjectCreate['props']>) {

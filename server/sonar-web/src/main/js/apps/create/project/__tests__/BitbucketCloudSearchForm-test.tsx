@@ -55,16 +55,27 @@ it('Should render correctly', () => {
       searching: true
     })
   ).toMatchSnapshot('Searching');
+  expect(
+    shallowRender({
+      importingSlug: 'import-slug',
+      repositories: [
+        mockBitbucketCloudRepository({ slug: 'import-slug' }),
+        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+      ],
+      isLastPage: false
+    })
+  ).toMatchSnapshot('Importing');
 });
 
 function shallowRender(props?: Partial<BitbucketCloudSearchFormProps>) {
   return shallow(
     <BitbucketCloudSearchForm
+      onImport={jest.fn()}
       isLastPage={true}
       loadingMore={false}
       onLoadMore={jest.fn()}
       onSearch={jest.fn()}
-      searchQuery={''}
+      searchQuery=""
       searching={false}
       {...props}
     />
