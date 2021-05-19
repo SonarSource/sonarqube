@@ -5,7 +5,7 @@ url: /analysis/branch-pr-analysis-overview/
 
 _Merge and Pull Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
-SonarScanners running in GitLab CI/CD, Azure Pipelines, Cirrus CI, and Jenkins with a Branch Source plugin configured can automatically detect branches and merge or pull requests by using environment variables set in the jobs.
+SonarScanners running in GitLab CI/CD, Azure Pipelines, Cirrus CI, Bitbucket Pipelines, and Jenkins with a Branch Source plugin configured can automatically detect branches and merge or pull requests by using environment variables set in the jobs.
 
 [[warning]]
 | Automatic configuration is disabled if any branch or pull request properties have been set manually.
