@@ -22,6 +22,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import {
   AzureProject,
   AzureRepository,
+  BitbucketCloudRepository,
   BitbucketProject,
   BitbucketRepository,
   GithubOrganization,
@@ -131,6 +132,23 @@ export function searchForBitbucketServerRepositories(
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
     repositoryName
+  });
+}
+
+export function searchForBitbucketCloudRepositories(
+  almSetting: string,
+  repositoryName: string,
+  pageSize: number,
+  page?: number
+): Promise<{
+  isLastPage: boolean;
+  repositories: BitbucketCloudRepository[];
+}> {
+  return getJSON('/api/alm_integrations/search_bitbucketcloud_repos', {
+    almSetting,
+    repositoryName,
+    p: page,
+    ps: pageSize
   });
 }
 

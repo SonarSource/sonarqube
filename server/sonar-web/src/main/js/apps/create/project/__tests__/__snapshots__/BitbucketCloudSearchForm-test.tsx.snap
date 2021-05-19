@@ -1,0 +1,370 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should render correctly 1`] = `
+<Alert
+  className="spacer-top"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.bitbucketcloud.no_projects"
+    id="onboarding.create_project.bitbucketcloud.no_projects"
+    values={
+      Object {
+        "link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/projects/create",
+              "query": Object {
+                "mode": "bitbucketcloud",
+                "resetPat": 1,
+              },
+            }
+          }
+        >
+          onboarding.create_project.update_your_token
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`Should render correctly: Loading more 1`] = `
+<div
+  className="boxed-group big-padded create-project-import"
+>
+  <SearchBox
+    className="spacer"
+    loading={false}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_prompt"
+  />
+  <hr />
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="project__repo"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Repo
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="project__repo"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              project__repo
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/undefined/project__repo"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td
+          className="text-right"
+        >
+          <Button
+            onClick={[Function]}
+          >
+            onboarding.create_project.set_up
+          </Button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <footer
+    className="spacer-top note text-center"
+  >
+    x_of_y_shown.1.unknown
+    <Button
+      className="spacer-left"
+      data-test="show-more"
+      disabled={true}
+      onClick={[MockFunction]}
+    >
+      show_more
+    </Button>
+    <DeferredSpinner
+      className="text-bottom spacer-left position-absolute"
+    />
+  </footer>
+</div>
+`;
+
+exports[`Should render correctly: Searching 1`] = `
+<div
+  className="boxed-group big-padded create-project-import"
+>
+  <SearchBox
+    className="spacer"
+    loading={true}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_prompt"
+  />
+  <hr />
+  <div
+    className="padded"
+  >
+    no_results
+  </div>
+  <footer
+    className="spacer-top note text-center"
+  >
+    x_of_y_shown.0.unknown
+    <Button
+      className="spacer-left"
+      data-test="show-more"
+      disabled={false}
+      onClick={[MockFunction]}
+    >
+      show_more
+    </Button>
+  </footer>
+</div>
+`;
+
+exports[`Should render correctly: Show more 1`] = `
+<div
+  className="boxed-group big-padded create-project-import"
+>
+  <SearchBox
+    className="spacer"
+    loading={false}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_prompt"
+  />
+  <hr />
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="project__repo"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Repo
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="project__repo"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              project__repo
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/undefined/project__repo"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td
+          className="text-right"
+        >
+          <Button
+            onClick={[Function]}
+          >
+            onboarding.create_project.set_up
+          </Button>
+        </td>
+      </tr>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="project__repo"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "sq-key",
+                    },
+                  }
+                }
+              >
+                <QualifierIcon
+                  className="spacer-right"
+                  qualifier="TRK"
+                />
+                sq-key
+              </Link>
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="project__repo"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              project__repo
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/undefined/project__repo"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td>
+          <span
+            className="display-flex-center display-flex-justify-end already-set-up"
+          >
+            <CheckIcon
+              className="little-spacer-right"
+              size={12}
+            />
+            onboarding.create_project.repository_imported
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <footer
+    className="spacer-top note text-center"
+  >
+    x_of_y_shown.2.unknown
+    <Button
+      className="spacer-left"
+      data-test="show-more"
+      disabled={false}
+      onClick={[MockFunction]}
+    >
+      show_more
+    </Button>
+  </footer>
+</div>
+`;
+
+exports[`Should render correctly: Show no more 1`] = `
+<div
+  className="boxed-group big-padded create-project-import"
+>
+  <SearchBox
+    className="spacer"
+    loading={false}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_prompt"
+  />
+  <hr />
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        key="1"
+      >
+        <td>
+          <Tooltip
+            overlay="project__repo"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Repo
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="project__repo"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              project__repo
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://bitbucket.org/undefined/project__repo"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.bitbucketcloud.link
+          </a>
+        </td>
+        <td
+          className="text-right"
+        >
+          <Button
+            onClick={[Function]}
+          >
+            onboarding.create_project.set_up
+          </Button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <footer
+    className="spacer-top note text-center"
+  >
+    x_of_y_shown.1.1
+  </footer>
+</div>
+`;

@@ -20,6 +20,7 @@
 import {
   AzureProject,
   AzureRepository,
+  BitbucketCloudRepository,
   BitbucketProject,
   BitbucketRepository,
   GithubRepository,
@@ -59,6 +60,19 @@ export function mockBitbucketRepository(
     slug: 'project__repo',
     name: 'Repo',
     projectKey: 'project',
+    ...overrides
+  };
+}
+
+export function mockBitbucketCloudRepository(
+  overrides: Partial<BitbucketCloudRepository> = {}
+): BitbucketCloudRepository {
+  return {
+    uuid: 1,
+    slug: 'project__repo',
+    name: 'Repo',
+    projectKey: 'project',
+    workspace: 'worksapce',
     ...overrides
   };
 }

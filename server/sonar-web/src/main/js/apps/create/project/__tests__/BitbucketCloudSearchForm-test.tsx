@@ -19,36 +19,53 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketCloudAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import BitbucketCloudProjectCreateRenderer, {
-  BitbucketCloudProjectCreateRendererProps
-} from '../BitbucketCloudProjectCreateRender';
+import { mockBitbucketCloudRepository } from '../../../../helpers/mocks/alm-integrations';
+import BitbucketCloudSearchForm, {
+  BitbucketCloudSearchFormProps
+} from '../BitbucketCloudSearchForm';
 
 it('Should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ settings: undefined })).toMatchSnapshot('Wrong config');
-  expect(shallowRender({ loading: true })).toMatchSnapshot('Loading...');
   expect(
     shallowRender({
-      showPersonalAccessTokenForm: true
+      repositories: [
+        mockBitbucketCloudRepository(),
+        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+      ],
+      isLastPage: false
     })
-  ).toMatchSnapshot('Need App password');
+  ).toMatchSnapshot('Show more');
+  expect(
+    shallowRender({
+      repositories: [mockBitbucketCloudRepository()],
+      isLastPage: true
+    })
+  ).toMatchSnapshot('Show no more');
+  expect(
+    shallowRender({
+      repositories: [mockBitbucketCloudRepository()],
+      isLastPage: false,
+      loadingMore: true
+    })
+  ).toMatchSnapshot('Loading more');
+  expect(
+    shallowRender({
+      repositories: [],
+      isLastPage: false,
+      searching: true
+    })
+  ).toMatchSnapshot('Searching');
 });
 
-function shallowRender(props?: Partial<BitbucketCloudProjectCreateRendererProps>) {
+function shallowRender(props?: Partial<BitbucketCloudSearchFormProps>) {
   return shallow(
-    <BitbucketCloudProjectCreateRenderer
+    <BitbucketCloudSearchForm
       isLastPage={true}
-      loading={false}
       loadingMore={false}
       onLoadMore={jest.fn()}
-      onPersonalAccessTokenCreated={jest.fn()}
       onSearch={jest.fn()}
-      resetPat={false}
-      searching={false}
       searchQuery={''}
-      settings={mockBitbucketCloudAlmSettingsInstance()}
-      showPersonalAccessTokenForm={false}
+      searching={false}
       {...props}
     />
   );

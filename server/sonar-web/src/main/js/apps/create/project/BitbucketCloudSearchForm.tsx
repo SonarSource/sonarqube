@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
@@ -29,46 +28,42 @@ import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
-import { GitlabProject } from '../../../types/alm-integration';
+import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
 import { CreateProjectModes } from './types';
 
-export interface GitlabProjectSelectionFormProps {
-  importingGitlabProjectId?: string;
+export interface BitbucketCloudSearchFormProps {
+  isLastPage: boolean;
   loadingMore: boolean;
-  onImport: (gitlabProjectId: string) => void;
   onLoadMore: () => void;
   onSearch: (searchQuery: string) => void;
-  projects?: GitlabProject[];
-  projectsPaging: T.Paging;
+  repositories?: BitbucketCloudRepository[];
   searching: boolean;
   searchQuery: string;
 }
 
-export default function GitlabProjectSelectionForm(props: GitlabProjectSelectionFormProps) {
-  const {
-    importingGitlabProjectId,
-    loadingMore,
-    projects = [],
-    projectsPaging,
-    searching,
-    searchQuery
-  } = props;
+function getRepositoryUrl(workspace: string, slug: string) {
+  return `https://bitbucket.org/${workspace}/${slug}`;
+}
 
-  if (projects.length === 0 && searchQuery.length === 0 && !searching) {
+export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchFormProps) {
+  const { isLastPage, loadingMore, repositories = [], searching, searchQuery } = props;
+
+  if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
     return (
       <Alert className="spacer-top" variant="warning">
         <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.gitlab.no_projects')}
-          id="onboarding.create_project.gitlab.no_projects"
+          defaultMessage={translate('onboarding.create_project.bitbucketcloud.no_projects')}
+          id="onboarding.create_project.bitbucketcloud.no_projects"
           values={{
             link: (
               <Link
                 to={{
                   pathname: '/projects/create',
-                  query: { mode: CreateProjectModes.GitLab, resetPat: 1 }
+                  query: { mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }
                 }}>
                 {translate('onboarding.create_project.update_your_token')}
               </Link>
@@ -91,47 +86,47 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
 
       <hr />
 
-      {projects.length === 0 ? (
+      {repositories.length === 0 ? (
         <div className="padded">{translate('no_results')}</div>
       ) : (
         <table className="data zebra zebra-hover">
           <tbody>
-            {projects.map(project => (
-              <tr key={project.id}>
+            {repositories.map(repository => (
+              <tr key={repository.uuid}>
                 <td>
-                  <Tooltip overlay={project.slug}>
+                  <Tooltip overlay={repository.slug}>
                     <strong className="project-name display-inline-block text-ellipsis">
-                      {project.sqProjectKey ? (
-                        <Link to={getProjectUrl(project.sqProjectKey)}>
+                      {repository.sqProjectKey ? (
+                        <Link to={getProjectUrl(repository.sqProjectKey)}>
                           <QualifierIcon
                             className="spacer-right"
                             qualifier={ComponentQualifier.Project}
                           />
-                          {project.sqProjectName}
+                          {repository.sqProjectKey}
                         </Link>
                       ) : (
-                        project.name
+                        repository.name
                       )}
                     </strong>
                   </Tooltip>
                   <br />
-                  <Tooltip overlay={project.pathSlug}>
+                  <Tooltip overlay={repository.slug}>
                     <span className="text-muted project-path display-inline-block text-ellipsis">
-                      {project.pathName}
+                      {repository.slug}
                     </span>
                   </Tooltip>
                 </td>
                 <td>
                   <a
                     className="display-inline-flex-center big-spacer-right"
-                    href={project.url}
+                    href={getRepositoryUrl(repository.workspace, repository.slug)}
                     rel="noopener noreferrer"
                     target="_blank">
                     <DetachIcon className="little-spacer-right" />
-                    {translate('onboarding.create_project.gitlab.link')}
+                    {translate('onboarding.create_project.bitbucketcloud.link')}
                   </a>
                 </td>
-                {project.sqProjectKey ? (
+                {repository.sqProjectKey ? (
                   <td>
                     <span className="display-flex-center display-flex-justify-end already-set-up">
                       <CheckIcon className="little-spacer-right" size={12} />
@@ -141,12 +136,11 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                 ) : (
                   <td className="text-right">
                     <Button
-                      disabled={!!importingGitlabProjectId}
-                      onClick={() => props.onImport(project.id)}>
+                      onClick={() => {
+                        /* Todo for import repo */
+                      }}>
                       {translate('onboarding.create_project.set_up')}
-                      {importingGitlabProjectId === project.id && (
-                        <DeferredSpinner className="spacer-left" />
-                      )}
+                      {false && <DeferredSpinner className="spacer-left" />}
                     </Button>
                   </td>
                 )}
@@ -155,12 +149,23 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
           </tbody>
         </table>
       )}
-      <ListFooter
-        count={projects.length}
-        loadMore={props.onLoadMore}
-        loading={loadingMore}
-        total={projectsPaging.total}
-      />
+      <footer className="spacer-top note text-center">
+        {translateWithParameters(
+          'x_of_y_shown',
+          formatMeasure(repositories.length, 'INT', null),
+          isLastPage ? formatMeasure(repositories.length, 'INT', null) : translate('unknown')
+        )}
+        {!isLastPage && (
+          <Button
+            className="spacer-left"
+            disabled={loadingMore}
+            data-test="show-more"
+            onClick={props.onLoadMore}>
+            {translate('show_more')}
+          </Button>
+        )}
+        {loadingMore && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
+      </footer>
     </div>
   );
 }

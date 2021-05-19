@@ -3,25 +3,33 @@
 exports[`Should render correctly 1`] = `
 <BitbucketCloudProjectCreateRenderer
   canAdmin={true}
+  isLastPage={true}
   loading={false}
+  loadingMore={false}
+  onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
+  onSearch={[Function]}
+  repositories={Array []}
   resetPat={false}
-  settings={
-    Object {
-      "alm": "bitbucketcloud",
-      "key": "key",
-    }
-  }
+  searchQuery=""
+  searching={false}
   showPersonalAccessTokenForm={true}
 />
 `;
 
-exports[`Should render correctly: Need App password 1`] = `
+exports[`Should render correctly: Setting changeds 1`] = `
 <BitbucketCloudProjectCreateRenderer
   canAdmin={true}
+  isLastPage={true}
   loading={false}
+  loadingMore={false}
+  onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
+  onSearch={[Function]}
+  repositories={Array []}
   resetPat={false}
+  searchQuery=""
+  searching={false}
   settings={
     Object {
       "alm": "bitbucketcloud",

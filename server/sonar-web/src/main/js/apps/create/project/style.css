@@ -68,19 +68,19 @@
   color: var(--green);
 }
 
-.create-project-import-gitlab table > tbody > tr > td {
+.create-project-import table > tbody > tr > td {
   vertical-align: middle;
 }
 
-.create-project-import-gitlab .project-name,
-.create-project-import-gitlab .project-path {
+.create-project-import .project-name,
+.create-project-import .project-path {
   max-width: 400px;
 }
 
-.create-project-import-gitlab .sq-project-link {
+.create-project-import .sq-project-link {
   max-width: 300px;
 }
 
-.create-project-import-gitlab .already-set-up svg {
+.create-project-import .already-set-up svg {
   color: var(--green);
 }

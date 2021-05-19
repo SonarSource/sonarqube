@@ -20,24 +20,44 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
 import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface BitbucketCloudProjectCreateRendererProps {
+  isLastPage: boolean;
   settings?: AlmSettingsInstance;
   canAdmin?: boolean;
   loading: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
   onPersonalAccessTokenCreated: () => void;
+  onSearch: (searchQuery: string) => void;
+  repositories?: BitbucketCloudRepository[];
   resetPat: boolean;
+  searching: boolean;
+  searchQuery: string;
   showPersonalAccessTokenForm: boolean;
 }
 
 export default function BitbucketCloudProjectCreateRenderer(
   props: BitbucketCloudProjectCreateRendererProps
 ) {
-  const { settings, canAdmin, loading, resetPat, showPersonalAccessTokenForm } = props;
+  const {
+    isLastPage,
+    settings,
+    canAdmin,
+    loading,
+    loadingMore,
+    repositories,
+    resetPat,
+    searching,
+    searchQuery,
+    showPersonalAccessTokenForm
+  } = props;
 
   return (
     <>
@@ -69,7 +89,15 @@ export default function BitbucketCloudProjectCreateRenderer(
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
           />
         ) : (
-          <p>Placeholder for next step</p>
+          <BitbucketCloudSearchForm
+            isLastPage={isLastPage}
+            loadingMore={loadingMore}
+            searchQuery={searchQuery}
+            searching={searching}
+            onSearch={props.onSearch}
+            onLoadMore={props.onLoadMore}
+            repositories={repositories}
+          />
         ))}
     </>
   );

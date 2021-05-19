@@ -17,9 +17,14 @@ exports[`Should render correctly 1`] = `
       </span>
     }
   />
-  <p>
-    Placeholder for next step
-  </p>
+  <BitbucketCloudSearchForm
+    isLastPage={true}
+    loadingMore={false}
+    onLoadMore={[MockFunction]}
+    onSearch={[MockFunction]}
+    searchQuery=""
+    searching={false}
+  />
 </Fragment>
 `;
 

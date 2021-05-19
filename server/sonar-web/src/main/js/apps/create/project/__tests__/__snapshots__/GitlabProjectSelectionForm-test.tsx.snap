@@ -2,14 +2,14 @@
 
 exports[`should render correctly: importing 1`] = `
 <div
-  className="boxed-group big-padded create-project-import-gitlab"
+  className="boxed-group big-padded create-project-import"
 >
   <SearchBox
     className="spacer"
     loading={false}
     minLength={3}
     onChange={[MockFunction]}
-    placeholder="onboarding.create_project.gitlab.search_prompt"
+    placeholder="onboarding.create_project.search_prompt"
   />
   <hr />
   <table
@@ -60,7 +60,7 @@ exports[`should render correctly: importing 1`] = `
             disabled={true}
             onClick={[Function]}
           >
-            onboarding.create_project.gitlab.set_up
+            onboarding.create_project.set_up
           </Button>
         </td>
       </tr>
@@ -175,14 +175,14 @@ exports[`should render correctly: no projects 1`] = `
 
 exports[`should render correctly: no projects when searching 1`] = `
 <div
-  className="boxed-group big-padded create-project-import-gitlab"
+  className="boxed-group big-padded create-project-import"
 >
   <SearchBox
     className="spacer"
     loading={false}
     minLength={3}
     onChange={[MockFunction]}
-    placeholder="onboarding.create_project.gitlab.search_prompt"
+    placeholder="onboarding.create_project.search_prompt"
   />
   <hr />
   <div
@@ -201,14 +201,14 @@ exports[`should render correctly: no projects when searching 1`] = `
 
 exports[`should render correctly: projects 1`] = `
 <div
-  className="boxed-group big-padded create-project-import-gitlab"
+  className="boxed-group big-padded create-project-import"
 >
   <SearchBox
     className="spacer"
     loading={false}
     minLength={3}
     onChange={[MockFunction]}
-    placeholder="onboarding.create_project.gitlab.search_prompt"
+    placeholder="onboarding.create_project.search_prompt"
   />
   <hr />
   <table
@@ -259,7 +259,7 @@ exports[`should render correctly: projects 1`] = `
             disabled={false}
             onClick={[Function]}
           >
-            onboarding.create_project.gitlab.set_up
+            onboarding.create_project.set_up
           </Button>
         </td>
       </tr>

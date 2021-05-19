@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { BitbucketProjectRepositories, BitbucketRepository } from '../../../types/alm-integration';
+import { searchForBitbucketCloudRepositories } from '../../../api/alm-integrations';
+import { BitbucketCloudRepository, BitbucketRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
@@ -33,12 +34,19 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
 interface State {
   settings: AlmSettingsInstance;
   loading: boolean;
-  projectRepositories?: BitbucketProjectRepositories;
+  loadingMore: boolean;
+  isLastPage?: boolean;
+  projectsPaging: Omit<T.Paging, 'total'>;
+  repositories: BitbucketCloudRepository[];
   searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
+  searching: boolean;
+  searchQuery: string;
   showPersonalAccessTokenForm: boolean;
+  resetPat: boolean;
 }
 
+export const BITBUCKET_PROJECTS_PAGESIZE = 30;
 export default class BitbucketCloudProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -49,13 +57,18 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
       // one from the list.
       settings: props.settings[0],
       loading: false,
+      loadingMore: false,
+      resetPat: false,
+      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+      repositories: [],
+      searching: false,
+      searchQuery: '',
       showPersonalAccessTokenForm: true
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchData();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -76,18 +89,110 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     router.replace(location);
   };
 
-  async fetchData() {}
+  async fetchData(more = false) {
+    const {
+      settings,
+      searchQuery,
+      projectsPaging: { pageIndex, pageSize },
+      showPersonalAccessTokenForm
+    } = this.state;
+    if (settings && !showPersonalAccessTokenForm) {
+      const { isLastPage, repositories } = await searchForBitbucketCloudRepositories(
+        settings.key,
+        searchQuery,
+        pageSize,
+        pageIndex
+      ).catch(() => {
+        this.handleError();
+        return { isLastPage: undefined, repositories: undefined };
+      });
+      if (this.mounted && isLastPage !== undefined && repositories !== undefined) {
+        if (more) {
+          this.setState(state => ({
+            isLastPage,
+            repositories: [...state.repositories, ...repositories]
+          }));
+        } else {
+          this.setState({ isLastPage, repositories });
+        }
+      }
+    }
+  }
+
+  handleError = () => {
+    if (this.mounted) {
+      this.setState({
+        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+        repositories: [],
+        resetPat: true,
+        showPersonalAccessTokenForm: true
+      });
+    }
+
+    return undefined;
+  };
+
+  handleSearch = (searchQuery: string) => {
+    this.setState(
+      {
+        searching: true,
+        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_PROJECTS_PAGESIZE },
+        searchQuery
+      },
+      async () => {
+        await this.fetchData();
+        if (this.mounted) {
+          this.setState({ searching: false });
+        }
+      }
+    );
+  };
+
+  handleLoadMore = () => {
+    this.setState(
+      state => ({
+        loadingMore: true,
+        projectsPaging: {
+          pageIndex: state.projectsPaging.pageIndex + 1,
+          pageSize: state.projectsPaging.pageSize
+        }
+      }),
+      async () => {
+        await this.fetchData(true);
+        if (this.mounted) {
+          this.setState({ loadingMore: false });
+        }
+      }
+    );
+  };
 
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
-    const { settings, loading, showPersonalAccessTokenForm } = this.state;
+    const {
+      isLastPage = true,
+      settings,
+      loading,
+      loadingMore,
+      repositories,
+      showPersonalAccessTokenForm,
+      resetPat,
+      searching,
+      searchQuery
+    } = this.state;
     return (
       <BitbucketCloudProjectCreateRenderer
+        isLastPage={isLastPage}
         settings={settings}
         canAdmin={canAdmin}
+        loadingMore={loadingMore}
         loading={loading || loadingBindings}
+        onLoadMore={this.handleLoadMore}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
-        resetPat={Boolean(location.query.resetPat)}
+        onSearch={this.handleSearch}
+        repositories={repositories}
+        searching={searching}
+        searchQuery={searchQuery}
+        resetPat={resetPat || Boolean(location.query.resetPat)}
         showPersonalAccessTokenForm={
           showPersonalAccessTokenForm || Boolean(location.query.resetPat)
         }

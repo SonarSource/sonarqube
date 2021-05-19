@@ -43,6 +43,15 @@ export interface BitbucketRepository {
   slug: string;
 }
 
+export interface BitbucketCloudRepository {
+  uuid: number;
+  name: string;
+  projectKey: string;
+  sqProjectKey?: string;
+  slug: string;
+  workspace: string;
+}
+
 export type BitbucketProjectRepositories = T.Dict<{
   allShown: boolean;
   repositories: BitbucketRepository[];
