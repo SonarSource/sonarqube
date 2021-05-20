@@ -18,6 +18,9 @@ Most of the property keys shown in the interface at both global and project leve
 For language-specific parameters related to test coverage and execution, see [Test Coverage & Execution](/analysis/coverage/).  
 For language-specific parameters related to external issue reports, see [External Issues](/analysis/external-issues/).
 
+[[info]]
+| Analysis parameters are case-sensitive.
+
 ## Mandatory Parameters
 
 ### Server

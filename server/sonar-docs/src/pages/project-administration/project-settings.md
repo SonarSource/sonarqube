@@ -34,7 +34,7 @@ You can also delete multiple projects simultaneously from the global **Project S
 
 The project key can be updated (without losing the history on the project) at **Project Settings > Update Key**.
 
-The new key must contain at least one non-digit character. Allowed characters are: 'a' through 'z', 'A' through 'Z', '-' (dash), '\_' (underscore), '.' (dot), ':' (colon) and digits '0' to '9'.
+The new key must contain at least one non-digit character. Allowed characters are: 'a' through 'z', 'A' through 'Z', '-' (dash), '\_' (underscore), '.' (dot), ':' (colon) and digits '0' to '9'. This value is case-sensitive.
 
 ### Default Issue Assignee
 
