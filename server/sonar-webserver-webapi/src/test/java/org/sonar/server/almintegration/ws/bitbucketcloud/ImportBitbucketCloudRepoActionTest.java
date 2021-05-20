@@ -34,6 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -107,7 +108,9 @@ public class ImportBitbucketCloudRepoActionTest {
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
-    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get());
+    assertThat(projectAlmSettingDto).isPresent();
+    assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-slug-1");
 
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.get().getUuid(), "develop");
     assertThat(branchDto).isPresent();

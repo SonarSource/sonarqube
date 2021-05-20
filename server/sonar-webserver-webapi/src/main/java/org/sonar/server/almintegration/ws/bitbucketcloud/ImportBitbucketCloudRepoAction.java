@@ -139,9 +139,8 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
   private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
-      // PR decoration reads almRepo
+      // Bitbucket Cloud PR decoration reads almRepo
       .setAlmRepo(repo.getSlug())
-      .setAlmSlug(repo.getSlug())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);

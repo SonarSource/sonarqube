@@ -77,7 +77,7 @@ public class SearchBitbucketCloudReposActionTest {
       dto.setUserUuid(user.getUuid());
     });
     ProjectDto projectDto = db.components().insertPrivateProjectDto();
-    db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmSlug("repo-slug-2"));
+    db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -107,8 +107,8 @@ public class SearchBitbucketCloudReposActionTest {
     });
     ProjectDto project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("B"));
     ProjectDto project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("A"));
-    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project1, s -> s.setAlmSlug("repo-slug-2"));
-    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project2, s -> s.setAlmSlug("repo-slug-2"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project1, s -> s.setAlmRepo("repo-slug-2"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project2, s -> s.setAlmRepo("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -134,7 +134,7 @@ public class SearchBitbucketCloudReposActionTest {
       dto.setUserUuid(user.getUuid());
     });
     ProjectDto projectDto = db.components().insertPrivateProjectDto();
-    db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("projectKey2"), s -> s.setAlmSlug("repo-slug-2"));
+    db.almSettings().insertBitbucketCloudProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("repo-slug-2"));
 
     SearchBitbucketcloudReposWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())

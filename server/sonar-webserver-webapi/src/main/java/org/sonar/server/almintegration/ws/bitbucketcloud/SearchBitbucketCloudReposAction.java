@@ -135,12 +135,12 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
   }
 
   private Map<String, String> getSqProjectKeyByRepoSlug(DbSession dbSession, AlmSettingDto almSettingDto, List<Repository> repositories) {
-    Set<String> slugs = repositories.stream().map(Repository::getSlug).collect(toSet());
+    Set<String> repoSlugs = repositories.stream().map(Repository::getSlug).collect(toSet());
 
-    List<ProjectAlmSettingDto> projectAlmSettingDtos = dbClient.projectAlmSettingDao().selectByAlmSettingAndSlugs(dbSession, almSettingDto, slugs);
+    List<ProjectAlmSettingDto> projectAlmSettingDtos = dbClient.projectAlmSettingDao().selectByAlmSettingAndRepos(dbSession, almSettingDto, repoSlugs);
 
     Map<String, String> repoSlugByProjectUuid = projectAlmSettingDtos.stream()
-      .collect(toMap(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getAlmSlug));
+      .collect(toMap(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getAlmRepo));
 
     return dbClient.projectDao().selectByUuids(dbSession, repoSlugByProjectUuid.keySet())
       .stream()
