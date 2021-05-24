@@ -17,7 +17,7 @@ When using group mapping, the following caveats apply regardless of which delega
 
 
 ## HTTP Header Authentication
-You can delegate user authentication to third-party systems (proxies/servers) using HTTP Header Authentication.
+You can delegate user authentication to third-party systems (proxies/servers) using HTTP Header Authentication. See `SSO AUTHENTICATION` section within `sonar.properties` file.
 
 When this feature is activated, SonarQube expects that the authentication is handled prior any query reaching the server. 
 The tool that handles the authentication should:
