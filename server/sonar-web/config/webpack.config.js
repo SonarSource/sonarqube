@@ -29,30 +29,6 @@ const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
 const utils = require('./utils');
 
-/*
- This webpack config is actually two: one for modern browsers and one for the legacy ones (e.g. ie11)
-
- The modern one transpilies the code to ES2018 (i.e. with classes, async functions, etc.) and
- does not include any polyfills. It's included in the result index.html using <script type="module">.
- Legacy browsers ignore this tag.
-
- The legacy one transpilies the code to ES5 and polyfills ES5+ features (promises, generators, etc.).
- It's included in the result index.html using <script nomodule>. Modern browsers do not load such scripts.
- 
- There is a trick to have both scripts in the index.html. We generate this file only once, during the
- build for modern browsers. We want unique file names for each version to invalidate browser cache. 
- For modern browsers we generate a file suffix using the content hash (as previously). For legacy ones
- we can't do the same, because we need to know the file names without the build.
-
- To work-around the problem, we use a build timestamp which is added to the legacy build file names.
- This way assuming that the build generates exactly the same entry chunks, we know the name of the 
- legacy files. Inside index.html template we use a simple regex to replace the file hash of a modern 
- file name to the timestamp. To simplify the regex we use ".m." suffix for modern files.
-
- This whole thing might be simplified when (if) the following issue is resolved:
- https://github.com/jantimon/html-webpack-plugin/issues/1051
-*/
-
 module.exports = ({ production = true, release = false }) => {
   const timestamp = Date.now();
 
@@ -214,56 +190,6 @@ module.exports = ({ production = true, release = false }) => {
               hints: 'error'
             }
           : undefined
-    }),
-
-    Object.assign({ name: 'legacy' }, commonConfig, {
-      entry: [
-        !production && require.resolve('react-dev-utils/webpackHotDevClient'),
-        require.resolve('./polyfills'),
-        !production && require.resolve('react-error-overlay'),
-        './src/main/js/app/utils/setPublicPath.js',
-        './src/main/js/app/index.ts'
-      ].filter(Boolean),
-      output: {
-        path: paths.appBuild,
-        pathinfo: !production,
-        filename: production ? `js/[name].${timestamp}.js` : 'js/[name].js',
-        chunkFilename: production ? `js/[name].${timestamp}.chunk.js` : 'js/[name].chunk.js'
-      },
-      module: {
-        rules: [
-          {
-            test: /(\.js$|\.ts(x?)$)/,
-            exclude: p => {
-              // Transpile D3 packages.
-              if (/\/d3/.test(p)) {
-                return false;
-              }
-              // Ignore anything else in node_modules/.
-              return /node_modules/.test(p);
-            },
-            use: [
-              {
-                loader: 'babel-loader',
-                options: {
-                  configFile: path.join(__dirname, '../babel.config.legacy.js')
-                }
-              },
-              {
-                loader: 'ts-loader',
-                options: {
-                  configFile: 'tsconfig.legacy.json',
-                  transpileOnly: true
-                }
-              }
-            ]
-          },
-          ...commonRules
-        ]
-      },
-      plugins: [...commonPlugins, !production && new webpack.HotModuleReplacementPlugin()].filter(
-        Boolean
-      )
     })
   ];
 };

@@ -41,10 +41,7 @@ function build() {
       process.exit(1);
     }
     reportBuildStats(stats.stats[0], 'modern');
-    if (release) {
-      console.log();
-      reportBuildStats(stats.stats[1], 'legacy');
-    }
+
     console.log(chalk.green.bold('Compiled successfully!'));
   });
 }

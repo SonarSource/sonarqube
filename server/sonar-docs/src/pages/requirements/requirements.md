@@ -62,7 +62,6 @@ To get the full experience SonarQube has to offer, you must enable JavaScript in
 
 | Browser                     |                                         |
 | --------------------------- | --------------------------------------- |
-| Microsoft Internet Explorer | ![](/images/check.svg) IE 11            |
 | Microsoft Edge              | ![](/images/check.svg) Latest           |
 | Mozilla Firefox             | ![](/images/check.svg) Latest           |
 | Google Chrome               | ![](/images/check.svg) Latest           |
