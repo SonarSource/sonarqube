@@ -27,6 +27,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map.Entry;
 import java.util.Properties;
 import org.sonar.api.SonarEdition;
@@ -110,11 +111,11 @@ public class App {
             }
             for (Entry<java.lang.Object, java.lang.Object> e : System.getProperties().entrySet()) {
                 if (((String) e.getKey()).startsWith("prop.")) {
-                    props.put(((String) e.getKey()).substring(5), (String) e.getValue());
+                    props.put(((String) e.getKey()).substring(5), e.getValue());
                 }
             }
             if (!out.getParentFile().exists()) {
-                out.getParentFile().mkdir();
+                Files.createDirectories(out.getParentFile().toPath());
             }
             props.store(new FileOutputStream(out), "#default and overwritten properties from environment");
         }

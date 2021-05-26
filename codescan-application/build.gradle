@@ -55,6 +55,7 @@ dependencies {
 apply from: 'bundled_plugins.gradle'
 
 jar {
+  archiveVersion = "${versionWithoutBuildNumber}"
   manifest {
     attributes(
             'Class-Path': configurations.compile.resolvedConfiguration.files.collect { "common/${it.getName()}" }.join(' '),
@@ -65,7 +66,7 @@ jar {
 
 task zip(type: Zip, dependsOn: [configurations.compile]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
-  def archiveDir = "sonarqube-$version"
+  def archiveDir = "sonarqube-$versionWithoutBuildNumber"
 
   into("${archiveDir}/") {
     from file('src/main/assembly')
@@ -192,8 +193,8 @@ assemble.dependsOn zip
 // the script start.sh unpacks OSS distribution into $buildDir/distributions/sonarqube-oss.
 // This directory should be deleted when the zip is changed.
 task cleanLocalUnzippedDir(dependsOn: zip) {
-  def unzippedDir = file("$buildDir/distributions/sonarqube-$version")
-  inputs.files(file("$buildDir/distributions/sonar-application-${version}.zip"))
+  def unzippedDir = file("$buildDir/distributions/sonarqube-$versionWithoutBuildNumber")
+  inputs.files(file("$buildDir/distributions/sonar-application-${versionWithoutBuildNumber}.zip"))
   outputs.upToDateWhen { true }
 
   doLast {

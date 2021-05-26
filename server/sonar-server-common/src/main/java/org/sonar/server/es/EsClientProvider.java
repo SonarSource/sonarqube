@@ -65,11 +65,9 @@ public class EsClientProvider extends ProviderAdapter {
 
       // mandatory property defined by bootstrap process
       esSettings.put("cluster.name", config.get(CLUSTER_NAME.getKey()).get());
-
-      boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
-      boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null)));
+      boolean clusterEnabled = config.getBoolean("codescan.cluster.enabled").orElse(false);
       final TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
-      if (clusterEnabled && !searchNode) {
+      if (clusterEnabled) {
         esSettings.put("client.transport.sniff", true);
         Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
           .map(HostAndPort::fromString)

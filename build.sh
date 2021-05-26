@@ -7,4 +7,4 @@ if [ "$BUILD_NUMBER" == "" ]; then
 	echo "Build $BUILD_NUMBER"
 fi
 
-TZ=UTC ./gradlew "-DbuildNumber=$BUILD_NUMBER" build $*
+TZ=UTC ./gradlew "-DbuildNumber=$BUILD_NUMBER" build -x test $*

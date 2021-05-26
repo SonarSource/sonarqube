@@ -139,7 +139,7 @@ public class CodeScanSchedulerImpl implements Scheduler, ManagedProcessEventList
     private void tryToStartEs() {
         ManagedProcessHandler process = processesById.get(ProcessId.ELASTICSEARCH);
         if (process != null) {
-            EsStartupOnlyProcessMonitor mon = new EsStartupOnlyProcessMonitor(settings.getProps());
+            EsStartupOnlyManagedProcess mon = new EsStartupOnlyManagedProcess(settings.getProps());
             process.start(() -> mon);
         }
     }

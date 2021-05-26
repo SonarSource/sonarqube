@@ -22,11 +22,11 @@ package org.sonar.application;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
-import static org.sonar.application.EsStartupOnlyProcessMonitor.Status.CONNECTION_REFUSED;
-import static org.sonar.application.EsStartupOnlyProcessMonitor.Status.GREEN;
-import static org.sonar.application.EsStartupOnlyProcessMonitor.Status.KO;
-import static org.sonar.application.EsStartupOnlyProcessMonitor.Status.RED;
-import static org.sonar.application.EsStartupOnlyProcessMonitor.Status.YELLOW;
+import static org.sonar.application.EsStartupOnlyManagedProcess.Status.CONNECTION_REFUSED;
+import static org.sonar.application.EsStartupOnlyManagedProcess.Status.GREEN;
+import static org.sonar.application.EsStartupOnlyManagedProcess.Status.KO;
+import static org.sonar.application.EsStartupOnlyManagedProcess.Status.RED;
+import static org.sonar.application.EsStartupOnlyManagedProcess.Status.YELLOW;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 
@@ -56,31 +56,27 @@ import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.application.process.ManagedProcess;
 import org.sonar.process.Props;
 
-public class EsStartupOnlyProcessMonitor implements ManagedProcess {
+public class EsStartupOnlyManagedProcess implements ManagedProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EsStartupOnlyProcessMonitor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EsStartupOnlyManagedProcess.class);
     private static final int WAIT_FOR_UP_DELAY_IN_MILLIS = 1000;
     private static final int WAIT_FOR_UP_TIMEOUT = 10 * 60; /* 1min */
 
-    private final AtomicBoolean nodeUp = new AtomicBoolean(false);
-    private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
+    private volatile boolean nodeOperational = false;
     private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
     private final EsConnector esConnector;
-    private final Props props;
-    private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
     private boolean isActive = true;
 
     enum Status {
         CONNECTION_REFUSED, KO, RED, YELLOW, GREEN
     }
 
-    public EsStartupOnlyProcessMonitor(Props props) {
+    public EsStartupOnlyManagedProcess(Props props) {
         String searchHosts = props.nonNullValue(CLUSTER_SEARCH_HOSTS.getKey());
         Set<HostAndPort> hostAndPorts = Arrays.stream(searchHosts.split(","))
                 .map(HostAndPort::fromString)
                 .collect(Collectors.toSet());
         this.esConnector = new EsConnectorImpl(props.nonNullValue(CLUSTER_NAME.getKey()), hostAndPorts);
-        this.props = props;
     }
 
     @Override
@@ -115,7 +111,7 @@ public class EsStartupOnlyProcessMonitor implements ManagedProcess {
 
     @Override
     public boolean isOperational() {
-        if (nodeOperational.get()) {
+        if (nodeOperational) {
             return true;
         }
 
@@ -127,11 +123,10 @@ public class EsStartupOnlyProcessMonitor implements ManagedProcess {
             Thread.currentThread().interrupt();
         } finally {
             if (flag) {
-                transportClient.set(null);
-                nodeOperational.set(true);
+                nodeOperational = true;
             }
         }
-        return nodeOperational.get();
+        return nodeOperational;
     }
 
     private boolean checkOperational() throws InterruptedException {
@@ -140,13 +135,13 @@ public class EsStartupOnlyProcessMonitor implements ManagedProcess {
         do {
             LOG.debug("Elasticsearch status: [{}]", status);
             if (status != Status.CONNECTION_REFUSED) {
-                nodeUp.set(true);
+                break;
             } else {
                 Thread.sleep(WAIT_FOR_UP_DELAY_IN_MILLIS);
                 i++;
                 status = checkStatus();
             }
-        } while (!nodeUp.get() && i < WAIT_FOR_UP_TIMEOUT);
+        } while (i < WAIT_FOR_UP_TIMEOUT);
         return status == YELLOW || status == GREEN;
     }
 
@@ -197,43 +192,6 @@ public class EsStartupOnlyProcessMonitor implements ManagedProcess {
         } catch (Exception e) {
             LOG.error("Failed to check status", e);
             return KO;
-        }
-    }
-
-    private static String displayedAddresses(TransportClient nativeClient) {
-        return nativeClient.transportAddresses().stream().map(TransportAddress::toString)
-                .collect(Collectors.joining(", "));
-    }
-
-    private TransportClient buildTransportClient() {
-        Settings.Builder esSettings = Settings.builder();
-
-        // mandatory property defined by bootstrap process
-        esSettings.put("cluster.name", props.value("sonar.cluster.name"));
-
-        TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
-        esSettings.put("client.transport.sniff", true);
-        LOG.info("Hosts: {}", props.value(CLUSTER_SEARCH_HOSTS.getKey()));
-        Arrays.stream(props.value(CLUSTER_SEARCH_HOSTS.getKey()).split(","))
-                .map(HostAndPort::fromString)
-                .forEach(h -> {
-                    LOG.info("Checking ES server: {}", h);
-                    addHostToClient(h, nativeClient);
-                });
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Connected to Elasticsearch node: [{}] on cluster [{}]", displayedAddresses(nativeClient),
-                    props.value("sonar.cluster.name"));
-        }
-        return nativeClient;
-    }
-
-    private static void addHostToClient(HostAndPort host, TransportClient client) {
-        try {
-            client.addTransportAddress(
-                    new TransportAddress(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001)));
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Can not resolve host [" + host + "]", e);
         }
     }
 

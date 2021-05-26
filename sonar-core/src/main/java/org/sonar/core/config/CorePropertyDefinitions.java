@@ -56,6 +56,23 @@ public class CorePropertyDefinitions {
     defs.addAll(ScannerProperties.all());
 
     defs.addAll(asList(
+      PropertyDefinition
+        .builder("sonar.branch.longLivedBranches.regex")
+        .name("Detection of long lived branches")
+        .description("Regular expression used to detect whether a branch is a long living branch (as opposed to short living branch), based on its name. This applies only during first analysis, the type of a branch cannot be changed later.")
+        .category("general")
+        .subCategory("Branches")
+        .defaultValue("(branch|release)-.*")
+        .onQualifiers("TRK", new String[0]).build(),
+      PropertyDefinition
+        .builder("sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches")
+        .name("Number of days before purging inactive short living branches")
+        .description("Short living branches are permanently deleted when there are no analysis for the configured number of days.")
+        .category("general")
+        .subCategory("Branches")
+        .type(PropertyType.INTEGER)
+        .defaultValue("30")
+        .build(),
       PropertyDefinition.builder(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS)
         .name("Archived Sub-Projects Settings")
         .description("DEPRECATED - List of the properties that were previously configured at sub-project / module level. " +
