@@ -25,6 +25,7 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import java.security.Security;
 import java.security.SecurityPermission;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,6 +40,8 @@ public class SecurityManagement {
     SecurityManager sm = new SecurityManager();
     Policy.setPolicy(new CustomPolicy());
     System.setSecurityManager(sm);
+    // SONAR-14870 By default, with a security manager installed, the DNS cache never times out. See InetAddressCachePolicy.
+    Security.setProperty("networkaddress.cache.ttl", "30");
   }
 
   static class CustomPolicy extends Policy {
