@@ -93,7 +93,7 @@ export default function PageSidebar(props: PageSidebarProps) {
 
           <SecurityReviewFilter
             {...facetProps}
-            facet={getFacet(facets, 'security_review_rating')}
+            facet={getFacet(facets, 'security_review')}
             value={query.security_review_rating}
           />
 
@@ -130,7 +130,7 @@ export default function PageSidebar(props: PageSidebarProps) {
           <SecurityReviewFilter
             {...facetProps}
             className="leak-facet-box"
-            facet={getFacet(facets, 'new_security_review_rating')}
+            facet={getFacet(facets, 'new_security_review')}
             property="new_security_review"
             value={query.new_security_review_rating}
           />
