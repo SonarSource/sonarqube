@@ -60,7 +60,7 @@ export default function GlobalFooterSonarCloud({
         	<a rel="noopener noreferrer" target="_blank" href="https://twitter.com/CodeScanforSFDC">Twitter</a>
         </li>
         <li className="page-footer-menu-item">
-        	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/help/support/">{translate('footer.help')}</a>
+        	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/contact/">{translate('footer.help')}</a>
         </li>
         <li className="page-footer-menu-item">
         	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/cloud/getting-started/">{translate('footer.about')}</a>
