@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.villagechief.sonarqube.codescanhosted.ce;
+package io.codescan.sonarqube.codescanhosted.ce;
 
 import java.util.Optional;
 import org.apache.commons.lang.StringUtils;

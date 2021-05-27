@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-import com.villagechief.sonarqube.codescanhosted.ce.CodeScanBranchLoaderDelegate;
+import io.codescan.sonarqube.codescanhosted.ce.CodeScanBranchLoaderDelegate;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.log.CeTaskMessagesImpl;

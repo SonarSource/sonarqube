@@ -51,7 +51,7 @@ export default function GlobalFooterSonarCloud({
         	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/tos/">{translate('footer.terms')}</a>
         </li>
         <li className="page-footer-menu-item">
-        	<a rel="noopener noreferrer" target="_blank" href="https://www.linkedin.com/company/villagechief/">Linkedin</a>
+        	<a rel="noopener noreferrer" target="_blank" href="https://www.linkedin.com/company/code-scan">Linkedin</a>
         </li>
         <li className="page-footer-menu-item">
         	<a rel="noopener noreferrer" target="_blank" href="https://www.facebook.com/CodeScanForSalesforce/">Facebook</a>

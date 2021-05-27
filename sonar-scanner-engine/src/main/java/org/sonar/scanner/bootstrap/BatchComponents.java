@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.villagechief.sonarqube.codescanhosted.scanner.CodeScanBranchConfigurationLoader;
-import com.villagechief.sonarqube.codescanhosted.scanner.CodeScanBranchParamsValidator;
-import com.villagechief.sonarqube.codescanhosted.scanner.ProjectBranchesLoaderImpl;
+import io.codescan.sonarqube.codescanhosted.scanner.CodeScanBranchConfigurationLoader;
+import io.codescan.sonarqube.codescanhosted.scanner.CodeScanBranchParamsValidator;
+import io.codescan.sonarqube.codescanhosted.scanner.ProjectBranchesLoaderImpl;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
