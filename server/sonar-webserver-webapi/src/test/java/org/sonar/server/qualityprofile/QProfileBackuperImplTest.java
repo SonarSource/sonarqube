@@ -48,7 +48,7 @@ import org.sonar.server.rule.RuleCreator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -85,7 +85,7 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer.toString()).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
+    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
       "<profile><name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
       "<rules>" +
@@ -94,7 +94,7 @@ public class QProfileBackuperImplTest {
       "<key>" + rule.getRuleKey() + "</key>" +
       "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
       "<priority>" + activeRule.getSeverityString() + "</priority>" +
-      "<parameters/>" +
+      "<parameters></parameters>" +
       "</rule>" +
       "</rules>" +
       "</profile>");
@@ -131,10 +131,10 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer.toString()).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
+    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
       "<profile><name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
-      "<rules/>" +
+      "<rules></rules>" +
       "</profile>");
   }
 
@@ -154,7 +154,7 @@ public class QProfileBackuperImplTest {
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
 
-    assertThat(writer.toString()).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
+    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
       "<profile>" +
       "<name>" + profile.getName() + "</name>" +
       "<language>" + profile.getLanguage() + "</language>" +
@@ -372,23 +372,19 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void fail_to_restore_if_bad_xml_format() {
-    try {
-      underTest.restore(db.getSession(), new StringReader("<rules><rule></rules>"), (String) null);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
-      assertThat(reset.calledProfile).isNull();
-    }
+    DbSession session = db.getSession();
+    StringReader backup = new StringReader("<rules><rule></rules>");
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> underTest.restore(session, backup, (String) null));
+    assertThat(thrown).hasMessage("Backup XML is not valid. Root element must be <profile>.");
+    assertThat(reset.calledProfile).isNull();
   }
 
   @Test
   public void fail_to_restore_if_not_xml_backup() {
-    try {
-      underTest.restore(db.getSession(), new StringReader("foo"), (String) null);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(reset.calledProfile).isNull();
-    }
+    DbSession session = db.getSession();
+    StringReader backup = new StringReader("foo");
+    assertThrows(IllegalArgumentException.class, () -> underTest.restore(session, backup, (String) null));
+    assertThat(reset.calledProfile).isNull();
   }
 
   @Test
@@ -402,14 +398,12 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void fail_to_restore_if_duplicate_rule() throws Exception {
-    try {
-      String xml = Resources.toString(getClass().getResource("QProfileBackuperTest/duplicates-xml-backup.xml"), UTF_8);
-      underTest.restore(db.getSession(), new StringReader(xml), (String) null);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The quality profile cannot be restored as it contains duplicates for the following rules: xoo:x1, xoo:x2");
-      assertThat(reset.calledProfile).isNull();
-    }
+    DbSession session = db.getSession();
+    String xml = Resources.toString(getClass().getResource("QProfileBackuperTest/duplicates-xml-backup.xml"), UTF_8);
+    StringReader backup = new StringReader(xml);
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> underTest.restore(session, backup, (String) null));
+    assertThat(thrown).hasMessage("The quality profile cannot be restored as it contains duplicates for the following rules: xoo:x1, xoo:x2");
+    assertThat(reset.calledProfile).isNull();
   }
 
   @Test

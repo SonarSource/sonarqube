@@ -25,9 +25,7 @@ dependencies {
   compile 'org.apache.commons:commons-csv'
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
-  compile 'org.codehaus.staxmate:staxmate'
-  compile 'org.codehaus.woodstox:stax2-api'
-  compile 'org.codehaus.woodstox:woodstox-core-lgpl'
+  compile 'com.fasterxml.staxmate:staxmate'
   compile 'org.eclipse.jgit:org.eclipse.jgit'
   compile 'org.tmatesoft.svnkit:svnkit'
   compile 'org.picocontainer:picocontainer'
@@ -54,10 +52,9 @@ dependencies {
   testCompile 'commons-io:commons-io'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
-  testCompile 'org.codehaus.staxmate:staxmate'
+  testCompile 'com.fasterxml.staxmate:staxmate'
   testCompile 'org.hamcrest:hamcrest-core'
   testCompile 'org.mockito:mockito-core'
-  testCompile 'stax:stax-api'
   testCompile project(':plugins:sonar-xoo-plugin')
   testCompile project(':sonar-plugin-api').sourceSets.test.output
 

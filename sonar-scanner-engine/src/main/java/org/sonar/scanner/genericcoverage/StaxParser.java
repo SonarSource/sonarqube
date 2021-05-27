@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.genericcoverage;
 
-import com.ctc.wstx.stax.WstxInputFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -61,11 +60,6 @@ public class StaxParser {
   public StaxParser(XmlStreamHandler streamHandler, boolean isoControlCharsAwareParser) {
     this.streamHandler = streamHandler;
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
-    if (xmlFactory instanceof WstxInputFactory) {
-      WstxInputFactory wstxInputfactory = (WstxInputFactory) xmlFactory;
-      wstxInputfactory.configureForLowMemUsage();
-      wstxInputfactory.getConfig().setUndeclaredEntityResolver(new UndeclaredEntitiesXMLResolver());
-    }
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, false);
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);

@@ -317,17 +317,7 @@ subprojects {
         exclude 'org.slf4j:slf4j-api'
       }
       dependency 'org.codehaus.sonar:sonar-classloader:1.0'
-      dependency('org.codehaus.woodstox:woodstox-core-lgpl:4.4.1') {
-        exclude 'javax.xml.stream:stax-api'
-      }
-      dependency('org.codehaus.staxmate:staxmate:2.0.1') {
-        exclude 'org.codehaus.woodstox:stax2-api'
-        exclude 'stax:stax-api'
-        exclude 'org.codehaus.woodstox:woodstox-core-asl'
-      }
-      dependency('org.codehaus.woodstox:stax2-api:3.1.4') {
-        exclude 'stax:stax-api'
-      }
+      dependency 'com.fasterxml.staxmate:staxmate:2.4.0'
       dependencySet(group: 'org.eclipse.jetty', version: '9.4.6.v20170531') {
         entry 'jetty-proxy'
         entry 'jetty-server'

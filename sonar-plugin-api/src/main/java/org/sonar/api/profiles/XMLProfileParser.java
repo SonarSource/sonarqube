@@ -25,12 +25,13 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -49,6 +50,11 @@ import org.sonar.api.utils.ValidationMessages;
 @ComputeEngineSide
 public class XMLProfileParser {
 
+  private static final String ELEMENT_PROFILE = "profile";
+  private static final String ELEMENT_RULES = "rules";
+  private static final String ELEMENT_RULE = "rule";
+  private static final String ELEMENT_PARAMETERS = "parameters";
+  private static final String ELEMENT_PARAMETER = "parameter";
   private final RuleFinder ruleFinder;
 
   /**
@@ -70,24 +76,16 @@ public class XMLProfileParser {
     }
   }
 
-  public RulesProfile parse(Reader reader, ValidationMessages messages) {
+  public RulesProfile parse(Reader inputReader, ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create();
-    SMInputFactory inputFactory = initStax();
+    XMLInputFactory inputFactory = initStax();
     try {
-      SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
-      rootC.advance(); // <profile>
-      SMInputCursor cursor = rootC.childElementCursor();
-      while (cursor.getNext() != null) {
-        String nodeName = cursor.getLocalName();
-        if (StringUtils.equals("rules", nodeName)) {
-          SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          processRules(rulesCursor, profile, messages);
-
-        } else if (StringUtils.equals("name", nodeName)) {
-          profile.setName(StringUtils.trim(cursor.collectDescendantText(false)));
-
-        } else if (StringUtils.equals("language", nodeName)) {
-          profile.setLanguage(StringUtils.trim(cursor.collectDescendantText(false)));
+      final XMLEventReader reader = inputFactory.createXMLEventReader(inputReader);
+      while (reader.hasNext()) {
+        final XMLEvent event = reader.nextEvent();
+        if (event.isStartElement() && event.asStartElement().getName()
+          .getLocalPart().equals(ELEMENT_PROFILE)) {
+          parseProfile(profile, reader, messages);
         }
       }
     } catch (XMLStreamException e) {
@@ -95,6 +93,42 @@ public class XMLProfileParser {
     }
     checkProfile(profile, messages);
     return profile;
+  }
+
+  private void parseProfile(RulesProfile profile, final XMLEventReader reader, ValidationMessages messages) throws XMLStreamException {
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_PROFILE)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if (ELEMENT_RULES.equals(elementName)) {
+          parseRules(profile, reader, messages);
+        } else if ("name".equals(elementName)) {
+          profile.setName(StringUtils.trim(reader.getElementText()));
+        } else if ("language".equals(elementName)) {
+          profile.setLanguage(StringUtils.trim(reader.getElementText()));
+        }
+      }
+    }
+  }
+
+  private void parseRules(RulesProfile profile, XMLEventReader reader, ValidationMessages messages) throws XMLStreamException {
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULES)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if (ELEMENT_RULE.equals(elementName)) {
+          parseRule(profile, reader, messages);
+        }
+      }
+    }
   }
 
   private static void checkProfile(RulesProfile profile, ValidationMessages messages) {
@@ -106,56 +140,55 @@ public class XMLProfileParser {
     }
   }
 
-  private static SMInputFactory initStax() {
+  private static XMLInputFactory initStax() {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     // just so it won't try to load DTD in if there's DOCTYPE
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    return new SMInputFactory(xmlFactory);
+    return xmlFactory;
   }
 
-  private void processRules(SMInputCursor rulesCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
+  private void parseRule(RulesProfile profile, XMLEventReader reader, ValidationMessages messages) throws XMLStreamException {
     Map<String, String> parameters = new HashMap<>();
-    while (rulesCursor.getNext() != null) {
-      SMInputCursor ruleCursor = rulesCursor.childElementCursor();
-
-      String repositoryKey = null;
-      String key = null;
-      RulePriority priority = null;
-      parameters.clear();
-
-      while (ruleCursor.getNext() != null) {
-        String nodeName = ruleCursor.getLocalName();
-
-        if (StringUtils.equals("repositoryKey", nodeName)) {
-          repositoryKey = StringUtils.trim(ruleCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("key", nodeName)) {
-          key = StringUtils.trim(ruleCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("priority", nodeName)) {
-          priority = RulePriority.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false)));
-
-        } else if (StringUtils.equals("parameters", nodeName)) {
-          SMInputCursor propsCursor = ruleCursor.childElementCursor("parameter");
-          processParameters(propsCursor, parameters);
-        }
+    String repositoryKey = null;
+    String key = null;
+    RulePriority priority = null;
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULE)) {
+        buildRule(profile, messages, parameters, repositoryKey, key, priority);
+        return;
       }
 
-      Rule rule = ruleFinder.findByKey(repositoryKey, key);
-      if (rule == null) {
-        messages.addWarningText("Rule not found: " + ruleToString(repositoryKey, key));
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if ("repositoryKey".equals(elementName)) {
+          repositoryKey = StringUtils.trim(reader.getElementText());
+        } else if ("key".equals(elementName)) {
+          key = StringUtils.trim(reader.getElementText());
+        } else if ("priority".equals(elementName)) {
+          priority = RulePriority.valueOf(StringUtils.trim(reader.getElementText()));
+        } else if (ELEMENT_PARAMETERS.equals(elementName)) {
+          processParameters(parameters, reader);
+        }
+      }
+    }
+  }
 
-      } else {
-        ActiveRule activeRule = profile.activateRule(rule, priority);
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-          if (rule.getParam(entry.getKey()) == null) {
-            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: " + ruleToString(repositoryKey, key));
-          } else {
-            activeRule.setParameter(entry.getKey(), entry.getValue());
-          }
+  private void buildRule(RulesProfile profile, ValidationMessages messages, Map<String, String> parameters, String repositoryKey, String key, @Nullable RulePriority priority) {
+    Rule rule = ruleFinder.findByKey(repositoryKey, key);
+    if (rule == null) {
+      messages.addWarningText("Rule not found: " + ruleToString(repositoryKey, key));
+    } else {
+      ActiveRule activeRule = profile.activateRule(rule, priority);
+      for (Map.Entry<String, String> entry : parameters.entrySet()) {
+        if (rule.getParam(entry.getKey()) == null) {
+          messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: " + ruleToString(repositoryKey, key));
+        } else {
+          activeRule.setParameter(entry.getKey(), entry.getValue());
         }
       }
     }
@@ -165,22 +198,41 @@ public class XMLProfileParser {
     return "[repository=" + repositoryKey + ", key=" + key + "]";
   }
 
-  private static void processParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
-    while (propsCursor.getNext() != null) {
-      SMInputCursor propCursor = propsCursor.childElementCursor();
-      String key = null;
-      String value = null;
-      while (propCursor.getNext() != null) {
-        String nodeName = propCursor.getLocalName();
-        if (StringUtils.equals("key", nodeName)) {
-          key = StringUtils.trim(propCursor.collectDescendantText(false));
-
-        } else if (StringUtils.equals("value", nodeName)) {
-          value = StringUtils.trim(propCursor.collectDescendantText(false));
+  private static void processParameters(Map<String, String> parameters, XMLEventReader reader) throws XMLStreamException {
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_PARAMETERS)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if (ELEMENT_PARAMETER.equals(elementName)) {
+          processParameter(parameters, reader);
         }
       }
-      if (key != null) {
-        parameters.put(key, value);
+    }
+  }
+
+  private static void processParameter(Map<String, String> parameters, XMLEventReader reader) throws XMLStreamException {
+    String key = null;
+    String value = null;
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_PARAMETER)) {
+        if (key != null) {
+          parameters.put(key, value);
+        }
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if ("key".equals(elementName)) {
+          key = StringUtils.trim(reader.getElementText());
+        } else if ("value".equals(elementName)) {
+          value = StringUtils.trim(reader.getElementText());
+        }
       }
     }
   }

@@ -27,11 +27,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -42,7 +45,6 @@ import org.sonar.check.Cardinality;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.trim;
 
@@ -184,6 +186,10 @@ import static org.apache.commons.lang.StringUtils.trim;
 @SonarLintSide
 public class RulesDefinitionXmlLoader {
 
+  private static final String ELEMENT_RULES = "rules";
+  private static final String ELEMENT_RULE = "rule";
+  private static final String ELEMENT_PARAM = "param";
+
   private enum DescriptionFormat {
     HTML, MARKDOWN
   }
@@ -191,6 +197,7 @@ public class RulesDefinitionXmlLoader {
   /**
    * Loads rules by reading the XML input stream. The input stream is not always closed by the method, so it
    * should be handled by the caller.
+   *
    * @since 4.3
    */
   public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
@@ -211,32 +218,47 @@ public class RulesDefinitionXmlLoader {
   /**
    * Loads rules by reading the XML input stream. The reader is not closed by the method, so it
    * should be handled by the caller.
+   *
    * @since 4.3
    */
-  public void load(RulesDefinition.NewRepository repo, Reader reader) {
+  public void load(RulesDefinition.NewRepository repo, Reader inputReader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     // just so it won't try to load DTD in if there's DOCTYPE
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
     try {
-      SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
-      rootC.advance(); // <rules>
-
-      SMInputCursor rulesC = rootC.childElementCursor("rule");
-      while (rulesC.getNext() != null) {
-        // <rule>
-        processRule(repo, rulesC);
+      final XMLEventReader reader = xmlFactory.createXMLEventReader(inputReader);
+      while (reader.hasNext()) {
+        final XMLEvent event = reader.nextEvent();
+        if (event.isStartElement() && event.asStartElement().getName()
+          .getLocalPart().equals(ELEMENT_RULES)) {
+          parseRules(repo, reader);
+        }
       }
-
     } catch (XMLStreamException e) {
       throw new IllegalStateException("XML is not valid", e);
     }
   }
 
-  private static void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
+  private static void parseRules(RulesDefinition.NewRepository repo, XMLEventReader reader) throws XMLStreamException {
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULES)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if (ELEMENT_RULE.equals(elementName)) {
+          processRule(repo, element, reader);
+        }
+      }
+    }
+  }
+
+  private static void processRule(RulesDefinition.NewRepository repo, StartElement ruleElement, XMLEventReader reader) throws XMLStreamException {
     String key = null;
     String name = null;
     String description = null;
@@ -255,74 +277,71 @@ public class RulesDefinitionXmlLoader {
     List<String> tags = new ArrayList<>();
 
     /* BACKWARD COMPATIBILITY WITH VERY OLD FORMAT */
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (isNotBlank(keyAttribute)) {
-      key = trim(keyAttribute);
+    Attribute keyAttribute = ruleElement.getAttributeByName(new QName("key"));
+    if (keyAttribute != null && StringUtils.isNotBlank(keyAttribute.getValue())) {
+      key = trim(keyAttribute.getValue());
     }
-    String priorityAttribute = ruleC.getAttrValue("priority");
-    if (isNotBlank(priorityAttribute)) {
-      severity = trim(priorityAttribute);
+    Attribute priorityAttribute = ruleElement.getAttributeByName(new QName("priority"));
+    if (priorityAttribute != null && StringUtils.isNotBlank(priorityAttribute.getValue())) {
+      severity = trim(priorityAttribute.getValue());
     }
 
-    SMInputCursor cursor = ruleC.childElementCursor();
-    while (cursor.getNext() != null) {
-      String nodeName = cursor.getLocalName();
-
-      if (equalsIgnoreCase("name", nodeName)) {
-        name = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("type", nodeName)) {
-        type = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("description", nodeName)) {
-        description = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("descriptionFormat", nodeName)) {
-        descriptionFormat = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("key", nodeName)) {
-        key = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("configKey", nodeName)) {
-        // deprecated field, replaced by internalKey
-        internalKey = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("internalKey", nodeName)) {
-        internalKey = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("priority", nodeName) || equalsIgnoreCase("severity", nodeName)) {
-        // "priority" is deprecated field and has been replaced by "severity"
-        severity = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("cardinality", nodeName)) {
-        template = Cardinality.MULTIPLE == Cardinality.valueOf(nodeValue(cursor));
-
-      } else if (equalsIgnoreCase("gapDescription", nodeName) || equalsIgnoreCase("effortToFixDescription", nodeName)) {
-        gapDescription = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("remediationFunction", nodeName) || equalsIgnoreCase("debtRemediationFunction", nodeName)) {
-        debtRemediationFunction = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("remediationFunctionBaseEffort", nodeName) || equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
-        debtRemediationFunctionGapMultiplier = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("remediationFunctionGapMultiplier", nodeName) || equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
-        debtRemediationFunctionBaseEffort = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("status", nodeName)) {
-        String s = nodeValue(cursor);
-        if (s != null) {
-          status = RuleStatus.valueOf(s);
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULE)) {
+        buildRule(repo, key, name, description, descriptionFormat, internalKey, severity, type, status, template,
+          gapDescription, debtRemediationFunction, debtRemediationFunctionGapMultiplier, debtRemediationFunctionBaseEffort, params, tags);
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if ("name".equalsIgnoreCase(elementName)) {
+          name = StringUtils.trim(reader.getElementText());
+        } else if ("type".equalsIgnoreCase(elementName)) {
+          type = StringUtils.trim(reader.getElementText());
+        } else if ("description".equalsIgnoreCase(elementName)) {
+          description = StringUtils.trim(reader.getElementText());
+        } else if ("descriptionFormat".equalsIgnoreCase(elementName)) {
+          descriptionFormat = StringUtils.trim(reader.getElementText());
+        } else if ("key".equalsIgnoreCase(elementName)) {
+          key = StringUtils.trim(reader.getElementText());
+        } else if ("configKey".equalsIgnoreCase(elementName)) {
+          // deprecated field, replaced by internalKey
+          internalKey = StringUtils.trim(reader.getElementText());
+        } else if ("internalKey".equalsIgnoreCase(elementName)) {
+          internalKey = StringUtils.trim(reader.getElementText());
+        } else if ("priority".equalsIgnoreCase(elementName) || "severity".equalsIgnoreCase(elementName)) {
+          // "priority" is deprecated field and has been replaced by "severity"
+          severity = StringUtils.trim(reader.getElementText());
+        } else if ("cardinality".equalsIgnoreCase(elementName)) {
+          template = Cardinality.MULTIPLE == Cardinality.valueOf(StringUtils.trim(reader.getElementText()));
+        } else if ("gapDescription".equalsIgnoreCase(elementName) || "effortToFixDescription".equalsIgnoreCase(elementName)) {
+          gapDescription = StringUtils.trim(reader.getElementText());
+        } else if ("remediationFunction".equalsIgnoreCase(elementName) || "debtRemediationFunction".equalsIgnoreCase(elementName)) {
+          debtRemediationFunction = StringUtils.trim(reader.getElementText());
+        } else if ("remediationFunctionBaseEffort".equalsIgnoreCase(elementName) || "debtRemediationFunctionOffset".equalsIgnoreCase(elementName)) {
+          debtRemediationFunctionGapMultiplier = StringUtils.trim(reader.getElementText());
+        } else if ("remediationFunctionGapMultiplier".equalsIgnoreCase(elementName) || "debtRemediationFunctionCoefficient".equalsIgnoreCase(elementName)) {
+          debtRemediationFunctionBaseEffort = StringUtils.trim(reader.getElementText());
+        } else if ("status".equalsIgnoreCase(elementName)) {
+          String s = StringUtils.trim(reader.getElementText());
+          if (s != null) {
+            status = RuleStatus.valueOf(s);
+          }
+        } else if (ELEMENT_PARAM.equalsIgnoreCase(elementName)) {
+          params.add(processParameter(element, reader));
+        } else if ("tag".equalsIgnoreCase(elementName)) {
+          tags.add(StringUtils.trim(reader.getElementText()));
         }
-
-      } else if (equalsIgnoreCase("param", nodeName)) {
-        params.add(processParameter(cursor));
-
-      } else if (equalsIgnoreCase("tag", nodeName)) {
-        tags.add(nodeValue(cursor));
       }
     }
+  }
 
+  private static void buildRule(RulesDefinition.NewRepository repo, String key, String name, @Nullable String description,
+    String descriptionFormat, @Nullable String internalKey, String severity, @Nullable String type, RuleStatus status,
+    boolean template, @Nullable String gapDescription, @Nullable String debtRemediationFunction, @Nullable String debtRemediationFunctionGapMultiplier,
+    @Nullable String debtRemediationFunctionBaseEffort, List<ParamStruct> params, List<String> tags) {
     try {
       RulesDefinition.NewRule rule = repo.createRule(key)
         .setSeverity(severity)
@@ -375,10 +394,6 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private static String nodeValue(SMInputCursor cursor) throws XMLStreamException {
-    return trim(cursor.collectDescendantText(false));
-  }
-
   private static class ParamStruct {
 
     String key;
@@ -387,36 +402,38 @@ public class RulesDefinitionXmlLoader {
     RuleParamType type = RuleParamType.STRING;
   }
 
-  private static ParamStruct processParameter(SMInputCursor ruleC) throws XMLStreamException {
+  private static ParamStruct processParameter(StartElement paramElement, XMLEventReader reader) throws XMLStreamException {
     ParamStruct param = new ParamStruct();
 
     // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (isNotBlank(keyAttribute)) {
-      param.key = trim(keyAttribute);
+    Attribute keyAttribute = paramElement.getAttributeByName(new QName("key"));
+    if (keyAttribute != null && StringUtils.isNotBlank(keyAttribute.getValue())) {
+      param.key = StringUtils.trim(keyAttribute.getValue());
     }
 
     // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
-    String typeAttribute = ruleC.getAttrValue("type");
-    if (isNotBlank(typeAttribute)) {
-      param.type = RuleParamType.parse(typeAttribute);
+    Attribute typeAttribute = paramElement.getAttributeByName(new QName("type"));
+    if (typeAttribute != null && StringUtils.isNotBlank(typeAttribute.getValue())) {
+      param.type = RuleParamType.parse(StringUtils.trim(typeAttribute.getValue()));
     }
 
-    SMInputCursor paramC = ruleC.childElementCursor();
-    while (paramC.getNext() != null) {
-      String propNodeName = paramC.getLocalName();
-      String propText = nodeValue(paramC);
-      if (equalsIgnoreCase("key", propNodeName)) {
-        param.key = propText;
-
-      } else if (equalsIgnoreCase("description", propNodeName)) {
-        param.description = propText;
-
-      } else if (equalsIgnoreCase("type", propNodeName)) {
-        param.type = RuleParamType.parse(propText);
-
-      } else if (equalsIgnoreCase("defaultValue", propNodeName)) {
-        param.defaultValue = propText;
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_PARAM)) {
+        return param;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        if ("key".equalsIgnoreCase(elementName)) {
+          param.key = StringUtils.trim(reader.getElementText());
+        } else if ("description".equalsIgnoreCase(elementName)) {
+          param.description = StringUtils.trim(reader.getElementText());
+        } else if ("type".equalsIgnoreCase(elementName)) {
+          param.type = RuleParamType.parse(StringUtils.trim(reader.getElementText()));
+        } else if ("defaultValue".equalsIgnoreCase(elementName)) {
+          param.defaultValue = StringUtils.trim(reader.getElementText());
+        }
       }
     }
     return param;

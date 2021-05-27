@@ -16,10 +16,6 @@ dependencies {
   // shaded, but not relocated
   compile project(':sonar-check-api')
 
-  shadow 'org.codehaus.staxmate:staxmate'
-  shadow 'org.codehaus.woodstox:stax2-api'
-  shadow 'org.codehaus.woodstox:woodstox-core-lgpl'
-
   compileOnly 'ch.qos.logback:logback-classic'
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'

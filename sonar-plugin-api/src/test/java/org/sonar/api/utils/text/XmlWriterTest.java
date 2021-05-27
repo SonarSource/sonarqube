@@ -41,25 +41,25 @@ public class XmlWriterTest {
   @Test
   public void declaration() {
     writer.declaration().begin("foo").end().close();
-    expect("<?xml version='1.0' encoding='UTF-8'?><foo/>");
+    expect("<?xml version=\"1.0\" encoding=\"UTF-8\"?><foo></foo>");
   }
 
   @Test
   public void end_with_unused_parameter() {
     writer.begin("foo").end("foo").close();
-    expect("<foo/>");
+    expect("<foo></foo>");
   }
 
   @Test
   public void only_root() {
     writer.begin("foo").end().close();
-    expect("<foo/>");
+    expect("<foo></foo>");
   }
 
   @Test
   public void escape_value() {
     writer.prop("foo", "1<2 & 2>=2").close();
-    expect("<foo>1&lt;2 &amp; 2>=2</foo>");
+    expect("<foo>1&lt;2 &amp; 2&gt;=2</foo>");
   }
 
   @Test
@@ -74,7 +74,7 @@ public class XmlWriterTest {
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
       .end().close();
-    expect("<root/>");
+    expect("<root></root>");
   }
 
   @Test

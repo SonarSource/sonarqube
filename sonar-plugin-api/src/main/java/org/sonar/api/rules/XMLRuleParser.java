@@ -28,13 +28,16 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -52,6 +55,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @ComputeEngineSide
 public final class XMLRuleParser {
   private static final Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
+  private static final String ELEMENT_RULES = "rules";
+  private static final String ELEMENT_RULE = "rule";
+  private static final String ELEMENT_PARAM = "param";
 
   public List<Rule> parse(File file) {
     try (Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()), UTF_8)) {
@@ -74,26 +80,22 @@ public final class XMLRuleParser {
     }
   }
 
-  public List<Rule> parse(Reader reader) {
+  public List<Rule> parse(Reader inputReader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     // just so it won't try to load DTD in if there's DOCTYPE
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
     try {
-      SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
-      rootC.advance(); // <rules>
+      final XMLEventReader reader = xmlFactory.createXMLEventReader(inputReader);
       List<Rule> rules = new ArrayList<>();
-
-      SMInputCursor rulesC = rootC.childElementCursor("rule");
-      while (rulesC.getNext() != null) {
-        // <rule>
-        Rule rule = Rule.create();
-        rules.add(rule);
-
-        processRule(rule, rulesC);
+      while (reader.hasNext()) {
+        final XMLEvent event = reader.nextEvent();
+        if (event.isStartElement() && event.asStartElement().getName()
+          .getLocalPart().equals(ELEMENT_RULES)) {
+          parseRules(rules, reader);
+        }
       }
       return rules;
 
@@ -102,51 +104,77 @@ public final class XMLRuleParser {
     }
   }
 
-  private static void processRule(Rule rule, SMInputCursor ruleC) throws XMLStreamException {
+  private void parseRules(List<Rule> rules, XMLEventReader reader) throws XMLStreamException {
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULES)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart();
+        switch (elementName) {
+          case ELEMENT_RULE:
+            Rule rule = Rule.create();
+            rules.add(rule);
+            parseRule(rule, element, reader);
+            break;
+        }
+      }
+    }
+  }
+
+  private static void parseRule(Rule rule, StartElement ruleElement, XMLEventReader reader) throws XMLStreamException {
     /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
-      rule.setKey(StringUtils.trim(keyAttribute));
+    Attribute keyAttribute = ruleElement.getAttributeByName(new QName("key"));
+    if (keyAttribute != null && StringUtils.isNotBlank(keyAttribute.getValue())) {
+      rule.setKey(StringUtils.trim(keyAttribute.getValue()));
     }
 
     /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
-    String priorityAttribute = ruleC.getAttrValue("priority");
-    if (StringUtils.isNotBlank(priorityAttribute)) {
-      rule.setSeverity(RulePriority.valueOf(StringUtils.trim(priorityAttribute)));
+    Attribute priorityAttribute = ruleElement.getAttributeByName(new QName("priority"));
+    if (priorityAttribute != null && StringUtils.isNotBlank(priorityAttribute.getValue())) {
+      rule.setSeverity(RulePriority.valueOf(StringUtils.trim(priorityAttribute.getValue())));
     }
 
     List<String> tags = new ArrayList<>();
-    SMInputCursor cursor = ruleC.childElementCursor();
-
-    while (cursor.getNext() != null) {
-      String nodeName = cursor.getLocalName();
-
-      if (StringUtils.equalsIgnoreCase("name", nodeName)) {
-        rule.setName(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("description", nodeName)) {
-        rule.setDescription(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("key", nodeName)) {
-        rule.setKey(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
-        rule.setConfigKey(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
-        rule.setSeverity(RulePriority.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
-
-      } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
-
-      } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
-        rule.setStatus(StringUtils.trim(cursor.collectDescendantText(false)));
-
-      } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
-        processParameter(rule, cursor);
-
-      } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
-        tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_RULE)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart().toLowerCase(Locale.ENGLISH);
+        switch (elementName) {
+          case "name":
+            rule.setName(StringUtils.trim(reader.getElementText()));
+            break;
+          case "description":
+            rule.setDescription(StringUtils.trim(reader.getElementText()));
+            break;
+          case "key":
+            rule.setKey(StringUtils.trim(reader.getElementText()));
+            break;
+          case "configkey":
+            rule.setConfigKey(StringUtils.trim(reader.getElementText()));
+            break;
+          case "priority":
+            rule.setSeverity(RulePriority.valueOf(StringUtils.trim(reader.getElementText())));
+            break;
+          case "cardinality":
+            rule.setCardinality(Cardinality.valueOf(StringUtils.trim(reader.getElementText())));
+            break;
+          case "status":
+            rule.setStatus(StringUtils.trim(reader.getElementText()));
+            break;
+          case ELEMENT_PARAM:
+            processParameter(rule, element, reader);
+            break;
+          case "tag":
+            tags.add(StringUtils.trim(reader.getElementText()));
+            break;
+        }
       }
     }
     if (rule.getKey() == null || rule.getKey().isEmpty()) {
@@ -155,36 +183,43 @@ public final class XMLRuleParser {
     rule.setTags(tags.toArray(new String[tags.size()]));
   }
 
-  private static void processParameter(Rule rule, SMInputCursor ruleC) throws XMLStreamException {
+  private static void processParameter(Rule rule, StartElement paramElement, XMLEventReader reader) throws XMLStreamException {
     RuleParam param = rule.createParameter();
 
-    String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
+    Attribute keyAttribute = paramElement.getAttributeByName(new QName("key"));
+    if (keyAttribute != null && StringUtils.isNotBlank(keyAttribute.getValue())) {
       /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
-      param.setKey(StringUtils.trim(keyAttribute));
+      param.setKey(StringUtils.trim(keyAttribute.getValue()));
     }
 
-    String typeAttribute = ruleC.getAttrValue("type");
-    if (StringUtils.isNotBlank(typeAttribute)) {
+    Attribute typeAttribute = paramElement.getAttributeByName(new QName("type"));
+    if (typeAttribute != null && StringUtils.isNotBlank(typeAttribute.getValue())) {
       /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
-      param.setType(type(StringUtils.trim(typeAttribute)));
+      param.setType(type(StringUtils.trim(typeAttribute.getValue())));
     }
 
-    SMInputCursor paramC = ruleC.childElementCursor();
-    while (paramC.getNext() != null) {
-      String propNodeName = paramC.getLocalName();
-      String propText = StringUtils.trim(paramC.collectDescendantText(false));
-      if (StringUtils.equalsIgnoreCase("key", propNodeName)) {
-        param.setKey(propText);
-
-      } else if (StringUtils.equalsIgnoreCase("description", propNodeName)) {
-        param.setDescription(propText);
-
-      } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
-        param.setType(type(propText));
-
-      } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
-        param.setDefaultValue(propText);
+    while (reader.hasNext()) {
+      final XMLEvent event = reader.nextEvent();
+      if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals(ELEMENT_PARAM)) {
+        return;
+      }
+      if (event.isStartElement()) {
+        final StartElement element = event.asStartElement();
+        final String elementName = element.getName().getLocalPart().toLowerCase(Locale.ENGLISH);
+        switch (elementName) {
+          case "key":
+            param.setKey(StringUtils.trim(reader.getElementText()));
+            break;
+          case "description":
+            param.setDescription(StringUtils.trim(reader.getElementText()));
+            break;
+          case "type":
+            param.setType(type(StringUtils.trim(reader.getElementText())));
+            break;
+          case "defaultvalue":
+            param.setDefaultValue(StringUtils.trim(reader.getElementText()));
+            break;
+        }
       }
     }
     if (StringUtils.isEmpty(param.getKey())) {

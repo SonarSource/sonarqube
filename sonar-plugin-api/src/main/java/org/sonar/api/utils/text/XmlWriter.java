@@ -47,7 +47,7 @@ public class XmlWriter {
 
   public XmlWriter declaration() {
     try {
-      stream.writeStartDocument();
+      stream.writeStartDocument("UTF-8", "1.0");
       return this;
     } catch (XMLStreamException e) {
       throw rethrow(e);
