@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SystemUpgradeDownloadUrls {
-  downloadDatacenterUrl?: string;
-  downloadDeveloperUrl?: string;
-  downloadEnterpriseUrl?: string;
-  downloadUrl: string;
+import { Dispatch } from 'redux';
+import * as api from '../../api/organizations';
+import * as actions from '../../store/organizations';
+import { addGlobalSuccessMessage } from '../../store/globalMessages';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+
+export function updateOrganization(key: string, changes: T.OrganizationBase) {
+  return (dispatch: Dispatch<any>) => {
+    return api.updateOrganization(key, changes).then(() => {
+      dispatch(actions.updateOrganization(key, changes));
+      dispatch(addGlobalSuccessMessage(translate('organization.updated')));
+    });
+  };
 }
 
-export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
-  changeLogUrl?: string;
-  description?: string;
-  releaseDate?: string;
-  version: string;
-}
-
-export enum InstanceType {
-  SonarQube = 'SonarQube',
-  SonarCloud = 'CodeScanCloud'
+export function deleteOrganization(key: string) {
+  return (dispatch: Dispatch<any>) => {
+    return api.deleteOrganization(key).then(() => {
+      dispatch(actions.deleteOrganization(key));
+    });
+  };
 }

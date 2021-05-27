@@ -18,15 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
+import * as classNames from 'classnames';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 
-export default function CreateProjectPage(props: WithRouterProps) {
-  return (
-      <>
-        <A11ySkipTarget anchor="create_project_main" />
-        <CreateProjectPageSonarCloud {...props} />
-      </>
-  );
+interface Props {
+  group: T.Group;
+  checked: boolean;
+  onCheck: (name: string, checked: boolean) => void;
+}
+
+export default class OrganizationGroupCheckbox extends React.PureComponent<Props> {
+  onCheck = (checked: boolean) => {
+    const { group } = this.props;
+    if (!group.default) {
+      this.props.onCheck(group.name, checked);
+    }
+  };
+
+  toggleCheck = () => {
+    this.onCheck(!this.props.checked);
+  };
+
+  render() {
+    const { group } = this.props;
+    return (
+      <li
+        className={classNames('capitalize list-item-checkable-link', { disabled: group.default })}
+        onClick={this.toggleCheck}>
+        <Checkbox checked={this.props.checked} onCheck={this.onCheck} /> {group.name}
+      </li>
+    );
+  }
 }

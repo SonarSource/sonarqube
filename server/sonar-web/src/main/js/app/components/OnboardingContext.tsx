@@ -17,21 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SystemUpgradeDownloadUrls {
-  downloadDatacenterUrl?: string;
-  downloadDeveloperUrl?: string;
-  downloadEnterpriseUrl?: string;
-  downloadUrl: string;
-}
+import { createContext } from 'react';
 
-export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
-  changeLogUrl?: string;
-  description?: string;
-  releaseDate?: string;
-  version: string;
-}
+export type OnboardingContextShape = (organization?: T.Organization) => void;
 
-export enum InstanceType {
-  SonarQube = 'SonarQube',
-  SonarCloud = 'CodeScanCloud'
-}
+export const OnboardingContext = createContext<OnboardingContextShape>(() => {});

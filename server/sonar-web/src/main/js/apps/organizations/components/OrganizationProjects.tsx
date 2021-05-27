@@ -17,21 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SystemUpgradeDownloadUrls {
-  downloadDatacenterUrl?: string;
-  downloadDeveloperUrl?: string;
-  downloadEnterpriseUrl?: string;
-  downloadUrl: string;
+import * as React from 'react';
+import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+
+interface Props {
+  location: { pathname: string; query: { [x: string]: string } };
+  organization: T.Organization;
 }
 
-export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
-  changeLogUrl?: string;
-  description?: string;
-  releaseDate?: string;
-  version: string;
-}
-
-export enum InstanceType {
-  SonarQube = 'SonarQube',
-  SonarCloud = 'CodeScanCloud'
+export default function OrganizationProjects(props: Props) {
+  return (
+    <>
+      <AllProjectsContainer
+        isFavorite={false}
+        location={props.location}
+        organization={props.organization}
+      />
+      <Suggestions suggestions="organization_projects" />
+    </>
+  );
 }

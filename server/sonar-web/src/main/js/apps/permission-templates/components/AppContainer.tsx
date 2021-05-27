@@ -17,21 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SystemUpgradeDownloadUrls {
-  downloadDatacenterUrl?: string;
-  downloadDeveloperUrl?: string;
-  downloadEnterpriseUrl?: string;
-  downloadUrl: string;
-}
+import { connect } from 'react-redux';
+import App from './App';
+import forSingleOrganization from '../../organizations/forSingleOrganization';
+import { getAppState, Store } from '../../../store/rootReducer';
 
-export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
-  changeLogUrl?: string;
-  description?: string;
-  releaseDate?: string;
-  version: string;
-}
+const mapStateToProps = (state: Store) => ({ topQualifiers: getAppState(state).qualifiers });
 
-export enum InstanceType {
-  SonarQube = 'SonarQube',
-  SonarCloud = 'CodeScanCloud'
-}
+export default forSingleOrganization(connect(mapStateToProps)(App));

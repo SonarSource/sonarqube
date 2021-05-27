@@ -29,6 +29,7 @@ import { ComponentQualifier } from '../../../../types/component';
 export interface GlobalNavPlusMenuProps {
   canCreateApplication: boolean;
   canCreatePortfolio: boolean;
+  canCreateOrg: boolean;
   canCreateProject: boolean;
   compatibleAlms: Array<string>;
   onComponentCreationClick: (componentQualifier: ComponentQualifier) => void;
@@ -73,17 +74,23 @@ function renderCreateComponent(
 }
 
 export default function GlobalNavPlusMenu(props: GlobalNavPlusMenuProps) {
-  const { canCreateApplication, canCreatePortfolio, canCreateProject, compatibleAlms } = props;
+  const { canCreateApplication, canCreatePortfolio, canCreateOrg, canCreateProject, compatibleAlms } = props;
 
   return (
     <ul className="menu">
       {canCreateProject && (
-        <>
-          <li className="menu-header">
-            <strong>{translate('my_account.add_project')}</strong>
-          </li>
-          {renderCreateProjectOptions(compatibleAlms)}
-        </>
+        <li>
+          <Link to="/projects/create">
+            {translate('provisioning.analyze_new_project')}
+          </Link>
+        </li>
+      )}
+      {canCreateOrg && (
+        <li>
+          <Link to="/create-organization">
+            {translate('my_account.create_new_organization')}
+          </Link>
+        </li>
       )}
       {(canCreateApplication || canCreatePortfolio) && (
         <>

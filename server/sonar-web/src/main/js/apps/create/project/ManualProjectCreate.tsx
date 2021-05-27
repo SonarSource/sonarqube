@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { createProject, doesComponentExists } from '../../../api/components';
-import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
-import { validateProjectKey } from '../../../helpers/projects';
-import { ProjectKeyValidationResult } from '../../../types/component';
-import { PROJECT_NAME_MAX_LEN } from './constants';
+import { doesComponentExists } from '../../../api/components';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
+import { OrganizationInput } from "./OrganizationInput";
+import { isSonarCloud } from "../../../helpers/system";
+import { getBaseUrl } from "sonar-ui-common/helpers/urls";
 
 interface Props {
   onProjectCreate: (projectKeys: string[]) => void;
+  organization?: string;
+  userOrganizations?: T.Organization[];
 }
 
 interface State {
@@ -42,6 +41,8 @@ interface State {
   projectNameError?: string;
   projectKey: string;
   projectKeyError?: string;
+  selectedOrganization?: T.Organization;
+  selectedVisibility?: T.Visibility;
   submitting: boolean;
   touched: boolean;
   validating: boolean;
@@ -56,6 +57,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectKey: '',
       projectName: '',
       projectNameChanged: false,
+      selectedOrganization: this.getInitialSelectedOrganization(props),
       submitting: false,
       touched: false,
       validating: false
@@ -93,109 +95,68 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       });
   };
 
-  canSubmit(state: State): state is ValidState {
-    const { projectKey, projectKeyError, projectName, projectNameError } = state;
+  canSubmit(state: State) {
     return Boolean(
-      projectKeyError === undefined &&
-        projectNameError === undefined &&
-        projectKey.length > 0 &&
-        projectName.length > 0
+        state.selectedOrganization
     );
   }
+
+  getInitialSelectedOrganization = (props: Props) => {
+    if (props.organization) {
+      return this.getOrganization(props.organization);
+    } else if (props.userOrganizations && props.userOrganizations.length === 1) {
+      return props.userOrganizations[0];
+    } else {
+      return undefined;
+    }
+  };
+
+  getOrganization = (organizationKey: string) => {
+    return (
+        this.props.userOrganizations &&
+        this.props.userOrganizations.find(({ key }: T.Organization) => key === organizationKey)
+    );
+  };
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { state } = this;
     if (this.canSubmit(state)) {
       this.setState({ submitting: true });
-      createProject({
-        project: state.projectKey,
-        name: (state.projectName || state.projectKey).trim()
-      }).then(
-        ({ project }) => this.props.onProjectCreate([project.key]),
-        () => {
-          if (this.mounted) {
-            this.setState({ submitting: false });
-          }
-        }
-      );
+      window.location.href =
+          getBaseUrl() + `/organizations/${this.state.selectedOrganization.key}/extension/developer/projects`;
     }
   };
 
-  handleProjectKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectKey = event.currentTarget.value || '';
-    const projectKeyError = this.validateKey(projectKey);
-
-    this.setState(prevState => {
-      const projectName = prevState.projectNameChanged ? prevState.projectName : projectKey;
-      return {
-        projectKey,
-        projectKeyError,
-        projectName,
-        projectNameError: this.validateName(projectName),
-        touched: true,
-        validating: projectKeyError === undefined
-      };
-    });
-
-    if (projectKeyError === undefined) {
-      this.checkFreeKey(projectKey);
-    }
-  };
-
-  handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectName = event.currentTarget.value;
+  handleOrganizationSelect = ({ key }: T.Organization) => {
+    const selectedOrganization = this.getOrganization(key);
     this.setState({
-      projectName,
-      projectNameChanged: true,
-      projectNameError: this.validateName(projectName)
+      selectedOrganization
     });
-  };
-
-  validateKey = (projectKey: string) => {
-    const result = validateProjectKey(projectKey);
-    return result === ProjectKeyValidationResult.Valid
-      ? undefined
-      : translate('onboarding.create_project.project_key.error', result);
-  };
-
-  validateName = (projectName: string) => {
-    if (projectName.length === 0) {
-      return translate('onboarding.create_project.display_name.error.empty');
-    } else if (projectName.length > PROJECT_NAME_MAX_LEN) {
-      return translate('onboarding.create_project.display_name.error.too_long');
-    }
-    return undefined;
   };
 
   render() {
-    const {
-      projectKey,
-      projectKeyError,
-      projectName,
-      projectNameError,
-      submitting,
-      touched,
-      validating
-    } = this.state;
-    const projectNameIsInvalid = touched && projectNameError !== undefined;
-    const projectNameIsValid = touched && projectNameError === undefined;
+    const { selectedOrganization, submitting } = this.state;
 
     return (
-      <>
-        <CreateProjectPageHeader title={translate('onboarding.create_project.setup_manually')} />
-
-        <div className="create-project-manual">
-          <div className="flex-1 huge-spacer-right">
-            <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-              <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-                {translate('set_up')}
-              </SubmitButton>
-              <DeferredSpinner className="spacer-left" loading={submitting} />
-            </form>
-          </div>
+      <div className="create-project-manual">
+        <div className="flex-1 huge-spacer-right">
+          <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
+            {isSonarCloud() &&
+            this.props.userOrganizations && (
+                <OrganizationInput
+                    onChange={this.handleOrganizationSelect}
+                    organization={selectedOrganization ? selectedOrganization.key : ''}
+                    organizations={this.props.userOrganizations}
+                />
+            )}
+            <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
+              {translate('set_up')}
+            </SubmitButton>
+            <DeferredSpinner className="spacer-left" loading={submitting} />
+          </form>
         </div>
-      </>
+      </div>
     );
   }
 }

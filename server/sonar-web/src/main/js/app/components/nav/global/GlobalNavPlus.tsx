@@ -31,7 +31,7 @@ import { hasGlobalPermission } from '../../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../types/component';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { isSonarCloud } from "../../../../helpers/system";
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled' | 'qualifiers'>;
@@ -146,9 +146,10 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
       governanceInstalled && hasGlobalPermission(currentUser, 'applicationcreator');
     const canCreatePortfolio =
       governanceInstalled && hasGlobalPermission(currentUser, 'portfoliocreator');
-    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
+    const canCreateProject = isSonarCloud() || hasGlobalPermission(currentUser, 'provisioning');
+    const canCreateOrg = isSonarCloud();
 
-    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio) {
+    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio && !canCreateOrg) {
       return null;
     }
 
@@ -161,6 +162,7 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
               canCreateApplication={canCreateApplication}
               canCreatePortfolio={canCreatePortfolio}
               canCreateProject={canCreateProject}
+              canCreateOrg={canCreateOrg}
               compatibleAlms={boundAlms}
               onComponentCreationClick={this.handleComponentCreationClick}
             />

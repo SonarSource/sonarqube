@@ -516,6 +516,11 @@ declare namespace T {
     type: string;
   }
 
+  export interface CodeScanNotification {
+    message: string;
+    type: 'error' | 'warning' | 'success' | 'info';
+  }
+
   export interface NotificationProject {
     project: string;
     projectName: string;
@@ -538,6 +543,7 @@ declare namespace T {
     pages?: Extension[];
     projectVisibility?: Visibility;
     subscription?: OrganizationSubscription;
+    notifications?: CodeScanNotification[];
   }
 
   export interface OrganizationBase {

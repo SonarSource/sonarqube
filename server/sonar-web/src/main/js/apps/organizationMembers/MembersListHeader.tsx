@@ -18,15 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
-export default function CreateProjectPage(props: WithRouterProps) {
+export interface Props {
+  currentUser: T.LoggedInUser;
+  handleSearch: (query?: string) => void;
+  organization: T.Organization;
+  total?: number;
+}
+
+export default function MembersListHeader({
+  handleSearch,
+  total
+}: Props) {
   return (
-      <>
-        <A11ySkipTarget anchor="create_project_main" />
-        <CreateProjectPageSonarCloud {...props} />
-      </>
+    <div className="panel panel-vertical bordered-bottom spacer-bottom">
+      <SearchBox
+        minLength={2}
+        onChange={handleSearch}
+        placeholder={translate('search.search_for_users')}
+      />
+      {total !== undefined && (
+        <span className="pull-right little-spacer-top">
+          <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
+        </span>
+      )}
+    </div>
   );
 }
