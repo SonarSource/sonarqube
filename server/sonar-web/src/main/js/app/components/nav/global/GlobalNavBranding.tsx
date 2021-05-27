@@ -36,7 +36,7 @@ export function GlobalNavBranding({ customLogoUrl, customLogoWidth }: StateProps
 
   return (
     <Link className="navbar-brand" to="/">
-      <img alt={title} height={30} src={url} title={title} width={width} />
+      <img alt={title} height={45} src={url} title={title} width={width} />
     </Link>
   );
 }
@@ -45,7 +45,7 @@ export function SonarCloudNavBranding() {
   return (
     <GlobalNavBranding
       customLogoUrl={`${getBaseUrl()}/images/sonarcloud-logo.svg`}
-      customLogoWidth={105}
+      customLogoWidth={140}
     />
   );
 }
