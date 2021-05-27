@@ -67,13 +67,16 @@ public class AlmSettingsSupport {
       if (!multipleAlmFeatureProvider.enabled() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
         throw BadRequestException.create("A " + alm + " setting is already defined");
       }
-
     }
   }
 
-  public ProjectDto getProject(DbSession dbSession, String projectKey) {
+  public ProjectDto getProjectAsAdmin(DbSession dbSession, String projectKey) {
+    return getProject(dbSession, projectKey, ADMIN);
+  }
+
+  public ProjectDto getProject(DbSession dbSession, String projectKey, String projectPermission) {
     ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-    userSession.checkProjectPermission(ADMIN, project);
+    userSession.checkProjectPermission(projectPermission, project);
     return project;
   }
 

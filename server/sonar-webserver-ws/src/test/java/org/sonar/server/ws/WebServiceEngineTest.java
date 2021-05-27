@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -32,6 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
 
@@ -49,9 +49,6 @@ public class WebServiceEngineTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void load_ws_definitions_at_startup() {
@@ -331,6 +328,21 @@ public class WebServiceEngineTest {
       + "{\"msg\":\"two\"},"
       + "{\"msg\":\"three\"}"
       + "]}");
+    assertThat(response.stream().status()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+  }
+
+  @Test
+  public void return_400_on_BadConfigurationException_with_single_message_and_scope() {
+    Request request = new TestRequest().setPath("api/foo");
+
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw new BadConfigurationException("PROJECT", "Bad request !");
+    })));
+
+    assertThat(response.stream().outputAsString()).isEqualTo(
+        "{\"scope\":\"PROJECT\",\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();

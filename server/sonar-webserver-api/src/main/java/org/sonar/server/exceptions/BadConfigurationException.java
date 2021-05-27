@@ -22,53 +22,35 @@ package org.sonar.server.exceptions;
 import com.google.common.base.MoreObjects;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
- * Request is not valid and can not be processed.
+ * Provided request is not valid within given scope and can not be processed.
  */
-public class BadRequestException extends ServerException {
-
+public class BadConfigurationException extends ServerException {
+  private final String scope;
   private final transient List<String> errors;
 
-  BadRequestException(List<String> errors) {
-    super(HTTP_BAD_REQUEST, errors.get(0));
-    this.errors = errors;
+  public BadConfigurationException(String scope, String errorMessage) {
+    super(HTTP_BAD_REQUEST, errorMessage);
+    this.scope = scope;
+    this.errors = singletonList(errorMessage);
   }
 
-  public static void checkRequest(boolean expression, String message, Object... messageArguments) {
-    if (!expression) {
-      throw create(format(message, messageArguments));
-    }
-  }
-
-  public static void checkRequest(boolean expression, List<String> messages) {
-    if (!expression) {
-      throw create(messages);
-    }
-  }
-
-  public static BadRequestException create(List<String> errorMessages) {
-    checkArgument(!errorMessages.isEmpty(), "At least one error message is required");
-    checkArgument(errorMessages.stream().noneMatch(message -> message == null || message.isEmpty()), "Message cannot be empty");
-    return new BadRequestException(errorMessages);
-  }
-
-  public static BadRequestException create(String... errorMessages) {
-    return create(asList(errorMessages));
+  public String scope() {
+    return scope;
   }
 
   public List<String> errors() {
-    return errors;
+    return this.errors;
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("errors", errors)
+      .add("scope", this.scope)
+      .add("errors", this.errors())
       .toString();
   }
 

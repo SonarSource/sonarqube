@@ -28,16 +28,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.ClientAbortException;
 import org.picocontainer.Startable;
+import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.MediaTypes;
 
@@ -48,9 +49,9 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.substring;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 /**
  * @since 4.2
@@ -110,6 +111,8 @@ public class WebServiceEngine implements LocalConnector, Startable {
       action.handler().handle(request, response);
     } catch (IllegalArgumentException e) {
       sendErrors(request, response, e, 400, singletonList(e.getMessage()));
+    } catch (BadConfigurationException e) {
+      sendErrors(request, response, e, 400, e.errors(), e.scope());
     } catch (BadRequestException e) {
       sendErrors(request, response, e, 400, e.errors());
     } catch (ServerException e) {
@@ -128,6 +131,10 @@ public class WebServiceEngine implements LocalConnector, Startable {
   }
 
   private static void sendErrors(Request request, Response response, Exception exception, int status, List<String> errors) {
+    sendErrors(request, response, exception, status, errors, null);
+  }
+
+  private static void sendErrors(Request request, Response response, Exception exception, int status, List<String> errors, @Nullable String scope) {
     if (isRequestAbortedByClient(exception)) {
       // do not pollute logs. We can't do anything -> use DEBUG level
       // see org.sonar.server.ws.ServletResponse#output()
@@ -160,11 +167,18 @@ public class WebServiceEngine implements LocalConnector, Startable {
     stream.setMediaType(MediaTypes.JSON);
     try (JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8))) {
       json.beginObject();
+      writeScope(scope, json);
       writeErrors(json, errors);
       json.endObject();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.
       throw Throwables.propagate(e);
+    }
+  }
+
+  private static void writeScope(@Nullable String scope, JsonWriter json) {
+    if (scope != null) {
+      json.prop("scope", scope);
     }
   }
 
