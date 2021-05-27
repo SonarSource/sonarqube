@@ -46,6 +46,8 @@ public class CacheControlFilter implements Filter {
    */
   private static final int ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 
+  private static final int THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60;
+
   private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
 
   private static final String MAX_AGE_TEMPLATE = "max-age=%d";
@@ -56,7 +58,7 @@ public class CacheControlFilter implements Filter {
     "/css/", ONE_YEAR_IN_SECONDS,
     // This folder contains static resources from plugins : the cache should be set to a small value
     "/static/", FIVE_MINUTES_IN_SECONDS,
-    "/images/", FIVE_MINUTES_IN_SECONDS);
+    "/images/", THIRTY_DAYS_IN_SECONDS);
 
   @Override
   public void init(FilterConfig filterConfig) {
