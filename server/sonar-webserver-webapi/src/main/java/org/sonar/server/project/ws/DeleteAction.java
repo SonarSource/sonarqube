@@ -22,6 +22,8 @@ package org.sonar.server.project.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,6 +41,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
+
+  private static final Logger LOG = Loggers.get(DeleteAction.class);
 
   private final ComponentCleanerService componentCleanerService;
   private final ComponentFinder componentFinder;
@@ -81,6 +85,9 @@ public class DeleteAction implements ProjectsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
       checkPermission(project);
+      LOG.info("Delete a project with uuid={}, key={}, organizationUuid={}, userUuid={}, userLogin={}",
+              project.getUuid(), project.getKey(), project.getOrganizationUuid(),
+              userSession.getUuid(), userSession.getLogin());
       componentCleanerService.delete(dbSession, project);
       projectLifeCycleListeners.onProjectsDeleted(singleton(from(project)));
     }
