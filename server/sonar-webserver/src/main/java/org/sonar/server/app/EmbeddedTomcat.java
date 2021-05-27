@@ -25,6 +25,8 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.http.CookieProcessorBase;
+import org.apache.tomcat.util.http.SameSiteCookies;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.Props;
 
@@ -64,6 +66,8 @@ class EmbeddedTomcat {
     webappContext = new TomcatContexts().configure(tomcat, props);
     try {
       tomcat.start();
+      // Set sameSite attribute in default Cookie Processor created during Tomcat context initialization.
+      ((CookieProcessorBase) webappContext.getCookieProcessor()).setSameSiteCookies(SameSiteCookies.LAX.getValue());
       new TomcatStartupLogs(Loggers.get(getClass())).log(tomcat);
     } catch (LifecycleException e) {
       Loggers.get(EmbeddedTomcat.class).error("Fail to start web server", e);
