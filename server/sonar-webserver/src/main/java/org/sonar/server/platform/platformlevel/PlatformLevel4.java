@@ -34,7 +34,6 @@ import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.gitlab.GitLabModule;
@@ -299,7 +298,6 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleIndexDefinition.class,
       RuleIndexer.class,
       AnnotationRuleParser.class,
-      XMLRuleParser.class,
       WebServerRuleFinderImpl.class,
       RuleDefinitionsLoader.class,
       CommonRuleDefinitionsImpl.class,

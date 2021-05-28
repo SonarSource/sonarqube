@@ -35,7 +35,6 @@ import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
@@ -369,7 +368,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // rule
       AnnotationRuleParser.class,
-      XMLRuleParser.class,
       DefaultRuleFinder.class,
       RulesDefinitionXmlLoader.class,
       AdHocRuleCreator.class,
