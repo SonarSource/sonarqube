@@ -61,8 +61,8 @@ The maximum number of milliseconds that the pool will wait (when there are no av
 
 ## Web Server
 
-**`SONAR_WEB_JAVAOPTS=@webJavaOpts@`**  
-the web server is executed in a dedicated Java process. By default, heap size is @webDefaultHeapSize@. Use this property to customize JVM options.
+**`SONAR_WEB_JAVAOPTS=`**  
+the web server is executed in a dedicated Java process. Use this property to customize JVM options.
 
 [[info]]
 | The HotSpot Server VM is recommended. The property -server should be added if server mode
@@ -185,9 +185,9 @@ Property used to specifiy the attribute to be used for returning the list of use
 
 ## Compute Engine
 
-**`SONAR_CE_JAVAOPTS=@ceJavaOpts@`**  
-The Compute Engine is responsible for processing background tasks.
-Compute Engine is executed in a dedicated Java process. Default heap size is @ceDefaultHeapSize@.
+**`SONAR_CE_JAVAOPTS=**  
+The Compute Engine is responsible for processing background tasks.  
+Compute Engine is executed in a dedicated Java process.  
 Use the following property to customize JVM options.
 
 [[info]]
@@ -201,7 +201,7 @@ Same as previous property, but allows to not repeat all other settings like -Xmx
 ## Elasticsearch
 
 Elasticsearch is used to facilitate fast and accurate information retrieval.
-It is executed in a dedicated Java process. Default heap size is @searchDefaultHeapSize@.
+It is executed in a dedicated Java process. 
 
 [[warning]]
 | Linux users on 64-bit systems, ensure Virtual Memory on your system is correctly configured for Elasticsearch to run properly (see [here](https://www.elastic.co/guide/en/elasticsearch/reference/5.5/vm-max-map-count.html) for details).
@@ -211,7 +211,7 @@ It is executed in a dedicated Java process. Default heap size is @searchDefaultH
 |
 | When SonarQube runs as a cluster, however, Elasticsearch will refuse to start.
 
-**`SONAR_SEARCH_JAVAOPTS=@searchJavaOpts@`**  
+**`SONAR_SEARCH_JAVAOPTS=`**  
 JVM options of Elasticsearch process
 
 **`SONAR_SEARCH_JAVAADDITIONALOPTS=`**  
