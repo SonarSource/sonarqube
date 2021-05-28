@@ -89,6 +89,12 @@ No specific Docker operations are needed, just use the new tag.
 ## Edition Upgrade
 If you're moving to a different edition within the same version (upgrade or downgrade) the steps are exactly the same as above, without the need to browse to `http://yourSonarQubeServerURL/setup` or reanalyze your projects.
 
+## Migrating from a ZIP file instance to a Docker instance
+To migrate from the ZIP file to Docker:
+1. Configure your Docker instance to point to your existing database.
+2. Shut down your ZIP instance.
+3. Start your Docker instance.
+
 ## Additional Information
 
 ### Oracle Clean-up
