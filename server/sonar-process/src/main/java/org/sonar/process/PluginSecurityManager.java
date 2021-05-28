@@ -26,21 +26,19 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.security.Security;
-import java.security.SecurityPermission;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-public class SecurityManagement {
+public class PluginSecurityManager {
   private static final String CACHE_TTL_KEY = "networkaddress.cache.ttl";
 
-  private SecurityManagement() {
+  private PluginSecurityManager() {
     // static only
   }
 
-  public static void restrictPlugins() {
+  public static void restrictPlugins(PluginPolicyRule... rules) {
     SecurityManager sm = new SecurityManager();
-    Policy.setPolicy(new CustomPolicy());
+    Policy.setPolicy(new PluginPolicy(Arrays.asList(rules)));
     System.setSecurityManager(sm);
     // SONAR-14870 By default, with a security manager installed, the DNS cache never times out. See InetAddressCachePolicy.
     if (Security.getProperty(CACHE_TTL_KEY) == null) {
@@ -48,32 +46,19 @@ public class SecurityManagement {
     }
   }
 
-  static class CustomPolicy extends Policy {
-    private static final Set<String> BLOCKED_RUNTIME_PERMISSIONS = new HashSet<>(Arrays.asList(
-      "createClassLoader",
-      "getClassLoader",
-      "setContextClassLoader",
-      "enableContextClassLoaderOverride",
-      "closeClassLoader",
-      "setSecurityManager",
-      "createSecurityManager"
-    ));
-    private static final Set<String> BLOCKED_SECURITY_PERMISSIONS = new HashSet<>(Arrays.asList(
-      "createAccessControlContext",
-      "setPolicy"
-    ));
+  static class PluginPolicy extends Policy {
+    private final List<PluginPolicyRule> rules;
+
+    PluginPolicy(List<PluginPolicyRule> rules) {
+      this.rules = rules;
+    }
 
     @Override
     public boolean implies(ProtectionDomain domain, Permission permission) {
       // classloader used to load plugins
       String clName = getDomainClassLoaderName(domain);
       if ("org.sonar.classloader.ClassRealm".equals(clName)) {
-        if (permission instanceof RuntimePermission && BLOCKED_RUNTIME_PERMISSIONS.contains(permission.getName())) {
-          return false;
-        }
-        if (permission instanceof SecurityPermission && BLOCKED_SECURITY_PERMISSIONS.contains(permission.getName())) {
-          return false;
-        }
+        return rules.stream().allMatch(p -> p.implies(permission));
       }
       return true;
     }

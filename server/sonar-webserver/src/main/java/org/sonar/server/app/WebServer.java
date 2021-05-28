@@ -24,8 +24,11 @@ import java.io.File;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
+import org.sonar.process.PluginFileWriteRule;
+import org.sonar.process.PluginSecurityManager;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
@@ -95,6 +98,13 @@ public class WebServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new WebServerProcessLogging().configure(props);
+
+
+    PluginFileWriteRule writeRule = new PluginFileWriteRule(
+      props.nonNullValueAsFile(ProcessProperties.Property.PATH_HOME.getKey()).toPath(),
+      props.nonNullValueAsFile(ProcessProperties.Property.PATH_TEMP.getKey()).toPath());
+    PluginSecurityManager.restrictPlugins(writeRule);
+
     WebServer server = new WebServer(props);
     entryPoint.launch(server);
   }
