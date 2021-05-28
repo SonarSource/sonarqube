@@ -114,40 +114,48 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
         }}>
         <MandatoryFieldsExplanation className="form-field" />
 
-        <div className="form-field">
-          <label htmlFor="name">
-            {translate('settings.pr_decoration.binding.form.name')}
-            <MandatoryFieldMarker className="spacer-right" />
-          </label>
-          <Select
-            autosize={true}
-            className="abs-width-400"
-            clearable={false}
-            id="name"
-            menuContainerStyle={{
-              maxWidth: '210%' /* Allow double the width of the select */,
-              width: 'auto'
-            }}
-            onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
-            optionRenderer={optionRenderer}
-            options={instances}
-            searchable={false}
-            value={formData.key}
-            valueKey="key"
-            valueRenderer={optionRenderer}
-          />
+        <div className="settings-definition big-spacer-bottom">
+          <div className="settings-definition-left">
+            <label className="h3" htmlFor="name">
+              {translate('settings.pr_decoration.binding.form.name')}
+              <MandatoryFieldMarker className="spacer-right" />
+            </label>
+            <div className="markdown small spacer-top">
+              {translate('settings.pr_decoration.binding.form.name.help')}
+            </div>
+          </div>
+          <div className="settings-definition-right">
+            <Select
+              autosize={true}
+              className="abs-width-400 big-spacer-top"
+              clearable={false}
+              id="name"
+              menuContainerStyle={{
+                maxWidth: '210%' /* Allow double the width of the select */,
+                width: 'auto'
+              }}
+              onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
+              optionRenderer={optionRenderer}
+              options={instances}
+              searchable={false}
+              value={formData.key}
+              valueKey="key"
+              valueRenderer={optionRenderer}
+            />
+          </div>
         </div>
 
         {alm && (
           <AlmSpecificForm
             alm={alm}
+            instances={instances}
             formData={formData}
             onFieldChange={props.onFieldChange}
             monorepoEnabled={monorepoEnabled}
           />
         )}
 
-        <div className="display-flex-center">
+        <div className="display-flex-center big-spacer-top">
           <DeferredSpinner className="spacer-right" loading={saving} />
           {isChanged && (
             <SubmitButton className="spacer-right button-success" disabled={saving || !isValid}>

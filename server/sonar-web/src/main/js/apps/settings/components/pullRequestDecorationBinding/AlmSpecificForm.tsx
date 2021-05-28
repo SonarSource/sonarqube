@@ -20,52 +20,80 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
-import { AlmKeys, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
+import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpers/urls';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingResponse
+} from '../../../../types/alm-settings';
 import InputForBoolean from '../inputs/InputForBoolean';
 
 export interface AlmSpecificFormProps {
   alm: AlmKeys;
+  instances: AlmSettingsInstance[];
   formData: T.Omit<ProjectAlmBindingResponse, 'alm'>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   monorepoEnabled: boolean;
 }
 
 interface LabelProps {
-  help?: boolean;
-  helpParams?: T.Dict<string | JSX.Element>;
   id: string;
   optional?: boolean;
 }
 
 interface CommonFieldProps extends LabelProps {
+  help?: boolean;
+  helpParams?: T.Dict<string | JSX.Element>;
+  helpExample?: JSX.Element;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   propKey: keyof ProjectAlmBindingResponse;
 }
 
-function renderLabel(props: LabelProps) {
-  const { help, helpParams, optional, id } = props;
+function renderFieldWrapper(
+  label: React.ReactNode,
+  input: React.ReactNode,
+  help?: React.ReactNode
+) {
   return (
-    <label className="display-flex-center" htmlFor={id}>
+    <div className="settings-definition">
+      <div className="settings-definition-left">
+        {label}
+        {help && <div className="markdown small spacer-top">{help}</div>}
+      </div>
+      <div className="settings-definition-right padded-top">{input}</div>
+    </div>
+  );
+}
+
+function renderHelp({ help, helpExample, helpParams, id }: CommonFieldProps) {
+  return (
+    help && (
+      <>
+        <FormattedMessage
+          defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
+          id={`settings.pr_decoration.binding.form.${id}.help`}
+          values={helpParams}
+        />
+        {helpExample && (
+          <div className="spacer-top nowrap">
+            {translate('example')}: <em>{helpExample}</em>
+          </div>
+        )}
+      </>
+    )
+  );
+}
+
+function renderLabel(props: LabelProps) {
+  const { optional, id } = props;
+  return (
+    <label className="h3" htmlFor={id}>
       {translate('settings.pr_decoration.binding.form', id)}
       {!optional && <MandatoryFieldMarker />}
-      {help && (
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <FormattedMessage
-              defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
-              id={`settings.pr_decoration.binding.form.${id}.help`}
-              values={helpParams}
-            />
-          }
-          placement="right"
-        />
-      )}
     </label>
   );
 }
@@ -77,19 +105,18 @@ function renderBooleanField(
   }
 ) {
   const { id, value, onFieldChange, propKey, inputExtra } = props;
-  return (
-    <div className="form-field">
-      {renderLabel({ ...props, optional: true })}
-      <div className="display-flex-center">
-        <InputForBoolean
-          isDefault={true}
-          name={id}
-          onChange={v => onFieldChange(propKey, v)}
-          value={value}
-        />
-        {inputExtra}
-      </div>
-    </div>
+  return renderFieldWrapper(
+    renderLabel({ ...props, optional: true }),
+    <div className="display-flex-center big-spacer-top">
+      <InputForBoolean
+        isDefault={true}
+        name={id}
+        onChange={v => onFieldChange(propKey, v)}
+        value={value}
+      />
+      {inputExtra}
+    </div>,
+    renderHelp(props)
   );
 }
 
@@ -99,30 +126,31 @@ function renderField(
   }
 ) {
   const { id, propKey, value, onFieldChange } = props;
-  return (
-    <div className="form-field">
-      {renderLabel(props)}
-      <input
-        className="input-super-large"
-        id={id}
-        maxLength={256}
-        name={id}
-        onChange={e => onFieldChange(propKey, e.currentTarget.value)}
-        type="text"
-        value={value}
-      />
-    </div>
+  return renderFieldWrapper(
+    renderLabel(props),
+    <input
+      className="input-super-large big-spacer-top"
+      id={id}
+      maxLength={256}
+      name={id}
+      onChange={e => onFieldChange(propKey, e.currentTarget.value)}
+      type="text"
+      value={value}
+    />,
+    renderHelp(props)
   );
 }
 
 export default function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
+    instances,
     formData: { repository, slug, summaryCommentEnabled, monorepo },
     monorepoEnabled
   } = props;
 
   let formFields: JSX.Element;
+  const instance = instances.find(i => i.alm === alm);
 
   switch (alm) {
     case AlmKeys.Azure:
@@ -130,6 +158,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
         <>
           {renderField({
             help: true,
+            helpExample: <strong>My Project</strong>,
             id: 'azure.project',
             onFieldChange: props.onFieldChange,
             propKey: 'slug',
@@ -137,6 +166,7 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
           })}
           {renderField({
             help: true,
+            helpExample: <strong>My Repository</strong>,
             id: 'azure.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
@@ -150,15 +180,15 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
         <>
           {renderField({
             help: true,
-            helpParams: {
-              example: (
-                <>
-                  {'.../projects/'}
-                  <strong>{'{KEY}'}</strong>
-                  {'/repos/{SLUG}/browse'}
-                </>
-              )
-            },
+            helpExample: (
+              <>
+                {instance?.url
+                  ? `${stripTrailingSlash(instance.url)}/projects/`
+                  : 'https://bb.company.com/projects/'}
+                <strong>{'MY_PROJECT_KEY'}</strong>
+                {'/repos/my-repository-slug/browse'}
+              </>
+            ),
             id: 'bitbucket.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
@@ -166,15 +196,15 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
           })}
           {renderField({
             help: true,
-            helpParams: {
-              example: (
-                <>
-                  {'.../projects/{KEY}/repos/'}
-                  <strong>{'{SLUG}'}</strong>
-                  {'/browse'}
-                </>
-              )
-            },
+            helpExample: (
+              <>
+                {instance?.url
+                  ? `${stripTrailingSlash(instance.url)}/projects/MY_PROJECT_KEY/repos/`
+                  : 'https://bb.company.com/projects/MY_PROJECT_KEY/repos/'}
+                <strong>{'my-repository-slug'}</strong>
+                {'/browse'}
+              </>
+            ),
             id: 'bitbucket.slug',
             onFieldChange: props.onFieldChange,
             propKey: 'slug',
@@ -188,14 +218,12 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
         <>
           {renderField({
             help: true,
-            helpParams: {
-              example: (
-                <>
-                  {'https://bitbucket.org/{workspace}/'}
-                  <strong>{'{repository}'}</strong>
-                </>
-              )
-            },
+            helpExample: (
+              <>
+                {'https://bitbucket.org/my-workspace/'}
+                <strong>{'my-repository-slug'}</strong>
+              </>
+            ),
             id: 'bitbucketcloud.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
@@ -209,7 +237,14 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
         <>
           {renderField({
             help: true,
-            helpParams: { example: 'SonarSource/sonarqube' },
+            helpExample: (
+              <>
+                {instance?.url
+                  ? `${stripTrailingSlash(convertGithubApiUrlToLink(instance.url))}/`
+                  : 'https://github.com/'}
+                <strong>{'sonarsource/sonarqube'}</strong>
+              </>
+            ),
             id: 'github.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
@@ -229,6 +264,8 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
       formFields = (
         <>
           {renderField({
+            help: true,
+            helpExample: <strong>123456</strong>,
             id: 'gitlab.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',

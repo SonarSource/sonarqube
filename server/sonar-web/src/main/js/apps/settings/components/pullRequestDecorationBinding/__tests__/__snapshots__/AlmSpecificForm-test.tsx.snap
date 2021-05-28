@@ -3,66 +3,100 @@
 exports[`it should render correctly for azure 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="azure.project"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.azure.project
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
-            id="settings.pr_decoration.binding.form.azure.project.help"
-            values={Object {}}
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="azure.project"
+      >
+        settings.pr_decoration.binding.form.azure.project
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
+          id="settings.pr_decoration.binding.form.azure.project.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            <strong>
+              My Project
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="azure.project"
+        maxLength={256}
+        name="azure.project"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="azure.project"
-      maxLength={256}
-      name="azure.project"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
   </div>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="azure.repository"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.azure.repository
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
-            id="settings.pr_decoration.binding.form.azure.repository.help"
-            values={Object {}}
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="azure.repository"
+      >
+        settings.pr_decoration.binding.form.azure.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
+          id="settings.pr_decoration.binding.form.azure.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            <strong>
+              My Repository
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="azure.repository"
+        maxLength={256}
+        name="azure.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="azure.repository"
-      maxLength={256}
-      name="azure.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
   </div>
 </Fragment>
 `;
@@ -70,86 +104,209 @@ exports[`it should render correctly for azure 1`] = `
 exports[`it should render correctly for bitbucket 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="bitbucket.repository"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.bitbucket.repository
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
-            id="settings.pr_decoration.binding.form.bitbucket.repository.help"
-            values={
-              Object {
-                "example": <React.Fragment>
-                  .../projects/
-                  <strong>
-                    {KEY}
-                  </strong>
-                  /repos/{SLUG}/browse
-                </React.Fragment>,
-              }
-            }
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="bitbucket.repository"
+      >
+        settings.pr_decoration.binding.form.bitbucket.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
+          id="settings.pr_decoration.binding.form.bitbucket.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            https://bb.company.com/projects/
+            <strong>
+              MY_PROJECT_KEY
+            </strong>
+            /repos/my-repository-slug/browse
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="bitbucket.repository"
+        maxLength={256}
+        name="bitbucket.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="bitbucket.repository"
-      maxLength={256}
-      name="bitbucket.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
   </div>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="bitbucket.slug"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.bitbucket.slug
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
-            id="settings.pr_decoration.binding.form.bitbucket.slug.help"
-            values={
-              Object {
-                "example": <React.Fragment>
-                  .../projects/{KEY}/repos/
-                  <strong>
-                    {SLUG}
-                  </strong>
-                  /browse
-                </React.Fragment>,
-              }
-            }
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="bitbucket.slug"
+      >
+        settings.pr_decoration.binding.form.bitbucket.slug
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
+          id="settings.pr_decoration.binding.form.bitbucket.slug.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            https://bb.company.com/projects/MY_PROJECT_KEY/repos/
+            <strong>
+              my-repository-slug
+            </strong>
+            /browse
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="bitbucket.slug"
+        maxLength={256}
+        name="bitbucket.slug"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="bitbucket.slug"
-      maxLength={256}
-      name="bitbucket.slug"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for bitbucket if an instance URL is provided 1`] = `
+<Fragment>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="bitbucket.repository"
+      >
+        settings.pr_decoration.binding.form.bitbucket.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.bitbucket.repository.help"
+          id="settings.pr_decoration.binding.form.bitbucket.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            http://bbs.example.com/projects/
+            <strong>
+              MY_PROJECT_KEY
+            </strong>
+            /repos/my-repository-slug/browse
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="bitbucket.repository"
+        maxLength={256}
+        name="bitbucket.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="bitbucket.slug"
+      >
+        settings.pr_decoration.binding.form.bitbucket.slug
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.bitbucket.slug.help"
+          id="settings.pr_decoration.binding.form.bitbucket.slug.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            http://bbs.example.com/projects/MY_PROJECT_KEY/repos/
+            <strong>
+              my-repository-slug
+            </strong>
+            /browse
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="bitbucket.slug"
+        maxLength={256}
+        name="bitbucket.slug"
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </div>
   </div>
 </Fragment>
 `;
@@ -157,44 +314,53 @@ exports[`it should render correctly for bitbucket 1`] = `
 exports[`it should render correctly for bitbucketcloud 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="bitbucketcloud.repository"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.bitbucketcloud.repository
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
-            id="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
-            values={
-              Object {
-                "example": <React.Fragment>
-                  https://bitbucket.org/{workspace}/
-                  <strong>
-                    {repository}
-                  </strong>
-                </React.Fragment>,
-              }
-            }
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="bitbucketcloud.repository"
+      >
+        settings.pr_decoration.binding.form.bitbucketcloud.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
+          id="settings.pr_decoration.binding.form.bitbucketcloud.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            https://bitbucket.org/my-workspace/
+            <strong>
+              my-repository-slug
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="bitbucketcloud.repository"
+        maxLength={256}
+        name="bitbucketcloud.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="bitbucketcloud.repository"
-      maxLength={256}
-      name="bitbucketcloud.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
   </div>
 </Fragment>
 `;
@@ -202,69 +368,271 @@ exports[`it should render correctly for bitbucketcloud 1`] = `
 exports[`it should render correctly for github 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="github.repository"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.github.repository
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
-            id="settings.pr_decoration.binding.form.github.repository.help"
-            values={
-              Object {
-                "example": "SonarSource/sonarqube",
-              }
-            }
-          />
-        }
-        placement="right"
+      <label
+        className="h3"
+        htmlFor="github.repository"
+      >
+        settings.pr_decoration.binding.form.github.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+          id="settings.pr_decoration.binding.form.github.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            https://github.com/
+            <strong>
+              sonarsource/sonarqube
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="github.repository"
+        maxLength={256}
+        name="github.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
       />
-    </label>
-    <input
-      className="input-super-large"
-      id="github.repository"
-      maxLength={256}
-      name="github.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+    </div>
   </div>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="github.summary_comment_setting"
-    >
-      settings.pr_decoration.binding.form.github.summary_comment_setting
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-            id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
-            values={Object {}}
-          />
-        }
-        placement="right"
-      />
-    </label>
     <div
-      className="display-flex-center"
+      className="settings-definition-left"
     >
-      <InputForBoolean
-        isDefault={true}
-        name="github.summary_comment_setting"
+      <label
+        className="h3"
+        htmlFor="github.summary_comment_setting"
+      >
+        settings.pr_decoration.binding.form.github.summary_comment_setting
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          values={Object {}}
+        />
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <div
+        className="display-flex-center big-spacer-top"
+      >
+        <InputForBoolean
+          isDefault={true}
+          name="github.summary_comment_setting"
+          onChange={[Function]}
+          value={true}
+        />
+      </div>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for github if an instance URL is provided 1`] = `
+<Fragment>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="github.repository"
+      >
+        settings.pr_decoration.binding.form.github.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+          id="settings.pr_decoration.binding.form.github.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            http://example.com/
+            <strong>
+              sonarsource/sonarqube
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="github.repository"
+        maxLength={256}
+        name="github.repository"
         onChange={[Function]}
-        value={true}
+        type="text"
+        value=""
       />
+    </div>
+  </div>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="github.summary_comment_setting"
+      >
+        settings.pr_decoration.binding.form.github.summary_comment_setting
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          values={Object {}}
+        />
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <div
+        className="display-flex-center big-spacer-top"
+      >
+        <InputForBoolean
+          isDefault={true}
+          name="github.summary_comment_setting"
+          onChange={[Function]}
+          value={true}
+        />
+      </div>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`it should render correctly for github if an instance URL is provided 2`] = `
+<Fragment>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="github.repository"
+      >
+        settings.pr_decoration.binding.form.github.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.repository.help"
+          id="settings.pr_decoration.binding.form.github.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            https://github.com/
+            <strong>
+              sonarsource/sonarqube
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="github.repository"
+        maxLength={256}
+        name="github.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="github.summary_comment_setting"
+      >
+        settings.pr_decoration.binding.form.github.summary_comment_setting
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+          values={Object {}}
+        />
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <div
+        className="display-flex-center big-spacer-top"
+      >
+        <InputForBoolean
+          isDefault={true}
+          name="github.summary_comment_setting"
+          onChange={[Function]}
+          value={true}
+        />
+      </div>
     </div>
   </div>
 </Fragment>
@@ -273,24 +641,52 @@ exports[`it should render correctly for github 1`] = `
 exports[`it should render correctly for gitlab 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="gitlab.repository"
+    <div
+      className="settings-definition-left"
     >
-      settings.pr_decoration.binding.form.gitlab.repository
-      <MandatoryFieldMarker />
-    </label>
-    <input
-      className="input-super-large"
-      id="gitlab.repository"
-      maxLength={256}
-      name="gitlab.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
+      <label
+        className="h3"
+        htmlFor="gitlab.repository"
+      >
+        settings.pr_decoration.binding.form.gitlab.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.gitlab.repository.help"
+          id="settings.pr_decoration.binding.form.gitlab.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            <strong>
+              123456
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="gitlab.repository"
+        maxLength={256}
+        name="gitlab.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </div>
   </div>
 </Fragment>
 `;
@@ -298,107 +694,147 @@ exports[`it should render correctly for gitlab 1`] = `
 exports[`should render the monorepo field when the feature is supported 1`] = `
 <Fragment>
   <div
-    className="form-field"
+    className="settings-definition"
   >
-    <label
-      className="display-flex-center"
-      htmlFor="azure.project"
-    >
-      settings.pr_decoration.binding.form.azure.project
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
-            id="settings.pr_decoration.binding.form.azure.project.help"
-            values={Object {}}
-          />
-        }
-        placement="right"
-      />
-    </label>
-    <input
-      className="input-super-large"
-      id="azure.project"
-      maxLength={256}
-      name="azure.project"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
-  </div>
-  <div
-    className="form-field"
-  >
-    <label
-      className="display-flex-center"
-      htmlFor="azure.repository"
-    >
-      settings.pr_decoration.binding.form.azure.repository
-      <MandatoryFieldMarker />
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
-            id="settings.pr_decoration.binding.form.azure.repository.help"
-            values={Object {}}
-          />
-        }
-        placement="right"
-      />
-    </label>
-    <input
-      className="input-super-large"
-      id="azure.repository"
-      maxLength={256}
-      name="azure.repository"
-      onChange={[Function]}
-      type="text"
-      value=""
-    />
-  </div>
-  <div
-    className="form-field"
-  >
-    <label
-      className="display-flex-center"
-      htmlFor="monorepo"
-    >
-      settings.pr_decoration.binding.form.monorepo
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <FormattedMessage
-            defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
-            id="settings.pr_decoration.binding.form.monorepo.help"
-            values={
-              Object {
-                "doc_link": <Link
-                  onlyActiveOnIndex={false}
-                  style={Object {}}
-                  target="_blank"
-                  to="/documentation/analysis/azuredevops-integration/"
-                >
-                  learn_more
-                </Link>,
-              }
-            }
-          />
-        }
-        placement="right"
-      />
-    </label>
     <div
-      className="display-flex-center"
+      className="settings-definition-left"
     >
-      <InputForBoolean
-        isDefault={true}
-        name="monorepo"
+      <label
+        className="h3"
+        htmlFor="azure.project"
+      >
+        settings.pr_decoration.binding.form.azure.project
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.azure.project.help"
+          id="settings.pr_decoration.binding.form.azure.project.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            <strong>
+              My Project
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="azure.project"
+        maxLength={256}
+        name="azure.project"
         onChange={[Function]}
-        value={false}
+        type="text"
+        value=""
       />
+    </div>
+  </div>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="azure.repository"
+      >
+        settings.pr_decoration.binding.form.azure.repository
+        <MandatoryFieldMarker />
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.azure.repository.help"
+          id="settings.pr_decoration.binding.form.azure.repository.help"
+          values={Object {}}
+        />
+        <div
+          className="spacer-top nowrap"
+        >
+          example
+          : 
+          <em>
+            <strong>
+              My Repository
+            </strong>
+          </em>
+        </div>
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <input
+        className="input-super-large big-spacer-top"
+        id="azure.repository"
+        maxLength={256}
+        name="azure.repository"
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="settings-definition"
+  >
+    <div
+      className="settings-definition-left"
+    >
+      <label
+        className="h3"
+        htmlFor="monorepo"
+      >
+        settings.pr_decoration.binding.form.monorepo
+      </label>
+      <div
+        className="markdown small spacer-top"
+      >
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
+          id="settings.pr_decoration.binding.form.monorepo.help"
+          values={
+            Object {
+              "doc_link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/analysis/azuredevops-integration/"
+              >
+                learn_more
+              </Link>,
+            }
+          }
+        />
+      </div>
+    </div>
+    <div
+      className="settings-definition-right padded-top"
+    >
+      <div
+        className="display-flex-center big-spacer-top"
+      >
+        <InputForBoolean
+          isDefault={true}
+          name="monorepo"
+          onChange={[Function]}
+          value={false}
+        />
+      </div>
     </div>
   </div>
 </Fragment>

@@ -20,18 +20,36 @@
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import {
+  convertGithubApiUrlToLink,
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
   getIssuesUrl,
   getQualityGatesUrl,
-  getQualityGateUrl
+  getQualityGateUrl,
+  stripTrailingSlash
 } from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
 const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
 const METRIC = 'coverage';
+
+describe('#convertGithubApiUrlToLink', () => {
+  it('should correctly convert a GitHub API URL to a Web URL', () => {
+    expect(convertGithubApiUrlToLink('https://api.github.com')).toBe('https://github.com');
+    expect(convertGithubApiUrlToLink('https://company.github.com/api/v3')).toBe(
+      'https://company.github.com'
+    );
+  });
+});
+
+describe('#stripTrailingSlash', () => {
+  it('should correctly strip trailing slashes from any URL', () => {
+    expect(stripTrailingSlash('https://example.com/')).toBe('https://example.com');
+    expect(convertGithubApiUrlToLink('https://example.com')).toBe('https://example.com');
+  });
+});
 
 describe('#getComponentIssuesUrl', () => {
   it('should work without parameters', () => {

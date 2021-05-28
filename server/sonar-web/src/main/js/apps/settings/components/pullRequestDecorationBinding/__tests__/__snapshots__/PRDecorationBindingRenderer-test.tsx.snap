@@ -23,46 +23,60 @@ exports[`should display action state correctly 1`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
-          }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
             Object {
-              "alm": "github",
-              "key": "key",
-              "url": "http://url.com",
-            },
-          ]
-        }
-        searchable={false}
-        value=""
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "key",
+                "url": "http://url.com",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"
@@ -96,46 +110,60 @@ exports[`should display action state correctly 2`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
-          }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
             Object {
-              "alm": "github",
-              "key": "key",
-              "url": "http://url.com",
-            },
-          ]
-        }
-        searchable={false}
-        value=""
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "key",
+                "url": "http://url.com",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"
@@ -177,46 +205,60 @@ exports[`should display action state correctly 3`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
-          }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
             Object {
-              "alm": "github",
-              "key": "key",
-              "url": "http://url.com",
-            },
-          ]
-        }
-        searchable={false}
-        value=""
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "key",
+                "url": "http://url.com",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"
@@ -277,60 +319,74 @@ exports[`should render multiple instances correctly 1`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
           }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
-            Object {
-              "alm": "github",
-              "key": "i1",
-              "url": "http://github.enterprise.com",
-            },
-            Object {
-              "alm": "github",
-              "key": "i2",
-              "url": "http://github.enterprise.com",
-            },
-            Object {
-              "alm": "bitbucket",
-              "key": "i3",
-              "url": "http://bbs.enterprise.com",
-            },
-            Object {
-              "alm": "azure",
-              "key": "i4",
-            },
-          ]
-        }
-        searchable={false}
-        value=""
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"
@@ -364,57 +420,71 @@ exports[`should render multiple instances correctly 2`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
           }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
-            Object {
-              "alm": "github",
-              "key": "i1",
-              "url": "http://github.enterprise.com",
-            },
-            Object {
-              "alm": "github",
-              "key": "i2",
-              "url": "http://github.enterprise.com",
-            },
-            Object {
-              "alm": "bitbucket",
-              "key": "i3",
-              "url": "http://bbs.enterprise.com",
-            },
-            Object {
-              "alm": "azure",
-              "key": "i4",
-            },
-          ]
-        }
-        searchable={false}
-        value="i1"
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
+              },
+            ]
+          }
+          searchable={false}
+          value="i1"
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <AlmSpecificForm
       alm="github"
@@ -425,11 +495,34 @@ exports[`should render multiple instances correctly 2`] = `
           "repository": "account/repo",
         }
       }
+      instances={
+        Array [
+          Object {
+            "alm": "github",
+            "key": "i1",
+            "url": "http://github.enterprise.com",
+          },
+          Object {
+            "alm": "github",
+            "key": "i2",
+            "url": "http://github.enterprise.com",
+          },
+          Object {
+            "alm": "bitbucket",
+            "key": "i3",
+            "url": "http://bbs.enterprise.com",
+          },
+          Object {
+            "alm": "azure",
+            "key": "i4",
+          },
+        ]
+      }
       monorepoEnabled={false}
       onFieldChange={[MockFunction]}
     />
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"
@@ -493,46 +586,60 @@ exports[`should render single instance correctly 1`] = `
       className="form-field"
     />
     <div
-      className="form-field"
+      className="settings-definition big-spacer-bottom"
     >
-      <label
-        htmlFor="name"
+      <div
+        className="settings-definition-left"
       >
-        settings.pr_decoration.binding.form.name
-        <MandatoryFieldMarker
-          className="spacer-right"
-        />
-      </label>
-      <Select
-        autosize={true}
-        className="abs-width-400"
-        clearable={false}
-        id="name"
-        menuContainerStyle={
-          Object {
-            "maxWidth": "210%",
-            "width": "auto",
-          }
-        }
-        onChange={[Function]}
-        optionRenderer={[Function]}
-        options={
-          Array [
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
             Object {
-              "alm": "github",
-              "key": "single",
-              "url": "http://single.url",
-            },
-          ]
-        }
-        searchable={false}
-        value=""
-        valueKey="key"
-        valueRenderer={[Function]}
-      />
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "single",
+                "url": "http://single.url",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
     </div>
     <div
-      className="display-flex-center"
+      className="display-flex-center big-spacer-top"
     >
       <DeferredSpinner
         className="spacer-right"

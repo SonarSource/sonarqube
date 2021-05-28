@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../../types/alm-settings';
+import { mockAlmSettingsInstance } from '../../../../../helpers/mocks/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
 import AlmSpecificForm, { AlmSpecificFormProps } from '../AlmSpecificForm';
 
 it.each([
@@ -32,6 +33,20 @@ it.each([
   expect(shallowRender(alm)).toMatchSnapshot();
 });
 
+it.each([
+  [
+    AlmKeys.BitbucketServer,
+    [mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, url: 'http://bbs.example.com' })]
+  ],
+  [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://example.com/api/v3' })]],
+  [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://api.github.com' })]]
+])(
+  'it should render correctly for %s if an instance URL is provided',
+  (alm: AlmKeys, instances: AlmSettingsInstance[]) => {
+    expect(shallowRender(alm, { instances })).toMatchSnapshot();
+  }
+);
+
 it('should render the monorepo field when the feature is supported', () => {
   expect(shallowRender(AlmKeys.Azure, { monorepoEnabled: true })).toMatchSnapshot();
 });
@@ -40,6 +55,7 @@ function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) 
   return shallow(
     <AlmSpecificForm
       alm={alm}
+      instances={[]}
       formData={{
         key: '',
         repository: '',

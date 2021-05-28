@@ -280,3 +280,13 @@ export function getHomePageUrl(homepage: T.HomePage) {
   // should never happen, but just in case...
   return '/projects';
 }
+
+export function convertGithubApiUrlToLink(url: string) {
+  return url
+    .replace(/^https?:\/\/api\.github\.com/, 'https://github.com') // GH.com
+    .replace(/\/api\/v\d+\/?$/, ''); // GH Enterprise
+}
+
+export function stripTrailingSlash(url: string) {
+  return url.replace(/\/$/, '');
+}

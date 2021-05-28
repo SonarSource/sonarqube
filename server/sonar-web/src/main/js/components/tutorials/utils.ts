@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 
 export function quote(os: string): (s: string) => string {
@@ -64,10 +65,7 @@ export function buildGithubLink(
   }
 
   // strip the api path:
-  const urlRoot = almBinding.url
-    .replace(/\/api\/v\d+\/?$/, '') // GH Enterprise
-    .replace(/^https?:\/\/api\.github\.com/, 'https://github.com') // GH.com
-    .replace(/\/$/, '');
+  const urlRoot = convertGithubApiUrlToLink(almBinding.url);
 
-  return `${urlRoot}/${projectBinding.repository}`;
+  return `${stripTrailingSlash(urlRoot)}/${projectBinding.repository}`;
 }
