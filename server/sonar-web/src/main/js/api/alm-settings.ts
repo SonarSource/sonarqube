@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { get, getJSON, HttpStatus, parseError, post } from 'sonar-ui-common/helpers/request';
+import {
+  get,
+  getJSON,
+  HttpStatus,
+  parseError,
+  parseJSON,
+  post
+} from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import {
   AlmSettingsBindingDefinitions,
@@ -32,6 +39,7 @@ import {
   GithubProjectAlmBindingParams,
   GitlabBindingDefinition,
   GitlabProjectAlmBindingParams,
+  ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
 } from '../types/alm-settings';
 
@@ -141,4 +149,17 @@ export function setProjectGithubBinding(data: GithubProjectAlmBindingParams) {
 
 export function setProjectGitlabBinding(data: GitlabProjectAlmBindingParams) {
   return post('/api/alm_settings/set_gitlab_binding', data).catch(throwGlobalError);
+}
+
+export function validateProjectAlmBinding(
+  projectKey: string
+): Promise<ProjectAlmBindingConfigurationErrors | undefined> {
+  return get('/api/alm_settings/validate_binding', { project: projectKey })
+    .then(() => undefined)
+    .catch((response: Response) => {
+      if (response.status === HttpStatus.BadRequest) {
+        return parseJSON(response);
+      }
+      return throwGlobalError(response);
+    });
 }

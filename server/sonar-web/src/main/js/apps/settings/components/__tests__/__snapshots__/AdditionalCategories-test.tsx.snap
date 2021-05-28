@@ -87,7 +87,7 @@ exports[`should render additional categories component correctly 4`] = `
 `;
 
 exports[`should render additional categories component correctly 5`] = `
-<Connect(PRDecorationBinding)
+<Connect(Connect(withCurrentUser(PRDecorationBinding)))
   component={
     Object {
       "breadcrumbs": Array [],

@@ -21,65 +21,51 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { AlmKeys } from '../../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingConfigurationErrorScope
+} from '../../../../../types/alm-settings';
 import PRDecorationBindingRenderer, {
   PRDecorationBindingRendererProps
 } from '../PRDecorationBindingRenderer';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ loading: false })).toMatchSnapshot();
-});
+const urls = ['http://github.enterprise.com', 'http://bbs.enterprise.com'];
+const instances: AlmSettingsInstance[] = [
+  {
+    alm: AlmKeys.GitHub,
+    key: 'i1',
+    url: urls[0]
+  },
+  {
+    alm: AlmKeys.GitHub,
+    key: 'i2',
+    url: urls[0]
+  },
+  {
+    alm: AlmKeys.BitbucketServer,
+    key: 'i3',
+    url: urls[1]
+  },
+  {
+    alm: AlmKeys.Azure,
+    key: 'i4'
+  }
+];
+const configurationErrors: ProjectAlmBindingConfigurationErrors = {
+  scope: ProjectAlmBindingConfigurationErrorScope.Global,
+  errors: [{ msg: 'Test' }, { msg: 'tesT' }]
+};
 
-it('should render single instance correctly', () => {
-  const singleInstance = {
-    key: 'single',
-    url: 'http://single.url',
-    alm: AlmKeys.GitHub
-  };
-  expect(
-    shallowRender({
-      loading: false,
-      instances: [singleInstance]
-    })
-  ).toMatchSnapshot();
-});
-
-it('should render multiple instances correctly', () => {
-  const urls = ['http://github.enterprise.com', 'http://bbs.enterprise.com'];
-  const instances = [
+it.each([
+  ['when loading', { loading: true }],
+  ['with no ALM instances', {}],
+  ['with a single ALM instance', { instances: [instances[0]] }],
+  ['with an empty form', { instances }],
+  [
+    'with a valid and saved form',
     {
-      alm: AlmKeys.GitHub,
-      key: 'i1',
-      url: urls[0]
-    },
-    {
-      alm: AlmKeys.GitHub,
-      key: 'i2',
-      url: urls[0]
-    },
-    {
-      alm: AlmKeys.BitbucketServer,
-      key: 'i3',
-      url: urls[1]
-    },
-    {
-      alm: AlmKeys.Azure,
-      key: 'i4'
-    }
-  ];
-
-  //unfilled
-  expect(
-    shallowRender({
-      instances,
-      loading: false
-    })
-  ).toMatchSnapshot();
-
-  // filled
-  expect(
-    shallowRender({
       formData: {
         key: 'i1',
         repository: 'account/repo',
@@ -87,43 +73,62 @@ it('should render multiple instances correctly', () => {
       },
       isChanged: false,
       isConfigured: true,
+      instances
+    }
+  ],
+  [
+    'when there are configuration errors (non-admin user)',
+    { instances, isConfigured: true, configurationErrors }
+  ],
+  [
+    'when there are configuration errors (admin user)',
+    {
+      formData: {
+        key: 'i1',
+        repository: 'account/repo',
+        monorepo: false
+      },
       instances,
-      loading: false
-    })
-  ).toMatchSnapshot();
+      isConfigured: true,
+      configurationErrors,
+      isSysAdmin: true
+    }
+  ],
+  [
+    'when there are configuration errors (admin user) and error are at PROJECT level',
+    {
+      instances,
+      isConfigured: true,
+      configurationErrors: {
+        ...configurationErrors,
+        scope: ProjectAlmBindingConfigurationErrorScope.Project
+      },
+      isSysAdmin: true
+    }
+  ]
+])('should render correctly', (name: string, props: PRDecorationBindingRendererProps) => {
+  expect(shallowRender(props)).toMatchSnapshot(name);
 });
 
-it('should display action state correctly', () => {
-  const urls = ['http://url.com'];
-  const instances = [{ key: 'key', url: urls[0], alm: AlmKeys.GitHub }];
-
-  expect(shallowRender({ instances, loading: false, saving: true })).toMatchSnapshot();
-  expect(shallowRender({ instances, loading: false, success: true })).toMatchSnapshot();
-  expect(
-    shallowRender({
-      instances,
-      isValid: true,
-      loading: false
-    })
-  ).toMatchSnapshot();
-});
+it.each([
+  ['updating', { updating: true }],
+  ['update is successfull', { successfullyUpdated: true }],
+  ['form is valid', { isValid: true }],
+  ['configuration is saved', { isConfigured: true }],
+  ['configuration check is in progress', { isConfigured: true, checkingConfiguration: true }]
+])(
+  'should display action section correctly when',
+  (name: string, props: PRDecorationBindingRendererProps) => {
+    expect(shallowRender({ ...props, instances }).find('.action-section')).toMatchSnapshot(name);
+  }
+);
 
 it('should render select options correctly', async () => {
-  const instances = [
-    {
-      alm: AlmKeys.Azure,
-      key: 'azure'
-    },
-    {
-      alm: AlmKeys.GitHub,
-      key: 'github',
-      url: 'gh.url.com'
-    }
-  ];
-  const wrapper = shallowRender({ loading: false, instances });
+  const wrapper = shallowRender({ instances });
+
   await waitAndUpdate(wrapper);
 
-  const optionRenderer = wrapper.find(Select).prop('optionRenderer');
+  const { optionRenderer } = wrapper.find(Select).props();
 
   expect(optionRenderer!(instances[0])).toMatchSnapshot();
 
@@ -142,13 +147,16 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
       isChanged={false}
       isConfigured={false}
       isValid={false}
-      loading={true}
+      loading={false}
       onFieldChange={jest.fn()}
       onReset={jest.fn()}
       onSubmit={jest.fn()}
-      saving={false}
-      success={false}
+      updating={false}
+      successfullyUpdated={false}
       monorepoEnabled={false}
+      checkingConfiguration={false}
+      onCheckConfiguration={jest.fn()}
+      isSysAdmin={false}
       {...props}
     />
   );

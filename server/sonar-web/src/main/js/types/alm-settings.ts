@@ -153,6 +153,17 @@ export enum AlmSettingsBindingStatusType {
   Warning
 }
 
+export enum ProjectAlmBindingConfigurationErrorScope {
+  Global = 'GLOBAL',
+  Project = 'PROJECT',
+  Unknown = 'UNKNOWN'
+}
+
+export interface ProjectAlmBindingConfigurationErrors {
+  scope: ProjectAlmBindingConfigurationErrorScope;
+  errors: { msg: string }[];
+}
+
 export function isProjectBitbucketBindingResponse(
   binding: ProjectAlmBindingResponse
 ): binding is ProjectBitbucketBindingResponse {

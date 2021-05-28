@@ -58,8 +58,14 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
+    let currentAlm = props.location.query.alm || AlmKeys.GitHub;
+    if (currentAlm === AlmKeys.BitbucketCloud) {
+      currentAlm = AlmKeys.BitbucketServer;
+    }
+
     this.state = {
-      currentAlm: props.location.query.alm || AlmKeys.GitHub,
+      currentAlm,
       definitions: {
         [AlmKeys.Azure]: [],
         [AlmKeys.BitbucketServer]: [],

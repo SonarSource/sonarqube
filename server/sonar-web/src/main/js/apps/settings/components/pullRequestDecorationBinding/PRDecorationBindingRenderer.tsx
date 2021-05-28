@@ -28,7 +28,13 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../../types/alm-settings';
+import {
+  AlmSettingsInstance,
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingConfigurationErrorScope,
+  ProjectAlmBindingResponse
+} from '../../../../types/alm-settings';
+import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import AlmSpecificForm from './AlmSpecificForm';
 
 export interface PRDecorationBindingRendererProps {
@@ -41,9 +47,13 @@ export interface PRDecorationBindingRendererProps {
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   onReset: () => void;
   onSubmit: () => void;
-  saving: boolean;
-  success: boolean;
+  updating: boolean;
+  successfullyUpdated: boolean;
   monorepoEnabled: boolean;
+  onCheckConfiguration: () => void;
+  checkingConfiguration: boolean;
+  configurationErrors?: ProjectAlmBindingConfigurationErrors;
+  isSysAdmin: boolean;
 }
 
 function optionRenderer(instance: AlmSettingsInstance) {
@@ -65,9 +75,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
     isConfigured,
     isValid,
     loading,
-    saving,
-    success,
-    monorepoEnabled
+    updating,
+    successfullyUpdated,
+    monorepoEnabled,
+    checkingConfiguration,
+    configurationErrors,
+    isSysAdmin
   } = props;
 
   if (loading) {
@@ -155,25 +168,81 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           />
         )}
 
-        <div className="display-flex-center big-spacer-top">
-          <DeferredSpinner className="spacer-right" loading={saving} />
+        <div className="display-flex-center big-spacer-top action-section">
           {isChanged && (
-            <SubmitButton className="spacer-right button-success" disabled={saving || !isValid}>
+            <SubmitButton className="spacer-right button-success" disabled={updating || !isValid}>
               <span data-test="project-settings__alm-save">{translate('save')}</span>
+              <DeferredSpinner className="spacer-left" loading={updating} />
             </SubmitButton>
           )}
-          {isConfigured && (
-            <Button className="spacer-right" onClick={props.onReset}>
-              <span data-test="project-settings__alm-reset">{translate('reset_verb')}</span>
-            </Button>
-          )}
-          {!saving && success && (
-            <span className="text-success">
+          {!updating && successfullyUpdated && (
+            <span className="text-success spacer-right">
               <AlertSuccessIcon className="spacer-right" />
               {translate('settings.state.saved')}
             </span>
           )}
+          {isConfigured && (
+            <>
+              <Button className="spacer-right" onClick={props.onReset}>
+                <span data-test="project-settings__alm-reset">{translate('reset_verb')}</span>
+              </Button>
+              {!isChanged && (
+                <Button onClick={props.onCheckConfiguration} disabled={checkingConfiguration}>
+                  {translate('settings.pr_decoration.binding.check_configuration')}
+                  <DeferredSpinner className="spacer-left" loading={checkingConfiguration} />
+                </Button>
+              )}
+            </>
+          )}
         </div>
+        {!checkingConfiguration && configurationErrors?.errors && (
+          <Alert variant="error" display="inline" className="big-spacer-top">
+            <p className="spacer-bottom">
+              {translate('settings.pr_decoration.binding.check_configuration.failure')}
+            </p>
+            <ul className="list-styled">
+              {configurationErrors.errors.map((error, i) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <li key={i}>{error.msg}</li>
+              ))}
+            </ul>
+            {configurationErrors.scope === ProjectAlmBindingConfigurationErrorScope.Global && (
+              <p>
+                {isSysAdmin ? (
+                  <FormattedMessage
+                    id="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
+                    defaultMessage={translate(
+                      'settings.pr_decoration.binding.check_configuration.failure.check_global_settings'
+                    )}
+                    values={{
+                      link: (
+                        <Link
+                          to={{
+                            pathname: '/admin/settings',
+                            query: {
+                              category: ALM_INTEGRATION,
+                              alm
+                            }
+                          }}>
+                          {translate(
+                            'settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link'
+                          )}
+                        </Link>
+                      )
+                    }}
+                  />
+                ) : (
+                  translate('settings.pr_decoration.binding.check_configuration.contact_admin')
+                )}
+              </p>
+            )}
+          </Alert>
+        )}
+        {isConfigured && !isChanged && !checkingConfiguration && !configurationErrors && (
+          <Alert variant="success" display="inline" className="big-spacer-top">
+            {translate('settings.pr_decoration.binding.check_configuration.success')}
+          </Alert>
+        )}
       </form>
     </div>
   );

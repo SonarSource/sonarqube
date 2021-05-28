@@ -162,8 +162,16 @@ it('should fetch settings', async () => {
   expect(wrapper.state().loadingAlmDefinitions).toBe(false);
 });
 
-function shallowRender() {
+it('should detect the current ALM from the query', () => {
+  let wrapper = shallowRender({ location: mockLocation() });
+  expect(wrapper.state().currentAlm).toBe(AlmKeys.GitHub);
+
+  wrapper = shallowRender({ location: mockLocation({ query: { alm: AlmKeys.BitbucketCloud } }) });
+  expect(wrapper.state().currentAlm).toBe(AlmKeys.BitbucketServer);
+});
+
+function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
   return shallow<AlmIntegration>(
-    <AlmIntegration appState={{ branchesEnabled: true }} location={mockLocation()} />
+    <AlmIntegration appState={{ branchesEnabled: true }} location={mockLocation()} {...props} />
   );
 }

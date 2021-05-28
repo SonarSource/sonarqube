@@ -1,403 +1,89 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display action state correctly 1`] = `
-<div>
-  <header
-    className="page-header"
+exports[`should display action section correctly when: configuration check is in progress 1`] = `
+<div
+  className="display-flex-center big-spacer-top action-section"
+>
+  <Button
+    className="spacer-right"
+    onClick={[MockFunction]}
   >
-    <h1
-      className="page-title"
+    <span
+      data-test="project-settings__alm-reset"
     >
-      settings.pr_decoration.binding.title
-    </h1>
-  </header>
-  <div
-    className="markdown small spacer-top big-spacer-bottom"
+      reset_verb
+    </span>
+  </Button>
+  <Button
+    disabled={true}
+    onClick={[MockFunction]}
   >
-    settings.pr_decoration.binding.description
-  </div>
-  <form
-    onSubmit={[Function]}
-  >
-    <MandatoryFieldsExplanation
-      className="form-field"
+    settings.pr_decoration.binding.check_configuration
+    <DeferredSpinner
+      className="spacer-left"
+      loading={true}
     />
-    <div
-      className="settings-definition big-spacer-bottom"
-    >
-      <div
-        className="settings-definition-left"
-      >
-        <label
-          className="h3"
-          htmlFor="name"
-        >
-          settings.pr_decoration.binding.form.name
-          <MandatoryFieldMarker
-            className="spacer-right"
-          />
-        </label>
-        <div
-          className="markdown small spacer-top"
-        >
-          settings.pr_decoration.binding.form.name.help
-        </div>
-      </div>
-      <div
-        className="settings-definition-right"
-      >
-        <Select
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
-            Object {
-              "maxWidth": "210%",
-              "width": "auto",
-            }
-          }
-          onChange={[Function]}
-          optionRenderer={[Function]}
-          options={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "key",
-                "url": "http://url.com",
-              },
-            ]
-          }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
-        />
-      </div>
-    </div>
-    <div
-      className="display-flex-center big-spacer-top"
-    >
-      <DeferredSpinner
-        className="spacer-right"
-        loading={true}
-      />
-    </div>
-  </form>
+  </Button>
 </div>
 `;
 
-exports[`should display action state correctly 2`] = `
-<div>
-  <header
-    className="page-header"
+exports[`should display action section correctly when: configuration is saved 1`] = `
+<div
+  className="display-flex-center big-spacer-top action-section"
+>
+  <Button
+    className="spacer-right"
+    onClick={[MockFunction]}
   >
-    <h1
-      className="page-title"
+    <span
+      data-test="project-settings__alm-reset"
     >
-      settings.pr_decoration.binding.title
-    </h1>
-  </header>
-  <div
-    className="markdown small spacer-top big-spacer-bottom"
+      reset_verb
+    </span>
+  </Button>
+  <Button
+    disabled={false}
+    onClick={[MockFunction]}
   >
-    settings.pr_decoration.binding.description
-  </div>
-  <form
-    onSubmit={[Function]}
-  >
-    <MandatoryFieldsExplanation
-      className="form-field"
+    settings.pr_decoration.binding.check_configuration
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
     />
-    <div
-      className="settings-definition big-spacer-bottom"
-    >
-      <div
-        className="settings-definition-left"
-      >
-        <label
-          className="h3"
-          htmlFor="name"
-        >
-          settings.pr_decoration.binding.form.name
-          <MandatoryFieldMarker
-            className="spacer-right"
-          />
-        </label>
-        <div
-          className="markdown small spacer-top"
-        >
-          settings.pr_decoration.binding.form.name.help
-        </div>
-      </div>
-      <div
-        className="settings-definition-right"
-      >
-        <Select
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
-            Object {
-              "maxWidth": "210%",
-              "width": "auto",
-            }
-          }
-          onChange={[Function]}
-          optionRenderer={[Function]}
-          options={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "key",
-                "url": "http://url.com",
-              },
-            ]
-          }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
-        />
-      </div>
-    </div>
-    <div
-      className="display-flex-center big-spacer-top"
-    >
-      <DeferredSpinner
-        className="spacer-right"
-        loading={false}
-      />
-      <span
-        className="text-success"
-      >
-        <AlertSuccessIcon
-          className="spacer-right"
-        />
-        settings.state.saved
-      </span>
-    </div>
-  </form>
+  </Button>
 </div>
 `;
 
-exports[`should display action state correctly 3`] = `
-<div>
-  <header
-    className="page-header"
+exports[`should display action section correctly when: form is valid 1`] = `
+<div
+  className="display-flex-center big-spacer-top action-section"
+/>
+`;
+
+exports[`should display action section correctly when: update is successfull 1`] = `
+<div
+  className="display-flex-center big-spacer-top action-section"
+>
+  <span
+    className="text-success spacer-right"
   >
-    <h1
-      className="page-title"
-    >
-      settings.pr_decoration.binding.title
-    </h1>
-  </header>
-  <div
-    className="markdown small spacer-top big-spacer-bottom"
-  >
-    settings.pr_decoration.binding.description
-  </div>
-  <form
-    onSubmit={[Function]}
-  >
-    <MandatoryFieldsExplanation
-      className="form-field"
+    <AlertSuccessIcon
+      className="spacer-right"
     />
-    <div
-      className="settings-definition big-spacer-bottom"
-    >
-      <div
-        className="settings-definition-left"
-      >
-        <label
-          className="h3"
-          htmlFor="name"
-        >
-          settings.pr_decoration.binding.form.name
-          <MandatoryFieldMarker
-            className="spacer-right"
-          />
-        </label>
-        <div
-          className="markdown small spacer-top"
-        >
-          settings.pr_decoration.binding.form.name.help
-        </div>
-      </div>
-      <div
-        className="settings-definition-right"
-      >
-        <Select
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
-            Object {
-              "maxWidth": "210%",
-              "width": "auto",
-            }
-          }
-          onChange={[Function]}
-          optionRenderer={[Function]}
-          options={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "key",
-                "url": "http://url.com",
-              },
-            ]
-          }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
-        />
-      </div>
-    </div>
-    <div
-      className="display-flex-center big-spacer-top"
-    >
-      <DeferredSpinner
-        className="spacer-right"
-        loading={false}
-      />
-    </div>
-  </form>
+    settings.state.saved
+  </span>
 </div>
 `;
 
-exports[`should render correctly 1`] = `<DeferredSpinner />`;
-
-exports[`should render correctly 2`] = `
-<div>
-  <Alert
-    className="spacer-top huge-spacer-bottom"
-    variant="info"
-  >
-    <FormattedMessage
-      defaultMessage="settings.pr_decoration.binding.no_bindings"
-      id="settings.pr_decoration.binding.no_bindings"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/documentation/analysis/pull-request/#pr-decoration"
-          >
-            learn_more
-          </Link>,
-        }
-      }
-    />
-  </Alert>
-</div>
+exports[`should display action section correctly when: updating 1`] = `
+<div
+  className="display-flex-center big-spacer-top action-section"
+/>
 `;
 
-exports[`should render multiple instances correctly 1`] = `
-<div>
-  <header
-    className="page-header"
-  >
-    <h1
-      className="page-title"
-    >
-      settings.pr_decoration.binding.title
-    </h1>
-  </header>
-  <div
-    className="markdown small spacer-top big-spacer-bottom"
-  >
-    settings.pr_decoration.binding.description
-  </div>
-  <form
-    onSubmit={[Function]}
-  >
-    <MandatoryFieldsExplanation
-      className="form-field"
-    />
-    <div
-      className="settings-definition big-spacer-bottom"
-    >
-      <div
-        className="settings-definition-left"
-      >
-        <label
-          className="h3"
-          htmlFor="name"
-        >
-          settings.pr_decoration.binding.form.name
-          <MandatoryFieldMarker
-            className="spacer-right"
-          />
-        </label>
-        <div
-          className="markdown small spacer-top"
-        >
-          settings.pr_decoration.binding.form.name.help
-        </div>
-      </div>
-      <div
-        className="settings-definition-right"
-      >
-        <Select
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
-            Object {
-              "maxWidth": "210%",
-              "width": "auto",
-            }
-          }
-          onChange={[Function]}
-          optionRenderer={[Function]}
-          options={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "i1",
-                "url": "http://github.enterprise.com",
-              },
-              Object {
-                "alm": "github",
-                "key": "i2",
-                "url": "http://github.enterprise.com",
-              },
-              Object {
-                "alm": "bitbucket",
-                "key": "i3",
-                "url": "http://bbs.enterprise.com",
-              },
-              Object {
-                "alm": "azure",
-                "key": "i4",
-              },
-            ]
-          }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
-        />
-      </div>
-    </div>
-    <div
-      className="display-flex-center big-spacer-top"
-    >
-      <DeferredSpinner
-        className="spacer-right"
-        loading={false}
-      />
-    </div>
-  </form>
-</div>
-`;
+exports[`should render correctly: when loading 1`] = `<DeferredSpinner />`;
 
-exports[`should render multiple instances correctly 2`] = `
+exports[`should render correctly: when there are configuration errors (admin user) 1`] = `
 <div>
   <header
     className="page-header"
@@ -522,12 +208,8 @@ exports[`should render multiple instances correctly 2`] = `
       onFieldChange={[MockFunction]}
     />
     <div
-      className="display-flex-center big-spacer-top"
+      className="display-flex-center big-spacer-top action-section"
     >
-      <DeferredSpinner
-        className="spacer-right"
-        loading={false}
-      />
       <Button
         className="spacer-right"
         onClick={[MockFunction]}
@@ -538,32 +220,72 @@ exports[`should render multiple instances correctly 2`] = `
           reset_verb
         </span>
       </Button>
+      <Button
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.pr_decoration.binding.check_configuration
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </Button>
     </div>
+    <Alert
+      className="big-spacer-top"
+      display="inline"
+      variant="error"
+    >
+      <p
+        className="spacer-bottom"
+      >
+        settings.pr_decoration.binding.check_configuration.failure
+      </p>
+      <ul
+        className="list-styled"
+      >
+        <li
+          key="0"
+        >
+          Test
+        </li>
+        <li
+          key="1"
+        >
+          tesT
+        </li>
+      </ul>
+      <p>
+        <FormattedMessage
+          defaultMessage="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
+          id="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/admin/settings",
+                    "query": Object {
+                      "alm": "github",
+                      "category": "almintegration",
+                    },
+                  }
+                }
+              >
+                settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link
+              </Link>,
+            }
+          }
+        />
+      </p>
+    </Alert>
   </form>
 </div>
 `;
 
-exports[`should render select options correctly 1`] = `
-<span>
-  azure
-</span>
-`;
-
-exports[`should render select options correctly 2`] = `
-<React.Fragment>
-  <span>
-    github
-     — 
-  </span>
-  <span
-    className="text-muted"
-  >
-    gh.url.com
-  </span>
-</React.Fragment>
-`;
-
-exports[`should render single instance correctly 1`] = `
+exports[`should render correctly: when there are configuration errors (admin user) and error are at PROJECT level 1`] = `
 <div>
   <header
     className="page-header"
@@ -626,8 +348,22 @@ exports[`should render single instance correctly 1`] = `
             Array [
               Object {
                 "alm": "github",
-                "key": "single",
-                "url": "http://single.url",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
               },
             ]
           }
@@ -639,13 +375,589 @@ exports[`should render single instance correctly 1`] = `
       </div>
     </div>
     <div
-      className="display-flex-center big-spacer-top"
+      className="display-flex-center big-spacer-top action-section"
     >
-      <DeferredSpinner
+      <Button
         className="spacer-right"
-        loading={false}
-      />
+        onClick={[MockFunction]}
+      >
+        <span
+          data-test="project-settings__alm-reset"
+        >
+          reset_verb
+        </span>
+      </Button>
+      <Button
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.pr_decoration.binding.check_configuration
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </Button>
     </div>
+    <Alert
+      className="big-spacer-top"
+      display="inline"
+      variant="error"
+    >
+      <p
+        className="spacer-bottom"
+      >
+        settings.pr_decoration.binding.check_configuration.failure
+      </p>
+      <ul
+        className="list-styled"
+      >
+        <li
+          key="0"
+        >
+          Test
+        </li>
+        <li
+          key="1"
+        >
+          tesT
+        </li>
+      </ul>
+    </Alert>
   </form>
 </div>
+`;
+
+exports[`should render correctly: when there are configuration errors (non-admin user) 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
+    <div
+      className="settings-definition big-spacer-bottom"
+    >
+      <div
+        className="settings-definition-left"
+      >
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-center big-spacer-top action-section"
+    >
+      <Button
+        className="spacer-right"
+        onClick={[MockFunction]}
+      >
+        <span
+          data-test="project-settings__alm-reset"
+        >
+          reset_verb
+        </span>
+      </Button>
+      <Button
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.pr_decoration.binding.check_configuration
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </Button>
+    </div>
+    <Alert
+      className="big-spacer-top"
+      display="inline"
+      variant="error"
+    >
+      <p
+        className="spacer-bottom"
+      >
+        settings.pr_decoration.binding.check_configuration.failure
+      </p>
+      <ul
+        className="list-styled"
+      >
+        <li
+          key="0"
+        >
+          Test
+        </li>
+        <li
+          key="1"
+        >
+          tesT
+        </li>
+      </ul>
+      <p>
+        settings.pr_decoration.binding.check_configuration.contact_admin
+      </p>
+    </Alert>
+  </form>
+</div>
+`;
+
+exports[`should render correctly: with a single ALM instance 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
+    <div
+      className="settings-definition big-spacer-bottom"
+    >
+      <div
+        className="settings-definition-left"
+      >
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-center big-spacer-top action-section"
+    />
+  </form>
+</div>
+`;
+
+exports[`should render correctly: with a valid and saved form 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
+    <div
+      className="settings-definition big-spacer-bottom"
+    >
+      <div
+        className="settings-definition-left"
+      >
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
+              },
+            ]
+          }
+          searchable={false}
+          value="i1"
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
+    </div>
+    <AlmSpecificForm
+      alm="github"
+      formData={
+        Object {
+          "key": "i1",
+          "monorepo": false,
+          "repository": "account/repo",
+        }
+      }
+      instances={
+        Array [
+          Object {
+            "alm": "github",
+            "key": "i1",
+            "url": "http://github.enterprise.com",
+          },
+          Object {
+            "alm": "github",
+            "key": "i2",
+            "url": "http://github.enterprise.com",
+          },
+          Object {
+            "alm": "bitbucket",
+            "key": "i3",
+            "url": "http://bbs.enterprise.com",
+          },
+          Object {
+            "alm": "azure",
+            "key": "i4",
+          },
+        ]
+      }
+      monorepoEnabled={false}
+      onFieldChange={[MockFunction]}
+    />
+    <div
+      className="display-flex-center big-spacer-top action-section"
+    >
+      <Button
+        className="spacer-right"
+        onClick={[MockFunction]}
+      >
+        <span
+          data-test="project-settings__alm-reset"
+        >
+          reset_verb
+        </span>
+      </Button>
+      <Button
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        settings.pr_decoration.binding.check_configuration
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </Button>
+    </div>
+    <Alert
+      className="big-spacer-top"
+      display="inline"
+      variant="success"
+    >
+      settings.pr_decoration.binding.check_configuration.success
+    </Alert>
+  </form>
+</div>
+`;
+
+exports[`should render correctly: with an empty form 1`] = `
+<div>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.pr_decoration.binding.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.pr_decoration.binding.description
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <MandatoryFieldsExplanation
+      className="form-field"
+    />
+    <div
+      className="settings-definition big-spacer-bottom"
+    >
+      <div
+        className="settings-definition-left"
+      >
+        <label
+          className="h3"
+          htmlFor="name"
+        >
+          settings.pr_decoration.binding.form.name
+          <MandatoryFieldMarker
+            className="spacer-right"
+          />
+        </label>
+        <div
+          className="markdown small spacer-top"
+        >
+          settings.pr_decoration.binding.form.name.help
+        </div>
+      </div>
+      <div
+        className="settings-definition-right"
+      >
+        <Select
+          autosize={true}
+          className="abs-width-400 big-spacer-top"
+          clearable={false}
+          id="name"
+          menuContainerStyle={
+            Object {
+              "maxWidth": "210%",
+              "width": "auto",
+            }
+          }
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "github",
+                "key": "i2",
+                "url": "http://github.enterprise.com",
+              },
+              Object {
+                "alm": "bitbucket",
+                "key": "i3",
+                "url": "http://bbs.enterprise.com",
+              },
+              Object {
+                "alm": "azure",
+                "key": "i4",
+              },
+            ]
+          }
+          searchable={false}
+          value=""
+          valueKey="key"
+          valueRenderer={[Function]}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-center big-spacer-top action-section"
+    />
+  </form>
+</div>
+`;
+
+exports[`should render correctly: with no ALM instances 1`] = `
+<div>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.pr_decoration.binding.no_bindings"
+      id="settings.pr_decoration.binding.no_bindings"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/analysis/pull-request/#pr-decoration"
+          >
+            learn_more
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+</div>
+`;
+
+exports[`should render select options correctly 1`] = `
+<React.Fragment>
+  <span>
+    i1
+     — 
+  </span>
+  <span
+    className="text-muted"
+  >
+    http://github.enterprise.com
+  </span>
+</React.Fragment>
+`;
+
+exports[`should render select options correctly 2`] = `
+<React.Fragment>
+  <span>
+    i2
+     — 
+  </span>
+  <span
+    className="text-muted"
+  >
+    http://github.enterprise.com
+  </span>
+</React.Fragment>
 `;

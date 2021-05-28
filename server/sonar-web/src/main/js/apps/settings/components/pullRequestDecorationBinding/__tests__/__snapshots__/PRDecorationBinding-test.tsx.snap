@@ -2,6 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <PRDecorationBindingRenderer
+  checkingConfiguration={false}
   formData={
     Object {
       "key": "",
@@ -11,13 +12,15 @@ exports[`should render correctly 1`] = `
   instances={Array []}
   isChanged={false}
   isConfigured={false}
+  isSysAdmin={false}
   isValid={false}
   loading={true}
   monorepoEnabled={false}
+  onCheckConfiguration={[Function]}
   onFieldChange={[Function]}
   onReset={[Function]}
   onSubmit={[Function]}
-  saving={false}
-  success={false}
+  successfullyUpdated={false}
+  updating={false}
 />
 `;

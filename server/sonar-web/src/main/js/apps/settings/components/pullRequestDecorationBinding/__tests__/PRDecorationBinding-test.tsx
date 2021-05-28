@@ -28,11 +28,22 @@ import {
   setProjectBitbucketBinding,
   setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
-  setProjectGitlabBinding
+  setProjectGitlabBinding,
+  validateProjectAlmBinding
 } from '../../../../../api/alm-settings';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
+import {
+  mockAlmSettingsInstance,
+  mockProjectAlmBindingResponse
+} from '../../../../../helpers/mocks/alm-settings';
+import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingConfigurationErrorScope
+} from '../../../../../types/alm-settings';
 import { PRDecorationBinding } from '../PRDecorationBinding';
+import PRDecorationBindingRenderer from '../PRDecorationBindingRenderer';
 
 jest.mock('../../../../../api/alm-settings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([]),
@@ -42,7 +53,8 @@ jest.mock('../../../../../api/alm-settings', () => ({
   setProjectGithubBinding: jest.fn().mockResolvedValue(undefined),
   setProjectGitlabBinding: jest.fn().mockResolvedValue(undefined),
   setProjectBitbucketCloudBinding: jest.fn().mockResolvedValue(undefined),
-  deleteProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
+  deleteProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
+  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
 }));
 
 const PROJECT_KEY = 'project-key';
@@ -122,7 +134,7 @@ describe('handleSubmit', () => {
       summaryCommentEnabled,
       monorepo
     });
-    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 
   it('should work for azure', async () => {
@@ -146,7 +158,7 @@ describe('handleSubmit', () => {
       repositoryName: repository,
       monorepo
     });
-    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 
   it('should work for bitbucket', async () => {
@@ -167,7 +179,7 @@ describe('handleSubmit', () => {
       slug,
       monorepo
     });
-    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 
   it('should work for gitlab', async () => {
@@ -189,7 +201,7 @@ describe('handleSubmit', () => {
       repository,
       monorepo
     });
-    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 
   it('should work for bitbucket cloud', async () => {
@@ -213,7 +225,7 @@ describe('handleSubmit', () => {
       repository,
       monorepo
     });
-    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 });
 
@@ -233,12 +245,12 @@ describe.each([[500], [404]])('For status %i', status => {
     await waitAndUpdate(wrapper);
     wrapper.setState({
       formData: newFormData,
-      orignalData: undefined
+      originalData: undefined
     });
 
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
-    expect(wrapper.instance().state.orignalData).toBeUndefined();
+    expect(wrapper.instance().state.originalData).toBeUndefined();
     wrapper.instance().handleReset();
     await waitAndUpdate(wrapper);
     expect(wrapper.instance().state.formData).toEqual(newFormData);
@@ -355,9 +367,64 @@ it('should validate form', async () => {
   });
 });
 
+it('should call the validation WS and store errors', async () => {
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce(mockAlmSettingsInstance());
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(
+    mockProjectAlmBindingResponse({ key: 'key' })
+  );
+
+  const errors: ProjectAlmBindingConfigurationErrors = {
+    scope: ProjectAlmBindingConfigurationErrorScope.Global,
+    errors: [{ msg: 'Test' }, { msg: 'tesT' }]
+  };
+  (validateProjectAlmBinding as jest.Mock).mockRejectedValueOnce(errors);
+
+  const wrapper = shallowRender();
+
+  wrapper
+    .find(PRDecorationBindingRenderer)
+    .props()
+    .onCheckConfiguration();
+
+  await waitAndUpdate(wrapper);
+
+  expect(validateProjectAlmBinding).toHaveBeenCalledWith(PROJECT_KEY);
+  expect(wrapper.state().configurationErrors).toBe(errors);
+});
+
+it('should call the validation WS after loading', async () => {
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce([mockAlmSettingsInstance()]);
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(
+    mockProjectAlmBindingResponse({ key: 'key ' })
+  );
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(validateProjectAlmBinding).toHaveBeenCalled();
+});
+
+it('should call the validation WS upon saving', async () => {
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce([mockAlmSettingsInstance()]);
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(
+    mockProjectAlmBindingResponse({ key: 'key ' })
+  );
+
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleFieldChange('key', 'key');
+  wrapper.instance().handleSubmit();
+
+  await waitAndUpdate(wrapper);
+
+  expect(validateProjectAlmBinding).toHaveBeenCalled();
+});
+
 function shallowRender(props: Partial<PRDecorationBinding['props']> = {}) {
   return shallow<PRDecorationBinding>(
     <PRDecorationBinding
+      currentUser={mockCurrentUser()}
       component={mockComponent({ key: PROJECT_KEY })}
       monorepoEnabled={false}
       {...props}

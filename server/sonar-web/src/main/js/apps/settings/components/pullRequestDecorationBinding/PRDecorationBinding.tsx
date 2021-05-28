@@ -28,16 +28,21 @@ import {
   setProjectBitbucketBinding,
   setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
-  setProjectGitlabBinding
+  setProjectGitlabBinding,
+  validateProjectAlmBinding
 } from '../../../../api/alm-settings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
+import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
+import { hasGlobalPermission } from '../../../../helpers/users';
 import { getAppState, Store } from '../../../../store/rootReducer';
 import {
   AlmKeys,
   AlmSettingsInstance,
+  ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
+import { Permissions } from '../../../../types/permissions';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 type FormData = T.Omit<ProjectAlmBindingResponse, 'alm'>;
@@ -48,6 +53,7 @@ interface StateProps {
 
 interface Props {
   component: T.Component;
+  currentUser: T.CurrentUser;
 }
 
 interface State {
@@ -57,9 +63,11 @@ interface State {
   isConfigured: boolean;
   isValid: boolean;
   loading: boolean;
-  orignalData?: FormData;
-  saving: boolean;
-  success: boolean;
+  originalData?: FormData;
+  updating: boolean;
+  successfullyUpdated: boolean;
+  checkingConfiguration: boolean;
+  configurationErrors?: ProjectAlmBindingConfigurationErrors;
 }
 
 const REQUIRED_FIELDS_BY_ALM: {
@@ -81,8 +89,9 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
     isConfigured: false,
     isValid: false,
     loading: true,
-    saving: false,
-    success: false
+    updating: false,
+    successfullyUpdated: false,
+    checkingConfiguration: false
   };
 
   componentDidMount() {
@@ -108,7 +117,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
               isConfigured: !!originalData,
               isValid: this.validateForm(newFormData),
               loading: false,
-              orignalData: newFormData
+              originalData: newFormData,
+              configurationErrors: undefined
             };
           });
         }
@@ -117,7 +127,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      });
+      })
+      .then(() => this.checkConfiguration());
   };
 
   getProjectBinding(project: string): Promise<ProjectAlmBindingResponse | undefined> {
@@ -131,13 +142,13 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
 
   catchError = () => {
     if (this.mounted) {
-      this.setState({ saving: false });
+      this.setState({ updating: false });
     }
   };
 
   handleReset = () => {
     const { component } = this.props;
-    this.setState({ saving: true });
+    this.setState({ updating: true });
     deleteProjectAlmBinding(component.key)
       .then(() => {
         if (this.mounted) {
@@ -148,11 +159,12 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
               slug: '',
               monorepo: false
             },
-            orignalData: undefined,
+            originalData: undefined,
             isChanged: false,
             isConfigured: false,
-            saving: false,
-            success: true
+            updating: false,
+            successfullyUpdated: true,
+            configurationErrors: undefined
           });
         }
       })
@@ -233,8 +245,28 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
     }
   }
 
+  checkConfiguration = async () => {
+    const {
+      component: { key: projectKey }
+    } = this.props;
+
+    const { isConfigured } = this.state;
+
+    if (!isConfigured) {
+      return;
+    }
+
+    this.setState({ checkingConfiguration: true, configurationErrors: undefined });
+
+    const configurationErrors = await validateProjectAlmBinding(projectKey).catch(error => error);
+
+    if (this.mounted) {
+      this.setState({ checkingConfiguration: false, configurationErrors });
+    }
+  };
+
   handleSubmit = () => {
-    this.setState({ saving: true });
+    this.setState({ updating: true });
     const {
       formData: { key, ...additionalFields },
       instances
@@ -249,8 +281,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       .then(() => {
         if (this.mounted) {
           this.setState({
-            saving: false,
-            success: true
+            updating: false,
+            successfullyUpdated: true
           });
         }
       })
@@ -278,7 +310,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
   }
 
   handleFieldChange = (id: keyof ProjectAlmBindingResponse, value: string | boolean) => {
-    this.setState(({ formData, orignalData }) => {
+    this.setState(({ formData, originalData }) => {
       const newFormData = {
         ...formData,
         [id]: value
@@ -287,8 +319,8 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
-        isChanged: !this.isDataSame(newFormData, orignalData || { key: '', monorepo: false }),
-        success: false
+        isChanged: !this.isDataSame(newFormData, originalData || { key: '', monorepo: false }),
+        successfullyUpdated: false
       };
     });
   };
@@ -305,15 +337,21 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
     );
   };
 
+  handleCheckConfiguration = async () => {
+    await this.checkConfiguration();
+  };
+
   render() {
-    const { monorepoEnabled } = this.props;
+    const { currentUser, monorepoEnabled } = this.props;
 
     return (
       <PRDecorationBindingRenderer
         onFieldChange={this.handleFieldChange}
         onReset={this.handleReset}
         onSubmit={this.handleSubmit}
+        onCheckConfiguration={this.handleCheckConfiguration}
         monorepoEnabled={monorepoEnabled}
+        isSysAdmin={hasGlobalPermission(currentUser, Permissions.Admin)}
         {...this.state}
       />
     );
@@ -327,4 +365,4 @@ const mapStateToProps = (state: Store): StateProps => ({
   )
 });
 
-export default connect(mapStateToProps)(PRDecorationBinding);
+export default connect(mapStateToProps)(withCurrentUser(PRDecorationBinding));
