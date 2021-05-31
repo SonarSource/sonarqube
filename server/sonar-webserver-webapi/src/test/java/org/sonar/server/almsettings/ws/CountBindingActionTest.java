@@ -28,8 +28,6 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
-import org.sonar.server.almsettings.ws.AlmSettingsSupport;
-import org.sonar.server.almsettings.ws.CountBindingAction;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;

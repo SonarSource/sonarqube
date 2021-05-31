@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
