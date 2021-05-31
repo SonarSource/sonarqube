@@ -206,6 +206,31 @@ exports[`should render correctly: bitbucket cloud 1`] = `
     variant="info"
   >
     <h3>
+      onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions_username.bitbucketcloud
+    </p>
+    <div
+      className="text-middle big-spacer-bottom"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="https://bitbucket.org/account/settings/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link
+      </a>
+    </div>
+    <h3>
       onboarding.create_project.pat_help.bitbucketcloud.title
     </h3>
     <p
@@ -566,6 +591,31 @@ exports[`should show error when issue: issue submitting token 1`] = `
     display="block"
     variant="info"
   >
+    <h3>
+      onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions_username.bitbucketcloud
+    </p>
+    <div
+      className="text-middle big-spacer-bottom"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="https://bitbucket.org/account/settings/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link
+      </a>
+    </div>
     <h3>
       onboarding.create_project.pat_help.bitbucketcloud.title
     </h3>

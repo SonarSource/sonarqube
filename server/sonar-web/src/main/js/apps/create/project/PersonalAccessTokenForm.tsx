@@ -257,6 +257,38 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
         </form>
 
         <Alert className="big-spacer-left width-50" display="block" variant="info">
+          {alm === AlmKeys.BitbucketCloud && (
+            <>
+              <h3>
+                {translate(
+                  'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title'
+                )}
+              </h3>
+              <p className="big-spacer-top big-spacer-bottom">
+                {translate(
+                  'onboarding.create_project.pat_help.instructions_username.bitbucketcloud'
+                )}
+              </p>
+
+              <div className="text-middle big-spacer-bottom">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  className="spacer-right"
+                  height="16"
+                  src={`${getBaseUrl()}/images/alm/${AlmKeys.BitbucketServer}.svg`}
+                />
+                <a
+                  href="https://bitbucket.org/account/settings/"
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  {translate(
+                    'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link'
+                  )}
+                </a>
+              </div>
+            </>
+          )}
+
           <h3>{translate(`onboarding.create_project.pat_help${suffixTranslationKey}.title`)}</h3>
 
           <p className="big-spacer-top big-spacer-bottom">
