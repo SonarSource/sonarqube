@@ -111,7 +111,7 @@ export class ComponentNavBgTaskNotif extends React.PureComponent<Props> {
       }
 
       return (
-        <Alert display="banner" variant="error">
+        <Alert className="null-spacer-bottom" display="banner" variant="error">
           {message}
         </Alert>
       );

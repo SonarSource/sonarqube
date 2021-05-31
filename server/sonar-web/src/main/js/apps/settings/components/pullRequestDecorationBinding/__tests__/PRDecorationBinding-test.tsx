@@ -33,15 +33,11 @@ import {
 } from '../../../../../api/alm-settings';
 import {
   mockAlmSettingsInstance,
+  mockProjectAlmBindingConfigurationErrors,
   mockProjectAlmBindingResponse
 } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingConfigurationErrorScope
-} from '../../../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
 import { PRDecorationBinding } from '../PRDecorationBinding';
 import PRDecorationBindingRenderer from '../PRDecorationBindingRenderer';
 
@@ -373,10 +369,7 @@ it('should call the validation WS and store errors', async () => {
     mockProjectAlmBindingResponse({ key: 'key' })
   );
 
-  const errors: ProjectAlmBindingConfigurationErrors = {
-    scope: ProjectAlmBindingConfigurationErrorScope.Global,
-    errors: [{ msg: 'Test' }, { msg: 'tesT' }]
-  };
+  const errors = mockProjectAlmBindingConfigurationErrors();
   (validateProjectAlmBinding as jest.Mock).mockRejectedValueOnce(errors);
 
   const wrapper = shallowRender();

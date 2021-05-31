@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
 import { mockComponent } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
@@ -41,6 +42,11 @@ it('renders correctly', () => {
   expect(shallowRender({ currentTask: mockTask({ status: TaskStatuses.Failed }) })).toMatchSnapshot(
     'has failed notification'
   );
+  expect(
+    shallowRender({
+      projectBindingErrors: mockProjectAlmBindingConfigurationErrors()
+    })
+  ).toMatchSnapshot('has failed project binding');
 });
 
 it('correctly adds data to the history if there are breadcrumbs', () => {

@@ -20,14 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getProjectAlmBinding } from '../../../api/alm-settings';
+import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
+import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockTask } from '../../../helpers/mocks/tasks';
-import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { mockAppState, mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses } from '../../../types/tasks';
@@ -68,7 +69,8 @@ jest.mock('../../../api/nav', () => ({
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
-  getProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
+  getProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
+  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
 }));
 
 // mock this, because some of its children are using redux store
@@ -312,9 +314,36 @@ it('should correctly reload last task warnings if anything got dismissed', async
   expect(getAnalysisStatus).toBeCalledTimes(1);
 });
 
+describe('should correctly validate the project binding depending on the context', () => {
+  const COMPONENT = mockComponent({
+    breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
+  });
+  const PROJECT_BINDING_ERRORS = mockProjectAlmBindingConfigurationErrors();
+
+  it.each([
+    ["has an analysis; won't perform any check", { ...COMPONENT, analysisDate: '2020-01' }],
+    ['has a project binding; check is OK', COMPONENT, undefined, 1],
+    ['has a project binding; check is not OK', COMPONENT, PROJECT_BINDING_ERRORS, 1]
+  ])('%s', async (_, component, projectBindingErrors = undefined, n = 0) => {
+    (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
+    (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
+
+    if (n > 0) {
+      (validateProjectAlmBinding as jest.Mock).mockResolvedValueOnce(projectBindingErrors);
+    }
+
+    const wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: true }) });
+    await waitAndUpdate(wrapper);
+    expect(wrapper.state().projectBindingErrors).toBe(projectBindingErrors);
+
+    expect(validateProjectAlmBinding).toBeCalledTimes(n);
+  });
+});
+
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
   return shallow<ComponentContainer>(
     <ComponentContainer
+      appState={mockAppState()}
       location={mockLocation({ query: { id: 'foo' } })}
       registerBranchStatus={jest.fn()}
       requireAuthorization={jest.fn()}

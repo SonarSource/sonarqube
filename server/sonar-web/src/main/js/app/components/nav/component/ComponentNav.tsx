@@ -20,13 +20,17 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
-import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
+import {
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingResponse
+} from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
+import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
 import Header from './Header';
 import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
@@ -44,8 +48,11 @@ export interface ComponentNavProps {
   onComponentChange: (changes: Partial<T.Component>) => void;
   onWarningDismiss: () => void;
   projectBinding?: ProjectAlmBindingResponse;
+  projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   warnings: TaskWarning[];
 }
+
+const ALERT_HEIGHT = 30;
 
 export default function ComponentNav(props: ComponentNavProps) {
   const {
@@ -57,6 +64,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     isInProgress,
     isPending,
     projectBinding,
+    projectBindingErrors,
     warnings
   } = props;
   const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
@@ -78,9 +86,11 @@ export default function ComponentNav(props: ComponentNavProps) {
     }
   }, [component, component.key]);
 
-  let notifComponent;
+  let contextNavHeight = contextNavHeightRaw;
+
+  let bgTaskNotifComponent;
   if (isInProgress || isPending || (currentTask && currentTask.status === TaskStatuses.Failed)) {
-    notifComponent = (
+    bgTaskNotifComponent = (
       <ComponentNavBgTaskNotif
         component={component}
         currentTask={currentTask}
@@ -89,12 +99,31 @@ export default function ComponentNav(props: ComponentNavProps) {
         isPending={isPending}
       />
     );
+    contextNavHeight += ALERT_HEIGHT;
   }
 
-  const contextNavHeight = notifComponent ? contextNavHeightRaw + 30 : contextNavHeightRaw;
+  let prDecoNotifComponent;
+  if (projectBindingErrors !== undefined) {
+    prDecoNotifComponent = (
+      <ComponentNavProjectBindingErrorNotif
+        alm={projectBinding?.alm}
+        component={component}
+        projectBindingErrors={projectBindingErrors}
+      />
+    );
+    contextNavHeight += ALERT_HEIGHT;
+  }
 
   return (
-    <ContextNavBar height={contextNavHeight} id="context-navigation" notif={notifComponent}>
+    <ContextNavBar
+      height={contextNavHeight}
+      id="context-navigation"
+      notif={
+        <>
+          {bgTaskNotifComponent}
+          {prDecoNotifComponent}
+        </>
+      }>
       <div
         className={classNames('display-flex-center display-flex-space-between little-padded-top', {
           'padded-bottom': warnings.length === 0

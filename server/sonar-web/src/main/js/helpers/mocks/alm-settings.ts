@@ -27,6 +27,8 @@ import {
   BitbucketCloudBindingDefinition,
   GithubBindingDefinition,
   GitlabBindingDefinition,
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingConfigurationErrorScope,
   ProjectAlmBindingResponse,
   ProjectAzureBindingResponse,
   ProjectBitbucketBindingResponse,
@@ -195,6 +197,16 @@ export function mockAlmSettingsBindingStatus(
     alertSuccess: false,
     failureMessage: '',
     type: AlmSettingsBindingStatusType.Validating,
+    ...overrides
+  };
+}
+
+export function mockProjectAlmBindingConfigurationErrors(
+  overrides: Partial<ProjectAlmBindingConfigurationErrors> = {}
+): ProjectAlmBindingConfigurationErrors {
+  return {
+    scope: ProjectAlmBindingConfigurationErrorScope.Global,
+    errors: [{ msg: 'Foo bar is not correct' }, { msg: 'Bar baz has no permissions here' }],
     ...overrides
   };
 }

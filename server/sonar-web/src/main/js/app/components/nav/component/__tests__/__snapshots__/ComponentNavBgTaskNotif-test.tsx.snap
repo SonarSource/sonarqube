@@ -2,6 +2,7 @@
 
 exports[`renders correctly: default 1`] = `
 <Alert
+  className="null-spacer-bottom"
   display="banner"
   variant="error"
 >

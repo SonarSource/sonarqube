@@ -20,11 +20,13 @@
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { getProjectAlmBinding } from '../../api/alm-settings';
+import { HttpStatus } from 'sonar-ui-common/helpers/request';
+import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
+import { withAppState } from '../../components/hoc/withAppState';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,
@@ -34,9 +36,12 @@ import {
 } from '../../helpers/branch-like';
 import { getPortfolioUrl } from '../../helpers/urls';
 import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
-import { ProjectAlmBindingResponse } from '../../types/alm-settings';
+import {
+  ProjectAlmBindingConfigurationErrors,
+  ProjectAlmBindingResponse
+} from '../../types/alm-settings';
 import { BranchLike } from '../../types/branch-like';
-import { isPortfolioLike } from '../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../types/tasks';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
@@ -44,6 +49,7 @@ import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToInd
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   children: React.ReactElement;
   location: Pick<Location, 'query' | 'pathname'>;
   registerBranchStatus: (branchLike: BranchLike, component: string, status: T.Status) => void;
@@ -59,6 +65,7 @@ interface State {
   isPending: boolean;
   loading: boolean;
   projectBinding?: ProjectAlmBindingResponse;
+  projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
 }
@@ -90,96 +97,85 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     window.clearTimeout(this.watchStatusTimer);
   }
 
-  addQualifier = (component: T.Component) => ({
-    ...component,
-    qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
-  });
-
-  fetchComponent() {
+  fetchComponent = async () => {
     const { branch, id: key, pullRequest } = this.props.location.query;
     this.setState({ loading: true });
 
-    const onError = (response?: Response) => {
+    let componentWithQualifier;
+    try {
+      const [nav, { component }] = await Promise.all([
+        getComponentNavigation({ component: key, branch, pullRequest }),
+        getComponentData({ component: key, branch, pullRequest })
+      ]);
+      componentWithQualifier = this.addQualifier({ ...nav, ...component });
+    } catch (e) {
       if (this.mounted) {
-        if (response && response.status === 403) {
+        if (e && e.status === HttpStatus.Forbidden) {
           this.props.requireAuthorization(this.props.router);
         } else {
           this.setState({ component: undefined, loading: false });
         }
       }
-    };
+      return;
+    }
 
-    Promise.all([
-      getComponentNavigation({ component: key, branch, pullRequest }),
-      getComponentData({ component: key, branch, pullRequest }),
-      getProjectAlmBinding(key).catch(() => undefined)
-    ])
-      .then(([nav, { component }, projectBinding]) => {
-        const componentWithQualifier = this.addQualifier({ ...nav, ...component });
+    /*
+     * There used to be a redirect from /dashboard to /portfolio which caused issues.
+     * Links should be fixed to not rely on this redirect, but:
+     * This is a fail-safe in case there are still some faulty links remaining.
+     */
+    if (
+      this.props.location.pathname.match('dashboard') &&
+      isPortfolioLike(componentWithQualifier.qualifier)
+    ) {
+      this.props.router.replace(getPortfolioUrl(componentWithQualifier.key));
+    }
 
-        /*
-         * There used to be a redirect from /dashboard to /portfolio which caused issues.
-         * Links should be fixed to not rely on this redirect, but:
-         * This is a fail-safe in case there are still some faulty links remaining.
-         */
-        if (
-          this.props.location.pathname.match('dashboard') &&
-          isPortfolioLike(componentWithQualifier.qualifier)
-        ) {
-          this.props.router.replace(getPortfolioUrl(component.key));
-        }
+    const { branchLike, branchLikes } = await this.fetchBranches(componentWithQualifier);
 
-        if (this.mounted) {
-          this.setState({ projectBinding });
-        }
+    const projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
 
-        return componentWithQualifier;
-      }, onError)
-      .then(this.fetchBranches)
-      .then(
-        ({ branchLike, branchLikes, component }) => {
-          if (this.mounted) {
-            this.setState({
-              branchLike,
-              branchLikes,
-              component,
-              loading: false
-            });
-            this.fetchStatus(component);
-            this.fetchWarnings(component, branchLike);
-          }
-        },
-        () => {}
+    if (this.mounted) {
+      this.setState({
+        branchLike,
+        branchLikes,
+        component: componentWithQualifier,
+        projectBinding,
+        loading: false
+      });
+
+      this.fetchStatus(componentWithQualifier);
+      this.fetchWarnings(componentWithQualifier, branchLike);
+      this.fetchProjectBindingErrors(componentWithQualifier);
+    }
+  };
+
+  fetchBranches = async (componentWithQualifier: T.Component) => {
+    const breadcrumb = componentWithQualifier.breadcrumbs.find(({ qualifier }) => {
+      return ([ComponentQualifier.Application, ComponentQualifier.Project] as string[]).includes(
+        qualifier
       );
-  }
-
-  fetchBranches = (
-    component: T.Component
-  ): Promise<{
-    branchLike?: BranchLike;
-    branchLikes: BranchLike[];
-    component: T.Component;
-  }> => {
-    const breadcrumb = component.breadcrumbs.find(({ qualifier }) => {
-      return ['APP', 'TRK'].includes(qualifier);
     });
+
+    let branchLike = undefined;
+    let branchLikes: BranchLike[] = [];
 
     if (breadcrumb) {
       const { key } = breadcrumb;
-      return Promise.all([
+      const [branches, pullRequests] = await Promise.all([
         getBranches(key),
-        breadcrumb.qualifier === 'APP' ? Promise.resolve([]) : getPullRequests(key)
-      ]).then(([branches, pullRequests]) => {
-        const branchLikes = [...branches, ...pullRequests];
-        const branchLike = this.getCurrentBranchLike(branchLikes);
+        breadcrumb.qualifier === ComponentQualifier.Application
+          ? Promise.resolve([])
+          : getPullRequests(key)
+      ]);
 
-        this.registerBranchStatuses(branchLikes, component);
+      branchLikes = [...branches, ...pullRequests];
+      branchLike = this.getCurrentBranchLike(branchLikes);
 
-        return { branchLike, branchLikes, component };
-      });
-    } else {
-      return Promise.resolve({ branchLikes: [], component });
+      this.registerBranchStatuses(branchLikes, componentWithQualifier);
     }
+
+    return { branchLike, branchLikes };
   };
 
   fetchStatus = (component: T.Component) => {
@@ -237,7 +233,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   fetchWarnings = (component: T.Component, branchLike?: BranchLike) => {
-    if (component.qualifier === 'TRK') {
+    if (component.qualifier === ComponentQualifier.Project) {
       getAnalysisStatus({
         component: component.key,
         ...getBranchLikeQuery(branchLike)
@@ -249,6 +245,22 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       );
     }
   };
+
+  fetchProjectBindingErrors = async (component: T.Component) => {
+    if (component.analysisDate === undefined && this.props.appState.branchesEnabled) {
+      const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
+        () => undefined
+      );
+      if (this.mounted) {
+        this.setState({ projectBindingErrors });
+      }
+    }
+  };
+
+  addQualifier = (component: T.Component) => ({
+    ...component,
+    qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
+  });
 
   getCurrentBranchLike = (branchLikes: BranchLike[]) => {
     const { query } = this.props.location;
@@ -347,27 +359,32 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       currentTask,
       isPending,
       projectBinding,
+      projectBindingErrors,
       tasksInProgress
     } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
       <div>
-        {component && !['FIL', 'UTS'].includes(component.qualifier) && (
-          <ComponentNav
-            branchLikes={branchLikes}
-            component={component}
-            currentBranchLike={branchLike}
-            currentTask={currentTask}
-            currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
-            isInProgress={isInProgress}
-            isPending={isPending}
-            onComponentChange={this.handleComponentChange}
-            onWarningDismiss={this.handleWarningDismiss}
-            projectBinding={projectBinding}
-            warnings={this.state.warnings}
-          />
-        )}
+        {component &&
+          !([ComponentQualifier.File, ComponentQualifier.TestFile] as string[]).includes(
+            component.qualifier
+          ) && (
+            <ComponentNav
+              branchLikes={branchLikes}
+              component={component}
+              currentBranchLike={branchLike}
+              currentTask={currentTask}
+              currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
+              isInProgress={isInProgress}
+              isPending={isPending}
+              onComponentChange={this.handleComponentChange}
+              onWarningDismiss={this.handleWarningDismiss}
+              projectBinding={projectBinding}
+              projectBindingErrors={projectBindingErrors}
+              warnings={this.state.warnings}
+            />
+          )}
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />
@@ -393,4 +410,4 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { registerBranchStatus, requireAuthorization };
 
-export default withRouter(connect(null, mapDispatchToProps)(ComponentContainer));
+export default withAppState(withRouter(connect(null, mapDispatchToProps)(ComponentContainer)));

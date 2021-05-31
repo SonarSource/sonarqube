@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: global, admin 1`] = `
+<Alert
+  display="banner"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.pr_deco.error_detected_X"
+    id="component_navigation.pr_deco.error_detected_X"
+    values={
+      Object {
+        "action": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/admin/settings",
+              "query": Object {
+                "alm": "github",
+                "category": "almintegration",
+              },
+            }
+          }
+        >
+          component_navigation.pr_deco.action.check_global_settings
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: global, no admin 1`] = `
+<Alert
+  display="banner"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.pr_deco.error_detected_X"
+    id="component_navigation.pr_deco.error_detected_X"
+    values={
+      Object {
+        "action": "component_navigation.pr_deco.action.contact_sys_admin",
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: project, admin 1`] = `
+<Alert
+  display="banner"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.pr_deco.error_detected_X"
+    id="component_navigation.pr_deco.error_detected_X"
+    values={
+      Object {
+        "action": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "category": "pull_request_decoration_binding",
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          component_navigation.pr_deco.action.check_project_settings
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: project, no admin 1`] = `
+<Alert
+  display="banner"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.pr_deco.error_detected_X"
+    id="component_navigation.pr_deco.error_detected_X"
+    values={
+      Object {
+        "action": "component_navigation.pr_deco.action.contact_project_admin",
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: unknown 1`] = `
+<Alert
+  display="banner"
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.pr_deco.error_detected_X"
+    id="component_navigation.pr_deco.error_detected_X"
+    values={
+      Object {
+        "action": undefined,
+      }
+    }
+  />
+</Alert>
+`;
