@@ -111,7 +111,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                             className="spacer-right"
                             qualifier={ComponentQualifier.Project}
                           />
-                          {repository.sqProjectKey}
+                          {repository.name}
                         </Link>
                       ) : (
                         repository.name
@@ -119,9 +119,9 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                     </strong>
                   </Tooltip>
                   <br />
-                  <Tooltip overlay={repository.slug}>
+                  <Tooltip overlay={repository.projectKey}>
                     <span className="text-muted project-path display-inline-block text-ellipsis">
-                      {repository.slug}
+                      {repository.projectKey}
                     </span>
                   </Tooltip>
                 </td>

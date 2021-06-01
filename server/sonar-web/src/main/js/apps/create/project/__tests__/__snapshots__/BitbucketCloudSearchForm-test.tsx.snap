@@ -62,12 +62,12 @@ exports[`Should render correctly: Importing 1`] = `
           </Tooltip>
           <br />
           <Tooltip
-            overlay="import-slug"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              import-slug
+              project
             </span>
           </Tooltip>
         </td>
@@ -125,18 +125,18 @@ exports[`Should render correctly: Importing 1`] = `
                   className="spacer-right"
                   qualifier="TRK"
                 />
-                sq-key
+                Repo
               </Link>
             </strong>
           </Tooltip>
           <br />
           <Tooltip
-            overlay="project__repo"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              project__repo
+              project
             </span>
           </Tooltip>
         </td>
@@ -213,12 +213,12 @@ exports[`Should render correctly: Loading more 1`] = `
           </Tooltip>
           <br />
           <Tooltip
-            overlay="project__repo"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              project__repo
+              project
             </span>
           </Tooltip>
         </td>
@@ -329,12 +329,12 @@ exports[`Should render correctly: Show more 1`] = `
           </Tooltip>
           <br />
           <Tooltip
-            overlay="project__repo"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              project__repo
+              project
             </span>
           </Tooltip>
         </td>
@@ -389,18 +389,18 @@ exports[`Should render correctly: Show more 1`] = `
                   className="spacer-right"
                   qualifier="TRK"
                 />
-                sq-key
+                Repo
               </Link>
             </strong>
           </Tooltip>
           <br />
           <Tooltip
-            overlay="project__repo"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              project__repo
+              project
             </span>
           </Tooltip>
         </td>
@@ -477,12 +477,12 @@ exports[`Should render correctly: Show no more 1`] = `
           </Tooltip>
           <br />
           <Tooltip
-            overlay="project__repo"
+            overlay="project"
           >
             <span
               className="text-muted project-path display-inline-block text-ellipsis"
             >
-              project__repo
+              project
             </span>
           </Tooltip>
         </td>
