@@ -161,17 +161,17 @@ public class GitlabHttpClient {
       String body = response.body().string();
       LOG.error(String.format("Gitlab API call to [%s] failed with %s http code. gitlab response content : [%s]", response.request().url().toString(), response.code(), body));
       if (isTokenRevoked(response, body)) {
-        throw new IllegalArgumentException("Your GitLab token was revoked");
+        throw new GitlabServerException(response.code(), "Your GitLab token was revoked");
       } else if (isTokenExpired(response, body)) {
-        throw new IllegalArgumentException("Your GitLab token is expired");
+        throw new GitlabServerException(response.code(), "Your GitLab token is expired");
       } else if (isInsufficientScope(response, body)) {
-        throw new IllegalArgumentException("Your GitLab token has insufficient scope");
+        throw new GitlabServerException(response.code(), "Your GitLab token has insufficient scope");
       } else if (response.code() == HTTP_UNAUTHORIZED) {
-        throw new IllegalArgumentException("Invalid personal access token");
+        throw new GitlabServerException(response.code(), "Invalid personal access token");
       } else if (response.isRedirect()) {
-        throw new IllegalArgumentException("Request was redirected, please provide the correct URL");
+        throw new GitlabServerException(response.code(), "Request was redirected, please provide the correct URL");
       } else {
-        throw new IllegalArgumentException(errorMessage);
+        throw new GitlabServerException(response.code(), errorMessage);
       }
     }
   }
@@ -212,7 +212,7 @@ public class GitlabHttpClient {
     return false;
   }
 
-  public Project getProject(String gitlabUrl, String pat, Long gitlabProjectId) {
+  public ProjectDetails getProject(String gitlabUrl, String pat, Long gitlabProjectId) {
     String url = String.format("%s/projects/%s", gitlabUrl, gitlabProjectId);
     LOG.debug(String.format("get project : [%s]", url));
     Request request = new Request.Builder()
@@ -225,7 +225,7 @@ public class GitlabHttpClient {
       checkResponseIsSuccessful(response);
       String body = response.body().string();
       LOG.trace(String.format("loading project payload result : [%s]", body));
-      return new GsonBuilder().create().fromJson(body, Project.class);
+      return new GsonBuilder().create().fromJson(body, ProjectDetails.class);
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
     } catch (IOException e) {

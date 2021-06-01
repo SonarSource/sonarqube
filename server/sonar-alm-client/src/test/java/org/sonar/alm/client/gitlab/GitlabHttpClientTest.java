@@ -284,6 +284,45 @@ public class GitlabHttpClientTest {
   }
 
   @Test
+  public void get_project_details() throws InterruptedException {
+    MockResponse projectDetails = new MockResponse()
+        .setResponseCode(200)
+        .setBody("{"
+            + "  \"id\": 1234,"
+            + "  \"name\": \"SonarQube example 2\","
+            + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
+            + "  \"path\": \"sonarqube-example-2\","
+            + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
+            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\","
+            + "  \"permissions\": {"
+            + "    \"project_access\": {"
+            + "      \"access_level\": 50,"
+            + "      \"notification_level\": 3"
+            + "    },"
+            + "    \"group_access\": {"
+            + "      \"access_level\": 10,"
+            + "      \"notification_level\": 3"
+            + "    }"
+            + "  }"
+            + "}");
+
+    server.enqueue(projectDetails);
+
+    ProjectDetails project = underTest.getProject(gitlabUrl, "pat", 1234L);
+
+    RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
+    String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
+
+    assertThat(project).isNotNull();
+    assertThat(project.getPermissions().getProjectAccess().getLevel()).isEqualTo(50);
+    assertThat(project.getPermissions().getGroupAccess().getLevel()).isEqualTo(10);
+
+    assertThat(gitlabUrlCall).isEqualTo(
+        server.url("") + "projects/1234");
+    assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
+  }
+
+  @Test
   public void search_projects_fail_if_could_not_parse_pagination_number() {
     MockResponse projects = new MockResponse()
       .setResponseCode(200)
