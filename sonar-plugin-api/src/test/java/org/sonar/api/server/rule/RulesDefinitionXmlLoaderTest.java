@@ -116,6 +116,20 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
+  public void test_utf8_encoding_with_bom() {
+    InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/utf8-with-bom.xml");
+    RulesDefinition.Repository repository = load(input, StandardCharsets.UTF_8.name());
+
+    assertThat(repository.rules()).hasSize(1);
+    RulesDefinition.Rule rule = repository.rules().get(0);
+    assertThat(rule.key()).isEqualTo("com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck");
+    assertThat(rule.name()).isEqualTo("M & M");
+    assertThat(rule.htmlDescription().charAt(0)).isEqualTo('\u00E9');
+    assertThat(rule.htmlDescription().charAt(1)).isEqualTo('\u00E0');
+    assertThat(rule.htmlDescription().charAt(2)).isEqualTo('\u0026');
+  }
+
+  @Test
   public void support_deprecated_format() {
     // the deprecated format uses some attributes instead of nodes
     InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/deprecated.xml");

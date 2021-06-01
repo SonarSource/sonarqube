@@ -34,6 +34,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleStatus;
@@ -208,7 +210,9 @@ public class RulesDefinitionXmlLoader {
    * @since 5.1
    */
   public void load(RulesDefinition.NewRepository repo, InputStream input, Charset charset) {
-    try (Reader reader = new InputStreamReader(input, charset)) {
+    try (Reader reader = new InputStreamReader(new BOMInputStream(input,
+      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE,
+      ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE), charset)) {
       load(repo, reader);
     } catch (IOException e) {
       throw new IllegalStateException("Error while reading XML rules definition for repository " + repo.key(), e);
