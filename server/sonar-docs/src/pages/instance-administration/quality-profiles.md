@@ -82,4 +82,4 @@ The Quality Profiles service can be accessed by any user (even anonymous users).
 
 To make rule profile changes (create, edit or delete) users must be granted the **Administer Quality Profiles and Gates** permission.
 
-A **project administrator** can choose which profiles his project is associated with. See Project Settings for more.
+A **project administrator** can choose which profiles their project is associated with. See Project Settings for more.

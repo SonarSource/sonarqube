@@ -154,7 +154,7 @@ Now that you've fleshed out the description, you should have a fairly clear idea
 
 **Bug** - Something that's wrong or potentially wrong. 
 
-**Code Smell** - Something that will confuse a maintainer or cause her to stumble in her reading of the code.
+**Code Smell** - Something that will confuse a maintainer or cause them to stumble in their reading of the code.
 
 **Vulnerability** - Something that's wrong which impacts the application's security and therefore needs a fix.
 

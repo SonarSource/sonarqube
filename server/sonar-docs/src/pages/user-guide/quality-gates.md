@@ -51,7 +51,7 @@ Quality Gates can be accessed by any user (even anonymous users). All users can 
 
 To make changes (create, edit or delete) users must be granted the **Administer Quality Profiles and Gates** permission.
 
-A **project administrator** can choose which quality gates his/her project is associated with. See Project Settings for more.
+A **project administrator** can choose which quality gates their project is associated with. See Project Settings for more.
 
 ## Defining Quality Gates
 
