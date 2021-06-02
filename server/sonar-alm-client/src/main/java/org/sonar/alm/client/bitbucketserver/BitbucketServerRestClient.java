@@ -25,7 +25,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,6 +45,8 @@ import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
 
@@ -150,8 +151,10 @@ public class BitbucketServerRestClient {
     if (!response.isSuccessful()) {
       String errorMessage = getErrorMessage(response.body());
       LOG.debug(UNABLE_TO_CONTACT_BITBUCKET_SERVER + ": {} {}", response.code(), errorMessage);
-      if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        throw new IllegalArgumentException("Invalid personal access token");
+      if (response.code() == HTTP_UNAUTHORIZED) {
+        throw new BitbucketServerException(HTTP_UNAUTHORIZED, "Invalid personal access token");
+      } else if (response.code() == HTTP_NOT_FOUND) {
+        throw new BitbucketServerException(HTTP_NOT_FOUND, errorMessage);
       }
       throw new IllegalArgumentException(UNABLE_TO_CONTACT_BITBUCKET_SERVER);
     }
