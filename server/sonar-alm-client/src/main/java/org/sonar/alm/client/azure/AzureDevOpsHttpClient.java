@@ -74,6 +74,13 @@ public class AzureDevOpsHttpClient {
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProjectList.class));
   }
 
+  public GsonAzureProject getProject(String serverUrl, String token, String projectName) {
+    String url = String.format("%s/_apis/projects/%s?%s", getTrimmedUrl(serverUrl), projectName, API_VERSION_3);
+    LOG.debug(String.format("get project : [%s]", url));
+    return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureProject.class));
+
+  }
+
   public GsonAzureRepoList getRepos(String serverUrl, String token, @Nullable String projectName) {
     String url;
     if (projectName != null && !projectName.isEmpty()) {
@@ -132,13 +139,13 @@ public class AzureDevOpsHttpClient {
     if (!response.isSuccessful()) {
       LOG.debug(UNABLE_TO_CONTACT_AZURE_SERVER + ": {} {}", response.request().url().toString(), response.code());
       if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        throw new IllegalArgumentException("Invalid personal access token");
+        throw new AzureDevopsServerException(response.code(), "Invalid personal access token");
       }
       ResponseBody responseBody = response.body();
       String body = responseBody == null ? "" : responseBody.string();
       String errorMessage = generateErrorMessage(body, UNABLE_TO_CONTACT_AZURE_SERVER);
       LOG.info(String.format("Azure API call to [%s] failed with %s http code. Azure response content : [%s]", response.request().url().toString(), response.code(), body));
-      throw new IllegalArgumentException(errorMessage);
+      throw new AzureDevopsServerException(response.code(), errorMessage);
     }
   }
 
