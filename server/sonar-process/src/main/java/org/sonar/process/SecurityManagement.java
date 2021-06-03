@@ -25,12 +25,15 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import java.security.Security;
 import java.security.SecurityPermission;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SecurityManagement {
+  private static final String CACHE_TTL_KEY = "networkaddress.cache.ttl";
+
   private SecurityManagement() {
     // static only
   }
@@ -39,6 +42,10 @@ public class SecurityManagement {
     SecurityManager sm = new SecurityManager();
     Policy.setPolicy(new CustomPolicy());
     System.setSecurityManager(sm);
+    // SONAR-14870 By default, with a security manager installed, the DNS cache never times out. See InetAddressCachePolicy.
+    if (Security.getProperty(CACHE_TTL_KEY) == null) {
+      Security.setProperty(CACHE_TTL_KEY, "30");
+    }
   }
 
   static class CustomPolicy extends Policy {
