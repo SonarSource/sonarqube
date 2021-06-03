@@ -156,13 +156,12 @@ Parameter|Description
 `/k:<project-key>`|[required] Specifies the key of the analyzed project in {instance}
 `/n:<project name>`|[optional] Specifies the name of the analyzed project in {instance}. Adding this argument will overwrite the project name in {instance} if it already exists.
 `/v:<version>`|[recommended] Specifies the version of your project.
-<!-- sonarcloud --> `/o:<organization>`|[required] Specifies the name of the target organization in SonarCloud. <!-- /sonarcloud -->
 `/d:sonar.login=<token> or <username>`| [recommended] Specifies the [authentication token](/user-guide/user-token/) or username used to authenticate with to {instance}. If this argument is added to the begin step, it must also be added to the end step.
 `/d:sonar.password=<password>`|[optional] Specifies the password for the {instance} username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
 `/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
 `/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
-
+<!-- sonarcloud --> `/o:<organization>`|[required] Specifies the name of the target organization in SonarCloud. <!-- /sonarcloud -->
 For detailed information about all available parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
 
 [[warning]]
@@ -276,7 +275,7 @@ SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyP
 ```
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html.
 
-HTTP_PROXY, HTTPS_PROXY, ALL_PROXY and NO_PROXY will be automatically recognized and use to make call against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
+_HTTP\_PROXY_, _HTTPS\_PROXY_, _ALL\_PROXY_ and _NO\_PROXY_ will be automatically recognized and used to make calls against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
 
 ## Known issues
 
