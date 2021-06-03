@@ -24,20 +24,19 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_bitbucketcloud_repo">Further information about this action online (including a response example)</a>
  * @since 8.2
  */
 @Generated("sonar-ws-generator")
-public class SetPatRequest {
+public class ImportBitbucketcloudRepoRequest {
 
   private String almSetting;
-  private String pat;
-  private String username;
+  private String repositorySlug;
 
   /**
    * This is a mandatory parameter.
    */
-  public SetPatRequest setAlmSetting(String almSetting) {
+  public ImportBitbucketcloudRepoRequest setAlmSetting(String almSetting) {
     this.almSetting = almSetting;
     return this;
   }
@@ -49,21 +48,12 @@ public class SetPatRequest {
   /**
    * This is a mandatory parameter.
    */
-  public SetPatRequest setPat(String pat) {
-    this.pat = pat;
+  public ImportBitbucketcloudRepoRequest setRepositorySlug(String repositorySlug) {
+    this.repositorySlug = repositorySlug;
     return this;
   }
 
-  public String getPat() {
-    return pat;
-  }
-
-  public SetPatRequest setUsername(String username) {
-    this.username = username;
-    return this;
-  }
-
-  public String getUsername() {
-    return username;
+  public String getRepositorySlug() {
+    return repositorySlug;
   }
 }

@@ -24,20 +24,20 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bibucketserver_repos">Further information about this action online (including a response example)</a>
  * @since 8.2
  */
 @Generated("sonar-ws-generator")
-public class SetPatRequest {
+public class SearchBitbucketcloudReposRequest {
 
   private String almSetting;
-  private String pat;
-  private String username;
+  private String projectName;
+  private String repositoryName;
 
   /**
    * This is a mandatory parameter.
    */
-  public SetPatRequest setAlmSetting(String almSetting) {
+  public SearchBitbucketcloudReposRequest setAlmSetting(String almSetting) {
     this.almSetting = almSetting;
     return this;
   }
@@ -47,23 +47,24 @@ public class SetPatRequest {
   }
 
   /**
-   * This is a mandatory parameter.
    */
-  public SetPatRequest setPat(String pat) {
-    this.pat = pat;
+  public SearchBitbucketcloudReposRequest setProjectName(String projectName) {
+    this.projectName = projectName;
     return this;
   }
 
-  public String getPat() {
-    return pat;
+  public String getProjectName() {
+    return projectName;
   }
 
-  public SetPatRequest setUsername(String username) {
-    this.username = username;
+  /**
+   */
+  public SearchBitbucketcloudReposRequest setRepositoryName(String repositoryName) {
+    this.repositoryName = repositoryName;
     return this;
   }
 
-  public String getUsername() {
-    return username;
+  public String getRepositoryName() {
+    return repositoryName;
   }
 }

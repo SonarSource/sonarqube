@@ -208,6 +208,31 @@ qa_bitbucket_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
+qa_bitbucket_cloud_task:
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 5Gb
+  env:
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
+    QA_CATEGORY: BITBUCKET_CLOUD
+    BBC_CLIENT_ID: ENCRYPTED[f1c2c57d5f02885345b3db5776a3b28f5dbcc89723809f73ad05ada903ece9584f1dfe61b026c10eabd72c75d1258bac]
+    BBC_CLIENT_SECRET: ENCRYPTED[39cc89ce4695c243fd688e687879bd473a60882fd30ba8613d6697e5d2b04e2017c68cae3a9a7ed9704f69c52bf229ee]
+    BBC_READ_REPOS_APP_PASSWORD: ENCRYPTED[d33b02d02987e188b5cec2a14f6ddd04d1fcac39ed5d6ced08891fc562ebb6721c9fbf307c0eba81df78c83f75b3c27c]
+    BBC_USERNAME: ENCRYPTED[f0af9be9d2fbaa55fbf69e4fce706ebc9131e0dc22cf8bce5d7ab2e0c2b57aff3ddbf6b3b77166e803a6000276256cea]
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+  on_failure:
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+
 qa_ha_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:

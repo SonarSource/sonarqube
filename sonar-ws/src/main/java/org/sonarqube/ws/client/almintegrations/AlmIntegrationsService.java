@@ -71,6 +71,22 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
+   * This is part of the internal API.
+   * This is a POST request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_bitbucketcloud_project">Further information about this action online (including a response example)</a>
+   * @since 8.2
+   */
+  public Projects.CreateWsResponse importBitbucketcloudProject(ImportBitbucketcloudRepoRequest request) {
+    return call(
+      new PostRequest(path("import_bitbucketcloud_repo"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("repositorySlug", request.getRepositorySlug())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser());
+  }
+
+  /**
    * This is a POST request.
    *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_gitlab_project">Further information about this action online (including a response example)</a>
@@ -168,6 +184,21 @@ public class AlmIntegrationsService extends BaseService {
 
   /**
    * This is part of the internal API.
+   * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bitbucketcloud_repos">Further information about this action online (including a response example)</a>
+   * @since 8.2
+   */
+  public AlmIntegrations.SearchBitbucketcloudReposWsResponse searchBitbucketcloudRepos(SearchBitbucketcloudReposRequest request) {
+    return call(
+      new GetRequest(path("search_bitbucketcloud_repos"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setMediaType(MediaTypes.JSON),
+      AlmIntegrations.SearchBitbucketcloudReposWsResponse.parser());
+  }
+
+  /**
+   * This is part of the internal API.
    * This is a POST request.
    *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
@@ -178,6 +209,7 @@ public class AlmIntegrationsService extends BaseService {
       new PostRequest(path("set_pat"))
         .setParam("almSetting", request.getAlmSetting())
         .setParam("pat", request.getPat())
+        .setParam("username", request.getUsername())
         .setMediaType(MediaTypes.JSON)
     ).content();
   }
