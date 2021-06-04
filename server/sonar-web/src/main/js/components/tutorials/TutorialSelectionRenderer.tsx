@@ -22,6 +22,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
+import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
 import GitLabCITutorial from './gitlabci/GitLabCITutorial';
 import JenkinsTutorial from './jenkins/JenkinsTutorial';
@@ -120,6 +121,22 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               </button>
             )}
 
+            {projectBinding?.alm === AlmKeys.BitbucketCloud && (
+              <button
+                className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
+                onClick={() => props.onSelectTutorial(TutorialModes.BitbucketPipelines)}
+                type="button">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  height={80}
+                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                />
+                <div className="medium big-spacer-top">
+                  {translate('onboarding.tutorial.choose_method.bitbucket_pipelines')}
+                </div>
+              </button>
+            )}
+
             {jenkinsAvailable && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
@@ -155,6 +172,16 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial === TutorialModes.Manual && (
         <ManualTutorial component={component} currentUser={currentUser} />
+      )}
+
+      {selectedTutorial === TutorialModes.BitbucketPipelines && projectBinding !== undefined && (
+        <BitbucketPipelinesTutorial
+          almBinding={almBinding}
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+          projectBinding={projectBinding}
+        />
       )}
 
       {selectedTutorial === TutorialModes.GitHubActions && projectBinding !== undefined && (

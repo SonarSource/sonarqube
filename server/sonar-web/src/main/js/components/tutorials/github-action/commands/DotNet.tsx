@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CreateYmlFile from './CreateYmlFile';
+import CreateYmlFile from '../../components/CreateYmlFile';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
@@ -73,5 +73,10 @@ jobs:
 
 export default function DotNet(props: DotNetProps) {
   const { component, branchesEnabled } = props;
-  return <CreateYmlFile yamlTemplate={dotnetYamlTemplate(component.key, !!branchesEnabled)} />;
+  return (
+    <CreateYmlFile
+      yamlFileName=".github/workflows/build.yml"
+      yamlTemplate={dotnetYamlTemplate(component.key, !!branchesEnabled)}
+    />
+  );
 }

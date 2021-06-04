@@ -27,6 +27,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:
@@ -85,6 +86,7 @@ exports[`should render correctly: without branch enabled 1`] = `
     }
   />
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:

@@ -19,13 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
-import YamlFileStep, { YamlFileStepProps } from '../YamlFileStep';
+import { GradleProps } from '../../github-action/commands/Gradle';
+import CreateYmlFile, { CreateYmlFileProps } from '../CreateYmlFile';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<YamlFileStepProps> = {}) {
-  return shallow<YamlFileStepProps>(<YamlFileStep component={mockComponent()} {...props} />);
+function shallowRender(props: Partial<CreateYmlFileProps> = {}) {
+  return shallow<GradleProps>(
+    <CreateYmlFile yamlFileName="test.yml" yamlTemplate="temaplate" {...props} />
+  );
 }

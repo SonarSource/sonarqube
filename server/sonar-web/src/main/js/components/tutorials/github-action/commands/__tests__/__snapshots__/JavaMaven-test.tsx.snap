@@ -6,8 +6,8 @@ exports[`should render correctly 1`] = `
     className="abs-width-600"
   >
     <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.github_action.yaml.maven.pom"
-      id="onboarding.tutorial.with.github_action.yaml.maven.pom"
+      defaultMessage="onboarding.tutorial.with.yaml.maven.pom"
+      id="onboarding.tutorial.with.yaml.maven.pom"
       values={
         Object {
           "pom": <React.Fragment>
@@ -30,6 +30,7 @@ exports[`should render correctly 1`] = `
     />
   </li>
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:
@@ -77,8 +78,8 @@ exports[`should render correctly: without branch enabled 1`] = `
     className="abs-width-600"
   >
     <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.github_action.yaml.maven.pom"
-      id="onboarding.tutorial.with.github_action.yaml.maven.pom"
+      defaultMessage="onboarding.tutorial.with.yaml.maven.pom"
+      id="onboarding.tutorial.with.yaml.maven.pom"
       values={
         Object {
           "pom": <React.Fragment>
@@ -101,6 +102,7 @@ exports[`should render correctly: without branch enabled 1`] = `
     />
   </li>
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:

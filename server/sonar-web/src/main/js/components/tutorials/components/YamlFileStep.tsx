@@ -19,17 +19,22 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import AllSet from '../components/AllSet';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
-import AnalysisCommand from './AnalysisCommand';
+import AllSet from './AllSet';
 
 export interface YamlFileStepProps {
+  children?: (buildTool?: BuildTools) => React.ReactElement<{}>;
+}
+
+export interface AnalysisCommandProps {
+  appState: T.AppState;
+  buildTool?: BuildTools;
   component: T.Component;
 }
 
 export default function YamlFileStep(props: YamlFileStepProps) {
-  const { component } = props;
+  const { children } = props;
   const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet, BuildTools.Other];
   const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
 
@@ -47,7 +52,7 @@ export default function YamlFileStep(props: YamlFileStepProps) {
             optionLabelKey="onboarding.build"
           />
         </li>
-        <AnalysisCommand buildTool={buildToolSelected} component={component} />
+        {children && children(buildToolSelected)}
       </ol>
       {buildToolSelected !== undefined && (
         <>

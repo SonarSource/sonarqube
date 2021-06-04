@@ -17,29 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { BuildTools } from '../../types';
+import { PreambuleYaml, PreambuleYamlProps } from '../PreambuleYaml';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it.each([[BuildTools.DotNet], [BuildTools.Gradle], [BuildTools.Maven], [BuildTools.Other]])(
+  'should render correctly for %s',
+  buildTool => {
+    expect(shallowRender({ buildTool })).toMatchSnapshot();
+  }
+);
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+function shallowRender(props: Partial<PreambuleYamlProps> = {}) {
+  return shallow<PreambuleYamlProps>(
+    <PreambuleYaml buildTool={BuildTools.DotNet} component={mockComponent()} {...props} />
+  );
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

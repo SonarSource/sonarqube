@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
+import CreateYmlFile from '../../components/CreateYmlFile';
 import { buildGradleSnippet } from '../../utils';
-import CreateYmlFile from './CreateYmlFile';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
@@ -73,8 +73,8 @@ export default function Gradle(props: GradleProps) {
     <>
       <li className="abs-width-600">
         <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.github_action.yaml.gradle')}
-          id="onboarding.tutorial.with.github_action.yaml.gradle"
+          defaultMessage={translate('onboarding.tutorial.with.yaml.gradle')}
+          id="onboarding.tutorial.with.yaml.gradle"
           values={{
             gradle: (
               <>
@@ -87,7 +87,10 @@ export default function Gradle(props: GradleProps) {
         />
         <CodeSnippet snippet={buildGradleSnippet(component.key)} />
       </li>
-      <CreateYmlFile yamlTemplate={gradleYamlTemplate(!!branchesEnabled)} />
+      <CreateYmlFile
+        yamlFileName=".github/workflows/build.yml"
+        yamlTemplate={gradleYamlTemplate(!!branchesEnabled)}
+      />
     </>
   );
 }

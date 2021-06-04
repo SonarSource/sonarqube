@@ -21,14 +21,15 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
+import CodeSnippet from '../../common/CodeSnippet';
 
 export interface CreateYmlFileProps {
+  yamlFileName: string;
   yamlTemplate: string;
 }
 
 export default function CreateYmlFile(props: CreateYmlFileProps) {
-  const { yamlTemplate } = props;
+  const { yamlTemplate, yamlFileName } = props;
   return (
     <li className="abs-width-800">
       <FormattedMessage
@@ -37,8 +38,8 @@ export default function CreateYmlFile(props: CreateYmlFileProps) {
         values={{
           file: (
             <>
-              <code className="rule">.github/workflows/build.yml</code>
-              <ClipboardIconButton copyValue=".github/workflows/build.yml" />
+              <code className="rule">{yamlFileName}</code>
+              <ClipboardIconButton copyValue={yamlFileName} />
             </>
           )
         }}

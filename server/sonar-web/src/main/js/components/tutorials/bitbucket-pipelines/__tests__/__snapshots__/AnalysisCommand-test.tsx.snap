@@ -1,0 +1,469 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for dotnet 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="dotnet"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
+     
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - dotnetcore
+            - sonar
+          script:
+            - apt-get update
+            - apt-get install --yes openjdk-11-jre
+            - dotnet tool install --global dotnet-sonarscanner
+            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
+            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+            - dotnet build 
+            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+              
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for dotnet: with branch enabled 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="dotnet"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
+     
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - dotnetcore
+            - sonar
+          script:
+            - apt-get update
+            - apt-get install --yes openjdk-11-jre
+            - dotnet tool install --global dotnet-sonarscanner
+            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
+            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+            - dotnet build 
+            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+            
+  pull-requests:
+    '**':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - dotnetcore
+            - sonar
+          script:
+            - apt-get update
+            - apt-get install --yes openjdk-11-jre
+            - dotnet tool install --global dotnet-sonarscanner
+            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
+            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+            - dotnet build 
+            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+                  
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for gradle 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="gradle"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: openjdk:8
+
+clone:
+  depth: full
+  
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - gradle
+            - sonar
+          script:
+            - bash ./gradlew sonarqube
+
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for gradle: with branch enabled 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="gradle"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: openjdk:8
+
+clone:
+  depth: full
+  
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - gradle
+            - sonar
+          script:
+            - bash ./gradlew sonarqube
+
+  pull-requests:
+    '**':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - gradle
+            - sonar
+          script:
+            - bash ./gradlew sonarqube
+
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for maven 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="maven"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: maven:3.3.9
+
+clone:
+  depth: full
+  
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - maven
+            - sonar
+          script:
+            - mvn verify sonar:sonar
+  
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for maven: with branch enabled 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="maven"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: maven:3.3.9
+
+clone:
+  depth: full
+  
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - maven
+            - sonar
+          script:
+            - mvn verify sonar:sonar
+
+  pull-requests:
+    '**':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - maven
+            - sonar
+          script:
+            - mvn verify sonar:sonar
+  
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for other 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="other"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: maven:3.3.9
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          script:
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for other: with branch enabled 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="other"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: maven:3.3.9
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          script:
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+
+  pull-requests:
+    '**':
+      - step:
+          name: SonarQube analysis
+          script:
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+</Fragment>
+`;

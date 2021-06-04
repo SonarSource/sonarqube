@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
+import CreateYmlFile from '../../components/CreateYmlFile';
 import { mavenPomSnippet } from '../../utils';
-import CreateYmlFile from './CreateYmlFile';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
@@ -73,8 +73,8 @@ export default function JavaMaven(props: JavaMavenProps) {
     <>
       <li className="abs-width-600">
         <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.github_action.yaml.maven.pom')}
-          id="onboarding.tutorial.with.github_action.yaml.maven.pom"
+          defaultMessage={translate('onboarding.tutorial.with.yaml.maven.pom')}
+          id="onboarding.tutorial.with.yaml.maven.pom"
           values={{
             pom: (
               <>
@@ -86,7 +86,10 @@ export default function JavaMaven(props: JavaMavenProps) {
         />
         <CodeSnippet snippet={mavenPomSnippet(component.key)} />
       </li>
-      <CreateYmlFile yamlTemplate={mavenYamlTemplte(!!branchesEnabled)} />
+      <CreateYmlFile
+        yamlFileName=".github/workflows/build.yml"
+        yamlTemplate={mavenYamlTemplte(!!branchesEnabled)}
+      />
     </>
   );
 }

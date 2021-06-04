@@ -13,10 +13,10 @@ exports[`should render correctly 1`] = `
           <code
             className="rule"
           >
-            .github/workflows/build.yml
+            test.yml
           </code>
           <ClipboardIconButton
-            copyValue=".github/workflows/build.yml"
+            copyValue="test.yml"
           />
         </React.Fragment>,
       }

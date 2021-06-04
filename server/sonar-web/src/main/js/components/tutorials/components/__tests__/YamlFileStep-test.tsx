@@ -17,29 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  BitbucketPipelines = 'bitbucket-pipelines',
-  GitLabCI = 'gitlab-ci',
-  GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import YamlFileStep, { YamlFileStepProps } from '../YamlFileStep';
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  CFamily = 'cfamily',
-  DotNet = 'dotnet',
-  Other = 'other'
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export enum OSs {
-  Linux = 'linux',
-  Windows = 'win',
-  MacOS = 'mac'
+function shallowRender(props: Partial<YamlFileStepProps> = {}) {
+  return shallow<YamlFileStepProps>(<YamlFileStep {...props} />);
 }
-
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };

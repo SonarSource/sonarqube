@@ -19,13 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import CreateYmlFile, { CreateYmlFileProps } from '../CreateYmlFile';
-import { GradleProps } from '../Gradle';
+import {
+  mockAlmSettingsInstance,
+  mockProjectBitbucketCloudBindingResponse
+} from '../../../../helpers/mocks/alm-settings';
+import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import RepositoryVariables, { RepositoryVariablesProps } from '../RepositoryVariables';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<CreateYmlFileProps> = {}) {
-  return shallow<GradleProps>(<CreateYmlFile yamlTemplate="temaplate" {...props} />);
+function shallowRender(props: Partial<RepositoryVariablesProps> = {}) {
+  return shallow<RepositoryVariablesProps>(
+    <RepositoryVariables
+      almBinding={mockAlmSettingsInstance()}
+      currentUser={mockLoggedInUser()}
+      baseUrl="test"
+      onDone={jest.fn()}
+      component={mockComponent()}
+      projectBinding={mockProjectBitbucketCloudBindingResponse()}
+      {...props}
+    />
+  );
 }

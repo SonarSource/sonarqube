@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import CreateYmlFile from './CreateYmlFile';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
@@ -75,7 +75,10 @@ export default function Others(props: OthersProps) {
   return (
     <>
       <DefaultProjectKey component={component} />
-      <CreateYmlFile yamlTemplate={yamlTemplate(!!branchesEnabled)} />
+      <CreateYmlFile
+        yamlFileName=".github/workflows/build.yml"
+        yamlTemplate={yamlTemplate(!!branchesEnabled)}
+      />
     </>
   );
 }

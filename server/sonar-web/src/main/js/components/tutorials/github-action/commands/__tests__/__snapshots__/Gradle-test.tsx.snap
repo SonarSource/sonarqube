@@ -6,8 +6,8 @@ exports[`should render correctly 1`] = `
     className="abs-width-600"
   >
     <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.github_action.yaml.gradle"
-      id="onboarding.tutorial.with.github_action.yaml.gradle"
+      defaultMessage="onboarding.tutorial.with.yaml.gradle"
+      id="onboarding.tutorial.with.yaml.gradle"
       values={
         Object {
           "gradle": <React.Fragment>
@@ -41,6 +41,7 @@ sonarqube {
     />
   </li>
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:
@@ -88,8 +89,8 @@ exports[`should render correctly: without branch enabled 1`] = `
     className="abs-width-600"
   >
     <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.github_action.yaml.gradle"
-      id="onboarding.tutorial.with.github_action.yaml.gradle"
+      defaultMessage="onboarding.tutorial.with.yaml.gradle"
+      id="onboarding.tutorial.with.yaml.gradle"
       values={
         Object {
           "gradle": <React.Fragment>
@@ -123,6 +124,7 @@ sonarqube {
     />
   </li>
   <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
 on:
   push:

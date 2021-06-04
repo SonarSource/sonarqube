@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
+      id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
+      values={
+        Object {
+          "repository_variables": <b>
+            onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link
+          </b>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "name",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.name"
+      />
+      <code
+        className="rule little-spacer-left"
+      >
+        SONAR_TOKEN
+      </code>
+      <ClipboardIconButton
+        copyValue="SONAR_TOKEN"
+      />
+    </li>
+    <TokenStepGenerator
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      currentUser={
+        Object {
+          "groups": Array [],
+          "isLoggedIn": true,
+          "login": "luke",
+          "name": "Skywalker",
+          "scmAccounts": Array [],
+        }
+      }
+    />
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "secured",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.secured"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "add",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.add"
+      />
+    </li>
+  </ol>
+  <hr
+    className="no-horizontal-margins"
+  />
+  <ol
+    className="list-styled big-spacer-top big-spacer-bottom"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "name",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.name"
+      />
+      <code
+        className="rule little-spacer-left"
+      >
+        SONAR_HOST_URL
+      </code>
+      <ClipboardIconButton
+        copyValue="SONAR_HOST_URL"
+      />
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.env_variables"
+        id="onboarding.tutorial.env_variables"
+        values={
+          Object {
+            "extra": <ClipboardIconButton
+              copyValue="test"
+            />,
+            "field": <strong>
+              onboarding.tutorial.env_variables.field
+            </strong>,
+            "value": <code
+              className="rule"
+            >
+              test
+            </code>,
+          }
+        }
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "add",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.bitbucket_pipelines.variables.add"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;

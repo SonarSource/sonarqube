@@ -24,6 +24,7 @@ import {
   mockAlmSettingsInstance,
   mockProjectAzureBindingResponse,
   mockProjectBitbucketBindingResponse,
+  mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
@@ -117,6 +118,23 @@ it('should allow mode selection for GitLab', () => {
 
   click(wrapper.find('button.tutorial-mode-gitlab'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitLabCI);
+
+  click(wrapper.find('button.tutorial-mode-manual'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+});
+
+it('should allow mode selection for Bitbucket pipepline', () => {
+  const onSelectTutorial = jest.fn();
+  const wrapper = shallowRender({
+    onSelectTutorial,
+    projectBinding: mockProjectBitbucketCloudBindingResponse()
+  });
+
+  click(wrapper.find('button.tutorial-mode-jenkins'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
+
+  click(wrapper.find('button.bitbucket-pipelines'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.BitbucketPipelines);
 
   click(wrapper.find('button.tutorial-mode-manual'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
