@@ -110,7 +110,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                 <img
                   alt="" // Should be ignored by screen readers
                   height={80}
-                  src={`${getBaseUrl()}/images/alm/azure.svg`}
+                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
                 />
                 <div className="medium big-spacer-top">
                   {translate('onboarding.tutorial.choose_method.azure_pipelines')}
