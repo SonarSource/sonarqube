@@ -84,7 +84,8 @@ public class ListActionTest {
         tuple(AlmSettings.Alm.gitlab, gitlabAlmSetting.getKey(), true, gitlabAlmSetting.getUrl()),
         tuple(AlmSettings.Alm.gitlab, gitlabAlmSettingWithoutUrl.getKey(), false, ""),
         tuple(AlmSettings.Alm.bitbucket, bitbucketAlmSetting.getKey(), true, bitbucketAlmSetting.getUrl()),
-        tuple(AlmSettings.Alm.bitbucketcloud, bitbucketCloudAlmSetting.getKey(), false, ""));
+        tuple(AlmSettings.Alm.bitbucketcloud, bitbucketCloudAlmSetting.getKey(), true,
+          "https://bitbucket.org/" + bitbucketCloudAlmSetting.getAppId() + "/"));
   }
 
   @Test
@@ -194,7 +195,7 @@ public class ListActionTest {
     db.almSettings().insertBitbucketCloudAlmSetting(
       almSettingDto -> almSettingDto
         .setKey("Bitbucket Cloud - Dev Team")
-        .setUrl("https://bitbucket.org"));
+        .setAppId("workspace"));
     db.almSettings().insertGitlabAlmSetting(
       almSettingDto -> almSettingDto
         .setKey("GitLab - Dev Team")

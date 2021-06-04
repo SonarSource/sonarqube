@@ -17,7 +17,7 @@
     {
       "key": "Bitbucket Cloud - Dev Team",
       "alm": "bitbucketcloud",
-      "url": "https://bitbucket.org"
+      "url": "https://bitbucket.org/workspace/"
     },
     {
       "key": "GitLab - Dev Team",
