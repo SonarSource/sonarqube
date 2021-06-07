@@ -82,7 +82,7 @@ public class AlmSettingsTesting {
       .setMonorepo(false);
   }
 
-  static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
+  public static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(gitlabAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())

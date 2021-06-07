@@ -25,13 +25,13 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
+import org.sonar.server.almintegration.validator.GitlabGlobalSettingsValidator;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -43,6 +43,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -58,12 +59,12 @@ public class ValidateActionTest {
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeatureProvider);
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
-  private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
+  private final GitlabGlobalSettingsValidator gitlabSettingsValidator = mock(GitlabGlobalSettingsValidator.class);
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock(GithubGlobalSettingsValidator.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final WsActionTester ws = new WsActionTester(
-    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator, gitlabHttpClient,
+    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator, gitlabSettingsValidator,
       bitbucketServerRestClient, bitbucketCloudRestClient));
 
   @Test
@@ -96,10 +97,7 @@ public class ValidateActionTest {
       .setParam("key", almSetting.getKey())
       .execute();
 
-    verify(gitlabHttpClient).checkUrl(almSetting.getUrl());
-    verify(gitlabHttpClient).checkToken(almSetting.getUrl(), almSetting.getPersonalAccessToken());
-    verify(gitlabHttpClient).checkReadPermission(almSetting.getUrl(), almSetting.getPersonalAccessToken());
-    verify(gitlabHttpClient).checkWritePermission(almSetting.getUrl(), almSetting.getPersonalAccessToken());
+    verify(gitlabSettingsValidator).validate(any(AlmSettingDto.class));
   }
 
   @Test
