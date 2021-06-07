@@ -82,7 +82,7 @@ The supported format looks like this:
 	
 The root node should be named `testExecutions`. Its version attribute should be set to `1`.
 
-Insert a `file` element for each test file. Its `path` attribute can be either absolute or relative to the root of the module.
+Insert a `file` element for each test file. Its `path` attribute can be either absolute or relative to the project's base directory (root module).
 
 **Note** unlike for coverage reports, the files present in the report must be test file names, not source code files covered by tests.
 

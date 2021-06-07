@@ -53,7 +53,7 @@ Unless otherwise specified, these properties require values that are relative to
 
 Language|Property|Remarks
 ---|---|---
-**All**|`sonar.testExecutionReportPaths`|Comma-delimited list of paths to execution reports in the [Generic Execution Data](/analysis/generic-test/) format.
+**All**|`sonar.testExecutionReportPaths`|Comma-delimited list of paths to execution reports in the [Generic Execution Data](/analysis/generic-test/) format. The paths must be relative to the project's base directory (root module).
 C / C++ / Objective-C|`sonar.cfamily.cppunit.reportsPath`|Path to the directory holding the [CPPUnit](http://sourceforge.net/projects/cppunit/) reports. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 C#|`sonar.cs.vstest.reportsPaths`|Paths to VSTest reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
 C#|`sonar.cs.nunit.reportsPaths`|Paths to NUnit execution reports. Multiple paths may be comma-delimited, or included via wildcards. Note that while measures such as the number of tests are displayed at project level, no drilldown is available.
