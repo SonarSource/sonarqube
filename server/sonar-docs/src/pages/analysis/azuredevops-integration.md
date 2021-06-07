@@ -8,7 +8,7 @@ With this integration, you'll be able to:
 
 - **Import your Azure DevOps repositories** - Import your Azure DevOps repositories into SonarQube to easily set up SonarQube projects. 
 - **Analyze projects with Azure Pipelines** - Integrate analysis into your build pipeline. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), SonarScanners running in Azure Pipelines jobs can automatically detect branches or pull requests being built, so you don't need to specifically pass them as parameters to the scanner.
-- **Add pull request decoration** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
+- **Report your Quality Gate status to your pull requests** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
 
 ## Prerequisites
 Integration with Azure DevOps Server requires Azure DevOps Server 2020, Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2.
@@ -195,7 +195,7 @@ Select your build technology below to expand the instructions for configuring br
 |     Invoke-WebRequest -Uri '<sonarqube_url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
 |     Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'
 |     ```
-|     Example of bash commands on a linux host:
+|     Example of bash commands on a Linux host:
 |     ```
 |     curl '<sonarqube_url>/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
 |     unzip build-wrapper.zip
@@ -219,7 +219,7 @@ Select your build technology below to expand the instructions for configuring br
 |      ```
 |     build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
 |      ```
-|      Example of bash commands on a linux host with a *make* build:
+|      Example of bash commands on a Linux host with a *make* build:
 |      ```
 |      build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir <output directory> make clean all
 |      ```
@@ -289,34 +289,36 @@ Prevent the merge of pull requests with a failed Quality Gate by adding a `Sonar
  
 Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
 
-## Adding pull request decoration to Azure DevOps
-Pull request decoration shows your Quality Gate and analysis metrics directly in Azure DevOps.
+## Reporting your Quality Gate status in Azure DevOps
+After you've set up SonarQube to import your Azure DevOps repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, SonarQube can report your Quality Gate status and analysis metrics directly to your Azure DevOps pull requests.
 
-After you've set up SonarQube to import your Azure DevOps repositories as shown in the **Importing your Azure DevOps repositories into SonarQube** above, the simplest way to add pull request decoration is by adding a project from Azure DevOps by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting  **Azure DevOps**.
+To do this, add a project from Azure DevOps by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and select **Azure DevOps** from the drop-down menu.
 
-Then, follow the steps in SonarQube to analyze your project. The project settings for pull request decoration are set automatically.
+Then, follow the steps in SonarQube to analyze your project. SonarQube automatically sets the project settings required to show your Quality Gate in your pull requests.
 
 [[info]]
-| To decorate Pull Requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for Pull Request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
+| To report your Quality Gate status in your pull requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for pull request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
 
-### Adding pull request decoration to a manually created or existing project 
-To add pull request decoration to a manually created or existing project, make sure your global ALM Integration settings are set as shown above in the **Importing your Azure DevOps repositories into SonarQube** section, and set the following project settings at **Project Settings > General Settings > Pull Request Decoration**:
+If you're creating your projects manually or adding Quality Gate reporting to an existing project, see the following section.
+
+### Reporting your Quality Gate status in manually created or existing projects
+SonarQube can also report your Quality Gate status to Azure DevOps pull requests for existing and manually-created projects. After setting your global settings as shown in the **Importing your Azure DevOps repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > DevOps Platform Integration**:
 
 - **Project name**
 - **Repository name**
 
-### Advanced pull request decoration configuration
+### Advanced configuration
 
 [[collapse]]
-| ## Adding pull request decoration to projects that are part of a mono repository
+| ## Reporting your Quality Gate status on pull requests in a mono repository
 |
-| _Pull request decoration for a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
+| _Reporting Quality Gate statuses to pull requests in a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 |
-| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Azure DevOps repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Azure DevOps repository. You'll need to set up each SonarQube project that's part of a mono repository to report your Quality Gate status.
 |
-| To add pull request decoration to a project that's part of a mono repository, set your project up manually as shown in the **Adding pull request decoration to a manually created or existing project** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration**.
+| You need to set up projects that are part of a mono repository manually as shown in the **Displaying your Quality Gate status in manually created or existing project** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > DevOps Platform Integration**.
 |
-| After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
+| After setting your project settings, ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
 |
 | ### Ensuring the correct project is analyzed
 | You need to adjust the analysis scope to make sure SonarQube doesn't analyze code from other projects in your mono repository. To do this set up a **Source File Inclusion** for your  project at **Project Settings > Analysis Scope** with a pattern that will only include files from the appropriate folder. For example, adding `./MyFolderName/**/*` to your inclusions would only include analysis of code in the `MyFolderName` folder. See [Narrowing the Focus](/project-administration/narrowing-the-focus/) for more information on setting your analysis scope.
@@ -326,15 +328,15 @@ To add pull request decoration to a manually created or existing project, make s
 
 [[collapse]]
 | ## Configuring multiple ALM instances
-|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+| SonarQube can report your Quality Gate status to multiple ALM instances. To do this, you need to create a configuration for each ALM instance and assign that configuration to the appropriate projects. 
 |
-|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
 |
-|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
 | ## Linking issues
-| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
+| When adding a Quality Gate status to your pull requests, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
 
 ## FAQ
 

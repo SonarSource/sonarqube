@@ -123,10 +123,10 @@ exports[`should render correctly: error 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.pr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_pr_and_commits"
       >
         <span>
-          settings.almintegration.feature.pr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <AlertErrorIcon
@@ -248,10 +248,10 @@ exports[`should render correctly: success 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.pr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_pr_and_commits"
       >
         <span>
-          settings.almintegration.feature.pr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <AlertSuccessIcon
@@ -322,10 +322,10 @@ exports[`should render correctly: success for Bitbucket Cloud 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.pr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_pr"
       >
         <span>
-          settings.almintegration.feature.pr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <AlertSuccessIcon
@@ -396,10 +396,10 @@ exports[`should render correctly: success for GitLab 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.mr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_mr"
       >
         <span>
-          settings.almintegration.feature.mr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <AlertSuccessIcon
@@ -483,10 +483,10 @@ exports[`should render correctly: success with alert 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.pr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_pr_and_commits"
       >
         <span>
-          settings.almintegration.feature.pr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <AlertSuccessIcon
@@ -566,10 +566,10 @@ exports[`should render correctly: success with branches disabled 1`] = `
       className="huge-spacer-right"
     >
       <Tooltip
-        overlay="settings.almintegration.feature.pr_decoration.description"
+        overlay="settings.almintegration.feature.status_reporting.description_pr_and_commits"
       >
         <span>
-          settings.almintegration.feature.pr_decoration.title
+          settings.almintegration.feature.status_reporting.title
         </span>
       </Tooltip>
       <div

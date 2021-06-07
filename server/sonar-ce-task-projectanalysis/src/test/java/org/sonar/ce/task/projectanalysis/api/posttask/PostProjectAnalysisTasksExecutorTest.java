@@ -38,7 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
@@ -87,7 +86,6 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final System2 system2 = mock(System2.class);
   private final ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.Context.class);
   private final CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
   private final CeTask ceTask = new CeTask.Builder()
@@ -99,8 +97,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   private final PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
   private final PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
     ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder,
-    reportReader, system2,
-    new PostProjectAnalysisTask[] {postProjectAnalysisTask});
+    reportReader, new PostProjectAnalysisTask[] {postProjectAnalysisTask});
 
   @Before
   public void setUp() {
@@ -119,7 +116,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void does_not_fail_when_there_is_no_PostProjectAnalysisTasksExecutor(boolean allStepsExecuted) {
-    new PostProjectAnalysisTasksExecutor(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, system2)
+    new PostProjectAnalysisTasksExecutor(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader)
       .finished(allStepsExecuted);
   }
 
@@ -132,7 +129,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
-      system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
+      new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
         .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());
@@ -206,20 +203,8 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
 
-    assertThat(taskContextCaptor.getValue().getProjectAnalysis().getDate())
+    assertThat(taskContextCaptor.getValue().getProjectAnalysis().getAnalysis().get().getDate())
       .isEqualTo(new Date(analysisMetadataHolder.getAnalysisDate()));
-  }
-
-  @Test
-  public void date_comes_from_system2_if_not_set_in_AnalysisMetadataHolder() {
-    long now = 1_999_663L;
-    when(system2.now()).thenReturn(now);
-
-    underTest.finished(false);
-
-    verify(postProjectAnalysisTask).finished(taskContextCaptor.capture());
-
-    assertThat(taskContextCaptor.getValue().getProjectAnalysis().getDate()).isEqualTo(new Date(now));
   }
 
   @Test
@@ -399,8 +384,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       .finished(any(PostProjectAnalysisTask.Context.class));
 
     new PostProjectAnalysisTasksExecutor(
-      ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
-      system2, new PostProjectAnalysisTask[] {logStatisticsTask})
+      ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, new PostProjectAnalysisTask[] {logStatisticsTask})
         .finished(allStepsExecuted);
 
     verify(logStatisticsTask).finished(taskContextCaptor.capture());
@@ -428,7 +412,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
-      system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
+      new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
         .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(taskContextCaptor.capture());

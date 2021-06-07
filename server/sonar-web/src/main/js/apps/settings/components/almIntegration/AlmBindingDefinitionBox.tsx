@@ -139,18 +139,21 @@ function getImportFeatureStatus(
   return STATUS_ICON[type];
 }
 
+function getPrDecoFeatureDescription(alm: AlmKeys) {
+  switch (alm) {
+    case AlmKeys.GitLab:
+      return translate('settings.almintegration.feature.status_reporting.description_mr');
+    case AlmKeys.GitHub:
+      return translate(
+        'settings.almintegration.feature.status_reporting.description_pr_and_commits'
+      );
+    default:
+      return translate('settings.almintegration.feature.status_reporting.description_pr');
+  }
+}
+
 export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxProps) {
   const { alm, branchesEnabled, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
-
-  const prDecoFeatureTitle =
-    alm === AlmKeys.GitLab
-      ? translate('settings.almintegration.feature.mr_decoration.title')
-      : translate('settings.almintegration.feature.pr_decoration.title');
-
-  const prDecoFeatureDescription =
-    alm === AlmKeys.GitLab
-      ? translate('settings.almintegration.feature.mr_decoration.description')
-      : translate('settings.almintegration.feature.pr_decoration.description');
 
   return (
     <div className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition">
@@ -180,8 +183,8 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
           {status.type !== AlmSettingsBindingStatusType.Warning && (
             <div className="display-flex-row spacer-bottom">
               <div className="huge-spacer-right">
-                <Tooltip overlay={prDecoFeatureDescription}>
-                  <span>{prDecoFeatureTitle}</span>
+                <Tooltip overlay={getPrDecoFeatureDescription(alm)}>
+                  <span>{translate('settings.almintegration.feature.status_reporting.title')}</span>
                 </Tooltip>
                 {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
               </div>

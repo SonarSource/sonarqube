@@ -98,8 +98,6 @@ public class PostProjectAnalysisTaskTester {
   private static final String NAME_CAN_NOT_BE_NULL = "name cannot be null";
 
   private final PostProjectAnalysisTask underTest;
-  @Nullable
-  private Organization organization;
   @CheckForNull
   private CeTask ceTask;
   @CheckForNull
@@ -128,10 +126,6 @@ public class PostProjectAnalysisTaskTester {
   /**
    * @since 7.0
    */
-  public static OrganizationBuilder newOrganizationBuilder() {
-    return new OrganizationBuilder();
-  }
-
   public static CeTaskBuilder newCeTaskBuilder() {
     return new CeTaskBuilder();
   }
@@ -154,14 +148,6 @@ public class PostProjectAnalysisTaskTester {
 
   public static ScannerContextBuilder newScannerContextBuilder() {
     return new ScannerContextBuilder();
-  }
-
-  /**
-   * @since 7.0
-   */
-  public PostProjectAnalysisTaskTester withOrganization(@Nullable Organization organization) {
-    this.organization = organization;
-    return this;
   }
 
   public PostProjectAnalysisTaskTester withCeTask(CeTask ceTask) {
@@ -228,7 +214,6 @@ public class PostProjectAnalysisTaskTester {
     }
 
     PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = new ProjectAnalysisBuilder()
-      .setOrganization(organization)
       .setCeTask(ceTask)
       .setProject(project)
       .setBranch(branch)
@@ -269,51 +254,6 @@ public class PostProjectAnalysisTaskTester {
   public Map<String, Object> getLogStatistics() {
     checkState(stats != null, "execute must be called first");
     return stats;
-  }
-
-  public static final class OrganizationBuilder {
-    @CheckForNull
-    private String name;
-    @CheckForNull
-    private String key;
-
-    private OrganizationBuilder() {
-      // prevents instantiation
-    }
-
-    public OrganizationBuilder setName(String name) {
-      this.name = requireNonNull(name, NAME_CAN_NOT_BE_NULL);
-      return this;
-    }
-
-    public OrganizationBuilder setKey(String key) {
-      this.key = requireNonNull(key, KEY_CAN_NOT_BE_NULL);
-      return this;
-    }
-
-    public Organization build() {
-      requireNonNull(this.name, NAME_CAN_NOT_BE_NULL);
-      requireNonNull(this.key, KEY_CAN_NOT_BE_NULL);
-      return new Organization() {
-        @Override
-        public String getName() {
-          return name;
-        }
-
-        @Override
-        public String getKey() {
-          return key;
-        }
-
-        @Override
-        public String toString() {
-          return "Organization{" +
-            "name='" + name + '\'' +
-            ", key='" + key + '\'' +
-            '}';
-        }
-      };
-    }
   }
 
   public static final class CeTaskBuilder {
@@ -727,7 +667,6 @@ public class PostProjectAnalysisTaskTester {
   }
 
   public static final class ProjectAnalysisBuilder {
-    private Organization organization;
     private CeTask ceTask;
     private Project project;
     private Branch branch;
@@ -738,11 +677,6 @@ public class PostProjectAnalysisTaskTester {
 
     private ProjectAnalysisBuilder() {
       // prevents instantiation outside PostProjectAnalysisTaskTester
-    }
-
-    public ProjectAnalysisBuilder setOrganization(@Nullable Organization organization) {
-      this.organization = organization;
-      return this;
     }
 
     public ProjectAnalysisBuilder setCeTask(CeTask ceTask) {
@@ -784,7 +718,7 @@ public class PostProjectAnalysisTaskTester {
       return new PostProjectAnalysisTask.ProjectAnalysis() {
         @Override
         public Optional<Organization> getOrganization() {
-          return Optional.ofNullable(organization);
+          return Optional.empty();
         }
 
         @Override
@@ -809,16 +743,6 @@ public class PostProjectAnalysisTaskTester {
         }
 
         @Override
-        public Date getDate() {
-          return date;
-        }
-
-        @Override
-        public Optional<Date> getAnalysisDate() {
-          return getAnalysis().map(Analysis::getDate);
-        }
-
-        @Override
         public Optional<Analysis> getAnalysis() {
           return Optional.ofNullable(analysis);
         }
@@ -836,8 +760,7 @@ public class PostProjectAnalysisTaskTester {
         @Override
         public String toString() {
           return "ProjectAnalysis{" +
-            "organization=" + organization +
-            ", ceTask=" + ceTask +
+            "ceTask=" + ceTask +
             ", project=" + project +
             ", date=" + date.getTime() +
             ", analysisDate=" + date.getTime() +

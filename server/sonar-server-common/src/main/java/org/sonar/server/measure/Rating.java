@@ -60,4 +60,9 @@ public enum Rating {
     MAJOR, C,
     MINOR, B,
     INFO, A);
+
+
+  public static Rating ratingFromValue(String value) {
+    return valueOf(Integer.parseInt(value));
+  }
 }

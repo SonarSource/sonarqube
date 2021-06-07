@@ -9,7 +9,11 @@ With this integration, you'll be able to:
 
 - **Import your BitBucket Cloud repositories** – Import your Bitbucket Cloud repositories into SonarQube to easily set up SonarQube projects.
 - **Analyze projects with Bitbucket Pipelines** – Integrate analysis into your build pipeline. SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner (branch and pull request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
+<<<<<<< HEAD
 - **Add pull request decoration** – (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Bitbucket Cloud so you know if it's safe to merge your changes.
+=======
+- **Report your Quality Gate status to your pull requests** – (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Bitbucket Cloud so you know if it's safe to merge your changes.
+>>>>>>> SONAR-14851 Report Quality Gate status on branches in GitHub
 
 ## Importing your Bitbucket Cloud repositories into SonarQube
 
@@ -25,7 +29,11 @@ To set up the import of BitBucket Cloud repositories:
 1. Add your Bitbucket username and an app password.
 
 ### Creating your OAuth consumer
+<<<<<<< HEAD
 SonarQube uses a dedicated [OAuth consumer](https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/) to import repositories and decorate pull requests. Create the OAuth consumer in your Bitbucket Cloud workspace settings and specify the following:
+=======
+SonarQube uses a dedicated [OAuth consumer](https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/) to import repositories and display your Quality Gate status on pull requests. Create the OAuth consumer in your Bitbucket Cloud workspace settings and specify the following:
+>>>>>>> SONAR-14851 Report Quality Gate status on branches in GitHub
 
 - **Name** – the name of your OAuth consumer
 - **Callback URL** – Bitbucket Cloud requires this field, but it's not used by SonarQube so you can use any URL.
@@ -45,7 +53,11 @@ After setting your global settings, you can add a project from Bitbucket Cloud b
 
 Then, you'll be asked to provide your Bitbucket username and an [app password](https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/). Your app password needs the **repository:read** permission.
 
+<<<<<<< HEAD
 After adding your Bitbucket username and app password, you'll see a list of your Bitbucket Cloud projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for pull request decoration.
+=======
+After adding your Bitbucket username and app password, you'll see a list of your Bitbucket Cloud projects that you can **set up** to add them to SonarQube. Setting up your projects this way also sets your project settings for displaying your Quality Gate status on pull requests.
+>>>>>>> SONAR-14851 Report Quality Gate status on branches in GitHub
 
 ## Analyzing projects with Bitbucket Pipelines
 SonarScanners running in Bitbucket Pipelines can automatically detect branches or pull requests being built so you don't need to specifically pass them as parameters to the scanner.
@@ -213,13 +225,14 @@ You can use the [SonarQube Quality Gate Check Bitbucket Pipe](https://bitbucket.
 
 If you do not want to use the SonarQube Quality Gate Check Pipe, you can instruct the scanner to wait for the SonarQube Quality Gate status at the end of the analysis. To enable this, pass the `-Dsonar.qualitygate.wait=true` parameter to the scanner in the `bitbucket-pipelines.yml` file.
 
-This will make the analysis step poll SonarQube regularly until the Quality Gate is computed. This will increase your pipeline duration. Note that, if the Quality Gate is red, this will make the analysis step fail, even if the actual analysis itself is successful. We advise only using this parameter when necessary (for example, to block a deployment pipeline if the Quality Gate is red). It should not be used to report the Quality Gate status in a pull request, as this is already done with pull request decoration.
+This will make the analysis step poll SonarQube regularly until the Quality Gate is computed. This will increase your pipeline duration. Note that, if the Quality Gate is red, this will make the analysis step fail, even if the actual analysis itself is successful. We advise only using this parameter when necessary (for example, to block a deployment pipeline if the Quality Gate is red). It should not be used to report the Quality Gate status in a pull request.
 
 You can set the `sonar.qualitygate.timeout` property to an amount of time (in seconds) that the scanner should wait for a report to be processed. The default is 300 seconds. 
 
 ### For more information
 For more information on configuring your build with Bitbucket Pipelines, see the [Configure bitbucket-pipelines.yml](https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/) documentation provided by Atlassian.
 
+<<<<<<< HEAD
 ## Adding Pull Request decoration to Bitbucket Cloud
 
 After creating and installing your OAuth consumer above, you can add pull request decoration to show your Quality Gate and analysis metrics directly in Bitbucket Cloud.
@@ -233,22 +246,39 @@ Then, follow the steps in SonarQube to analyze your project. The project setting
 
 ### Adding pull request decoration to a manually created or existing project.
 To add pull request decoration to a manually created or existing project, after you've created and installed your OAuth consumer and updated your global  settings as shown in the **Importing your Bitbucket Cloud repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > Pull Request Decoration**: 
+=======
+## Reporting your Quality Gate status in Bitbucket Cloud
+
+After creating and installing your OAuth consumer above, SonarQube can report your Quality Gate status and analysis metrics directly to your Bitbucket Cloud pull requests.
+
+To do this, add a project from Bitbucket by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and select **Bitbucket** from the drop-down menu.
+
+Then, follow the steps in SonarQube to analyze your project. SonarQube automatically sets the project settings required to show your Quality Gate in your pull requests.
+
+[[info]]
+| To report your Quality Gate status in your pull requests, a SonarQube analysis needs to be run on your code. You can find the additional parameters required for pull request analysis on the [Pull Request Analysis](/analysis/pull-request/) page.
+
+If you're creating your projects manually or adding Quality Gate reporting to an existing project, see the following section.
+
+### Reporting your Quality Gate status in manually created or existing projects
+SonarQube can also report your Quality Gate status to Bitbucket Cloud pull requests for existing and manually-created projects. After you've created and installed your OAuth consumer and updated your global settings as shown in the **Importing your Bitbucket Cloud repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > DevOps Platform Integration**: 
+>>>>>>> SONAR-14851 Report Quality Gate status on branches in GitHub
 
 - **Configuration name** – The configuration name that corresponds to your GitHub instance. 
 - **Repository SLUG** – The Repository SLUG is part of your Bitbucket Cloud URL. For example, `https://bitbucket.org/{workspace}/{repository}`
 
-### Advanced pull request decoration configuration
+### Advanced configuration
 
 [[collapse]]
-| ## Adding pull request decoration to projects that are part of a mono repository
+| ## Reporting your Quality Gate status on pull requests in a mono repository
 |
-| _Pull request decoration for a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
+| _Reporting Quality Gate statuses to pull requests in a mono repository setup is supported starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 |
-| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Bitbucket Cloud repository. You'll need to set up pull request decoration for each SonarQube project that is part of a mono repository.
+| In a mono repository setup, multiple SonarQube projects, each corresponding to a separate project within the mono repository, are all bound to the same Bitbucket Cloud repository. You'll need to set up each SonarQube project that's part of a mono repository to report your Quality Gate status.
 |
-| To add pull request decoration to a project that's part of a mono repository, set your project up as shown in the **Adding pull request decoration to Bitbucket Cloud** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > Pull Request Decoration** .
+| You need to set up projects that are part of a mono repository manually as shown in the **Displaying your Quality Gate status in manually created or existing project** section above. You also need to set the **Enable mono repository support** setting to true at **Project Settings > General Settings > DevOps Platform Integration**.
 |
-| After setting your project settings, you need to ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
+| After setting your project settings, ensure the correct project is being analyzed by adjusting the analysis scope and pass your project names to the scanner. See the following sections for more information.
 |
 | ### Ensuring the correct project is analyzed
 | You need to adjust the analysis scope to make sure SonarQube doesn't analyze code from other projects in your mono repository. To do this set up a **Source File Inclusion** for your  project at **Project Settings > Analysis Scope** with a pattern that will only include files from the appropriate folder. For example, adding `./MyFolderName/**/*` to your inclusions would only include analysis of code in the `MyFolderName` folder. See [Narrowing the Focus](/project-administration/narrowing-the-focus/) for more information on setting your analysis scope.
@@ -258,12 +288,12 @@ To add pull request decoration to a manually created or existing project, after 
 
 [[collapse]]
 | ## Configuring multiple ALM instances
-|You can decorate pull requests from multiple ALM instances by creating a configuration for each ALM instance and then assigning that instance configuration to the appropriate projects. 
+| SonarQube can report your Quality Gate status to multiple ALM instances. To do this, you need to create a configuration for each ALM instance and assign that configuration to the appropriate projects. 
 |
-|- As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
 |
-|- Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
 | ## Linking issues
-| During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.
+| When adding a Quality Gate status to your pull requests, individual issues will be linked to their SonarQube counterparts automatically. For this to work correctly, you need to set the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) correctly. Otherwise, the links will default to `localhost`.

@@ -125,28 +125,6 @@ public interface PostProjectAnalysisTask {
     QualityGate getQualityGate();
 
     /**
-     * Date of the analysis.
-     * <p>
-     * This date is the same as the date of the project analysis report and the snapshot.
-     *
-     * @deprecated use {@link #getAnalysis().getDate()} instead. When {@link #getAnalysis()} returns
-     *             {@link Optional#empty() empty}, the current date will be returned.
-     */
-    @Deprecated
-    Date getDate();
-
-    /**
-     * Date of the analysis.
-     * <p>
-     * This date is the same as the date of the project analysis report and therefore as the analysis in DB. It can be
-     * missing when the status of the task is {@link org.sonar.api.ce.posttask.CeTask.Status#FAILED FAILED}.
-     * </p>
-     * @deprecated use {@link #getAnalysis().getDate()} instead
-     */
-    @Deprecated
-    Optional<Date> getAnalysisDate();
-
-    /**
      * Analysis containing the UUID of the analysis and the date
      *
      * <p>

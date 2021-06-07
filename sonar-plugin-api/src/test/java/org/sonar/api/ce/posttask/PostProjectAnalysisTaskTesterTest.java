@@ -39,7 +39,6 @@ public class PostProjectAnalysisTaskTesterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Organization organization = mock(Organization.class);
   private CeTask ceTask = mock(CeTask.class);
   private Project project = mock(Project.class);
   private long someDateAsLong = 846351351684351L;
@@ -108,32 +107,29 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void verify_getters_of_ProjectAnalysis_object_passed_to_PostProjectAnalysisTask() {
-    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
 
     underTest.execute();
 
     PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = captorPostProjectAnalysisTask.projectAnalysis;
     assertThat(projectAnalysis).isNotNull();
-    assertThat(projectAnalysis.getOrganization().get()).isSameAs(organization);
     assertThat(projectAnalysis.getCeTask()).isSameAs(ceTask);
     assertThat(projectAnalysis.getProject()).isSameAs(project);
-    assertThat(projectAnalysis.getDate()).isSameAs(someDate);
     assertThat(projectAnalysis.getQualityGate()).isSameAs(qualityGate);
     assertThat(projectAnalysis.getAnalysis().get().getAnalysisUuid()).isSameAs(analysisUuid);
   }
 
   @Test
   public void verify_toString_of_ProjectAnalysis_object_passed_to_PostProjectAnalysisTask() {
-    when(organization.toString()).thenReturn("Organization");
     when(ceTask.toString()).thenReturn("CeTask");
     when(project.toString()).thenReturn("Project");
     when(qualityGate.toString()).thenReturn("QualityGate");
-    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).at(someDate);
+    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).at(someDate);
 
     underTest.execute();
 
-    assertThat(captorPostProjectAnalysisTask.projectAnalysis.toString())
-      .isEqualTo("ProjectAnalysis{organization=Organization, ceTask=CeTask, project=Project, date=846351351684351, analysisDate=846351351684351, qualityGate=QualityGate}");
+    assertThat(captorPostProjectAnalysisTask.projectAnalysis)
+      .hasToString("ProjectAnalysis{ceTask=CeTask, project=Project, date=846351351684351, analysisDate=846351351684351, qualityGate=QualityGate}");
 
   }
 
@@ -157,7 +153,7 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void getLogStatistics_returns_empty_if_no_log_statistic_added_by_tested_Task() {
-    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
 
     underTest.execute();
 
@@ -178,7 +174,7 @@ public class PostProjectAnalysisTaskTesterTest {
       return null;
     }).when(projectAnalysisTask).finished(any(PostProjectAnalysisTask.Context.class));
     PostProjectAnalysisTaskTester underTest = PostProjectAnalysisTaskTester.of(projectAnalysisTask);
-    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
 
     underTest.execute();
 

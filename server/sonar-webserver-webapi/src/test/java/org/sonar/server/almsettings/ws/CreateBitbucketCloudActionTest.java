@@ -55,7 +55,7 @@ public class CreateBitbucketCloudActionTest {
       multipleAlmFeatureProvider)));
 
   @Before
-  public void before(){
+  public void before() {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
   }
 
