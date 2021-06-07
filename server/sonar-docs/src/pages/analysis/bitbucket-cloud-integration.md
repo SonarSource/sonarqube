@@ -176,6 +176,49 @@ Click the scanner you're using below to expand the example configuration:
 | ```
 
 [[collapse]]
+| ## SonarScanner for .NET
+|
+| Write the following in your `bitbucket-pipelines.yml`:
+| 
+| ```
+| image: mcr.microsoft.com/dotnet/core/sdk:latest
+| pipelines:
+|   branches:
+|     '{master}':
+|       - step:
+|           name: SonarQube analysis
+|           caches:
+|             - dotnetcore
+|             - sonar
+|           script:
+|             - apt-get update
+|             - apt-get install --yes openjdk-11-jre
+|             - dotnet tool install --global dotnet-sonarscanner
+|             - export PATH="$PATH:/root/.dotnet/tools"
+|             - dotnet sonarscanner begin /k:"*YOUR PROJECT KEY*" /d:"sonar.login=${SONAR_TOKEN}"  /d:"sonar.host.url=${SONAR_HOST_URL}"
+|             - dotnet build 
+|             - dotnet sonarscanner end /d:"sonar.login=${SONAR_TOKEN}"
+|   pull-requests:
+|     '**':
+|       - step:
+|           name: SonarQube analysis
+|           caches:
+|             - dotnetcore
+|             - sonar
+|           script:
+|             - apt-get update
+|             - apt-get install --yes openjdk-11-jre
+|             - dotnet tool install --global dotnet-sonarscanner
+|             - export PATH="$PATH:/root/.dotnet/tools"
+|             - dotnet sonarscanner begin /k:"*YOUR PROJECT KEY*" /d:"sonar.login=${SONAR_TOKEN}"  /d:"sonar.host.url=${SONAR_HOST_URL}"
+|             - dotnet build 
+|             - dotnet sonarscanner end /d:"sonar.login=${SONAR_TOKEN}"
+| definitions:
+|   caches:
+|     sonar: ~/.sonar
+|```
+
+[[collapse]]
 | ## SonarScanner CLI
 |
 | You can set up the SonarScanner CLI configuration the following ways:
