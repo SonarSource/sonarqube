@@ -22,9 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
-import org.sonar.alm.client.github.GithubApplicationClient;
-import org.sonar.alm.client.github.GithubApplicationClientImpl;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,9 +29,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
 import org.sonar.server.user.UserSession;
-
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class ValidateAction implements AlmSettingsWsAction {
 
@@ -45,19 +41,19 @@ public class ValidateAction implements AlmSettingsWsAction {
   private final AlmSettingsSupport almSettingsSupport;
   private final AzureDevOpsHttpClient azureDevOpsHttpClient;
   private final GitlabHttpClient gitlabHttpClient;
-  private final GithubApplicationClient githubApplicationClient;
+  private final GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   private final BitbucketServerRestClient bitbucketServerRestClient;
   private final BitbucketCloudRestClient bitbucketCloudRestClient;
 
   public ValidateAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
     AzureDevOpsHttpClient azureDevOpsHttpClient,
-    GithubApplicationClientImpl githubApplicationClient, GitlabHttpClient gitlabHttpClient,
+    GithubGlobalSettingsValidator githubGlobalSettingsValidator, GitlabHttpClient gitlabHttpClient,
     BitbucketServerRestClient bitbucketServerRestClient, BitbucketCloudRestClient bitbucketCloudRestClient) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
-    this.githubApplicationClient = githubApplicationClient;
+    this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.gitlabHttpClient = gitlabHttpClient;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
     this.bitbucketCloudRestClient = bitbucketCloudRestClient;
@@ -94,7 +90,7 @@ public class ValidateAction implements AlmSettingsWsAction {
           validateGitlab(almSettingDto);
           break;
         case GITHUB:
-          validateGitHub(almSettingDto);
+          githubGlobalSettingsValidator.validate(almSettingDto);
           break;
         case BITBUCKET:
           validateBitbucketServer(almSettingDto);
@@ -122,25 +118,6 @@ public class ValidateAction implements AlmSettingsWsAction {
     gitlabHttpClient.checkToken(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
     gitlabHttpClient.checkReadPermission(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
     gitlabHttpClient.checkWritePermission(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
-  }
-
-  private void validateGitHub(AlmSettingDto settings) {
-    long appId;
-    try {
-      appId = Long.parseLong(settings.getAppId());
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid appId; " + e.getMessage());
-    }
-    if (isBlank(settings.getClientId())) {
-      throw new IllegalArgumentException("Missing Client Id");
-    }
-    if (isBlank(settings.getClientSecret())) {
-      throw new IllegalArgumentException("Missing Client Secret");
-    }
-    GithubAppConfiguration configuration = new GithubAppConfiguration(appId, settings.getPrivateKey(), settings.getUrl());
-
-    githubApplicationClient.checkApiEndpoint(configuration);
-    githubApplicationClient.checkAppPermissions(configuration);
   }
 
   private void validateBitbucketServer(AlmSettingDto almSettingDto) {

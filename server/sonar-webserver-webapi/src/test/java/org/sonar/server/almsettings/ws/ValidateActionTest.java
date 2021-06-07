@@ -21,18 +21,17 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
-import org.sonar.alm.client.github.GithubApplicationClientImpl;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,47 +50,42 @@ import static org.mockito.Mockito.verify;
 public class ValidateActionTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
 
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
-  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), null);
+  private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeatureProvider);
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
-  private final GithubApplicationClientImpl githubApplicationClient = mock(GithubApplicationClientImpl.class);
+  private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock(GithubGlobalSettingsValidator.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final WsActionTester ws = new WsActionTester(
-    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubApplicationClient, gitlabHttpClient,
+    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator, gitlabHttpClient,
       bitbucketServerRestClient, bitbucketCloudRestClient));
 
   @Test
   public void fail_when_key_does_not_match_existing_alm_setting() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
+    TestRequest request = ws.newRequest()
+      .setParam("key", "unknown");
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
-
-    ws.newRequest()
-      .setParam("key", "unknown")
-      .execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("ALM setting with key 'unknown' cannot be found");
   }
 
   @Test
   public void fail_when_missing_administer_system_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
+    TestRequest request = ws.newRequest()
+      .setParam("key", "any key");
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("key", "any key")
-      .execute();
+    assertThatThrownBy(request::execute).isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -117,42 +111,13 @@ public class ValidateActionTest {
       .setParam("key", almSetting.getKey())
       .execute();
 
-    ArgumentCaptor<GithubAppConfiguration> configurationArgumentCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
-    verify(githubApplicationClient).checkApiEndpoint(configurationArgumentCaptor.capture());
-    verify(githubApplicationClient).checkAppPermissions(configurationArgumentCaptor.capture());
-
-    assertThat(configurationArgumentCaptor.getAllValues()).hasSize(2)
-      .extracting(GithubAppConfiguration::getApiEndpoint)
-      .contains(almSetting.getUrl(), almSetting.getUrl());
-  }
-
-  @Test
-  public void github_validation_checks_invalid_appId() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setAppId("abc")
-      .setClientId("clientId").setClientSecret("clientSecret")));
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("key", almSetting.getKey())
-      .execute()).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid appId; For input string: \"abc\"");
-  }
-
-  @Test
-  public void github_validation_checks_missing_clientId() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(s -> s.setClientId(null)));
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("key", almSetting.getKey())
-      .execute()).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing Client Id");
-  }
-
-  @Test
-  public void github_validation_checks_missing_clientSecret() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(s -> s.setClientSecret(null)));
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("key", almSetting.getKey())
-      .execute()).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing Client Secret");
-
+    ArgumentCaptor<AlmSettingDto> almSettingDtoArgumentCaptor = ArgumentCaptor.forClass(AlmSettingDto.class);
+    verify(githubGlobalSettingsValidator).validate(almSettingDtoArgumentCaptor.capture());
+    assertThat(almSettingDtoArgumentCaptor.getAllValues()).hasSize(1);
+    assertThat(almSettingDtoArgumentCaptor.getValue().getClientId()).isEqualTo(almSetting.getClientId());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getClientSecret()).isEqualTo(almSetting.getClientSecret());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getAlm()).isEqualTo(almSetting.getAlm());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getAppId()).isEqualTo(almSetting.getAppId());
   }
 
   @Test
