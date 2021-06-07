@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
@@ -86,7 +87,7 @@ class CoreTestDb implements TestDb {
         throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
 
-      String name = "\"h2Tests-\" + (schemaPath == null ? \"empty\" : DigestUtils.md5Hex(schemaPath))";
+      String name = "h2Tests-" + (schemaPath == null ? "empty" : DigestUtils.md5Hex(schemaPath));
       if (!databaseToUpper) {
         name = name + ";DATABASE_TO_UPPER=FALSE";
       }
