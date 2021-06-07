@@ -14,13 +14,6 @@ To run project analysis with Jenkins, you need to install and configure the foll
 
 See the **Installing and Configuring your Jenkins plugins** section below for more information.
 
-### Configuring Jenkins using the SonarQube tutorial
-
-If you're using Bitbucket Server, GitHub Enterprise, GitHub.com, GitLab Self-Managed, or GitLab.com, you can easily configure and analyze your projects by following the tutorial in SonarQube. You can access the tutorial by going to your project's **Overview** page and selecting **with Jenkins** under "How do you want to analyze your repository?"
-
-[[info]]
-|See the **Installing and Configuring your Jenkins plugins** section below to set up your Jenkins plugins before going through the tutorial. 
-
 ## Installing and Configuring your Jenkins plugins
 
 ### SonarQube Scanner plugin
@@ -57,15 +50,20 @@ Click your ALM below to expand the instructions on installing and configuring th
 |
 | [Bitbucket Branch Source plugin](https://plugins.jenkins.io/cloudbees-bitbucket-branch-source/) version 2.7 or later is required
 | 
-| 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin.
+| From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin. Then configure the following:
+|
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**. 
 | 1. From the **Bitbucket Endpoints** section, Click the **Add** drop-down menu and select **Bitbucket Server**. Add the following information:
 | 	- **Name**: Give a unique name to your Bitbucket Server instance.
 | 	- **Server URL**: Your Bitbucket Server instance URL.
-| 	- Check **Manage hooks**
-| 	- **Credentials**: In your credentials, use a Bitbucket Server personal access token with **Read** permissions.
-| 	- **Webhook implementation to use**: Native	
 | 1. Click **Save**.
+
+[[collapse]]
+| ## BitBucket Cloud
+|
+| [Bitbucket Branch Source plugin](https://plugins.jenkins.io/cloudbees-bitbucket-branch-source/) version 2.7 or later is required
+|
+| From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin. 
 
 [[collapse]]
 | ## GitHub
@@ -86,6 +84,23 @@ Click your ALM below to expand the instructions on installing and configuring th
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**. 
 | 1. From the **GitLab** section, add your GitLab server. Make sure to check the **Manage Web Hooks** checkbox.
 | 1. Click **Save**.
+
+### Configuring Jenkins through the SonarQube tutorial
+
+You can easily configure and analyze your projects with Jenkins through the tutorial in SonarQube. 
+
+[[info]]
+| You need to set up SonarQube to import your repositories before accessing the tutorial. See the **ALM Integrations** in the left-side navigation of this documentation for more information.
+|
+| A tutorial is currently available for all supported ALMs except Azure DevOps.
+
+To access the tutorial:
+
+1. Click the **Add project** drop-down in the upper-right corner of the **Projects** page in SonarQube and select your DevOps platform.
+1. Select the repository you want to import into SonarQube.
+1. When asked **How do you want to analyze your repository?**, select **With Jenkins**.
+
+See the **Installing and Configuring your Jenkins plugins** section below to set up your Jenkins plugins before going through the tutorial. 
 
 ## Configuring Single Branch Pipeline jobs
 With Community Edition, you can only analyze a single branch. For more information, see the [SonarScanner for Jenkins](/analysis/scan/sonarscanner-for-jenkins/) documentation.
