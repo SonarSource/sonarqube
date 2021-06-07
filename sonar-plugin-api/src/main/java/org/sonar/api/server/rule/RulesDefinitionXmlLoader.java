@@ -182,6 +182,7 @@ import static org.apache.commons.lang.StringUtils.trim;
  *
  * @see org.sonar.api.server.rule.RulesDefinition
  * @since 4.3
+ * @deprecated since 9.0. Use the sonar-check-api to annotate rule classes instead of loading the metadata from XML files. See {@link org.sonar.check.Rule}.
  */
 @ServerSide
 @ComputeEngineSide
