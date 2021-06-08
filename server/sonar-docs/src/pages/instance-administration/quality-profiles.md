@@ -3,83 +3,108 @@ title: Quality Profiles
 url: /instance-administration/quality-profiles/
 ---
 
-## Overview
+**Quality Profiles** are a core component of SonarQube where you define sets of [**Rules**](/user-guide/rules/) that, when violated, raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Each individual language has its own Quality Profile.
 
-**Quality Profiles** are a core component of SonarQube, since they are where you define sets of [**Rules**](/user-guide/rules/) that when violated should raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Quality Profiles are defined for individual languages.
+To manage Quality Profiles, navigate to the [**Quality Profiles**](/#sonarqube#/profiles) page. Here, you'll find the Quality Profiles grouped by language.
 
-To manage Quality Profiles, browse to the the [**Quality Profiles**](/#sonarqube#/profiles) page where you'll find Quality Profiles grouped by language.
+Ideally, all of your projects will be measured with the same Quality Profile, but that isn't _always_ practical. For example, you might run into the following situations:
 
-Ideally all of your projects will be measured with the same Quality Profiles, but that is not _always_ practical. In some cases, you may find that:
+- You have different technical requirements from one project to another (for example, different rules might apply to a threaded/non-threaded Java application).
+- You want to ensure stronger requirements for some of your projects (for example, internal frameworks).
 
-- You have different technical requirements from one project to another (different rules might apply to a threaded/non-threaded Java application)
-- You want to ensure stronger requirements for some of your projects (internal frameworks, for example)
+You can define as many Quality Profiles as needed to fit your specific needs.
 
-While it's recommended to have as few Quality Profiles as possible to ensure consistency across projects, you can define as many Quality Profiles as are necessary to fit your specific needs.
+## Default Quality Profiles
 
-Each language must have a default Quality Profile (marked with the Default tag). Projects that are not explicitly assigned to specific Quality Profiles will be analyzed using the default Quality Profiles. There is also at least one built-in Quality Profile (the **Sonar way**) per language. These Quality Profiles are designed by SonarSource with rules that are generally applicable for most projects. 
+Each language must have a default Quality Profile (marked with the Default tag). Projects that are not explicitly assigned to specific Quality Profiles are analyzed using the default Quality Profiles. There is also at least one built-in **Sonar way** Quality Profile for each language. SonarSource creates these Quality Profiles with rules that generally apply to most projects. 
 
-The Sonar way Quality Profiles are a good starting-point as you begin analyzing code, and they start out as the default Quality Profiles for each language. That being said, we recommend that you **Copy** this profile and begin to fine-tune the contents. Why?
+The **Sonar way** Quality Profiles are a good starting point as you begin analyzing code, and they start out as the default Quality Profiles for each language. However, we recommend that you **Copy** this profile (see **Copying a profile** below) and begin to fine-tune the rules. Why?
 
-- Default Quality Profiles are not editable, so you won't be able to customize the Sonar way to your needs
-- The Sonar way becomes a baseline against which you can track your own Quality Profiles
-- The Sonar way may be updated over time to adjust which rules are included and adjust rule severities.
+- Default Quality Profiles are not editable, so you won't be able to customize the **Sonar way** to your needs.
+- The **Sonar way** becomes a baseline against which you can track your own Quality Profiles.
+- The **Sonar way** may be updated over time to adjust which rules are included and adjust rule severities.
 
-## How do I...
+## Quality Profile permissions
 
-### Delegate the management of Quality Profiles to someone else?
+By default, only users with the **Administer Quality Profiles** permission can edit Quality Profiles. This is set at **Administration > Security > Global Permissions**.
 
-By default, only users with the "Administer Quality Profiles" permission can edit Quality Profiles. But in large organizations, it may not be desirable to grant permissions to change all the Quality Profiles without distinction. That's why you can also grant users/groups the permission to edit an individual Quality Profile so that, for instance, the management of the Swift profile can be delegated to a group of Swift experts, and the same for COBOL, ...
+SonarQube also lets you to grant permission to users or groups for specific Quality Profiles, so you can delegate profile management to a group of experts for that language.  These users or groups only have permissions for that specific profile, not all Quality Profiles.
 
-This delegation of permission can only be performed by someone who already has the "Administer Quality Profiles" permission or individual edit rights on the profile to which additional permissions should be granted. The interface to grant individual permissions is available on the profile detail page.
+A user with the **Administer Quality Profiles** permission or individual edit rights for a specific Quality Profile can grant permissions on Quality Profile pages (**Quality Profiles > [ Profile Name ]**) under the **Permissions** heading.
 
-### Copy the rules from one profile to another?
+## Copying a Quality Profile
+Copying a profile works well when you need to make a few changes to a built-in profile. When you copy a profile, you start off with all of the activated rules from the profile you copied from. From here, you can activate or deactivate rules to fit your needs. After copying a profile, your new profile won't inherit any changes made to the original profile.
 
-Many times people want to work from a profile that's based on a built-in profile without actually using the built-in profile. The easiest thing to do in this case is to go to the original profile, we'll call it _Source_, in **Quality Profiles**. From there, click through on the total number of rules in _Source_ to land on the **Rules** page at a pre-narrowed search of _Source_'s rules. Use **Bulk Activate** to turn Source's rules on in your target profile.
+Follow these steps to copy a profile: 
 
-### Know what's changed in a profile?
+1. Go to the Quality Profile page (**Quality Profiles > [ Profile Name ]**) of the profile you want to copy.
+1. Select **Copy** from the ![Settings drop-down](/images/gear.png) drop-down menu  in the upper-right corner of the page. 
+1. Give your new Quality Profile a name and click **Copy**
 
-When {instance} notices that an analysis was performed with a profile that is different in some way from the previous analysis, a Quality Profile event is added to the project's event log. To see the changes in a profile, navigate to the profile (**Quality Profiles > [ Profile Name ]**), and choose **Changelog**. This may help you understand how profile changes impact the issues raised in an analysis.
+## Extending a Quality Profile
+Extending a profile works well when many or all of your projects follow a set of common rules, but some of your projects also need to follow additional rules. When you extend a profile, you create a child profile based on a parent profile. This child profile inherits all of the rule settings from the parent profile. If rules are activated or deactivated in the parent profile, they're activated or deactivated in the child profile. 
+
+While you can activate rules in your child profile that are deactivated in the parent profile, you cannot deactivate rules in the child profile that are active in the parent profile.
+
+Follow these steps to extend a profile:
+
+1. Create a base profile with your core set of rules by clicking the **Create** button on the **Quality Profiles** page, or use an existing profile as a base profile.
+1. From the **Quality Profiles** page (**Quality Profiles > [ Profile Name ]**), find your base profile in the list of Quality Profiles and select **Extend** from the ![Settings drop-down](/images/gear.png) drop-down menu.
+1. After giving your new profile a name, SonarQube opens your new profiles page. 
+1. Below the **Rules** table, click **Activate More** to add rules to your extended profile. 
+1. From the **Inheritance** table, you can see the hierarchy of inheritance for your profile, and you can change the parent profile by clicking the **Change Parent** button. 
+
+Your new profile has all of the activated rules from the profile you copied, but you can activate or deactivate any rules from the **Rules** table by clicking the numbers in the **Active** and **Inactive** columns. 
+
+When you copy a profile, your new profile does not inherit any future rule updates made to the original profile. 
+
+## Comparing two Quality Profiles
+You can compare the activated rules between two Quality Profiles. This is especially useful when you're using a Quality Profile copied from another profile as you won't automatically inherit new rules added to the original Quality Profile. Comparing your custom Quality Profile to the original Quality Profile shows any additional activated rules that aren't in your Quality Profile.
+
+To compare two profiles:
+
+1. From the **Quality Profiles** page, click the name of the first Quality Profile you'd like to compare. 
+1. Select **Compare** from the ![Settings drop-down](/images/gear.png) drop-down menu. 
+1. Select the second Quality Profile you'd like to compare from the **Compare with** drop-down menu.
+
+From here you can activate rules between the two profiles using the ![Activate rule right](/images/activate_rule_compare1.png) buttons.
+
+## Knowing what's changed in a Quality Profile
+When SonarQube notices that an analysis was performed with a Quality Profile that is different in some way from the previous analysis, a Quality Profile event is added to the project's event log. To see the changes in a profile, navigate to the profile (**Quality Profiles > [ Profile Name ]**) and choose **Changelog**. This may help you understand how profile changes impact the issues raised in an analysis.
 
 Additionally, users with Quality Profile administration privileges are notified by email each time a built-in profile is updated. These updates can be caused by updating SonarQube or updating third-party analyzers.
 
-### Copy a profile from one SonarQube instance to another?
+## Using a Quality Profile on another SonarQube instance
+To use a profile from one SonarQube instance on another SonarQube instance, take the following steps:
 
-Use the **Back up** feature on the source instance to export the profile to an XML file. Use the **Restore Profile** feature on the target instance to import the file.
+1. From the source SonarQube instance, open the Quality Profile you want to use. 
+1. Select **Back up** from the ![Settings drop-down](/images/gear.png) drop-down menu. This exports the profile as an XML file.
+1. From the target SonarQube instance, click the **Restore** button on the **Quality Profiles** main page.
+1. Choose the XML file that you exported previously, and click **Restore**.
 
-### Apply a core set of rules plus additional rules to a project?
+## Using a non-default profile on a project
+One profile for each language is marked as the default profile. Barring any other intervention, all projects that use that language will be analyzed with that profile. To have a project analyzed by a non-default profile instead, start from **Quality Profiles**, and click through on your target profile, then use the Projects part of the interface to manage which projects are explicitly assigned to the profile.
 
-Let's say your company has a minimum set of coding rules that all teams must follow, but you want to add rules that are specific to the in use technology in your project. Those rules are good for your team, but irrelevant or even misleading for others. This situation calls for inheritance. Set up a base profile, we'll call it _Root_ with your core set of rules. Then create a child profile, we'll call it _Sprout_. Once it's created, you can **Change parent** to inherit from _Root_, then add your missing rules.
+## Ensuring your Quality Profile has all relevant new rules
 
-Any profile that inherits from another Quality Profile will be updated when the parent Quality Profile is updated.
+Each time a new SonarQube version is released, new rules are added. New rules won't appear automatically in your profile, however, unless you're using a built-in profile or a profile extended from a built-in profile (see the **Extending a profile** section above).
 
-### Make sure my non-default profile is used on a project?
+If you're not using a built-in profile, you can compare your profile to the built-in profile to see what new on-by-default rules you're missing (see the **Comparing two Quality Profiles** section above).
 
-One profile for each language is marked the default. Barring any other intervention, all projects that use that language will be analyzed with that profile. To have a project analyzed by a non-default profile instead, start from **Quality Profiles**, and click through on your target profile, then use the Projects part of the interface to manage which projects are explicitly assigned to the profile.
+Another option is to go to the **Rules** page in SonarQube, and use the **Available Since** search facet to see what rules have been added to the platform since the day you upgraded.
 
-### Make sure I've got all the relevant new rules in my profile?
+And finally, the **Quality Profiles** main page shows recently added rules in the **Recently Added Rules** section on the right side of the page.
 
-Each time a new SonarQube version is released, new rules are added, but they won't appear automatically in your profile unless you're using a built-in profile such as _Sonar way_.
+## Avoiding deprecated rules
 
-If you're not using a built-in profile, you can compare your profile to the built-in profile to see what new on-by-default rules you're missing.
+The **Deprecated Rules** section of the **Rules** page is your first warning that a profile contains deprecated rules. This section with a pink background gives the total number of instances of deprecated rules that are currently active in profiles and a breakdown of deprecated rule count per profile. Clicking through here takes you to the **Rules** page to edit the profile in question.
 
-Another option is to go to the **Rules** space, and use the **Available Since** search facet to see what rules have been added to the platform since the day you upgraded the relevant plugin.
-
-And finally, the profile interface itself will help you be aware of rules added in a new plugin version in the **Latest New Rules** section on the right of the interface.
-
-### Compare two profiles?
-
-Starting from the **Quality Profiles** page, click through on one of the profiles you'd like to compare, then use the **Actions > Compare** interface to select the second profile and see the differences.
-
-### Make sure I don't have any deprecated rules in my profile?
-
-The **Deprecated Rules** section of the rules interface itself is your first warning that a profile contains deprecated rules. This pink-background section gives the total number of instances of deprecated rules that are currently active in profiles, and a breakdown of deprecated count per profile. A click-through here takes you to the **Rules** page to edit the profile in question.
-
-Alternately, you can perform a **Rules** search for the rules in a profile (either manually or by clicking-through from **Quality Profiles** page) and use the **Status** rule search facet to narrow the list to the ones that need attention.
+Alternately, you can perform a **Rules** search for the rules in a profile (either manually or by clicking through from the **Quality Profiles** page) and use the **Status** rule search facet to narrow the list to the ones that need attention.
 
 ## Security
 
-The Quality Profiles service can be accessed by any user (even anonymous users). All users can view every aspect of a profile. That means anyone can see which rules are included in a profile, and which ones have been left out, see how a profile has changed over time, and compare the rules in any two profiles.
+The Quality Profiles service can be accessed by any user (even anonymous users). All users can view every aspect of a Quality Profile. That means anyone can see which rules are included in a profile, which rules have been left out, how a profile has changed over time, and compare the rules in any two profiles.
 
-To make rule profile changes (create, edit or delete) users must be granted the **Administer Quality Profiles and Gates** permission.
+To make rule profile changes (create, edit, or delete) users must be granted the **Administer Quality Profiles and Gates** permission.
 
 A **project administrator** can choose which profiles their project is associated with. See Project Settings for more.
