@@ -81,6 +81,11 @@ export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingRespon
   slug: string;
 }
 
+export interface ProjectBitbucketCloudBindingResponse extends ProjectAlmBindingResponse {
+  alm: AlmKeys.BitbucketCloud;
+  repository: string;
+}
+
 export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
   alm: AlmKeys.GitHub;
   repository: string;
@@ -152,6 +157,12 @@ export function isProjectBitbucketBindingResponse(
   binding: ProjectAlmBindingResponse
 ): binding is ProjectBitbucketBindingResponse {
   return binding.alm === AlmKeys.BitbucketServer;
+}
+
+export function isProjectBitbucketCloudBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectBitbucketBindingResponse {
+  return binding.alm === AlmKeys.BitbucketCloud;
 }
 
 export function isProjectGitHubBindingResponse(

@@ -126,6 +126,121 @@ exports[`should render correctly: content for bitbucket 1`] = `
 </div>
 `;
 
+exports[`should render correctly: content for bitbucket cloud 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    onboarding.tutorial.with.jenkins.multi_branch_pipeline.intro
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "new_item",
+            "type",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step1"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+            "source",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud"
+      />
+      <ul
+        className="list-styled"
+      >
+        <React.Fragment>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server"
+            />
+          </li>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.creds"
+            />
+          </li>
+          <li>
+            <LabelValuePair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner"
+              value="workspaceId"
+            />
+          </li>
+          <li>
+            <LabelValuePair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
+              value="PROJECT_KEY"
+            />
+          </li>
+        </React.Fragment>
+        <li>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.behaviour"
+          />
+        </li>
+      </ul>
+      <p
+        className="big-spacer-left padder-left"
+      >
+        onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults
+      </p>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
+      />
+      <ul
+        className="list-styled"
+      >
+        <li>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.mode"
+          />
+        </li>
+        <li>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.script_path"
+          />
+        </li>
+      </ul>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "save",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step4"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
 exports[`should render correctly: content for github 1`] = `
 <div
   className="boxed-group-inner"

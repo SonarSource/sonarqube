@@ -22,6 +22,7 @@ import * as React from 'react';
 import {
   mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse,
+  mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
@@ -32,6 +33,14 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('Step wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content for bitbucket');
+  expect(
+    renderStepContent(
+      shallowRender({
+        almBinding: mockAlmSettingsInstance({ url: 'https://bitbucket.org/workspaceId/' }),
+        projectBinding: mockProjectBitbucketCloudBindingResponse()
+      })
+    )
+  ).toMatchSnapshot('content for bitbucket cloud');
   expect(
     renderStepContent(
       shallowRender({

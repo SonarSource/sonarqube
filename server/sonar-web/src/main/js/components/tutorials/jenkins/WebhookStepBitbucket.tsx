@@ -21,7 +21,11 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingResponse
+} from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
@@ -32,19 +36,34 @@ export interface WebhookStepBitbucketProps {
   projectBinding: ProjectAlmBindingResponse;
 }
 
-function buildUrlSnippet(branchesEnabled: boolean, ownUrl = '***BITBUCKET_URL***') {
-  return branchesEnabled
-    ? `***JENKINS_SERVER_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`
-    : '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
+function buildUrlSnippet(
+  branchesEnabled: boolean,
+  isBitbucketcloud: boolean,
+  ownUrl = '***BITBUCKET_URL***'
+) {
+  if (!branchesEnabled) {
+    return '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
+  }
+  return isBitbucketcloud
+    ? '***JENKINS_SERVER_URL***/bitbucket-scmsource-hook/notify'
+    : `***JENKINS_SERVER_URL***/bitbucket-scmsource-hook/notify?server_url=${ownUrl}`;
 }
 
 export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
   const { almBinding, branchesEnabled, projectBinding } = props;
 
-  const linkUrl =
-    almBinding &&
-    almBinding.url &&
-    `${almBinding.url}/plugins/servlet/webhooks/projects/${projectBinding.repository}/repos/${projectBinding.slug}/create`;
+  const isBitbucketCloud = projectBinding.alm === AlmKeys.BitbucketCloud;
+
+  let linkUrl;
+  if (almBinding?.url) {
+    if (isBitbucketCloud) {
+      linkUrl =
+        projectBinding.repository &&
+        `${almBinding.url}${projectBinding.repository}/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin`;
+    } else {
+      linkUrl = `${almBinding.url}/plugins/servlet/webhooks/projects/${projectBinding.repository}/repos/${projectBinding.slug}/create`;
+    }
+  }
 
   return (
     <>
@@ -55,10 +74,18 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           values={{
             link: linkUrl ? (
               <a href={linkUrl} rel="noopener noreferrer" target="_blank">
-                {translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link')}
+                {translate(
+                  'onboarding.tutorial.with.jenkins.webhook',
+                  projectBinding.alm,
+                  'step1.link'
+                )}
               </a>
             ) : (
-              translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link')
+              translate(
+                'onboarding.tutorial.with.jenkins.webhook',
+                projectBinding.alm,
+                'step1.link'
+              )
             )
           }}
         />
@@ -72,9 +99,13 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             </p>
             <CodeSnippet
               isOneLine={true}
-              snippet={buildUrlSnippet(branchesEnabled, almBinding && almBinding.url)}
+              snippet={buildUrlSnippet(
+                branchesEnabled,
+                isBitbucketCloud,
+                almBinding && almBinding.url
+              )}
             />
-            {branchesEnabled && (
+            {branchesEnabled && !isBitbucketCloud && (
               <Alert variant="info">
                 {translate('onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning')}
               </Alert>
@@ -82,27 +113,53 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           </li>
         </ul>
       </li>
-      <li>
-        <SentenceWithHighlights
-          highlightKeys={['events']}
-          translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
-        />
-        <ul className="list-styled">
-          <li>
-            <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo" />
-          </li>
-          {branchesEnabled && (
+      {isBitbucketCloud ? (
+        <li>
+          <SentenceWithHighlights
+            highlightKeys={['triggers', 'option']}
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
+          />
+          <ul className="list-styled">
             <li>
-              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr" />
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2.repo" />
             </li>
-          )}
-        </ul>
-      </li>
+            {branchesEnabled && (
+              <li>
+                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2.pr" />
+              </li>
+            )}
+          </ul>
+        </li>
+      ) : (
+        <li>
+          <SentenceWithHighlights
+            highlightKeys={['events']}
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
+          />
+          <ul className="list-styled">
+            <li>
+              <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo" />
+            </li>
+            {branchesEnabled && (
+              <li>
+                <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr" />
+              </li>
+            )}
+          </ul>
+        </li>
+      )}
       <li>
-        <SentenceWithHighlights
-          highlightKeys={['create']}
-          translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
-        />
+        {isBitbucketCloud ? (
+          <SentenceWithHighlights
+            highlightKeys={['save']}
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step3"
+          />
+        ) : (
+          <SentenceWithHighlights
+            highlightKeys={['create']}
+            translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+          />
+        )}
       </li>
     </>
   );

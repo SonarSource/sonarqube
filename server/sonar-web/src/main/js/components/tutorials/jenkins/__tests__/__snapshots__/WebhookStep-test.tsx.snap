@@ -105,6 +105,68 @@ exports[`it should render correctly for bitbucket: wrapper 1`] = `
 />
 `;
 
+exports[`it should render correctly for bitbucketcloud: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      values={
+        Object {
+          "link": <ButtonLink
+            onClick={[MockFunction]}
+          >
+            onboarding.tutorial.with.jenkins.webhook.intro.link
+          </ButtonLink>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <WebhookStepBitbucket
+      almBinding={
+        Object {
+          "alm": "github",
+          "key": "key",
+        }
+      }
+      branchesEnabled={true}
+      projectBinding={
+        Object {
+          "alm": "bitbucketcloud",
+          "key": "foo",
+          "monorepo": true,
+          "repository": "PROJECT_KEY",
+          "slug": "repo-slug",
+        }
+      }
+    />
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`it should render correctly for bitbucketcloud: wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.title"
+/>
+`;
+
 exports[`it should render correctly for github: content 1`] = `
 <div
   className="boxed-group-inner"

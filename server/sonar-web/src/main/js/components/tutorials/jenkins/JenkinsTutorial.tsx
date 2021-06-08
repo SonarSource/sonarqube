@@ -26,6 +26,7 @@ import { setCurrentUserSetting } from '../../../store/users';
 import {
   AlmSettingsInstance,
   isProjectBitbucketBindingResponse,
+  isProjectBitbucketCloudBindingResponse,
   isProjectGitHubBindingResponse,
   isProjectGitLabBindingResponse,
   ProjectAlmBindingResponse
@@ -62,6 +63,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
 
   // Failsafe; should never happen.
   if (
+    !isProjectBitbucketCloudBindingResponse(projectBinding) &&
     !isProjectBitbucketBindingResponse(projectBinding) &&
     !isProjectGitHubBindingResponse(projectBinding) &&
     !isProjectGitLabBindingResponse(projectBinding)

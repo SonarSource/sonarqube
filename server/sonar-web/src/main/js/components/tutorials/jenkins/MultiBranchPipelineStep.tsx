@@ -23,9 +23,11 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   AlmSettingsInstance,
   isProjectBitbucketBindingResponse,
+  isProjectBitbucketCloudBindingResponse,
   isProjectGitHubBindingResponse,
   isProjectGitLabBindingResponse,
   ProjectBitbucketBindingResponse,
+  ProjectBitbucketCloudBindingResponse,
   ProjectGitHubBindingResponse,
   ProjectGitLabBindingResponse
 } from '../../../types/alm-settings';
@@ -35,20 +37,37 @@ import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 import { buildGithubLink } from '../utils';
 
+type validBindingResponse =
+  | ProjectBitbucketCloudBindingResponse
+  | ProjectBitbucketBindingResponse
+  | ProjectGitHubBindingResponse
+  | ProjectGitLabBindingResponse;
+
 export interface MultiBranchPipelineStepProps {
   almBinding?: AlmSettingsInstance;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectBinding:
-    | ProjectBitbucketBindingResponse
-    | ProjectGitHubBindingResponse
-    | ProjectGitLabBindingResponse;
+  projectBinding: validBindingResponse;
+}
+
+/* Capture [workspaceID] from this pattern: https://bitbucket.org/[workspaceId]/  */
+const bitbucketcloudUrlRegex = new RegExp('https:\\/\\/bitbucket.org\\/(.+)\\/');
+
+function extractBitbucketCloudWorkspaceId(almBinding?: AlmSettingsInstance): string | undefined {
+  if (almBinding?.url) {
+    const result = almBinding.url.match(bitbucketcloudUrlRegex);
+
+    return result ? result[1] : undefined;
+  }
 }
 
 export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepProps) {
   const { almBinding, finished, open, projectBinding } = props;
+
+  const workspaceId = extractBitbucketCloudWorkspaceId(almBinding);
+
   return (
     <Step
       finished={finished}
@@ -90,6 +109,32 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                       <LabelValuePair
                         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
                         value={projectBinding.slug}
+                      />
+                    </li>
+                  </>
+                )}
+                {isProjectBitbucketCloudBindingResponse(projectBinding) && (
+                  <>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server" />
+                    </li>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.creds" />
+                    </li>
+                    <li>
+                      {workspaceId ? (
+                        <LabelValuePair
+                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner"
+                          value={workspaceId}
+                        />
+                      ) : (
+                        <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.owner" />
+                      )}
+                    </li>
+                    <li>
+                      <LabelValuePair
+                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
+                        value={projectBinding.repository}
                       />
                     </li>
                   </>

@@ -21,14 +21,22 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsInstance,
-  mockProjectBitbucketBindingResponse
+  mockProjectBitbucketBindingResponse,
+  mockProjectBitbucketCloudBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import WebhookStepBitbucket, { WebhookStepBitbucketProps } from '../WebhookStepBitbucket';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ almBinding: undefined })).toMatchSnapshot('with no alm binding');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('with branches disabled');
+it.each([
+  ['bitbucket server', mockProjectBitbucketBindingResponse()],
+  ['bitbucket cloud', mockProjectBitbucketCloudBindingResponse()]
+])('should render correctly for %s', (_name, projectBinding) => {
+  expect(shallowRender({ projectBinding })).toMatchSnapshot();
+  expect(shallowRender({ projectBinding, almBinding: undefined })).toMatchSnapshot(
+    'with no alm binding'
+  );
+  expect(shallowRender({ projectBinding, branchesEnabled: false })).toMatchSnapshot(
+    'with branches disabled'
+  );
 });
 
 function shallowRender(props: Partial<WebhookStepBitbucketProps> = {}) {

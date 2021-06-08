@@ -30,6 +30,7 @@ import {
   ProjectAlmBindingResponse,
   ProjectAzureBindingResponse,
   ProjectBitbucketBindingResponse,
+  ProjectBitbucketCloudBindingResponse,
   ProjectGitHubBindingResponse,
   ProjectGitLabBindingResponse
 } from '../../types/alm-settings';
@@ -127,6 +128,19 @@ export function mockProjectBitbucketBindingResponse(
 ): ProjectBitbucketBindingResponse {
   return {
     alm: AlmKeys.BitbucketServer,
+    key: 'foo',
+    repository: 'PROJECT_KEY',
+    slug: 'repo-slug',
+    monorepo: true,
+    ...overrides
+  };
+}
+
+export function mockProjectBitbucketCloudBindingResponse(
+  overrides: Partial<ProjectBitbucketCloudBindingResponse> = {}
+): ProjectBitbucketCloudBindingResponse {
+  return {
+    alm: AlmKeys.BitbucketCloud,
     key: 'foo',
     repository: 'PROJECT_KEY',
     slug: 'repo-slug',

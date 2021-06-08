@@ -23,6 +23,7 @@ import {
   mockAlmSettingsInstance,
   mockProjectAlmBindingResponse,
   mockProjectBitbucketBindingResponse,
+  mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -31,6 +32,7 @@ import WebhookStep, { WebhookStepProps } from '../WebhookStep';
 
 it.each([
   [AlmKeys.Azure, mockProjectAlmBindingResponse({ alm: AlmKeys.Azure })],
+  [AlmKeys.BitbucketCloud, mockProjectBitbucketCloudBindingResponse()],
   [AlmKeys.BitbucketServer, mockProjectBitbucketBindingResponse()],
   [AlmKeys.GitHub, mockProjectGithubBindingResponse()],
   [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })]
