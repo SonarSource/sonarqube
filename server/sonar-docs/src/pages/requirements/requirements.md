@@ -20,7 +20,7 @@ For additional requirements and recommendations relating to database and Elastic
 
 ## Supported Platforms
 ### Java
-SonarQube scanners require version 8 or 11 of the JVM and the SonarQube server requires version 11. Versions beyond Java 11 are not officially supported. 
+The SonarQube scanners and the SonarQube server require Java version 11. Versions beyond Java 11 are not officially supported. 
 
 SonarQube is able to analyze any kind of Java source files regardless of the version of Java they comply to. 
 
@@ -29,9 +29,9 @@ We recommend using the Critical Patch Update (CPU) releases.
 | Java           | Server                    | Scanners                  |
 | -------------- | ------------------------- | ------------------------- |
 | Oracle JRE     | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
-|                | ![](/images/cross.svg) 8  | ![](/images/check.svg) 8  |
+|                | ![](/images/cross.svg) 8  | ![](/images/cross.svg) 8  |
 | OpenJDK        | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
-|                | ![](/images/cross.svg) 8  | ![](/images/check.svg) 8  |
+|                | ![](/images/cross.svg) 8  | ![](/images/cross.svg) 8  |
 
 | Database                                                    |                                                                                                                                                                                                                                                                   |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
