@@ -3,7 +3,7 @@ title: Moving Analysis to Java 11
 url: /analysis/analysis-with-java-11/
 ---
 
-Use of Java 8 is deprecated for SonarQube scanners, and scanners will require Java 11 in the near future. If you're using a previous version of the Java, see the section below that aligns with your build for information on moving your analysis to Java 11.
+Java 11 is required for all scanners. If you're using a previous version of the Java, see the section below that aligns with your build for information on moving your analysis to Java 11.
 
 ## Maven or Gradle
 
@@ -53,7 +53,7 @@ If your build is not compatible with Java 11, you can override `JAVA_HOME` envir
 
 You can easily define a new JDK version by navigating to **Manage Jenkins > Global Tool Configuration** if you have the [JDK Tool Plugin](https://plugins.jenkins.io/jdk-tool/) installed.
 
-### Declaritive Pipelines
+### Declarative Pipelines
 
 If you are using a declarative pipeline with different stages you can add a 'tools' section to the stage in which the code scan occurs. This makes the scanner use the specificed JDK version.
 
@@ -110,7 +110,7 @@ You can set the JDK version that a job should use in the **General** section of 
 If you're using the **Execute SonarQube Scanner** step in your configuration, you can set the JDK for this step in the configuration dialog. This allows you to use JDK 11 for the code scanning performed by SonarQube and the globally configured JDK for all other steps in the job.
 
 #### **Java 8 projects**  
-Jenkins doesn't let you switch JDKs when using a 'Freestyle project' or 'Maven project' configuration,  so when you want to build your project using Java 8 you have to manually set the `JAVA_HOME` variable to Java 11 when executing the scanner.
+Jenkins doesn't let you switch JDKs when using a 'Freestyle project' or 'Maven project' configuration, so when you want to build your project using Java 8 you have to manually set the `JAVA_HOME` variable to Java 11 when executing the scanner.
 
 You can do this with the [Tool Environment Plugin](https://plugins.jenkins.io/toolenv/). When this plugin is installed, you can expose the location of the JDK you added under **Manage Jenkins > Global Tool Configuration**.
 
