@@ -19,7 +19,6 @@
  */
 package org.sonar.xoo.extensions;
 
-import com.google.common.collect.Iterables;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
@@ -34,13 +33,11 @@ public class XooPostJob implements PostJob {
   public void describe(PostJobDescriptor descriptor) {
     descriptor.name("Xoo Post Job")
       .requireProperty("sonar.xoo.enablePostJob");
-
   }
 
   @Override
   public void execute(PostJobContext context) {
-    LOG.info("Resolved issues: " + Iterables.size(context.resolvedIssues()));
-    LOG.info("Open issues: " + Iterables.size(context.issues()));
+    LOG.info("Running Xoo PostJob");
   }
 
 }

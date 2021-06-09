@@ -31,7 +31,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -45,7 +44,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_EXCLUSIONS_IS_DISABLED_BY_CONFIGURATION;
@@ -55,7 +54,6 @@ import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_STEP_IS_DISABLE
 public class ScmConfigurationTest {
 
   private final InputModuleHierarchy inputModuleHierarchy = mock(InputModuleHierarchy.class, withSettings().defaultAnswer(Answers.RETURNS_MOCKS));
-  private final AnalysisMode analysisMode = mock(AnalysisMode.class);
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
   private final Configuration settings = mock(Configuration.class);
 
@@ -71,10 +69,9 @@ public class ScmConfigurationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   public ScmConfigurationTest() {
-    when(analysisMode.isIssues()).thenReturn(false);
     when(scmProvider.key()).thenReturn(scmProviderKey);
 
-    underTest = new ScmConfiguration(inputModuleHierarchy, analysisMode, settings, analysisWarnings, scmProvider);
+    underTest = new ScmConfiguration(inputModuleHierarchy, settings, analysisWarnings, scmProvider);
   }
 
   @Test
@@ -84,7 +81,14 @@ public class ScmConfigurationTest {
     underTest.start();
 
     assertThat(underTest.provider()).isNotNull();
-    verifyZeroInteractions(analysisWarnings);
+    verifyNoInteractions(analysisWarnings);
+  }
+
+  @Test
+  public void no_provider_if_no_provider_is_available() {
+    ScmConfiguration underTest = new ScmConfiguration(inputModuleHierarchy, settings, analysisWarnings);
+    assertThat(underTest.provider()).isNull();
+    verifyNoInteractions(analysisWarnings);
   }
 
   @Test
@@ -135,23 +139,12 @@ public class ScmConfigurationTest {
   }
 
   @Test
-  public void return_early_from_start_in_issues_mode() {
-    // return early = doesn't reach the logging when disabled
-    when(settings.getBoolean(CoreProperties.SCM_DISABLED_KEY)).thenReturn(Optional.of(true));
-    when(analysisMode.isIssues()).thenReturn(true);
-
-    underTest.start();
-
-    assertThat(logTester.logs()).isEmpty();
-  }
-
-  @Test
   public void fail_when_multiple_scm_providers_claim_support() {
     when(scmProvider.supports(any())).thenReturn(true);
     when(scmProvider.key()).thenReturn("key1", "key2");
 
     ScmProvider[] providers = {scmProvider, scmProvider};
-    ScmConfiguration underTest = new ScmConfiguration(inputModuleHierarchy, analysisMode, settings, analysisWarnings, providers);
+    ScmConfiguration underTest = new ScmConfiguration(inputModuleHierarchy, settings, analysisWarnings, providers);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage(

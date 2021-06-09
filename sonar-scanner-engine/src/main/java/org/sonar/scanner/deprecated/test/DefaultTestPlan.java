@@ -21,35 +21,18 @@ package org.sonar.scanner.deprecated.test;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
 
-public class DefaultTestPlan implements MutableTestPlan {
-  private List<MutableTestCase> testCases = new ArrayList<>();
+public class DefaultTestPlan {
+  private final List<DefaultTestCase> testCases = new ArrayList<>();
 
-  @Override
-  @CheckForNull
-  public Iterable<MutableTestCase> testCasesByName(String name) {
-    List<MutableTestCase> result = new ArrayList<>();
-    for (MutableTestCase testCase : testCases()) {
-      if (name.equals(testCase.name())) {
-        result.add(testCase);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public MutableTestCase addTestCase(String name) {
-    DefaultTestCase testCase = new DefaultTestCase(this);
+  public DefaultTestCase addTestCase(String name) {
+    DefaultTestCase testCase = new DefaultTestCase();
     testCase.setName(name);
     testCases.add(testCase);
     return testCase;
   }
 
-  @Override
-  public Iterable<MutableTestCase> testCases() {
+  public Iterable<DefaultTestCase> testCases() {
     return testCases;
   }
 

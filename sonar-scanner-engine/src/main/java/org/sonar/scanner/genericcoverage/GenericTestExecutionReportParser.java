@@ -31,12 +31,12 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.TestCase;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.deprecated.test.DefaultTestCase;
+import org.sonar.scanner.deprecated.test.DefaultTestCase.Status;
+import org.sonar.scanner.deprecated.test.DefaultTestPlan;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
 import static org.sonar.api.utils.Preconditions.checkState;
@@ -128,7 +128,7 @@ public class GenericTestExecutionReportParser {
         filePath);
       matchedFileKeys.add(inputFile.absolutePath());
 
-      MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, inputFile);
+      DefaultTestPlan testPlan = testPlanBuilder.getTestPlan(inputFile);
       SMInputCursor testCaseCursor = fileCursor.childElementCursor();
       while (testCaseCursor.getNext() != null) {
         parseTestCase(testCaseCursor, testPlan);
@@ -136,25 +136,24 @@ public class GenericTestExecutionReportParser {
     }
   }
 
-  private void parseTestCase(SMInputCursor cursor, MutableTestPlan testPlan) throws XMLStreamException {
+  private static void parseTestCase(SMInputCursor cursor, DefaultTestPlan testPlan) throws XMLStreamException {
     checkElementName(cursor, "testCase");
-    MutableTestCase testCase = testPlan.addTestCase(mandatoryAttribute(cursor, NAME_ATTR));
-    TestCase.Status status = TestCase.Status.OK;
+    DefaultTestCase testCase = testPlan.addTestCase(mandatoryAttribute(cursor, NAME_ATTR));
+    Status status = Status.OK;
     testCase.setDurationInMs(longValue(mandatoryAttribute(cursor, DURATION_ATTR), cursor, DURATION_ATTR, 0));
 
     SMInputCursor child = cursor.descendantElementCursor();
     if (child.getNext() != null) {
       String elementName = child.getLocalName();
       if (SKIPPED.equals(elementName)) {
-        status = TestCase.Status.SKIPPED;
+        status = Status.SKIPPED;
       } else if (FAILURE.equals(elementName)) {
-        status = TestCase.Status.FAILURE;
+        status = Status.FAILURE;
       } else if (ERROR.equals(elementName)) {
-        status = TestCase.Status.ERROR;
+        status = Status.ERROR;
       }
-      if (TestCase.Status.OK != status) {
+      if (Status.OK != status) {
         testCase.setMessage(mandatoryAttribute(child, MESSAGE_ATTR));
-        testCase.setStackTrace(child.collectDescendantText());
       }
     }
     testCase.setStatus(status);

@@ -102,11 +102,6 @@ class FakeServer extends Server {
   }
 
   @Override
-  public File getRootDir() {
-    return null;
-  }
-
-  @Override
   public String getContextPath() {
     return null;
   }
@@ -117,18 +112,8 @@ class FakeServer extends Server {
   }
 
   @Override
-  public boolean isDev() {
-    return false;
-  }
-
-  @Override
   public boolean isSecured() {
     return false;
-  }
-
-  @Override
-  public String getURL() {
-    return null;
   }
 
   @Override

@@ -115,7 +115,7 @@ public class RegisterRules implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(false)) {
       RulesDefinition.Context ruleDefinitionContext = defLoader.load();
-      List<RulesDefinition.ExtendedRepository> repositories = getRepositories(ruleDefinitionContext);
+      List<RulesDefinition.Repository> repositories = ruleDefinitionContext.repositories();
       RegisterRulesContext registerRulesContext = createRegisterRulesContext(dbSession);
 
       verifyRuleKeyConsistency(repositories, registerRulesContext);
@@ -147,18 +147,6 @@ public class RegisterRules implements Startable {
 
       webServerRuleFinder.startCaching();
     }
-  }
-
-  private static List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
-    List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<>(context.repositories());
-    for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
-      if (context.repository(extendedRepoDef.key()) == null) {
-        LOG.warn(format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
-      } else {
-        repositories.add(extendedRepoDef);
-      }
-    }
-    return repositories;
   }
 
   private RegisterRulesContext createRegisterRulesContext(DbSession dbSession) {
@@ -736,7 +724,7 @@ public class RegisterRules implements Startable {
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
   private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, RegisterRulesContext recorder,
-    List<RulesDefinition.ExtendedRepository> context) {
+    List<RulesDefinition.Repository> context) {
     List<String> repositoryKeys = context.stream()
       .map(RulesDefinition.ExtendedRepository::key)
       .collect(MoreCollectors.toList(context.size()));
@@ -759,7 +747,7 @@ public class RegisterRules implements Startable {
     dbClient.ruleDao().update(session, rule);
   }
 
-  private static void verifyRuleKeyConsistency(List<RulesDefinition.ExtendedRepository> repositories, RegisterRulesContext registerRulesContext) {
+  private static void verifyRuleKeyConsistency(List<RulesDefinition.Repository> repositories, RegisterRulesContext registerRulesContext) {
     List<RulesDefinition.Rule> definedRules = repositories.stream()
       .flatMap(r -> r.rules().stream())
       .collect(toList());

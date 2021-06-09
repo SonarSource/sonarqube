@@ -46,7 +46,6 @@ import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.ANNOTATION;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.COMMENT;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.CONSTANT;
-import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.CPP_DOC;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.HIGHLIGHTING_STRING;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.KEYWORD;
 
@@ -119,7 +118,7 @@ public class HighlightingLineReaderTest {
   public void supports_highlighting_over_multiple_lines_including_an_empty_one() {
     List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingList = new ArrayList<>();
     addHighlighting(syntaxHighlightingList, 1, 0, 1, 7, KEYWORD); // package
-    addHighlighting(syntaxHighlightingList, 2, 0, 4, 6, CPP_DOC); // comment over 3 lines
+    addHighlighting(syntaxHighlightingList, 2, 0, 4, 6, COMMENT); // comment over 3 lines
     addHighlighting(syntaxHighlightingList, 5, 0, 5, 6, KEYWORD); // public
     addHighlighting(syntaxHighlightingList, 5, 7, 5, 12, KEYWORD); // class
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(FILE, syntaxHighlightingList.iterator(), new RangeOffsetConverter());
@@ -137,9 +136,9 @@ public class HighlightingLineReaderTest {
       .extracting("highlighting")
       .containsExactly(
         "0,7,k",
-        "0,2,cppd",
+        "0,2,cd",
         "",
-        "0,6,cppd",
+        "0,6,cd",
         "0,6,k;7,12,k",
         "");
   }

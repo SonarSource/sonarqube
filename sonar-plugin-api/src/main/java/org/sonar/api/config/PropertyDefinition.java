@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -42,7 +41,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -110,7 +108,6 @@ public final class PropertyDefinition {
   private List<String> qualifiers;
   private boolean global;
   private boolean multiValues;
-  private String propertySetKey;
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
   /**
@@ -130,7 +127,6 @@ public final class PropertyDefinition {
     this.type = builder.type;
     this.options = builder.options;
     this.multiValues = builder.multiValues;
-    this.propertySetKey = builder.propertySetKey;
     this.fields = builder.fields;
     this.deprecatedKey = builder.deprecatedKey;
     this.qualifiers = builder.onQualifiers;
@@ -155,7 +151,6 @@ public final class PropertyDefinition {
       .type(annotation.type())
       .options(asList(annotation.options()))
       .multiValues(annotation.multiValues())
-      .propertySetKey(annotation.propertySetKey())
       .fields(PropertyFieldDefinition.create(annotation.fields()))
       .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = new ArrayList<>();
@@ -312,14 +307,6 @@ public final class PropertyDefinition {
     return multiValues;
   }
 
-  /**
-   * @deprecated since 6.1, as it was not used and too complex to maintain.
-   */
-  @Deprecated
-  public String propertySetKey() {
-    return propertySetKey;
-  }
-
   public List<PropertyFieldDefinition> fields() {
     return fields;
   }
@@ -338,10 +325,7 @@ public final class PropertyDefinition {
 
   @Override
   public String toString() {
-    if (isEmpty(propertySetKey)) {
-      return key;
-    }
-    return new StringBuilder().append(propertySetKey).append('|').append(key).toString();
+    return key;
   }
 
   public static final class Result {
@@ -386,7 +370,6 @@ public final class PropertyDefinition {
     private PropertyType type = PropertyType.STRING;
     private List<String> options = new ArrayList<>();
     private boolean multiValues = false;
-    private String propertySetKey = "";
     private List<PropertyFieldDefinition> fields = new ArrayList<>();
     private String deprecatedKey = "";
     private boolean hidden = false;
@@ -549,15 +532,6 @@ public final class PropertyDefinition {
 
     public Builder multiValues(boolean multiValues) {
       this.multiValues = multiValues;
-      return this;
-    }
-
-    /**
-     * @deprecated since 6.1, as it was not used and too complex to maintain.
-     */
-    @Deprecated
-    public Builder propertySetKey(String propertySetKey) {
-      this.propertySetKey = propertySetKey;
       return this;
     }
 

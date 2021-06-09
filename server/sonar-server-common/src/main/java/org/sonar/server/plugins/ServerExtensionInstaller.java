@@ -24,9 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
@@ -38,7 +36,6 @@ import org.sonar.core.platform.PluginRepository;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvider;
 
 /**
  * Loads the plugins server extensions and injects them to DI container
@@ -69,7 +66,7 @@ public abstract class ServerExtensionInstaller {
           .build();
         plugin.define(context);
         for (Object extension : context.getExtensions()) {
-          if (installExtension(container, pluginInfo, extension, true) != null) {
+          if (installExtension(container, pluginInfo, extension) != null) {
             installedExtensionsByPlugin.put(pluginInfo, extension);
           } else {
             container.declareExtension(pluginInfo, extension);
@@ -80,40 +77,11 @@ public abstract class ServerExtensionInstaller {
         throw new IllegalStateException(format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
-    for (Map.Entry<PluginInfo, Object> entry : installedExtensionsByPlugin.entries()) {
-      PluginInfo pluginInfo = entry.getKey();
-      try {
-        Object extension = entry.getValue();
-        if (isExtensionProvider(extension)) {
-          ExtensionProvider provider = (ExtensionProvider) container.getComponentByKey(extension);
-          installProvider(container, pluginInfo, provider);
-        }
-      } catch (Throwable e) {
-        // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
-        throw new IllegalStateException(format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
-      }
-    }
   }
 
-  private void installProvider(ComponentContainer container, PluginInfo pluginInfo, ExtensionProvider provider) {
-    Object obj = provider.provide();
-    if (obj != null) {
-      if (obj instanceof Iterable) {
-        for (Object ext : (Iterable) obj) {
-          installExtension(container, pluginInfo, ext, false);
-        }
-      } else {
-        installExtension(container, pluginInfo, obj, false);
-      }
-    }
-  }
-
-  private Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
+  private Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension) {
     for (Class<? extends Annotation> supportedAnnotationType : supportedAnnotationTypes) {
       if (AnnotationUtils.getAnnotation(extension, supportedAnnotationType) != null) {
-        if (!acceptProvider && isExtensionProvider(extension)) {
-          throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
-        }
         container.addExtension(pluginInfo, extension);
         return extension;
       }

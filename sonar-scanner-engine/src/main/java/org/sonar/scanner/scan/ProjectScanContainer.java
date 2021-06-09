@@ -38,11 +38,9 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
@@ -63,8 +61,6 @@ import org.sonar.scanner.ci.vendors.TravisCi;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.deprecated.test.TestPlanBuilder;
-import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.IssuePublisher;
@@ -168,13 +164,11 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectLock.class,
       ResourceTypes.class,
       ProjectReactorValidator.class,
-      MetricProvider.class,
       ProjectInfo.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
       new ProjectPullRequestsProvider(),
-      DefaultAnalysisMode.class,
       ProjectRepositoriesSupplier.class,
       new ProjectServerSettingsProvider(),
 
@@ -210,10 +204,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // metrics
       DefaultMetricFinder.class,
-
-      // tests
-      TestPlanBuilder.class,
-      TestableBuilder.class,
 
       // lang
       Languages.class,

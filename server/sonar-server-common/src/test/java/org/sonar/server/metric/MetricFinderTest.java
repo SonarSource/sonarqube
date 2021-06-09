@@ -30,13 +30,12 @@ import org.sonar.db.metric.MetricDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
-
-public class DefaultMetricFinderTest {
+public class MetricFinderTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DefaultMetricFinder underTest = new DefaultMetricFinder(db.getDbClient());
+  private final MetricFinder underTest = new MetricFinder(db.getDbClient());
 
   @Test
   public void findAll_enabled() {
@@ -70,11 +69,47 @@ public class DefaultMetricFinderTest {
   }
 
   @Test
+  public void findById_filters_out_disabled() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setEnabled(false));
+    db.commit();
+
+    assertThat(underTest.findByUuid(secondMetric.getUuid())).isNull();
+  }
+
+  @Test
+  public void findById_doesnt_find_anything() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.commit();
+
+    assertThat(underTest.findByUuid("non existing")).isNull();
+  }
+
+  @Test
   public void findByKey() {
     MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
     MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
     db.commit();
 
     assertThat(underTest.findByKey(secondMetric.getKey())).extracting(Metric::getKey).isEqualTo(secondMetric.getKey());
+  }
+
+  @Test
+  public void findByKey_filters_out_disabled() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setEnabled(false));
+    db.commit();
+
+    assertThat(underTest.findByKey(secondMetric.getKey())).isNull();
+  }
+
+  @Test
+  public void findByKey_doesnt_find_anything() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.commit();
+
+    assertThat(underTest.findByKey("doesnt exist")).isNull();
   }
 }

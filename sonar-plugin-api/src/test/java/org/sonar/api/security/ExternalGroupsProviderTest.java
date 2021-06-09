@@ -39,7 +39,6 @@ public class ExternalGroupsProviderTest {
     };
 
     String userName = "foo";
-    assertThat(groupsProvider.doGetGroups(userName)).isNull();
     assertThat(groupsProvider.doGetGroups(new ExternalGroupsProvider.Context(userName,
       mock(HttpServletRequest.class)))).isNull();
   }
@@ -55,22 +54,6 @@ public class ExternalGroupsProviderTest {
         Preconditions.checkNotNull(context.getRequest());
 
         return userGroupsMap.get(context.getUsername());
-      }
-    };
-
-    runDoGetGroupsTests(groupsProvider, userGroupsMap);
-  }
-
-  @Test
-  public void doGetGroupsDeprecatedApi() {
-    final Map<String, Collection<String>> userGroupsMap = getTestUserGroupMapping();
-
-    ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
-      @Override
-      public Collection<String> doGetGroups(String username) {
-        Preconditions.checkNotNull(username);
-
-        return userGroupsMap.get(username);
       }
     };
 

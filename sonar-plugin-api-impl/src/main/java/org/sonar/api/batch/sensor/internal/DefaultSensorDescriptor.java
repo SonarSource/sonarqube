@@ -96,17 +96,6 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   }
 
   @Override
-  public DefaultSensorDescriptor requireProperty(String... propertyKey) {
-    return requireProperties(propertyKey);
-  }
-
-  @Override
-  public DefaultSensorDescriptor requireProperties(String... propertyKeys) {
-    this.configurationPredicate = config -> Arrays.stream(propertyKeys).allMatch(config::hasKey);
-    return this;
-  }
-
-  @Override
   public SensorDescriptor global() {
     this.global = true;
     return this;

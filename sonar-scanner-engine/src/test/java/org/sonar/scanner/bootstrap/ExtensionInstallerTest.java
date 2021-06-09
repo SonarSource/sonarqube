@@ -22,7 +22,6 @@ package org.sonar.scanner.bootstrap;
 import java.util.Arrays;
 import org.apache.commons.lang.ClassUtils;
 import org.junit.Test;
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.ScannerSide;
@@ -56,41 +55,9 @@ public class ExtensionInstallerTest {
     assertThat(container.getComponentByType(Bar.class)).isNull();
   }
 
-  @Test
-  public void should_execute_extension_provider() {
-    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
-    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
-    ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, settings.asConfig());
-
-    installer.install(container, new FooMatcher());
-
-    assertThat(container.getComponentByType(Foo.class)).isNotNull();
-    assertThat(container.getComponentByType(Bar.class)).isNull();
-  }
-
-  @Test
-  public void should_provide_list_of_extensions() {
-    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
-    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
-    ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(mock(SonarRuntime.class), pluginRepository, settings.asConfig());
-
-    installer.install(container, new TrueMatcher());
-
-    assertThat(container.getComponentByType(Foo.class)).isNotNull();
-    assertThat(container.getComponentByType(Bar.class)).isNotNull();
-  }
-
   private static class FooMatcher implements ExtensionMatcher {
     public boolean accept(Object extension) {
-      return extension.equals(Foo.class) || ClassUtils.isAssignable(Foo.class, extension.getClass()) || ClassUtils.isAssignable(FooProvider.class, extension.getClass());
-    }
-  }
-
-  private static class TrueMatcher implements ExtensionMatcher {
-    public boolean accept(Object extension) {
-      return true;
+      return extension.equals(Foo.class) || ClassUtils.isAssignable(Foo.class, extension.getClass());
     }
   }
 
@@ -103,29 +70,4 @@ public class ExtensionInstallerTest {
   public static class Bar {
 
   }
-
-  @ScannerSide
-  public static class FooProvider extends ExtensionProvider {
-    @Override
-    public Object provide() {
-      return new Foo();
-    }
-  }
-
-  @ScannerSide
-  public static class BarProvider extends ExtensionProvider {
-    @Override
-    public Object provide() {
-      return new Bar();
-    }
-  }
-
-  @ScannerSide
-  public static class FooBarProvider extends ExtensionProvider {
-    @Override
-    public Object provide() {
-      return Arrays.asList(new Foo(), new Bar());
-    }
-  }
-
 }

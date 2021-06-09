@@ -33,7 +33,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
 import static java.lang.String.format;
@@ -147,45 +146,6 @@ public abstract class Request {
     Part part = paramAsPart(key);
     checkArgument(part != null, MSG_PARAMETER_MISSING, key);
     return part;
-  }
-
-  /**
-   * @deprecated to be dropped in 4.4. Default values are declared in ws metadata
-   */
-  @CheckForNull
-  @Deprecated
-  public String param(String key, @CheckForNull String defaultValue) {
-    return StringUtils.defaultString(param(key), defaultValue);
-  }
-
-  /**
-   * @deprecated to be dropped in 4.4. Default values must be declared in {@link org.sonar.api.server.ws.WebService} then
-   * this method can be replaced by {@link #mandatoryParamAsBoolean(String)}.
-   */
-  @Deprecated
-  public boolean paramAsBoolean(String key, boolean defaultValue) {
-    String value = param(key);
-    return value == null ? defaultValue : parseBoolean(key, value);
-  }
-
-  /**
-   * @deprecated to be dropped in 4.4. Default values must be declared in {@link org.sonar.api.server.ws.WebService} then
-   * this method can be replaced by {@link #mandatoryParamAsInt(String)}.
-   */
-  @Deprecated
-  public int paramAsInt(String key, int defaultValue) {
-    String s = param(key);
-    return s == null ? defaultValue : parseInt(key, s);
-  }
-
-  /**
-   * @deprecated to be dropped in 4.4. Default values must be declared in {@link org.sonar.api.server.ws.WebService} then
-   * this method can be replaced by {@link #mandatoryParamAsLong(String)}.
-   */
-  @Deprecated
-  public long paramAsLong(String key, long defaultValue) {
-    String s = param(key);
-    return s == null ? defaultValue : parseLong(key, s);
   }
 
   @CheckForNull

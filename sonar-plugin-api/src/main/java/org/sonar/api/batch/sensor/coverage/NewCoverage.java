@@ -55,12 +55,6 @@ public interface NewCoverage {
   NewCoverage onFile(InputFile inputFile);
 
   /**
-   * @deprecated since 6.2 SonarQube merge all coverage reports and don't keep track of different test category
-   */
-  @Deprecated
-  NewCoverage ofType(CoverageType type);
-
-  /**
    * Call this method as many time as needed to report coverage hits per line. This method should only be called for executable lines.
    * @param line Line number (starts at 1).
    * @param hits Number of time the line was hit.

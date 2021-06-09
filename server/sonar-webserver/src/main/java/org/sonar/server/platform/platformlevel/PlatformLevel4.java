@@ -28,7 +28,6 @@ import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubApplicationHttpClientImpl;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
-import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
@@ -117,7 +116,7 @@ import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.metric.CoreCustomMetrics;
-import org.sonar.server.metric.DefaultMetricFinder;
+import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
@@ -168,7 +167,6 @@ import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualitygate.ws.QualityGateWsModule;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationHandler;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationTemplate;
-import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -276,12 +274,10 @@ public class PlatformLevel4 extends PlatformLevel {
       UpdateCenterModule.class,
 
       // quality profile
-      BuiltInQProfileDefinitionsBridge.class,
       BuiltInQProfileRepositoryImpl.class,
       ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,
-      AnnotationProfileParser.class,
       QProfileComparison.class,
       QProfileTreeImpl.class,
       QProfileRulesImpl.class,
@@ -330,7 +326,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasuresWsModule.class,
       CustomMeasuresWsModule.class,
       CoreCustomMetrics.class,
-      DefaultMetricFinder.class,
+      MetricFinder.class,
       UnanalyzedLanguageMetrics.class,
 
       QualityGateModule.class,

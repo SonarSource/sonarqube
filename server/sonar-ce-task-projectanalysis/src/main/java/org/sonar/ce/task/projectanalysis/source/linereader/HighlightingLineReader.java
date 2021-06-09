@@ -49,7 +49,6 @@ public class HighlightingLineReader implements LineReader {
     .put(HighlightingType.ANNOTATION, "a")
     .put(HighlightingType.CONSTANT, "c")
     .put(HighlightingType.COMMENT, "cd")
-    .put(HighlightingType.CPP_DOC, "cppd")
     .put(HighlightingType.STRUCTURED_COMMENT, "j")
     .put(HighlightingType.KEYWORD, "k")
     .put(HighlightingType.KEYWORD_LIGHT, "h")

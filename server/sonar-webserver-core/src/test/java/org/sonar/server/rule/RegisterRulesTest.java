@@ -1151,7 +1151,7 @@ public class RegisterRulesTest {
   static class FbContribRepository implements RulesDefinition {
     @Override
     public void define(Context context) {
-      NewExtendedRepository repo = context.extendRepository("findbugs", "java");
+      NewExtendedRepository repo = context.createRepository("findbugs", "java");
       repo.createRule("rule2")
         .setName("Rule Two")
         .setHtmlDescription("Description of Rule Two");

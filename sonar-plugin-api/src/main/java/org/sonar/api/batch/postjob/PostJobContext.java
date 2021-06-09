@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch.postjob;
 
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Configuration;
 
 /**
@@ -34,29 +32,4 @@ public interface PostJobContext {
    * @since 6.5
    */
   Configuration config();
-
-  /**
-   * @deprecated since 7.3 preview mode deprecated since 6.6
-   */
-  @Deprecated
-  AnalysisMode analysisMode();
-
-  // ----------- Only available in preview mode --------------
-
-  /**
-   * All the unresolved issues of the project, including the issues reported by end-users. Only available in preview/issues mode.
-   * @throw {@link UnsupportedOperationException} if not in preview/issues mode. To test the mode you can use {@link #analysisMode()}.
-   * @deprecated since 7.3 the preview/issues mode is deprecated since 6.7
-   */
-  @Deprecated
-  Iterable<PostJobIssue> issues();
-
-  /**
-   * All the issues of this project that have been marked as resolved during this scan. Only available in preview/issues mode.
-   * @throw {@link UnsupportedOperationException} if not in preview mode. To test the mode you can use {@link #analysisMode()}.
-   * @deprecated since 7.3 the preview/issues mode is deprecated since 6.7
-   */
-  @Deprecated
-  Iterable<PostJobIssue> resolvedIssues();
-
 }

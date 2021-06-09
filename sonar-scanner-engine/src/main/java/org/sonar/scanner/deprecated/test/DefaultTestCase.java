@@ -19,146 +19,69 @@
  */
 package org.sonar.scanner.deprecated.test;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.test.CoverageBlock;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.TestPlan;
-import org.sonar.api.test.Testable;
-import org.sonar.api.test.exception.CoverageAlreadyExistsException;
-import org.sonar.api.test.exception.IllegalDurationException;
 
-import static org.sonar.api.utils.Preconditions.checkArgument;
+public class DefaultTestCase {
+  public enum Status {
+    OK, FAILURE, ERROR, SKIPPED;
 
-public class DefaultTestCase implements MutableTestCase {
+    public static Status of(@Nullable String s) {
+      return s == null ? null : valueOf(s.toUpperCase(Locale.ENGLISH));
+    }
+  }
 
-  private final DefaultTestPlan testPlan;
   private String type;
   private Long durationInMs;
   private Status status;
   private String name;
   private String message;
-  private String stackTrace;
-  private Map<DefaultInputFile, CoverageBlock> coverageBlocksByTestedFile = new LinkedHashMap<>();
 
-  public DefaultTestCase(DefaultTestPlan testPlan) {
-    this.testPlan = testPlan;
-  }
-
-  @Override
   public String type() {
     return type;
   }
 
-  @Override
-  public MutableTestCase setType(@Nullable String s) {
+  public DefaultTestCase setType(@Nullable String s) {
     this.type = s;
     return this;
   }
 
-  @Override
   public Long durationInMs() {
     return durationInMs;
   }
 
-  @Override
-  public MutableTestCase setDurationInMs(@Nullable Long l) {
+  public DefaultTestCase setDurationInMs(@Nullable Long l) {
     if (l != null && l < 0) {
-      throw new IllegalDurationException("Test duration must be positive (got: " + l + ")");
+      throw new IllegalStateException("Test duration must be positive (got: " + l + ")");
     }
     this.durationInMs = l;
     return this;
   }
 
-  @Override
   public Status status() {
     return status;
   }
 
-  @Override
-  public MutableTestCase setStatus(@Nullable Status s) {
+  public DefaultTestCase setStatus(@Nullable Status s) {
     this.status = s;
     return this;
   }
 
-  @Override
   public String name() {
     return name;
   }
 
-  public MutableTestCase setName(String s) {
+  public DefaultTestCase setName(String s) {
     this.name = s;
     return this;
   }
 
-  @Override
   public String message() {
     return message;
   }
 
-  @Override
-  public MutableTestCase setMessage(String s) {
+  public DefaultTestCase setMessage(String s) {
     this.message = s;
     return this;
   }
-
-  @Override
-  public String stackTrace() {
-    return stackTrace;
-  }
-
-  @Override
-  public MutableTestCase setStackTrace(String s) {
-    this.stackTrace = s;
-    return this;
-  }
-
-  @Override
-  public MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines) {
-    DefaultInputFile coveredFile = ((DefaultTestable) testable).inputFile();
-    return setCoverageBlock(coveredFile, lines);
-  }
-
-  @Override
-  public MutableTestCase setCoverageBlock(InputFile mainFile, List<Integer> lines) {
-    checkArgument(mainFile.type() == Type.MAIN, "Test file can only cover a main file");
-    DefaultInputFile coveredFile = (DefaultInputFile) mainFile;
-    if (coverageBlocksByTestedFile.containsKey(coveredFile)) {
-      throw new CoverageAlreadyExistsException("The link between " + name() + " and " + coveredFile.key() + " already exists");
-    }
-    coverageBlocksByTestedFile.put(coveredFile, new DefaultCoverageBlock(this, coveredFile, lines));
-    return this;
-  }
-
-  @Override
-  public TestPlan testPlan() {
-    return testPlan;
-  }
-
-  @Override
-  public boolean doesCover() {
-    return !coverageBlocksByTestedFile.isEmpty();
-  }
-
-  @Override
-  public int countCoveredLines() {
-    throw new UnsupportedOperationException("Not supported since SQ 5.2");
-  }
-
-  @Override
-  public Iterable<CoverageBlock> coverageBlocks() {
-    return coverageBlocksByTestedFile.values();
-  }
-
-  @Override
-  public CoverageBlock coverageBlock(final Testable testable) {
-    DefaultInputFile coveredFile = ((DefaultTestable) testable).inputFile();
-    return coverageBlocksByTestedFile.get(coveredFile);
-  }
-
 }

@@ -36,28 +36,6 @@ import org.sonar.api.utils.MessageException;
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
  */
 public class RulesProfile implements Cloneable {
-
-  /**
-   * Name of the default profile "Sonar Way"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SONAR_WAY_NAME = "Sonar way";
-
-  /**
-   * Name of the default java profile "Sonar way with Findbugs"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SONAR_WAY_FINDBUGS_NAME = "Sonar way with Findbugs";
-
-  /**
-   * Name of the default java profile "Sun checks"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SUN_CONVENTIONS_NAME = "Sun checks";
-
   private String name;
   private Boolean defaultProfile = Boolean.FALSE;
   private String language;
@@ -210,28 +188,6 @@ public class RulesProfile implements Cloneable {
   public RulesProfile setLanguage(String s) {
     this.language = s;
     return this;
-  }
-
-  /**
-   * Does nothing.
-   *
-   * @return {@code null}
-   * @deprecated in 6.5
-   */
-  @Deprecated
-  @CheckForNull
-  public String getParentName() {
-    return null;
-  }
-
-  /**
-   * Does nothing.
-   *
-   * @deprecated in 6.5
-   */
-  @Deprecated
-  public void setParentName(String parentName) {
-    // does nothing
   }
 
   /**

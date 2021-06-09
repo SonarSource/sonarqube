@@ -227,8 +227,6 @@ public class RequestTest {
   @Test
   public void paramAsInt() {
     assertThat(underTest.setParam("a_number", "123").paramAsInt("a_number")).isEqualTo(123);
-    assertThat(underTest.setParam("a_number", "123").paramAsInt("a_number", 42)).isEqualTo(123);
-    assertThat(underTest.setParam("a_number", null).paramAsInt("a_number", 42)).isEqualTo(123);
   }
 
   @Test
@@ -240,18 +238,8 @@ public class RequestTest {
   }
 
   @Test
-  public void fail_when_param_is_not_an_int_with_default_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as an integer value: not_an_int");
-
-    underTest.setParam("a_number", "not_an_int").paramAsInt("a_number", 42);
-  }
-
-  @Test
   public void param_as_long() {
     assertThat(underTest.setParam("a_number", "123").paramAsLong("a_number")).isEqualTo(123L);
-    assertThat(underTest.setParam("a_number", "123").paramAsLong("a_number", 42L)).isEqualTo(123L);
-    assertThat(underTest.setParam("a_number", null).paramAsLong("a_number", 42L)).isEqualTo(123L);
   }
 
   @Test
@@ -260,14 +248,6 @@ public class RequestTest {
     expectedException.expectMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
 
     underTest.setParam("a_number", "not_a_long").paramAsLong("a_number");
-  }
-
-  @Test
-  public void fail_when_param_is_not_a_long_with_default_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
-
-    underTest.setParam("a_number", "not_a_long").paramAsLong("a_number", 42L);
   }
 
   @Test

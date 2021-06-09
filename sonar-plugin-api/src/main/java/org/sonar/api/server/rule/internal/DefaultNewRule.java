@@ -173,11 +173,6 @@ class DefaultNewRule extends RulesDefinition.NewRule {
   }
 
   @Override
-  public DefaultNewRule setDebtSubCharacteristic(@Nullable String s) {
-    return this;
-  }
-
-  @Override
   public RulesDefinition.DebtRemediationFunctions debtRemediationFunctions() {
     return functions;
   }
@@ -186,12 +181,6 @@ class DefaultNewRule extends RulesDefinition.NewRule {
   public DefaultNewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction fn) {
     this.debtRemediationFunction = fn;
     return this;
-  }
-
-  @Deprecated
-  @Override
-  public DefaultNewRule setEffortToFixDescription(@Nullable String s) {
-    return setGapDescription(s);
   }
 
   @Override

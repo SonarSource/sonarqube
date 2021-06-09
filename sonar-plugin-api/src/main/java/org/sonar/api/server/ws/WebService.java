@@ -674,17 +674,6 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     * @see #setDeprecatedKey(String, String)
-     * @since 5.0
-     * @deprecated since 6.4
-     */
-    @Deprecated
-    public NewParam setDeprecatedKey(@Nullable String s) {
-      this.deprecatedKey = s;
-      return this;
-    }
-
-    /**
      * @param deprecatedSince Version when the old key was replaced/deprecated. Ex: 5.6
      * @see Param#deprecatedKey()
      * @since 6.4

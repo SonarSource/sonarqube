@@ -30,7 +30,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.internal.DefaultNewRepository;
 import org.sonar.api.server.rule.internal.DefaultRepository;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
@@ -49,12 +48,6 @@ public class RulesDefinitionContext extends RulesDefinition.Context {
   }
 
   @Override
-  @Deprecated
-  public RulesDefinition.NewRepository extendRepository(String key, String language) {
-    return createRepository(key, language);
-  }
-
-  @Override
   @CheckForNull
   public RulesDefinition.Repository repository(String key) {
     return repositoriesByKey.get(key);
@@ -63,18 +56,6 @@ public class RulesDefinitionContext extends RulesDefinition.Context {
   @Override
   public List<RulesDefinition.Repository> repositories() {
     return unmodifiableList(new ArrayList<>(repositoriesByKey.values()));
-  }
-
-  @Override
-  @Deprecated
-  public List<RulesDefinition.ExtendedRepository> extendedRepositories(String repositoryKey) {
-    return emptyList();
-  }
-
-  @Override
-  @Deprecated
-  public List<RulesDefinition.ExtendedRepository> extendedRepositories() {
-    return emptyList();
   }
 
   public void registerRepository(DefaultNewRepository newRepository) {

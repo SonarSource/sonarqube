@@ -25,7 +25,6 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -36,7 +35,6 @@ import static org.sonar.api.utils.Preconditions.checkState;
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   private InputFile inputFile;
-  private CoverageType type;
   private int totalCoveredLines = 0;
   private int totalConditions = 0;
   private int totalCoveredConditions = 0;
@@ -60,16 +58,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   public InputFile inputFile() {
     return inputFile;
-  }
-
-  @Override
-  public NewCoverage ofType(CoverageType type) {
-    this.type = requireNonNull(type, "type can't be null");
-    return this;
-  }
-
-  public CoverageType type() {
-    return type;
   }
 
   @Override

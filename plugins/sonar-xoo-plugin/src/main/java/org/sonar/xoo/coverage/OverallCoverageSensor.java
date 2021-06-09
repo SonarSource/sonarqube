@@ -19,8 +19,6 @@
  */
 package org.sonar.xoo.coverage;
 
-import org.sonar.api.batch.sensor.coverage.CoverageType;
-
 /**
  * Parse files *.xoo.overallcoverage
  */
@@ -29,11 +27,6 @@ public class OverallCoverageSensor extends AbstractCoverageSensor {
   @Override
   protected String getCoverageExtension() {
     return ".overallcoverage";
-  }
-
-  @Override
-  protected CoverageType getCoverageType() {
-    return CoverageType.OVERALL;
   }
 
   @Override

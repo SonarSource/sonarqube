@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -46,8 +45,7 @@ public abstract class AbstractCoverageSensor implements Sensor {
       try {
         List<String> lines = FileUtils.readLines(coverageFile, context.fileSystem().encoding().name());
         NewCoverage coverageBuilder = context.newCoverage()
-          .onFile(inputFile)
-          .ofType(getCoverageType());
+          .onFile(inputFile);
         int lineNumber = 0;
         for (String line : lines) {
           lineNumber++;
@@ -79,8 +77,6 @@ public abstract class AbstractCoverageSensor implements Sensor {
   }
 
   protected abstract String getCoverageExtension();
-
-  protected abstract CoverageType getCoverageType();
 
   @Override
   public void describe(SensorDescriptor descriptor) {

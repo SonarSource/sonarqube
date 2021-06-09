@@ -71,22 +71,6 @@ public interface SensorDescriptor {
   SensorDescriptor createIssuesForRuleRepositories(String... repositoryKeys);
 
   /**
-   * Property this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
-   * property is not set.
-   * @deprecated since 6.5 use {@link #onlyWhenConfiguration(Predicate)}
-   */
-  @Deprecated
-  SensorDescriptor requireProperty(String... propertyKey);
-
-  /**
-   * List properties this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
-   * property is not set.
-   * @deprecated since 6.5 use {@link #onlyWhenConfiguration(Predicate)}
-   */
-  @Deprecated
-  SensorDescriptor requireProperties(String... propertyKeys);
-
-  /**
    * This sensor should be executed at the project level, instead of per-module.
    * @since 6.4
    * @deprecated since 7.6 change your {@link Sensor} to a {@link ProjectSensor} instead

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import java.util.Locale;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -35,18 +34,6 @@ public class Durations {
   private static final String DAYS_FORMAT = "%sd";
 
   private static final int HOURS_IN_DAY = 8;
-
-  /**
-   * @deprecated since 6.3, only one format is available
-   */
-  @Deprecated
-  public enum DurationFormat {
-    /**
-     * Display duration with only one or two members.
-     * For instance, Duration.decode("1d 1h 10min", 8) will return "1d 1h" and Duration.decode("12d 5h", 8) will return "12d"
-     */
-    SHORT
-  }
 
   /**
    * Create a Duration object from a number of minutes
@@ -73,28 +60,6 @@ public class Durations {
    */
   public String encode(Duration duration) {
     return duration.encode(HOURS_IN_DAY);
-  }
-
-  /**
-   * Return the formatted work duration.
-   *
-   * @deprecated since 6.3 as the {@link Locale#ENGLISH} is always used. Use {@link #format(Duration)} instead
-   */
-  @Deprecated
-  public String format(Locale locale, Duration duration, DurationFormat format) {
-    return format(duration);
-  }
-
-  /**
-   * Return the formatted work duration.
-   * <br>
-   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -&gt; 10d 2d
-   *
-   * @deprecated since 6.3 as the {@link Locale#ENGLISH} is always used. Use {@link #format(Duration)} instead
-   */
-  @Deprecated
-  public String format(Locale locale, Duration duration) {
-    return format(duration);
   }
 
   /**

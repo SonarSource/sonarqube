@@ -57,7 +57,6 @@ public interface SensorContext {
    */
   @Deprecated
   Settings settings();
-
   /**
    * Get settings of the project.
    * @since 6.5

@@ -64,14 +64,6 @@ public final class ZipUtils {
   }
 
   /**
-   * @deprecated replaced by {@link #unzip(InputStream, File, Predicate)} in 6.2.
-   */
-  @Deprecated
-  public static File unzip(InputStream stream, File toDir, ZipEntryFilter filter) throws IOException {
-    return unzip(stream, toDir, new ZipEntryFilterDelegate(filter));
-  }
-
-  /**
    * Unzip a file to a directory.
    *
    * @param stream the zip input file
@@ -115,14 +107,6 @@ public final class ZipUtils {
     if (!to.exists() && !to.mkdirs()) {
       throw new IOException(ERROR_CREATING_DIRECTORY + to);
     }
-  }
-
-  /**
-   * @deprecated replaced by {@link #unzip(File, File, Predicate)} in 6.2.
-   */
-  @Deprecated
-  public static File unzip(File zip, File toDir, ZipEntryFilter filter) throws IOException {
-    return unzip(zip, toDir, new ZipEntryFilterDelegate(filter));
   }
 
   /**

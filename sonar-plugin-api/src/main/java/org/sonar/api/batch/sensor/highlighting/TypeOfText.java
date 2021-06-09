@@ -27,11 +27,7 @@ public enum TypeOfText {
   ANNOTATION("a"),
   CONSTANT("c"),
   COMMENT("cd"),
-  /**
-   * @deprecated use {@link #COMMENT}
-   */
-  @Deprecated
-  CPP_DOC("cppd"),
+
   /**
    * For example Javadoc
    */

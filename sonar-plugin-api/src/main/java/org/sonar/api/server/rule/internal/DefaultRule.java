@@ -155,23 +155,9 @@ public class DefaultRule extends RulesDefinition.Rule {
   }
 
   @CheckForNull
-  @Deprecated
-  @Override
-  public String debtSubCharacteristic() {
-    return null;
-  }
-
-  @CheckForNull
   @Override
   public DebtRemediationFunction debtRemediationFunction() {
     return debtRemediationFunction;
-  }
-
-  @Deprecated
-  @CheckForNull
-  @Override
-  public String effortToFixDescription() {
-    return gapDescription();
   }
 
   @CheckForNull

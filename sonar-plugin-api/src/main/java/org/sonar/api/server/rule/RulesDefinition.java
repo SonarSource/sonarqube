@@ -41,7 +41,6 @@ import org.sonar.api.server.rule.internal.DefaultNewRepository;
 import org.sonar.api.server.rule.internal.DefaultRepository;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
@@ -129,230 +128,6 @@ import static org.sonar.api.utils.Preconditions.checkState;
 @SonarLintSide
 @ExtensionPoint
 public interface RulesDefinition {
-
-  /**
-   * Default sub-characteristics of technical debt model. See http://www.sqale.org
-   *
-   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
-   * See https://jira.sonarsource.com/browse/MMF-184
-   */
-  @Deprecated
-  final class SubCharacteristics {
-    /**
-     * Related to characteristic REUSABILITY
-     */
-    public static final String MODULARITY = "MODULARITY";
-
-    /**
-     * Related to characteristic REUSABILITY
-     */
-    public static final String TRANSPORTABILITY = "TRANSPORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String COMPILER_RELATED_PORTABILITY = "COMPILER_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String HARDWARE_RELATED_PORTABILITY = "HARDWARE_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String LANGUAGE_RELATED_PORTABILITY = "LANGUAGE_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String OS_RELATED_PORTABILITY = "OS_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String SOFTWARE_RELATED_PORTABILITY = "SOFTWARE_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String TIME_ZONE_RELATED_PORTABILITY = "TIME_ZONE_RELATED_PORTABILITY";
-
-    /**
-     * Related to characteristic MAINTAINABILITY
-     */
-    public static final String READABILITY = "READABILITY";
-
-    /**
-     * Related to characteristic MAINTAINABILITY
-     */
-    public static final String UNDERSTANDABILITY = "UNDERSTANDABILITY";
-
-    /**
-     * Related to characteristic SECURITY
-     */
-    public static final String API_ABUSE = "API_ABUSE";
-
-    /**
-     * Related to characteristic SECURITY
-     */
-    public static final String ERRORS = "ERRORS";
-
-    /**
-     * Related to characteristic SECURITY
-     */
-    public static final String INPUT_VALIDATION_AND_REPRESENTATION = "INPUT_VALIDATION_AND_REPRESENTATION";
-
-    /**
-     * Related to characteristic SECURITY
-     */
-    public static final String SECURITY_FEATURES = "SECURITY_FEATURES";
-
-    /**
-     * Related to characteristic EFFICIENCY
-     */
-    public static final String CPU_EFFICIENCY = "CPU_EFFICIENCY";
-
-    /**
-     * Related to characteristic EFFICIENCY
-     */
-    public static final String MEMORY_EFFICIENCY = "MEMORY_EFFICIENCY";
-
-    /**
-     * Related to characteristic EFFICIENCY
-     */
-    public static final String NETWORK_USE = "NETWORK_USE";
-
-    /**
-     * Related to characteristic CHANGEABILITY
-     */
-    public static final String ARCHITECTURE_CHANGEABILITY = "ARCHITECTURE_CHANGEABILITY";
-
-    /**
-     * Related to characteristic CHANGEABILITY
-     */
-    public static final String DATA_CHANGEABILITY = "DATA_CHANGEABILITY";
-
-    /**
-     * Related to characteristic CHANGEABILITY
-     */
-    public static final String LOGIC_CHANGEABILITY = "LOGIC_CHANGEABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String ARCHITECTURE_RELIABILITY = "ARCHITECTURE_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String DATA_RELIABILITY = "DATA_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String EXCEPTION_HANDLING = "EXCEPTION_HANDLING";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String FAULT_TOLERANCE = "FAULT_TOLERANCE";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String INSTRUCTION_RELIABILITY = "INSTRUCTION_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String LOGIC_RELIABILITY = "LOGIC_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String RESOURCE_RELIABILITY = "RESOURCE_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String SYNCHRONIZATION_RELIABILITY = "SYNCHRONIZATION_RELIABILITY";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String UNIT_TESTS = "UNIT_TESTS";
-
-    /**
-     * Related to characteristic TESTABILITY
-     */
-    public static final String INTEGRATION_TESTABILITY = "INTEGRATION_TESTABILITY";
-
-    /**
-     * Related to characteristic TESTABILITY
-     */
-    public static final String UNIT_TESTABILITY = "UNIT_TESTABILITY";
-
-    /**
-     * Related to characteristic ACCESSIBILITY
-     */
-    public static final String USABILITY_ACCESSIBILITY = "USABILITY_ACCESSIBILITY";
-
-    /**
-     * Related to characteristic ACCESSIBILITY
-     */
-    public static final String USABILITY_COMPLIANCE = "USABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic ACCESSIBILITY
-     */
-    public static final String USABILITY_EASE_OF_USE = "USABILITY_EASE_OF_USE";
-
-    /**
-     * Related to characteristic REUSABILITY
-     */
-    public static final String REUSABILITY_COMPLIANCE = "REUSABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic PORTABILITY
-     */
-    public static final String PORTABILITY_COMPLIANCE = "PORTABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic MAINTAINABILITY
-     */
-    public static final String MAINTAINABILITY_COMPLIANCE = "MAINTAINABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic SECURITY
-     */
-    public static final String SECURITY_COMPLIANCE = "SECURITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic EFFICIENCY
-     */
-    public static final String EFFICIENCY_COMPLIANCE = "EFFICIENCY_COMPLIANCE";
-
-    /**
-     * Related to characteristic CHANGEABILITY
-     */
-    public static final String CHANGEABILITY_COMPLIANCE = "CHANGEABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic RELIABILITY
-     */
-    public static final String RELIABILITY_COMPLIANCE = "RELIABILITY_COMPLIANCE";
-
-    /**
-     * Related to characteristic TESTABILITY
-     */
-    public static final String TESTABILITY_COMPLIANCE = "TESTABILITY_COMPLIANCE";
-
-    private SubCharacteristics() {
-      // only constants
-    }
-  }
-
   /**
    * This implementation will be removed as soon as analyzers stop instantiating it.
    * Use RulesDefinitionContext in sonar-plugin-api-impl.
@@ -372,12 +147,6 @@ public interface RulesDefinition {
     }
 
     @Override
-    @Deprecated
-    public RulesDefinition.NewRepository extendRepository(String key, String language) {
-      return createRepository(key, language);
-    }
-
-    @Override
     @CheckForNull
     public RulesDefinition.Repository repository(String key) {
       return repositoriesByKey.get(key);
@@ -386,18 +155,6 @@ public interface RulesDefinition {
     @Override
     public List<RulesDefinition.Repository> repositories() {
       return unmodifiableList(new ArrayList<>(repositoriesByKey.values()));
-    }
-
-    @Override
-    @Deprecated
-    public List<RulesDefinition.ExtendedRepository> extendedRepositories(String repositoryKey) {
-      return emptyList();
-    }
-
-    @Override
-    @Deprecated
-    public List<RulesDefinition.ExtendedRepository> extendedRepositories() {
-      return emptyList();
     }
 
     public void registerRepository(DefaultNewRepository newRepository) {
@@ -442,30 +199,10 @@ public interface RulesDefinition {
      */
     public abstract NewRepository createExternalRepository(String engineId, String language);
 
-    /**
-     * @deprecated since 5.2. Simply use {@link #createRepository(String, String)}
-     */
-    @Deprecated
-    public abstract NewRepository extendRepository(String key, String language);
-
     @CheckForNull
     public abstract Repository repository(String key);
 
     public abstract List<Repository> repositories();
-
-    /**
-     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
-     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
-     */
-    @Deprecated
-    public abstract List<ExtendedRepository> extendedRepositories(String repositoryKey);
-
-    /**
-     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
-     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
-     */
-    @Deprecated
-    public abstract List<ExtendedRepository> extendedRepositories();
 
     public abstract void setCurrentPluginKey(@Nullable String pluginKey);
   }
@@ -640,17 +377,6 @@ public interface RulesDefinition {
     public abstract NewRule setStatus(RuleStatus status);
 
     /**
-     * SQALE sub-characteristic. See http://www.sqale.org
-     *
-     * @see org.sonar.api.server.rule.RulesDefinition.SubCharacteristics for constant values
-     * @see #setType(RuleType)
-     * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. This method does nothing.
-     * See https://jira.sonarsource.com/browse/MMF-184
-     */
-    @Deprecated
-    public abstract NewRule setDebtSubCharacteristic(@Nullable String s);
-
-    /**
      * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}
      */
     public abstract DebtRemediationFunctions debtRemediationFunctions();
@@ -659,12 +385,6 @@ public interface RulesDefinition {
      * @see #debtRemediationFunctions()
      */
     public abstract NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction fn);
-
-    /**
-     * @deprecated since 5.5, replaced by {@link #setGapDescription(String)}
-     */
-    @Deprecated
-    public abstract NewRule setEffortToFixDescription(@Nullable String s);
 
     /**
      * For rules that use LINEAR or LINEAR_OFFSET remediation functions, the meaning
@@ -772,24 +492,8 @@ public interface RulesDefinition {
 
     public abstract RuleStatus status();
 
-    /**
-     * @see #type()
-     * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. {@code null} is
-     * always returned. See https://jira.sonarsource.com/browse/MMF-184
-     */
-    @CheckForNull
-    @Deprecated
-    public abstract String debtSubCharacteristic();
-
     @CheckForNull
     public abstract DebtRemediationFunction debtRemediationFunction();
-
-    /**
-     * @deprecated since 5.5, replaced by {@link #gapDescription()}
-     */
-    @Deprecated
-    @CheckForNull
-    public abstract String effortToFixDescription();
 
     @CheckForNull
     public abstract String gapDescription();

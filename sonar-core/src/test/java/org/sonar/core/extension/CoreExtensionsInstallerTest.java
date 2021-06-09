@@ -40,7 +40,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.picocontainer.ComponentAdapter;
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Property;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
@@ -225,21 +224,6 @@ public class CoreExtensionsInstallerTest {
     assertPropertyDefinitions(container, coreExtension, propertyDefinitionNoCategory, propertyDefinitionWithCategory);
   }
 
-  @Test
-  @UseDataProvider("allMethodsToAddExtension")
-  public void install_adds_providers_to_container_and_install_extensions_they_provide_when_annotated_with_expected_annotation(
-    BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
-    List<Object> extensions = ImmutableList.of(WestSideProvider.class, PartiallyWestSideProvider.class, EastSideProvider.class);
-    CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
-    when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
-
-    assertAddedExtensions(container, WestSideProvider.class, WestSideProvided.class, PartiallyWestSideProvider.class);
-    assertPropertyDefinitions(container);
-  }
-
   @DataProvider
   public static Object[][] allMethodsToAddExtension() {
     BiConsumer<CoreExtension.Context, Collection<Object>> addExtension = (context, objects) -> objects.forEach(context::addExtension);
@@ -356,42 +340,6 @@ public class CoreExtensionsInstallerTest {
   @EastSide
   public static class Latitude {
 
-  }
-
-  @WestSide
-  public static class WestSideProvider extends ExtensionProvider {
-
-    @Override
-    public Object provide() {
-      return WestSideProvided.class;
-    }
-  }
-
-  @WestSide
-  public static class WestSideProvided {
-
-  }
-
-  @WestSide
-  public static class PartiallyWestSideProvider extends ExtensionProvider {
-
-    @Override
-    public Object provide() {
-      return NotWestSideProvided.class;
-    }
-  }
-
-  public static class NotWestSideProvided {
-
-  }
-
-  @EastSide
-  public static class EastSideProvider extends ExtensionProvider {
-
-    @Override
-    public Object provide() {
-      throw new IllegalStateException("EastSideProvider#provide should not be called");
-    }
   }
 
   @Property(key = "westKey", name = "westName")

@@ -208,19 +208,8 @@ public class ServletFilterTest {
 
   @Test
   public void getUrl_returns_single_inclusion() {
-    assertThat(ServletFilter.UrlPattern.create("/*").getUrl()).isEqualTo("/*");
-    assertThat(ServletFilter.UrlPattern.create("/foo/bar").getUrl()).isEqualTo("/foo/bar");
-  }
-
-  @Test
-  public void getUrl_throws_ISE_if_many_urls() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("this method is deprecated and should not be used anymore");
-
-    ServletFilter.UrlPattern.builder()
-      .includes("/foo/*", "/foo/lo*")
-      .excludes("/foo/login", "/foo/logout", "/foo/list")
-      .build().getUrl();
+    assertThat(ServletFilter.UrlPattern.create("/*").getInclusions()).containsOnly("/*");
+    assertThat(ServletFilter.UrlPattern.create("/foo/bar").getInclusions()).containsOnly("/foo/bar");
   }
 
   @Test

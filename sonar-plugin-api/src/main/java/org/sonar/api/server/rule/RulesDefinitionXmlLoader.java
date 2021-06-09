@@ -130,25 +130,25 @@ import static org.apache.commons.lang.StringUtils.trim;
  *
  *     &lt;!-- Quality Model - type of debt remediation function --&gt;
  *     &lt;!-- See enum {@link org.sonar.api.server.debt.DebtRemediationFunction.Type} for supported values --&gt;
- *     &lt;!-- It was previously named 'debtRemediationFunction' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunction'. --&gt;
  *     &lt;!-- Since 5.5 --&gt;
  *     &lt;remediationFunction&gt;LINEAR_OFFSET&lt;/remediationFunction&gt;
  *
  *     &lt;!-- Quality Model - raw description of the "gap", used for some types of remediation functions. --&gt;
  *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.NewRule#setGapDescription(String)} --&gt;
- *     &lt;!-- It was previously named 'effortToFixDescription' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- It was previously named 'effortToFixDescription'. --&gt;
  *     &lt;!-- Since 5.5 --&gt;
  *     &lt;gapDescription&gt;Effort to test one uncovered condition&lt;/gapFixDescription&gt;
  *
  *     &lt;!-- Quality Model - gap multiplier of debt remediation function. Must be defined only for some function types. --&gt;
  *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
- *     &lt;!-- It was previously named 'debtRemediationFunctionCoefficient' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunctionCoefficient'. --&gt;
  *     &lt;!-- Since 5.5 --&gt;
  *     &lt;remediationFunctionGapMultiplier&gt;10min&lt;/remediationFunctionGapMultiplier&gt;
  *
  *     &lt;!-- Quality Model - base effort of debt remediation function. Must be defined only for some function types. --&gt;
  *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
- *     &lt;!-- It was previously named 'debtRemediationFunctionOffset' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunctionOffset'. --&gt;
  *     &lt;!-- Since 5.5 --&gt;
  *     &lt;remediationFunctionBaseEffort&gt;2min&lt;/remediationFunctionBaseEffort&gt;
  *

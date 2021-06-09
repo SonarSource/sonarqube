@@ -27,19 +27,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.deprecated.test.DefaultTestCase;
+import org.sonar.scanner.deprecated.test.DefaultTestPlan;
+import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,7 @@ public class GenericTestExecutionReportParserTest {
   private DefaultInputFile fileWithBranches;
   private DefaultInputFile emptyFile;
   private SensorContextTester context;
-  private MutableTestPlan testPlan;
+  private DefaultTestPlan testPlan;
 
   @Before
   public void before() {
@@ -62,10 +61,10 @@ public class GenericTestExecutionReportParserTest {
     emptyFile = setupFile("src/main/java/com/example/EmptyClass.java");
     testPlanBuilder = mock(TestPlanBuilder.class);
 
-    MutableTestCase testCase = mockMutableTestCase();
+    DefaultTestCase testCase = mockMutableTestCase();
     testPlan = mockMutableTestPlan(testCase);
 
-    when(testPlanBuilder.loadPerspective(eq(MutableTestPlan.class), any(InputFile.class))).thenReturn(testPlan);
+    when(testPlanBuilder.getTestPlan(any(InputFile.class))).thenReturn(testPlan);
   }
 
   @Test
@@ -159,18 +158,17 @@ public class GenericTestExecutionReportParserTest {
       .build();
   }
 
-  private MutableTestPlan mockMutableTestPlan(MutableTestCase testCase) {
-    MutableTestPlan testPlan = mock(MutableTestPlan.class);
+  private DefaultTestPlan mockMutableTestPlan(DefaultTestCase testCase) {
+    DefaultTestPlan testPlan = mock(DefaultTestPlan.class);
     when(testPlan.addTestCase(anyString())).thenReturn(testCase);
     return testPlan;
   }
 
-  private MutableTestCase mockMutableTestCase() {
-    MutableTestCase testCase = mock(MutableTestCase.class);
+  private DefaultTestCase mockMutableTestCase() {
+    DefaultTestCase testCase = mock(DefaultTestCase.class);
     when(testCase.setDurationInMs(anyLong())).thenReturn(testCase);
-    when(testCase.setStatus(any(org.sonar.api.test.TestCase.Status.class))).thenReturn(testCase);
+    when(testCase.setStatus(any(DefaultTestCase.Status.class))).thenReturn(testCase);
     when(testCase.setMessage(anyString())).thenReturn(testCase);
-    when(testCase.setStackTrace(anyString())).thenReturn(testCase);
     when(testCase.setType(anyString())).thenReturn(testCase);
     return testCase;
   }

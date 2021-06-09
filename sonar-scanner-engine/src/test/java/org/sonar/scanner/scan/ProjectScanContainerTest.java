@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +40,6 @@ public class ProjectScanContainerTest {
     assertThat(filter.accept(MyProjectExtension.class)).isFalse();
     assertThat(filter.accept(new MyServerExtension())).isFalse();
     assertThat(filter.accept(MyServerExtension.class)).isFalse();
-    assertThat(filter.accept(new MyTaskExtension())).isFalse();
-    assertThat(filter.accept(MyTaskExtension.class)).isFalse();
   }
 
   @ScannerSide
@@ -59,10 +56,6 @@ public class ProjectScanContainerTest {
 
   @ServerSide
   static class MyServerExtension  {
-
-  }
-
-  static class MyTaskExtension implements TaskExtension {
 
   }
 }

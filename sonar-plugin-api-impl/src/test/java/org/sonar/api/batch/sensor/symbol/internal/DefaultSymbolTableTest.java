@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,11 +53,13 @@ public class DefaultSymbolTableTest {
     DefaultSymbolTable symbolTableBuilder = new DefaultSymbolTable(mock(SensorStorage.class))
       .onFile(INPUT_FILE);
     symbolTableBuilder
-      .newSymbol(0, 10)
-      .newReference(12, 15)
-      .newReference(2, 10, 2, 15);
+      .newSymbol(1, 0, 1, 10)
+      .newReference(2, 10, 2, 15)
+    .newReference(1, 16, 1, 20);
 
-    symbolTableBuilder.newSymbol(1, 12, 1, 15).newReference(52, 55);
+    symbolTableBuilder
+      .newSymbol(1, 12, 1, 15)
+      .newReference(2, 1, 2, 5);
 
     symbolTableBuilder.save();
 

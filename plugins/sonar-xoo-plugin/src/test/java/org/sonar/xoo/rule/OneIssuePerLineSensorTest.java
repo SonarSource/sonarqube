@@ -25,12 +25,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
@@ -77,7 +78,7 @@ public class OneIssuePerLineSensorTest {
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
-    context.settings().setProperty(OneIssuePerLineSensor.FORCE_SEVERITY_PROPERTY, "MINOR");
+    context.setSettings(new MapSettings().setProperty(OneIssuePerLineSensor.FORCE_SEVERITY_PROPERTY, "MINOR"));
 
     sensor.execute(context);
 
@@ -96,7 +97,7 @@ public class OneIssuePerLineSensorTest {
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
-    context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
+    context.setSettings(new MapSettings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2"));
 
     sensor.execute(context);
 
@@ -115,7 +116,7 @@ public class OneIssuePerLineSensorTest {
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
-    context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
+    context.setSettings(new MapSettings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2"));
     context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.parse("5.4"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
 
     sensor.execute(context);

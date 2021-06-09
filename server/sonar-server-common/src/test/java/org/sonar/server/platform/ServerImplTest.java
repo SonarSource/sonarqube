@@ -46,20 +46,13 @@ public class ServerImplTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void isDev_always_returns_false() {
-    assertThat(underTest.isDev()).isFalse();
-  }
-
-  @Test
   public void test_url_information() {
     when(urlSettings.getContextPath()).thenReturn("/foo");
     when(urlSettings.getBaseUrl()).thenReturn("http://localhost:9000/foo");
     when(urlSettings.isSecured()).thenReturn(false);
 
     assertThat(underTest.getContextPath()).isEqualTo("/foo");
-    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000/foo");
     assertThat(underTest.getPublicRootUrl()).isEqualTo("http://localhost:9000/foo");
-    assertThat(underTest.isDev()).isFalse();
     assertThat(underTest.isSecured()).isFalse();
   }
 
@@ -67,8 +60,6 @@ public class ServerImplTest {
   public void test_file_system_information() throws IOException {
     File home = temp.newFolder();
     when(fs.getHomeDir()).thenReturn(home);
-
-    assertThat(underTest.getRootDir()).isEqualTo(home);
   }
 
   @Test

@@ -19,15 +19,9 @@
  */
 package org.sonar.core.extension;
 
-import org.sonar.api.ExtensionProvider;
-
 public final class ExtensionProviderSupport {
   private ExtensionProviderSupport() {
     // prevents implementation
-  }
-
-  public static boolean isExtensionProvider(Object extension) {
-    return isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider;
   }
 
   private static boolean isType(Object extension, Class extensionClass) {

@@ -320,7 +320,6 @@ message SyntaxHighlightingRule {
     ANNOTATION = 1;
     CONSTANT = 2;
     COMMENT = 3;
-    CPP_DOC = 4;
     STRUCTURED_COMMENT = 5;
     KEYWORD = 6;
     HIGHLIGHTING_STRING = 7;

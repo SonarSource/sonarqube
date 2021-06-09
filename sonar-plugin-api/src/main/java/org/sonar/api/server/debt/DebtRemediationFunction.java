@@ -72,26 +72,10 @@ public interface DebtRemediationFunction {
     }
 
     /**
-     * @deprecated since 5.5, replaced by {@link #usesGapMultiplier()}
-     */
-    @Deprecated
-    public boolean usesCoefficient() {
-      return usesGapMultiplier();
-    }
-
-    /**
      * @since 5.5
      */
     public boolean usesGapMultiplier() {
       return usesGapMultiplier;
-    }
-
-    /**
-     * @deprecated since 5.5, replaced by {@link #usesBaseEffort()}
-     */
-    @Deprecated
-    public boolean usesOffset() {
-      return usesBaseEffort();
     }
 
     /**
@@ -109,26 +93,12 @@ public interface DebtRemediationFunction {
   Type type();
 
   /**
-   * @deprecated since 5.5, replaced by {@link #gapMultiplier()}
-   */
-  @Deprecated
-  @CheckForNull
-  String coefficient();
-
-  /**
    * Non-null value on {@link Type#LINEAR} and {@link Type#LINEAR_OFFSET} functions, else {@code null}.
    *
    * @since 5.5
    */
   @CheckForNull
   String gapMultiplier();
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #baseEffort()}
-   */
-  @Deprecated
-  @CheckForNull
-  String offset();
 
   /**
    * Non-null value on {@link Type#LINEAR_OFFSET} and {@link Type#CONSTANT_ISSUE} functions, else {@code null}.

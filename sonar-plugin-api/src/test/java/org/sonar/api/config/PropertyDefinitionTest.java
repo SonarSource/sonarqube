@@ -59,7 +59,6 @@ public class PropertyDefinitionTest {
       .type(PropertyType.FLOAT)
       .onlyOnQualifiers(Qualifiers.MODULE)
       .multiValues(true)
-      .propertySetKey("set")
       .build();
 
     assertThat(def.key()).isEqualTo("hello");
@@ -72,7 +71,6 @@ public class PropertyDefinitionTest {
     assertThat(def.global()).isFalse();
     assertThat(def.qualifiers()).containsOnly(Qualifiers.MODULE);
     assertThat(def.multiValues()).isTrue();
-    assertThat(def.propertySetKey()).isEqualTo("set");
     assertThat(def.fields()).isEmpty();
   }
 
@@ -93,7 +91,6 @@ public class PropertyDefinitionTest {
     assertThat(def.global()).isFalse();
     assertThat(def.qualifiers()).containsOnly(Qualifiers.PROJECT, Qualifiers.MODULE);
     assertThat(def.multiValues()).isTrue();
-    assertThat(def.propertySetKey()).isEqualTo("set");
     assertThat(def.fields()).isEmpty();
   }
 
@@ -125,7 +122,6 @@ public class PropertyDefinitionTest {
     assertThat(def.global()).isTrue();
     assertThat(def.qualifiers()).isEmpty();
     assertThat(def.multiValues()).isFalse();
-    assertThat(def.propertySetKey()).isEmpty();
     assertThat(def.fields()).isEmpty();
   }
 
@@ -146,7 +142,6 @@ public class PropertyDefinitionTest {
     assertThat(def.global()).isTrue();
     assertThat(def.qualifiers()).isEmpty();
     assertThat(def.multiValues()).isFalse();
-    assertThat(def.propertySetKey()).isEmpty();
     assertThat(def.fields()).isEmpty();
   }
 
@@ -156,7 +151,7 @@ public class PropertyDefinitionTest {
       .name("Hello")
       .fields(
         PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
-        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build())
+        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).build())
       .build();
 
     assertThat(def.type()).isEqualTo(PropertyType.PROPERTY_SET);
@@ -166,12 +161,10 @@ public class PropertyDefinitionTest {
     assertThat(def.fields().get(0).description()).isEqualTo("Description");
     assertThat(def.fields().get(0).type()).isEqualTo(PropertyType.STRING);
     assertThat(def.fields().get(0).options()).containsOnly("A", "B");
-    assertThat(def.fields().get(0).indicativeSize()).isEqualTo(20);
     assertThat(def.fields().get(1).key()).isEqualTo("second");
     assertThat(def.fields().get(1).name()).isEqualTo("Second");
     assertThat(def.fields().get(1).type()).isEqualTo(PropertyType.INTEGER);
     assertThat(def.fields().get(1).options()).isEmpty();
-    assertThat(def.fields().get(1).indicativeSize()).isEqualTo(5);
   }
 
   @Test
@@ -188,12 +181,10 @@ public class PropertyDefinitionTest {
     assertThat(def.fields().get(0).description()).isEqualTo("Description");
     assertThat(def.fields().get(0).type()).isEqualTo(PropertyType.STRING);
     assertThat(def.fields().get(0).options()).containsOnly("A", "B");
-    assertThat(def.fields().get(0).indicativeSize()).isEqualTo(20);
     assertThat(def.fields().get(1).key()).isEqualTo("second");
     assertThat(def.fields().get(1).name()).isEqualTo("Second");
     assertThat(def.fields().get(1).type()).isEqualTo(PropertyType.INTEGER);
     assertThat(def.fields().get(1).options()).isEmpty();
-    assertThat(def.fields().get(1).indicativeSize()).isEqualTo(5);
   }
 
   @Test
@@ -458,7 +449,7 @@ public class PropertyDefinitionTest {
 
   @Properties(@Property(key = "hello", name = "Hello", fields = {
     @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
-    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
+    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER)}))
   static class WithPropertySet {
   }
 

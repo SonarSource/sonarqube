@@ -91,19 +91,6 @@ public abstract class ServletFilter implements Filter {
       return exclusions;
     }
 
-    /**
-     * @deprecated replaced in version 6.0 by {@link #getInclusions()} and {@link #getExclusions()}
-     * @throws IllegalStateException if at least one exclusion or more than one inclusions are defined
-     */
-    @Deprecated
-    public String getUrl() {
-      // Before 6.0, it was only possible to include one url
-      if (exclusions.isEmpty() && inclusions.size() == 1) {
-        return inclusions.get(0);
-      }
-      throw new IllegalStateException("this method is deprecated and should not be used anymore");
-    }
-
     public String label() {
       return "UrlPattern{" +
         "inclusions=[" + convertPatternsToString(inclusions) + "]" +

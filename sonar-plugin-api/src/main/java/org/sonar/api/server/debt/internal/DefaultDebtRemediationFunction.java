@@ -61,30 +61,10 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return type;
   }
 
-  /**
-   * @deprecated since 5.5, replaced by {@link #gapMultiplier}
-   */
-  @Override
-  @CheckForNull
-  @Deprecated
-  public String coefficient() {
-    return gapMultiplier();
-  }
-
   @Override
   @CheckForNull
   public String gapMultiplier() {
     return gapMultiplier;
-  }
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #baseEffort}
-   */
-  @Override
-  @CheckForNull
-  @Deprecated
-  public String offset() {
-    return baseEffort();
   }
 
   @Override

@@ -58,14 +58,4 @@ public final class AnnotationUtils {
 
     return null;
   }
-
-  /**
-   * Searches for a class annotation. All inheritance tree is analysed.
-   * 
-   * @deprecated  As of 3.1, replaced by {@link #getAnnotation(Object,Class)}
-   */
-  @Deprecated
-  public static <A> A getClassAnnotation(Object object, Class<A> annotationClass) {
-    return (A) getAnnotation(object, (Class<? extends Annotation>) annotationClass);
-  }
 }

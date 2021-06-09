@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.io.File;
 import java.util.Date;
 import java.util.Set;
 import org.junit.Test;
@@ -187,11 +186,6 @@ public class StatusActionTest {
     }
 
     @Override
-    public File getRootDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getContextPath() {
       throw new UnsupportedOperationException();
     }
@@ -202,17 +196,7 @@ public class StatusActionTest {
     }
 
     @Override
-    public boolean isDev() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean isSecured() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getURL() {
       throw new UnsupportedOperationException();
     }
 

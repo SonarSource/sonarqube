@@ -44,7 +44,6 @@ public class DefaultRuleTest {
     RulesDefinition.NewParam param1 = rule.createParam("param1");
     rule.setTags("tag1", "tag2");
     rule.addTags("tag3");
-    rule.setEffortToFixDescription("effort");
     rule.setGapDescription("gap");
     rule.setInternalKey("internal");
     rule.addDeprecatedRuleKey("deprecatedrepo", "deprecatedkey");
@@ -64,7 +63,6 @@ public class DefaultRuleTest {
     assertThat(defaultRule.activatedByDefault()).isTrue();
     assertThat(defaultRule.params()).containsOnly(new DefaultParam(new DefaultNewParam("param1")));
     assertThat(defaultRule.tags()).containsOnly("tag1", "tag2", "tag3");
-    assertThat(defaultRule.effortToFixDescription()).isEqualTo("gap");
     assertThat(defaultRule.gapDescription()).isEqualTo("gap");
     assertThat(defaultRule.internalKey()).isEqualTo("internal");
     assertThat(defaultRule.deprecatedRuleKeys()).containsOnly(RuleKey.of("deprecatedrepo", "deprecatedkey"));

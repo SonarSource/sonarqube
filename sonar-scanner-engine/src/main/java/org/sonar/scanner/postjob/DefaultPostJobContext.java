@@ -19,39 +19,19 @@
  */
 package org.sonar.scanner.postjob;
 
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Configuration;
 
 public class DefaultPostJobContext implements PostJobContext {
 
   private final Configuration config;
-  private final AnalysisMode analysisMode;
 
-  public DefaultPostJobContext(Configuration config, AnalysisMode analysisMode) {
+  public DefaultPostJobContext(Configuration config) {
     this.config = config;
-    this.analysisMode = analysisMode;
   }
 
   @Override
   public Configuration config() {
     return config;
   }
-
-  @Override
-  public AnalysisMode analysisMode() {
-    return analysisMode;
-  }
-
-  @Override
-  public Iterable<PostJobIssue> issues() {
-    throw new UnsupportedOperationException("Preview mode was dropped.");
-  }
-
-  @Override
-  public Iterable<PostJobIssue> resolvedIssues() {
-    throw new UnsupportedOperationException("Preview mode was dropped.");
-  }
-
 }

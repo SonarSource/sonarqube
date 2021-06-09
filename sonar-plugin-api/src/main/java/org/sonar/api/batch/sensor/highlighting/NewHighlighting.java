@@ -47,16 +47,6 @@ public interface NewHighlighting {
 
   /**
    * Call this method to indicate the type of text in a range.
-   * @param startOffset Starting position in file for this type of text. Beginning of a file starts with offset '0'.
-   * @param endOffset End position in file for this type of text.
-   * @param typeOfText see {@link TypeOfText} values.
-   * @deprecated since 5.6 Only supported to ease migration from old API. Please prefer other {@code highlight()} methods.
-   */
-  @Deprecated
-  NewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText);
-
-  /**
-   * Call this method to indicate the type of text in a range.
    * @param range Range of text to highlight. See for example {@link InputFile#newRange(int, int, int, int)}.
    * @param typeOfText see {@link TypeOfText} values.
    * @since 5.6

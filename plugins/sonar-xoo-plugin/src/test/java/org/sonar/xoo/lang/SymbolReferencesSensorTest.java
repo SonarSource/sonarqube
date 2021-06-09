@@ -66,7 +66,7 @@ public class SymbolReferencesSensorTest {
   @Test
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
-    FileUtils.write(symbol, "1:4,7\n12:15,23:33\n\n#comment");
+    FileUtils.write(symbol, "1:1:1:4,1:7:1:10\n1:11:1:13,1:14:1:33\n\n#comment");
     InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .initMetadata("xoo file with some source code and length over 33")
       .setLanguage(Xoo.KEY)
@@ -78,8 +78,8 @@ public class SymbolReferencesSensorTest {
 
     assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 2))
       .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 7), new DefaultTextPointer(1, 10)));
-    assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 13))
-      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 23), new DefaultTextPointer(1, 33)));
+    assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 12))
+      .containsOnly(new DefaultTextRange(new DefaultTextPointer(1, 14), new DefaultTextPointer(1, 33)));
   }
 
 }

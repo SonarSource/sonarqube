@@ -92,24 +92,6 @@ public class ZipUtilsTest {
   }
 
   @Test
-  public void unzipping_file_extracts_subset_of_files() throws IOException {
-    File zip = FileUtils.toFile(urlToZip());
-    File toDir = temp.newFolder();
-
-    ZipUtils.unzip(zip, toDir, (ZipUtils.ZipEntryFilter)ze -> ze.getName().equals("foo.txt"));
-    assertThat(toDir.listFiles()).containsOnly(new File(toDir, "foo.txt"));
-  }
-
-  @Test
-  public void unzipping_stream_extracts_subset_of_files() throws IOException {
-    InputStream zip = urlToZip().openStream();
-    File toDir = temp.newFolder();
-
-    ZipUtils.unzip(zip, toDir, (ZipUtils.ZipEntryFilter)ze -> ze.getName().equals("foo.txt"));
-    assertThat(toDir.listFiles()).containsOnly(new File(toDir, "foo.txt"));
-  }
-
-  @Test
   public void fail_if_unzipping_file_outside_target_directory() throws Exception {
     File zip = new File(getClass().getResource("ZipUtilsTest/zip-slip.zip").toURI());
     File toDir = temp.newFolder();

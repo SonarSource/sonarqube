@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.platform;
 
-import org.sonar.api.SonarEdition;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
@@ -49,12 +49,10 @@ public class DefaultServerTest {
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");
     assertThat(metadata.getStartedAt()).isNotNull();
-    assertThat(metadata.getURL()).isEqualTo("http://foo.com");
+    assertThat(metadata.getPublicRootUrl()).isEqualTo("http://foo.com");
     assertThat(metadata.getPermanentServerId()).isEqualTo("123");
 
-    assertThat(metadata.getRootDir()).isNull();
     assertThat(metadata.getContextPath()).isNull();
-    assertThat(metadata.isDev()).isFalse();
     assertThat(metadata.isSecured()).isFalse();
   }
 

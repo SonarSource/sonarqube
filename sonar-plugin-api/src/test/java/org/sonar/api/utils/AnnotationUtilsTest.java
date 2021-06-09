@@ -37,12 +37,6 @@ public class AnnotationUtilsTest {
   }
 
   @Test
-  public void getClassAnnotationWithDeprecatedMethod() {
-    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new SuperClass(), FakeAnnotation.class);
-    assertThat(annotation.value()).isEqualTo("foo");
-  }
-
-  @Test
   public void searchClassAnnotationInSuperClass() {
     FakeAnnotation annotation = AnnotationUtils.getAnnotation(new ChildClass(), FakeAnnotation.class);
     assertThat(annotation.value()).isEqualTo("foo");

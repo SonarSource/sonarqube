@@ -47,21 +47,4 @@ public class ExternalUsersProviderTest {
     assertThat(user.getName()).isEqualTo("foo");
     assertThat(user.getEmail()).isEqualTo("foo@bar.com");
   }
-
-  @Test
-  public void doGetUserDetails_deprecated_api() {
-    ExternalUsersProvider provider = new ExternalUsersProvider() {
-      @Override
-      public UserDetails doGetUserDetails(String username) {
-        UserDetails user = new UserDetails();
-        user.setName(username);
-        user.setEmail("foo@bar.com");
-        return user;
-      }
-    };
-    UserDetails user = provider.doGetUserDetails(new ExternalUsersProvider.Context("foo", mock(HttpServletRequest.class)));
-
-    assertThat(user.getName()).isEqualTo("foo");
-    assertThat(user.getEmail()).isEqualTo("foo@bar.com");
-  }
 }

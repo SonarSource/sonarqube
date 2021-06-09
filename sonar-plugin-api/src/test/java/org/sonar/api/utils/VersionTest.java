@@ -123,9 +123,6 @@ public class VersionTest {
   public void test_create() {
     assertVersion(Version.create(1, 2), 1, 2, 0, 0, "");
     assertVersion(Version.create(1, 2, 3), 1, 2, 3, 0, "");
-    assertVersion(Version.create(1, 2, 0, ""), 1, 2, 0, 0, "");
-    assertVersion(Version.create(1, 2, 3, "build1"), 1, 2, 3, 0, "build1");
-    assertThat(Version.create(1, 2, 3, "build1").toString()).isEqualTo("1.2.3-build1");
 
   }
 

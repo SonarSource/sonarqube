@@ -19,16 +19,14 @@
  */
 package org.sonar.xoo.extensions;
 
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
+import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class XooPostJobTest {
 
@@ -39,9 +37,7 @@ public class XooPostJobTest {
   public void increaseCoverage() {
     new XooPostJob().describe(new DefaultPostJobDescriptor());
     PostJobContext context = mock(PostJobContext.class);
-    when(context.issues()).thenReturn(Arrays.asList());
-    when(context.resolvedIssues()).thenReturn(Arrays.asList());
     new XooPostJob().execute(context);
-    assertThat(logTester.logs()).contains("Resolved issues: 0", "Open issues: 0");
+    assertThat(logTester.logs()).contains("Running Xoo PostJob");
   }
 }

@@ -20,10 +20,8 @@
 package org.sonar.api.rules;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -139,22 +137,6 @@ public class ActiveRule implements Cloneable {
     this.severity = severity;
   }
 
-  /**
-   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.sonarsource.com/browse/SONAR-1829
-   */
-  @Deprecated
-  public RulePriority getPriority() {
-    return severity;
-  }
-
-  /**
-   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.sonarsource.com/browse/SONAR-1829
-   */
-  @Deprecated
-  public void setPriority(RulePriority priority) {
-    this.severity = priority;
-  }
-
   public RulesProfile getRulesProfile() {
     return rulesProfile;
   }
@@ -222,46 +204,6 @@ public class ActiveRule implements Cloneable {
    */
   public String getRuleKey() {
     return rule.getKey();
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public String getNoteData() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public String getNoteUserLogin() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public Date getNoteCreatedAt() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public Date getNoteUpdatedAt() {
-    return null;
   }
 
   @Override

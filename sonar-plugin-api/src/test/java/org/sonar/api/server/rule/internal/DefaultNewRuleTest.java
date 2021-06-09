@@ -67,11 +67,8 @@ public class DefaultNewRuleTest {
     rule.addTags("tag3");
     assertThat(rule.tags()).containsExactly("tag1", "tag2", "tag3");
 
-    rule.setEffortToFixDescription("effort");
+    rule.setGapDescription("effort");
     assertThat(rule.gapDescription()).isEqualTo("effort");
-
-    rule.setGapDescription("gap");
-    assertThat(rule.gapDescription()).isEqualTo("gap");
 
     rule.setInternalKey("internal");
     assertThat(rule.internalKey()).isEqualTo("internal");

@@ -72,11 +72,6 @@ public class ServerImpl extends Server {
   }
 
   @Override
-  public File getRootDir() {
-    return fs.getHomeDir();
-  }
-  
-  @Override
   public String getContextPath() {
     return urlSettings.getContextPath();
   }
@@ -87,18 +82,8 @@ public class ServerImpl extends Server {
   }
 
   @Override
-  public boolean isDev() {
-    return false;
-  }
-
-  @Override
   public boolean isSecured() {
     return urlSettings.isSecured();
-  }
-
-  @Override
-  public String getURL() {
-    return urlSettings.getBaseUrl();
   }
 
 }

@@ -36,7 +36,6 @@ public final class PropertyFieldDefinition {
   private final String key;
   private final String name;
   private final String description;
-  private final int indicativeSize;
   private final PropertyType type;
   private final List<String> options;
 
@@ -44,7 +43,6 @@ public final class PropertyFieldDefinition {
     this.key = builder.key;
     this.name = builder.name;
     this.description = builder.description;
-    this.indicativeSize = builder.indicativeSize;
     this.type = builder.type;
     this.options = builder.options;
   }
@@ -55,7 +53,6 @@ public final class PropertyFieldDefinition {
       definitions.add(PropertyFieldDefinition.build(field.key())
         .name(field.name())
         .description(field.description())
-        .indicativeSize(field.indicativeSize())
         .type(field.type())
         .options(field.options())
         .build());
@@ -79,14 +76,6 @@ public final class PropertyFieldDefinition {
     return description;
   }
 
-  /**
-   * @deprecated since 6.1, as it was only used for UI.
-   */
-  @Deprecated
-  public int indicativeSize() {
-    return indicativeSize;
-  }
-
   public PropertyType type() {
     return type;
   }
@@ -103,7 +92,6 @@ public final class PropertyFieldDefinition {
     private String key;
     private String name;
     private String description;
-    private int indicativeSize;
     private PropertyType type;
     private List<String> options;
 
@@ -111,7 +99,6 @@ public final class PropertyFieldDefinition {
       this.key = key;
       this.name = "";
       this.description = "";
-      this.indicativeSize = 20;
       this.type = PropertyType.STRING;
       this.options = new ArrayList<>();
     }
@@ -123,15 +110,6 @@ public final class PropertyFieldDefinition {
 
     public Builder description(String description) {
       this.description = description;
-      return this;
-    }
-
-    /**
-     * @deprecated since 6.1, as it was only used for UI.
-     */
-    @Deprecated
-    public Builder indicativeSize(int indicativeSize) {
-      this.indicativeSize = indicativeSize;
       return this;
     }
 

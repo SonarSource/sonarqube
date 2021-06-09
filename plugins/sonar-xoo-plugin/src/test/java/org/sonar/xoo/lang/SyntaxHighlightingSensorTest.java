@@ -68,7 +68,7 @@ public class SyntaxHighlightingSensorTest {
   @Test
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
-    FileUtils.write(symbol, "1:4:k\n12:15:cd\n\n#comment");
+    FileUtils.write(symbol, "1:1:1:4:k\n2:7:2:10:cd\n\n#comment");
     DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .setLanguage("xoo")
       .setModuleBaseDir(baseDir.toPath())

@@ -17,11 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.component;
+package org.sonar.scanner.deprecated.test;
 
-/**
- * @deprecated since 5.2
- */
-@Deprecated
-public interface Perspective {
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class DefaultTestCaseTest {
+  private final DefaultTestCase testCase = new DefaultTestCase();
+
+  @Test
+  public void getters_after_setters() {
+    testCase
+      .setMessage("message")
+      .setName("name")
+      .setType("type")
+      .setDurationInMs(1234L)
+      .setStatus(DefaultTestCase.Status.FAILURE);
+
+    assertThat(testCase.status()).isEqualTo(DefaultTestCase.Status.FAILURE);
+    assertThat(testCase.name()).isEqualTo("name");
+    assertThat(testCase.type()).isEqualTo("type");
+    assertThat(testCase.durationInMs()).isEqualTo(1234L);
+    assertThat(testCase.message()).isEqualTo("message");
+  }
 }

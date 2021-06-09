@@ -29,7 +29,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -64,14 +63,12 @@ public class ScmConfiguration implements Startable {
   private final Configuration settings;
   private final AnalysisWarnings analysisWarnings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<>();
-  private final AnalysisMode analysisMode;
   private final InputModuleHierarchy moduleHierarchy;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings, AnalysisWarnings analysisWarnings, ScmProvider... providers) {
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, Configuration settings, AnalysisWarnings analysisWarnings, ScmProvider... providers) {
     this.moduleHierarchy = moduleHierarchy;
-    this.analysisMode = analysisMode;
     this.settings = settings;
     this.analysisWarnings = analysisWarnings;
     for (ScmProvider scmProvider : providers) {
@@ -79,15 +76,12 @@ public class ScmConfiguration implements Startable {
     }
   }
 
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings, AnalysisWarnings analysisWarnings) {
-    this(moduleHierarchy, analysisMode, settings, analysisWarnings, new ScmProvider[0]);
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, Configuration settings, AnalysisWarnings analysisWarnings) {
+    this(moduleHierarchy, settings, analysisWarnings, new ScmProvider[0]);
   }
 
   @Override
   public void start() {
-    if (analysisMode.isIssues()) {
-      return;
-    }
     if (isDisabled()) {
       LOG.debug(MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION);
       return;

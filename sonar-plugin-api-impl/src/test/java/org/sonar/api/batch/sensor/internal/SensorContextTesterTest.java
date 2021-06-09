@@ -198,8 +198,8 @@ public class SensorContextTesterTest {
     tester.newHighlighting()
       .onFile(new TestInputFileBuilder("foo", "src/Foo.java").initMetadata("annot dsf fds foo bar").build())
       .highlight(1, 0, 1, 5, TypeOfText.ANNOTATION)
-      .highlight(8, 10, TypeOfText.CONSTANT)
-      .highlight(9, 10, TypeOfText.COMMENT)
+      .highlight(1, 8, 1, 10, TypeOfText.CONSTANT)
+      .highlight(1, 9, 1, 10, TypeOfText.COMMENT)
       .save();
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).containsExactly(TypeOfText.ANNOTATION);
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);
@@ -228,15 +228,15 @@ public class SensorContextTesterTest {
 
     symbolTable
       .newSymbol(1, 1, 1, 5)
-      .newReference(6, 9)
       .newReference(1, 10, 1, 13);
 
     symbolTable.save();
 
     assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 0)).isNull();
     assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 8)).isEmpty();
-    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset").containsExactly(tuple(1, 6, 1, 9),
-      tuple(1, 10, 1, 13));
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3))
+      .extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset")
+      .containsExactly(tuple(1, 10, 1, 13));
   }
 
   @Test(expected = UnsupportedOperationException.class)

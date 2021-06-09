@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.measures.MetricFinder;
+import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

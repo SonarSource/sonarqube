@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
@@ -62,17 +60,7 @@ public class ExtensionInstaller {
         doInstall(container, matcher, pluginInfo, extension);
       }
     }
-    List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
-    for (ExtensionProvider provider : providers) {
-      Object object = provider.provide();
-      if (object instanceof Iterable) {
-        for (Object extension : (Iterable) object) {
-          doInstall(container, matcher, null, extension);
-        }
-      } else {
-        doInstall(container, matcher, null, object);
-      }
-    }
+
     return this;
   }
 

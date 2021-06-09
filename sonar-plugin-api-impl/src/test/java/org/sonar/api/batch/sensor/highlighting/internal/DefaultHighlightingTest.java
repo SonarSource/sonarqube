@@ -34,7 +34,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
 public class DefaultHighlightingTest {
@@ -56,12 +55,12 @@ public class DefaultHighlightingTest {
 
     DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 10, COMMENT)
+      .highlight(1, 0, 1, 10, COMMENT)
       .highlight(1, 10, 1, 12, KEYWORD)
-      .highlight(24, 38, KEYWORD)
-      .highlight(42, 50, KEYWORD)
-      .highlight(24, 65, CPP_DOC)
-      .highlight(12, 20, COMMENT);
+      .highlight(1, 24, 1, 38, KEYWORD)
+      .highlight(1, 42, 2, 0, KEYWORD)
+      .highlight(1, 24, 2, 15, COMMENT)
+      .highlight(1, 12, 1, 20, COMMENT);
 
     highlightingDataBuilder.save();
 
@@ -86,15 +85,15 @@ public class DefaultHighlightingTest {
       rangeOf(1, 24, 2, 15),
       rangeOf(1, 24, 1, 38),
       rangeOf(1, 42, 2, 0));
-    Assertions.assertThat(highlightingRules).extracting("textType").containsExactly(COMMENT, KEYWORD, COMMENT, CPP_DOC, KEYWORD, KEYWORD);
+    Assertions.assertThat(highlightingRules).extracting("textType").containsExactly(COMMENT, KEYWORD, COMMENT, COMMENT, KEYWORD, KEYWORD);
   }
 
   @Test
   public void should_support_overlapping() {
     new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 15, KEYWORD)
-      .highlight(8, 12, CPP_DOC)
+      .highlight(1, 0, 1, 15, KEYWORD)
+      .highlight(1, 8, 1, 12, COMMENT)
       .save();
   }
 
@@ -106,7 +105,7 @@ public class DefaultHighlightingTest {
 
     new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(10, 10, KEYWORD)
+      .highlight(1, 10, 1, 10, KEYWORD)
       .save();
   }
 
@@ -118,8 +117,8 @@ public class DefaultHighlightingTest {
 
     new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 10, KEYWORD)
-      .highlight(8, 15, KEYWORD)
+      .highlight(1, 0, 1, 10, KEYWORD)
+      .highlight(1, 8, 1, 15, KEYWORD)
       .save();
   }
 

@@ -74,13 +74,11 @@ public final class IssueExclusionProperties {
             .name(PROPERTY_RULE_KEY_PATTERN)
             .description("Pattern to match rules which should be ignored.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(RESOURCE_KEY)
             .name(PROPERTY_FILE_PATH_PATTERN)
             .description("Pattern to match files which should be ignored.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build()
         )
         .build(),
@@ -97,13 +95,11 @@ public final class IssueExclusionProperties {
             .name("Regular Expression for Start of Block")
             .description("If this regular expression is found in a file, then following lines are ignored until end of block.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(END_BLOCK_REGEXP)
             .name("Regular Expression for End of Block")
             .description("If specified, this regular expression is used to determine the end of code blocks to ignore. If not, then block ends at the end of file.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build()
         )
         .build(),
@@ -119,7 +115,6 @@ public final class IssueExclusionProperties {
             .name("Regular Expression")
             .description("If this regular expression is found in a file, then the whole file is ignored.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build()
         )
         .build(),
@@ -135,16 +130,14 @@ public final class IssueExclusionProperties {
             .name(PROPERTY_RULE_KEY_PATTERN)
             .description("Pattern used to match rules which should be restricted.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(RESOURCE_KEY)
             .name(PROPERTY_FILE_PATH_PATTERN)
             .description("Pattern used to match files to which the rules should be restricted.")
             .type(PropertyType.STRING)
-            .indicativeSize(LARGE_SIZE)
             .build()
         )
         .build()
-      );
+    );
   }
 }

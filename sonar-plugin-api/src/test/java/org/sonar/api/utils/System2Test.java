@@ -89,11 +89,6 @@ public class System2Test {
   }
 
   @Test
-  public void isJavaAtLeast17_always_returns_true() {
-    assertThat(System2.INSTANCE.isJavaAtLeast17()).isTrue();
-  }
-
-  @Test
   public void testPrintln() {
     // well, how to assert that ? Adding a System3 dependency to System2 ? :-)
     System2.INSTANCE.println("foo");

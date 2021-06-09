@@ -29,13 +29,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
@@ -43,12 +42,9 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.useDefaultDateFormatsOnly;
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(DataProviderRunner.class)
 public class RulesDefinitionTest {
@@ -574,17 +570,6 @@ public class RulesDefinitionTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
     }
-  }
-
-  @Test
-  public void sqale_characteristic_is_deprecated_and_is_ignored() {
-    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE);
-    newRepository.done();
-
-    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
-    assertThat(rule.debtSubCharacteristic()).isNull();
   }
 
   @Test

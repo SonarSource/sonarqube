@@ -34,7 +34,7 @@ public class DefaultSensorDescriptorTest {
       .name("Foo")
       .onlyOnLanguage("java")
       .onlyOnFileType(InputFile.Type.MAIN)
-      .requireProperty("sonar.foo.reportPath", "sonar.foo.reportPath2")
+      .onlyWhenConfiguration(c -> c.hasKey("sonar.foo.reportPath2") && c.hasKey("sonar.foo.reportPath"))
       .createIssuesForRuleRepository("squid-java");
 
     assertThat(descriptor.name()).isEqualTo("Foo");

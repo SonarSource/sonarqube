@@ -70,13 +70,6 @@ public abstract class Server {
   public abstract Date getStartedAt();
 
   /**
-   * @deprecated in 6.0. Replaced by {@link ServerFileSystem#getHomeDir()}
-   * @return an existing directory in server and CE environments, {@code null} in scanner.
-   */
-  @Deprecated
-  public abstract File getRootDir();
-
-  /**
    * Context path of web server. Value is blank {@code ""} by default. When defined by
    * the property {@code sonar.web.context} of conf/sonar.properties, then value starts but does
    * not end with slash {@code '/'}, for instance {@code "/sonarqube"}.
@@ -93,15 +86,6 @@ public abstract class Server {
   public abstract String getPublicRootUrl();
 
   /**
-   * Before version 6.6, the dev mode is enabled when the property {@code sonar.web.dev} is {@code true}.
-   * Since 6.6, {@code false} is always returned.
-   * @deprecated in 6.6
-   * @since 5.4
-   */
-  @Deprecated
-  public abstract boolean isDev();
-
-  /**
    * Return whether or not the {#getPublicRootUrl} is started with https.
    *
    * @since 5.4
@@ -109,12 +93,4 @@ public abstract class Server {
    */
   @Deprecated
   public abstract boolean isSecured();
-
-  /**
-   * @return the server URL
-   * @since since 2.4 on batch side only, since 5.6 on both batch side and server side (WebServer and Compute Engine)
-   * @deprecated since 6.5, please use {@link #getPublicRootUrl()} instead
-   */
-  @Deprecated
-  public abstract String getURL();
 }

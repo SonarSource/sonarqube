@@ -19,24 +19,18 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.xoo.Xoo;
 
-public class XooSonarWayProfile extends ProfileDefinition {
-
+public class XooSonarWayProfile implements BuiltInQualityProfilesDefinition {
   @Override
-  public RulesProfile createProfile(ValidationMessages validation) {
-    final RulesProfile profile = RulesProfile.create("Sonar way", Xoo.KEY);
-
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, HasTagSensor.RULE_KEY), RulePriority.MAJOR);
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerLineSensor.RULE_KEY), RulePriority.INFO);
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerFileSensor.RULE_KEY), RulePriority.CRITICAL);
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, HotspotSensor.RULE_KEY), RulePriority.CRITICAL);
-
-    return profile;
+  public void define(Context context) {
+    NewBuiltInQualityProfile qProfile = context.createBuiltInQualityProfile("Sonar way", Xoo.KEY);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HasTagSensor.RULE_KEY).overrideSeverity(Severity.MAJOR);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerLineSensor.RULE_KEY).overrideSeverity(Severity.INFO);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, OneIssuePerFileSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
+    qProfile.activateRule(XooRulesDefinition.XOO_REPOSITORY, HotspotSensor.RULE_KEY).overrideSeverity(Severity.CRITICAL);
+    qProfile.done();
   }
 }

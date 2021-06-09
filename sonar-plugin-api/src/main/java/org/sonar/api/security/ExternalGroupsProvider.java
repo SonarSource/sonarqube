@@ -20,6 +20,7 @@
 package org.sonar.api.security;
 
 import java.util.Collection;
+import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -31,24 +32,15 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class ExternalGroupsProvider {
 
   /**
-   * @return list of groups associated with specified user, or null if such user doesn't exist
-   * @throws RuntimeException in case of unexpected error such as connection failure
-   * @deprecated replaced by {@link #doGetGroups(org.sonar.api.security.ExternalGroupsProvider.Context)} since v. 5.2
-   */
-  @Deprecated
-  public Collection<String> doGetGroups(String username) {
-    return null;
-  }
-
-  /**
    * Override this method in order to load user group information.
    *
    * @return list of groups associated with specified user, or null if such user doesn't exist
    * @throws RuntimeException in case of unexpected error such as connection failure
    * @since 5.2
    */
+  @CheckForNull
   public Collection<String> doGetGroups(Context context) {
-    return doGetGroups(context.getUsername());
+    return null;
   }
 
   public static final class Context {

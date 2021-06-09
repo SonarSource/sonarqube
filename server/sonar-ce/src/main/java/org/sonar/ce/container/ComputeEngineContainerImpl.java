@@ -29,7 +29,6 @@ import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
@@ -109,7 +108,7 @@ import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.CoreCustomMetrics;
-import org.sonar.server.metric.DefaultMetricFinder;
+import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
@@ -362,7 +361,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,
-      AnnotationProfileParser.class,
       BuiltInQualityProfileAnnotationLoader.class,
       Rules.QProfiles.class,
 
@@ -378,7 +376,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // measure
       CoreCustomMetrics.class,
-      DefaultMetricFinder.class,
+      MetricFinder.class,
       UnanalyzedLanguageMetrics.class,
 
       UserIndexer.class,

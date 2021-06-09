@@ -20,13 +20,10 @@
 package org.sonar.core.extension;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
@@ -74,8 +71,7 @@ public abstract class CoreExtensionsInstaller {
   private void install(ComponentContainer container, Predicate<Object> extensionFilter, Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
     String coreExtensionName = coreExtension.getName();
     try {
-      List<Object> providerKeys = addDeclaredExtensions(container, extensionFilter, additionalSideFilter, coreExtension);
-      addProvidedExtensions(container, additionalSideFilter, coreExtensionName, providerKeys);
+      addDeclaredExtensions(container, extensionFilter, additionalSideFilter, coreExtension);
 
       LOG.debug("Installed core extension: " + coreExtensionName);
       coreExtensionRepository.installed(coreExtension);
@@ -84,32 +80,10 @@ public abstract class CoreExtensionsInstaller {
     }
   }
 
-  private List<Object> addDeclaredExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
+  private void addDeclaredExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
     Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
     ContextImpl context = new ContextImpl(container, extensionFilter, additionalSideFilter, coreExtension.getName());
     coreExtension.load(context);
-    return context.getProviders();
-  }
-
-  private void addProvidedExtensions(ComponentContainer container, Predicate<Object> additionalSideFilter,
-    String extensionCategory, List<Object> providerKeys) {
-    providerKeys.stream()
-      .map(providerKey -> (ExtensionProvider) container.getComponentByKey(providerKey))
-      .forEach(provider -> addFromProvider(container, additionalSideFilter, extensionCategory, provider));
-  }
-
-  private void addFromProvider(ComponentContainer container, Predicate<Object> additionalSideFilter,
-    String extensionCategory, ExtensionProvider provider) {
-    Object obj = provider.provide();
-    if (obj != null) {
-      if (obj instanceof Iterable) {
-        for (Object ext : (Iterable) obj) {
-          addSupportedExtension(container, additionalSideFilter, extensionCategory, ext);
-        }
-      } else {
-        addSupportedExtension(container, additionalSideFilter, extensionCategory, obj);
-      }
-    }
   }
 
   private <T> boolean addSupportedExtension(ComponentContainer container, Predicate<Object> additionalSideFilter,
@@ -130,7 +104,6 @@ public abstract class CoreExtensionsInstaller {
     private final Predicate<Object> extensionFilter;
     private final Predicate<Object> additionalSideFilter;
     private final String extensionCategory;
-    private final List<Object> providers = new ArrayList<>();
 
     public ContextImpl(ComponentContainer container, Predicate<Object> extensionFilter,
       Predicate<Object> additionalSideFilter, String extensionCategory) {
@@ -160,8 +133,6 @@ public abstract class CoreExtensionsInstaller {
 
       if (!addSupportedExtension(container, additionalSideFilter, extensionCategory, component)) {
         container.declareExtension(extensionCategory, component);
-      } else if (ExtensionProviderSupport.isExtensionProvider(component)) {
-        providers.add(component);
       }
       return this;
     }
@@ -178,10 +149,6 @@ public abstract class CoreExtensionsInstaller {
       requireNonNull(components, "components can't be null");
       components.forEach(this::addExtension);
       return this;
-    }
-
-    public List<Object> getProviders() {
-      return providers;
     }
   }
 }

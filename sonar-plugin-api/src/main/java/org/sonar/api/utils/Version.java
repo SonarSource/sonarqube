@@ -152,14 +152,6 @@ public class Version implements Comparable<Version> {
     return new Version(major, minor, patch, DEFAULT_BUILD_NUMBER, DEFAULT_QUALIFIER);
   }
 
-  /**
-   * @deprecated in 6.3 to avoid ambiguity with build number (see {@link #buildNumber()}
-   */
-  @Deprecated
-  public static Version create(int major, int minor, int patch, String qualifier) {
-    return new Version(major, minor, patch, DEFAULT_BUILD_NUMBER, qualifier);
-  }
-
   private static int parseFieldAsInt(String field) {
     if (field.isEmpty()) {
       return 0;

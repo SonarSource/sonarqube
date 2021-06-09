@@ -39,14 +39,6 @@ public class Paging {
     this.total = total;
   }
 
-  /**
-   * @deprecated since 5.2 please use the #forPgeIndex(...) builder method
-   */
-  @Deprecated
-  public static Paging create(int pageSize, int pageIndex, int totalItems) {
-    return new Paging(pageSize, pageIndex, totalItems);
-  }
-
   public static Builder forPageIndex(int pageIndex) {
     return new Builder(pageIndex);
   }

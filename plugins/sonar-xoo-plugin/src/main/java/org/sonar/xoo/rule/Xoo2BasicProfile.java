@@ -19,23 +19,15 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.xoo.Xoo2;
 
-public class Xoo2BasicProfile extends ProfileDefinition {
-
+public class Xoo2BasicProfile implements BuiltInQualityProfilesDefinition {
   @Override
-  public RulesProfile createProfile(ValidationMessages messages) {
-    RulesProfile profile = RulesProfile.create("Basic", Xoo2.KEY);
-    profile.setDefaultProfile(true);
-
-    // so UGLY
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO2_REPOSITORY, HasTagSensor.RULE_KEY), RulePriority.MAJOR);
-
-    return profile;
+  public void define(Context context) {
+    NewBuiltInQualityProfile qProfile = context.createBuiltInQualityProfile("Basic", Xoo2.KEY);
+    qProfile.setDefault(true);
+    qProfile.activateRule(XooRulesDefinition.XOO2_REPOSITORY, HasTagSensor.RULE_KEY);
+    qProfile.done();
   }
 }

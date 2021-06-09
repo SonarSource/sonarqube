@@ -71,11 +71,7 @@ public class SyntaxHighlightingSensor implements Sensor {
   private static void processLine(File highlightingFile, int lineNumber, NewHighlighting highlighting, String line) {
     try {
       String[] split = line.split(":");
-      if (split.length == 3) {
-        int startOffset = parseInt(split[0]);
-        int endOffset = parseInt(split[1]);
-        highlighting.highlight(startOffset, endOffset, TypeOfText.forCssClass(split[2]));
-      } else if (split.length == 5) {
+      if (split.length == 5) {
         int startLine = parseInt(split[0]);
         int startLineOffset = parseInt(split[1]);
         int endLine = parseInt(split[2]);
@@ -83,7 +79,7 @@ public class SyntaxHighlightingSensor implements Sensor {
         highlighting.highlight(startLine, startLineOffset, endLine, endLineOffset, TypeOfText.forCssClass(split[4]));
       } else {
         throw new IllegalStateException("Illegal number of elements separated by ':'. " +
-          "Must either be startOffset:endOffset:class (offset in whole file) or startLine:startLineOffset:endLine:endLineOffset:class");
+          "Must be startLine:startLineOffset:endLine:endLineOffset:class");
       }
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);

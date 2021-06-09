@@ -248,7 +248,7 @@ public interface CoreProperties {
 
   /**
    * This property defines the SonarQubeServer base url, such as <i>http://yourhost.yourdomain/sonar</i>.
-   * When this property is not set, the base url of the SonarQube server is provided by {@link Server#getURL()}.
+   * When this property is not set, the base url of the SonarQube server is provided by {@link Server#getPublicRootUrl()}.
    *
    * @since 2.10
    */

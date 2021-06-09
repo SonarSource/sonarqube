@@ -78,8 +78,6 @@ import org.sonar.xoo.rule.XooSonarWayProfile;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooIgnoreCommand;
 import org.sonar.xoo.scm.XooScmProvider;
-import org.sonar.xoo.test.CoveragePerTestSensor;
-import org.sonar.xoo.test.TestExecutionSensor;
 
 /**
  * Plugin entry-point, as declared in pom.xml.
@@ -171,10 +169,6 @@ public class XooPlugin implements Plugin {
 
       // Analysis errors
       AnalysisErrorSensor.class,
-
-      // Tests
-      TestExecutionSensor.class,
-      CoveragePerTestSensor.class,
 
       // Other
       XooProjectBuilder.class,

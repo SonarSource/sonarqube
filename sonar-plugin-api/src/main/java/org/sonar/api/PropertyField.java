@@ -52,15 +52,6 @@ public @interface PropertyField {
    */
   String description() default "";
 
-  /**
-   * Indicative size of the field value in characters. This size is not validated, it is merely used by the GUI
-   * to size the different input fields of a property set.
-   *
-   * @deprecated since 6.1, as it was only used for UI.
-   */
-  @Deprecated
-  int indicativeSize() default 20;
-
   PropertyType type() default PropertyType.STRING;
 
   /**

@@ -29,20 +29,6 @@ import javax.servlet.http.HttpServletRequest;
  * @since 2.14
  */
 public abstract class ExternalUsersProvider {
-
-  /**
-   * This method is overridden by old versions of plugins such as LDAP 1.1. It should not be overridden anymore.
-   *
-   * @param username the username
-   * @return details for specified user, or null if such user doesn't exist
-   * @throws RuntimeException in case of unexpected error such as connection failure
-   * @deprecated replaced by {@link #doGetUserDetails(org.sonar.api.security.ExternalUsersProvider.Context)} since v. 3.1
-   */
-  @Deprecated
-  public UserDetails doGetUserDetails(@Nullable String username) {
-    return null;
-  }
-
   /**
    * Override this method in order load user information.
    *
@@ -51,7 +37,7 @@ public abstract class ExternalUsersProvider {
    * @since 3.1
    */
   public UserDetails doGetUserDetails(Context context) {
-    return doGetUserDetails(context.getUsername());
+    return null;
   }
 
   public static final class Context {

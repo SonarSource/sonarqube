@@ -26,22 +26,20 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
 
-public class DefaultMetricFinder implements MetricFinder {
+public class MetricFinder {
 
   private final DbClient dbClient;
 
-  public DefaultMetricFinder(DbClient dbClient) {
+  public MetricFinder(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
-  @Override
   public Metric findByUuid(String uuid) {
     try (DbSession session = dbClient.openSession(false)) {
       MetricDto dto = dbClient.metricDao().selectByUuid(session, uuid);
@@ -52,7 +50,6 @@ public class DefaultMetricFinder implements MetricFinder {
     }
   }
 
-  @Override
   public Metric findByKey(String key) {
     try (DbSession session = dbClient.openSession(false)) {
       MetricDto dto = dbClient.metricDao().selectByKey(session, key);
@@ -63,7 +60,6 @@ public class DefaultMetricFinder implements MetricFinder {
     }
   }
 
-  @Override
   public Collection<Metric> findAll(List<String> metricKeys) {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectByKeys(session, metricKeys);
@@ -71,7 +67,6 @@ public class DefaultMetricFinder implements MetricFinder {
     }
   }
 
-  @Override
   public Collection<Metric> findAll() {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectEnabled(session);
