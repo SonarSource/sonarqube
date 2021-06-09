@@ -24,12 +24,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
-import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.almintegration.validator.BitbucketServerSettingsValidator;
 import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
 import org.sonar.server.almintegration.validator.GitlabGlobalSettingsValidator;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
@@ -61,11 +62,11 @@ public class ValidateActionTest {
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final GitlabGlobalSettingsValidator gitlabSettingsValidator = mock(GitlabGlobalSettingsValidator.class);
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock(GithubGlobalSettingsValidator.class);
-  private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
+  private final BitbucketServerSettingsValidator bitbucketServerSettingsValidator = mock(BitbucketServerSettingsValidator.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final WsActionTester ws = new WsActionTester(
     new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator, gitlabSettingsValidator,
-      bitbucketServerRestClient, bitbucketCloudRestClient));
+      bitbucketServerSettingsValidator, bitbucketCloudRestClient));
 
   @Test
   public void fail_when_key_does_not_match_existing_alm_setting() {
@@ -126,9 +127,11 @@ public class ValidateActionTest {
       .setParam("key", almSetting.getKey())
       .execute();
 
-    verify(bitbucketServerRestClient).validateUrl(almSetting.getUrl());
-    verify(bitbucketServerRestClient).validateToken(almSetting.getUrl(), almSetting.getPersonalAccessToken());
-    verify(bitbucketServerRestClient).validateReadPermission(almSetting.getUrl(), almSetting.getPersonalAccessToken());
+    ArgumentCaptor<AlmSettingDto> almSettingDtoArgumentCaptor = ArgumentCaptor.forClass(AlmSettingDto.class);
+    verify(bitbucketServerSettingsValidator).validate(almSettingDtoArgumentCaptor.capture());
+    assertThat(almSettingDtoArgumentCaptor.getAllValues()).hasSize(1);
+    assertThat(almSettingDtoArgumentCaptor.getValue().getKey()).isEqualTo(almSetting.getKey());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getAlm()).isEqualTo(ALM.BITBUCKET);
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.server.almintegration.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.almintegration.validator.BitbucketServerSettingsValidator;
 import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
 import org.sonar.server.almintegration.validator.GitlabGlobalSettingsValidator;
 import org.sonar.server.almintegration.ws.azure.ImportAzureProjectAction;
@@ -50,6 +51,7 @@ public class AlmIntegrationsWSModule extends Module {
       SearchBitbucketCloudReposAction.class,
       GetGithubClientIdAction.class,
       GithubGlobalSettingsValidator.class,
+      BitbucketServerSettingsValidator.class,
       ImportGithubProjectAction.class,
       ListGithubOrganizationsAction.class,
       ListGithubRepositoriesAction.class,
