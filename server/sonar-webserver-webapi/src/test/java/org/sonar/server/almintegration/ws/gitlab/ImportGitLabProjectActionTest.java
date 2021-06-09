@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
-import org.sonar.alm.client.gitlab.ProjectDetails;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -98,7 +97,7 @@ public class ImportGitLabProjectActionTest {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("PAT");
     });
-    ProjectDetails project = getGitlabProject();
+    Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
     when(uuidFactory.create()).thenReturn("uuid");
@@ -129,7 +128,7 @@ public class ImportGitLabProjectActionTest {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("PAT");
     });
-    ProjectDetails project = getGitlabProject();
+    Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("main", true)));
     when(uuidFactory.create()).thenReturn("uuid");
@@ -165,7 +164,7 @@ public class ImportGitLabProjectActionTest {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("PAT");
     });
-    ProjectDetails project = getGitlabProject();
+    Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(emptyList());
     when(uuidFactory.create()).thenReturn("uuid");
@@ -222,7 +221,7 @@ public class ImportGitLabProjectActionTest {
     assertThat(importGitLabProjectAction.generateProjectKey(name, "uuid")).isEqualTo("a_b_c_uuid");
   }
 
-  private ProjectDetails getGitlabProject() {
-    return new ProjectDetails(randomAlphanumeric(5), randomAlphanumeric(5));
+  private Project getGitlabProject() {
+    return new Project(randomAlphanumeric(5), randomAlphanumeric(5));
   }
 }

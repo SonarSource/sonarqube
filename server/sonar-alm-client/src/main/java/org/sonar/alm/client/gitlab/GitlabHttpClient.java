@@ -212,7 +212,7 @@ public class GitlabHttpClient {
     return false;
   }
 
-  public ProjectDetails getProject(String gitlabUrl, String pat, Long gitlabProjectId) {
+  public Project getProject(String gitlabUrl, String pat, Long gitlabProjectId) {
     String url = String.format("%s/projects/%s", gitlabUrl, gitlabProjectId);
     LOG.debug(String.format("get project : [%s]", url));
     Request request = new Request.Builder()
@@ -225,7 +225,40 @@ public class GitlabHttpClient {
       checkResponseIsSuccessful(response);
       String body = response.body().string();
       LOG.trace(String.format("loading project payload result : [%s]", body));
-      return new GsonBuilder().create().fromJson(body, ProjectDetails.class);
+      return new GsonBuilder().create().fromJson(body, Project.class);
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
+    } catch (IOException e) {
+      logException(url, e);
+      throw new IllegalStateException(e.getMessage(), e);
+    }
+  }
+
+  //
+  // This method is used to check if a user has REPORTER level access to the project, which is a requirement for PR decoration.
+  // As of June 9, 2021 there is no better way to do this check and still support GitLab 11.7.
+  //
+  public Optional<Project> getReporterLevelAccessProject(String gitlabUrl, String pat, Long gitlabProjectId) {
+    String url = String.format("%s/projects?min_access_level=20&id_after=%s&id_before=%s", gitlabUrl, gitlabProjectId - 1,
+      gitlabProjectId + 1);
+    LOG.debug(String.format("get project : [%s]", url));
+    Request request = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, pat)
+      .get()
+      .url(url)
+      .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response);
+      String body = response.body().string();
+      LOG.trace(String.format("loading project payload result : [%s]", body));
+
+      List<Project> projects = Project.parseJsonArray(body);
+      if (projects.isEmpty()) {
+        return Optional.empty();
+      } else {
+        return Optional.of(projects.get(0));
+      }
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
     } catch (IOException e) {

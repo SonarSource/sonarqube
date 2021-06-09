@@ -20,6 +20,7 @@
 package org.sonar.alm.client.gitlab;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -285,7 +286,7 @@ public class GitlabHttpClientTest {
 
   @Test
   public void get_project_details() throws InterruptedException {
-    MockResponse projectDetails = new MockResponse()
+    MockResponse projectResponse = new MockResponse()
         .setResponseCode(200)
         .setBody("{"
             + "  \"id\": 1234,"
@@ -293,32 +294,47 @@ public class GitlabHttpClientTest {
             + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
             + "  \"path\": \"sonarqube-example-2\","
             + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
-            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\","
-            + "  \"permissions\": {"
-            + "    \"project_access\": {"
-            + "      \"access_level\": 50,"
-            + "      \"notification_level\": 3"
-            + "    },"
-            + "    \"group_access\": {"
-            + "      \"access_level\": 10,"
-            + "      \"notification_level\": 3"
-            + "    }"
-            + "  }"
+            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\""
             + "}");
 
-    server.enqueue(projectDetails);
+    server.enqueue(projectResponse);
 
-    ProjectDetails project = underTest.getProject(gitlabUrl, "pat", 1234L);
+    Project project = underTest.getProject(gitlabUrl, "pat", 1234L);
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
 
     assertThat(project).isNotNull();
-    assertThat(project.getPermissions().getProjectAccess().getLevel()).isEqualTo(50);
-    assertThat(project.getPermissions().getGroupAccess().getLevel()).isEqualTo(10);
 
     assertThat(gitlabUrlCall).isEqualTo(
         server.url("") + "projects/1234");
+    assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
+  }
+
+  @Test
+  public void get_reporter_level_access_project() throws InterruptedException {
+    MockResponse projectResponse = new MockResponse()
+        .setResponseCode(200)
+        .setBody("[{"
+            + "  \"id\": 1234,"
+            + "  \"name\": \"SonarQube example 2\","
+            + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
+            + "  \"path\": \"sonarqube-example-2\","
+            + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
+            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\""
+            + "}]");
+
+    server.enqueue(projectResponse);
+
+    Optional<Project> project = underTest.getReporterLevelAccessProject(gitlabUrl, "pat", 1234L);
+
+    RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
+    String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
+
+    assertThat(project).isNotNull();
+
+    assertThat(gitlabUrlCall).isEqualTo(
+        server.url("") + "projects?min_access_level=20&id_after=1233&id_before=1235");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
