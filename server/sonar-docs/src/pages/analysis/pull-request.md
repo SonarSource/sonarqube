@@ -20,6 +20,7 @@ You can also add pull request decoration that shows the Pull Request analysis an
 - [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
 - [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
 - [Bitbucket Server](/analysis/bitbucket-integration/)
+- [Bitbucket Cloud](/analysis/bitbucket-cloud-integration/)
 - [Azure DevOps](/analysis/azuredevops-integration/)
 
 [[info]]
