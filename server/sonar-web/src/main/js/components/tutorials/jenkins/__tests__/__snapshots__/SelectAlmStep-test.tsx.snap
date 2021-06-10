@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Step
+  finished={true}
+  onOpen={[MockFunction]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepTitle="onboarding.tutorial.with.jenkins.alm_selection.title"
+/>
+`;
+
+exports[`should render correctly: form, default 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <RadioToggle
+    disabled={false}
+    name="alm"
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "alm.bitbucketcloud.long",
+          "value": "bitbucketcloud",
+        },
+        Object {
+          "label": "alm.bitbucket",
+          "value": "bitbucket",
+        },
+        Object {
+          "label": "alm.github",
+          "value": "github",
+        },
+        Object {
+          "label": "alm.gitlab",
+          "value": "gitlab",
+        },
+      ]
+    }
+    value={null}
+  />
+</div>
+`;
+
+exports[`should render correctly: form, with alm 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <RadioToggle
+    disabled={false}
+    name="alm"
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "alm.bitbucketcloud.long",
+          "value": "bitbucketcloud",
+        },
+        Object {
+          "label": "alm.bitbucket",
+          "value": "bitbucket",
+        },
+        Object {
+          "label": "alm.github",
+          "value": "github",
+        },
+        Object {
+          "label": "alm.gitlab",
+          "value": "gitlab",
+        },
+      ]
+    }
+    value="azure"
+  />
+</div>
+`;
+
+exports[`should render correctly: result, with alm 1`] = `
+<div
+  className="boxed-group-actions display-flex-center"
+>
+  <AlertSuccessIcon
+    className="spacer-right"
+  />
+  alm.bitbucketcloud.long
+</div>
+`;

@@ -19,59 +19,52 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAppState, getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import {
+  AlmKeys,
   AlmSettingsInstance,
-  isProjectBitbucketBindingResponse,
-  isProjectBitbucketCloudBindingResponse,
-  isProjectGitHubBindingResponse,
-  isProjectGitLabBindingResponse,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
+import SelectAlmStep from './SelectAlmStep';
 import WebhookStep from './WebhookStep';
 
 export interface JenkinsTutorialProps {
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   component: T.Component;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
   setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
   skipPreReqs: boolean;
 }
 
 enum Steps {
-  PreRequisites = 0,
-  MultiBranchPipeline = 1,
-  Webhook = 2,
-  Jenkinsfile = 3
+  SelectAlm = 0,
+  PreRequisites = 1,
+  MultiBranchPipeline = 2,
+  Webhook = 3,
+  Jenkinsfile = 4
 }
 
 const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
   const { almBinding, branchesEnabled, component, projectBinding, skipPreReqs } = props;
-  const [step, setStep] = React.useState(
-    skipPreReqs ? Steps.MultiBranchPipeline : Steps.PreRequisites
-  );
+  const hasSelectAlmStep = projectBinding?.alm === undefined;
+  const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
 
-  // Failsafe; should never happen.
-  if (
-    !isProjectBitbucketCloudBindingResponse(projectBinding) &&
-    !isProjectBitbucketBindingResponse(projectBinding) &&
-    !isProjectGitHubBindingResponse(projectBinding) &&
-    !isProjectGitLabBindingResponse(projectBinding)
-  ) {
-    return (
-      <Alert variant="error">{translate('onboarding.tutorial.with.jenkins.unsupported')}</Alert>
-    );
+  let startStep;
+  if (alm) {
+    startStep = skipPreReqs ? Steps.MultiBranchPipeline : Steps.PreRequisites;
+  } else {
+    startStep = Steps.SelectAlm;
   }
+  const [step, setStep] = React.useState(startStep);
 
   return (
     <>
@@ -79,51 +72,70 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         <h1 className="page-title">{translate('onboarding.tutorial.with.jenkins.title')}</h1>
       </div>
 
-      <PreRequisitesStep
-        alm={projectBinding.alm}
-        branchesEnabled={branchesEnabled}
-        onDone={() => setStep(Steps.MultiBranchPipeline)}
-        onOpen={() => setStep(Steps.PreRequisites)}
-        onChangeSkipNextTime={skip => {
-          props.setCurrentUserSetting({
-            key: USER_SETTING_SKIP_BITBUCKET_PREREQS,
-            value: skip.toString()
-          });
-        }}
-        open={step === Steps.PreRequisites}
-        skipNextTime={skipPreReqs}
-      />
-
-      {branchesEnabled ? (
-        <MultiBranchPipelineStep
-          almBinding={almBinding}
-          finished={step > Steps.MultiBranchPipeline}
-          onDone={() => setStep(Steps.Webhook)}
-          onOpen={() => setStep(Steps.MultiBranchPipeline)}
-          open={step === Steps.MultiBranchPipeline}
-          projectBinding={projectBinding}
-        />
-      ) : (
-        <PipelineStep
-          alm={projectBinding.alm}
-          finished={step > Steps.MultiBranchPipeline}
-          onDone={() => setStep(Steps.Webhook)}
-          onOpen={() => setStep(Steps.MultiBranchPipeline)}
-          open={step === Steps.MultiBranchPipeline}
+      {hasSelectAlmStep && (
+        <SelectAlmStep
+          alm={alm}
+          open={step === Steps.SelectAlm}
+          onCheck={value => {
+            setAlm(value);
+            setStep(Steps.PreRequisites);
+          }}
+          onOpen={() => setStep(Steps.SelectAlm)}
         />
       )}
 
-      <WebhookStep
-        almBinding={almBinding}
-        branchesEnabled={branchesEnabled}
-        finished={step > Steps.Webhook}
-        onDone={() => setStep(Steps.Jenkinsfile)}
-        onOpen={() => setStep(Steps.Webhook)}
-        open={step === Steps.Webhook}
-        projectBinding={projectBinding}
-      />
+      {alm && (
+        <>
+          <PreRequisitesStep
+            alm={alm}
+            branchesEnabled={branchesEnabled}
+            finished={step > Steps.PreRequisites}
+            onDone={() => setStep(Steps.MultiBranchPipeline)}
+            onOpen={() => setStep(Steps.PreRequisites)}
+            onChangeSkipNextTime={skip => {
+              props.setCurrentUserSetting({
+                key: USER_SETTING_SKIP_BITBUCKET_PREREQS,
+                value: skip.toString()
+              });
+            }}
+            open={step === Steps.PreRequisites}
+            skipNextTime={skipPreReqs}
+          />
 
-      <JenkinsfileStep component={component} open={step === Steps.Jenkinsfile} />
+          {branchesEnabled ? (
+            <MultiBranchPipelineStep
+              alm={alm}
+              almBinding={almBinding}
+              finished={step > Steps.MultiBranchPipeline}
+              onDone={() => setStep(Steps.Webhook)}
+              onOpen={() => setStep(Steps.MultiBranchPipeline)}
+              open={step === Steps.MultiBranchPipeline}
+              projectBinding={projectBinding}
+            />
+          ) : (
+            <PipelineStep
+              alm={alm}
+              finished={step > Steps.MultiBranchPipeline}
+              onDone={() => setStep(Steps.Webhook)}
+              onOpen={() => setStep(Steps.MultiBranchPipeline)}
+              open={step === Steps.MultiBranchPipeline}
+            />
+          )}
+
+          <WebhookStep
+            alm={alm}
+            almBinding={almBinding}
+            branchesEnabled={branchesEnabled}
+            finished={step > Steps.Webhook}
+            onDone={() => setStep(Steps.Jenkinsfile)}
+            onOpen={() => setStep(Steps.Webhook)}
+            open={step === Steps.Webhook}
+            projectBinding={projectBinding}
+          />
+
+          <JenkinsfileStep component={component} open={step === Steps.Jenkinsfile} />
+        </>
+      )}
     </>
   );
 }

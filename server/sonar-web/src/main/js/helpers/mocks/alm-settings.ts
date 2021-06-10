@@ -144,8 +144,7 @@ export function mockProjectBitbucketCloudBindingResponse(
   return {
     alm: AlmKeys.BitbucketCloud,
     key: 'foo',
-    repository: 'PROJECT_KEY',
-    slug: 'repo-slug',
+    repository: 'repo-slug',
     monorepo: true,
     ...overrides
   };

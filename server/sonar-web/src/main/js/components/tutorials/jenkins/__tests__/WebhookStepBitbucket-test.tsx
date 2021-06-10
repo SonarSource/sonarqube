@@ -24,25 +24,34 @@ import {
   mockProjectBitbucketBindingResponse,
   mockProjectBitbucketCloudBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import WebhookStepBitbucket, { WebhookStepBitbucketProps } from '../WebhookStepBitbucket';
 
 it.each([
-  ['bitbucket server', mockProjectBitbucketBindingResponse()],
-  ['bitbucket cloud', mockProjectBitbucketCloudBindingResponse()]
-])('should render correctly for %s', (_name, projectBinding) => {
-  expect(shallowRender({ projectBinding })).toMatchSnapshot();
-  expect(shallowRender({ projectBinding, almBinding: undefined })).toMatchSnapshot(
+  [
+    AlmKeys.BitbucketServer,
+    mockProjectBitbucketBindingResponse(),
+    mockAlmSettingsInstance({ url: 'http://bbs.enterprise.com' })
+  ],
+  [
+    AlmKeys.BitbucketCloud,
+    mockProjectBitbucketCloudBindingResponse(),
+    mockAlmSettingsInstance({ url: 'http://bitbucket.org/workspace/' })
+  ]
+])('should render correctly for %s', (alm, projectBinding, almBinding) => {
+  expect(shallowRender({ alm, projectBinding, almBinding })).toMatchSnapshot();
+  expect(shallowRender({ alm, projectBinding, almBinding: undefined })).toMatchSnapshot(
     'with no alm binding'
   );
-  expect(shallowRender({ projectBinding, branchesEnabled: false })).toMatchSnapshot(
-    'with branches disabled'
-  );
+  expect(
+    shallowRender({ alm, projectBinding, almBinding, branchesEnabled: false })
+  ).toMatchSnapshot('with branches disabled');
 });
 
 function shallowRender(props: Partial<WebhookStepBitbucketProps> = {}) {
   return shallow<WebhookStepBitbucketProps>(
     <WebhookStepBitbucket
-      almBinding={mockAlmSettingsInstance({ url: 'http://bbs.enterprise.com' })}
+      alm={AlmKeys.BitbucketServer}
       branchesEnabled={true}
       projectBinding={mockProjectBitbucketBindingResponse()}
       {...props}

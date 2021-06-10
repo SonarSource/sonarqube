@@ -18,6 +18,22 @@ exports[`should render correctly for azure 1`] = `
       className="display-flex-justify-center"
     >
       <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/manual.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.manual
+        </div>
+      </button>
+      <button
         className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
         onClick={[Function]}
         type="button"
@@ -31,22 +47,6 @@ exports[`should render correctly for azure 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.azure_pipelines
-        </div>
-      </button>
-      <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-        onClick={[Function]}
-        type="button"
-      >
-        <img
-          alt=""
-          height={80}
-          src="/images/sonarcloud/analysis/manual.svg"
-        />
-        <div
-          className="medium big-spacer-top"
-        >
-          onboarding.tutorial.choose_method.manual
         </div>
       </button>
     </div>
@@ -72,6 +72,22 @@ exports[`should render correctly for bitbucket server 1`] = `
       className="display-flex-justify-center"
     >
       <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/manual.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.manual
+        </div>
+      </button>
+      <button
         className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
@@ -85,22 +101,6 @@ exports[`should render correctly for bitbucket server 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
-        </div>
-      </button>
-      <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-        onClick={[Function]}
-        type="button"
-      >
-        <img
-          alt=""
-          height={80}
-          src="/images/sonarcloud/analysis/manual.svg"
-        />
-        <div
-          className="medium big-spacer-top"
-        >
-          onboarding.tutorial.choose_method.manual
         </div>
       </button>
     </div>
@@ -126,20 +126,19 @@ exports[`should render correctly for github 1`] = `
       className="display-flex-justify-center"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
         <img
           alt=""
-          className="spacer-bottom spacer-top"
-          height={64}
-          src="/images/tutorials/github-actions.svg"
+          height={80}
+          src="/images/tutorials/manual.svg"
         />
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.github_action
+          onboarding.tutorial.choose_method.manual
         </div>
       </button>
       <button
@@ -159,6 +158,23 @@ exports[`should render correctly for github 1`] = `
         </div>
       </button>
       <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          className="spacer-bottom spacer-top"
+          height={64}
+          src="/images/tutorials/github-actions.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.github_action
+        </div>
+      </button>
+      <button
         className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
@@ -172,22 +188,6 @@ exports[`should render correctly for github 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
-        </div>
-      </button>
-      <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-        onClick={[Function]}
-        type="button"
-      >
-        <img
-          alt=""
-          height={80}
-          src="/images/sonarcloud/analysis/manual.svg"
-        />
-        <div
-          className="medium big-spacer-top"
-        >
-          onboarding.tutorial.choose_method.manual
         </div>
       </button>
     </div>
@@ -212,6 +212,22 @@ exports[`should render correctly for gitlab 1`] = `
     <div
       className="display-flex-justify-center"
     >
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/manual.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.manual
+        </div>
+      </button>
       <button
         className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
         onClick={[Function]}
@@ -242,22 +258,6 @@ exports[`should render correctly for gitlab 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
-        </div>
-      </button>
-      <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-        onClick={[Function]}
-        type="button"
-      >
-        <img
-          alt=""
-          height={80}
-          src="/images/sonarcloud/analysis/manual.svg"
-        />
-        <div
-          className="medium big-spacer-top"
-        >
-          onboarding.tutorial.choose_method.manual
         </div>
       </button>
     </div>
@@ -298,16 +298,6 @@ exports[`should render correctly: azure pipelines tutorial 1`] = `
         "login": "luke",
         "name": "Skywalker",
         "scmAccounts": Array [],
-      }
-    }
-    projectBinding={
-      Object {
-        "alm": "azure",
-        "key": "foo",
-        "monorepo": false,
-        "repository": "REPOSITORY_NAME",
-        "slug": "PROJECT_NAME",
-        "url": "https://ado.my_company.com/mycollection",
       }
     }
   />
@@ -400,15 +390,6 @@ exports[`should render correctly: gitlab tutorial 1`] = `
         "login": "luke",
         "name": "Skywalker",
         "scmAccounts": Array [],
-      }
-    }
-    projectBinding={
-      Object {
-        "alm": "gitlab",
-        "key": "foo",
-        "monorepo": true,
-        "repository": "PROJECT_KEY",
-        "url": "https://gitlab.com/api/v4",
       }
     }
   />
@@ -528,12 +509,93 @@ exports[`should render correctly: selection 1`] = `
         <img
           alt=""
           height={80}
-          src="/images/sonarcloud/analysis/manual.svg"
+          src="/images/tutorials/manual.svg"
         />
         <div
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.manual
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/azure-pipelines.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.azure_pipelines
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.bitbucket_pipelines
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          className="spacer-bottom spacer-top"
+          height={64}
+          src="/images/tutorials/github-actions.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.github_action
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/gitlab.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.gitlab_ci
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/jenkins.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.jenkins
         </div>
       </button>
     </div>

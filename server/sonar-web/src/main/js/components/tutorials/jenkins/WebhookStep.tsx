@@ -32,23 +32,25 @@ import WebhookStepGithub from './WebhookStepGithub';
 import WebhookStepGitLab from './WebhookStepGitLab';
 
 export interface WebhookStepProps {
+  alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 function renderAlmSpecificInstructions(props: WebhookStepProps) {
-  const { almBinding, branchesEnabled, projectBinding } = props;
+  const { alm, almBinding, branchesEnabled, projectBinding } = props;
 
-  switch (projectBinding.alm) {
+  switch (alm) {
     case AlmKeys.BitbucketCloud:
     case AlmKeys.BitbucketServer:
       return (
         <WebhookStepBitbucket
+          alm={alm}
           almBinding={almBinding}
           branchesEnabled={branchesEnabled}
           projectBinding={projectBinding}
@@ -73,7 +75,7 @@ function renderAlmSpecificInstructions(props: WebhookStepProps) {
 }
 
 export default function WebhookStep(props: WebhookStepProps) {
-  const { finished, open, projectBinding } = props;
+  const { alm, finished, open } = props;
 
   return (
     <Step
@@ -100,7 +102,7 @@ export default function WebhookStep(props: WebhookStepProps) {
         </div>
       )}
       stepNumber={2}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.webhook', projectBinding.alm, 'title')}
+      stepTitle={translate('onboarding.tutorial.with.jenkins.webhook', alm, 'title')}
     />
   );
 }

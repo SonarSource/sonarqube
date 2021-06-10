@@ -19,9 +19,10 @@
  */
 import {
   mockAlmSettingsInstance,
+  mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse
 } from '../../../helpers/mocks/alm-settings';
-import { buildGithubLink, getUniqueTokenName } from '../utils';
+import { buildBitbucketCloudLink, buildGithubLink, getUniqueTokenName } from '../utils';
 
 describe('getUniqueTokenName', () => {
   const initialTokenName = 'Analyze "lightsaber"';
@@ -68,5 +69,30 @@ describe('buildGithubLink', () => {
 
   it('should return null if there is no url defined', () => {
     expect(buildGithubLink(mockAlmSettingsInstance({ url: undefined }), projectBinding)).toBeNull();
+  });
+});
+
+describe('buildBitbucketCloudLink', () => {
+  const projectBinding = mockProjectBitbucketCloudBindingResponse({ repository: 'reponame' });
+
+  it('should work', () => {
+    expect(
+      buildBitbucketCloudLink(
+        mockAlmSettingsInstance({ url: 'http://bitbucket.org/workspace/' }),
+        projectBinding
+      )
+    ).toBe('http://bitbucket.org/workspace/reponame');
+  });
+
+  it('should return null if there is no url defined', () => {
+    expect(
+      buildBitbucketCloudLink(mockAlmSettingsInstance({ url: undefined }), projectBinding)
+    ).toBeNull();
+    expect(
+      buildBitbucketCloudLink(
+        mockAlmSettingsInstance(),
+        mockProjectBitbucketCloudBindingResponse({ repository: undefined })
+      )
+    ).toBeNull();
   });
 });

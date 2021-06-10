@@ -68,6 +68,7 @@ exports[`it should render correctly for bitbucket: content 1`] = `
     className="list-styled"
   >
     <WebhookStepBitbucket
+      alm="bitbucket"
       almBinding={
         Object {
           "alm": "github",
@@ -130,6 +131,7 @@ exports[`it should render correctly for bitbucketcloud: content 1`] = `
     className="list-styled"
   >
     <WebhookStepBitbucket
+      alm="bitbucketcloud"
       almBinding={
         Object {
           "alm": "github",
@@ -142,8 +144,7 @@ exports[`it should render correctly for bitbucketcloud: content 1`] = `
           "alm": "bitbucketcloud",
           "key": "foo",
           "monorepo": true,
-          "repository": "PROJECT_KEY",
-          "slug": "repo-slug",
+          "repository": "repo-slug",
         }
       }
     />

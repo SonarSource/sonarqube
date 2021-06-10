@@ -26,6 +26,7 @@ import {
   mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import MultiBranchPipelineStep, { MultiBranchPipelineStepProps } from '../MultiBranchPipelineStep';
 import { renderStepContent } from '../test-utils';
 
@@ -33,9 +34,13 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('Step wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content for bitbucket');
+  expect(renderStepContent(shallowRender({ projectBinding: undefined }))).toMatchSnapshot(
+    'content for bitbucket, no binding'
+  );
   expect(
     renderStepContent(
       shallowRender({
+        alm: AlmKeys.BitbucketCloud,
         almBinding: mockAlmSettingsInstance({ url: 'https://bitbucket.org/workspaceId/' }),
         projectBinding: mockProjectBitbucketCloudBindingResponse()
       })
@@ -44,19 +49,38 @@ it('should render correctly', () => {
   expect(
     renderStepContent(
       shallowRender({
+        alm: AlmKeys.BitbucketCloud,
+        projectBinding: undefined
+      })
+    )
+  ).toMatchSnapshot('content for bitbucket cloud, no binding');
+  expect(
+    renderStepContent(
+      shallowRender({
+        alm: AlmKeys.GitHub,
         almBinding: mockAlmSettingsInstance({ url: 'https://api.github.com/' }),
         projectBinding: mockProjectGithubBindingResponse()
       })
     )
   ).toMatchSnapshot('content for github');
   expect(
-    renderStepContent(shallowRender({ projectBinding: mockProjectGitLabBindingResponse() }))
+    renderStepContent(
+      shallowRender({
+        alm: AlmKeys.GitHub
+      })
+    )
+  ).toMatchSnapshot('content for github, no binding');
+  expect(
+    renderStepContent(
+      shallowRender({ alm: AlmKeys.GitLab, projectBinding: mockProjectGitLabBindingResponse() })
+    )
   ).toMatchSnapshot('content for gitlab');
 });
 
 function shallowRender(props: Partial<MultiBranchPipelineStepProps> = {}) {
   return shallow<MultiBranchPipelineStepProps>(
     <MultiBranchPipelineStep
+      alm={AlmKeys.BitbucketServer}
       finished={false}
       onDone={jest.fn()}
       onOpen={jest.fn()}

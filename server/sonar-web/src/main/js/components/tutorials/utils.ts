@@ -69,3 +69,14 @@ export function buildGithubLink(
 
   return `${stripTrailingSlash(urlRoot)}/${projectBinding.repository}`;
 }
+
+export function buildBitbucketCloudLink(
+  almBinding: AlmSettingsInstance,
+  projectBinding: ProjectAlmBindingResponse
+) {
+  if (almBinding.url === undefined || projectBinding.repository === undefined) {
+    return null;
+  }
+
+  return `${stripTrailingSlash(almBinding.url)}/${projectBinding.repository}`;
+}

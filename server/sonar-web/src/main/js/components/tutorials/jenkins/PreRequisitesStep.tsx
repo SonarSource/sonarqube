@@ -30,6 +30,7 @@ import Step from '../components/Step';
 export interface PreRequisitesStepProps {
   alm: AlmKeys;
   branchesEnabled: boolean;
+  finished: boolean;
   onChangeSkipNextTime: (skip: boolean) => void;
   onDone: () => void;
   onOpen: () => void;
@@ -38,10 +39,10 @@ export interface PreRequisitesStepProps {
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { alm, branchesEnabled, open, skipNextTime } = props;
+  const { alm, branchesEnabled, finished, open, skipNextTime } = props;
   return (
     <Step
-      finished={!open}
+      finished={finished}
       onOpen={props.onOpen}
       open={open}
       renderForm={() => (

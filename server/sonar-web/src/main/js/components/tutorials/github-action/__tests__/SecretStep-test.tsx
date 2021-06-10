@@ -30,7 +30,8 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(
     shallowRender({
-      almBinding: mockAlmSettingsInstance({ url: 'http://github.enterprise.com/api/v3' })
+      almBinding: mockAlmSettingsInstance({ url: 'http://github.enterprise.com/api/v3' }),
+      projectBinding: mockProjectGithubBindingResponse()
     })
   ).toMatchSnapshot('with binding information');
 });
@@ -42,7 +43,6 @@ function shallowRender(props: Partial<SecretStepProps> = {}) {
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
       onDone={jest.fn()}
-      projectBinding={mockProjectGithubBindingResponse()}
       {...props}
     />
   );

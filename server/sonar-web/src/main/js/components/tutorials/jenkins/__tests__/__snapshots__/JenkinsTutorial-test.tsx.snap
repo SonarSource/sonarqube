@@ -14,6 +14,7 @@ exports[`should render correctly: branches not enabled 1`] = `
   <PreRequisitesStep
     alm="bitbucket"
     branchesEnabled={false}
+    finished={false}
     onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
@@ -28,6 +29,7 @@ exports[`should render correctly: branches not enabled 1`] = `
     open={false}
   />
   <WebhookStep
+    alm="bitbucket"
     branchesEnabled={false}
     finished={false}
     onDone={[Function]}
@@ -85,6 +87,7 @@ exports[`should render correctly: default 1`] = `
   <PreRequisitesStep
     alm="bitbucket"
     branchesEnabled={true}
+    finished={false}
     onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
@@ -92,6 +95,7 @@ exports[`should render correctly: default 1`] = `
     skipNextTime={false}
   />
   <MultiBranchPipelineStep
+    alm="bitbucket"
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}
@@ -107,6 +111,7 @@ exports[`should render correctly: default 1`] = `
     }
   />
   <WebhookStep
+    alm="bitbucket"
     branchesEnabled={true}
     finished={false}
     onDone={[Function]}
@@ -150,10 +155,21 @@ exports[`should render correctly: default 1`] = `
 </Fragment>
 `;
 
-exports[`should render correctly: unsupported alm 1`] = `
-<Alert
-  variant="error"
->
-  onboarding.tutorial.with.jenkins.unsupported
-</Alert>
+exports[`should render correctly: no project binding 1`] = `
+<Fragment>
+  <div
+    className="page-header big-spacer-bottom"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.tutorial.with.jenkins.title
+    </h1>
+  </div>
+  <SelectAlmStep
+    onCheck={[Function]}
+    onOpen={[Function]}
+    open={true}
+  />
+</Fragment>
 `;

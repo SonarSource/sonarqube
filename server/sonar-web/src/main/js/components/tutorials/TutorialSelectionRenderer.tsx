@@ -55,14 +55,24 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     return <i className="spinner" />;
   }
 
-  const isAzureAvailable =
-    projectBinding && [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
+  let showGitHubActions = true;
+  let showGitLabCICD = true;
+  let showBitbucketPipelines = true;
+  let showAzurePipelines = true;
+  let showJenkins = true;
 
-  const jenkinsAvailable =
-    projectBinding &&
-    [AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKeys.GitLab].includes(
-      projectBinding.alm
-    );
+  if (projectBinding !== undefined) {
+    showGitHubActions = projectBinding.alm === AlmKeys.GitHub;
+    showGitLabCICD = projectBinding.alm === AlmKeys.GitLab;
+    showBitbucketPipelines = projectBinding?.alm === AlmKeys.BitbucketCloud;
+    showAzurePipelines = [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
+    showJenkins = [
+      AlmKeys.BitbucketCloud,
+      AlmKeys.BitbucketServer,
+      AlmKeys.GitHub,
+      AlmKeys.GitLab
+    ].includes(projectBinding.alm);
+  }
 
   return (
     <>
@@ -75,7 +85,53 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           </header>
 
           <div className="display-flex-justify-center">
-            {projectBinding?.alm === AlmKeys.GitHub && (
+            <button
+              className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+              onClick={() => props.onSelectTutorial(TutorialModes.Manual)}
+              type="button">
+              <img
+                alt="" // Should be ignored by screen readers
+                height={80}
+                src={`${getBaseUrl()}/images/tutorials/manual.svg`}
+              />
+              <div className="medium big-spacer-top">
+                {translate('onboarding.tutorial.choose_method.manual')}
+              </div>
+            </button>
+
+            {showAzurePipelines && (
+              <button
+                className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+                onClick={() => props.onSelectTutorial(TutorialModes.AzurePipelines)}
+                type="button">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  height={80}
+                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
+                />
+                <div className="medium big-spacer-top">
+                  {translate('onboarding.tutorial.choose_method.azure_pipelines')}
+                </div>
+              </button>
+            )}
+
+            {showBitbucketPipelines && (
+              <button
+                className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
+                onClick={() => props.onSelectTutorial(TutorialModes.BitbucketPipelines)}
+                type="button">
+                <img
+                  alt="" // Should be ignored by screen readers
+                  height={80}
+                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                />
+                <div className="medium big-spacer-top">
+                  {translate('onboarding.tutorial.choose_method.bitbucket_pipelines')}
+                </div>
+              </button>
+            )}
+
+            {showGitHubActions && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
                 onClick={() => props.onSelectTutorial(TutorialModes.GitHubActions)}
@@ -92,7 +148,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               </button>
             )}
 
-            {projectBinding?.alm === AlmKeys.GitLab && (
+            {showGitLabCICD && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
                 onClick={() => props.onSelectTutorial(TutorialModes.GitLabCI)}
@@ -108,39 +164,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               </button>
             )}
 
-            {isAzureAvailable && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
-                onClick={() => props.onSelectTutorial(TutorialModes.AzurePipelines)}
-                type="button">
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={80}
-                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
-                />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.azure_pipelines')}
-                </div>
-              </button>
-            )}
-
-            {projectBinding?.alm === AlmKeys.BitbucketCloud && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
-                onClick={() => props.onSelectTutorial(TutorialModes.BitbucketPipelines)}
-                type="button">
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={80}
-                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.bitbucket_pipelines')}
-                </div>
-              </button>
-            )}
-
-            {jenkinsAvailable && (
+            {showJenkins && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
                 onClick={() => props.onSelectTutorial(TutorialModes.Jenkins)}
@@ -155,20 +179,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                 </div>
               </button>
             )}
-
-            <button
-              className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-              onClick={() => props.onSelectTutorial(TutorialModes.Manual)}
-              type="button">
-              <img
-                alt="" // Should be ignored by screen readers
-                height={80}
-                src={`${getBaseUrl()}/images/sonarcloud/analysis/manual.svg`}
-              />
-              <div className="medium big-spacer-top">
-                {translate('onboarding.tutorial.choose_method.manual')}
-              </div>
-            </button>
           </div>
         </div>
       )}
@@ -177,7 +187,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         <ManualTutorial component={component} currentUser={currentUser} />
       )}
 
-      {selectedTutorial === TutorialModes.BitbucketPipelines && projectBinding !== undefined && (
+      {selectedTutorial === TutorialModes.BitbucketPipelines && (
         <BitbucketPipelinesTutorial
           almBinding={almBinding}
           baseUrl={baseUrl}
@@ -187,7 +197,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         />
       )}
 
-      {selectedTutorial === TutorialModes.GitHubActions && projectBinding !== undefined && (
+      {selectedTutorial === TutorialModes.GitHubActions && (
         <GitHubActionTutorial
           almBinding={almBinding}
           baseUrl={baseUrl}
@@ -197,7 +207,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         />
       )}
 
-      {selectedTutorial === TutorialModes.Jenkins && projectBinding !== undefined && (
+      {selectedTutorial === TutorialModes.Jenkins && (
         <JenkinsTutorial
           almBinding={almBinding}
           component={component}
@@ -205,22 +215,12 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
         />
       )}
 
-      {selectedTutorial === TutorialModes.GitLabCI && projectBinding !== undefined && (
-        <GitLabCITutorial
-          baseUrl={baseUrl}
-          component={component}
-          currentUser={currentUser}
-          projectBinding={projectBinding}
-        />
+      {selectedTutorial === TutorialModes.GitLabCI && (
+        <GitLabCITutorial baseUrl={baseUrl} component={component} currentUser={currentUser} />
       )}
 
-      {selectedTutorial === TutorialModes.AzurePipelines && projectBinding !== undefined && (
-        <AzurePipelinesTutorial
-          baseUrl={baseUrl}
-          component={component}
-          currentUser={currentUser}
-          projectBinding={projectBinding}
-        />
+      {selectedTutorial === TutorialModes.AzurePipelines && (
+        <AzurePipelinesTutorial baseUrl={baseUrl} component={component} currentUser={currentUser} />
       )}
     </>
   );

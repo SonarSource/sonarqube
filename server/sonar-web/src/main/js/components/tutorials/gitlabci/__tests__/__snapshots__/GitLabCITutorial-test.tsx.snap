@@ -84,11 +84,3 @@ exports[`should render correctly 1`] = `
   />
 </Fragment>
 `;
-
-exports[`should render correctly: wrong alm 1`] = `
-<Alert
-  variant="error"
->
-  onboarding.tutorial.with.gitlab_ci.unsupported
-</Alert>
-`;

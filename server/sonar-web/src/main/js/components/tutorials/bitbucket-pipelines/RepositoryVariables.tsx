@@ -25,6 +25,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';
+import { buildBitbucketCloudLink } from '../utils';
 
 export interface RepositoryVariablesProps {
   almBinding?: AlmSettingsInstance;
@@ -32,7 +33,7 @@ export interface RepositoryVariablesProps {
   component: T.Component;
   currentUser: T.LoggedInUser;
   onDone: () => void;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export default function RepositoryVariables(props: RepositoryVariablesProps) {
@@ -44,18 +45,22 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
           defaultMessage={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro')}
           id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
           values={{
-            repository_variables: almBinding?.url ? (
-              <a
-                href={`${almBinding.url}/${projectBinding.slug}/admin/addon/admin/pipelines/repository-variables`}
-                target="_blank"
-                rel="noopener noreferrer">
-                {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
-              </a>
-            ) : (
-              <b>
-                {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
-              </b>
-            )
+            repository_variables:
+              almBinding?.url && projectBinding?.repository ? (
+                <a
+                  href={`${buildBitbucketCloudLink(
+                    almBinding,
+                    projectBinding
+                  )}/admin/addon/admin/pipelines/repository-variables`}
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
+                </a>
+              ) : (
+                <strong>
+                  {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
+                </strong>
+              )
           }}
         />
       </p>

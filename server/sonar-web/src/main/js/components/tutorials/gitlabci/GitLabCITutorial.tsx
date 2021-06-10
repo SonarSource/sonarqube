@@ -18,12 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  isProjectGitLabBindingResponse,
-  ProjectAlmBindingResponse
-} from '../../../types/alm-settings';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import ProjectKeyStep from './ProjectKeyStep';
 import { GitlabBuildTools } from './types';
@@ -39,21 +34,13 @@ export interface GitLabCITutorialProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
-  projectBinding: ProjectAlmBindingResponse;
 }
 
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
-  const { baseUrl, component, currentUser, projectBinding } = props;
+  const { baseUrl, component, currentUser } = props;
 
   const [step, setStep] = React.useState(Steps.PROJECT_KEY);
   const [buildTool, setBuildTool] = React.useState<GitlabBuildTools | undefined>();
-
-  // Failsafe; should never happen.
-  if (!isProjectGitLabBindingResponse(projectBinding)) {
-    return (
-      <Alert variant="error">{translate('onboarding.tutorial.with.gitlab_ci.unsupported')}</Alert>
-    );
-  }
 
   return (
     <>

@@ -19,13 +19,7 @@
  */
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  isProjectAzureBindingResponse,
-  isProjectGitHubBindingResponse,
-  ProjectAlmBindingResponse
-} from '../../../types/alm-settings';
 import Step from '../components/Step';
 import BranchAnalysisStepContent from './BranchAnalysisStepContent';
 import ExtensionInstallationStepContent from './ExtensionInstallationStepContent';
@@ -36,7 +30,6 @@ export interface AzurePipelinesTutorialProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
-  projectBinding: ProjectAlmBindingResponse;
 }
 
 export enum Steps {
@@ -53,22 +46,10 @@ interface Step {
 }
 
 export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProps) {
-  const { baseUrl, component, currentUser, projectBinding } = props;
+  const { baseUrl, component, currentUser } = props;
 
   const [currentStep, setCurrentStep] = React.useState(Steps.ExtensionInstallation);
   const [isCurrentStepValid, setIsCurrentStepValid] = React.useState(false);
-
-  // Failsafe; should never happen.
-  if (
-    !isProjectAzureBindingResponse(projectBinding) &&
-    !isProjectGitHubBindingResponse(projectBinding)
-  ) {
-    return (
-      <Alert variant="error">
-        {translate('onboarding.tutorial.with.azure_pipelines.unsupported')}
-      </Alert>
-    );
-  }
 
   const steps: Array<Step> = [
     { step: Steps.ExtensionInstallation, content: <ExtensionInstallationStepContent /> },

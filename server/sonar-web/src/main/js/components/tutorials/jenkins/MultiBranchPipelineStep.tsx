@@ -21,15 +21,9 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
+  AlmKeys,
   AlmSettingsInstance,
-  isProjectBitbucketBindingResponse,
-  isProjectBitbucketCloudBindingResponse,
-  isProjectGitHubBindingResponse,
-  isProjectGitLabBindingResponse,
-  ProjectBitbucketBindingResponse,
-  ProjectBitbucketCloudBindingResponse,
-  ProjectGitHubBindingResponse,
-  ProjectGitLabBindingResponse
+  ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import LabelValuePair from '../components/LabelValuePair';
@@ -37,19 +31,14 @@ import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 import { buildGithubLink } from '../utils';
 
-type validBindingResponse =
-  | ProjectBitbucketCloudBindingResponse
-  | ProjectBitbucketBindingResponse
-  | ProjectGitHubBindingResponse
-  | ProjectGitLabBindingResponse;
-
 export interface MultiBranchPipelineStepProps {
+  alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectBinding: validBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 /* Capture [workspaceID] from this pattern: https://bitbucket.org/[workspaceId]/  */
@@ -64,7 +53,7 @@ function extractBitbucketCloudWorkspaceId(almBinding?: AlmSettingsInstance): str
 }
 
 export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepProps) {
-  const { almBinding, finished, open, projectBinding } = props;
+  const { alm, almBinding, finished, open, projectBinding } = props;
 
   const workspaceId = extractBitbucketCloudWorkspaceId(almBinding);
 
@@ -88,10 +77,10 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
             <li>
               <SentenceWithHighlights
                 highlightKeys={['tab', 'source']}
-                translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${projectBinding.alm}`}
+                translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}`}
               />
               <ul className="list-styled">
-                {isProjectBitbucketBindingResponse(projectBinding) && (
+                {alm === AlmKeys.BitbucketServer && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server" />
@@ -100,20 +89,28 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.creds" />
                     </li>
                     <li>
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
-                        value={projectBinding.repository}
-                      />
+                      {projectBinding?.repository ? (
+                        <LabelValuePair
+                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
+                          value={projectBinding.repository}
+                        />
+                      ) : (
+                        <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner" />
+                      )}
                     </li>
                     <li>
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
-                        value={projectBinding.slug}
-                      />
+                      {projectBinding?.slug ? (
+                        <LabelValuePair
+                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
+                          value={projectBinding.slug}
+                        />
+                      ) : (
+                        <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo" />
+                      )}
                     </li>
                   </>
                 )}
-                {isProjectBitbucketCloudBindingResponse(projectBinding) && (
+                {alm === AlmKeys.BitbucketCloud && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server" />
@@ -132,20 +129,25 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                       )}
                     </li>
                     <li>
-                      <LabelValuePair
-                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
-                        value={projectBinding.repository}
-                      />
+                      {projectBinding?.repository ? (
+                        <LabelValuePair
+                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo"
+                          value={projectBinding.repository}
+                        />
+                      ) : (
+                        <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.repo" />
+                      )}
                     </li>
                   </>
                 )}
-                {isProjectGitHubBindingResponse(projectBinding) && (
+                {alm === AlmKeys.GitHub && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
                     </li>
                     <li>
                       {almBinding !== undefined &&
+                      projectBinding !== undefined &&
                       buildGithubLink(almBinding, projectBinding) !== null ? (
                         <LabelValuePair
                           translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
@@ -157,7 +159,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                     </li>
                   </>
                 )}
-                {isProjectGitLabBindingResponse(projectBinding) && (
+                {alm === AlmKeys.GitLab && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.creds" />
@@ -172,7 +174,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                 )}
                 <li>
                   <LabelActionPair
-                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${projectBinding.alm}.behaviour`}
+                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}.behaviour`}
                   />
                 </li>
               </ul>

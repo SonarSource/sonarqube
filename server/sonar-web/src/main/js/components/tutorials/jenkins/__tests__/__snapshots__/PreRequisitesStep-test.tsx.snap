@@ -2,7 +2,7 @@
 
 exports[`should render correctly: Step wrapper 1`] = `
 <Step
-  finished={true}
+  finished={false}
   onOpen={[MockFunction]}
   open={false}
   renderForm={[Function]}

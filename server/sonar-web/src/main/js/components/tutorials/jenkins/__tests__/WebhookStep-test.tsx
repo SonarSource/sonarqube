@@ -36,8 +36,8 @@ it.each([
   [AlmKeys.BitbucketServer, mockProjectBitbucketBindingResponse()],
   [AlmKeys.GitHub, mockProjectGithubBindingResponse()],
   [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })]
-])('it should render correctly for %s', (_, projectBinding) => {
-  const wrapper = shallowRender({ projectBinding });
+])('it should render correctly for %s', (alm, projectBinding) => {
+  const wrapper = shallowRender({ alm, projectBinding });
   expect(wrapper).toMatchSnapshot('wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content');
 });
@@ -45,6 +45,7 @@ it.each([
 function shallowRender(props: Partial<WebhookStepProps> = {}) {
   return shallow<WebhookStepProps>(
     <WebhookStep
+      alm={AlmKeys.BitbucketServer}
       almBinding={mockAlmSettingsInstance()}
       branchesEnabled={true}
       finished={false}

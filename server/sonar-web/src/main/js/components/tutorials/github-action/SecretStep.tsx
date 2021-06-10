@@ -32,7 +32,7 @@ export interface SecretStepProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
   onDone: () => void;
 }
 
@@ -46,16 +46,19 @@ export default function SecretStep(props: SecretStepProps) {
           defaultMessage={translate('onboarding.tutorial.with.github_action.secret.intro')}
           id="onboarding.tutorial.with.github_action.secret.intro"
           values={{
-            settings_secret: almBinding ? (
-              <a
-                href={`${buildGithubLink(almBinding, projectBinding)}/settings/secrets`}
-                target="_blank"
-                rel="noopener noreferrer">
-                {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
-              </a>
-            ) : (
-              translate('onboarding.tutorial.with.github_action.secret.intro.link')
-            )
+            settings_secret:
+              almBinding && projectBinding ? (
+                <a
+                  href={`${buildGithubLink(almBinding, projectBinding)}/settings/secrets`}
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
+                </a>
+              ) : (
+                <strong>
+                  {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
+                </strong>
+              )
           }}
         />
       </p>

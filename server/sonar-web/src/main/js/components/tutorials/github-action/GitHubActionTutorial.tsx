@@ -35,7 +35,7 @@ export interface GitHubActionTutorialProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {

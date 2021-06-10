@@ -37,7 +37,6 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
 interface State {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  forceManual: boolean;
   loading: boolean;
 }
 
@@ -45,7 +44,6 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     baseUrl: getHostUrl(),
-    forceManual: true,
     loading: true
   };
 
@@ -66,16 +64,14 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   fetchAlmBindings = async () => {
     const { component, projectBinding } = this.props;
 
-    if (projectBinding === undefined) {
-      this.setState({ forceManual: true });
-    } else {
+    if (projectBinding !== undefined) {
       const almSettings = await getAlmSettingsNoCatch(component.key).catch(() => undefined);
       if (this.mounted) {
         let almBinding;
         if (almSettings !== undefined) {
           almBinding = almSettings.find(d => d.key === projectBinding.key);
         }
-        this.setState({ almBinding, forceManual: false });
+        this.setState({ almBinding });
       }
     }
   };
@@ -102,11 +98,9 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
 
   render() {
     const { component, currentUser, location, projectBinding } = this.props;
-    const { almBinding, baseUrl, forceManual, loading } = this.state;
+    const { almBinding, baseUrl, loading } = this.state;
 
-    const selectedTutorial: TutorialModes | undefined = forceManual
-      ? TutorialModes.Manual
-      : location.query?.selectedTutorial;
+    const selectedTutorial: TutorialModes | undefined = location.query?.selectedTutorial;
 
     return (
       <TutorialSelectionRenderer

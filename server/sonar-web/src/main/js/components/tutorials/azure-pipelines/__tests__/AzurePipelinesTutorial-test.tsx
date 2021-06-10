@@ -21,11 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import {
-  mockProjectAzureBindingResponse,
-  mockProjectGithubBindingResponse,
-  mockProjectGitLabBindingResponse
-} from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import Step from '../../components/Step';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
@@ -45,12 +40,6 @@ it('should render correctly', () => {
       .last()
       .dive()
   ).toMatchSnapshot('last-step-wrapper');
-  expect(shallowRender({ projectBinding: mockProjectGithubBindingResponse() })).toMatchSnapshot(
-    'for github'
-  );
-  expect(shallowRender({ projectBinding: mockProjectGitLabBindingResponse() })).toMatchSnapshot(
-    'wrong alm'
-  );
 });
 
 it('should display the next step when one is finished', () => {
@@ -108,7 +97,6 @@ function shallowRender(props: Partial<AzurePipelinesTutorialProps> = {}) {
       baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
-      projectBinding={mockProjectAzureBindingResponse()}
       {...props}
     />
   );

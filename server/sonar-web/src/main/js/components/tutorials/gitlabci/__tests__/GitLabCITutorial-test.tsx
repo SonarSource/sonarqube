@@ -19,18 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockProjectGithubBindingResponse,
-  mockProjectGitLabBindingResponse
-} from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import GitLabCITutorial, { GitLabCITutorialProps } from '../GitLabCITutorial';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ projectBinding: mockProjectGithubBindingResponse() })).toMatchSnapshot(
-    'wrong alm'
-  );
 });
 
 function shallowRender(props: Partial<GitLabCITutorialProps> = {}) {
@@ -39,7 +32,6 @@ function shallowRender(props: Partial<GitLabCITutorialProps> = {}) {
       baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
-      projectBinding={mockProjectGitLabBindingResponse()}
       {...props}
     />
   );

@@ -29,13 +29,14 @@ import { buildGithubLink } from '../utils';
 export interface WebhookStepGithubProps {
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export default function WebhookStepGithub(props: WebhookStepGithubProps) {
   const { almBinding, branchesEnabled, projectBinding } = props;
 
-  const linkUrl = almBinding && `${buildGithubLink(almBinding, projectBinding)}/settings/hooks`;
+  const linkUrl =
+    almBinding && projectBinding && `${buildGithubLink(almBinding, projectBinding)}/settings/hooks`;
 
   const webhookUrl = branchesEnabled
     ? '***JENKINS_SERVER_URL***/github-webhook/'
@@ -53,7 +54,9 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
               </a>
             ) : (
-              translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')
+              <strong>
+                {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
+              </strong>
             )
           }}
         />

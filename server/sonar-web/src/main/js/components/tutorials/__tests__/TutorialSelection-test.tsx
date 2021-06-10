@@ -55,18 +55,6 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should select manual if project is not bound', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().forceManual).toBe(true);
-});
-
-it('should not select anything if project is bound', async () => {
-  const wrapper = shallowRender({ projectBinding: mockProjectBitbucketBindingResponse() });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().forceManual).toBe(false);
-});
-
 it('should correctly find the global ALM binding definition', async () => {
   const key = 'foo';
   const almBinding = mockAlmSettingsInstance({ key });

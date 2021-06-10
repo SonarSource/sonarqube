@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { stripTrailingSlash } from '../../../helpers/urls';
 import {
   AlmKeys,
   AlmSettingsInstance,
@@ -29,11 +30,13 @@ import {
 import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
+import { buildBitbucketCloudLink } from '../utils';
 
 export interface WebhookStepBitbucketProps {
+  alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 function buildUrlSnippet(
@@ -50,18 +53,21 @@ function buildUrlSnippet(
 }
 
 export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
-  const { almBinding, branchesEnabled, projectBinding } = props;
+  const { alm, almBinding, branchesEnabled, projectBinding } = props;
 
-  const isBitbucketCloud = projectBinding.alm === AlmKeys.BitbucketCloud;
+  const isBitbucketCloud = alm === AlmKeys.BitbucketCloud;
 
   let linkUrl;
-  if (almBinding?.url) {
-    if (isBitbucketCloud) {
-      linkUrl =
-        projectBinding.repository &&
-        `${almBinding.url}${projectBinding.repository}/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin`;
-    } else {
-      linkUrl = `${almBinding.url}/plugins/servlet/webhooks/projects/${projectBinding.repository}/repos/${projectBinding.slug}/create`;
+  if (almBinding?.url && projectBinding) {
+    if (isBitbucketCloud && projectBinding?.repository) {
+      linkUrl = `${buildBitbucketCloudLink(
+        almBinding,
+        projectBinding
+      )}/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin`;
+    } else if (projectBinding.slug) {
+      linkUrl = `${stripTrailingSlash(almBinding.url)}/plugins/servlet/webhooks/projects/${
+        projectBinding.repository
+      }/repos/${projectBinding.slug}/create`;
     }
   }
 
@@ -74,18 +80,12 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           values={{
             link: linkUrl ? (
               <a href={linkUrl} rel="noopener noreferrer" target="_blank">
-                {translate(
-                  'onboarding.tutorial.with.jenkins.webhook',
-                  projectBinding.alm,
-                  'step1.link'
-                )}
+                {translate('onboarding.tutorial.with.jenkins.webhook', alm, 'step1.link')}
               </a>
             ) : (
-              translate(
-                'onboarding.tutorial.with.jenkins.webhook',
-                projectBinding.alm,
-                'step1.link'
-              )
+              <strong>
+                {translate('onboarding.tutorial.with.jenkins.webhook', alm, 'step1.link')}
+              </strong>
             )
           }}
         />

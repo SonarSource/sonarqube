@@ -36,6 +36,5 @@ exports[`should render correctly 1`] = `
   }
   loading={true}
   onSelectTutorial={[Function]}
-  selectedTutorial="manual"
 />
 `;

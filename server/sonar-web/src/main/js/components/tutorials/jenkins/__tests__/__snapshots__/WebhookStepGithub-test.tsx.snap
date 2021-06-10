@@ -151,7 +151,9 @@ exports[`should render correctly: with no alm binding 1`] = `
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
         Object {
-          "link": "onboarding.tutorial.with.jenkins.webhook.github.step1.link",
+          "link": <strong>
+            onboarding.tutorial.with.jenkins.webhook.github.step1.link
+          </strong>,
         }
       }
     />

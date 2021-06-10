@@ -19,66 +19,80 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockProjectAlmBindingResponse,
-  mockProjectBitbucketBindingResponse
-} from '../../../../helpers/mocks/alm-settings';
+import { mockProjectBitbucketBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import JenkinsfileStep from '../JenkinsfileStep';
 import { JenkinsTutorial, JenkinsTutorialProps } from '../JenkinsTutorial';
 import MultiBranchPipelineStep from '../MultiBranchPipelineStep';
 import PreRequisitesStep from '../PreRequisitesStep';
+import SelectAlmStep from '../SelectAlmStep';
 import WebhookStep from '../WebhookStep';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('branches not enabled');
-  expect(
-    shallowRender({ projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.Azure }) })
-  ).toMatchSnapshot('unsupported alm');
+  expect(shallowRender({ projectBinding: undefined })).toMatchSnapshot('no project binding');
 });
 
 it('should correctly navigate between steps', () => {
   const wrapper = shallowRender();
 
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(true);
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(false);
-  expect(wrapper.find(WebhookStep).prop('open')).toBe(false);
-  expect(wrapper.find(JenkinsfileStep).prop('open')).toBe(false);
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(true);
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(false);
+  expect(wrapper.find(WebhookStep).props().open).toBe(false);
+  expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Pre-reqs done.
-  wrapper.find(PreRequisitesStep).prop('onDone')();
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(false);
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(true);
-  expect(wrapper.find(WebhookStep).prop('open')).toBe(false);
-  expect(wrapper.find(JenkinsfileStep).prop('open')).toBe(false);
+  wrapper
+    .find(PreRequisitesStep)
+    .props()
+    .onDone();
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
+  expect(wrapper.find(WebhookStep).props().open).toBe(false);
+  expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Multibranch done.
-  wrapper.find(MultiBranchPipelineStep).prop('onDone')();
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(false);
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(false);
-  expect(wrapper.find(WebhookStep).prop('open')).toBe(true);
-  expect(wrapper.find(JenkinsfileStep).prop('open')).toBe(false);
+  wrapper
+    .find(MultiBranchPipelineStep)
+    .props()
+    .onDone();
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(false);
+  expect(wrapper.find(WebhookStep).props().open).toBe(true);
+  expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Webhook done.
-  wrapper.find(WebhookStep).prop('onDone')();
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(false);
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(false);
-  expect(wrapper.find(WebhookStep).prop('open')).toBe(false);
-  expect(wrapper.find(JenkinsfileStep).prop('open')).toBe(true);
+  wrapper
+    .find(WebhookStep)
+    .props()
+    .onDone();
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(false);
+  expect(wrapper.find(WebhookStep).props().open).toBe(false);
+  expect(wrapper.find(JenkinsfileStep).props().open).toBe(true);
 
   // Open Pre-reqs.
-  wrapper.find(PreRequisitesStep).prop('onOpen')();
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(true);
+  wrapper
+    .find(PreRequisitesStep)
+    .props()
+    .onOpen();
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(true);
 
   // Open Multibranch.
-  wrapper.find(MultiBranchPipelineStep).prop('onOpen')();
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(true);
+  wrapper
+    .find(MultiBranchPipelineStep)
+    .props()
+    .onOpen();
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
 
   // Open Webhook.
-  wrapper.find(WebhookStep).prop('onOpen')();
-  expect(wrapper.find(WebhookStep).prop('open')).toBe(true);
+  wrapper
+    .find(WebhookStep)
+    .props()
+    .onOpen();
+  expect(wrapper.find(WebhookStep).props().open).toBe(true);
 });
 
 it('should correctly store the user setting', () => {
@@ -100,8 +114,19 @@ it('should correctly store the user setting', () => {
 
 it('should correctly skip the pre-reqs step if the user requested it', () => {
   const wrapper = shallowRender({ skipPreReqs: true });
-  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(false);
-  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(true);
+  expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
+  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
+});
+
+it('should correctly select an ALM if no project is bound', () => {
+  const wrapper = shallowRender({ projectBinding: undefined });
+  expect(wrapper.find(PreRequisitesStep).exists()).toBe(false);
+  wrapper
+    .find(SelectAlmStep)
+    .props()
+    .onCheck(AlmKeys.BitbucketCloud);
+  expect(wrapper.find(SelectAlmStep).props().open).toBe(false);
+  expect(wrapper.find(PreRequisitesStep).exists()).toBe(true);
 });
 
 function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {

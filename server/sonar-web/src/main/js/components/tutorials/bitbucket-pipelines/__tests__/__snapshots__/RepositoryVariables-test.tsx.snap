@@ -12,9 +12,9 @@ exports[`should render correctly 1`] = `
       id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
       values={
         Object {
-          "repository_variables": <b>
+          "repository_variables": <strong>
             onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link
-          </b>,
+          </strong>,
         }
       }
     />
