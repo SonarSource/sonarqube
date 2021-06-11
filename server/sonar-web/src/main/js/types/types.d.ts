@@ -46,6 +46,7 @@ declare namespace T {
 
   interface BaseAnalysis {
     buildString?: string;
+    detectedCI?: string;
     events: AnalysisEvent[];
     key: string;
     manualNewCodePeriodBaseline?: boolean;

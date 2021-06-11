@@ -32,11 +32,11 @@ import {
 import { getAllTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockAnalysis, mockComponent } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
-import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH } from '../BranchOverview';
+import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
 import BranchOverviewRenderer from '../BranchOverviewRenderer';
 
 jest.mock('sonar-ui-common/helpers/dates', () => ({
@@ -146,7 +146,13 @@ jest.mock('../../../../api/projectActivity', () => {
   const { mockAnalysis } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getProjectActivity: jest.fn().mockResolvedValue({
-      analyses: [mockAnalysis(), mockAnalysis(), mockAnalysis(), mockAnalysis(), mockAnalysis()]
+      analyses: [
+        mockAnalysis({ detectedCI: 'Cirrus CI' }),
+        mockAnalysis(),
+        mockAnalysis(),
+        mockAnalysis(),
+        mockAnalysis()
+      ]
     })
   };
 });
@@ -344,6 +350,22 @@ it("should correctly load a component's history", async () => {
     })
   );
 });
+
+it.each([
+  ['no analysis', [], undefined],
+  ['1 analysis, no CI data', [mockAnalysis()], false],
+  ['1 analysis, no CI detected', [mockAnalysis({ detectedCI: NO_CI_DETECTED })], false],
+  ['1 analysis, CI detected', [mockAnalysis({ detectedCI: 'Cirrus CI' })], true]
+])(
+  "should correctly flag a project that wasn't analyzed using a CI (%s)",
+  async (_, analyses, expected) => {
+    (getProjectActivity as jest.Mock).mockResolvedValueOnce({ analyses });
+
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.state().detectedCIOnLastAnalysis).toBe(expected);
+  }
+);
 
 it('should correctly handle graph type storage', () => {
   const wrapper = shallowRender();

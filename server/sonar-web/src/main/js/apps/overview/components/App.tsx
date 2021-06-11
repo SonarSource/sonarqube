@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { withAppState } from '../../../components/hoc/withAppState';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
@@ -31,6 +32,7 @@ const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));
 const PullRequestOverview = lazyLoadComponent(() => import('../pullRequests/PullRequestOverview'));
 
 interface Props {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component: T.Component;
@@ -46,7 +48,13 @@ export class App extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branchLike, branchLikes, component, projectBinding } = this.props;
+    const {
+      appState: { branchesEnabled },
+      branchLike,
+      branchLikes,
+      component,
+      projectBinding
+    } = this.props;
 
     if (this.isPortfolio()) {
       return null;
@@ -61,7 +69,7 @@ export class App extends React.PureComponent<Props> {
       <>
         <Suggestions suggestions="overview" />
 
-        {!component.analysisDate ? (
+        {!component.analysisDate && (
           <EmptyOverview
             branchLike={branchLike}
             branchLikes={branchLikes}
@@ -69,12 +77,19 @@ export class App extends React.PureComponent<Props> {
             hasAnalyses={this.props.isPending || this.props.isInProgress}
             projectBinding={projectBinding}
           />
-        ) : (
-          <BranchOverview branch={branchLike} component={component} />
+        )}
+
+        {component.analysisDate && (
+          <BranchOverview
+            branch={branchLike}
+            branchesEnabled={branchesEnabled}
+            component={component}
+            projectBinding={projectBinding}
+          />
         )}
       </>
     );
   }
 }
 
-export default withRouter(App);
+export default withRouter(withAppState(App));

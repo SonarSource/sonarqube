@@ -6,6 +6,7 @@ exports[`application overview should fetch correctly other branch 1`] = `
     Array [
       Object {
         "date": "2017-03-01T09:36:01+0100",
+        "detectedCI": "Cirrus CI",
         "events": Array [],
         "key": "foo",
         "projectVersion": "1.0",
@@ -94,6 +95,7 @@ exports[`application overview should fetch correctly other branch 1`] = `
       "tags": Array [],
     }
   }
+  detectedCIOnLastAnalysis={true}
   graph="coverage"
   loadingHistory={false}
   loadingStatus={false}
@@ -926,6 +928,7 @@ exports[`application overview should render correctly 1`] = `
     Array [
       Object {
         "date": "2017-03-01T09:36:01+0100",
+        "detectedCI": "Cirrus CI",
         "events": Array [],
         "key": "foo",
         "projectVersion": "1.0",
@@ -1014,6 +1017,7 @@ exports[`application overview should render correctly 1`] = `
       "tags": Array [],
     }
   }
+  detectedCIOnLastAnalysis={true}
   graph="coverage"
   loadingHistory={false}
   loadingStatus={false}
@@ -1846,6 +1850,7 @@ exports[`project overview should render correctly 1`] = `
     Array [
       Object {
         "date": "2017-03-01T09:36:01+0100",
+        "detectedCI": "Cirrus CI",
         "events": Array [],
         "key": "foo",
         "projectVersion": "1.0",
@@ -1927,6 +1932,7 @@ exports[`project overview should render correctly 1`] = `
       "tags": Array [],
     }
   }
+  detectedCIOnLastAnalysis={true}
   graph="coverage"
   loadingHistory={false}
   loadingStatus={false}

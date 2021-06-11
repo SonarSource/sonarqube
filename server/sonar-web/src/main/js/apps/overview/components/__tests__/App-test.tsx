@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { isSonarCloud } from '../../../../helpers/system';
+import { mockAppState } from '../../../../helpers/testMocks';
 import BranchOverview from '../../branches/BranchOverview';
 import { App } from '../App';
 
@@ -49,6 +50,12 @@ it('should render BranchOverview', () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <App branchLikes={[]} component={component} router={{ replace: jest.fn() }} {...props} />
+    <App
+      appState={mockAppState()}
+      branchLikes={[]}
+      component={component}
+      router={{ replace: jest.fn() }}
+      {...props}
+    />
   );
 }

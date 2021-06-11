@@ -25,9 +25,9 @@ import { GraphType } from '../../../../types/project-activity';
 import { BranchOverviewRenderer, BranchOverviewRendererProps } from '../BranchOverviewRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ projectIsEmpty: true })).toMatchSnapshot();
-  expect(shallowRender({ loadingHistory: true, loadingStatus: true })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ projectIsEmpty: true })).toMatchSnapshot('empty project');
+  expect(shallowRender({ loadingHistory: true, loadingStatus: true })).toMatchSnapshot('loading');
 });
 
 function shallowRender(props: Partial<BranchOverviewRendererProps> = {}) {

@@ -20,12 +20,14 @@
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import ActivityPanel from './ActivityPanel';
+import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import { MeasuresPanel } from './MeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import QualityGatePanel from './QualityGatePanel';
@@ -34,7 +36,9 @@ export interface BranchOverviewRendererProps {
   analyses?: T.Analysis[];
   appLeak?: ApplicationPeriod;
   branch?: Branch;
+  branchesEnabled?: boolean;
   component: T.Component;
+  detectedCIOnLastAnalysis?: boolean;
   graph?: GraphType;
   loadingHistory?: boolean;
   loadingStatus?: boolean;
@@ -43,6 +47,7 @@ export interface BranchOverviewRendererProps {
   metrics?: T.Metric[];
   onGraphChange: (graph: GraphType) => void;
   period?: T.Period;
+  projectBinding?: ProjectAlmBindingResponse;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
 }
@@ -52,7 +57,9 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
     analyses,
     appLeak,
     branch,
+    branchesEnabled,
     component,
+    detectedCIOnLastAnalysis,
     graph,
     loadingHistory,
     loadingStatus,
@@ -61,6 +68,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
     metrics = [],
     onGraphChange,
     period,
+    projectBinding,
     projectIsEmpty,
     qgStatuses
   } = props;
@@ -68,50 +76,58 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
 
   return (
-    <div className="page page-limited">
-      <div className="overview">
-        <A11ySkipTarget anchor="overview_main" />
+    <>
+      <FirstAnalysisNextStepsNotif
+        component={component}
+        branchesEnabled={branchesEnabled}
+        detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
+        projectBinding={projectBinding}
+      />
+      <div className="page page-limited">
+        <div className="overview">
+          <A11ySkipTarget anchor="overview_main" />
 
-        {projectIsEmpty ? (
-          <NoCodeWarning branchLike={branch} component={component} measures={measures} />
-        ) : (
-          <div className="display-flex-row">
-            <div className="width-25 big-spacer-right">
-              <QualityGatePanel
-                component={component}
-                loading={loadingStatus}
-                qgStatuses={qgStatuses}
-              />
-            </div>
-
-            <div className="flex-1">
-              <div className="display-flex-column">
-                <MeasuresPanel
-                  appLeak={appLeak}
-                  branch={branch}
+          {projectIsEmpty ? (
+            <NoCodeWarning branchLike={branch} component={component} measures={measures} />
+          ) : (
+            <div className="display-flex-row">
+              <div className="width-25 big-spacer-right">
+                <QualityGatePanel
                   component={component}
                   loading={loadingStatus}
-                  measures={measures}
-                  period={period}
-                />
-
-                <ActivityPanel
-                  analyses={analyses}
-                  branchLike={branch}
-                  component={component}
-                  graph={graph}
-                  leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
-                  loading={loadingHistory}
-                  measuresHistory={measuresHistory}
-                  metrics={metrics}
-                  onGraphChange={onGraphChange}
+                  qgStatuses={qgStatuses}
                 />
               </div>
+
+              <div className="flex-1">
+                <div className="display-flex-column">
+                  <MeasuresPanel
+                    appLeak={appLeak}
+                    branch={branch}
+                    component={component}
+                    loading={loadingStatus}
+                    measures={measures}
+                    period={period}
+                  />
+
+                  <ActivityPanel
+                    analyses={analyses}
+                    branchLike={branch}
+                    component={component}
+                    graph={graph}
+                    leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
+                    loading={loadingHistory}
+                    measuresHistory={measuresHistory}
+                    metrics={metrics}
+                    onGraphChange={onGraphChange}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -42,6 +42,7 @@ import {
   extractStatusConditionsFromApplicationStatusChildProject,
   extractStatusConditionsFromProjectStatus
 } from '../../../helpers/qualityGates';
+import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -54,12 +55,15 @@ import BranchOverviewRenderer from './BranchOverviewRenderer';
 
 interface Props {
   branch?: Branch;
+  branchesEnabled?: boolean;
   component: T.Component;
+  projectBinding?: ProjectAlmBindingResponse;
 }
 
 interface State {
   analyses?: T.Analysis[];
   appLeak?: ApplicationPeriod;
+  detectedCIOnLastAnalysis?: boolean;
   graph: GraphType;
   loadingHistory?: boolean;
   loadingStatus?: boolean;
@@ -71,6 +75,7 @@ interface State {
 }
 
 export const BRANCH_OVERVIEW_ACTIVITY_GRAPH = 'sonar_branch_overview.graph';
+export const NO_CI_DETECTED = 'undetected';
 
 // Get all history data over the past year.
 const FROM_DATE = toNotSoISOString(new Date().setFullYear(new Date().getFullYear() - 1));
@@ -331,6 +336,10 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       ({ analyses }) => {
         if (this.mounted) {
           this.setState({
+            detectedCIOnLastAnalysis:
+              analyses.length > 0
+                ? analyses[0].detectedCI !== undefined && analyses[0].detectedCI !== NO_CI_DETECTED
+                : undefined,
             analyses
           });
         }
@@ -388,10 +397,11 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, component } = this.props;
+    const { branch, branchesEnabled, component, projectBinding } = this.props;
     const {
       analyses,
       appLeak,
+      detectedCIOnLastAnalysis,
       graph,
       loadingStatus,
       loadingHistory,
@@ -414,7 +424,9 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         analyses={analyses}
         appLeak={appLeak}
         branch={branch}
+        branchesEnabled={branchesEnabled}
         component={component}
+        detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
         graph={graph}
         loadingHistory={loadingHistory}
         loadingStatus={loadingStatus}
@@ -423,6 +435,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         metrics={metrics}
         onGraphChange={this.handleGraphChange}
         period={period}
+        projectBinding={projectBinding}
         projectIsEmpty={projectIsEmpty}
         qgStatuses={qgStatuses}
       />

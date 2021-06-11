@@ -1,273 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<div
-  className="page page-limited"
->
-  <div
-    className="overview"
-  >
-    <A11ySkipTarget
-      anchor="overview_main"
-    />
-    <div
-      className="display-flex-row"
-    >
-      <div
-        className="width-25 big-spacer-right"
-      >
-        <Memo(QualityGatePanel)
-          component={
-            Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            }
-          }
-          loading={false}
-        />
-      </div>
-      <div
-        className="flex-1"
-      >
-        <div
-          className="display-flex-column"
-        >
-          <MeasuresPanel
-            branch={
-              Object {
-                "analysisDate": "2018-01-01",
-                "excludedFromPurge": true,
-                "isMain": true,
-                "name": "master",
-              }
-            }
-            component={
-              Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
-                "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
-              }
-            }
-            loading={false}
-            measures={
-              Array [
-                Object {
-                  "bestValue": true,
-                  "leak": "1",
-                  "metric": Object {
-                    "id": "coverage",
-                    "key": "coverage",
-                    "name": "Coverage",
-                    "type": "PERCENT",
-                  },
-                  "period": Object {
-                    "bestValue": true,
-                    "index": 1,
-                    "value": "1.0",
-                  },
-                  "value": "1.0",
-                },
-              ]
-            }
-          />
-          <Memo(ActivityPanel)
-            branchLike={
-              Object {
-                "analysisDate": "2018-01-01",
-                "excludedFromPurge": true,
-                "isMain": true,
-                "name": "master",
-              }
-            }
-            component={
-              Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
-                "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
-              }
-            }
-            graph="issues"
-            loading={false}
-            measuresHistory={Array []}
-            metrics={Array []}
-            onGraphChange={[MockFunction]}
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should render correctly 2`] = `
-<div
-  className="page page-limited"
->
-  <div
-    className="overview"
-  >
-    <A11ySkipTarget
-      anchor="overview_main"
-    />
-    <Memo(NoCodeWarning)
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": true,
-          "name": "master",
-        }
-      }
-      component={
-        Object {
-          "breadcrumbs": Array [],
-          "key": "my-project",
-          "name": "MyProject",
-          "qualifier": "TRK",
-          "qualityGate": Object {
-            "isDefault": true,
-            "key": "30",
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
-              "deleted": false,
-              "key": "my-qp",
-              "language": "ts",
-              "name": "Sonar way",
-            },
-          ],
-          "tags": Array [],
-        }
+        ],
+        "tags": Array [],
       }
-      measures={
-        Array [
-          Object {
-            "bestValue": true,
-            "leak": "1",
-            "metric": Object {
-              "id": "coverage",
-              "key": "coverage",
-              "name": "Coverage",
-              "type": "PERCENT",
-            },
-            "period": Object {
-              "bestValue": true,
-              "index": 1,
-              "value": "1.0",
-            },
-            "value": "1.0",
-          },
-        ]
-      }
-    />
-  </div>
-</div>
-`;
-
-exports[`should render correctly 3`] = `
-<div
-  className="page page-limited"
->
+    }
+  />
   <div
-    className="overview"
+    className="page page-limited"
   >
-    <A11ySkipTarget
-      anchor="overview_main"
-    />
     <div
-      className="display-flex-row"
+      className="overview"
     >
+      <A11ySkipTarget
+        anchor="overview_main"
+      />
       <div
-        className="width-25 big-spacer-right"
-      >
-        <Memo(QualityGatePanel)
-          component={
-            Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            }
-          }
-          loading={true}
-        />
-      </div>
-      <div
-        className="flex-1"
+        className="display-flex-row"
       >
         <div
-          className="display-flex-column"
+          className="width-25 big-spacer-right"
         >
-          <MeasuresPanel
-            branch={
-              Object {
-                "analysisDate": "2018-01-01",
-                "excludedFromPurge": true,
-                "isMain": true,
-                "name": "master",
-              }
-            }
+          <Memo(QualityGatePanel)
             component={
               Object {
                 "breadcrumbs": Array [],
@@ -290,68 +64,372 @@ exports[`should render correctly 3`] = `
                 "tags": Array [],
               }
             }
-            loading={true}
-            measures={
-              Array [
+            loading={false}
+          />
+        </div>
+        <div
+          className="flex-1"
+        >
+          <div
+            className="display-flex-column"
+          >
+            <MeasuresPanel
+              branch={
                 Object {
-                  "bestValue": true,
-                  "leak": "1",
-                  "metric": Object {
-                    "id": "coverage",
-                    "key": "coverage",
-                    "name": "Coverage",
-                    "type": "PERCENT",
+                  "analysisDate": "2018-01-01",
+                  "excludedFromPurge": true,
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              component={
+                Object {
+                  "breadcrumbs": Array [],
+                  "key": "my-project",
+                  "name": "MyProject",
+                  "qualifier": "TRK",
+                  "qualityGate": Object {
+                    "isDefault": true,
+                    "key": "30",
+                    "name": "Sonar way",
                   },
-                  "period": Object {
+                  "qualityProfiles": Array [
+                    Object {
+                      "deleted": false,
+                      "key": "my-qp",
+                      "language": "ts",
+                      "name": "Sonar way",
+                    },
+                  ],
+                  "tags": Array [],
+                }
+              }
+              loading={false}
+              measures={
+                Array [
+                  Object {
                     "bestValue": true,
-                    "index": 1,
+                    "leak": "1",
+                    "metric": Object {
+                      "id": "coverage",
+                      "key": "coverage",
+                      "name": "Coverage",
+                      "type": "PERCENT",
+                    },
+                    "period": Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
                     "value": "1.0",
                   },
-                  "value": "1.0",
-                },
-              ]
-            }
-          />
-          <Memo(ActivityPanel)
-            branchLike={
-              Object {
-                "analysisDate": "2018-01-01",
-                "excludedFromPurge": true,
-                "isMain": true,
-                "name": "master",
+                ]
               }
-            }
-            component={
-              Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
-                "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
+            />
+            <Memo(ActivityPanel)
+              branchLike={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "excludedFromPurge": true,
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              component={
+                Object {
+                  "breadcrumbs": Array [],
+                  "key": "my-project",
+                  "name": "MyProject",
+                  "qualifier": "TRK",
+                  "qualityGate": Object {
+                    "isDefault": true,
+                    "key": "30",
                     "name": "Sonar way",
                   },
-                ],
-                "tags": Array [],
+                  "qualityProfiles": Array [
+                    Object {
+                      "deleted": false,
+                      "key": "my-qp",
+                      "language": "ts",
+                      "name": "Sonar way",
+                    },
+                  ],
+                  "tags": Array [],
+                }
               }
-            }
-            graph="issues"
-            loading={true}
-            measuresHistory={Array []}
-            metrics={Array []}
-            onGraphChange={[MockFunction]}
-          />
+              graph="issues"
+              loading={false}
+              measuresHistory={Array []}
+              metrics={Array []}
+              onGraphChange={[MockFunction]}
+            />
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</Fragment>
+`;
+
+exports[`should render correctly: empty project 1`] = `
+<Fragment>
+  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <div
+    className="page page-limited"
+  >
+    <div
+      className="overview"
+    >
+      <A11ySkipTarget
+        anchor="overview_main"
+      />
+      <Memo(NoCodeWarning)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        measures={
+          Array [
+            Object {
+              "bestValue": true,
+              "leak": "1",
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
+              "value": "1.0",
+            },
+          ]
+        }
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<Fragment>
+  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <div
+    className="page page-limited"
+  >
+    <div
+      className="overview"
+    >
+      <A11ySkipTarget
+        anchor="overview_main"
+      />
+      <div
+        className="display-flex-row"
+      >
+        <div
+          className="width-25 big-spacer-right"
+        >
+          <Memo(QualityGatePanel)
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            loading={true}
+          />
+        </div>
+        <div
+          className="flex-1"
+        >
+          <div
+            className="display-flex-column"
+          >
+            <MeasuresPanel
+              branch={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "excludedFromPurge": true,
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              component={
+                Object {
+                  "breadcrumbs": Array [],
+                  "key": "my-project",
+                  "name": "MyProject",
+                  "qualifier": "TRK",
+                  "qualityGate": Object {
+                    "isDefault": true,
+                    "key": "30",
+                    "name": "Sonar way",
+                  },
+                  "qualityProfiles": Array [
+                    Object {
+                      "deleted": false,
+                      "key": "my-qp",
+                      "language": "ts",
+                      "name": "Sonar way",
+                    },
+                  ],
+                  "tags": Array [],
+                }
+              }
+              loading={true}
+              measures={
+                Array [
+                  Object {
+                    "bestValue": true,
+                    "leak": "1",
+                    "metric": Object {
+                      "id": "coverage",
+                      "key": "coverage",
+                      "name": "Coverage",
+                      "type": "PERCENT",
+                    },
+                    "period": Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                    "value": "1.0",
+                  },
+                ]
+              }
+            />
+            <Memo(ActivityPanel)
+              branchLike={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "excludedFromPurge": true,
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              component={
+                Object {
+                  "breadcrumbs": Array [],
+                  "key": "my-project",
+                  "name": "MyProject",
+                  "qualifier": "TRK",
+                  "qualityGate": Object {
+                    "isDefault": true,
+                    "key": "30",
+                    "name": "Sonar way",
+                  },
+                  "qualityProfiles": Array [
+                    Object {
+                      "deleted": false,
+                      "key": "my-qp",
+                      "language": "ts",
+                      "name": "Sonar way",
+                    },
+                  ],
+                  "tags": Array [],
+                }
+              }
+              graph="issues"
+              loading={true}
+              measuresHistory={Array []}
+              metrics={Array []}
+              onGraphChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Fragment>
 `;

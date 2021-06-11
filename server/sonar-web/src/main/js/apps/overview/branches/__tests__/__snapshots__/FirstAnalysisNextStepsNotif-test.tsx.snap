@@ -1,0 +1,146 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: show prompt to configure CI 1`] = `
+<DismissableAlert
+  alertKey="config_ci_pr_deco.my-project"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="overview.project.next_steps.set_up_ci"
+    id="overview.project.next_steps.set_up_ci"
+    values={
+      Object {
+        "link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/tutorials",
+              "query": Object {
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          overview.project.next_steps.links.set_up_ci
+        </Link>,
+      }
+    }
+  />
+</DismissableAlert>
+`;
+
+exports[`should render correctly: show prompt to configure PR decoration + CI, project admin 1`] = `
+<DismissableAlert
+  alertKey="config_ci_pr_deco.my-project"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
+    id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
+    values={
+      Object {
+        "link_ci": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/tutorials",
+              "query": Object {
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          overview.project.next_steps.links.set_up_ci
+        </Link>,
+        "link_project_settings": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "category": "pull_request_decoration_binding",
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          overview.project.next_steps.links.project_settings
+        </Link>,
+      }
+    }
+  />
+</DismissableAlert>
+`;
+
+exports[`should render correctly: show prompt to configure PR decoration + CI, regular user 1`] = `
+<DismissableAlert
+  alertKey="config_ci_pr_deco.my-project"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="overview.project.next_steps.set_up_pr_deco_and_ci"
+    id="overview.project.next_steps.set_up_pr_deco_and_ci"
+    values={
+      Object {
+        "link_ci": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/tutorials",
+              "query": Object {
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          overview.project.next_steps.links.set_up_ci
+        </Link>,
+      }
+    }
+  />
+</DismissableAlert>
+`;
+
+exports[`should render correctly: show prompt to configure PR decoration, project admin 1`] = `
+<DismissableAlert
+  alertKey="config_ci_pr_deco.my-project"
+  variant="info"
+>
+  <FormattedMessage
+    defaultMessage="overview.project.next_steps.set_up_pr_deco.admin"
+    id="overview.project.next_steps.set_up_pr_deco.admin"
+    values={
+      Object {
+        "link_project_settings": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/settings",
+              "query": Object {
+                "category": "pull_request_decoration_binding",
+                "id": "my-project",
+              },
+            }
+          }
+        >
+          overview.project.next_steps.links.project_settings
+        </Link>,
+      }
+    }
+  />
+</DismissableAlert>
+`;
+
+exports[`should render correctly: show prompt to configure PR decoration, regular user 1`] = `
+<DismissableAlert
+  alertKey="config_ci_pr_deco.my-project"
+  variant="info"
+>
+  overview.project.next_steps.set_up_pr_deco
+</DismissableAlert>
+`;
