@@ -19,10 +19,12 @@
  */
 package org.sonar.db.component;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static java.util.Objects.requireNonNull;
@@ -39,6 +41,12 @@ public class AnalysisPropertiesDao implements Dao {
   public List<AnalysisPropertyDto> selectByAnalysisUuid(DbSession session, String analysisUuid) {
     requireNonNull(analysisUuid);
     return getMapper(session).selectByAnalysisUuid(analysisUuid);
+  }
+
+  public List<AnalysisPropertyDto> selectByKeyAndAnalysisUuids(DbSession session, String key, Collection<String> snapshotUuids) {
+    requireNonNull(snapshotUuids);
+    var mapper = getMapper(session);
+    return DatabaseUtils.executeLargeInputs(snapshotUuids, input -> mapper.selectByKeyAnAnalysisUuids(input, key));
   }
 
   public void insert(DbSession session, List<AnalysisPropertyDto> analysisPropertyDto) {

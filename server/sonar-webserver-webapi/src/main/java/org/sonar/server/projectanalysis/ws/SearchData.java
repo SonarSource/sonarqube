@@ -21,14 +21,17 @@ package org.sonar.server.projectanalysis.ws;
 
 import com.google.common.collect.ListMultimap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
@@ -38,6 +41,7 @@ import static java.util.Objects.requireNonNull;
 
 class SearchData {
   final List<SnapshotDto> analyses;
+  final Map<String, String> detectedCIs;
   final ListMultimap<String, EventDto> eventsByAnalysis;
   final ListMultimap<String, EventComponentChangeDto> componentChangesByEventUuid;
   final Paging paging;
@@ -46,6 +50,7 @@ class SearchData {
 
   private SearchData(Builder builder) {
     this.analyses = builder.analyses;
+    this.detectedCIs = builder.detectedCIs;
     this.eventsByAnalysis = buildEvents(builder.events);
     this.componentChangesByEventUuid = buildComponentChanges(builder.componentChanges);
     this.paging = Paging
@@ -76,6 +81,7 @@ class SearchData {
     private final SearchRequest request;
     private ComponentDto project;
     private List<SnapshotDto> analyses;
+    private Map<String, String> detectedCIs;
     private int countAnalyses;
     private String manualBaseline;
     private List<EventDto> events;
@@ -102,6 +108,12 @@ class SearchData {
 
       this.analyses = stream.collect(MoreCollectors.toList());
       this.countAnalyses = analyses.size();
+      return this;
+    }
+
+    Builder setDetectedCIs(List<AnalysisPropertyDto> detectedCIs) {
+      this.detectedCIs = detectedCIs.stream().collect(Collectors.toMap(AnalysisPropertyDto::getAnalysisUuid,
+          AnalysisPropertyDto::getValue));
       return this;
     }
 
@@ -133,6 +145,10 @@ class SearchData {
 
     List<SnapshotDto> getAnalyses() {
       return analyses;
+    }
+
+    Map<String, String> getDetectedCIs() {
+      return detectedCIs;
     }
 
     public Builder setManualBaseline(@Nullable String manualBaseline) {

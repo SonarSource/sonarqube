@@ -78,7 +78,7 @@ class SearchResponseBuilder {
   }
 
   private Analysis.Builder dbToWsAnalysis(SnapshotDto dbAnalysis) {
-    Analysis.Builder builder = wsAnalysis.clear();
+    var builder = wsAnalysis.clear();
     builder
       .setKey(dbAnalysis.getUuid())
       .setDate(formatDateTime(dbAnalysis.getCreatedAt()))
@@ -86,6 +86,7 @@ class SearchResponseBuilder {
     ofNullable(dbAnalysis.getProjectVersion()).ifPresent(builder::setProjectVersion);
     ofNullable(dbAnalysis.getBuildString()).ifPresent(builder::setBuildString);
     ofNullable(dbAnalysis.getRevision()).ifPresent(builder::setRevision);
+    ofNullable(searchData.detectedCIs.get(dbAnalysis.getUuid())).ifPresent(builder::setDetectedCI);
 
     return builder;
   }

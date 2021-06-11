@@ -29,7 +29,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -37,9 +36,11 @@ import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -65,6 +66,7 @@ import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -94,8 +96,6 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 @RunWith(DataProviderRunner.class)
 public class SearchActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -138,6 +138,12 @@ public class SearchActionTest {
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
       .setProjectVersion("1.2")
       .setBuildString("1.2.0.321"));
+    db.getDbClient().analysisPropertiesDao().insert(db.getSession(), new AnalysisPropertyDto()
+      .setUuid("P1-prop-uuid")
+      .setAnalysisUuid(a3.getUuid())
+      .setKey(CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI)
+      .setValue("Jenkins")
+      .setCreatedAt(1L));
     BranchDto branchDto = newBranchDto(project, BRANCH);
     db.getDbClient().branchDao().insert(db.getSession(), branchDto);
     db.newCodePeriods().insert(new NewCodePeriodDto()
@@ -628,16 +634,15 @@ public class SearchActionTest {
     userSession.anonymous();
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(project.getDbKey());
+    var projectDbKey = project.getDbKey();
+    assertThatThrownBy(() -> call(projectDbKey))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    call("P1");
+    assertThatThrownBy(() -> call("P1"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -647,10 +652,10 @@ public class SearchActionTest {
     db.components().insertSnapshot(newAnalysis(project));
     userSession.registerComponents(project, file);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A project, portfolio or application is required");
-
-    call(file.getDbKey());
+    var fileDbKey = file.getDbKey();
+    assertThatThrownBy(() -> call(fileDbKey))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A project, portfolio or application is required");
   }
 
   @Test
@@ -659,13 +664,14 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
-
-    call(SearchRequest.builder()
+    var searchRequest = SearchRequest.builder()
       .setProject(project.getKey())
       .setBranch("another_branch")
-      .build());
+      .build();
+
+    assertThatThrownBy(() -> call(searchRequest))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
   }
 
   @Test

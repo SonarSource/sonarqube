@@ -19,10 +19,10 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -59,7 +60,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements ProjectAnalysesWsAction {
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);
+  private static final Set<String> ALLOWED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -79,8 +80,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setSince("6.3")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setChangelog(
-        new Change("7.5", "Add QualityGate information on Applications")
-      )
+        new Change("9.0", "Add field response 'detectedCI'"),
+        new Change("7.5", "Add QualityGate information on Applications"))
       .setHandler(this);
 
     action.addPagingParams(DEFAULT_PAGE_SIZE, 500);
@@ -160,7 +161,12 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setSort(BY_DATE, DESC);
     ofNullable(data.getRequest().getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
     ofNullable(data.getRequest().getTo()).ifPresent(to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
-    data.setAnalyses(dbClient.snapshotDao().selectAnalysesByQuery(data.getDbSession(), dbQuery));
+    List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectAnalysesByQuery(data.getDbSession(), dbQuery);
+    var detectedCIs = dbClient.analysisPropertiesDao().selectByKeyAndAnalysisUuids(data.getDbSession(),
+      CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI,
+      snapshotDtos.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()));
+    data.setAnalyses(snapshotDtos);
+    data.setDetectedCIs(detectedCIs);
   }
 
   private void addEvents(SearchData.Builder data) {

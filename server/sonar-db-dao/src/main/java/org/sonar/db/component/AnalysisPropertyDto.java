@@ -83,7 +83,7 @@ public class AnalysisPropertyDto {
 
   @Override
   public String toString() {
-    return "BranchDto{" + "uuid='" + uuid + '\'' +
+    return "AnalysisPropertyDto{" + "uuid='" + uuid + '\'' +
       ", analysisUuid='" + analysisUuid + '\'' +
       ", key='" + key + '\'' +
       ", value='" + value + "'" +

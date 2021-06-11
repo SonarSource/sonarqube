@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -162,6 +163,27 @@ public class AnalysisPropertiesDaoTest {
   }
 
   @Test
+  public void selectByKeyAndAnalysisUuids_should_return_correct_values() {
+    String analysisUuid = randomAlphanumeric(40);
+
+    List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
+      newAnalysisPropertyDto(random.nextInt(10), "key1",analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(10), "key2", analysisUuid),
+      newAnalysisPropertyDto(random.nextInt(10), "key3", analysisUuid)
+    );
+
+    underTest.insert(dbSession, propertyDtos);
+    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(propertyDtos.size());
+
+    List<AnalysisPropertyDto> result = underTest.selectByKeyAndAnalysisUuids(dbSession, "key1", Set.of(analysisUuid));
+    assertThat(result).contains(propertyDtos.get(0));
+    result = underTest.selectByKeyAndAnalysisUuids(dbSession, "key2", Set.of(analysisUuid));
+    assertThat(result).contains(propertyDtos.get(1));
+    result = underTest.selectByKeyAndAnalysisUuids(dbSession, "key3", Set.of(analysisUuid));
+    assertThat(result).contains(propertyDtos.get(2));
+  }
+
+  @Test
   public void selectProjectCountPerAnalysisPropertyValueInLastAnalysis_should_return_correct_values() {
     final String analysisPropertyKey = "key";
     for (int i = 0; i < 7; i++) {
@@ -183,8 +205,7 @@ public class AnalysisPropertiesDaoTest {
       .containsExactlyInAnyOrder(
         tuple("git", 3L),
         tuple("svn", 1L),
-        tuple("undetected", 2L)
-      );
+        tuple("undetected", 2L));
   }
 
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {
@@ -193,13 +214,17 @@ public class AnalysisPropertiesDaoTest {
     return analysisPropertyDto;
   }
 
-  private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String analysisUuid) {
+  private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String key, String analysisUuid) {
     return new AnalysisPropertyDto()
       .setAnalysisUuid(analysisUuid)
-      .setKey(randomAlphanumeric(512))
+      .setKey(key)
       .setUuid(randomAlphanumeric(40))
       .setValue(randomAlphanumeric(valueLength))
       .setCreatedAt(1_000L);
+  }
+
+  private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String analysisUuid) {
+    return newAnalysisPropertyDto(valueLength, randomAlphanumeric(512), analysisUuid);
   }
 
   private void compareFirstValueWith(AnalysisPropertyDto analysisPropertyDto) {

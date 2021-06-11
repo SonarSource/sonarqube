@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -33,4 +34,7 @@ public interface AnalysisPropertiesMapper {
   void insertAsText(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
 
   List<ProjectCountPerAnalysisPropertyValue> selectProjectCountPerAnalysisPropertyValueInLastAnalysis(@Param("analysisPropertyKey") String analysisPropertyKey);
+
+  List<AnalysisPropertyDto> selectByKeyAnAnalysisUuids(@Param("analysisUuids") Collection<String> analysisUuids, @Param("analysisPropertyKey") String analysisPropertyKey);
+
 }

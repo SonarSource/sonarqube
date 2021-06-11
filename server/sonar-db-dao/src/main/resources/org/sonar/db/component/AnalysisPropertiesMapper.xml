@@ -21,6 +21,16 @@
       analysis_uuid = #{analysisUuid}
   </select>
 
+  <select id="selectByKeyAnAnalysisUuids" parameterType="string" resultType="ScrapAnalysisProperty">
+    SELECT
+    <include refid="columns"/>
+    FROM
+    analysis_properties
+    WHERE
+    kee = #{analysisPropertyKey,jdbcType=VARCHAR}
+    AND analysis_uuid in <foreach collection="analysisUuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </select>
+
   <select id="selectProjectCountPerAnalysisPropertyValueInLastAnalysis" parameterType="string" resultType="ProjectCountPerAnalysisPropertyValue">
     select
       ap.text_value as "propertyValue",

@@ -52,6 +52,7 @@
       "projectVersion": "1.2",
       "buildString": "1.2.0.321",
       "manualNewCodePeriodBaseline": false,
+      "detectedCI": "Jenkins",
       "events": [
         {
           "key": "E31",
