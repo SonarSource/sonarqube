@@ -22,64 +22,30 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  ALM_INTEGRATION,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY
-} from '../../../../apps/settings/components/AdditionalCategoryKeys';
-import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
-import { hasGlobalPermission } from '../../../../helpers/users';
-import {
-  AlmKeys,
-  ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingConfigurationErrorScope
-} from '../../../../types/alm-settings';
-import { Permissions } from '../../../../types/permissions';
+import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/settings/components/AdditionalCategoryKeys';
 
 export interface ComponentNavProjectBindingErrorNotifProps {
-  alm?: AlmKeys;
   component: T.Component;
-  currentUser: T.CurrentUser;
-  projectBindingErrors: ProjectAlmBindingConfigurationErrors;
 }
 
 export function ComponentNavProjectBindingErrorNotif(
   props: ComponentNavProjectBindingErrorNotifProps
 ) {
-  const { alm, component, currentUser, projectBindingErrors } = props;
-  const isSysadmin = hasGlobalPermission(currentUser, Permissions.Admin);
-
+  const { component } = props;
   let action;
-  if (projectBindingErrors.scope === ProjectAlmBindingConfigurationErrorScope.Global) {
-    if (isSysadmin) {
-      action = (
-        <Link
-          to={{
-            pathname: '/admin/settings',
-            query: {
-              category: ALM_INTEGRATION,
-              alm
-            }
-          }}>
-          {translate('component_navigation.pr_deco.action.check_global_settings')}
-        </Link>
-      );
-    } else {
-      action = translate('component_navigation.pr_deco.action.contact_sys_admin');
-    }
-  } else if (projectBindingErrors.scope === ProjectAlmBindingConfigurationErrorScope.Project) {
-    if (component.configuration?.showSettings) {
-      action = (
-        <Link
-          to={{
-            pathname: '/project/settings',
-            query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY, id: component.key }
-          }}>
-          {translate('component_navigation.pr_deco.action.check_project_settings')}
-        </Link>
-      );
-    } else {
-      action = translate('component_navigation.pr_deco.action.contact_project_admin');
-    }
+
+  if (component.configuration?.showSettings) {
+    action = (
+      <Link
+        to={{
+          pathname: '/project/settings',
+          query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY, id: component.key }
+        }}>
+        {translate('component_navigation.pr_deco.action.check_project_settings')}
+      </Link>
+    );
+  } else {
+    action = translate('component_navigation.pr_deco.action.contact_project_admin');
   }
 
   return (
@@ -93,4 +59,4 @@ export function ComponentNavProjectBindingErrorNotif(
   );
 }
 
-export default withCurrentUser(ComponentNavProjectBindingErrorNotif);
+export default ComponentNavProjectBindingErrorNotif;

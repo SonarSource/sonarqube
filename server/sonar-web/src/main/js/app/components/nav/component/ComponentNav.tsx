@@ -104,13 +104,7 @@ export default function ComponentNav(props: ComponentNavProps) {
 
   let prDecoNotifComponent;
   if (projectBindingErrors !== undefined) {
-    prDecoNotifComponent = (
-      <ComponentNavProjectBindingErrorNotif
-        alm={projectBinding?.alm}
-        component={component}
-        projectBindingErrors={projectBindingErrors}
-      />
-    );
+    prDecoNotifComponent = <ComponentNavProjectBindingErrorNotif component={component} />;
     contextNavHeight += ALERT_HEIGHT;
   }
 

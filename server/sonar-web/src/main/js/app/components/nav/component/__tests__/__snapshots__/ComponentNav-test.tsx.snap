@@ -347,7 +347,7 @@ exports[`renders correctly: has failed project binding 1`] = `
   id="context-navigation"
   notif={
     <React.Fragment>
-      <Connect(withCurrentUser(ComponentNavProjectBindingErrorNotif))
+      <ComponentNavProjectBindingErrorNotif
         component={
           Object {
             "breadcrumbs": Array [
@@ -374,19 +374,6 @@ exports[`renders correctly: has failed project binding 1`] = `
               },
             ],
             "tags": Array [],
-          }
-        }
-        projectBindingErrors={
-          Object {
-            "errors": Array [
-              Object {
-                "msg": "Foo bar is not correct",
-              },
-              Object {
-                "msg": "Bar baz has no permissions here",
-              },
-            ],
-            "scope": "GLOBAL",
           }
         }
       />

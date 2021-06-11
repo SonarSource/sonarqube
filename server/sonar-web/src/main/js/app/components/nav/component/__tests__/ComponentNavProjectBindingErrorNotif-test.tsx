@@ -20,57 +20,21 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
-import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
-import {
-  AlmKeys,
-  ProjectAlmBindingConfigurationErrorScope
-} from '../../../../../types/alm-settings';
-import { Permissions } from '../../../../../types/permissions';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import {
   ComponentNavProjectBindingErrorNotif,
   ComponentNavProjectBindingErrorNotifProps
 } from '../ComponentNavProjectBindingErrorNotif';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('global, no admin');
+  expect(shallowRender()).toMatchSnapshot('non-project admin');
   expect(
-    shallowRender({
-      currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
-    })
-  ).toMatchSnapshot('global, admin');
-  expect(
-    shallowRender({
-      projectBindingErrors: mockProjectAlmBindingConfigurationErrors({
-        scope: ProjectAlmBindingConfigurationErrorScope.Project
-      })
-    })
-  ).toMatchSnapshot('project, no admin');
-  expect(
-    shallowRender({
-      component: mockComponent({ configuration: { showSettings: true } }),
-      projectBindingErrors: mockProjectAlmBindingConfigurationErrors({
-        scope: ProjectAlmBindingConfigurationErrorScope.Project
-      })
-    })
-  ).toMatchSnapshot('project, admin');
-  expect(
-    shallowRender({
-      projectBindingErrors: mockProjectAlmBindingConfigurationErrors({
-        scope: ProjectAlmBindingConfigurationErrorScope.Unknown
-      })
-    })
-  ).toMatchSnapshot('unknown');
+    shallowRender({ component: mockComponent({ configuration: { showSettings: true } }) })
+  ).toMatchSnapshot('project admin');
 });
 
 function shallowRender(props: Partial<ComponentNavProjectBindingErrorNotifProps> = {}) {
   return shallow<ComponentNavProjectBindingErrorNotifProps>(
-    <ComponentNavProjectBindingErrorNotif
-      alm={AlmKeys.GitHub}
-      component={mockComponent()}
-      currentUser={mockCurrentUser()}
-      projectBindingErrors={mockProjectAlmBindingConfigurationErrors()}
-      {...props}
-    />
+    <ComponentNavProjectBindingErrorNotif component={mockComponent()} {...props} />
   );
 }
