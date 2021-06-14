@@ -30,13 +30,12 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DatabaseServerCompatibilityTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -45,24 +44,26 @@ public class DatabaseServerCompatibilityTest {
 
   @Test
   public void fail_if_requires_downgrade() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Database was upgraded to a more recent version of SonarQube. "
-      + "A backup must probably be restored or the DB settings are incorrect.");
-
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
-    new DatabaseServerCompatibility(version, settings.asConfig()).start();
+    var config = settings.asConfig();
+    var compatibility = new DatabaseServerCompatibility(version, config);
+    assertThatThrownBy(compatibility::start)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Database was upgraded to a more recent version of SonarQube. "
+        + "A backup must probably be restored or the DB settings are incorrect.");
   }
 
   @Test
   public void fail_if_requires_firstly_to_upgrade_to_lts() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Current version is too old. Please upgrade to Long Term Support version firstly.");
-
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(12L));
-    new DatabaseServerCompatibility(version, settings.asConfig()).start();
+    var config = settings.asConfig();
+    var compatibility = new DatabaseServerCompatibility(version, config);
+    assertThatThrownBy(compatibility::start)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Current version is too old. Please upgrade to Long Term Support version firstly.");
   }
 
   @Test
@@ -77,9 +78,9 @@ public class DatabaseServerCompatibilityTest {
       "The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
       "################################################################################",
-        "The database must be manually upgraded. Please backup the database and browse /setup. "
+      "The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
-        "################################################################################");
+      "################################################################################");
   }
 
   @Test
