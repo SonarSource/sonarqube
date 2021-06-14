@@ -24,7 +24,7 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v85.util.DropMsSQLDefaultConstraintsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropMsSQLDefaultConstraintsBuilder;
 
 public class DropUnusedPeriodsInSnapshots extends DdlChange {
   private static final String TABLE_NAME = "snapshots";

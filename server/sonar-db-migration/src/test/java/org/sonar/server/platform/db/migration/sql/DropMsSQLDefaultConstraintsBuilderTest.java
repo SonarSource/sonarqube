@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85.util;
+package org.sonar.server.platform.db.migration.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,6 +29,7 @@ import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.platform.db.migration.sql.DropMsSQLDefaultConstraintsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
