@@ -143,6 +143,22 @@ exports[`should render correctly for github 1`] = `
         </div>
       </button>
       <button
+        className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/azure-pipelines.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.azure_pipelines
+        </div>
+      </button>
+      <button
         className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"

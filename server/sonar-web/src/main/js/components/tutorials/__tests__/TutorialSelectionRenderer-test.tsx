@@ -104,6 +104,9 @@ it('should allow mode selection for Github', () => {
 
   click(wrapper.find('button.tutorial-mode-github'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitHubActions);
+
+  click(wrapper.find('button.azure-pipelines'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.AzurePipelines);
 });
 
 it('should allow mode selection for GitLab', () => {

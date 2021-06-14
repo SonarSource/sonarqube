@@ -55,6 +55,9 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     return <i className="spinner" />;
   }
 
+  const isAzureAvailable =
+    projectBinding && [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
+
   const jenkinsAvailable =
     projectBinding &&
     [AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKeys.GitLab].includes(
@@ -105,7 +108,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               </button>
             )}
 
-            {projectBinding?.alm === AlmKeys.Azure && (
+            {isAzureAvailable && (
               <button
                 className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
                 onClick={() => props.onSelectTutorial(TutorialModes.AzurePipelines)}

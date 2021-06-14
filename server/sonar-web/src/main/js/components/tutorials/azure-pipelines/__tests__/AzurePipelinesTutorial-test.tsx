@@ -23,7 +23,8 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockProjectAzureBindingResponse,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
+  mockProjectGitLabBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import Step from '../../components/Step';
@@ -45,6 +46,9 @@ it('should render correctly', () => {
       .dive()
   ).toMatchSnapshot('last-step-wrapper');
   expect(shallowRender({ projectBinding: mockProjectGithubBindingResponse() })).toMatchSnapshot(
+    'for github'
+  );
+  expect(shallowRender({ projectBinding: mockProjectGitLabBindingResponse() })).toMatchSnapshot(
     'wrong alm'
   );
 });

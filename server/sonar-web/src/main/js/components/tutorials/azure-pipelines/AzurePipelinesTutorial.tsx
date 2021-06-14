@@ -23,6 +23,7 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   isProjectAzureBindingResponse,
+  isProjectGitHubBindingResponse,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
 import Step from '../components/Step';
@@ -58,7 +59,10 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
   const [isCurrentStepValid, setIsCurrentStepValid] = React.useState(false);
 
   // Failsafe; should never happen.
-  if (!isProjectAzureBindingResponse(projectBinding)) {
+  if (
+    !isProjectAzureBindingResponse(projectBinding) &&
+    !isProjectGitHubBindingResponse(projectBinding)
+  ) {
     return (
       <Alert variant="error">
         {translate('onboarding.tutorial.with.azure_pipelines.unsupported')}
