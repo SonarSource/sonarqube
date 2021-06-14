@@ -57,38 +57,39 @@ public class PopulateInitialSchema extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    int adminUserId = insertAdminUser(context);
+    String adminUserUuid = insertAdminUser(context);
     Groups groups = insertGroups(context);
     String defaultQGUuid = insertQualityGate(context);
     insertInternalProperty(context);
     insertProperties(context, defaultQGUuid);
     insertGroupRoles(context, groups);
-    insertGroupUsers(context, adminUserId, groups);
+    insertGroupUsers(context, adminUserUuid, groups);
   }
 
-  private int insertAdminUser(Context context) throws SQLException {
+  private String insertAdminUser(Context context) throws SQLException {
     truncateTable(context, "users");
 
     long now = system2.now();
     context.prepareUpsert("insert into users " +
-      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, " +
+      "(uuid, login, name, email, external_id, external_login, external_identity_provider, user_local, crypted_password, salt, hash_method, is_root, onboarded, reset_password, " +
       "created_at, updated_at)" +
       " values " +
-      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, ?, null, 'BCRYPT', ?, ?, ?, ?)")
+      "(?, ?, 'Administrator', null, 'admin', 'admin', 'sonarqube', ?, ?, null, 'BCRYPT', ?, ?, ?, ?, ?)")
       .setString(1, uuidFactory.create())
       .setString(2, ADMIN_USER)
       .setBoolean(3, true)
       .setString(4, ADMIN_CRYPTED_PASSWORD)
       .setBoolean(5, false)
       .setBoolean(6, true)
-      .setLong(7, now)
+      .setBoolean(7, true)
       .setLong(8, now)
+      .setLong(9, now)
       .execute()
       .commit();
 
-    Integer res = context.prepareSelect("select id from users where login=?")
+    String res = context.prepareSelect("select uuid from users where login=?")
       .setString(1, ADMIN_USER)
-      .get(t -> t.getInt(1));
+      .get(t -> t.getString(1));
     return requireNonNull(res);
   }
 
@@ -157,30 +158,32 @@ public class PopulateInitialSchema extends DataChange {
     Date now = new Date(system2.now());
     Upsert upsert = context.prepareUpsert(createInsertStatement(
       "groups",
-      "name", "description", "created_at", "updated_at"));
+      "uuid", "name", "description", "created_at", "updated_at"));
     upsert
-      .setString(1, ADMINS_GROUP)
-      .setString(2, "System administrators")
-      .setDate(3, now)
+      .setString(1, uuidFactory.create())
+      .setString(2, ADMINS_GROUP)
+      .setString(3, "System administrators")
       .setDate(4, now)
+      .setDate(5, now)
       .addBatch();
     upsert
-      .setString(1, USERS_GROUP)
-      .setString(2, "Any new users created will automatically join this group")
-      .setDate(3, now)
+      .setString(1, uuidFactory.create())
+      .setString(2, USERS_GROUP)
+      .setString(3, "Any new users created will automatically join this group")
       .setDate(4, now)
+      .setDate(5, now)
       .addBatch();
     upsert
       .execute()
       .commit();
 
-    return new Groups(getGroupId(context, ADMINS_GROUP), getGroupId(context, USERS_GROUP));
+    return new Groups(getGroupUuid(context, ADMINS_GROUP), getGroupUuid(context, USERS_GROUP));
   }
 
-  private static int getGroupId(Context context, String groupName) throws SQLException {
-    Integer res = context.prepareSelect("select id from groups where name=?")
+  private static String getGroupUuid(Context context, String groupName) throws SQLException {
+    String res = context.prepareSelect("select uuid from groups where name=?")
       .setString(1, groupName)
-      .get(t -> t.getInt(1));
+      .get(t -> t.getString(1));
     return requireNonNull(res);
   }
 
@@ -201,37 +204,39 @@ public class PopulateInitialSchema extends DataChange {
   }
 
   private static final class Groups {
-    private final int adminGroupId;
-    private final int userGroupId;
+    private final String adminGroupUuid;
+    private final String userGroupUuid;
 
-    private Groups(int adminGroupId, int userGroupId) {
-      this.adminGroupId = adminGroupId;
-      this.userGroupId = userGroupId;
+    private Groups(String adminGroupUuid, String userGroupUuid) {
+      this.adminGroupUuid = adminGroupUuid;
+      this.userGroupUuid = userGroupUuid;
     }
 
-    public int getAdminGroupId() {
-      return adminGroupId;
+    public String getAdminGroupUuid() {
+      return adminGroupUuid;
     }
 
-    public int getUserGroupId() {
-      return userGroupId;
+    public String getUserGroupUuid() {
+      return userGroupUuid;
     }
   }
 
-  private static void insertGroupRoles(Context context, Groups groups) throws SQLException {
+  private void insertGroupRoles(Context context, Groups groups) throws SQLException {
     truncateTable(context, "group_roles");
 
-    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "group_id", "role"));
+    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "uuid","group_uuid", "role"));
     for (String adminRole : ADMIN_ROLES) {
       upsert
-        .setInt(1, groups.getAdminGroupId())
-        .setString(2, adminRole)
+        .setString(1, uuidFactory.create())
+        .setString(2, groups.getAdminGroupUuid())
+        .setString(3, adminRole)
         .addBatch();
     }
     for (String anyoneRole : Arrays.asList("scan", "provisioning")) {
       upsert
-        .setInt(1, null)
-        .setString(2, anyoneRole)
+        .setString(1, uuidFactory.create())
+        .setString(2, null)
+        .setString(3, anyoneRole)
         .addBatch();
     }
     upsert
@@ -239,17 +244,17 @@ public class PopulateInitialSchema extends DataChange {
       .commit();
   }
 
-  private static void insertGroupUsers(Context context, int adminUserId, Groups groups) throws SQLException {
+  private static void insertGroupUsers(Context context, String adminUserUuid, Groups groups) throws SQLException {
     truncateTable(context, "groups_users");
 
-    Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "user_id", "group_id"));
+    Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "user_uuid", "group_uuid"));
     upsert
-      .setInt(1, adminUserId)
-      .setInt(2, groups.getUserGroupId())
+      .setString(1, adminUserUuid)
+      .setString(2, groups.getUserGroupUuid())
       .addBatch();
     upsert
-      .setInt(1, adminUserId)
-      .setInt(2, groups.getAdminGroupId())
+      .setString(1, adminUserUuid)
+      .setString(2, groups.getAdminGroupUuid())
       .addBatch();
     upsert
       .execute()
