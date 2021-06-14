@@ -27,17 +27,6 @@ import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
-import org.sonar.server.platform.db.migration.version.v80.DbVersion80;
-import org.sonar.server.platform.db.migration.version.v81.DbVersion81;
-import org.sonar.server.platform.db.migration.version.v82.DbVersion82;
-import org.sonar.server.platform.db.migration.version.v83.DbVersion83;
-import org.sonar.server.platform.db.migration.version.v84.DbVersion84;
-import org.sonar.server.platform.db.migration.version.v85.DbVersion85;
-import org.sonar.server.platform.db.migration.version.v86.DbVersion86;
-import org.sonar.server.platform.db.migration.version.v87.DbVersion87;
-import org.sonar.server.platform.db.migration.version.v88.DbVersion88;
-import org.sonar.server.platform.db.migration.version.v89.DbVersion89;
-import org.sonar.server.platform.db.migration.version.v89.util.NetworkInterfaceProvider;
 
 public class MigrationConfigurationModule extends Module {
   @Override
@@ -45,16 +34,6 @@ public class MigrationConfigurationModule extends Module {
     add(
       // DbVersion implementations
       DbVersion00.class,
-      DbVersion80.class,
-      DbVersion81.class,
-      DbVersion82.class,
-      DbVersion83.class,
-      DbVersion84.class,
-      DbVersion85.class,
-      DbVersion86.class,
-      DbVersion87.class,
-      DbVersion88.class,
-      DbVersion89.class,
 
       // migration steps
       MigrationStepRegistryImpl.class,
@@ -66,7 +45,6 @@ public class MigrationConfigurationModule extends Module {
 
       // Utility classes
       DbPrimaryKeyConstraintFinder.class,
-      DropPrimaryKeySqlGenerator.class,
-      NetworkInterfaceProvider.class);
+      DropPrimaryKeySqlGenerator.class);
   }
 }

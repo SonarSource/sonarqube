@@ -25,7 +25,7 @@ import org.sonar.core.platform.ComponentContainer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+  private final MigrationConfigurationModule underTest = new MigrationConfigurationModule();
 
   @Test
   public void verify_component_count() {
