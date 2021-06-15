@@ -75,16 +75,16 @@
   ],
   "overview": [
     {
+      "link": "/documentation/analysis/pull-request/",
+      "text": "Enable Pull Request Decoration"
+    },
+    {
+      "link": "/documentation/analysis/ci-integration-overview/",
+      "text": "Set up CI analysis"
+    },
+    {
       "link": "/documentation/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
-    },
-    {
-      "link": "/documentation/branches/overview/",
-      "text": "Branches Analysis"
-    },
-    {
-      "link": "/documentation/analysis/pull-request/",
-      "text": "Analyzing Pull Requests"
     }
   ],
   "permission_templates": [],
