@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget
@@ -37,7 +37,7 @@ exports[`should render correctly if the Azure method is selected 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget
@@ -88,7 +88,7 @@ exports[`should render correctly if the BBS method is selected 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget
@@ -139,7 +139,7 @@ exports[`should render correctly if the GitHub method is selected 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget
@@ -190,7 +190,7 @@ exports[`should render correctly if the GitLab method is selected 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget
@@ -241,7 +241,7 @@ exports[`should render correctly if the manual method is selected 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
-    title="my_account.create_new.TRK"
+    title="onboarding.create_project.select_method"
     titleTemplate="%s"
   />
   <A11ySkipTarget

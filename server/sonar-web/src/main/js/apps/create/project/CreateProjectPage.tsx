@@ -211,7 +211,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Helmet title={translate('my_account.create_new.TRK')} titleTemplate="%s" />
+        <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
           {this.renderForm(mode)}

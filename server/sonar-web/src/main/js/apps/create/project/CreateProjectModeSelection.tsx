@@ -22,11 +22,8 @@ import * as React from 'react';
 import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { withAppState } from '../../../components/hoc/withAppState';
-import { ALM_DOCUMENTATION_PATHS } from '../../../helpers/constants';
 import { AlmKeys } from '../../../types/alm-settings';
-import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
@@ -57,28 +54,9 @@ function renderAlmOption(
   const count = isBitbucket
     ? almCounts[AlmKeys.BitbucketServer] + almCounts[AlmKeys.BitbucketCloud]
     : almCounts[alm];
-  const disabled = count !== 1 || loadingBindings;
-
-  const tooltipLinks = [];
-  if (count === 0) {
-    if (canAdmin) {
-      tooltipLinks.push({
-        href: `/admin/settings?category=${ALM_INTEGRATION}&alm=${alm}`,
-        label: translateWithParameters(
-          'onboarding.create_project.set_up_x',
-          translate('alm', alm, 'short')
-        )
-      });
-    }
-
-    tooltipLinks.push({
-      href: ALM_DOCUMENTATION_PATHS[alm],
-      label: translateWithParameters(
-        'onboarding.create_project.help_set_up_x',
-        translate('alm', alm, 'short')
-      )
-    });
-  }
+  const hasConfig = count > 0;
+  const hasTooManyConfig = count > 1;
+  const disabled = loadingBindings || hasTooManyConfig || (!hasConfig && !canAdmin);
 
   return (
     <div className="big-spacer-left display-flex-column">
@@ -111,22 +89,14 @@ function renderAlmOption(
         )}
 
         {!loadingBindings && disabled && (
-          <div className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
-            {translate('onboarding.create_project.alm_not_configured')}
-            <DocumentationTooltip
-              className="little-spacer-left"
-              content={
-                count === 0
-                  ? translate('onboarding.create_project.zero_alm_instances', alm)
-                  : `${translate('onboarding.create_project.too_many_alm_instances', alm)} 
-                ${translateWithParameters(
-                  'onboarding.create_project.alm_instances_count_X',
-                  count
-                )}`
-              }
-              links={count === 0 ? tooltipLinks : undefined}
-            />
-          </div>
+          <p className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
+            {!hasConfig && translate('onboarding.create_project.alm_not_configured')}
+            {hasTooManyConfig &&
+              translateWithParameters(
+                'onboarding.create_project.too_many_alm_instances_X',
+                translate('alm', alm)
+              )}
+          </p>
         )}
       </button>
     </div>
@@ -136,11 +106,18 @@ function renderAlmOption(
 export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
   return (
     <>
-      <header className="huge-spacer-top big-spacer-bottom padded">
-        <h1 className="text-center huge big-spacer-bottom">
-          {translate('my_account.create_new.TRK')}
-        </h1>
-        <p className="text-center big">{translate('onboarding.create_project.select_method')}</p>
+      <header className="padded huge-spacer-top display-flex-column display-flex-center">
+        <div className="abs-width-800 huge-spacer-bottom">
+          <h1 className="text-center big-spacer-bottom">
+            {translate('onboarding.create_project.select_method')}
+          </h1>
+          <p className="text-center spacer-bottom">
+            {translate('onboarding.create_project.select_method.description1')}
+          </p>
+          <p className="text-center">
+            {translate('onboarding.create_project.select_method.description2')}
+          </p>
+        </div>
       </header>
 
       <div className="create-project-modes huge-spacer-top display-flex-justify-center">

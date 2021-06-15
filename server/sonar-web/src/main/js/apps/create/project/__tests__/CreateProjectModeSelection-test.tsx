@@ -28,8 +28,8 @@ import {
 import { CreateProjectModes } from '../types';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading instances');
+  expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({}, { [AlmKeys.BitbucketServer]: 0, [AlmKeys.GitHub]: 2 })).toMatchSnapshot(
     'invalid configs, not admin'
   );
@@ -37,6 +37,12 @@ it('should render correctly', () => {
     shallowRender(
       { appState: { canAdmin: true } },
       { [AlmKeys.BitbucketServer]: 0, [AlmKeys.GitHub]: 2 }
+    )
+  ).toMatchSnapshot('invalid configs, admin');
+  expect(
+    shallowRender(
+      { appState: { canAdmin: true } },
+      { [AlmKeys.BitbucketServer]: 0, [AlmKeys.BitbucketCloud]: 0, [AlmKeys.GitHub]: 2 }
     )
   ).toMatchSnapshot('invalid configs, admin');
 });

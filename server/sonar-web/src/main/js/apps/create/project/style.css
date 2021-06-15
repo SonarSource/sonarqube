@@ -29,6 +29,10 @@
   z-index: var(--pageMainZIndex);
 }
 
+.create-project-mode-type-alm.disabled img {
+  filter: grayscale(100%);
+}
+
 .create-project-manual {
   display: flex !important;
   justify-content: space-between;

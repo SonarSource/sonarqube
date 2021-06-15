@@ -3,18 +3,27 @@
 exports[`should render correctly: default 1`] = `
 <Fragment>
   <header
-    className="huge-spacer-top big-spacer-bottom padded"
+    className="padded huge-spacer-top display-flex-column display-flex-center"
   >
-    <h1
-      className="text-center huge big-spacer-bottom"
+    <div
+      className="abs-width-800 huge-spacer-bottom"
     >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.create_project.select_method
+      </h1>
+      <p
+        className="text-center spacer-bottom"
+      >
+        onboarding.create_project.select_method.description1
+      </p>
+      <p
+        className="text-center"
+      >
+        onboarding.create_project.select_method.description2
+      </p>
+    </div>
   </header>
   <div
     className="create-project-modes huge-spacer-top display-flex-justify-center"
@@ -52,7 +61,7 @@ exports[`should render correctly: default 1`] = `
         >
           onboarding.create_project.select_method.azure
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -61,18 +70,156 @@ exports[`should render correctly: default 1`] = `
           }
         >
           onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.azure"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/azuredevops-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.azure.short",
-                },
-              ]
+        </p>
+      </button>
+    </div>
+    <div
+      className="big-spacer-left display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucket
+        </div>
+      </button>
+    </div>
+    <div
+      className="big-spacer-left display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
+        disabled={true}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/github.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.github
+        </div>
+        <p
+          className="text-muted small spacer-top"
+          style={
+            Object {
+              "lineHeight": 1.5,
             }
-          />
+          }
+        >
+          onboarding.create_project.alm_not_configured
+        </p>
+      </button>
+    </div>
+    <div
+      className="big-spacer-left display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
+        disabled={true}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/gitlab.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.gitlab
+        </div>
+        <p
+          className="text-muted small spacer-top"
+          style={
+            Object {
+              "lineHeight": 1.5,
+            }
+          }
+        >
+          onboarding.create_project.alm_not_configured
+        </p>
+      </button>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: invalid configs, admin 1`] = `
+<Fragment>
+  <header
+    className="padded huge-spacer-top display-flex-column display-flex-center"
+  >
+    <div
+      className="abs-width-800 huge-spacer-bottom"
+    >
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.create_project.select_method
+      </h1>
+      <p
+        className="text-center spacer-bottom"
+      >
+        onboarding.create_project.select_method.description1
+      </p>
+      <p
+        className="text-center"
+      >
+        onboarding.create_project.select_method.description2
+      </p>
+    </div>
+  </header>
+  <div
+    className="create-project-modes huge-spacer-top display-flex-justify-center"
+  >
+    <button
+      className="button button-huge display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
+    <div
+      className="big-spacer-left display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/alm/azure.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.azure
         </div>
       </button>
     </div>
@@ -116,7 +263,7 @@ exports[`should render correctly: default 1`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -124,28 +271,16 @@ exports[`should render correctly: default 1`] = `
             }
           }
         >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.github"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/github-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.github.short",
-                },
-              ]
-            }
-          />
-        </div>
+          onboarding.create_project.too_many_alm_instances_X.alm.github
+        </p>
       </button>
     </div>
     <div
       className="big-spacer-left display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -159,49 +294,36 @@ exports[`should render correctly: default 1`] = `
         >
           onboarding.create_project.select_method.gitlab
         </div>
-        <div
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.gitlab"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/gitlab-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.gitlab.short",
-                },
-              ]
-            }
-          />
-        </div>
       </button>
     </div>
   </div>
 </Fragment>
 `;
 
-exports[`should render correctly: invalid configs, admin 1`] = `
+exports[`should render correctly: invalid configs, admin 2`] = `
 <Fragment>
   <header
-    className="huge-spacer-top big-spacer-bottom padded"
+    className="padded huge-spacer-top display-flex-column display-flex-center"
   >
-    <h1
-      className="text-center huge big-spacer-bottom"
+    <div
+      className="abs-width-800 huge-spacer-bottom"
     >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.create_project.select_method
+      </h1>
+      <p
+        className="text-center spacer-bottom"
+      >
+        onboarding.create_project.select_method.description1
+      </p>
+      <p
+        className="text-center"
+      >
+        onboarding.create_project.select_method.description2
+      </p>
+    </div>
   </header>
   <div
     className="create-project-modes huge-spacer-top display-flex-justify-center"
@@ -224,8 +346,8 @@ exports[`should render correctly: invalid configs, admin 1`] = `
       className="big-spacer-left display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -239,40 +361,14 @@ exports[`should render correctly: invalid configs, admin 1`] = `
         >
           onboarding.create_project.select_method.azure
         </div>
-        <div
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.azure"
-            links={
-              Array [
-                Object {
-                  "href": "/admin/settings?category=almintegration&alm=azure",
-                  "label": "onboarding.create_project.set_up_x.alm.azure.short",
-                },
-                Object {
-                  "href": "/documentation/analysis/azuredevops-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.azure.short",
-                },
-              ]
-            }
-          />
-        </div>
       </button>
     </div>
     <div
       className="big-spacer-left display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -285,32 +381,6 @@ exports[`should render correctly: invalid configs, admin 1`] = `
           className="medium big-spacer-top abs-height-50 display-flex-center"
         >
           onboarding.create_project.select_method.bitbucket
-        </div>
-        <div
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.bitbucket"
-            links={
-              Array [
-                Object {
-                  "href": "/admin/settings?category=almintegration&alm=bitbucket",
-                  "label": "onboarding.create_project.set_up_x.alm.bitbucket.short",
-                },
-                Object {
-                  "href": "/documentation/analysis/bitbucket-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.bitbucket.short",
-                },
-              ]
-            }
-          />
         </div>
       </button>
     </div>
@@ -333,7 +403,7 @@ exports[`should render correctly: invalid configs, admin 1`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -341,21 +411,16 @@ exports[`should render correctly: invalid configs, admin 1`] = `
             }
           }
         >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.too_many_alm_instances.github 
-                onboarding.create_project.alm_instances_count_X.2"
-          />
-        </div>
+          onboarding.create_project.too_many_alm_instances_X.alm.github
+        </p>
       </button>
     </div>
     <div
       className="big-spacer-left display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -368,32 +433,6 @@ exports[`should render correctly: invalid configs, admin 1`] = `
           className="medium big-spacer-top abs-height-50 display-flex-center"
         >
           onboarding.create_project.select_method.gitlab
-        </div>
-        <div
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.gitlab"
-            links={
-              Array [
-                Object {
-                  "href": "/admin/settings?category=almintegration&alm=gitlab",
-                  "label": "onboarding.create_project.set_up_x.alm.gitlab.short",
-                },
-                Object {
-                  "href": "/documentation/analysis/gitlab-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.gitlab.short",
-                },
-              ]
-            }
-          />
         </div>
       </button>
     </div>
@@ -404,18 +443,27 @@ exports[`should render correctly: invalid configs, admin 1`] = `
 exports[`should render correctly: invalid configs, not admin 1`] = `
 <Fragment>
   <header
-    className="huge-spacer-top big-spacer-bottom padded"
+    className="padded huge-spacer-top display-flex-column display-flex-center"
   >
-    <h1
-      className="text-center huge big-spacer-bottom"
+    <div
+      className="abs-width-800 huge-spacer-bottom"
     >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.create_project.select_method
+      </h1>
+      <p
+        className="text-center spacer-bottom"
+      >
+        onboarding.create_project.select_method.description1
+      </p>
+      <p
+        className="text-center"
+      >
+        onboarding.create_project.select_method.description2
+      </p>
+    </div>
   </header>
   <div
     className="create-project-modes huge-spacer-top display-flex-justify-center"
@@ -453,7 +501,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         >
           onboarding.create_project.select_method.azure
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -462,19 +510,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
           }
         >
           onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.azure"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/azuredevops-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.azure.short",
-                },
-              ]
-            }
-          />
-        </div>
+        </p>
       </button>
     </div>
     <div
@@ -496,7 +532,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         >
           onboarding.create_project.select_method.bitbucket
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -505,19 +541,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
           }
         >
           onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.bitbucket"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/bitbucket-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.bitbucket.short",
-                },
-              ]
-            }
-          />
-        </div>
+        </p>
       </button>
     </div>
     <div
@@ -539,7 +563,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -547,13 +571,8 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
             }
           }
         >
-          onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.too_many_alm_instances.github 
-                onboarding.create_project.alm_instances_count_X.2"
-          />
-        </div>
+          onboarding.create_project.too_many_alm_instances_X.alm.github
+        </p>
       </button>
     </div>
     <div
@@ -575,7 +594,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         >
           onboarding.create_project.select_method.gitlab
         </div>
-        <div
+        <p
           className="text-muted small spacer-top"
           style={
             Object {
@@ -584,19 +603,7 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
           }
         >
           onboarding.create_project.alm_not_configured
-          <DocumentationTooltip
-            className="little-spacer-left"
-            content="onboarding.create_project.zero_alm_instances.gitlab"
-            links={
-              Array [
-                Object {
-                  "href": "/documentation/analysis/gitlab-integration/",
-                  "label": "onboarding.create_project.help_set_up_x.alm.gitlab.short",
-                },
-              ]
-            }
-          />
-        </div>
+        </p>
       </button>
     </div>
   </div>
@@ -606,18 +613,27 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
 exports[`should render correctly: loading instances 1`] = `
 <Fragment>
   <header
-    className="huge-spacer-top big-spacer-bottom padded"
+    className="padded huge-spacer-top display-flex-column display-flex-center"
   >
-    <h1
-      className="text-center huge big-spacer-bottom"
+    <div
+      className="abs-width-800 huge-spacer-bottom"
     >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.create_project.select_method
+      </h1>
+      <p
+        className="text-center spacer-bottom"
+      >
+        onboarding.create_project.select_method.description1
+      </p>
+      <p
+        className="text-center"
+      >
+        onboarding.create_project.select_method.description2
+      </p>
+    </div>
   </header>
   <div
     className="create-project-modes huge-spacer-top display-flex-justify-center"
