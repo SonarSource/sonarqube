@@ -3,9 +3,15 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
-Upgrading directly from SonarQube _v7.9 LTS_? Refer to the [LTS to LTS Release Upgrade Notes](/setup/lts-to-lts-upgrade-notes/).
+## Release 9.0 Upgrade Notes  
+**Scanners require Java 11**
+Java 11 is required for SonarQube scanners. Use of Java 8 is no longer supported. See the documentation on [Moving Analysis to Java 11](/analysis/analysis-with-java-11/) for more information. ([MMF-2051](https://jira.sonarsource.com/browse/MMF-2051)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15682)
 
 ## Release 8.9 LTS Upgrade Notes  
+Upgrading directly from SonarQube _v7.9 LTS_? Refer to the [LTS to LTS Release Upgrade Notes](/setup/lts-to-lts-upgrade-notes/).
+
 **GitHub Enterprise compatibility**  
 SonarQube 8.9 only supports GitHub Enterprise 2.21+ for pull request decoration (the previous minimum version was 2.15).
 
