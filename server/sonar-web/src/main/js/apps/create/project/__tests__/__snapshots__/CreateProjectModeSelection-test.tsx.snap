@@ -24,10 +24,8 @@ exports[`should render correctly: default 1`] = `
       onClick={[Function]}
       type="button"
     >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
+      <ChevronsIcon
+        size={80}
       />
       <div
         className="medium big-spacer-top"
@@ -213,10 +211,8 @@ exports[`should render correctly: invalid configs, admin 1`] = `
       onClick={[Function]}
       type="button"
     >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
+      <ChevronsIcon
+        size={80}
       />
       <div
         className="medium big-spacer-top"
@@ -429,10 +425,8 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
       onClick={[Function]}
       type="button"
     >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
+      <ChevronsIcon
+        size={80}
       />
       <div
         className="medium big-spacer-top"
@@ -633,10 +627,8 @@ exports[`should render correctly: loading instances 1`] = `
       onClick={[Function]}
       type="button"
     >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
+      <ChevronsIcon
+        size={80}
       />
       <div
         className="medium big-spacer-top"

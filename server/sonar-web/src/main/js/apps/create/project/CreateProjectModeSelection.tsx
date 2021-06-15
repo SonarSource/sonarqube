@@ -19,6 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
@@ -39,6 +40,8 @@ export interface CreateProjectModeSelectionProps {
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
 }
+
+const DEFAULT_ICON_SIZE = 80;
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
@@ -87,7 +90,7 @@ function renderAlmOption(
         type="button">
         <img
           alt="" // Should be ignored by screen readers
-          height={80}
+          height={DEFAULT_ICON_SIZE}
           src={`${getBaseUrl()}/images/alm/${alm}.svg`}
         />
         <div className="medium big-spacer-top abs-height-50 display-flex-center">
@@ -139,11 +142,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
           className="button button-huge display-flex-column create-project-mode-type-manual"
           onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
           type="button">
-          <img
-            alt="" // Should be ignored by screen readers
-            height={80}
-            src={`${getBaseUrl()}/images/sonarcloud/analysis/manual.svg`}
-          />
+          <ChevronsIcon size={DEFAULT_ICON_SIZE} />
           <div className="medium big-spacer-top">
             {translate('onboarding.create_project.select_method.manual')}
           </div>
