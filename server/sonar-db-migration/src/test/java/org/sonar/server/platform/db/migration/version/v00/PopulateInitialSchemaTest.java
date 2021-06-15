@@ -46,14 +46,14 @@ public class PopulateInitialSchemaTest {
 
   private final Random random = new Random();
   private final Version version = Version.create(1 + random.nextInt(10), 1 + random.nextInt(10), random.nextInt(10));
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
-  private System2 system2 = mock(System2.class);
-  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final System2 system2 = mock(System2.class);
+  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v79.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v89.sql");
 
-  private PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarRuntime);
+  private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarRuntime);
 
   @Before
   public void setUp() {
@@ -67,13 +67,11 @@ public class PopulateInitialSchemaTest {
     underTest.execute();
 
     verifyAdminUser();
-    long userGroupId = verifyGroup("sonar-users", "Any new users created will automatically join this group");
+    verifyGroup("sonar-users", "Any new users created will automatically join this group");
     verifyGroup("sonar-administrators", "System administrators");
-    String qgUuid = verifyQualityGate();
-    String orgUuid = verifyDefaultOrganization(userGroupId, qgUuid);
-    verifyOrgQualityGate(orgUuid, qgUuid);
-    verifyInternalProperties(orgUuid);
-    verifyProperties();
+    String qualityGateUuid = verifyQualityGate();
+    verifyInternalProperties();
+    verifyProperties(qualityGateUuid);
     verifyRolesOfAdminsGroup();
     verifyRolesOfUsersGroup();
     verifyRolesOfAnyone();
@@ -95,7 +93,8 @@ public class PopulateInitialSchemaTest {
       "is_root as \"IS_ROOT\", " +
       "onboarded as \"ONBOARDED\", " +
       "created_at as \"CREATED_AT\", " +
-      "updated_at as \"UPDATED_AT\" " +
+      "updated_at as \"UPDATED_AT\", " +
+      "reset_password as \"RESET_PASSWORD\" " +
       "from users where login='admin'");
 
     assertThat(cols)
@@ -110,15 +109,16 @@ public class PopulateInitialSchemaTest {
       .containsEntry("IS_ROOT", false)
       .containsEntry("ONBOARDED", true)
       .containsEntry("CREATED_AT", NOW)
+      .containsEntry("RESET_PASSWORD", true)
       .containsEntry("UPDATED_AT", NOW);
 
     assertThat(cols.get("EMAIL")).isNull();
     assertThat(cols.get("SALT")).isNull();
   }
 
-  private long verifyGroup(String expectedName, String expectedDescription) {
+  private void verifyGroup(String expectedName, String expectedDescription) {
     List<Map<String, Object>> rows = db.select("select " +
-      "id as \"ID\"," +
+      "uuid as \"UUID\"," +
       "name as \"name\", " +
       "description as \"description\", " +
       "created_at as \"CREATED_AT\", " +
@@ -132,7 +132,6 @@ public class PopulateInitialSchemaTest {
     assertThat(((Date) row.get("CREATED_AT")).getTime()).isEqualTo(NOW);
     assertThat(((Date) row.get("UPDATED_AT")).getTime()).isEqualTo(NOW);
 
-    return (long) row.get("ID");
   }
 
   private String verifyQualityGate() {
@@ -153,62 +152,16 @@ public class PopulateInitialSchemaTest {
     return (String) row.get("UUID");
   }
 
-  private String verifyDefaultOrganization(long userGroupId, String defaultQQUuid) {
-    List<Map<String, Object>> rows = db.select("select " +
-      "uuid as \"UUID\", " +
-      "kee as \"KEE\", " +
-      "name as \"NAME\", " +
-      "guarded as \"GUARDED\", " +
-      "new_project_private as \"PRIVATE\", " +
-      "default_group_id as \"GROUP_ID\", " +
-      "default_quality_gate_uuid as \"QG_UUID\", " +
-      "subscription as \"SUBSCRIPTION\", " +
-      "created_at as \"CREATED_AT\", " +
-      "updated_at as \"UPDATED_AT\"" +
-      " from organizations");
-    assertThat(rows).hasSize(1);
-
-    Map<String, Object> row = rows.get(0);
-
-    assertThat(row)
-      .containsEntry("KEE", "default-organization")
-      .containsEntry("NAME", "Default Organization")
-      .containsEntry("GUARDED", true)
-      .containsEntry("PRIVATE", false)
-      .containsEntry("GROUP_ID", userGroupId)
-      .containsEntry("QG_UUID", defaultQQUuid)
-      .containsEntry("SUBSCRIPTION", "SONARQUBE")
-      .containsEntry("CREATED_AT", NOW)
-      .containsEntry("UPDATED_AT", NOW);
-    return (String) row.get("UUID");
-  }
-
-  private void verifyOrgQualityGate(String orgUuid, String qgUuid) {
-    List<Map<String, Object>> rows = db.select("select " +
-      "uuid as \"UUID\", " +
-      "organization_uuid as \"ORG\", " +
-      "quality_gate_uuid as \"QG\"" +
-      " from org_quality_gates");
-    assertThat(rows).hasSize(1);
-
-    Map<String, Object> row = rows.get(0);
-    assertThat(row.get("UUID")).isNotNull();
-    assertThat(row)
-      .containsEntry("ORG", orgUuid)
-      .containsEntry("QG", qgUuid);
-  }
-
-  private void verifyInternalProperties(String orgUuid) {
+  private void verifyInternalProperties() {
     List<Map<String, Object>> rows = db.select("select " +
       "kee as \"KEE\", " +
       "is_empty as \"EMPTY\", " +
       "text_value as \"VAL\"," +
       "created_at as \"CREATED_AT\" " +
       " from internal_properties");
-    assertThat(rows).hasSize(3);
+    assertThat(rows).hasSize(2);
 
     Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(MoreCollectors.uniqueIndex(t -> (String) t.get("KEE")));
-    verifyInternalProperty(rowsByKey, "organization.default", orgUuid);
     verifyInternalProperty(rowsByKey, "installation.date", String.valueOf(system2.now()));
     verifyInternalProperty(rowsByKey, "installation.version", version.toString());
   }
@@ -222,17 +175,19 @@ public class PopulateInitialSchemaTest {
       .containsEntry("CREATED_AT", NOW);
   }
 
-  private void verifyProperties() {
+  private void verifyProperties(String qualityGateUuid) {
     List<Map<String, Object>> rows = db.select("select " +
       "prop_key as \"PROP_KEY\", " +
       "is_empty as \"EMPTY\", " +
       "text_value as \"VAL\"," +
       "created_at as \"CREATED_AT\" " +
       " from properties");
-    assertThat(rows).hasSize(1);
+    assertThat(rows).hasSize(3);
 
     Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(MoreCollectors.uniqueIndex(t -> (String) t.get("PROP_KEY")));
     verifyProperty(rowsByKey, "sonar.forceAuthentication", "true");
+    verifyProperty(rowsByKey, "projects.default.visibility", "public");
+    verifyProperty(rowsByKey, "qualitygate.default", qualityGateUuid);
   }
 
   private static void verifyProperty(Map<String, Map<String, Object>> rowsByKey, String key, String val) {
@@ -254,7 +209,7 @@ public class PopulateInitialSchemaTest {
 
   private void verifyRolesOfAnyone() {
     List<Map<String, Object>> rows = db.select("select gr.role as \"role\" " +
-      "from group_roles gr where gr.group_id is null");
+      "from group_roles gr where gr.group_uuid is null");
     Stream<String> roles = rows.stream()
       .map(row -> (String) row.get("role"));
     assertThat(roles).containsOnly("provisioning", "scan");
@@ -263,7 +218,7 @@ public class PopulateInitialSchemaTest {
   private Stream<String> selectRoles(String groupName) {
     List<Map<String, Object>> rows = db.select("select gr.role as \"role\" " +
       "from group_roles gr " +
-      "inner join groups g on gr.group_id = g.id " +
+      "inner join groups g on gr.group_uuid = g.uuid " +
       "where g.name='" + groupName + "'");
     return rows.stream()
       .map(row -> (String) row.get("role"));
@@ -271,8 +226,8 @@ public class PopulateInitialSchemaTest {
 
   private void verifyMembershipOfAdminUser() {
     List<Map<String, Object>> rows = db.select("select g.name as \"groupName\" from groups g " +
-      "inner join groups_users gu on gu.group_id = g.id " +
-      "inner join users u on gu.user_id = u.id " +
+      "inner join groups_users gu on gu.group_uuid = g.uuid " +
+      "inner join users u on gu.user_uuid = u.uuid " +
       "where u.login='admin'");
     List<String> groupNames = rows.stream()
       .map(row -> (String) row.get("groupName"))
