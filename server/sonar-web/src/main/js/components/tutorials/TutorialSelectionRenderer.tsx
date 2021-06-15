@@ -215,6 +215,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
       {selectedTutorial === TutorialModes.Jenkins && (
         <JenkinsTutorial
           almBinding={almBinding}
+          baseUrl={baseUrl}
           component={component}
           projectBinding={projectBinding}
         />

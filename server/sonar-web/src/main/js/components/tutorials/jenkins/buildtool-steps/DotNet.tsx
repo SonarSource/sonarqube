@@ -21,12 +21,9 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
+import { LanguageProps } from '../JenkinsfileStep';
 import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
-
-export interface DotNetProps {
-  component: T.Component;
-}
 
 export interface DotNetCoreFrameworkProps {
   component: T.Component;
@@ -42,7 +39,7 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
   linux_core: OSs.Linux
 };
 
-export default function DotNet({ component }: DotNetProps) {
+export default function DotNet({ component }: LanguageProps) {
   const [flavorComponent, setFlavorComponet] = React.useState<keyof typeof DotNetFlavor>();
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
   return (

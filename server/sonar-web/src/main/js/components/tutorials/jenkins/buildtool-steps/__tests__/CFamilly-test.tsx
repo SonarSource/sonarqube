@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import DefaultProjectKey from '../../components/DefaultProjectKey';
-import { LanguageProps } from '../JenkinsfileStep';
-import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import RenderOptions from '../../../components/RenderOptions';
+import { OSs } from '../../../types';
+import CFamilly, { CFamillyProps } from '../CFamilly';
 
-const JENKINSFILE_SNIPPET = `node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner"
-    }
-  }
-}`;
+it('should render correctly for', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export default function Other({ component }: LanguageProps) {
-  return (
-    <>
-      <DefaultProjectKey component={component} />
-      <CreateJenkinsfileBulletPoint
-        alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-        snippet={JENKINSFILE_SNIPPET}
-      />
-    </>
+it.each([[OSs.Linux], [OSs.MacOS], [OSs.Windows]])('should render correctly for %s', os => {
+  const wrapper = shallowRender();
+  wrapper.find(RenderOptions).simulate('check', os);
+  expect(wrapper).toMatchSnapshot(os);
+});
+
+function shallowRender(props: Partial<CFamillyProps> = {}) {
+  return shallow<CFamillyProps>(
+    <CFamilly component={mockComponent()} baseUrl="nice_url_sample" {...props} />
   );
 }

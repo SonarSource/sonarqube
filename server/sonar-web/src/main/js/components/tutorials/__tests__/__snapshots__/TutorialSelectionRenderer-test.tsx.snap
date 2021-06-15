@@ -494,6 +494,7 @@ exports[`should render correctly: jenkins tutorial 1`] = `
         "key": "key",
       }
     }
+    baseUrl="http://localhost:9000"
     component={
       Object {
         "breadcrumbs": Array [],

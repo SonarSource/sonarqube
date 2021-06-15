@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import Maven, { MavenProps } from '../Maven';
+import { LanguageProps } from '../../JenkinsfileStep';
+import Maven from '../Maven';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<MavenProps> = {}) {
-  return shallow<MavenProps>(<Maven component={mockComponent()} {...props} />);
+function shallowRender(props: Partial<LanguageProps> = {}) {
+  return shallow<LanguageProps>(<Maven component={mockComponent()} baseUrl="" {...props} />);
 }

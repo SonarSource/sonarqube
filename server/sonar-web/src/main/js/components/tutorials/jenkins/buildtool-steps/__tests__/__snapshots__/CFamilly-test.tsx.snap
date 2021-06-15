@@ -1,0 +1,266 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for 1`] = `
+<Fragment>
+  <DefaultProjectKey
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <li>
+    onboarding.build.other.os
+    <RenderOptions
+      name="flavorComponent"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build.other.os"
+      options={
+        Array [
+          "linux",
+          "win",
+          "mac",
+        ]
+      }
+    />
+  </li>
+</Fragment>
+`;
+
+exports[`should render correctly for linux: linux 1`] = `
+<Fragment>
+  <DefaultProjectKey
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <li>
+    onboarding.build.other.os
+    <RenderOptions
+      checked="linux"
+      name="flavorComponent"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build.other.os"
+      options={
+        Array [
+          "linux",
+          "win",
+          "mac",
+        ]
+      }
+    />
+  </li>
+  <CreateJenkinsfileBulletPoint
+    alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
+    snippet="node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh \\"mkdir -p .sonar\\"
+    sh \\"curl -sSLo build-wrapper-linux-x86.zip nice_url_sample/static/cpp/build-wrapper-linux-x86.zip\\"
+    sh \\"unzip -o build-wrapper-linux-x86.zip -d .sonar\\"
+  }
+  stage('Build') {
+    sh \\".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>\\"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+    }
+  }
+}"
+  >
+    <CompilationInfo />
+  </CreateJenkinsfileBulletPoint>
+</Fragment>
+`;
+
+exports[`should render correctly for mac: mac 1`] = `
+<Fragment>
+  <DefaultProjectKey
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <li>
+    onboarding.build.other.os
+    <RenderOptions
+      checked="mac"
+      name="flavorComponent"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build.other.os"
+      options={
+        Array [
+          "linux",
+          "win",
+          "mac",
+        ]
+      }
+    />
+  </li>
+  <CreateJenkinsfileBulletPoint
+    alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
+    snippet="node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh '''
+      mkdir -p .sonar
+      curl -sSLo build-wrapper-macosx-x86.zip nice_url_sample/static/cpp/build-wrapper-macosx-x86.zip
+      unzip -o build-wrapper-macosx-x86.zip -d .sonar
+    '''
+  }
+  stage('Build') {
+    sh '''
+      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+    }
+  }
+}"
+  >
+    <CompilationInfo />
+  </CreateJenkinsfileBulletPoint>
+</Fragment>
+`;
+
+exports[`should render correctly for win: win 1`] = `
+<Fragment>
+  <DefaultProjectKey
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <li>
+    onboarding.build.other.os
+    <RenderOptions
+      checked="win"
+      name="flavorComponent"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build.other.os"
+      options={
+        Array [
+          "linux",
+          "win",
+          "mac",
+        ]
+      }
+    />
+  </li>
+  <CreateJenkinsfileBulletPoint
+    alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
+    snippet="node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    powershell '''
+      $path = \\"$HOME/.sonar/build-wrapper-win-x86.zip\\"
+      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
+      rm $path -Force -ErrorAction SilentlyContinue
+      mkdir $HOME/.sonar
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      (New-Object System.Net.WebClient).DownloadFile(nice_url_sample/static/cpp/build-wrapper-win-x86.zip\\", $path)
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, \\"$HOME/.sonar\\")
+    '''
+  }
+  stage('Build') {
+    powershell '''
+      $env:Path += \\";$HOME/.sonar/build-wrapper-win-x86\\"
+      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      powershell \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+    }
+  }
+}"
+  >
+    <CompilationInfo />
+  </CreateJenkinsfileBulletPoint>
+</Fragment>
+`;

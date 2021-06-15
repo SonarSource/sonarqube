@@ -25,6 +25,7 @@ exports[`should render correctly for .NET 1`] = `
       />
     </li>
     <DotNet
+      baseUrl="nice_url"
       component={
         Object {
           "breadcrumbs": Array [],
@@ -85,6 +86,7 @@ exports[`should render correctly for Gradle 1`] = `
       />
     </li>
     <Gradle
+      baseUrl="nice_url"
       component={
         Object {
           "breadcrumbs": Array [],
@@ -145,6 +147,7 @@ exports[`should render correctly for Maven 1`] = `
       />
     </li>
     <Maven
+      baseUrl="nice_url"
       component={
         Object {
           "breadcrumbs": Array [],
@@ -205,6 +208,7 @@ exports[`should render correctly for Other 1`] = `
       />
     </li>
     <Other
+      baseUrl="nice_url"
       component={
         Object {
           "breadcrumbs": Array [],
@@ -250,6 +254,16 @@ exports[`should render correctly: Step wrapper 1`] = `
 />
 `;
 
+exports[`should render correctly: Step wrapper with C 1`] = `
+<Step
+  finished={false}
+  open={true}
+  renderForm={[Function]}
+  stepNumber={3}
+  stepTitle="onboarding.tutorial.with.jenkins.jenkinsfile.title"
+/>
+`;
+
 exports[`should render correctly: initial content 1`] = `
 <div
   className="boxed-group-inner"
@@ -268,6 +282,7 @@ exports[`should render correctly: initial content 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }

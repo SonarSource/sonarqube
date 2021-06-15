@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import Other, { OtherProps } from '../Other';
+import { LanguageProps } from '../../JenkinsfileStep';
+import Other from '../Other';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<OtherProps> = {}) {
-  return shallow<OtherProps>(<Other component={mockComponent()} {...props} />);
+function shallowRender(props: Partial<LanguageProps> = {}) {
+  return shallow<LanguageProps>(<Other component={mockComponent()} baseUrl="" {...props} />);
 }

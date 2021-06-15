@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import AllSet from '../components/AllSet';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
 import { BuildTools } from '../types';
+import CFamilly from './buildtool-steps/CFamilly';
 import DotNet from './buildtool-steps/DotNet';
 import Gradle from './buildtool-steps/Gradle';
 import Maven from './buildtool-steps/Maven';
@@ -31,25 +34,34 @@ import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
   alm: AlmKeys;
+  baseUrl: string;
   component: T.Component;
+  hasCLanguageFeature: boolean;
   open: boolean;
 }
 
-// To remove when CFamily is includ in this tutorial
-type BuildToolsWithoutCFamily = Exclude<BuildTools, BuildTools.CFamily>;
+export interface LanguageProps {
+  component: T.Component;
+  baseUrl: string;
+}
 
 const BUILDTOOL_COMPONENT_MAP: {
-  [x in BuildToolsWithoutCFamily]: React.ComponentType<{ component: T.Component }>;
+  [x in BuildTools]: React.ComponentType<LanguageProps>;
 } = {
   [BuildTools.Maven]: Maven,
   [BuildTools.Gradle]: Gradle,
   [BuildTools.DotNet]: DotNet,
+  [BuildTools.CFamily]: CFamilly,
   [BuildTools.Other]: Other
 };
 
-export default function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { alm, component, open } = props;
-  const [buildTool, setBuildTool] = React.useState<BuildToolsWithoutCFamily | undefined>(undefined);
+export function JenkinsfileStep(props: JenkinsfileStepProps) {
+  const { alm, component, hasCLanguageFeature, baseUrl, open } = props;
+  const [buildTool, setBuildTool] = React.useState<BuildTools>();
+  const buildToolOrder = Object.keys(BUILDTOOL_COMPONENT_MAP);
+  if (!hasCLanguageFeature) {
+    buildToolOrder.splice(buildToolOrder.indexOf(BuildTools.CFamily), 1);
+  }
   return (
     <Step
       finished={false}
@@ -62,13 +74,18 @@ export default function JenkinsfileStep(props: JenkinsfileStepProps) {
               <RenderOptions
                 checked={buildTool}
                 name="buildtool"
-                onCheck={value => setBuildTool(value as BuildToolsWithoutCFamily)}
+                onCheck={value => setBuildTool(value as BuildTools)}
                 optionLabelKey="onboarding.build"
-                options={Object.keys(BUILDTOOL_COMPONENT_MAP)}
+                options={buildToolOrder}
               />
+              {buildTool === BuildTools.CFamily && (
+                <Alert variant="info" className="spacer-top abs-width-600">
+                  {translate('onboarding.tutorial.with.jenkins.jenkinsfile.cfamilly.agent_setup')}
+                </Alert>
+              )}
             </li>
             {buildTool !== undefined &&
-              React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], { component })}
+              React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], { component, baseUrl })}
           </ol>
           {buildTool !== undefined && (
             <>
@@ -83,3 +100,5 @@ export default function JenkinsfileStep(props: JenkinsfileStepProps) {
     />
   );
 }
+
+export default withCLanguageFeature(JenkinsfileStep);

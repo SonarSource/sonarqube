@@ -25,11 +25,13 @@ import RenderOptions from '../../components/RenderOptions';
 import Step from '../../components/Step';
 import { renderStepContent } from '../../test-utils';
 import { BuildTools } from '../../types';
-import JenkinsfileStep, { JenkinsfileStepProps } from '../JenkinsfileStep';
+import { JenkinsfileStep, JenkinsfileStepProps } from '../JenkinsfileStep';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('Step wrapper');
+  wrapper.setProps({ hasCLanguageFeature: true });
+  expect(wrapper).toMatchSnapshot('Step wrapper with C');
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
@@ -71,7 +73,9 @@ function shallowRender(props: Partial<JenkinsfileStepProps> = {}) {
   return shallow<JenkinsfileStepProps>(
     <JenkinsfileStep
       alm={AlmKeys.BitbucketCloud}
+      baseUrl="nice_url"
       component={mockComponent()}
+      hasCLanguageFeature={false}
       open={true}
       {...props}
     />

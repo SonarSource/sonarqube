@@ -36,6 +36,7 @@ import WebhookStep from './WebhookStep';
 
 export interface JenkinsTutorialProps {
   almBinding?: AlmSettingsInstance;
+  baseUrl: string;
   branchesEnabled: boolean;
   component: T.Component;
   projectBinding?: ProjectAlmBindingResponse;
@@ -54,7 +55,7 @@ enum Steps {
 const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, branchesEnabled, component, projectBinding, skipPreReqs } = props;
+  const { almBinding, baseUrl, branchesEnabled, component, projectBinding, skipPreReqs } = props;
   const hasSelectAlmStep = projectBinding?.alm === undefined;
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
 
@@ -133,7 +134,12 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
             projectBinding={projectBinding}
           />
 
-          <JenkinsfileStep alm={alm} component={component} open={step === Steps.Jenkinsfile} />
+          <JenkinsfileStep
+            alm={alm}
+            component={component}
+            baseUrl={baseUrl}
+            open={step === Steps.Jenkinsfile}
+          />
         </>
       )}
     </>

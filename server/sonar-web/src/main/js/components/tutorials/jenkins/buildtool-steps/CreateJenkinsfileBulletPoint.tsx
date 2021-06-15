@@ -25,12 +25,14 @@ import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface CreateJenkinsfileBulletPointProps {
-  snippet: string;
   alertTranslationKeyPart?: string;
+  children?: React.ReactNode;
+  otherAlert?: JSX.Element;
+  snippet: string;
 }
 
 export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBulletPointProps) {
-  const { snippet, alertTranslationKeyPart } = props;
+  const { children, snippet, alertTranslationKeyPart, otherAlert } = props;
 
   return (
     <li className="abs-width-600">
@@ -38,9 +40,9 @@ export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBul
         filename="Jenkinsfile"
         translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
       />
-      {alertTranslationKeyPart !== undefined && (
+      {alertTranslationKeyPart && (
         <Alert className="spacer-top" variant="info">
-          <p className="text-middle">
+          <div className="text-middle">
             <SentenceWithHighlights
               highlightKeys={['default', 'in_jenkins']}
               translationKey={`${alertTranslationKeyPart}.replace`}
@@ -64,10 +66,12 @@ export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBul
                 </>
               }
             />
-          </p>
+            {otherAlert}
+          </div>
         </Alert>
       )}
       <CodeSnippet snippet={snippet} />
+      {children}
     </li>
   );
 }

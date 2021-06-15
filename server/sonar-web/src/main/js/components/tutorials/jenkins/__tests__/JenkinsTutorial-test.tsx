@@ -132,6 +132,7 @@ it('should correctly select an ALM if no project is bound', () => {
 function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
   return shallow<JenkinsTutorialProps>(
     <JenkinsTutorial
+      baseUrl=""
       branchesEnabled={true}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketBindingResponse()}

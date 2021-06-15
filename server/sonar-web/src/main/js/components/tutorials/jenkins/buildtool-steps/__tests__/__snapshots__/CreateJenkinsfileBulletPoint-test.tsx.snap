@@ -26,7 +26,7 @@ exports[`should render correctly: with alert 1`] = `
     className="spacer-top"
     variant="info"
   >
-    <p
+    <div
       className="text-middle"
     >
       <SentenceWithHighlights
@@ -68,7 +68,7 @@ exports[`should render correctly: with alert 1`] = `
           </React.Fragment>
         }
       />
-    </p>
+    </div>
   </Alert>
   <CodeSnippet
     snippet="foo { bar() }"

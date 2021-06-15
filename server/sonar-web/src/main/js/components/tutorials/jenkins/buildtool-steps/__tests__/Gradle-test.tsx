@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import Gradle, { GradleProps } from '../Gradle';
+import { LanguageProps } from '../../JenkinsfileStep';
+import Gradle from '../Gradle';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<GradleProps> = {}) {
-  return shallow<GradleProps>(<Gradle component={mockComponent()} {...props} />);
+function shallowRender(props: Partial<LanguageProps> = {}) {
+  return shallow<LanguageProps>(<Gradle component={mockComponent()} baseUrl="" {...props} />);
 }

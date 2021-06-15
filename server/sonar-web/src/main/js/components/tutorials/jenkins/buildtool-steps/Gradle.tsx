@@ -21,11 +21,8 @@ import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import { buildGradleSnippet } from '../../utils';
+import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
-
-export interface GradleProps {
-  component: T.Component;
-}
 
 const JENKINSFILE_SNIPPET = `node {
   stage('SCM') {
@@ -38,7 +35,7 @@ const JENKINSFILE_SNIPPET = `node {
   }
 }`;
 
-export default function Gradle({ component }: GradleProps) {
+export default function Gradle({ component }: LanguageProps) {
   return (
     <>
       <li className="abs-width-600">

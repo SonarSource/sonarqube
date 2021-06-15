@@ -24,7 +24,7 @@ import { BuildToolForm } from '../BuildToolForm';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ languages: {} })).toMatchSnapshot('without C');
+  expect(shallowRender({ hasCLanguageFeature: false })).toMatchSnapshot('without C');
   expect(shallowRender().setState({ config: { buildTool: BuildTools.Maven } })).toMatchSnapshot(
     'with "maven" selected'
   );
@@ -49,6 +49,6 @@ it('correctly calls the onDone prop', () => {
 
 function shallowRender(props: Partial<BuildToolForm['props']> = {}) {
   return shallow<BuildToolForm>(
-    <BuildToolForm onDone={jest.fn()} languages={{ c: { key: 'c', name: 'test' } }} {...props} />
+    <BuildToolForm onDone={jest.fn()} hasCLanguageFeature={true} {...props} />
   );
 }

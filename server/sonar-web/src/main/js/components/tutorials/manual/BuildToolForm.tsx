@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getLanguages, Store } from '../../../store/rootReducer';
+import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools, ManualTutorialConfig, OSs } from '../types';
 
 interface Props {
-  languages: T.Languages;
+  hasCLanguageFeature: boolean;
   config?: ManualTutorialConfig;
   onDone: (config: ManualTutorialConfig) => void;
 }
@@ -60,9 +59,9 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
 
   render() {
     const { config } = this.state;
-    const { languages } = this.props;
+    const { hasCLanguageFeature } = this.props;
     const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-    if (languages['c']) {
+    if (hasCLanguageFeature) {
       buildTools.push(BuildTools.CFamily);
     }
     buildTools.push(BuildTools.Other);
@@ -97,8 +96,4 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  languages: getLanguages(state)
-});
-
-export default connect(mapStateToProps)(BuildToolForm);
+export default withCLanguageFeature(BuildToolForm);

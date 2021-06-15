@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import DotNet, { DotNetProps } from '../DotNet';
+import { LanguageProps } from '../../JenkinsfileStep';
+import DotNet from '../DotNet';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<DotNetProps> = {}) {
-  return shallow<DotNetProps>(<DotNet component={mockComponent()} {...props} />);
+function shallowRender(props: Partial<LanguageProps> = {}) {
+  return shallow<LanguageProps>(<DotNet component={mockComponent()} baseUrl="" {...props} />);
 }
