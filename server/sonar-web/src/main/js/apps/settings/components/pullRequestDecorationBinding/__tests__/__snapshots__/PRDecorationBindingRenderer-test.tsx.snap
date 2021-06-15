@@ -909,27 +909,45 @@ exports[`should render correctly: with an empty form 1`] = `
 </div>
 `;
 
-exports[`should render correctly: with no ALM instances 1`] = `
+exports[`should render correctly: with no ALM instances (admin user) 1`] = `
 <div>
   <Alert
     className="spacer-top huge-spacer-bottom"
     variant="info"
   >
     <FormattedMessage
-      defaultMessage="settings.pr_decoration.binding.no_bindings"
-      id="settings.pr_decoration.binding.no_bindings"
+      defaultMessage="settings.pr_decoration.binding.no_bindings.admin"
+      id="settings.pr_decoration.binding.no_bindings.admin"
       values={
         Object {
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/documentation/analysis/pull-request/#pr-decoration"
+            to={
+              Object {
+                "pathname": "/admin/settings",
+                "query": Object {
+                  "category": "almintegration",
+                },
+              }
+            }
           >
-            learn_more
+            settings.pr_decoration.binding.no_bindings.link
           </Link>,
         }
       }
     />
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly: with no ALM instances (non-admin user) 1`] = `
+<div>
+  <Alert
+    className="spacer-top huge-spacer-bottom"
+    variant="info"
+  >
+    settings.pr_decoration.binding.no_bindings
   </Alert>
 </div>
 `;

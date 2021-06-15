@@ -60,7 +60,8 @@ const configurationErrors: ProjectAlmBindingConfigurationErrors = {
 
 it.each([
   ['when loading', { loading: true }],
-  ['with no ALM instances', {}],
+  ['with no ALM instances (admin user)', { isSysAdmin: true }],
+  ['with no ALM instances (non-admin user)', {}],
   ['with a single ALM instance', { instances: [instances[0]] }],
   ['with an empty form', { instances }],
   [

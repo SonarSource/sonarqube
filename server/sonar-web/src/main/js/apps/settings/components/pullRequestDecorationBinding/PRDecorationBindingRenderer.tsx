@@ -92,17 +92,21 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
     return (
       <div>
         <Alert className="spacer-top huge-spacer-bottom" variant="info">
-          <FormattedMessage
-            defaultMessage={translate('settings.pr_decoration.binding.no_bindings')}
-            id="settings.pr_decoration.binding.no_bindings"
-            values={{
-              link: (
-                <Link to="/documentation/analysis/pull-request/#pr-decoration">
-                  {translate('learn_more')}
-                </Link>
-              )
-            }}
-          />
+          {isSysAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('settings.pr_decoration.binding.no_bindings.admin')}
+              id="settings.pr_decoration.binding.no_bindings.admin"
+              values={{
+                link: (
+                  <Link to={getGlobalSettingsUrl(ALM_INTEGRATION)}>
+                    {translate('settings.pr_decoration.binding.no_bindings.link')}
+                  </Link>
+                )
+              }}
+            />
+          ) : (
+            translate('settings.pr_decoration.binding.no_bindings')
+          )}
         </Alert>
       </div>
     );
