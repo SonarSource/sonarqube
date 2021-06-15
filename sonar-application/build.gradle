@@ -220,7 +220,7 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 269000000
+  def minLength = 268000000
   def maxLength = 289000000
 
   def length = archiveFile.get().asFile.length()
