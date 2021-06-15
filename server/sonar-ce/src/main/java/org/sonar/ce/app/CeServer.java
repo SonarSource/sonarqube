@@ -29,13 +29,10 @@ import org.sonar.ce.ComputeEngine;
 import org.sonar.ce.ComputeEngineImpl;
 import org.sonar.ce.container.ComputeEngineContainerImpl;
 import org.sonar.ce.logging.CeProcessLogging;
-import org.sonar.ce.security.PluginCeRule;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
-import org.sonar.process.PluginFileWriteRule;
 import org.sonar.process.PluginSecurityManager;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -52,14 +49,14 @@ public class CeServer implements Monitored {
 
   private static final String CE_MAIN_THREAD_NAME = "ce-main";
 
-  private CountDownLatch awaitStop = new CountDownLatch(1);
-
+  private final CountDownLatch awaitStop = new CountDownLatch(1);
   private final ComputeEngine computeEngine;
   @Nullable
   private CeMainThread ceMainThread = null;
 
   @VisibleForTesting
-  protected CeServer(ComputeEngine computeEngine, MinimumViableSystem mvs) {
+  protected CeServer(ComputeEngine computeEngine, MinimumViableSystem mvs, CeSecurityManager securityManager) {
+    securityManager.apply();
     this.computeEngine = computeEngine;
     mvs
       .checkWritableTempDir()
@@ -121,15 +118,10 @@ public class CeServer implements Monitored {
     Props props = entryPoint.getProps();
     new CeProcessLogging().configure(props);
 
-    PluginFileWriteRule writeRule = new PluginFileWriteRule(
-      props.nonNullValueAsFile(ProcessProperties.Property.PATH_HOME.getKey()).toPath(),
-      props.nonNullValueAsFile(ProcessProperties.Property.PATH_TEMP.getKey()).toPath());
-    PluginCeRule ceRule = new PluginCeRule();
-    PluginSecurityManager.restrictPlugins(writeRule, ceRule);
-
     CeServer server = new CeServer(
       new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
-      new MinimumViableSystem());
+      new MinimumViableSystem(),
+      new CeSecurityManager(new PluginSecurityManager(), props));
     entryPoint.launch(server);
   }
 

@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import java.security.Permission;
+import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import javax.management.MBeanPermission;
@@ -39,6 +40,15 @@ public class PluginSecurityManagerTest {
   private final Permission permission = mock(Permission.class);
   private final PluginPolicyRule rule1 = mock(PluginPolicyRule.class);
   private final PluginPolicyRule rule2 = mock(PluginPolicyRule.class);
+
+  @Test
+  public void constructor_dontSetAnyPolicy() {
+    Policy policy = Policy.getPolicy();
+
+    new PluginSecurityManager();
+
+    assertThat(policy).isEqualTo(Policy.getPolicy());
+  }
 
   @Test
   public void protection_domain_can_have_no_classloader() {

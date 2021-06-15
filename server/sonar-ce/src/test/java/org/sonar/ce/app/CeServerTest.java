@@ -19,7 +19,11 @@
  */
 package org.sonar.ce.app;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.After;
@@ -29,16 +33,21 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sonar.ce.ComputeEngine;
+import org.sonar.process.MessageException;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+@RunWith(DataProviderRunner.class)
 public class CeServerTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
@@ -48,6 +57,7 @@ public class CeServerTest {
   private CeServer underTest = null;
   private Thread waitingThread = null;
   private MinimumViableSystem minimumViableSystem = mock(MinimumViableSystem.class, Mockito.RETURNS_MOCKS);
+  private CeSecurityManager ceSecurityManager = mock(CeSecurityManager.class);
 
   @After
   public void tearDown() throws Exception {
@@ -64,10 +74,14 @@ public class CeServerTest {
   @Test
   public void constructor_does_not_start_a_new_Thread() {
     int activeCount = Thread.activeCount();
-
     newCeServer();
-
     assertThat(Thread.activeCount()).isSameAs(activeCount);
+  }
+
+  @Test
+  public void constructor_calls_ceSecurityManager() {
+    newCeServer();
+    verify(ceSecurityManager).apply();
   }
 
   @Test
@@ -87,6 +101,31 @@ public class CeServerTest {
     newCeServer().start();
 
     assertThat(Thread.activeCount()).isSameAs(activeCount + 1);
+  }
+
+  @Test
+  public void stop_stops_Thread() {
+    CeServer ceServer = newCeServer();
+    assertThat(ceThreadExists()).isFalse();
+    ceServer.start();
+    assertThat(ceThreadExists()).isTrue();
+    ceServer.stop();
+    await().atMost(5, TimeUnit.SECONDS).until(() -> !ceThreadExists());
+  }
+
+  @Test
+  public void stop_dontDoAnythingIfThreadDoesntExist() {
+    CeServer ceServer = newCeServer();
+    assertThat(ceThreadExists()).isFalse();
+
+    ceServer.stop();
+
+    //expect no exception and thread still doesn't exist
+    assertThat(ceThreadExists()).isFalse();
+  }
+
+  private static boolean ceThreadExists() {
+    return Thread.getAllStackTraces().keySet().stream().anyMatch(t -> t.getName().equals("ce-main"));
   }
 
   @Test
@@ -123,17 +162,13 @@ public class CeServerTest {
     // release ComputeEngine startup method
     computeEngine.releaseStartup();
 
-    while (ceServer.getStatus() == Monitored.Status.DOWN) {
-      // wait for isReady to change to true, otherwise test will fail with timeout
-    }
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
+    await().atMost(5, TimeUnit.SECONDS).until(() -> ceServer.getStatus() == Monitored.Status.OPERATIONAL);
   }
 
   @Test
-  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() {
-    Throwable startupException = new Throwable("Faking failing ComputeEngine#startup()");
-
-    BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(startupException);
+  @UseDataProvider("exceptions")
+  public void getStatus_returns_FAILED_when_ComputeEngine_startup_throws_any_Exception_or_Error(RuntimeException exception) {
+    BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(exception);
     CeServer ceServer = newCeServer(computeEngine);
 
     ceServer.start();
@@ -143,10 +178,12 @@ public class CeServerTest {
     // release ComputeEngine startup method which will throw startupException
     computeEngine.releaseStartup();
 
-    while (ceServer.getStatus() == Monitored.Status.DOWN) {
-      // wait for isReady to change to not DOWN, otherwise test will fail with timeout
-    }
-    assertThat(ceServer.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
+    await().atMost(5, TimeUnit.SECONDS).until(() -> ceServer.getStatus() == Monitored.Status.FAILED);
+  }
+
+  @DataProvider
+  public static Object[] exceptions() {
+    return new Object[] {new MessageException("exception"), new IllegalStateException("Faking failing ComputeEngine#startup()")};
   }
 
   @Test
@@ -195,6 +232,15 @@ public class CeServerTest {
   }
 
   @Test
+  public void staticMain_withoutAnyArguments_expectException() {
+    String[] emptyArray = {};
+
+    expectedException.expectMessage("Only a single command-line argument is accepted (absolute path to configuration file)");
+
+    CeServer.main(emptyArray);
+  }
+
+  @Test
   public void stop_releases_thread_in_awaitStop_even_when_ComputeEngine_shutdown_fails() throws InterruptedException {
     final CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
@@ -223,13 +269,12 @@ public class CeServerTest {
   }
 
   private CeServer newCeServer() {
-    return newCeServer(DoNothingComputeEngine.INSTANCE);
+    return newCeServer(mock(ComputeEngine.class));
   }
 
   private CeServer newCeServer(ComputeEngine computeEngine) {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(
-      computeEngine, minimumViableSystem);
+    this.underTest = new CeServer(computeEngine, minimumViableSystem, ceSecurityManager);
     return underTest;
   }
 
@@ -243,9 +288,9 @@ public class CeServerTest {
   private static class BlockingStartupComputeEngine implements ComputeEngine {
     private final CountDownLatch latch = new CountDownLatch(1);
     @CheckForNull
-    private final Throwable throwable;
+    private final RuntimeException throwable;
 
-    public BlockingStartupComputeEngine(@Nullable Throwable throwable) {
+    public BlockingStartupComputeEngine(@Nullable RuntimeException throwable) {
       this.throwable = throwable;
     }
 
@@ -257,11 +302,7 @@ public class CeServerTest {
         throw new RuntimeException("await failed", e);
       }
       if (throwable != null) {
-        if (throwable instanceof Error) {
-          throw (Error) throwable;
-        } else if (throwable instanceof RuntimeException) {
-          throw (RuntimeException) throwable;
-        }
+        throw throwable;
       }
     }
 
@@ -277,25 +318,6 @@ public class CeServerTest {
 
     private void releaseStartup() {
       this.latch.countDown();
-    }
-  }
-
-  private enum DoNothingComputeEngine implements ComputeEngine {
-    INSTANCE;
-
-    @Override
-    public void startup() {
-      // do nothing
-    }
-
-    @Override
-    public void stopProcessing() {
-      // do nothing
-    }
-
-    @Override
-    public void shutdown() {
-      // do nothing
     }
   }
 }

@@ -32,6 +32,7 @@ dependencies {
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
+  testCompile 'org.awaitility:awaitility'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.slf4j:slf4j-api'
   

@@ -26,19 +26,19 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.security.Security;
-import java.util.Arrays;
 import java.util.List;
 
 public class PluginSecurityManager {
   private static final String CACHE_TTL_KEY = "networkaddress.cache.ttl";
+  private boolean alreadyRan = false;
 
-  private PluginSecurityManager() {
-    // static only
-  }
-
-  public static void restrictPlugins(PluginPolicyRule... rules) {
+  public void restrictPlugins(PluginPolicyRule... rules) {
+    if (alreadyRan) {
+      throw new IllegalStateException("can't run twice");
+    }
+    alreadyRan = true;
     SecurityManager sm = new SecurityManager();
-    Policy.setPolicy(new PluginPolicy(Arrays.asList(rules)));
+    Policy.setPolicy(new PluginPolicy(List.of(rules)));
     System.setSecurityManager(sm);
     // SONAR-14870 By default, with a security manager installed, the DNS cache never times out. See InetAddressCachePolicy.
     if (Security.getProperty(CACHE_TTL_KEY) == null) {
