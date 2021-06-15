@@ -43,7 +43,7 @@ it('should render correctly', () => {
 
 it('should correctly pass the selected mode up', () => {
   const onSelectMode = jest.fn();
-  const wrapper = shallowRender({ onSelectMode });
+  let wrapper = shallowRender({ onSelectMode });
 
   const almButton = 'button.create-project-mode-type-alm';
 
@@ -66,6 +66,12 @@ it('should correctly pass the selected mode up', () => {
   click(wrapper.find(almButton).at(3));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitLab);
   onSelectMode.mockClear();
+
+  wrapper = shallowRender({ onSelectMode }, { [AlmKeys.BitbucketCloud]: 1 });
+
+  click(wrapper.find(almButton).at(1));
+  expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketCloud);
+  onSelectMode.mockClear();
 });
 
 function shallowRender(
@@ -74,6 +80,7 @@ function shallowRender(
 ) {
   const almCounts = {
     [AlmKeys.Azure]: 0,
+    [AlmKeys.BitbucketCloud]: 0,
     [AlmKeys.BitbucketServer]: 1,
     [AlmKeys.GitHub]: 0,
     [AlmKeys.GitLab]: 0,

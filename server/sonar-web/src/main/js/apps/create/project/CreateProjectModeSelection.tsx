@@ -31,10 +31,7 @@ import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
   almCounts: {
-    [AlmKeys.Azure]: number;
-    [AlmKeys.BitbucketServer]: number;
-    [AlmKeys.GitLab]: number;
-    [AlmKeys.GitHub]: number;
+    [k in AlmKeys]: number;
   };
   appState: Pick<T.AppState, 'canAdmin'>;
   loadingBindings: boolean;
@@ -54,7 +51,12 @@ function renderAlmOption(
     loadingBindings
   } = props;
 
-  const count = almCounts[alm];
+  const hasBitbucketCloud = almCounts[AlmKeys.BitbucketCloud] > 0;
+  const isBitbucket = alm === AlmKeys.BitbucketServer;
+
+  const count = isBitbucket
+    ? almCounts[AlmKeys.BitbucketServer] + almCounts[AlmKeys.BitbucketCloud]
+    : almCounts[alm];
   const disabled = count !== 1 || loadingBindings;
 
   const tooltipLinks = [];
@@ -86,7 +88,11 @@ function renderAlmOption(
           { disabled }
         )}
         disabled={disabled}
-        onClick={() => props.onSelectMode(mode)}
+        onClick={() =>
+          props.onSelectMode(
+            isBitbucket && hasBitbucketCloud ? CreateProjectModes.BitbucketCloud : mode
+          )
+        }
         type="button">
         <img
           alt="" // Should be ignored by screen readers

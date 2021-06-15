@@ -20,6 +20,7 @@ exports[`should render correctly 1`] = `
         Object {
           "azure": 0,
           "bitbucket": 0,
+          "bitbucketcloud": 0,
           "github": 0,
           "gitlab": 0,
         }

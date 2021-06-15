@@ -190,6 +190,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         const almCounts = {
           [AlmKeys.Azure]: azureSettings.length,
           [AlmKeys.BitbucketServer]: bitbucketSettings.length,
+          [AlmKeys.BitbucketCloud]: bitbucketCloudSettings.length,
           [AlmKeys.GitHub]: githubSettings.length,
           [AlmKeys.GitLab]: gitlabSettings.length
         };
