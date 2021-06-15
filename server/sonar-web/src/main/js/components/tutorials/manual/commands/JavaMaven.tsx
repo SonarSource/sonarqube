@@ -23,18 +23,19 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
+import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {
+  component: T.Component;
   host: string;
-  projectKey: string;
   token: string;
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { host, projectKey, token } = props;
+  const { host, component, token } = props;
   const command = [
     'mvn sonar:sonar',
-    `-Dsonar.projectKey=${projectKey}`,
+    `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.host.url=${host}`,
     `-Dsonar.login=${token}`
   ];
@@ -59,9 +60,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           }}
         />
       </p>
-      <p className="big-spacer-top markdown">
-        {translate('onboarding.analysis.auto_refresh_after_analysis')}
-      </p>
+      <DoneNextSteps component={component} />
     </div>
   );
 }

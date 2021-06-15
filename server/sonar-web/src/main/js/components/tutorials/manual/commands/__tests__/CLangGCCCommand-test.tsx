@@ -19,11 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { OSs } from '../../../types';
 import ClangGCCCommand from '../ClangGCCCommand';
 
-it('Shoud renders correctly', () => {
+it('should render correctly', () => {
   expect(
-    shallow(<ClangGCCCommand os={OSs.Linux} host="host" projectKey="projectKey" token="token" />)
+    shallow(
+      <ClangGCCCommand
+        os={OSs.Linux}
+        host="host"
+        component={mockComponent({ key: 'projectKey' })}
+        token="token"
+      />
+    )
   ).toMatchSnapshot();
 });

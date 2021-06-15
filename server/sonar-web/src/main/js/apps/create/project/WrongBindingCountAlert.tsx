@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getGlobalSettingsUrl } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 
@@ -42,13 +43,7 @@ export default function WrongBindingCountAlert(props: WrongBindingCountAlertProp
           values={{
             alm: translate('onboarding.alm', alm),
             url: (
-              <Link
-                to={{
-                  pathname: '/admin/settings',
-                  query: { category: ALM_INTEGRATION }
-                }}>
-                {translate('settings.page')}
-              </Link>
+              <Link to={getGlobalSettingsUrl(ALM_INTEGRATION)}>{translate('settings.page')}</Link>
             )
           }}
         />

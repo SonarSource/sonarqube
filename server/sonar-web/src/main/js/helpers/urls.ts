@@ -221,6 +221,23 @@ export function getQualityGatesUrl(): Location {
   };
 }
 
+export function getGlobalSettingsUrl(
+  category?: string,
+  query?: T.Dict<string | undefined | number>
+): Location {
+  return {
+    pathname: '/admin/settings',
+    query: { category, ...query }
+  };
+}
+
+export function getProjectSettingsUrl(id: string, category?: string): Location {
+  return {
+    pathname: '/project/settings',
+    query: { id, category }
+  };
+}
+
 /**
  * Generate URL for the rules page
  */

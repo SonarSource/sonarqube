@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Should renders correctly 1`] = `
+exports[`should render correctly 1`] = `
 <div>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -28,6 +28,28 @@ exports[`Should renders correctly 1`] = `
         "dotnet build",
         "dotnet sonarscanner end /d:sonar.login=\\"token\\"",
       ]
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
     }
   />
 </div>

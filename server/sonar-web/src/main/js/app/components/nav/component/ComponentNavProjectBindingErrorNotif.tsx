@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/settings/components/AdditionalCategoryKeys';
+import { getProjectSettingsUrl } from '../../../../helpers/urls';
 
 export interface ComponentNavProjectBindingErrorNotifProps {
   component: T.Component;
@@ -36,11 +37,7 @@ export function ComponentNavProjectBindingErrorNotif(
 
   if (component.configuration?.showSettings) {
     action = (
-      <Link
-        to={{
-          pathname: '/project/settings',
-          query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY, id: component.key }
-        }}>
+      <Link to={getProjectSettingsUrl(component.key, PULL_REQUEST_DECORATION_BINDING_CATEGORY)}>
         {translate('component_navigation.pr_deco.action.check_project_settings')}
       </Link>
     );

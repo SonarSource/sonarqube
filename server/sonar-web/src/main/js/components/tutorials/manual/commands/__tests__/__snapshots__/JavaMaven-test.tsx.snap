@@ -44,10 +44,29 @@ exports[`renders correctly 1`] = `
       }
     />
   </p>
-  <p
-    className="big-spacer-top markdown"
-  >
-    onboarding.analysis.auto_refresh_after_analysis
-  </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </div>
 `;

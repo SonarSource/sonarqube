@@ -25,22 +25,23 @@ import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
 import { OSs } from '../../types';
 import { quote } from '../../utils';
+import DoneNextSteps from '../DoneNextSteps';
 
 export interface ExecScannerProps {
+  component: T.Component;
   host: string;
   os: OSs;
-  projectKey: string;
   token: string;
   cfamily?: boolean;
 }
 
 export default function ExecScanner(props: ExecScannerProps) {
-  const { host, os, projectKey, token, cfamily } = props;
+  const { host, os, component, token, cfamily } = props;
 
   const q = quote(os);
   const command = [
     os === OSs.Windows ? 'sonar-scanner.bat' : 'sonar-scanner',
-    '-D' + q(`sonar.projectKey=${projectKey}`),
+    '-D' + q(`sonar.projectKey=${component.key}`),
     '-D' + q('sonar.sources=.'),
     cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
     '-D' + q(`sonar.host.url=${host}`),
@@ -69,9 +70,7 @@ export default function ExecScanner(props: ExecScannerProps) {
           }}
         />
       </p>
-      <p className="big-spacer-top markdown">
-        {translate('onboarding.analysis.auto_refresh_after_analysis')}
-      </p>
+      <DoneNextSteps component={component} />
     </div>
   );
 }

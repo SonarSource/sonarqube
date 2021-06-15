@@ -28,6 +28,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import {
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,
@@ -216,14 +217,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                     )}
                     values={{
                       link: (
-                        <Link
-                          to={{
-                            pathname: '/admin/settings',
-                            query: {
-                              category: ALM_INTEGRATION,
-                              alm
-                            }
-                          }}>
+                        <Link to={getGlobalSettingsUrl(ALM_INTEGRATION, { alm })}>
                           {translate(
                             'settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link'
                           )}

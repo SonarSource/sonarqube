@@ -25,21 +25,21 @@ import ExecBuildWrapper from './ExecBuildWrapper';
 import ExecScanner from './ExecScanner';
 
 export interface ClangGCCCustomProps {
+  component: T.Component;
   host: string;
   os: OSs;
-  projectKey: string;
   token: string;
 }
 
 export default function ClangGCCCustom(props: ClangGCCCustomProps) {
-  const { os, host, projectKey, token } = props;
+  const { os, host, component, token } = props;
 
   return (
     <div>
       <DownloadBuildWrapper os={os} />
       <DownloadScanner os={os} />
       <ExecBuildWrapper os={os} />
-      <ExecScanner host={host} projectKey={projectKey} os={os} token={token} cfamily={true} />
+      <ExecScanner host={host} component={component} os={os} token={token} cfamily={true} />
     </div>
   );
 }

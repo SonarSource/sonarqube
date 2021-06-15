@@ -19,19 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { OSs } from '../../../types';
 import ExecScanner, { ExecScannerProps } from '../ExecScanner';
 
-it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('Shoud renders for %p correctly', os => {
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', os => {
   expect(shallowRender({ os })).toMatchSnapshot();
 });
 
-it('Should render for cfamily', () => {
+it('should render correctly for cfamily', () => {
   expect(shallowRender({ cfamily: true })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<ExecScannerProps> = {}) {
   return shallow<ExecScannerProps>(
-    <ExecScanner host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
+    <ExecScanner
+      host="host"
+      os={OSs.Linux}
+      component={mockComponent({ key: 'projectKey' })}
+      token="token"
+      {...props}
+    />
   );
 }

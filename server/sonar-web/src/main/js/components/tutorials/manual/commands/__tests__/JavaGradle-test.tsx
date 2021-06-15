@@ -19,10 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import JavaGradle from '../JavaGradle';
 
 it('renders correctly', () => {
   expect(
-    shallow(<JavaGradle host="host" projectKey="projectKey" token="token" />)
+    shallow(
+      <JavaGradle host="host" component={mockComponent({ key: 'projectKey' })} token="token" />
+    )
   ).toMatchSnapshot();
 });

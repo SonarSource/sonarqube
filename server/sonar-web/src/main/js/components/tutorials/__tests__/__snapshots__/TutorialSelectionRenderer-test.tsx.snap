@@ -15,10 +15,10 @@ exports[`should render correctly for azure 1`] = `
       </h1>
     </header>
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-center display-flex-wrap"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
@@ -34,7 +34,7 @@ exports[`should render correctly for azure 1`] = `
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-azure-pipelines"
         onClick={[Function]}
         type="button"
       >
@@ -46,7 +46,29 @@ exports[`should render correctly for azure 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.azure_pipelines
+          onboarding.tutorial.choose_method.azure-pipelines
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-other-ci"
+        onClick={[Function]}
+        type="button"
+      >
+        <span
+          aria-disabled={true}
+          className="display-flex-center gigantic"
+          style={
+            Object {
+              "height": 80,
+            }
+          }
+        >
+          …
+        </span>
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.other-ci
         </div>
       </button>
     </div>
@@ -69,10 +91,10 @@ exports[`should render correctly for bitbucket server 1`] = `
       </h1>
     </header>
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-center display-flex-wrap"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
@@ -88,7 +110,7 @@ exports[`should render correctly for bitbucket server 1`] = `
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
       >
@@ -101,6 +123,28 @@ exports[`should render correctly for bitbucket server 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-other-ci"
+        onClick={[Function]}
+        type="button"
+      >
+        <span
+          aria-disabled={true}
+          className="display-flex-center gigantic"
+          style={
+            Object {
+              "height": 80,
+            }
+          }
+        >
+          …
+        </span>
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.other-ci
         </div>
       </button>
     </div>
@@ -123,10 +167,10 @@ exports[`should render correctly for github 1`] = `
       </h1>
     </header>
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-center display-flex-wrap"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
@@ -142,7 +186,7 @@ exports[`should render correctly for github 1`] = `
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-azure-pipelines"
         onClick={[Function]}
         type="button"
       >
@@ -154,11 +198,11 @@ exports[`should render correctly for github 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.azure_pipelines
+          onboarding.tutorial.choose_method.azure-pipelines
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-github-actions"
         onClick={[Function]}
         type="button"
       >
@@ -171,11 +215,11 @@ exports[`should render correctly for github 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.github_action
+          onboarding.tutorial.choose_method.github-actions
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
       >
@@ -188,6 +232,28 @@ exports[`should render correctly for github 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-other-ci"
+        onClick={[Function]}
+        type="button"
+      >
+        <span
+          aria-disabled={true}
+          className="display-flex-center gigantic"
+          style={
+            Object {
+              "height": 80,
+            }
+          }
+        >
+          …
+        </span>
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.other-ci
         </div>
       </button>
     </div>
@@ -210,10 +276,10 @@ exports[`should render correctly for gitlab 1`] = `
       </h1>
     </header>
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-center display-flex-wrap"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
@@ -229,7 +295,7 @@ exports[`should render correctly for gitlab 1`] = `
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-gitlab-ci"
         onClick={[Function]}
         type="button"
       >
@@ -241,11 +307,11 @@ exports[`should render correctly for gitlab 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.gitlab_ci
+          onboarding.tutorial.choose_method.gitlab-ci
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
       >
@@ -258,6 +324,28 @@ exports[`should render correctly for gitlab 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-other-ci"
+        onClick={[Function]}
+        type="button"
+      >
+        <span
+          aria-disabled={true}
+          className="display-flex-center gigantic"
+          style={
+            Object {
+              "height": 80,
+            }
+          }
+        >
+          …
+        </span>
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.other-ci
         </div>
       </button>
     </div>
@@ -499,10 +587,10 @@ exports[`should render correctly: selection 1`] = `
       </h1>
     </header>
     <div
-      className="display-flex-justify-center"
+      className="display-flex-justify-center display-flex-wrap"
     >
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-manual"
         onClick={[Function]}
         type="button"
       >
@@ -518,7 +606,7 @@ exports[`should render correctly: selection 1`] = `
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-azure-pipelines"
         onClick={[Function]}
         type="button"
       >
@@ -530,11 +618,11 @@ exports[`should render correctly: selection 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.azure_pipelines
+          onboarding.tutorial.choose_method.azure-pipelines
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-bitbucket-pipelines"
         onClick={[Function]}
         type="button"
       >
@@ -546,11 +634,11 @@ exports[`should render correctly: selection 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.bitbucket_pipelines
+          onboarding.tutorial.choose_method.bitbucket-pipelines
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-github-actions"
         onClick={[Function]}
         type="button"
       >
@@ -563,11 +651,11 @@ exports[`should render correctly: selection 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.github_action
+          onboarding.tutorial.choose_method.github-actions
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-gitlab-ci"
         onClick={[Function]}
         type="button"
       >
@@ -579,11 +667,11 @@ exports[`should render correctly: selection 1`] = `
         <div
           className="medium big-spacer-top"
         >
-          onboarding.tutorial.choose_method.gitlab_ci
+          onboarding.tutorial.choose_method.gitlab-ci
         </div>
       </button>
       <button
-        className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-jenkins"
         onClick={[Function]}
         type="button"
       >
@@ -596,6 +684,28 @@ exports[`should render correctly: selection 1`] = `
           className="medium big-spacer-top"
         >
           onboarding.tutorial.choose_method.jenkins
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-other-ci"
+        onClick={[Function]}
+        type="button"
+      >
+        <span
+          aria-disabled={true}
+          className="display-flex-center gigantic"
+          style={
+            Object {
+              "height": 80,
+            }
+          }
+        >
+          …
+        </span>
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.other-ci
         </div>
       </button>
     </div>

@@ -19,8 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import DotNetExecute from '../DotNetExecute';
 
-it('Should renders correctly', () => {
-  expect(shallow(<DotNetExecute commands={['command1', 'command2']} />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(
+    shallow(<DotNetExecute commands={['command1', 'command2']} component={mockComponent()} />)
+  ).toMatchSnapshot();
 });

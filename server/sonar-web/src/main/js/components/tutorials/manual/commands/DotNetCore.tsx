@@ -26,10 +26,10 @@ import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
 export default function DotNetCore(props: DotNetProps) {
-  const { host, projectKey, token } = props;
+  const { host, component, token } = props;
 
   const commands = [
-    `dotnet sonarscanner begin /k:"${projectKey}" /d:sonar.host.url="${host}"  /d:sonar.login="${token}"`,
+    `dotnet sonarscanner begin /k:"${component.key}" /d:sonar.host.url="${host}"  /d:sonar.login="${token}"`,
     'dotnet build',
     `dotnet sonarscanner end /d:sonar.login="${token}"`
   ];
@@ -46,7 +46,7 @@ export default function DotNetCore(props: DotNetProps) {
       <Alert className="spacer-top" variant="info">
         {translate('onboarding.analysis.dotnetcore.global.text.path')}
       </Alert>
-      <DotNetExecute commands={commands} />
+      <DotNetExecute commands={commands} component={component} />
     </div>
   );
 }

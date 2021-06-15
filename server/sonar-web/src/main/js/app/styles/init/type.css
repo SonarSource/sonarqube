@@ -179,6 +179,10 @@ small,
   font-size: var(--hugeFontSize);
 }
 
+.gigantic {
+  font-size: var(--giganticFontSize);
+}
+
 .zero-font-size {
   font-size: 0 !important;
 }

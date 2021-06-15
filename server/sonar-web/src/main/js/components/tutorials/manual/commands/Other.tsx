@@ -23,19 +23,19 @@ import DownloadScanner from './DownloadScanner';
 import ExecScanner from './ExecScanner';
 
 export interface OtherProps {
+  component: T.Component;
   host: string;
   os: OSs;
-  projectKey: string;
   token: string;
 }
 
 export default function Other(props: OtherProps) {
-  const { host, os, projectKey, token } = props;
+  const { host, os, component, token } = props;
 
   return (
     <div>
       <DownloadScanner os={os} />
-      <ExecScanner host={host} os={os} projectKey={projectKey} token={token} />
+      <ExecScanner host={host} os={os} component={component} token={token} />
     </div>
   );
 }

@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
+import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { getAppState, getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
@@ -37,7 +38,6 @@ export interface CategoriesListProps {
 
 export function CategoriesList(props: CategoriesListProps) {
   const { branchesEnabled, categories, component, defaultCategory, selectedCategory } = props;
-  const pathname = component ? '/project/settings' : '/settings';
 
   const categoriesWithName = categories
     .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
@@ -60,24 +60,25 @@ export function CategoriesList(props: CategoriesListProps) {
 
   return (
     <ul className="side-tabs-menu">
-      {sortedCategories.map(category => (
-        <li key={category.key}>
-          <IndexLink
-            className={classNames({
-              active: category.key.toLowerCase() === selectedCategory.toLowerCase()
-            })}
-            title={category.name}
-            to={{
-              pathname,
-              query: {
-                category: category.key !== defaultCategory ? category.key.toLowerCase() : undefined,
-                id: component && component.key
-              }
-            }}>
-            {category.name}
-          </IndexLink>
-        </li>
-      ))}
+      {sortedCategories.map(c => {
+        const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
+        return (
+          <li key={c.key}>
+            <IndexLink
+              className={classNames({
+                active: c.key.toLowerCase() === selectedCategory.toLowerCase()
+              })}
+              title={c.name}
+              to={
+                component
+                  ? getProjectSettingsUrl(component.key, category)
+                  : getGlobalSettingsUrl(category)
+              }>
+              {c.name}
+            </IndexLink>
+          </li>
+        );
+      })}
     </ul>
   );
 }

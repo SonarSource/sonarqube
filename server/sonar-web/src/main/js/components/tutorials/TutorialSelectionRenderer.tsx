@@ -40,6 +40,29 @@ export interface TutorialSelectionRendererProps {
   selectedTutorial?: TutorialModes;
 }
 
+const DEFAULT_ICON_SIZE = 80;
+const GH_ACTION_ICON_SIZE = 64;
+
+function renderButton(
+  mode: TutorialModes,
+  onSelectTutorial: (mode: TutorialModes) => void,
+  icon: React.ReactNode
+) {
+  return (
+    <button
+      className={`button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-${mode}`}
+      // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
+      // tutorial in the future.
+      onClick={() => onSelectTutorial(mode === TutorialModes.OtherCI ? TutorialModes.Manual : mode)}
+      type="button">
+      {icon}
+      <div className="medium big-spacer-top">
+        {translate('onboarding.tutorial.choose_method', mode)}
+      </div>
+    </button>
+  );
+}
+
 export default function TutorialSelectionRenderer(props: TutorialSelectionRendererProps) {
   const {
     almBinding,
@@ -84,100 +107,82 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
             </h1>
           </header>
 
-          <div className="display-flex-justify-center">
-            <button
-              className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-manual"
-              onClick={() => props.onSelectTutorial(TutorialModes.Manual)}
-              type="button">
+          <div className="display-flex-justify-center display-flex-wrap">
+            {renderButton(
+              TutorialModes.Manual,
+              props.onSelectTutorial,
               <img
                 alt="" // Should be ignored by screen readers
-                height={80}
+                height={DEFAULT_ICON_SIZE}
                 src={`${getBaseUrl()}/images/tutorials/manual.svg`}
               />
-              <div className="medium big-spacer-top">
-                {translate('onboarding.tutorial.choose_method.manual')}
-              </div>
-            </button>
+            )}
 
-            {showAzurePipelines && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right azure-pipelines"
-                onClick={() => props.onSelectTutorial(TutorialModes.AzurePipelines)}
-                type="button">
+            {showAzurePipelines &&
+              renderButton(
+                TutorialModes.AzurePipelines,
+                props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={80}
+                  height={DEFAULT_ICON_SIZE}
                   src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
                 />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.azure_pipelines')}
-                </div>
-              </button>
-            )}
+              )}
 
-            {showBitbucketPipelines && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right bitbucket-pipelines"
-                onClick={() => props.onSelectTutorial(TutorialModes.BitbucketPipelines)}
-                type="button">
+            {showBitbucketPipelines &&
+              renderButton(
+                TutorialModes.BitbucketPipelines,
+                props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={80}
+                  height={DEFAULT_ICON_SIZE}
                   src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
                 />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.bitbucket_pipelines')}
-                </div>
-              </button>
-            )}
+              )}
 
-            {showGitHubActions && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-github"
-                onClick={() => props.onSelectTutorial(TutorialModes.GitHubActions)}
-                type="button">
+            {showGitHubActions &&
+              renderButton(
+                TutorialModes.GitHubActions,
+                props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={64}
+                  height={GH_ACTION_ICON_SIZE}
                   className="spacer-bottom spacer-top"
                   src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
                 />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.github_action')}
-                </div>
-              </button>
-            )}
+              )}
 
-            {showGitLabCICD && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-gitlab"
-                onClick={() => props.onSelectTutorial(TutorialModes.GitLabCI)}
-                type="button">
+            {showGitLabCICD &&
+              renderButton(
+                TutorialModes.GitLabCI,
+                props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={80}
+                  height={DEFAULT_ICON_SIZE}
                   src={`${getBaseUrl()}/images/alm/gitlab.svg`}
                 />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.gitlab_ci')}
-                </div>
-              </button>
-            )}
+              )}
 
-            {showJenkins && (
-              <button
-                className="button button-huge display-flex-column spacer-left spacer-right tutorial-mode-jenkins"
-                onClick={() => props.onSelectTutorial(TutorialModes.Jenkins)}
-                type="button">
+            {showJenkins &&
+              renderButton(
+                TutorialModes.Jenkins,
+                props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={80}
+                  height={DEFAULT_ICON_SIZE}
                   src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
                 />
-                <div className="medium big-spacer-top">
-                  {translate('onboarding.tutorial.choose_method.jenkins')}
-                </div>
-              </button>
+              )}
+
+            {renderButton(
+              TutorialModes.OtherCI,
+              props.onSelectTutorial,
+              <span
+                aria-disabled={true}
+                className="display-flex-center gigantic"
+                style={{ height: DEFAULT_ICON_SIZE }}>
+                &hellip;
+              </span>
             )}
           </div>
         </div>

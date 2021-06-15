@@ -24,12 +24,14 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
+import DoneNextSteps from '../DoneNextSteps';
 
 export interface DotNetExecuteProps {
   commands: string[];
+  component: T.Component;
 }
 
-export default function DotNetExecute({ commands }: DotNetExecuteProps) {
+export default function DotNetExecute({ commands, component }: DotNetExecuteProps) {
   return (
     <>
       <h4 className="huge-spacer-top spacer-bottom">
@@ -55,6 +57,7 @@ export default function DotNetExecute({ commands }: DotNetExecuteProps) {
           }}
         />
       </p>
+      <DoneNextSteps component={component} />
     </>
   );
 }

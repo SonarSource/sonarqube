@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import JavaMaven from '../JavaMaven';
+import { mockComponent } from '../../../../helpers/testMocks';
+import DoneNextSteps, { DoneNextStepsProps } from '../DoneNextSteps';
 
-it('renders correctly', () => {
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
   expect(
-    shallow(
-      <JavaMaven host="host" component={mockComponent({ key: 'projectKey' })} token="token" />
-    )
-  ).toMatchSnapshot();
+    shallowRender({ component: mockComponent({ configuration: { showSettings: true } }) })
+  ).toMatchSnapshot('project admin');
 });
+
+function shallowRender(props: Partial<DoneNextStepsProps> = {}) {
+  return shallow<DoneNextStepsProps>(<DoneNextSteps component={mockComponent()} {...props} />);
+}

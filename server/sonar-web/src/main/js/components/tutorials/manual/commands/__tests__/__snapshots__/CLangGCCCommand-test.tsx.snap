@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Shoud renders correctly 1`] = `
+exports[`should render correctly 1`] = `
 <div>
   <DownloadBuildWrapper
     os="linux"
@@ -13,9 +13,30 @@ exports[`Shoud renders correctly 1`] = `
   />
   <ExecScanner
     cfamily={true}
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
     host="host"
     os="linux"
-    projectKey="projectKey"
     token="token"
   />
 </div>

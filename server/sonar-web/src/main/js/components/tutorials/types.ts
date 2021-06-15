@@ -23,7 +23,8 @@ export enum TutorialModes {
   BitbucketPipelines = 'bitbucket-pipelines',
   GitLabCI = 'gitlab-ci',
   GitHubActions = 'github-actions',
-  AzurePipelines = 'azure-pipelines'
+  AzurePipelines = 'azure-pipelines',
+  OtherCI = 'other-ci'
 }
 
 export enum BuildTools {

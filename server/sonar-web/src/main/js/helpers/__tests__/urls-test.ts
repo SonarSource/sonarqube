@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import {
@@ -25,7 +26,9 @@ import {
   getComponentIssuesUrl,
   getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
+  getGlobalSettingsUrl,
   getIssuesUrl,
+  getProjectSettingsUrl,
   getQualityGatesUrl,
   getQualityGateUrl,
   stripTrailingSlash
@@ -67,7 +70,7 @@ describe('#getComponentIssuesUrl', () => {
   });
 });
 
-describe('getComponentSecurityHotspotsUrl', () => {
+describe('#getComponentSecurityHotspotsUrl', () => {
   it('should work with no extra parameters', () => {
     expect(getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {})).toEqual({
       pathname: '/security_hotspots',
@@ -88,7 +91,7 @@ describe('getComponentSecurityHotspotsUrl', () => {
   });
 });
 
-describe('getComponentOverviewUrl', () => {
+describe('#getComponentOverviewUrl', () => {
   it('should return a portfolio url for a portfolio', () => {
     expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Portfolio)).toEqual({
       pathname: '/portfolio',
@@ -142,12 +145,38 @@ describe('#getQualityGate(s)Url', () => {
   });
 });
 
-describe('getIssuesUrl', () => {
+describe('#getIssuesUrl', () => {
   it('should work as expected', () => {
     const type = IssueType.Bug;
     expect(getIssuesUrl({ type })).toEqual({
       pathname: '/issues',
       query: { type }
+    });
+  });
+});
+
+describe('#getGlobalSettingsUrl', () => {
+  it('should work as expected', () => {
+    expect(getGlobalSettingsUrl('foo')).toEqual({
+      pathname: '/admin/settings',
+      query: { category: 'foo' }
+    });
+    expect(getGlobalSettingsUrl('foo', { alm: AlmKeys.GitHub })).toEqual({
+      pathname: '/admin/settings',
+      query: { category: 'foo', alm: AlmKeys.GitHub }
+    });
+  });
+});
+
+describe('#getProjectSettingsUrl', () => {
+  it('should work as expected', () => {
+    expect(getProjectSettingsUrl('foo')).toEqual({
+      pathname: '/project/settings',
+      query: { id: 'foo' }
+    });
+    expect(getProjectSettingsUrl('foo', 'bar')).toEqual({
+      pathname: '/project/settings',
+      query: { id: 'foo', category: 'bar' }
     });
   });
 });

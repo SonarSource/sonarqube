@@ -40,26 +40,25 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
   }
 
   const host = getHostUrl();
-  const projectKey = component.key;
 
   switch (languageConfig.buildTool) {
     case BuildTools.Maven:
-      return <JavaMaven host={host} projectKey={projectKey} token={token} />;
+      return <JavaMaven host={host} component={component} token={token} />;
 
     case BuildTools.Gradle:
-      return <JavaGradle host={host} projectKey={projectKey} token={token} />;
+      return <JavaGradle host={host} component={component} token={token} />;
 
     case BuildTools.DotNet:
-      return <DotNet host={host} projectKey={projectKey} token={token} />;
+      return <DotNet host={host} component={component} token={token} />;
 
     case BuildTools.CFamily:
       return languageConfig.os !== undefined ? (
-        <ClangGCCCustom os={languageConfig.os} host={host} projectKey={projectKey} token={token} />
+        <ClangGCCCustom os={languageConfig.os} host={host} component={component} token={token} />
       ) : null;
 
     case BuildTools.Other:
       return languageConfig.os !== undefined ? (
-        <Other host={host} os={languageConfig.os} projectKey={projectKey} token={token} />
+        <Other host={host} os={languageConfig.os} component={component} token={token} />
       ) : null;
 
     default:

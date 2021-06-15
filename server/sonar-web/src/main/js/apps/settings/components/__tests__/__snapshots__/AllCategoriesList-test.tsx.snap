@@ -12,10 +12,9 @@ exports[`should render correctly: branches disabled 1`] = `
       title="CAT_2_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": "cat_2",
-            "id": undefined,
           },
         }
       }
@@ -31,10 +30,9 @@ exports[`should render correctly: branches disabled 1`] = `
       title="general"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": undefined,
-            "id": undefined,
           },
         }
       }
@@ -57,10 +55,9 @@ exports[`should render correctly: global mode 1`] = `
       title="CAT_1_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": "cat_1",
-            "id": undefined,
           },
         }
       }
@@ -76,10 +73,9 @@ exports[`should render correctly: global mode 1`] = `
       title="CAT_2_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": "cat_2",
-            "id": undefined,
           },
         }
       }
@@ -95,10 +91,9 @@ exports[`should render correctly: global mode 1`] = `
       title="general"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": undefined,
-            "id": undefined,
           },
         }
       }
@@ -185,10 +180,9 @@ exports[`should render correctly: selected category 1`] = `
       title="CAT_1_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": "cat_1",
-            "id": undefined,
           },
         }
       }
@@ -204,10 +198,9 @@ exports[`should render correctly: selected category 1`] = `
       title="CAT_2_NAME"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": "cat_2",
-            "id": undefined,
           },
         }
       }
@@ -223,10 +216,9 @@ exports[`should render correctly: selected category 1`] = `
       title="general"
       to={
         Object {
-          "pathname": "/settings",
+          "pathname": "/admin/settings",
           "query": Object {
             "category": undefined,
-            "id": undefined,
           },
         }
       }

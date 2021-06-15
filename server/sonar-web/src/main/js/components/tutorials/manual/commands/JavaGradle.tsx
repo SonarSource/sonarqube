@@ -23,20 +23,21 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
+import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
+  component: T.Component;
   host: string;
-  projectKey: string;
   token: string;
 }
 
 export default function JavaGradle(props: JavaGradleProps) {
-  const { host, projectKey, token } = props;
+  const { host, component, token } = props;
   const config = 'plugins {\n  id "org.sonarqube" version "3.3"\n}';
 
   const command = [
     './gradlew sonarqube',
-    `-Dsonar.projectKey=${projectKey}`,
+    `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.host.url=${host}`,
     `-Dsonar.login=${token}`
   ];
@@ -91,9 +92,7 @@ export default function JavaGradle(props: JavaGradleProps) {
           }}
         />
       </p>
-      <p className="big-spacer-top markdown">
-        {translate('onboarding.analysis.auto_refresh_after_analysis')}
-      </p>
+      <DoneNextSteps component={component} />
     </div>
   );
 }

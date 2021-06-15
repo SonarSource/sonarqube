@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Shoud renders for "linux" correctly 1`] = `
+exports[`should render correctly for "linux" 1`] = `
 <div>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -45,15 +45,34 @@ exports[`Shoud renders for "linux" correctly 1`] = `
       }
     />
   </p>
-  <p
-    className="big-spacer-top markdown"
-  >
-    onboarding.analysis.auto_refresh_after_analysis
-  </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </div>
 `;
 
-exports[`Shoud renders for "mac" correctly 1`] = `
+exports[`should render correctly for "mac" 1`] = `
 <div>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -98,15 +117,34 @@ exports[`Shoud renders for "mac" correctly 1`] = `
       }
     />
   </p>
-  <p
-    className="big-spacer-top markdown"
-  >
-    onboarding.analysis.auto_refresh_after_analysis
-  </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </div>
 `;
 
-exports[`Shoud renders for "win" correctly 1`] = `
+exports[`should render correctly for "win" 1`] = `
 <div>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -151,15 +189,34 @@ exports[`Shoud renders for "win" correctly 1`] = `
       }
     />
   </p>
-  <p
-    className="big-spacer-top markdown"
-  >
-    onboarding.analysis.auto_refresh_after_analysis
-  </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </div>
 `;
 
-exports[`Should render for cfamily 1`] = `
+exports[`should render correctly for cfamily 1`] = `
 <div>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -204,10 +261,29 @@ exports[`Should render for cfamily 1`] = `
       }
     />
   </p>
-  <p
-    className="big-spacer-top markdown"
-  >
-    onboarding.analysis.auto_refresh_after_analysis
-  </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "projectKey",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </div>
 `;

@@ -19,8 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import DotNet from '../DotNet';
 
-it('Should renders correctly', () => {
-  expect(shallow(<DotNet host="host" projectKey="projectKey" token="token" />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(
+    shallow(<DotNet host="host" component={mockComponent({ key: 'projectKey' })} token="token" />)
+  ).toMatchSnapshot();
 });

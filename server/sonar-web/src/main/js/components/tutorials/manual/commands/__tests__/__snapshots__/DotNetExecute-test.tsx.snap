@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Should renders correctly 1`] = `
+exports[`should render correctly 1`] = `
 <Fragment>
   <h4
     className="huge-spacer-top spacer-bottom"
@@ -40,5 +40,29 @@ exports[`Should renders correctly 1`] = `
       }
     />
   </p>
+  <DoneNextSteps
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
 </Fragment>
 `;

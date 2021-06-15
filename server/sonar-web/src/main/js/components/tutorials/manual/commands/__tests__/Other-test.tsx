@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { OSs } from '../../../types';
 import Other, { OtherProps } from '../Other';
 
@@ -28,6 +29,12 @@ it('renders correctly', () => {
 
 function shallowRender(props: Partial<OtherProps> = {}) {
   return shallow<OtherProps>(
-    <Other host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
+    <Other
+      host="host"
+      os={OSs.Linux}
+      component={mockComponent({ key: 'projectKey' })}
+      token="token"
+      {...props}
+    />
   );
 }

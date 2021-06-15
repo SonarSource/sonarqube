@@ -23,8 +23,8 @@ import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
 export interface DotNetProps {
+  component: T.Component;
   host: string;
-  projectKey: string;
   token: string;
 }
 
