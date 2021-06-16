@@ -44,7 +44,7 @@ const mavenSnippet = (key: string) => `<properties>
 </properties>`;
 
 const gradleSnippet = (key: string) => `plugins {
-  id "org.sonarqube" version "3.0"
+  id "org.sonarqube" version "3.3"
 }
 
 sonarqube {

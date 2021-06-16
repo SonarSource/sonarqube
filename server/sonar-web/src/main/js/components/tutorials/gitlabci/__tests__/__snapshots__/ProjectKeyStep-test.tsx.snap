@@ -81,7 +81,7 @@ exports[`should render correctly for build tool gradle 1`] = `
       />
       <CodeSnippet
         snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.0\\"
+  id \\"org.sonarqube\\" version \\"3.3\\"
 }
 
 sonarqube {
