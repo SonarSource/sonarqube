@@ -44,8 +44,11 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -125,10 +128,7 @@ public class GitScmProviderTest {
   @Before
   public void before() throws IOException, GitAPIException {
     worktree = temp.newFolder().toPath();
-    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
-    repo.create();
-
-    git = new Git(repo);
+    git = createRepository(worktree);
 
     createAndCommitFile("file-in-first-commit.xoo");
   }
@@ -266,6 +266,58 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedLines("master", worktree, Collections.singleton(worktree.resolve("nonexistent"))))
       .isEmpty();
+  }
+
+  @Test
+  public void branchChangedLines_given2NestedSubmodulesWithChangesInTheBottomSubmodule_detectChanges() throws IOException, GitAPIException {
+    Git gitForRepo2, gitForRepo3;
+    Path worktreeForRepo2, worktreeForRepo3;
+
+    worktreeForRepo2 = temp.newFolder().toPath();
+    gitForRepo2 = createRepository(worktreeForRepo2);
+
+    worktreeForRepo3 = temp.newFolder().toPath();
+    gitForRepo3 = createRepository(worktreeForRepo3);
+
+    createAndCommitFile("sub2.js", gitForRepo3, worktreeForRepo3);
+
+    addSubmodule(gitForRepo2, "sub2", worktreeForRepo3.toUri().toString());
+    addSubmodule(git, "sub1", worktreeForRepo2.toUri().toString());
+
+    File mainFolderWithAllSubmodules = temp.newFolder();
+    Git.cloneRepository()
+      .setURI(worktree.toUri().toString())
+      .setDirectory(mainFolderWithAllSubmodules)
+      .setCloneSubmodules(true)
+      .call();
+    Path submodule2Path = mainFolderWithAllSubmodules.toPath().resolve("sub1/sub2");
+    Repository submodule2 = new RepositoryBuilder().findGitDir(submodule2Path.toFile()).build();
+    Git gitForSubmodule2 = new Git(submodule2);
+
+    gitForSubmodule2.branchCreate().setName("develop").call();
+    gitForSubmodule2.checkout().setName("develop").call();
+
+    Path submodule2File = mainFolderWithAllSubmodules.toPath().resolve("sub1/sub2/sub2.js");
+
+    Files.write(submodule2File, randomizedContent("sub2.js", 3).getBytes(), StandardOpenOption.APPEND);
+    gitForSubmodule2.add().addFilepattern("sub2.js").call();
+    gitForSubmodule2.commit().setAuthor("joe", "joe@example.com").setMessage("important change").call();
+
+    Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLines("master", submodule2Path, Set.of(submodule2File));
+
+    assertThat(changedLines).hasSize(1);
+    assertThat(changedLines.entrySet().iterator().next().getValue()).containsOnly(4, 5, 6);
+  }
+
+  private Git createRepository(Path worktree) throws IOException {
+    Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
+    repo.create();
+    return new Git(repo);
+  }
+
+  private void addSubmodule(Git mainGit, String submoduleName, String uriToSubmodule) throws GitAPIException {
+    mainGit.submoduleAdd().setPath(submoduleName).setURI(uriToSubmodule).call();
+    mainGit.commit().setAuthor("joe", "joe@example.com").setMessage("adding submodule").call();
   }
 
   @Test
@@ -767,20 +819,29 @@ public class GitScmProviderTest {
   }
 
   private void createAndCommitFile(String relativePath) throws IOException, GitAPIException {
-    createAndCommitFile(relativePath, randomizedContent(relativePath, 3));
+    createAndCommitFile(relativePath, randomizedContent(relativePath, 3), git, this.worktree);
   }
 
   private void createAndCommitFile(String relativePath, Instant commitDate) throws IOException, GitAPIException {
-    createFile(relativePath, randomizedContent(relativePath, 3));
+    createFile(relativePath, randomizedContent(relativePath, 3), this.worktree);
     commit(relativePath, commitDate);
   }
 
-  private void createAndCommitFile(String relativePath, String content) throws IOException, GitAPIException {
-    createFile(relativePath, content);
-    commit(relativePath);
+
+  private void createAndCommitFile(String fileName, Git git, Path worktree) throws IOException, GitAPIException {
+    createAndCommitFile(fileName, randomizedContent(fileName, 3), git, worktree);
   }
 
-  private void createFile(String relativePath, String content) throws IOException {
+  private void createAndCommitFile(String relativePath, String content) throws IOException, GitAPIException {
+    createAndCommitFile(relativePath, content, this.git, this.worktree);
+  }
+
+  private void createAndCommitFile(String relativePath, String content, Git git, Path worktree) throws IOException, GitAPIException {
+    createFile(relativePath, content, worktree);
+    commit(git, relativePath);
+  }
+
+  private void createFile(String relativePath, String content, Path worktree) throws IOException {
     Path newFile = worktree.resolve(relativePath);
     Files.createDirectories(newFile.getParent());
     Files.write(newFile, content.getBytes(), StandardOpenOption.CREATE);
@@ -802,20 +863,24 @@ public class GitScmProviderTest {
 
   private void appendToAndCommitFile(String relativePath) throws IOException, GitAPIException {
     Files.write(worktree.resolve(relativePath), randomizedContent(relativePath, 1).getBytes(), StandardOpenOption.APPEND);
-    commit(relativePath);
+    commit(this.git, relativePath);
   }
 
   private void deleteAndCommitFile(String relativePath) throws GitAPIException {
     git.rm().addFilepattern(relativePath).call();
-    commit(relativePath);
+    commit(this.git, relativePath);
   }
 
-  private void commit(String... relativePaths) throws GitAPIException {
+  private void commit(Git git, String... relativePaths) throws GitAPIException {
     for (String path : relativePaths) {
       git.add().addFilepattern(path).call();
     }
     String msg = String.join(",", relativePaths);
     git.commit().setAuthor("joe", "joe@example.com").setMessage(msg).call();
+  }
+
+  private void commit(String... relativePaths) throws GitAPIException {
+    commit(this.git, relativePaths);
   }
 
   private void commit(String relativePath, Instant date) throws GitAPIException {

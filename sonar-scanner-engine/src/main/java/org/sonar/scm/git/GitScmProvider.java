@@ -170,10 +170,9 @@ public class GitScmProvider extends ScmProvider {
       }
 
       Map<Path, Set<Integer>> changedLines = new HashMap<>();
-      Path repoRootDir = repo.getDirectory().toPath().getParent();
 
       for (Path path : changedFiles) {
-        collectChangedLines(repo, mergeBaseCommit.get(), changedLines, repoRootDir, path);
+        collectChangedLines(repo, mergeBaseCommit.get(), changedLines, path);
       }
       return changedLines;
     } catch (Exception e) {
@@ -182,7 +181,7 @@ public class GitScmProvider extends ScmProvider {
     return null;
   }
 
-  private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path repoRootDir, Path changedFile) {
+  private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFile) {
     ChangedLinesComputer computer = new ChangedLinesComputer();
 
     try (DiffFormatter diffFmt = new DiffFormatter(new BufferedOutputStream(computer.receiver()))) {
@@ -190,7 +189,11 @@ public class GitScmProvider extends ScmProvider {
       diffFmt.setRepository(repo);
       diffFmt.setProgressMonitor(NullProgressMonitor.INSTANCE);
       diffFmt.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
-      diffFmt.setPathFilter(PathFilter.create(toGitPath(repoRootDir.relativize(changedFile).toString())));
+
+      Path workTree = repo.getWorkTree().toPath();
+      String relativePath = workTree.relativize(changedFile).toString();
+      PathFilter pathFilter = PathFilter.create(toGitPath(relativePath));
+      diffFmt.setPathFilter(pathFilter);
 
       AbstractTreeIterator mergeBaseTree = prepareTreeParser(repo, mergeBaseCommit);
       List<DiffEntry> diffEntries = diffFmt.scan(mergeBaseTree, new FileTreeIterator(repo));
