@@ -73,9 +73,9 @@ exports[`should render correctly: secrets step content 1`] = `
 `;
 
 exports[`should render correctly: yaml file step content 1`] = `
-<YamlFileStep
+<Connect(withCLanguageFeature(YamlFileStep))
   alm="github"
 >
   [Function]
-</YamlFileStep>
+</Connect(withCLanguageFeature(YamlFileStep))>
 `;

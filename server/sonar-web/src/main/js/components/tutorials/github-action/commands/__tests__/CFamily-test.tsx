@@ -19,16 +19,30 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../types/alm-settings';
-import { YamlFileStep, YamlFileStepProps } from '../YamlFileStep';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import RenderOptions from '../../../components/RenderOptions';
+import { OSs } from '../../../types';
+import CFamily, { CFamilyProps } from '../CFamily';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('C unavailable');
-  expect(shallowRender({ hasCLanguageFeature: true })).toMatchSnapshot('C available');
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<YamlFileStepProps> = {}) {
-  return shallow<YamlFileStepProps>(
-    <YamlFileStep alm={AlmKeys.GitHub} hasCLanguageFeature={false} {...props} />
+it.each([
+  [OSs.Linux, false],
+  [OSs.MacOS, true],
+  [OSs.Windows, true]
+])('should render correctly for %s', (os: OSs, branchesEnabled: boolean) => {
+  const wrapper = shallowRender({ branchesEnabled });
+  wrapper
+    .find(RenderOptions)
+    .props()
+    .onCheck(os);
+  expect(wrapper).toMatchSnapshot(`branches ${branchesEnabled ? 'enabled' : 'disabled'}`);
+});
+
+function shallowRender(props: Partial<CFamilyProps> = {}) {
+  return shallow<CFamilyProps>(
+    <CFamily branchesEnabled={true} component={mockComponent()} {...props} />
   );
 }

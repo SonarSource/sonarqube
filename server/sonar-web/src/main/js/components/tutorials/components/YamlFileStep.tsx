@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
 import AllSet from './AllSet';
@@ -27,6 +28,7 @@ import AllSet from './AllSet';
 export interface YamlFileStepProps {
   alm: AlmKeys;
   children?: (buildTool?: BuildTools) => React.ReactElement<{}>;
+  hasCLanguageFeature: boolean;
 }
 
 export interface AnalysisCommandProps {
@@ -35,9 +37,15 @@ export interface AnalysisCommandProps {
   component: T.Component;
 }
 
-export default function YamlFileStep(props: YamlFileStepProps) {
-  const { alm, children } = props;
-  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet, BuildTools.Other];
+export function YamlFileStep(props: YamlFileStepProps) {
+  const { alm, children, hasCLanguageFeature } = props;
+
+  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
+  if (hasCLanguageFeature) {
+    buildTools.push(BuildTools.CFamily);
+  }
+  buildTools.push(BuildTools.Other);
+
   const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
 
   return (
@@ -65,3 +73,5 @@ export default function YamlFileStep(props: YamlFileStepProps) {
     </>
   );
 }
+
+export default withCLanguageFeature(YamlFileStep);

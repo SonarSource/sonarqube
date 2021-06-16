@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { withAppState } from '../../hoc/withAppState';
 import { BuildTools } from '../types';
+import CFamily from './commands/CFamily';
 import DotNet from './commands/DotNet';
 import Gradle from './commands/Gradle';
 import JavaMaven from './commands/JavaMaven';
@@ -49,6 +50,8 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return <Gradle branchesEnabled={branchesEnabled} component={component} />;
     case BuildTools.DotNet:
       return <DotNet branchesEnabled={branchesEnabled} component={component} />;
+    case BuildTools.CFamily:
+      return <CFamily branchesEnabled={branchesEnabled} component={component} />;
     case BuildTools.Other:
       return <Others branchesEnabled={branchesEnabled} component={component} />;
   }
