@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Alert
+  className="spacer-top spacer-bottom"
+  variant="info"
+>
+  <p
+    className="spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.cfamilly.compilation_database_info"
+      id="onboarding.tutorial.cfamilly.compilation_database_info"
+      values={
+        Object {
+          "link": <a
+            href="/documentation/analysis/languages/cfamily/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.tutorial.cfamilly.compilation_database_info.link
+          </a>,
+        }
+      }
+    />
+  </p>
+  <p>
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.cfamilly.speed_caching"
+      id="onboarding.tutorial.cfamilly.speed_caching"
+      values={
+        Object {
+          "link": <a
+            href="/documentation/analysis/languages/cfamily/#analysis-cache"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.tutorial.cfamilly.speed_caching.link
+          </a>,
+        }
+      }
+    />
+  </p>
+</Alert>
+`;
