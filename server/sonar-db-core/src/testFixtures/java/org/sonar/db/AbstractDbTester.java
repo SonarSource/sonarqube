@@ -484,7 +484,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
     private PK(@Nullable String name, List<String> columns) {
       this.name = name;
-      this.columns = ImmutableList.copyOf(columns);
+      this.columns = List.copyOf(columns);
     }
 
     @CheckForNull
