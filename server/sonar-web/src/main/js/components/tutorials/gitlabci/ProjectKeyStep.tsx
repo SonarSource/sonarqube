@@ -23,19 +23,20 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../common/CodeSnippet';
+import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
 import { BuildTools } from '../types';
-import { GitlabBuildTools, GITLAB_BUILDTOOLS_LIST } from './types';
 
 export interface ProjectKeyStepProps {
-  buildTool?: GitlabBuildTools;
+  buildTool?: BuildTools;
   component: T.Component;
   finished: boolean;
+  hasCLanguageFeature: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  setBuildTool: (tool: GitlabBuildTools) => void;
+  setBuildTool: (tool: BuildTools) => void;
 }
 
 const mavenSnippet = (key: string) => `<properties>
@@ -61,24 +62,32 @@ sonar.qualitygate.wait=true
 const snippetForBuildTool = {
   [BuildTools.Maven]: mavenSnippet,
   [BuildTools.Gradle]: gradleSnippet,
+  [BuildTools.CFamily]: otherSnippet,
   [BuildTools.Other]: otherSnippet
 };
 
 const filenameForBuildTool = {
   [BuildTools.Maven]: 'pom.xml',
   [BuildTools.Gradle]: 'build.gradle',
+  [BuildTools.CFamily]: 'sonar-project.properties',
   [BuildTools.Other]: 'sonar-project.properties'
 };
 
-export default function ProjectKeyStep(props: ProjectKeyStepProps) {
-  const { buildTool, component, finished, open } = props;
+export function ProjectKeyStep(props: ProjectKeyStepProps) {
+  const { buildTool, component, finished, hasCLanguageFeature, open } = props;
 
-  const buildToolSelect = (value: GitlabBuildTools) => {
+  const buildToolSelect = (value: BuildTools) => {
     props.setBuildTool(value);
     if (value === BuildTools.DotNet) {
       props.onDone();
     }
   };
+
+  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
+  if (hasCLanguageFeature) {
+    buildTools.push(BuildTools.CFamily);
+  }
+  buildTools.push(BuildTools.Other);
 
   const renderForm = () => (
     <div className="boxed-group-inner">
@@ -90,7 +99,7 @@ export default function ProjectKeyStep(props: ProjectKeyStepProps) {
             name="buildtool"
             onCheck={buildToolSelect}
             optionLabelKey="onboarding.build"
-            options={GITLAB_BUILDTOOLS_LIST}
+            options={buildTools}
           />
         </li>
         {buildTool !== undefined && buildTool !== BuildTools.DotNet && (
@@ -131,3 +140,5 @@ export default function ProjectKeyStep(props: ProjectKeyStepProps) {
     />
   );
 }
+
+export default withCLanguageFeature(ProjectKeyStep);

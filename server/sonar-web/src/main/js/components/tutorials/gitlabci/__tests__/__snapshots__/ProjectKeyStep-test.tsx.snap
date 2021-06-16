@@ -1,5 +1,67 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly for build tool cfamily 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="cfamily"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "dotnet",
+            "cfamily",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <li
+      className="abs-width-600"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.cfamily.step2"
+        id="onboarding.tutorial.with.gitlab_ci.project_key.cfamily.step2"
+        values={
+          Object {
+            "file": <React.Fragment>
+              <code
+                className="rule"
+              >
+                sonar-project.properties
+              </code>
+              <ClipboardIconButton
+                className="little-spacer-left"
+                copyValue="sonar-project.properties"
+              />
+            </React.Fragment>,
+          }
+        }
+      />
+      <CodeSnippet
+        snippet="sonar.projectKey=my-project
+sonar.qualitygate.wait=true
+"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
 exports[`should render correctly for build tool dotnet 1`] = `
 <div
   className="boxed-group-inner"
@@ -19,6 +81,7 @@ exports[`should render correctly for build tool dotnet 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }
@@ -52,6 +115,7 @@ exports[`should render correctly for build tool gradle 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }
@@ -120,6 +184,7 @@ exports[`should render correctly for build tool maven 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }
@@ -182,6 +247,7 @@ exports[`should render correctly for build tool other 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }
@@ -224,6 +290,33 @@ sonar.qualitygate.wait=true
 </div>
 `;
 
+exports[`should render correctly if C is not available 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "dotnet",
+            "other",
+          ]
+        }
+      />
+    </li>
+  </ol>
+</div>
+`;
+
 exports[`should render correctly: Step wrapper 1`] = `
 <Step
   finished={false}
@@ -253,6 +346,7 @@ exports[`should render correctly: initial content 1`] = `
             "maven",
             "gradle",
             "dotnet",
+            "cfamily",
             "other",
           ]
         }

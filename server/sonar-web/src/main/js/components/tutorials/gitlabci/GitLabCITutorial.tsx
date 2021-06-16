@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { BuildTools } from '../types';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import ProjectKeyStep from './ProjectKeyStep';
-import { GitlabBuildTools } from './types';
 import YmlFileStep from './YmlFileStep';
 
 export enum Steps {
@@ -40,7 +40,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   const { baseUrl, component, currentUser } = props;
 
   const [step, setStep] = React.useState(Steps.PROJECT_KEY);
-  const [buildTool, setBuildTool] = React.useState<GitlabBuildTools | undefined>();
+  const [buildTool, setBuildTool] = React.useState<BuildTools>();
 
   return (
     <>

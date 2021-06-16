@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderStepContent } from '../../test-utils';
-import { GITLAB_BUILDTOOLS_LIST } from '../types';
+import { BuildTools } from '../../types';
 import { YmlFileStep, YmlFileStepProps } from '../YmlFileStep';
 
 it('should render correctly', () => {
@@ -30,17 +30,20 @@ it('should render correctly', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
-it.each(GITLAB_BUILDTOOLS_LIST.map(tool => [tool]))(
-  'should render correctly for build tool %s',
-  buildTool => {
-    expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot('with branch support');
-    expect(
-      renderStepContent(
-        shallowRender({ appState: mockAppState({ branchesEnabled: false }), buildTool })
-      )
-    ).toMatchSnapshot('without branch support');
-  }
-);
+it.each([
+  [BuildTools.Maven],
+  [BuildTools.Gradle],
+  [BuildTools.DotNet],
+  [BuildTools.CFamily],
+  [BuildTools.Other]
+])('should render correctly for build tool %s', buildTool => {
+  expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot('with branch support');
+  expect(
+    renderStepContent(
+      shallowRender({ appState: mockAppState({ branchesEnabled: false }), buildTool })
+    )
+  ).toMatchSnapshot('without branch support');
+});
 
 function shallowRender(props: Partial<YmlFileStepProps> = {}) {
   return shallow<YmlFileStepProps>(

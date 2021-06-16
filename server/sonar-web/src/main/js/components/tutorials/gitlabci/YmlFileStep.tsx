@@ -24,12 +24,12 @@ import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboa
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../hoc/withAppState';
 import Step from '../components/Step';
+import { BuildTools } from '../types';
 import PipeCommand from './commands/PipeCommand';
-import { GitlabBuildTools } from './types';
 
 export interface YmlFileStepProps {
   appState: T.AppState;
-  buildTool?: GitlabBuildTools;
+  buildTool?: BuildTools;
   open: boolean;
   projectKey: string;
 }
@@ -66,7 +66,7 @@ export function YmlFileStep({
                 />
               </div>
 
-              <div className="big-spacer-bottom">
+              <div className="big-spacer-bottom abs-width-600">
                 <PipeCommand
                   buildTool={buildTool}
                   branchesEnabled={branchesEnabled}

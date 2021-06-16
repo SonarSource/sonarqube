@@ -23,8 +23,7 @@ import { mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
 import { renderStepContent } from '../../test-utils';
 import { BuildTools } from '../../types';
-import ProjectKeyStep, { ProjectKeyStepProps } from '../ProjectKeyStep';
-import { GITLAB_BUILDTOOLS_LIST } from '../types';
+import { ProjectKeyStep, ProjectKeyStepProps } from '../ProjectKeyStep';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -32,12 +31,20 @@ it('should render correctly', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
-it.each(GITLAB_BUILDTOOLS_LIST.map(tool => [tool]))(
-  'should render correctly for build tool %s',
-  buildTool => {
-    expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();
-  }
-);
+it('should render correctly if C is not available', () => {
+  const wrapper = shallowRender({ hasCLanguageFeature: false });
+  expect(renderStepContent(wrapper)).toMatchSnapshot();
+});
+
+it.each([
+  [BuildTools.Maven],
+  [BuildTools.Gradle],
+  [BuildTools.DotNet],
+  [BuildTools.CFamily],
+  [BuildTools.Other]
+])('should render correctly for build tool %s', buildTool => {
+  expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();
+});
 
 it('should correctly callback with selected build tool', () => {
   const setBuildTool = jest.fn();
@@ -60,6 +67,7 @@ function shallowRender(props: Partial<ProjectKeyStepProps> = {}) {
     <ProjectKeyStep
       component={mockComponent()}
       finished={false}
+      hasCLanguageFeature={true}
       onDone={jest.fn()}
       onOpen={jest.fn()}
       open={true}

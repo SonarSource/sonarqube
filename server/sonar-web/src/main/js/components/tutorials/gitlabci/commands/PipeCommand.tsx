@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
+import { CompilationInfo } from '../../components/CompilationInfo';
 import { BuildTools } from '../../types';
-import { GitlabBuildTools } from '../types';
 
 export interface PipeCommandProps {
   branchesEnabled?: boolean;
-  buildTool: GitlabBuildTools;
+  buildTool: BuildTools;
   projectKey: string;
 }
 
@@ -56,15 +56,48 @@ const BUILD_TOOL_SPECIFIC = {
 };
 
 export default function PipeCommand({ projectKey, branchesEnabled, buildTool }: PipeCommandProps) {
-  const onlyBlock = branchesEnabled
-    ? `- merge_requests
+  let command: string;
+  if (buildTool === BuildTools.CFamily) {
+    command = `image: <image ready for your build toolchain>
+
+cache:
+  paths:
+    - .sonar
+
+stages:
+  - download
+  - build
+  - scan
+
+download:
+  stage: download
+  script:
+      - mkdir -p .sonar
+      - curl -sSLo build-wrapper-linux-x86.zip  $SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip
+      - unzip -o build-wrapper-linux-x86.zip -d .sonar
+
+build:
+  stage: build
+  script:
+      - .sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir .sonar/bw-output <your clean build command>
+
+sonarqube-check:
+  stage: scan
+  script: 
+    - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+    - unzip -o sonar-scanner.zip -d .sonar
+    - .sonar/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=.sonar/bw-output
+  allow_failure: true`;
+  } else {
+    const onlyBlock = branchesEnabled
+      ? `- merge_requests
     - master
     - develop`
-    : '- master # or the name of your main branch';
+      : '- master # or the name of your main branch';
 
-  const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
+    const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
 
-  const command = `sonarqube-check:
+    command = `sonarqube-check:
   image: ${image}
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -78,6 +111,11 @@ export default function PipeCommand({ projectKey, branchesEnabled, buildTool }: 
   only:
     ${onlyBlock}
 `;
-
-  return <CodeSnippet snippet={command} />;
+  }
+  return (
+    <>
+      <CodeSnippet snippet={command} />
+      <CompilationInfo />
+    </>
+  );
 }
