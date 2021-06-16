@@ -20,6 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { withAppState } from '../../../components/hoc/withAppState';
@@ -40,7 +41,8 @@ const DEFAULT_ICON_SIZE = 80;
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
   alm: AlmKeys.Azure | AlmKeys.BitbucketServer | AlmKeys.GitHub | AlmKeys.GitLab,
-  mode: CreateProjectModes
+  mode: CreateProjectModes,
+  last = false
 ) {
   const {
     almCounts,
@@ -59,11 +61,11 @@ function renderAlmOption(
   const disabled = loadingBindings || hasTooManyConfig || (!hasConfig && !canAdmin);
 
   return (
-    <div className="big-spacer-left display-flex-column">
+    <div className="display-flex-column">
       <button
         className={classNames(
           'button button-huge display-flex-column create-project-mode-type-alm',
-          { disabled }
+          { disabled, 'big-spacer-right': !last }
         )}
         disabled={disabled}
         onClick={() =>
@@ -104,6 +106,12 @@ function renderAlmOption(
 }
 
 export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
+  const {
+    appState: { canAdmin },
+    almCounts
+  } = props;
+  const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
+
   return (
     <>
       <header className="padded huge-spacer-top display-flex-column display-flex-center">
@@ -122,7 +130,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
 
       <div className="create-project-modes huge-spacer-top display-flex-justify-center">
         <button
-          className="button button-huge display-flex-column create-project-mode-type-manual"
+          className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
           onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
           type="button">
           <ChevronsIcon size={DEFAULT_ICON_SIZE} />
@@ -131,10 +139,19 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
           </div>
         </button>
 
-        {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-        {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-        {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-        {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
+        <div className="display-flex-column">
+          <div className="display-flex-center display-flex-space-between">
+            {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
+            {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
+            {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
+            {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
+          </div>
+          {almTotalCount === 0 && canAdmin && (
+            <Alert variant="info" className="big-spacer-top">
+              {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
+            </Alert>
+          )}
+        </div>
       </div>
     </>
   );

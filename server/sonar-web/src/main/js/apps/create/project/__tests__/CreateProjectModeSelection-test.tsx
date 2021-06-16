@@ -45,6 +45,9 @@ it('should render correctly', () => {
       { [AlmKeys.BitbucketServer]: 0, [AlmKeys.BitbucketCloud]: 0, [AlmKeys.GitHub]: 2 }
     )
   ).toMatchSnapshot('invalid configs, admin');
+  expect(
+    shallowRender({ appState: { canAdmin: true } }, { [AlmKeys.BitbucketServer]: 0 })
+  ).toMatchSnapshot('no alm conf yet, admin');
 });
 
 it('should correctly pass the selected mode up', () => {
