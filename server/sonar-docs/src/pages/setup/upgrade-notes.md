@@ -7,6 +7,9 @@ url: /setup/upgrade-notes/
 **Scanners require Java 11**
 Java 11 is required for SonarQube scanners. Use of Java 8 is no longer supported. See the documentation on [Moving Analysis to Java 11](/analysis/analysis-with-java-11/) for more information. ([MMF-2051](https://jira.sonarsource.com/browse/MMF-2051)).
 
+**JavaScript custom rule API removed**  
+The JavaScript custom rule API, which was previously deprecated, has been removed. Plugins can no longer use this API to implement custom rules. See the [JavaScript documentation](/analysis/languages/javascript/) for more information. ([SONAR-14928](https://jira.sonarsource.com/browse/SONAR-14928)).
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15682)
 
 ## Release 8.9 LTS Upgrade Notes  
