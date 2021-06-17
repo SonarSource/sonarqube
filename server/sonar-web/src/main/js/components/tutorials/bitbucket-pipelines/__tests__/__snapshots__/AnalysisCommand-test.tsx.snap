@@ -1,5 +1,139 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly for cfamily 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="cfamily"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: <image ready for your build toolchain>
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: Download and install the build wrapper, build the project
+          script:
+            - mkdir $HOME/.sonar
+            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+                SONAR_HOST_URL: \${SONAR_HOST_URL}
+                SONAR_TOKEN: \${SONAR_TOKEN}
+
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+  <CompilationInfo
+    className="abs-width-800"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for cfamily: with branch enabled 1`] = `
+<Fragment>
+  <PreambuleYaml
+    buildTool="cfamily"
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <CreateYmlFile
+    yamlFileName="bitbucket-pipelines.yml"
+    yamlTemplate="image: <image ready for your build toolchain>
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: Download and install the build wrapper, build the project
+          script:
+            - mkdir $HOME/.sonar
+            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+                SONAR_HOST_URL: \${SONAR_HOST_URL}
+                SONAR_TOKEN: \${SONAR_TOKEN}
+
+  pull-requests:
+    '**':
+      - step:
+          name: Download and install the build wrapper, build the project
+          script:
+            - mkdir $HOME/.sonar
+            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+            - pipe: sonarsource/sonarqube-scan:1.0.0
+              variables:
+                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+                SONAR_HOST_URL: \${SONAR_HOST_URL}
+                SONAR_TOKEN: \${SONAR_TOKEN}
+definitions:
+  caches:
+    sonar: ~/.sonar"
+  />
+  <CompilationInfo
+    className="abs-width-800"
+  />
+</Fragment>
+`;
+
 exports[`should render correctly for dotnet 1`] = `
 <Fragment>
   <PreambuleYaml
@@ -30,7 +164,7 @@ exports[`should render correctly for dotnet 1`] = `
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
-     
+   
 pipelines:
   branches:
     '{master}':
@@ -85,7 +219,7 @@ exports[`should render correctly for dotnet: with branch enabled 1`] = `
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
-     
+   
 pipelines:
   branches:
     '{master}':

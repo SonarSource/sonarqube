@@ -23,15 +23,18 @@ import { mockAppState, mockComponent } from '../../../../helpers/testMocks';
 import { BuildTools } from '../../types';
 import { AnalysisCommand, AnalysisCommandProps } from '../AnalysisCommand';
 
-it.each([[BuildTools.DotNet], [BuildTools.Gradle], [BuildTools.Maven], [BuildTools.Other]])(
-  'should render correctly for %s',
-  buildTool => {
-    expect(shallowRender({ buildTool })).toMatchSnapshot();
-    expect(
-      shallowRender({ appState: mockAppState({ branchesEnabled: true }), buildTool })
-    ).toMatchSnapshot('with branch enabled');
-  }
-);
+it.each([
+  [BuildTools.CFamily],
+  [BuildTools.DotNet],
+  [BuildTools.Gradle],
+  [BuildTools.Maven],
+  [BuildTools.Other]
+])('should render correctly for %s', buildTool => {
+  expect(shallowRender({ buildTool })).toMatchSnapshot();
+  expect(
+    shallowRender({ appState: mockAppState({ branchesEnabled: true }), buildTool })
+  ).toMatchSnapshot('with branch enabled');
+});
 
 function shallowRender(props: Partial<AnalysisCommandProps> = {}) {
   return shallow<AnalysisCommandProps>(

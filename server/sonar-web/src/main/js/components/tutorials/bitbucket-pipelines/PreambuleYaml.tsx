@@ -71,6 +71,7 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
           <CodeSnippet snippet={mavenPomSnippet(component.key)} />
         </li>
       );
+    case BuildTools.CFamily:
     case BuildTools.Other:
       return <DefaultProjectKey component={component} />;
     default:

@@ -17,24 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
-import { BuildTools } from '../../types';
-import { PreambuleYaml, PreambuleYamlProps } from '../PreambuleYaml';
 
-it.each([
-  [BuildTools.DotNet],
-  [BuildTools.Gradle],
-  [BuildTools.Maven],
-  [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
-  expect(shallowRender({ buildTool })).toMatchSnapshot();
-});
+export default function gradleExample(branchesEnabled: boolean) {
+  return `image: openjdk:8
 
-function shallowRender(props: Partial<PreambuleYamlProps> = {}) {
-  return shallow<PreambuleYamlProps>(
-    <PreambuleYaml buildTool={BuildTools.DotNet} component={mockComponent()} {...props} />
-  );
+clone:
+  depth: full
+  
+pipelines:
+  branches:
+    '{master}':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - gradle
+            - sonar
+          script:
+            - bash ./gradlew sonarqube
+${
+  branchesEnabled
+    ? `
+  pull-requests:
+    '**':
+      - step:
+          name: SonarQube analysis
+          caches:
+            - gradle
+            - sonar
+          script:
+            - bash ./gradlew sonarqube
+`
+    : ''
+}
+definitions:
+  caches:
+    sonar: ~/.sonar`;
 }
