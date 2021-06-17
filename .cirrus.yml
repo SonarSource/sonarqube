@@ -257,9 +257,30 @@ qa_ha_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
+docker_gitlab_container_build_task:
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  gce_instance:
+    image_project: sonarqube-team
+    image_family: docker-builder
+    zone: us-central1-a
+    preemptible: true
+    disk: 10
+    cpu: 4
+    memory: 8G
+  env:
+    CIRRUS_CLONE_DEPTH: 3
+    matrix:
+      - GITLAB_TAG: latest
+      - GITLAB_TAG: 11.7.0-ce.0
+  build_script:
+    - docker pull "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" || true
+    - docker build --build-arg "GITLAB_TAG=${GITLAB_TAG}" --cache-from "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" -t "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" private/docker/gitlab/
+    - docker push "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}"
+
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  depends_on: docker_gitlab_container_build
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -267,26 +288,14 @@ qa_gitlab_task:
     use_in_memory_disk: true
     additional_containers:
       - name: gitlab
-        matrix:
-          - image: gitlab/gitlab-ce:latest
-          - image: gitlab/gitlab-ce:11.7.0-ce.0
-        port: 8080:80
-        cpu: 1
+        ports:
+          - 80
+          - 443
+        cpu: 2
         memory: 5Gb
-        env:
-          # Creating a personnal access token from rails console for test purpuse (can't do through gitlab REST API)
-          GITLAB_POST_RECONFIGURE_SCRIPT: "gitlab-rails runner \"
-          token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'token');
-          token.set_token('token-here-456');
-          token.save!;
-          token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user], name: 'token_read');
-          token_read.set_token('token-read-123');
-          token_read.save!;
-          user = User.find_by_username('root');
-          user.password = 'adminadmin';
-          user.password_confirmation = 'adminadmin';
-          user.save!;
-          \""
+        matrix:
+          - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
+          - image: us.gcr.io/sonarqube-team/sq-gitlab:11.7.0-ce.0
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
