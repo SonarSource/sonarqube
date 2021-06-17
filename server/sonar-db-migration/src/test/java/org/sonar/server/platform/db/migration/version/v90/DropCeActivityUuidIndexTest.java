@@ -19,29 +19,31 @@
  */
 package org.sonar.server.platform.db.migration.version.v90;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropCeActivityUuidIndexTest {
 
-public class DbVersion90Test {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropCeActivityUuidIndexTest.class, "schema.sql");
 
-  private final DbVersion90 underTest = new DbVersion90();
+  private final DropCeActivityUuidIndex underTest = new DropCeActivityUuidIndex(db.database());
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void migration_should_drop_unique_index_on_ce_activity() throws SQLException {
+    db.assertUniqueIndex("ce_activity", "ce_activity_uuid", "uuid");
+    underTest.execute();
+    db.assertIndexDoesNotExist("ce_activity", "ce_activity_uuid");
   }
 
   @Test
-  public void migrationNumber_starts_at_5001() {
-    verifyMinimumMigrationNumber(underTest, 5001);
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertUniqueIndex("ce_activity", "ce_activity_uuid", "uuid");
+    underTest.execute();
+    // re-entrant
+    underTest.execute();
+    db.assertIndexDoesNotExist("ce_activity", "ce_activity_uuid");
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 3);
-  }
-
 }

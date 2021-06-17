@@ -356,7 +356,6 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "ce_activity_main_component", false, mainComponentUuidCol);
     addIndex(context, tableName, "ce_activity_main_islast", false, mainIsLastCol, statusCol);
     addIndex(context, tableName, "ce_activity_main_islast_key", false, mainIsLastKeyCol);
-    addIndex(context, tableName, "ce_activity_uuid", true, uuidCol);
   }
 
   private void createCeQueue(Context context) {

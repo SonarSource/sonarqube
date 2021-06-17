@@ -26,6 +26,8 @@ public class DbVersion90 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(5000, "Initial migration", InitialMigration.class);
+      .add(5001, "Drop PK on 'uuid' for 'ce_activity' table", DropPrimaryKeyOnUuidColumnOfCeActivityTable.class)
+      .add(5002, "Drop 'ce_activity_uuid' index", DropCeActivityUuidIndex.class)
+      .add(5003, "Recreate PK on 'uuid' for 'ce_activity' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class);
   }
 }

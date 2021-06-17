@@ -21,20 +21,19 @@ package org.sonar.server.platform.db.migration.version.v90;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-/**
- * Just a nop migration to put new migrations numbering in place,
- * and let current DB version algorithm to not determine 9.0 as required to be downgraded
- */
-public class InitialMigration extends DataChange {
+public class AddPrimaryKeyOnUuidColumnOfCeActivityTable extends DdlChange {
+  private static final String TABLE_NAME = "ce_activity";
 
-  public InitialMigration(Database db) {
+  public AddPrimaryKeyOnUuidColumnOfCeActivityTable(Database db) {
     super(db);
   }
 
   @Override
-  protected void execute(Context context) throws SQLException {
-    // nothing to do
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, "uuid").build());
   }
+
 }

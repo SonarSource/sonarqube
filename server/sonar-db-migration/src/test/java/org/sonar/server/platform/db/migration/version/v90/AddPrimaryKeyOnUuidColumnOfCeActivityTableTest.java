@@ -20,22 +20,21 @@
 package org.sonar.server.platform.db.migration.version.v90;
 
 import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange.Context;
+import org.sonar.db.CoreDbTester;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
+public class AddPrimaryKeyOnUuidColumnOfCeActivityTableTest {
 
-public class InitialMigrationTest {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddPrimaryKeyOnUuidColumnOfCeActivityTableTest.class, "schema.sql");
 
-  private final InitialMigration underTest = new InitialMigration(mock(Database.class));
+  private final AddPrimaryKeyOnUuidColumnOfCeActivityTable underTest = new AddPrimaryKeyOnUuidColumnOfCeActivityTable(db.database());
 
   @Test
-  public void migration_should_do_nothing() throws SQLException {
-    Context mockContext = mock(Context.class);
-    underTest.execute(mockContext);
-
-    verifyNoInteractions(mockContext);
+  public void migration_should_drop_PK_on_ce_activity() throws SQLException {
+    db.assertNoPrimaryKey("ce_activity");
+    underTest.execute();
+    db.assertPrimaryKey("ce_activity", "pk_ce_activity", "uuid");
   }
 }
