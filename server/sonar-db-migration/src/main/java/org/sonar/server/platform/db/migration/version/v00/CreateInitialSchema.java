@@ -1308,7 +1308,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("period1_date").setIsNullable(true).build())
         .addColumn(NULLABLE_TECHNICAL_CREATED_AT_COL)
         .build());
-    addIndex(context, tableName, "analyses_uuid", true, uuidCol);
     addIndex(context, tableName, "snapshot_component", false, componentUuidCol);
   }
 

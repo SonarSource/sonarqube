@@ -19,29 +19,22 @@
  */
 package org.sonar.server.platform.db.migration.version.v90;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddPrimaryKeyOnUuidColumnOfSnapshotsTableTest {
 
-public class DbVersion90Test {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddPrimaryKeyOnUuidColumnOfSnapshotsTableTest.class, "schema.sql");
 
-  private final DbVersion90 underTest = new DbVersion90();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
-  }
+  private final AddPrimaryKeyOnUuidColumnOfSnapshotsTable underTest = new AddPrimaryKeyOnUuidColumnOfSnapshotsTable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_5001() {
-    verifyMinimumMigrationNumber(underTest, 5001);
+  public void migration_should_drop_PK_on_snapshots() throws SQLException {
+    db.assertNoPrimaryKey("snapshots");
+    underTest.execute();
+    db.assertPrimaryKey("snapshots", "pk_snapshots", "uuid");
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
-  }
-
 }

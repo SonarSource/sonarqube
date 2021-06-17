@@ -34,6 +34,9 @@ public class DbVersion90 implements DbVersion {
       .add(5006, "Recreate PK on 'uuid' for 'events' table", AddPrimaryKeyOnUuidColumnOfEventsTable.class)
       .add(5007, "Drop PK on 'kee' for 'issues' table", DropPrimaryKeyOnKeeColumnOfIssuesTable.class)
       .add(5008, "Drop 'issues_kee' index", DropIssuesKeeIndex.class)
-      .add(5009, "Recreate PK on 'kee' for 'issues' table", AddPrimaryKeyOnKeeColumnOfIssuesTable.class);
+      .add(5009, "Recreate PK on 'kee' for 'issues' table", AddPrimaryKeyOnKeeColumnOfIssuesTable.class)
+      .add(5010, "Drop PK on 'kee' for 'snapshots' table", DropPrimaryKeyOnUuidColumnOfSnapshotsTable.class)
+      .add(5011, "Drop 'analyses_uuid' index", DropAnalysesUuidIndex.class)
+      .add(5012, "Recreate PK on 'kee' for 'snapshots' table", AddPrimaryKeyOnUuidColumnOfSnapshotsTable.class);
   }
 }
