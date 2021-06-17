@@ -763,7 +763,6 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, tableName, "issues_assignee", false, assigneeCol);
     addIndex(context, tableName, "issues_component_uuid", false, componentUuidCol);
     addIndex(context, tableName, "issues_creation_date", false, issueCreationDateCol);
-    addIndex(context, tableName, "issues_kee", true, keeCol);
     addIndex(context, tableName, "issues_project_uuid", false, projectUuidCol);
     addIndex(context, tableName, "issues_resolution", false, resolutionCol);
     addIndex(context, tableName, "issues_updated_at", false, updatedAtCol);

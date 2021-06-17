@@ -19,29 +19,21 @@
  */
 package org.sonar.server.platform.db.migration.version.v90;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddPrimaryKeyOnKeeColumnOfIssuesTable extends DdlChange {
+  private static final String TABLE_NAME = "issues";
 
-public class DbVersion90Test {
-
-  private final DbVersion90 underTest = new DbVersion90();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public AddPrimaryKeyOnKeeColumnOfIssuesTable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migrationNumber_starts_at_5001() {
-    verifyMinimumMigrationNumber(underTest, 5001);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, "kee").build());
   }
 
 }

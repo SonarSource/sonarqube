@@ -19,29 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v90;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropIssuesKeeIndexTest {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropIssuesKeeIndexTest.class, "schema.sql");
 
-public class DbVersion90Test {
-
-  private final DbVersion90 underTest = new DbVersion90();
+  private final DropIssuesKeeIndex underTest = new DropIssuesKeeIndex(db.database());
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void migration_should_drop_unique_index_on_issues() throws SQLException {
+    db.assertUniqueIndex("issues", "issues_kee", "kee");
+    underTest.execute();
+    db.assertIndexDoesNotExist("issues", "issues_kee");
   }
 
   @Test
-  public void migrationNumber_starts_at_5001() {
-    verifyMinimumMigrationNumber(underTest, 5001);
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertUniqueIndex("issues", "issues_kee", "kee");
+    underTest.execute();
+    // re-entrant
+    underTest.execute();
+    db.assertIndexDoesNotExist("issues", "issues_kee");
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 9);
-  }
-
 }
