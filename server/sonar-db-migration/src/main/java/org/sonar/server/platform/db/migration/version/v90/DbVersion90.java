@@ -28,6 +28,9 @@ public class DbVersion90 implements DbVersion {
     registry
       .add(5001, "Drop PK on 'uuid' for 'ce_activity' table", DropPrimaryKeyOnUuidColumnOfCeActivityTable.class)
       .add(5002, "Drop 'ce_activity_uuid' index", DropCeActivityUuidIndex.class)
-      .add(5003, "Recreate PK on 'uuid' for 'ce_activity' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class);
+      .add(5003, "Recreate PK on 'uuid' for 'ce_activity' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class)
+      .add(5004, "Drop PK on 'uuid' for 'events' table", DropPrimaryKeyOnUuidColumnOfEventsTable.class)
+      .add(5005, "Drop 'events_uuid' index", DropEventsUuidIndex.class)
+      .add(5006, "Recreate PK on 'uuid' for 'events' table", AddPrimaryKeyOnUuidColumnOfEventsTable.class);
   }
 }

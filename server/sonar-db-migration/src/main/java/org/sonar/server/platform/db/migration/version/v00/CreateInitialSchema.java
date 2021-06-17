@@ -596,7 +596,6 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(TECHNICAL_CREATED_AT_COL)
         .addColumn(componentUuid)
         .build());
-    addIndex(context, tableName, "events_uuid", true, uuidCol);
     addIndex(context, tableName, "events_analysis", false, analysisUuidCol);
     addIndex(context, tableName, "events_component_uuid", false, componentUuid);
   }
