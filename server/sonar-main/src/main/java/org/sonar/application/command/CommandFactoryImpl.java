@@ -109,7 +109,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEsInstallation(esInstallation)
       .setEnvVariable("ES_PATH_CONF", esInstallation.getConfDirectory().getAbsolutePath())
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
-      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .setEnvVariable("ES_JAVA_HOME", System.getProperties().getProperty("java.home"))
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
       .suppressEnvVariable(ENV_VAR_ES_JAVA_OPTS);
   }
@@ -124,7 +124,7 @@ public class CommandFactoryImpl implements CommandFactory {
         .add("-Des.path.home=" + esInstallation.getHomeDirectory().getAbsolutePath())
         .add("-Des.path.conf=" + esInstallation.getConfDirectory().getAbsolutePath()))
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
-      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .setEnvVariable("ES_JAVA_HOME", System.getProperties().getProperty("java.home"))
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
       .addClasspath("lib/*")
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
