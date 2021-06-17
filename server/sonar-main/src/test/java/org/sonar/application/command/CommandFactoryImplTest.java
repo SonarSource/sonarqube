@@ -146,7 +146,7 @@ public class CommandFactoryImplTest {
     assertThat(esCommand.getEnvVariables())
       .contains(entry("ES_PATH_CONF", esConfDir.getAbsolutePath()))
       .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
-      .containsKey("JAVA_HOME");
+      .containsKey("ES_JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
     assertThat(esConfig.getEsJvmOptions().getAll())
@@ -182,7 +182,7 @@ public class CommandFactoryImplTest {
     assertThat(esCommand.getArguments()).isEmpty();
     assertThat(esCommand.getEnvVariables())
       .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
-      .containsKey("JAVA_HOME");
+      .containsKey("ES_JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
     assertThat(esConfig.getEsJvmOptions().getAll())
