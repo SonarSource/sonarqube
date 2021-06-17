@@ -20,13 +20,12 @@
 import { RedirectFunction, RouterState } from 'react-router';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { save } from 'sonar-ui-common/helpers/storage';
-import { isDefined } from 'sonar-ui-common/helpers/types';
-import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
-import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER } from './utils';
 
 const routes = [
-  { indexRoute: { component: DefaultPageSelectorContainer } },
+  {
+    indexRoute: { component: lazyLoadComponent(() => import('./components/DefaultPageSelector')) }
+  },
   {
     path: 'all',
     onEnter(_: RouterState, replace: RedirectFunction) {
@@ -34,11 +33,14 @@ const routes = [
       replace('/projects');
     }
   },
-  { path: 'favorite', component: FavoriteProjectsContainer },
+  {
+    path: 'favorite',
+    component: lazyLoadComponent(() => import('./components/FavoriteProjectsContainer'))
+  },
   {
     path: 'create',
     component: lazyLoadComponent(() => import('../create/project/CreateProjectPage'))
   }
-].filter(isDefined);
+];
 
 export default routes;

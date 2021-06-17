@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get } from 'sonar-ui-common/helpers/storage';
-import { doAsync } from 'sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { searchProjects } from '../../../../api/components';
+import {
+  mockCurrentUser,
+  mockLocation,
+  mockLoggedInUser,
+  mockRouter
+} from '../../../../helpers/testMocks';
+import { hasGlobalPermission } from '../../../../helpers/users';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
 jest.mock('../AllProjectsContainer', () => ({
@@ -32,63 +39,116 @@ jest.mock('../AllProjectsContainer', () => ({
 }));
 
 jest.mock('sonar-ui-common/helpers/storage', () => ({
-  get: jest.fn()
+  get: jest.fn().mockReturnValue(undefined)
+}));
+
+jest.mock('../../../../helpers/users', () => ({
+  hasGlobalPermission: jest.fn().mockReturnValue(false),
+  isLoggedIn: jest.fn((u: T.CurrentUser) => u.isLoggedIn)
 }));
 
 jest.mock('../../../../api/components', () => ({
-  searchProjects: jest.fn()
+  searchProjects: jest.fn().mockResolvedValue({ paging: { total: 0 } })
 }));
 
-beforeEach(() => {
-  (get as jest.Mock).mockImplementation(() => '').mockClear();
+beforeEach(jest.clearAllMocks);
+
+it('renders correctly', () => {
+  expect(shallowRender({ currentUser: mockLoggedInUser() }).type()).toBeNull(); // checking
+  expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot('default');
 });
 
-it('shows all projects with existing filter', () => {
+it("1.1 doesn't redirect for anonymous users", async () => {
   const replace = jest.fn();
-  mountRender(undefined, { size: '1' }, replace);
-  expect(replace).not.toBeCalled();
-});
-
-it('shows all projects sorted by analysis date for anonymous', () => {
-  const replace = jest.fn();
-  mountRender({ isLoggedIn: false }, undefined, replace);
-  expect(replace).lastCalledWith({ pathname: '/projects', query: { sort: '-analysis_date' } });
-});
-
-it('shows favorite projects', () => {
-  (get as jest.Mock).mockImplementation(() => 'favorite');
-  const replace = jest.fn();
-  mountRender(undefined, undefined, replace);
-  expect(replace).lastCalledWith({ pathname: '/projects/favorite', query: {} });
-});
-
-it('shows all projects', () => {
-  (get as jest.Mock).mockImplementation(() => 'all');
-  const replace = jest.fn();
-  mountRender(undefined, undefined, replace);
-  expect(replace).not.toBeCalled();
-});
-
-it('fetches favorites', () => {
-  (searchProjects as jest.Mock).mockImplementation(() => Promise.resolve({ paging: { total: 3 } }));
-  const replace = jest.fn();
-  mountRender(undefined, undefined, replace);
-  return doAsync().then(() => {
-    expect(searchProjects).toHaveBeenLastCalledWith({ filter: 'isFavorite', ps: 1 });
-    expect(replace).toBeCalledWith({ pathname: '/projects/favorite', query: {} });
+  const wrapper = shallowRender({
+    currentUser: mockCurrentUser(),
+    router: mockRouter({ replace })
   });
+  await waitAndUpdate(wrapper);
+  expect(replace).not.toBeCalled();
 });
 
-function mountRender(
-  currentUser: T.CurrentUser = { isLoggedIn: true },
-  query: any = {},
-  replace: any = jest.fn()
-) {
-  return mount(
+it("1.2 doesn't redirect if there's an existing filter in location", async () => {
+  const replace = jest.fn();
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { size: '1' } }),
+    router: mockRouter({ replace })
+  });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).not.toBeCalled();
+});
+
+it("1.3 doesn't redirect if the user previously used the 'all' filter", async () => {
+  (get as jest.Mock).mockReturnValueOnce('all');
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).not.toBeCalled();
+});
+
+it('2.1 redirects to favorites if the user previously used the "favorites" filter', async () => {
+  (get as jest.Mock).mockReturnValueOnce('favorite');
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).toBeCalledWith('/projects/favorite');
+});
+
+it('2.2 redirects to favorites if the user has starred projects', async () => {
+  (searchProjects as jest.Mock).mockResolvedValueOnce({ paging: { total: 3 } });
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(searchProjects).toHaveBeenLastCalledWith({ filter: 'isFavorite', ps: 1 });
+  expect(replace).toBeCalledWith('/projects/favorite');
+});
+
+it('3.1 redirects to create project page, if user has correct permissions AND there are 0 projects', async () => {
+  (hasGlobalPermission as jest.Mock).mockReturnValueOnce(true);
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).toBeCalledWith('/projects/create');
+});
+
+it("3.1 doesn't redirect to create project page, if user has no permissions", async () => {
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).not.toBeCalled();
+});
+
+it("3.1 doesn't redirect to create project page, if there's existing projects", async () => {
+  (searchProjects as jest.Mock)
+    .mockResolvedValueOnce({ paging: { total: 0 } }) // no favorites
+    .mockResolvedValueOnce({ paging: { total: 3 } }); // existing projects
+  const replace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace }) });
+
+  await waitAndUpdate(wrapper);
+
+  expect(replace).not.toBeCalled();
+});
+
+function shallowRender(props: Partial<DefaultPageSelector['props']> = {}) {
+  return shallow<DefaultPageSelector>(
     <DefaultPageSelector
-      currentUser={currentUser}
-      location={{ pathname: '/projects', query }}
-      router={{ replace }}
+      currentUser={mockLoggedInUser()}
+      location={mockLocation({ pathname: '/projects' })}
+      router={mockRouter()}
+      {...props}
     />
   );
 }

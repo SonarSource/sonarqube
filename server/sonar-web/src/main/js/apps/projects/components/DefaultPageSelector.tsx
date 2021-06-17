@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { get } from 'sonar-ui-common/helpers/storage';
 import { searchProjects } from '../../../api/components';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { isLoggedIn } from '../../../helpers/users';
+import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
 
@@ -32,84 +33,68 @@ interface Props {
 }
 
 interface State {
-  shouldBeRedirected?: boolean;
-  shouldForceSorting?: string;
+  checking: boolean;
 }
 
 export class DefaultPageSelector extends React.PureComponent<Props, State> {
-  state: State = {};
+  state: State = { checking: true };
 
   componentDidMount() {
-    this.defineIfShouldBeRedirected();
+    this.checkIfNeedsRedirecting();
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location !== this.props.location) {
-      this.defineIfShouldBeRedirected();
-    } else if (this.state.shouldBeRedirected === true) {
-      this.props.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
-    } else if (this.state.shouldForceSorting != null) {
-      this.props.router.replace({
-        ...this.props.location,
-        query: {
-          ...this.props.location.query,
-          sort: this.state.shouldForceSorting
-        }
-      });
-    }
-  }
-
-  isFavoriteSet = (): boolean => {
+  checkIfNeedsRedirecting = async () => {
+    const { currentUser, router, location } = this.props;
     const setting = get(PROJECTS_DEFAULT_FILTER);
-    return setting === PROJECTS_FAVORITE;
-  };
 
-  isAllSet = (): boolean => {
-    const setting = get(PROJECTS_DEFAULT_FILTER);
-    return setting === PROJECTS_ALL;
-  };
-
-  defineIfShouldBeRedirected() {
-    if (Object.keys(this.props.location.query).length > 0) {
-      // show ALL projects when there are some filters
-      this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
-    } else if (!isLoggedIn(this.props.currentUser)) {
-      // show ALL projects if user is anonymous
-      if (!this.props.location.query || !this.props.location.query.sort) {
-        // force default sorting to last analysis date
-        this.setState({ shouldBeRedirected: false, shouldForceSorting: '-analysis_date' });
-      } else {
-        this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
-      }
-    } else if (this.isFavoriteSet()) {
-      // show FAVORITE projects if "favorite" setting is explicitly set
-      this.setState({ shouldBeRedirected: true, shouldForceSorting: undefined });
-    } else if (this.isAllSet()) {
-      // show ALL projects if "all" setting is explicitly set
-      this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
-    } else {
-      // otherwise, request favorites
-      this.setState({ shouldBeRedirected: undefined, shouldForceSorting: undefined });
-      searchProjects({ filter: 'isFavorite', ps: 1 }).then(r => {
-        // show FAVORITE projects if there are any
-        this.setState({ shouldBeRedirected: r.paging.total > 0, shouldForceSorting: undefined });
-      });
+    // 1. Don't have to redirect if:
+    //   1.1 User is anonymous
+    //   1.2 There's a query, which means the user is interacting with the current page
+    //   1.3 The last interaction with the filter was to set it to "all"
+    if (
+      !isLoggedIn(currentUser) ||
+      Object.keys(location.query).length > 0 ||
+      setting === PROJECTS_ALL
+    ) {
+      this.setState({ checking: false });
+      return;
     }
-  }
+
+    // 2. Redirect to the favorites page if:
+    //   2.1 The last interaction with the filter was to set it to "favorites"
+    //   2.2 The user has starred some projects
+    if (
+      setting === PROJECTS_FAVORITE ||
+      (await searchProjects({ filter: 'isFavorite', ps: 1 })).paging.total > 0
+    ) {
+      router.replace('/projects/favorite');
+      return;
+    }
+
+    // 3. Redirect to the create project page if:
+    //   3.1 The user has permission to provision projects, AND there are 0 projects on the instance
+    if (
+      hasGlobalPermission(currentUser, 'provisioning') &&
+      (await searchProjects({ ps: 1 })).paging.total === 0
+    ) {
+      this.props.router.replace('/projects/create');
+    }
+
+    // None of the above apply. Do not redirect, and stay on this page.
+    this.setState({ checking: false });
+  };
 
   render() {
-    const { shouldBeRedirected, shouldForceSorting } = this.state;
+    const { checking } = this.state;
 
-    if (
-      shouldBeRedirected !== undefined &&
-      shouldBeRedirected !== true &&
-      shouldForceSorting === undefined
-    ) {
-      return <AllProjectsContainer isFavorite={false} />;
+    if (checking) {
+      // We don't return a loader here, on purpose. We don't want to show anything
+      // just yet.
+      return null;
     }
 
-    return null;
+    return <AllProjectsContainer isFavorite={false} />;
   }
 }
 
-export default withRouter(DefaultPageSelector);
+export default withCurrentUser(withRouter(DefaultPageSelector));
