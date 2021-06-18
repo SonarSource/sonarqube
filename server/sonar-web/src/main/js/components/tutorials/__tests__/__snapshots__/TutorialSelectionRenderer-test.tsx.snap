@@ -54,17 +54,10 @@ exports[`should render correctly for azure 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <span
-          aria-disabled={true}
-          className="display-flex-center gigantic"
-          style={
-            Object {
-              "height": 80,
-            }
-          }
-        >
-          …
-        </span>
+        <EllipsisIcon
+          className="gigantic"
+          height={80}
+        />
         <div
           className="medium big-spacer-top"
         >
@@ -130,17 +123,10 @@ exports[`should render correctly for bitbucket server 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <span
-          aria-disabled={true}
-          className="display-flex-center gigantic"
-          style={
-            Object {
-              "height": 80,
-            }
-          }
-        >
-          …
-        </span>
+        <EllipsisIcon
+          className="gigantic"
+          height={80}
+        />
         <div
           className="medium big-spacer-top"
         >
@@ -239,17 +225,10 @@ exports[`should render correctly for github 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <span
-          aria-disabled={true}
-          className="display-flex-center gigantic"
-          style={
-            Object {
-              "height": 80,
-            }
-          }
-        >
-          …
-        </span>
+        <EllipsisIcon
+          className="gigantic"
+          height={80}
+        />
         <div
           className="medium big-spacer-top"
         >
@@ -331,17 +310,10 @@ exports[`should render correctly for gitlab 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <span
-          aria-disabled={true}
-          className="display-flex-center gigantic"
-          style={
-            Object {
-              "height": 80,
-            }
-          }
-        >
-          …
-        </span>
+        <EllipsisIcon
+          className="gigantic"
+          height={80}
+        />
         <div
           className="medium big-spacer-top"
         >
@@ -693,17 +665,10 @@ exports[`should render correctly: selection 1`] = `
         onClick={[Function]}
         type="button"
       >
-        <span
-          aria-disabled={true}
-          className="display-flex-center gigantic"
-          style={
-            Object {
-              "height": 80,
-            }
-          }
-        >
-          …
-        </span>
+        <EllipsisIcon
+          className="gigantic"
+          height={80}
+        />
         <div
           className="medium big-spacer-top"
         >

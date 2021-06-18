@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAlmSettings } from '../../../api/alm-settings';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
+import EllipsisIcon from '../../../components/icons/EllipsisIcon';
+import { IMPORT_COMPATIBLE_ALMS, IMPORT_COMPATIBLE_ALM_COUNT } from '../../../helpers/constants';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
@@ -117,10 +119,18 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
         overlay={
           <ul className="menu">
             {[...boundAlms, 'manual'].map(alm => (
-              <li key={alm}>
+              <li className="little-spacer-bottom" key={alm}>
                 <ProjectCreationMenuItem alm={alm} />
               </li>
             ))}
+            {boundAlms.length < IMPORT_COMPATIBLE_ALM_COUNT && (
+              <li className="bordered-top little-padded-top">
+                <Link className="display-flex-center" to={{ pathname: '/projects/create' }}>
+                  <EllipsisIcon width={16} className="big spacer-right" />
+                  {translate('more')}
+                </Link>
+              </li>
+            )}
           </ul>
         }>
         <Button className="button-primary">

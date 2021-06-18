@@ -7,10 +7,32 @@ exports[`should render correctly: default 1`] = `
     <ul
       className="menu"
     >
-      <li>
+      <li
+        className="little-spacer-bottom"
+      >
         <ProjectCreationMenuItem
           alm="manual"
         />
+      </li>
+      <li
+        className="bordered-top little-padded-top"
+      >
+        <Link
+          className="display-flex-center"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/projects/create",
+            }
+          }
+        >
+          <EllipsisIcon
+            className="big spacer-right"
+            width={16}
+          />
+          more
+        </Link>
       </li>
     </ul>
   }

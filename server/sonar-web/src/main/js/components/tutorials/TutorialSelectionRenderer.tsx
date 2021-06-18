@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import EllipsisIcon from '../icons/EllipsisIcon';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -177,12 +178,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
             {renderButton(
               TutorialModes.OtherCI,
               props.onSelectTutorial,
-              <span
-                aria-disabled={true}
-                className="display-flex-center gigantic"
-                style={{ height: DEFAULT_ICON_SIZE }}>
-                &hellip;
-              </span>
+              <EllipsisIcon className="gigantic" height={DEFAULT_ICON_SIZE} />
             )}
           </div>
         </div>

@@ -78,3 +78,8 @@ export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.GitHub,
   AlmKeys.GitLab
 ];
+
+// Count both Bitbuckets as a single ALM.
+export const IMPORT_COMPATIBLE_ALM_COUNT = IMPORT_COMPATIBLE_ALMS.filter(
+  a => a !== AlmKeys.BitbucketCloud
+).length;
