@@ -280,7 +280,9 @@ docker_gitlab_container_build_task:
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
-  depends_on: docker_gitlab_container_build
+  depends_on:
+    - build
+    - docker_gitlab_container_build
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
