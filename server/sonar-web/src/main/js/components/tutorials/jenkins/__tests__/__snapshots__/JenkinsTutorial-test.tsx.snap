@@ -46,6 +46,7 @@ exports[`should render correctly: branches not enabled 1`] = `
     }
   />
   <JenkinsfileStep
+    alm="bitbucket"
     component={
       Object {
         "breadcrumbs": Array [],
@@ -128,6 +129,7 @@ exports[`should render correctly: default 1`] = `
     }
   />
   <JenkinsfileStep
+    alm="bitbucket"
     component={
       Object {
         "breadcrumbs": Array [],

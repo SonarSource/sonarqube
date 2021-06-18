@@ -112,7 +112,7 @@ exports[`should render correctly: last-step-wrapper 1`] = `
       className="boxed-group-inner"
     >
       <div>
-        <SaveAndRunStepContent />
+        <Connect(withAppState(SaveAndRunStepContent)) />
       </div>
     </div>
   </div>

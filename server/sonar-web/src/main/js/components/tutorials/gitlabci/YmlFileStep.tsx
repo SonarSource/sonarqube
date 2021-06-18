@@ -87,19 +87,10 @@ export function YmlFileStep({
               <hr className="no-horizontal-margins" />
               <div>
                 <p className="big-spacer-bottom">
-                  <strong>{translate('onboarding.tutorial.with.gitlab_ci.yml.done')} </strong>{' '}
-                  <FormattedMessage
-                    defaultMessage={translate(
-                      'onboarding.tutorial.with.gitlab_ci.yml.done.description'
-                    )}
-                    id="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-                    values={{
-                      /* This link will be added when the backend provides the project URL */
-                      link: translate(
-                        'onboarding.tutorial.with.gitlab_ci.yml.done.description.link'
-                      )
-                    }}
-                  />
+                  <strong>{translate('onboarding.tutorial.with.gitlab_ci.yml.done')}</strong>{' '}
+                  {translate('onboarding.tutorial.with.gitlab_ci.yml.done.description')}{' '}
+                  {branchesEnabled &&
+                    translate('onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic')}
                 </p>
                 <p className="big-spacer-bottom">
                   <strong>

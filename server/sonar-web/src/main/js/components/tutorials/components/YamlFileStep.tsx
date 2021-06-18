@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
 import AllSet from './AllSet';
 
 export interface YamlFileStepProps {
+  alm: AlmKeys;
   children?: (buildTool?: BuildTools) => React.ReactElement<{}>;
 }
 
@@ -34,7 +36,7 @@ export interface AnalysisCommandProps {
 }
 
 export default function YamlFileStep(props: YamlFileStepProps) {
-  const { children } = props;
+  const { alm, children } = props;
   const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet, BuildTools.Other];
   const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
 
@@ -57,7 +59,7 @@ export default function YamlFileStep(props: YamlFileStepProps) {
       {buildToolSelected !== undefined && (
         <>
           <hr className="huge-spacer-top huge-spacer-bottom" />
-          <AllSet />
+          <AllSet alm={alm} />
         </>
       )}
     </>

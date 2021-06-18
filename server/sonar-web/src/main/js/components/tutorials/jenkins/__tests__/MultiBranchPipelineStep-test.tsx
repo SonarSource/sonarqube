@@ -27,8 +27,8 @@ import {
   mockProjectGitLabBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { renderStepContent } from '../../test-utils';
 import MultiBranchPipelineStep, { MultiBranchPipelineStepProps } from '../MultiBranchPipelineStep';
-import { renderStepContent } from '../test-utils';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

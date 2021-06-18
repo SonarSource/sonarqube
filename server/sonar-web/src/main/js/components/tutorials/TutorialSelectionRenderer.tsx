@@ -225,7 +225,12 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
       )}
 
       {selectedTutorial === TutorialModes.AzurePipelines && (
-        <AzurePipelinesTutorial baseUrl={baseUrl} component={component} currentUser={currentUser} />
+        <AzurePipelinesTutorial
+          alm={almBinding?.alm}
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+        />
       )}
     </>
   );

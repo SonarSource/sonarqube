@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ShallowWrapper } from 'enzyme';
-import Step from '../components/Step';
+import Step from './components/Step';
 
-export function renderStepContent(wrapper: ShallowWrapper<React.ReactNode>) {
+export function renderStepContent(wrapper: ShallowWrapper<React.ReactNode>, n = 0) {
   return wrapper
     .find(Step)
+    .at(n)
     .props()
     .renderForm();
 }

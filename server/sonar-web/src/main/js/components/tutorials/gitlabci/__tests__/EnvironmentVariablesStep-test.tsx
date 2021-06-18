@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderStepContent } from '../../jenkins/test-utils';
+import { renderStepContent } from '../../test-utils';
 import EnvironmentVariablesStep, {
   EnvironmentVariablesStepProps
 } from '../EnvironmentVariablesStep';

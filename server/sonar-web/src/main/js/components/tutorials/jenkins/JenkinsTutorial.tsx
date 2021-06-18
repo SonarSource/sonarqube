@@ -133,7 +133,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
             projectBinding={projectBinding}
           />
 
-          <JenkinsfileStep component={component} open={step === Steps.Jenkinsfile} />
+          <JenkinsfileStep alm={alm} component={component} open={step === Steps.Jenkinsfile} />
         </>
       )}
     </>

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
 import AllSet from '../components/AllSet';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
@@ -29,6 +30,7 @@ import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
+  alm: AlmKeys;
   component: T.Component;
   open: boolean;
 }
@@ -46,7 +48,7 @@ const BUILDTOOL_COMPONENT_MAP: {
 };
 
 export default function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { component, open } = props;
+  const { alm, component, open } = props;
   const [buildTool, setBuildTool] = React.useState<BuildToolsWithoutCFamily | undefined>(undefined);
   return (
     <Step
@@ -71,7 +73,7 @@ export default function JenkinsfileStep(props: JenkinsfileStepProps) {
           {buildTool !== undefined && (
             <>
               <hr className="huge-spacer-top huge-spacer-bottom" />
-              <AllSet />
+              <AllSet alm={alm} />
             </>
           )}
         </div>

@@ -27,7 +27,7 @@ import {
   mockProjectGithubBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { renderStepContent } from '../test-utils';
+import { renderStepContent } from '../../test-utils';
 import WebhookStep, { WebhookStepProps } from '../WebhookStep';
 
 it.each([

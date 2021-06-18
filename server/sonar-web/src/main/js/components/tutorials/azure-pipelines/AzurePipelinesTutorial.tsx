@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
 import Step from '../components/Step';
 import BranchAnalysisStepContent from './BranchAnalysisStepContent';
 import ExtensionInstallationStepContent from './ExtensionInstallationStepContent';
@@ -27,6 +28,7 @@ import SaveAndRunStepContent from './SaveAndRunStepContent';
 import ServiceEndpointStepContent from './ServiceEndpointStepContent';
 
 export interface AzurePipelinesTutorialProps {
+  alm?: AlmKeys;
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
@@ -46,7 +48,7 @@ interface Step {
 }
 
 export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProps) {
-  const { baseUrl, component, currentUser } = props;
+  const { alm, baseUrl, component, currentUser } = props;
 
   const [currentStep, setCurrentStep] = React.useState(Steps.ExtensionInstallation);
   const [isCurrentStepValid, setIsCurrentStepValid] = React.useState(false);
@@ -73,7 +75,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
       ),
       checkValidity: true
     },
-    { step: Steps.SaveAndRun, content: <SaveAndRunStepContent /> }
+    { step: Steps.SaveAndRun, content: <SaveAndRunStepContent alm={alm} /> }
   ];
 
   const switchCurrentStep = (step: Steps) => {

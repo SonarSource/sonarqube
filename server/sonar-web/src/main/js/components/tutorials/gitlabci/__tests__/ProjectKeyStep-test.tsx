@@ -21,7 +21,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
-import { renderStepContent } from '../../jenkins/test-utils';
+import { renderStepContent } from '../../test-utils';
 import { BuildTools } from '../../types';
 import ProjectKeyStep, { ProjectKeyStepProps } from '../ProjectKeyStep';
 import { GITLAB_BUILDTOOLS_LIST } from '../types';

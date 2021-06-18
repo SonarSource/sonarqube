@@ -18,10 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { AlmKeys } from '../../../types/alm-settings';
+import { withAppState } from '../../hoc/withAppState';
 
-export default function SaveAndRunStepContent() {
+export interface SaveAndRunStepContentProps {
+  alm?: AlmKeys;
+  appState: T.AppState;
+}
+
+export function SaveAndRunStepContent(props: SaveAndRunStepContentProps) {
+  const {
+    alm,
+    appState: { branchesEnabled }
+  } = props;
   return (
     <>
       <div className="display-flex-row big-spacer-bottom">
@@ -39,7 +50,15 @@ export default function SaveAndRunStepContent() {
               {translate('onboarding.tutorial.with.azure_pipelines.SaveAndRun.commit')}
             </strong>
           </p>
-          <p>{translate('onboarding.tutorial.with.azure_pipelines.SaveAndRun.commit.why')}</p>
+          <p>
+            {translate('onboarding.tutorial.with.azure_pipelines.SaveAndRun.commit.why')}{' '}
+            {branchesEnabled &&
+              alm &&
+              translateWithParameters(
+                'onboarding.tutorial.with.azure_pipelines.SaveAndRun.commit.pr_deco',
+                translate('alm', alm)
+              )}
+          </p>
         </div>
       </div>
       <div className="display-flex-row">
@@ -63,3 +82,5 @@ export default function SaveAndRunStepContent() {
     </>
   );
 }
+
+export default withAppState(SaveAndRunStepContent);

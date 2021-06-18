@@ -356,6 +356,7 @@ exports[`should render correctly for gitlab 1`] = `
 exports[`should render correctly: azure pipelines tutorial 1`] = `
 <Fragment>
   <AzurePipelinesTutorial
+    alm="github"
     baseUrl="http://localhost:9000"
     component={
       Object {

@@ -53,7 +53,9 @@ exports[`should render correctly for .NET 1`] = `
     <hr
       className="huge-spacer-top huge-spacer-bottom"
     />
-    <Connect(withAppState(AllSet)) />
+    <Connect(withAppState(AllSet))
+      alm="bitbucketcloud"
+    />
   </React.Fragment>
 </div>
 `;
@@ -111,7 +113,9 @@ exports[`should render correctly for Gradle 1`] = `
     <hr
       className="huge-spacer-top huge-spacer-bottom"
     />
-    <Connect(withAppState(AllSet)) />
+    <Connect(withAppState(AllSet))
+      alm="bitbucketcloud"
+    />
   </React.Fragment>
 </div>
 `;
@@ -169,7 +173,9 @@ exports[`should render correctly for Maven 1`] = `
     <hr
       className="huge-spacer-top huge-spacer-bottom"
     />
-    <Connect(withAppState(AllSet)) />
+    <Connect(withAppState(AllSet))
+      alm="bitbucketcloud"
+    />
   </React.Fragment>
 </div>
 `;
@@ -227,7 +233,9 @@ exports[`should render correctly for Other 1`] = `
     <hr
       className="huge-spacer-top huge-spacer-bottom"
     />
-    <Connect(withAppState(AllSet)) />
+    <Connect(withAppState(AllSet))
+      alm="bitbucketcloud"
+    />
   </React.Fragment>
 </div>
 `;

@@ -20,15 +20,18 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { AlmKeys } from '../../../types/alm-settings';
 import { withAppState } from '../../hoc/withAppState';
 import SentenceWithHighlights from './SentenceWithHighlights';
 
 export interface AllSetProps {
+  alm: AlmKeys;
   appState: T.AppState;
 }
 
 export function AllSet(props: AllSetProps) {
   const {
+    alm,
     appState: { branchesEnabled }
   } = props;
 
@@ -55,7 +58,7 @@ export function AllSet(props: AllSetProps) {
           </p>
           <p>
             {branchesEnabled
-              ? translate('onboarding.tutorial.ci_outro.commit.why')
+              ? translate('onboarding.tutorial.ci_outro.commit.why', alm)
               : translate('onboarding.tutorial.ci_outro.commit.why.no_branches')}
           </p>
         </div>

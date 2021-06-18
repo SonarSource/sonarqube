@@ -25,14 +25,47 @@ import {
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import Step from '../../components/Step';
+import { renderStepContent } from '../../test-utils';
 import GitHubActionTutorial, { GitHubActionTutorialProps } from '../GitHubActionTutorial';
 
 it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(renderStepContent(shallowRender())).toMatchSnapshot('secrets step content');
+  expect(renderStepContent(shallowRender(), 1)).toMatchSnapshot('yaml file step content');
+});
+
+it('should correctly navigate through the steps', () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('For secret steps');
-  const stepYaml = wrapper.find(Step).at(1);
-  stepYaml.simulate('open');
-  expect(wrapper).toMatchSnapshot('For yaml steps');
+
+  expect(
+    wrapper
+      .find(Step)
+      .at(0)
+      .props().open
+  ).toBe(true);
+  expect(
+    wrapper
+      .find(Step)
+      .at(1)
+      .props().open
+  ).toBe(false);
+
+  wrapper
+    .find(Step)
+    .at(1)
+    .simulate('open');
+  expect(
+    wrapper
+      .find(Step)
+      .at(0)
+      .props().open
+  ).toBe(false);
+  expect(
+    wrapper
+      .find(Step)
+      .at(1)
+      .props().open
+  ).toBe(true);
 });
 
 function shallowRender(props: Partial<GitHubActionTutorialProps> = {}) {

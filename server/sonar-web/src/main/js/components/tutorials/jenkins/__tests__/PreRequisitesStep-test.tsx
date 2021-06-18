@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { renderStepContent } from '../../test-utils';
 import PreRequisitesStep, { PreRequisitesStepProps } from '../PreRequisitesStep';
-import { renderStepContent } from '../test-utils';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

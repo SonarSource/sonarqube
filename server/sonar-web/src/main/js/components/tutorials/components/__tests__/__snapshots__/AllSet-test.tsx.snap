@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
         </strong>
       </p>
       <p>
-        onboarding.tutorial.ci_outro.commit.why.no_branches
+        onboarding.tutorial.ci_outro.commit.why.github
       </p>
     </div>
   </div>

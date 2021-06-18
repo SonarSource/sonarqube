@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: For variable steps 1`] = `
+exports[`should render correctly: default 1`] = `
 <Fragment>
   <Step
     finished={false}
@@ -20,22 +20,62 @@ exports[`should render correctly: For variable steps 1`] = `
 </Fragment>
 `;
 
-exports[`should render correctly: For yaml steps 1`] = `
-<Fragment>
-  <Step
-    finished={true}
-    onOpen={[Function]}
-    open={false}
-    renderForm={[Function]}
-    stepNumber={1}
-    stepTitle="onboarding.tutorial.with.bitbucket_pipelines.create_secret.title"
-  />
-  <Step
-    onOpen={[Function]}
-    open={true}
-    renderForm={[Function]}
-    stepNumber={2}
-    stepTitle="onboarding.tutorial.with.bitbucket_pipelines.yaml.title"
-  />
-</Fragment>
+exports[`should render correctly: repo variable step content 1`] = `
+<RepositoryVariables
+  almBinding={
+    Object {
+      "alm": "github",
+      "key": "key",
+    }
+  }
+  baseUrl="test"
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  currentUser={
+    Object {
+      "groups": Array [],
+      "isLoggedIn": true,
+      "login": "luke",
+      "name": "Skywalker",
+      "scmAccounts": Array [],
+    }
+  }
+  onDone={[Function]}
+  projectBinding={
+    Object {
+      "alm": "bitbucketcloud",
+      "key": "foo",
+      "monorepo": true,
+      "repository": "repo-slug",
+    }
+  }
+/>
+`;
+
+exports[`should render correctly: yaml file step content 1`] = `
+<YamlFileStep
+  alm="bitbucketcloud"
+>
+  [Function]
+</YamlFileStep>
 `;

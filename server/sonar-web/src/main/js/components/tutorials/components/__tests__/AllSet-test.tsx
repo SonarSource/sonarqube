@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { AllSet, AllSetProps } from '../AllSet';
 
 it('should render correctly', () => {
@@ -30,5 +31,7 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<AllSetProps> = {}) {
-  return shallow<AllSetProps>(<AllSet appState={mockAppState()} {...props} />);
+  return shallow<AllSetProps>(
+    <AllSet alm={AlmKeys.GitHub} appState={mockAppState({ branchesEnabled: true })} {...props} />
+  );
 }

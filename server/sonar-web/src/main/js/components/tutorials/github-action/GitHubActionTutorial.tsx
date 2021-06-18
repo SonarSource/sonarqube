@@ -19,7 +19,11 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingResponse
+} from '../../../types/alm-settings';
 import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
 import AnalysisCommand from './AnalysisCommand';
@@ -65,7 +69,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
         onOpen={() => setStep(Steps.YAML)}
         open={step === Steps.YAML}
         renderForm={() => (
-          <YamlFileStep>
+          <YamlFileStep alm={AlmKeys.GitHub}>
             {buildTool => <AnalysisCommand buildTool={buildTool} component={component} />}
           </YamlFileStep>
         )}

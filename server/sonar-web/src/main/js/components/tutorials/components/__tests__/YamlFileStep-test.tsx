@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { AlmKeys } from '../../../../types/alm-settings';
 import YamlFileStep, { YamlFileStepProps } from '../YamlFileStep';
 
 it('should render correctly', () => {
@@ -26,5 +27,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<YamlFileStepProps> = {}) {
-  return shallow<YamlFileStepProps>(<YamlFileStep {...props} />);
+  return shallow<YamlFileStepProps>(<YamlFileStep alm={AlmKeys.GitHub} {...props} />);
 }

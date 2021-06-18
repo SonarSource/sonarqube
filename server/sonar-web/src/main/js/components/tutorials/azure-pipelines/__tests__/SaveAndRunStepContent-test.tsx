@@ -19,13 +19,19 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SaveAndRunStepContent from '../SaveAndRunStepContent';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { SaveAndRunStepContent, SaveAndRunStepContentProps } from '../SaveAndRunStepContent';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({ alm: AlmKeys.Azure, appState: mockAppState({ branchesEnabled: true }) })
+  ).toMatchSnapshot('with branches and alm info');
 });
 
-function shallowRender() {
-  return shallow(<SaveAndRunStepContent />);
+function shallowRender(props: Partial<SaveAndRunStepContentProps> = {}) {
+  return shallow<SaveAndRunStepContentProps>(
+    <SaveAndRunStepContent appState={mockAppState()} {...props} />
+  );
 }

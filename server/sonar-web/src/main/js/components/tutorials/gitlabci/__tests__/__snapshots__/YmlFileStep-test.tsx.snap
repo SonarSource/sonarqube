@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for build tool dotnet 1`] = `
+exports[`should render correctly for build tool dotnet: with branch support 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -62,18 +62,11 @@ exports[`should render correctly for build tool dotnet 1`] = `
           >
             <strong>
               onboarding.tutorial.with.gitlab_ci.yml.done
-               
             </strong>
              
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              values={
-                Object {
-                  "link": "onboarding.tutorial.with.gitlab_ci.yml.done.description.link",
-                }
-              }
-            />
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
           </p>
           <p
             className="big-spacer-bottom"
@@ -112,7 +105,111 @@ exports[`should render correctly for build tool dotnet 1`] = `
 </div>
 `;
 
-exports[`should render correctly for build tool gradle 1`] = `
+exports[`should render correctly for build tool dotnet: without branch support 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column-full"
+    >
+      <React.Fragment>
+        <div
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
+            id="onboarding.tutorial.with.gitlab_ci.yml.description"
+            values={
+              Object {
+                "filename": <React.Fragment>
+                  <code
+                    className="rule"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.filename
+                  </code>
+                  <ClipboardIconButton
+                    className="little-spacer-left"
+                    copyValue="onboarding.tutorial.with.gitlab_ci.yml.filename"
+                  />
+                </React.Fragment>,
+              }
+            }
+          />
+        </div>
+        <div
+          className="big-spacer-bottom"
+        >
+          <PipeCommand
+            branchesEnabled={false}
+            buildTool="dotnet"
+            projectKey="test"
+          />
+        </div>
+        <p
+          className="little-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
+        </p>
+        <p
+          className="huge-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.existing
+        </p>
+        <hr
+          className="no-horizontal-margins"
+        />
+        <div>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <FormattedMessage
+              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              values={
+                Object {
+                  "links": <Link
+                    onlyActiveOnIndex={false}
+                    rel="noopener noreferrer"
+                    style={Object {}}
+                    target="_blank"
+                    to="/documentation/user-guide/quality-gates/"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
+                  </Link>,
+                }
+              }
+            />
+          </p>
+        </div>
+      </React.Fragment>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for build tool gradle: with branch support 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -174,18 +271,11 @@ exports[`should render correctly for build tool gradle 1`] = `
           >
             <strong>
               onboarding.tutorial.with.gitlab_ci.yml.done
-               
             </strong>
              
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              values={
-                Object {
-                  "link": "onboarding.tutorial.with.gitlab_ci.yml.done.description.link",
-                }
-              }
-            />
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
           </p>
           <p
             className="big-spacer-bottom"
@@ -224,7 +314,111 @@ exports[`should render correctly for build tool gradle 1`] = `
 </div>
 `;
 
-exports[`should render correctly for build tool maven 1`] = `
+exports[`should render correctly for build tool gradle: without branch support 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column-full"
+    >
+      <React.Fragment>
+        <div
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
+            id="onboarding.tutorial.with.gitlab_ci.yml.description"
+            values={
+              Object {
+                "filename": <React.Fragment>
+                  <code
+                    className="rule"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.filename
+                  </code>
+                  <ClipboardIconButton
+                    className="little-spacer-left"
+                    copyValue="onboarding.tutorial.with.gitlab_ci.yml.filename"
+                  />
+                </React.Fragment>,
+              }
+            }
+          />
+        </div>
+        <div
+          className="big-spacer-bottom"
+        >
+          <PipeCommand
+            branchesEnabled={false}
+            buildTool="gradle"
+            projectKey="test"
+          />
+        </div>
+        <p
+          className="little-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
+        </p>
+        <p
+          className="huge-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.existing
+        </p>
+        <hr
+          className="no-horizontal-margins"
+        />
+        <div>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <FormattedMessage
+              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              values={
+                Object {
+                  "links": <Link
+                    onlyActiveOnIndex={false}
+                    rel="noopener noreferrer"
+                    style={Object {}}
+                    target="_blank"
+                    to="/documentation/user-guide/quality-gates/"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
+                  </Link>,
+                }
+              }
+            />
+          </p>
+        </div>
+      </React.Fragment>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for build tool maven: with branch support 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -286,18 +480,11 @@ exports[`should render correctly for build tool maven 1`] = `
           >
             <strong>
               onboarding.tutorial.with.gitlab_ci.yml.done
-               
             </strong>
              
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              values={
-                Object {
-                  "link": "onboarding.tutorial.with.gitlab_ci.yml.done.description.link",
-                }
-              }
-            />
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
           </p>
           <p
             className="big-spacer-bottom"
@@ -336,7 +523,111 @@ exports[`should render correctly for build tool maven 1`] = `
 </div>
 `;
 
-exports[`should render correctly for build tool other 1`] = `
+exports[`should render correctly for build tool maven: without branch support 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column-full"
+    >
+      <React.Fragment>
+        <div
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
+            id="onboarding.tutorial.with.gitlab_ci.yml.description"
+            values={
+              Object {
+                "filename": <React.Fragment>
+                  <code
+                    className="rule"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.filename
+                  </code>
+                  <ClipboardIconButton
+                    className="little-spacer-left"
+                    copyValue="onboarding.tutorial.with.gitlab_ci.yml.filename"
+                  />
+                </React.Fragment>,
+              }
+            }
+          />
+        </div>
+        <div
+          className="big-spacer-bottom"
+        >
+          <PipeCommand
+            branchesEnabled={false}
+            buildTool="maven"
+            projectKey="test"
+          />
+        </div>
+        <p
+          className="little-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
+        </p>
+        <p
+          className="huge-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.existing
+        </p>
+        <hr
+          className="no-horizontal-margins"
+        />
+        <div>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <FormattedMessage
+              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              values={
+                Object {
+                  "links": <Link
+                    onlyActiveOnIndex={false}
+                    rel="noopener noreferrer"
+                    style={Object {}}
+                    target="_blank"
+                    to="/documentation/user-guide/quality-gates/"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
+                  </Link>,
+                }
+              }
+            />
+          </p>
+        </div>
+      </React.Fragment>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for build tool other: with branch support 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -398,18 +689,115 @@ exports[`should render correctly for build tool other 1`] = `
           >
             <strong>
               onboarding.tutorial.with.gitlab_ci.yml.done
-               
             </strong>
              
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
+          </p>
+          <p
+            className="big-spacer-bottom"
+          >
             <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.description"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.description"
+              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
+              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
               values={
                 Object {
-                  "link": "onboarding.tutorial.with.gitlab_ci.yml.done.description.link",
+                  "links": <Link
+                    onlyActiveOnIndex={false}
+                    rel="noopener noreferrer"
+                    style={Object {}}
+                    target="_blank"
+                    to="/documentation/user-guide/quality-gates/"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
+                  </Link>,
                 }
               }
             />
+          </p>
+        </div>
+      </React.Fragment>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for build tool other: without branch support 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <div
+    className="flex-columns"
+  >
+    <div
+      className="flex-column-full"
+    >
+      <React.Fragment>
+        <div
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
+            id="onboarding.tutorial.with.gitlab_ci.yml.description"
+            values={
+              Object {
+                "filename": <React.Fragment>
+                  <code
+                    className="rule"
+                  >
+                    onboarding.tutorial.with.gitlab_ci.yml.filename
+                  </code>
+                  <ClipboardIconButton
+                    className="little-spacer-left"
+                    copyValue="onboarding.tutorial.with.gitlab_ci.yml.filename"
+                  />
+                </React.Fragment>,
+              }
+            }
+          />
+        </div>
+        <div
+          className="big-spacer-bottom"
+        >
+          <PipeCommand
+            branchesEnabled={false}
+            buildTool="other"
+            projectKey="test"
+          />
+        </div>
+        <p
+          className="little-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
+        </p>
+        <p
+          className="huge-spacer-bottom"
+        >
+          onboarding.tutorial.with.gitlab_ci.yml.existing
+        </p>
+        <hr
+          className="no-horizontal-margins"
+        />
+        <div>
+          <p
+            className="big-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.gitlab_ci.yml.done
+            </strong>
+             
+            onboarding.tutorial.with.gitlab_ci.yml.done.description
+             
           </p>
           <p
             className="big-spacer-bottom"
