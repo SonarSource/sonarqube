@@ -17,67 +17,130 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEqual, omit } from 'lodash';
 import * as React from 'react';
-import { AlmBindingDefinition } from '../../../../types/alm-settings';
-import AlmBindingDefinitionFormModalRenderer from './AlmBindingDefinitionFormModalRenderer';
+import {
+  createAzureConfiguration,
+  createBitbucketCloudConfiguration,
+  createBitbucketServerConfiguration,
+  createGithubConfiguration,
+  createGitlabConfiguration,
+  updateAzureConfiguration,
+  updateBitbucketCloudConfiguration,
+  updateBitbucketServerConfiguration,
+  updateGithubConfiguration,
+  updateGitlabConfiguration
+} from '../../../../api/alm-settings';
+import {
+  AlmBindingDefinition,
+  AlmBindingDefinitionBase,
+  AlmKeys,
+  AzureBindingDefinition,
+  BitbucketCloudBindingDefinition,
+  BitbucketServerBindingDefinition,
+  GithubBindingDefinition,
+  GitlabBindingDefinition,
+  isBitbucketCloudBindingDefinition
+} from '../../../../types/alm-settings';
+import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
-export interface AlmBindingDefinitionFormChildrenProps<B> {
-  formData: B;
-  onFieldChange: (fieldId: keyof B, value: string) => void;
+export interface AlmBindingDefinitionFormChildrenProps {
+  formData: AlmBindingDefinition;
+  onFieldChange: (fieldId: string, value: string) => void;
 }
 
-interface Props<B> {
-  bindingDefinition: B;
-  children: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
-  help?: React.ReactNode;
-  isSecondInstance?: boolean;
-  onCancel?: () => void;
+interface Props {
+  alm: AlmKeys;
+  bindingDefinition?: AlmBindingDefinition;
+  alreadyHaveInstanceConfigured: boolean;
   onDelete?: (definitionKey: string) => void;
   onEdit?: (definitionKey: string) => void;
-  onSubmit: (data: B, originalKey: string) => void;
-  optionalFields?: Array<keyof B>;
+  onCancel?: () => void;
+  afterSubmit?: (data: AlmBindingDefinitionBase) => void;
 }
 
-interface State<B> {
-  formData: B;
+interface State {
+  formData: AlmBindingDefinition;
   touched: boolean;
+  submitting: boolean;
+  bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
 }
 
-export default class AlmBindingDefinitionForm<
-  B extends AlmBindingDefinition
-> extends React.PureComponent<Props<B>, State<B>> {
-  constructor(props: Props<B>) {
+const BINDING_PER_ALM = {
+  [AlmKeys.Azure]: {
+    createApi: createAzureConfiguration,
+    updateApi: updateAzureConfiguration,
+    defaultBinding: { key: '', personalAccessToken: '', url: '' } as AzureBindingDefinition
+  },
+  [AlmKeys.GitHub]: {
+    createApi: createGithubConfiguration,
+    updateApi: updateGithubConfiguration,
+    defaultBinding: {
+      key: '',
+      appId: '',
+      clientId: '',
+      clientSecret: '',
+      url: '',
+      privateKey: ''
+    } as GithubBindingDefinition
+  },
+  [AlmKeys.GitLab]: {
+    createApi: createGitlabConfiguration,
+    updateApi: updateGitlabConfiguration,
+    defaultBinding: { key: '', personalAccessToken: '', url: '' } as GitlabBindingDefinition
+  },
+  [AlmKeys.BitbucketServer]: {
+    createApi: createBitbucketServerConfiguration,
+    updateApi: updateBitbucketServerConfiguration,
+    defaultBinding: {
+      key: '',
+      url: '',
+      personalAccessToken: ''
+    } as BitbucketServerBindingDefinition
+  },
+  [AlmKeys.BitbucketCloud]: {
+    createApi: createBitbucketCloudConfiguration,
+    updateApi: updateBitbucketCloudConfiguration,
+    defaultBinding: {
+      key: '',
+      clientId: '',
+      clientSecret: '',
+      workspace: ''
+    } as BitbucketCloudBindingDefinition
+  }
+};
+
+export default class AlmBindingDefinitionForm extends React.PureComponent<Props, State> {
+  mounted = false;
+  constructor(props: Props) {
     super(props);
-    this.state = { formData: props.bindingDefinition, touched: false };
+
+    let bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud | undefined = undefined;
+
+    if (props.bindingDefinition && props.alm === AlmKeys.BitbucketServer) {
+      bitbucketVariant = isBitbucketCloudBindingDefinition(props.bindingDefinition)
+        ? AlmKeys.BitbucketCloud
+        : AlmKeys.BitbucketServer;
+    }
+
+    const alm = bitbucketVariant || props.alm;
+
+    this.state = {
+      formData: props.bindingDefinition ?? BINDING_PER_ALM[alm].defaultBinding,
+      touched: false,
+      submitting: false,
+      bitbucketVariant
+    };
   }
 
-  componentDidUpdate(prevProps: Props<B>) {
-    if (!isEqual(prevProps.bindingDefinition, this.props.bindingDefinition)) {
-      this.setState({ formData: this.props.bindingDefinition, touched: false });
-    }
+  componentDidMount() {
+    this.mounted = true;
   }
 
-  handleCancel = () => {
-    this.setState({ formData: this.props.bindingDefinition, touched: false });
-    if (this.props.onCancel) {
-      this.props.onCancel();
-    }
-  };
+  componentWillUnmount() {
+    this.mounted = false;
+  }
 
-  handleDelete = () => {
-    if (this.props.onDelete) {
-      this.props.onDelete(this.props.bindingDefinition.key);
-    }
-  };
-
-  handleEdit = () => {
-    if (this.props.onEdit) {
-      this.props.onEdit(this.props.bindingDefinition.key);
-    }
-  };
-
-  handleFieldChange = (fieldId: keyof B, value: string) => {
+  handleFieldChange = (fieldId: string, value: string) => {
     this.setState(({ formData }) => ({
       formData: {
         ...formData,
@@ -87,42 +150,69 @@ export default class AlmBindingDefinitionForm<
     }));
   };
 
-  handleFormSubmit = () => {
-    this.props.onSubmit(this.state.formData, this.props.bindingDefinition.key);
+  handleFormSubmit = async () => {
+    const { alm } = this.props;
+    const { formData, bitbucketVariant } = this.state;
+    const apiAlm = bitbucketVariant ?? alm;
+
+    const apiMethod = this.props.bindingDefinition?.key
+      ? BINDING_PER_ALM[apiAlm].updateApi({
+          newKey: formData.key,
+          ...formData,
+          key: this.props.bindingDefinition.key
+        } as any)
+      : BINDING_PER_ALM[apiAlm].createApi({ ...formData } as any);
+
+    this.setState({ submitting: true });
+
+    try {
+      await apiMethod;
+
+      if (this.props.afterSubmit) {
+        this.props.afterSubmit(formData);
+      }
+    } finally {
+      if (this.mounted) {
+        this.setState({ submitting: false });
+      }
+    }
+  };
+
+  handleBitbucketVariantChange = (
+    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud
+  ) => {
+    this.setState({
+      bitbucketVariant,
+      formData: { ...BINDING_PER_ALM[bitbucketVariant].defaultBinding }
+    });
   };
 
   canSubmit = () => {
-    const { optionalFields } = this.props;
     const { formData, touched } = this.state;
 
-    let values = { ...formData };
-
-    if (optionalFields && optionalFields.length > 0) {
-      values = omit(values, optionalFields) as B;
-    }
-
-    return touched && !Object.values(values).some(v => !v);
+    return touched && !Object.values(formData).some(v => !v);
   };
 
   render() {
-    const { bindingDefinition, children, help, isSecondInstance } = this.props;
-    const { formData } = this.state;
+    const { alm, bindingDefinition, alreadyHaveInstanceConfigured } = this.props;
+    const { formData, submitting, bitbucketVariant } = this.state;
 
-    const action = bindingDefinition.key ? 'edit' : 'create';
+    const isUpdate = !!bindingDefinition;
 
     return (
-      <AlmBindingDefinitionFormModalRenderer
-        action={action}
-        canSubmit={this.canSubmit}
-        help={help}
-        isSecondInstance={Boolean(isSecondInstance)}
-        onCancel={this.handleCancel}
-        onSubmit={this.handleFormSubmit}>
-        {children({
-          formData,
-          onFieldChange: this.handleFieldChange
-        })}
-      </AlmBindingDefinitionFormModalRenderer>
+      <AlmBindingDefinitionFormRenderer
+        alm={alm}
+        isUpdate={isUpdate}
+        canSubmit={this.canSubmit()}
+        alreadyHaveInstanceConfigured={alreadyHaveInstanceConfigured}
+        onCancel={() => this.props.onCancel && this.props.onCancel()}
+        onSubmit={this.handleFormSubmit}
+        onFieldChange={this.handleFieldChange}
+        formData={formData}
+        submitting={submitting}
+        bitbucketVariant={bitbucketVariant}
+        onBitbucketVariantChange={this.handleBitbucketVariantChange}
+      />
     );
   }
 }

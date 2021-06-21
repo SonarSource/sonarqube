@@ -26,27 +26,24 @@ import {
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
-import AzureTab from './AzureTab';
-import BitbucketTab from './BitbucketTab';
+import { AlmTabs } from './AlmIntegration';
+import AlmTab from './AlmTab';
 import DeleteModal from './DeleteModal';
-import GithubTab from './GithubTab';
-import GitlabTab from './GitlabTab';
 
 export interface AlmIntegrationRendererProps {
   branchesEnabled: boolean;
-  component?: T.Component;
-  currentAlm: AlmKeys;
+  currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
-  onCancel: () => void;
-  onCheck: (definitionKey: string) => void;
+  onCancelDelete: () => void;
+  onCheckConfiguration: (definitionKey: string) => void;
   onConfirmDelete: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
-  onSelectAlm: (alm: AlmKeys) => void;
+  onSelectAlmTab: (alm: AlmTabs) => void;
   onUpdateDefinitions: () => void;
   projectCount?: number;
 }
@@ -64,8 +61,7 @@ const tabs = [
         />
         GitHub
       </>
-    ),
-    requiresBranchesEnabled: false
+    )
   },
   {
     key: AlmKeys.BitbucketServer,
@@ -79,8 +75,7 @@ const tabs = [
         />
         Bitbucket
       </>
-    ),
-    requiresBranchesEnabled: false
+    )
   },
   {
     key: AlmKeys.Azure,
@@ -94,8 +89,7 @@ const tabs = [
         />
         Azure DevOps
       </>
-    ),
-    requiresBranchesEnabled: false
+    )
   },
   {
     key: AlmKeys.GitLab,
@@ -109,24 +103,29 @@ const tabs = [
         />
         GitLab
       </>
-    ),
-    requiresBranchesEnabled: false
+    )
   }
 ];
 
 export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProps) {
   const {
-    component,
     definitionKeyForDeletion,
     definitions,
     definitionStatus,
-    currentAlm,
+    currentAlmTab,
     loadingAlmDefinitions,
     loadingProjectCount,
     branchesEnabled,
     multipleAlmEnabled,
     projectCount
   } = props;
+
+  const bindingDefinitions = {
+    [AlmKeys.Azure]: definitions.azure,
+    [AlmKeys.GitLab]: definitions.gitlab,
+    [AlmKeys.GitHub]: definitions.github,
+    [AlmKeys.BitbucketServer]: [...definitions.bitbucket, ...definitions.bitbucketcloud]
+  };
 
   return (
     <>
@@ -137,70 +136,26 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       <div className="markdown small spacer-top big-spacer-bottom">
         {translate('settings.almintegration.description')}
       </div>
-      <BoxedTabs
-        onSelect={props.onSelectAlm}
-        selected={currentAlm}
-        tabs={tabs.filter(tab => !(tab.requiresBranchesEnabled && !branchesEnabled))}
-      />
 
-      {currentAlm === AlmKeys.Azure && (
-        <AzureTab
-          branchesEnabled={branchesEnabled}
-          definitions={definitions.azure}
-          definitionStatus={definitionStatus}
-          loadingAlmDefinitions={loadingAlmDefinitions}
-          loadingProjectCount={loadingProjectCount}
-          multipleAlmEnabled={multipleAlmEnabled}
-          onCheck={props.onCheck}
-          onDelete={props.onDelete}
-          onUpdateDefinitions={props.onUpdateDefinitions}
-        />
-      )}
-      {currentAlm === AlmKeys.BitbucketServer && (
-        <BitbucketTab
-          branchesEnabled={branchesEnabled}
-          definitions={[...definitions.bitbucket, ...definitions.bitbucketcloud]}
-          definitionStatus={definitionStatus}
-          loadingAlmDefinitions={loadingAlmDefinitions}
-          loadingProjectCount={loadingProjectCount}
-          multipleAlmEnabled={multipleAlmEnabled}
-          onCheck={props.onCheck}
-          onDelete={props.onDelete}
-          onUpdateDefinitions={props.onUpdateDefinitions}
-        />
-      )}
-      {currentAlm === AlmKeys.GitHub && (
-        <GithubTab
-          branchesEnabled={branchesEnabled}
-          component={component}
-          definitions={definitions.github}
-          definitionStatus={definitionStatus}
-          loadingAlmDefinitions={loadingAlmDefinitions}
-          loadingProjectCount={loadingProjectCount}
-          multipleAlmEnabled={multipleAlmEnabled}
-          onCheck={props.onCheck}
-          onDelete={props.onDelete}
-          onUpdateDefinitions={props.onUpdateDefinitions}
-        />
-      )}
-      {currentAlm === AlmKeys.GitLab && (
-        <GitlabTab
-          branchesEnabled={branchesEnabled}
-          definitions={definitions.gitlab}
-          definitionStatus={definitionStatus}
-          loadingAlmDefinitions={loadingAlmDefinitions}
-          loadingProjectCount={loadingProjectCount}
-          multipleAlmEnabled={multipleAlmEnabled}
-          onCheck={props.onCheck}
-          onDelete={props.onDelete}
-          onUpdateDefinitions={props.onUpdateDefinitions}
-        />
-      )}
+      <BoxedTabs onSelect={props.onSelectAlmTab} selected={currentAlmTab} tabs={tabs} />
+
+      <AlmTab
+        almTab={currentAlmTab}
+        branchesEnabled={branchesEnabled}
+        definitions={bindingDefinitions[currentAlmTab]}
+        definitionStatus={definitionStatus}
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
+        multipleAlmEnabled={multipleAlmEnabled}
+        onCheck={props.onCheckConfiguration}
+        onDelete={props.onDelete}
+        onUpdateDefinitions={props.onUpdateDefinitions}
+      />
 
       {definitionKeyForDeletion && (
         <DeleteModal
           id={definitionKeyForDeletion}
-          onCancel={props.onCancel}
+          onCancel={props.onCancelDelete}
           onDelete={props.onConfirmDelete}
           projectCount={projectCount}
         />

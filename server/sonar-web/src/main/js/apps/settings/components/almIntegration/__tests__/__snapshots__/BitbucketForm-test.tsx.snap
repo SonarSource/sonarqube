@@ -1,310 +1,259 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: bitbucket cloud, edit 1`] = `
-<div>
-  <div>
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.bitbucketcloud.help"
-      id="name.bitbucket"
-      maxLength={100}
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value="key"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
-          id="settings.almintegration.form.workspace.bitbucketcloud.help"
-          values={
-            Object {
-              "example": <React.Fragment>
-                https://bitbucket.org/
-                <strong>
-                  {workspace}
-                </strong>
-                /{repository}
-              </React.Fragment>,
-            }
-          }
-        />
+exports[`should render correctly: bbc 1`] = `
+<Fragment>
+  <div
+    className="display-flex-column"
+  >
+    <strong>
+      settings.almintegration.form.choose_bitbucket_variant
+    </strong>
+    <RadioToggle
+      className="little-spacer-top big-spacer-bottom"
+      disabled={false}
+      name="variant"
+      onCheck={[MockFunction]}
+      options={
+        Array [
+          Object {
+            "label": "Bitbucket Server",
+            "value": "bitbucket",
+          },
+          Object {
+            "label": "Bitbucket Cloud",
+            "value": "bitbucketcloud",
+          },
+        ]
       }
-      id="workspace.bitbucketcloud"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="workspace"
-      value="workspace"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
-      id="client_id.bitbucketcloud"
-      onFieldChange={[MockFunction]}
-      propKey="clientId"
-      value="client1"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
-      id="client_secret.bitbucketcloud"
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="clientSecret"
-      value="**clientsecret**"
+      value="bitbucketcloud"
     />
   </div>
-</div>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <BitbucketCloudForm
+        formData={
+          Object {
+            "clientId": "client1",
+            "clientSecret": "**clientsecret**",
+            "key": "key",
+            "workspace": "workspace",
+          }
+        }
+        onFieldChange={[MockFunction]}
+      />
+    </div>
+    <Alert
+      className="huge-spacer-left flex-1"
+      variant="info"
+    >
+      <FormattedMessage
+        defaultMessage="settings.almintegration.bitbucketcloud.info"
+        id="settings.almintegration.bitbucketcloud.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/bitbucket-cloud-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    </Alert>
+  </div>
+</Fragment>
 `;
 
-exports[`should render correctly: bitbucket cloud, empty 1`] = `
-<div>
-  <div>
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.bitbucketcloud.help"
-      id="name.bitbucket"
-      maxLength={100}
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
-          id="settings.almintegration.form.workspace.bitbucketcloud.help"
-          values={
-            Object {
-              "example": <React.Fragment>
-                https://bitbucket.org/
-                <strong>
-                  {workspace}
-                </strong>
-                /{repository}
-              </React.Fragment>,
-            }
-          }
-        />
+exports[`should render correctly: bbs 1`] = `
+<Fragment>
+  <div
+    className="display-flex-column"
+  >
+    <strong>
+      settings.almintegration.form.choose_bitbucket_variant
+    </strong>
+    <RadioToggle
+      className="little-spacer-top big-spacer-bottom"
+      disabled={false}
+      name="variant"
+      onCheck={[MockFunction]}
+      options={
+        Array [
+          Object {
+            "label": "Bitbucket Server",
+            "value": "bitbucket",
+          },
+          Object {
+            "label": "Bitbucket Cloud",
+            "value": "bitbucketcloud",
+          },
+        ]
       }
-      id="workspace.bitbucketcloud"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="workspace"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
-      id="client_id.bitbucketcloud"
-      onFieldChange={[MockFunction]}
-      propKey="clientId"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
-      id="client_secret.bitbucketcloud"
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="clientSecret"
-      value=""
+      value="bitbucket"
     />
   </div>
-</div>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <BitbucketServerForm
+        formData={
+          Object {
+            "key": "key",
+            "personalAccessToken": "asdf1234",
+            "url": "http://bbs.enterprise.com",
+          }
+        }
+        onFieldChange={[MockFunction]}
+      />
+    </div>
+    <Alert
+      className="huge-spacer-left flex-1"
+      variant="info"
+    >
+      <h3>
+        onboarding.create_project.pat_help.title
+      </h3>
+      <p
+        className="big-spacer-top"
+      >
+        settings.almintegration.bitbucket.help_1
+      </p>
+      <ul
+        className="big-spacer-top list-styled"
+      >
+        <li>
+          settings.almintegration.bitbucket.help_2
+        </li>
+        <li>
+          settings.almintegration.bitbucket.help_3
+        </li>
+      </ul>
+      <p
+        className="big-spacer-top big-spacer-bottom"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          target="_blank"
+          to="/documentation/analysis/bitbucket-integration/"
+        >
+          learn_more
+        </Link>
+      </p>
+    </Alert>
+  </div>
+</Fragment>
 `;
 
-exports[`should render correctly: bitbucket server, edit 1`] = `
-<div>
-  <div>
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.bitbucket.help"
-      id="name.bitbucket"
-      maxLength={100}
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value="key"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.url.bitbucket.help"
-          id="settings.almintegration.form.url.bitbucket.help"
-          values={
-            Object {
-              "example": "https://bitbucket-server.your-company.com",
-            }
+exports[`should render correctly: update bbc 1`] = `
+<Fragment>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <BitbucketCloudForm
+        formData={
+          Object {
+            "clientId": "client1",
+            "clientSecret": "**clientsecret**",
+            "key": "key",
+            "workspace": "workspace",
           }
-        />
-      }
-      id="url.bitbucket"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value="http://bbs.enterprise.com"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
-          id="settings.almintegration.form.personal_access_token.bitbucket.help"
-          values={
-            Object {
-              "pat": <a
-                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                settings.almintegration.form.personal_access_token.bitbucket.help.url
-              </a>,
-            }
+        }
+        onFieldChange={[MockFunction]}
+      />
+    </div>
+    <Alert
+      className="huge-spacer-left flex-1"
+      variant="info"
+    >
+      <FormattedMessage
+        defaultMessage="settings.almintegration.bitbucketcloud.info"
+        id="settings.almintegration.bitbucketcloud.info"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/bitbucket-cloud-integration/"
+            >
+              learn_more
+            </Link>,
           }
-        />
-      }
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="personalAccessToken"
-      value="asdf1234"
-    />
+        }
+      />
+    </Alert>
   </div>
-</div>
+</Fragment>
 `;
 
-exports[`should render correctly: bitbucket server, empty 1`] = `
-<div>
-  <div>
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.bitbucket.help"
-      id="name.bitbucket"
-      maxLength={100}
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.url.bitbucket.help"
-          id="settings.almintegration.form.url.bitbucket.help"
-          values={
-            Object {
-              "example": "https://bitbucket-server.your-company.com",
-            }
+exports[`should render correctly: update bbs 1`] = `
+<Fragment>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <BitbucketServerForm
+        formData={
+          Object {
+            "key": "key",
+            "personalAccessToken": "asdf1234",
+            "url": "http://bbs.enterprise.com",
           }
-        />
-      }
-      id="url.bitbucket"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
-          id="settings.almintegration.form.personal_access_token.bitbucket.help"
-          values={
-            Object {
-              "pat": <a
-                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                settings.almintegration.form.personal_access_token.bitbucket.help.url
-              </a>,
-            }
-          }
-        />
-      }
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="personalAccessToken"
-      value=""
-    />
+        }
+        onFieldChange={[MockFunction]}
+      />
+    </div>
+    <Alert
+      className="huge-spacer-left flex-1"
+      variant="info"
+    >
+      <h3>
+        onboarding.create_project.pat_help.title
+      </h3>
+      <p
+        className="big-spacer-top"
+      >
+        settings.almintegration.bitbucket.help_1
+      </p>
+      <ul
+        className="big-spacer-top list-styled"
+      >
+        <li>
+          settings.almintegration.bitbucket.help_2
+        </li>
+        <li>
+          settings.almintegration.bitbucket.help_3
+        </li>
+      </ul>
+      <p
+        className="big-spacer-top big-spacer-bottom"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          target="_blank"
+          to="/documentation/analysis/bitbucket-integration/"
+        >
+          learn_more
+        </Link>
+      </p>
+    </Alert>
   </div>
-</div>
-`;
-
-exports[`should render correctly: variant select 1`] = `
-<div>
-  <strong>
-    settings.almintegration.form.choose_bitbucket_variant
-  </strong>
-  <RadioToggle
-    className="little-spacer-top big-spacer-bottom"
-    disabled={false}
-    name="variant"
-    onCheck={[MockFunction]}
-    options={
-      Array [
-        Object {
-          "label": "Bitbucket Server",
-          "value": "bitbucket",
-        },
-        Object {
-          "label": "Bitbucket Cloud",
-          "value": "bitbucketcloud",
-        },
-      ]
-    }
-    value="bitbucket"
-  />
-  <div>
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.bitbucket.help"
-      id="name.bitbucket"
-      maxLength={100}
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.url.bitbucket.help"
-          id="settings.almintegration.form.url.bitbucket.help"
-          values={
-            Object {
-              "example": "https://bitbucket-server.your-company.com",
-            }
-          }
-        />
-      }
-      id="url.bitbucket"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <FormattedMessage
-          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
-          id="settings.almintegration.form.personal_access_token.bitbucket.help"
-          values={
-            Object {
-              "pat": <a
-                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                settings.almintegration.form.personal_access_token.bitbucket.help.url
-              </a>,
-            }
-          }
-        />
-      }
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="personalAccessToken"
-      value=""
-    />
-  </div>
-</div>
+</Fragment>
 `;

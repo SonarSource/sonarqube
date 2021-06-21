@@ -18,8 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { GithubBindingDefinition } from '../../../../types/alm-settings';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface GithubFormProps {
@@ -31,68 +35,83 @@ export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
 
   return (
-    <>
-      <AlmBindingDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.almintegration.form.name.github.help')}
-        id="name.github"
-        onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
-      />
-      <AlmBindingDefinitionFormField
-        help={
-          <>
-            {translate('settings.almintegration.form.url.github.help1')}
-            <br />
-            <em>https://github.company.com/api/v3</em>
-            <br />
-            <br />
-            {translate('settings.almintegration.form.url.github.help2')}
-            <br />
-            <em>https://api.github.com/</em>
-          </>
-        }
-        id="url.github"
-        maxLength={2000}
-        onFieldChange={onFieldChange}
-        propKey="url"
-        value={formData.url}
-      />
-      <AlmBindingDefinitionFormField
-        help={translate('settings.almintegration.form.app_id.github.help')}
-        id="app_id"
-        maxLength={80}
-        onFieldChange={onFieldChange}
-        propKey="appId"
-        value={formData.appId}
-      />
-      <AlmBindingDefinitionFormField
-        help={translate('settings.almintegration.form.client_id.github.help')}
-        id="client_id.github"
-        maxLength={80}
-        onFieldChange={onFieldChange}
-        propKey="clientId"
-        value={formData.clientId}
-      />
-      <AlmBindingDefinitionFormField
-        help={translate('settings.almintegration.form.client_secret.github.help')}
-        id="client_secret.github"
-        maxLength={80}
-        onFieldChange={onFieldChange}
-        overwriteOnly={Boolean(formData.key)}
-        propKey="clientSecret"
-        value={formData.clientSecret}
-      />
-      <AlmBindingDefinitionFormField
-        help={translate('settings.almintegration.form.private_key.github.help')}
-        id="private_key"
-        isTextArea={true}
-        onFieldChange={onFieldChange}
-        overwriteOnly={Boolean(formData.key)}
-        propKey="privateKey"
-        value={formData.privateKey}
-      />
-    </>
+    <div className="display-flex-start">
+      <div className="flex-1">
+        <AlmBindingDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.almintegration.form.name.github.help')}
+          id="name.github"
+          onFieldChange={onFieldChange}
+          propKey="key"
+          value={formData.key}
+        />
+        <AlmBindingDefinitionFormField
+          help={
+            <>
+              {translate('settings.almintegration.form.url.github.help1')}
+              <br />
+              <em>https://github.company.com/api/v3</em>
+              <br />
+              <br />
+              {translate('settings.almintegration.form.url.github.help2')}
+              <br />
+              <em>https://api.github.com/</em>
+            </>
+          }
+          id="url.github"
+          maxLength={2000}
+          onFieldChange={onFieldChange}
+          propKey="url"
+          value={formData.url}
+        />
+        <AlmBindingDefinitionFormField
+          id="app_id"
+          help={translate('settings.almintegration.form.app_id.github.help')}
+          maxLength={80}
+          onFieldChange={onFieldChange}
+          propKey="appId"
+          value={formData.appId}
+        />
+        <AlmBindingDefinitionFormField
+          id="client_id.github"
+          help={translate('settings.almintegration.form.client_id.github.help')}
+          maxLength={80}
+          onFieldChange={onFieldChange}
+          propKey="clientId"
+          value={formData.clientId}
+        />
+        <AlmBindingDefinitionFormField
+          id="client_secret.github"
+          help={translate('settings.almintegration.form.client_secret.github.help')}
+          maxLength={80}
+          onFieldChange={onFieldChange}
+          overwriteOnly={Boolean(formData.key)}
+          propKey="clientSecret"
+          value={formData.clientSecret}
+        />
+        <AlmBindingDefinitionFormField
+          id="private_key"
+          help={translate('settings.almintegration.form.private_key.github.help')}
+          isTextArea={true}
+          onFieldChange={onFieldChange}
+          overwriteOnly={Boolean(formData.key)}
+          propKey="privateKey"
+          value={formData.privateKey}
+        />
+      </div>
+      <Alert className="huge-spacer-left flex-1" variant="info">
+        <FormattedMessage
+          defaultMessage={translate(`settings.almintegration.github.info`)}
+          id="settings.almintegration.github.info"
+          values={{
+            link: (
+              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                {translate('learn_more')}
+              </Link>
+            )
+          }}
+        />
+      </Alert>
+    </div>
   );
 }

@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import GithubTab, { GithubTabProps } from '../GithubTab';
+import { mockBitbucketCloudBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
+import BitbucketCloudForm, { BitbucketCloudFormProps } from '../BitbucketCloudForm';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('with branch support');
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<GithubTabProps> = {}) {
-  return shallow(
-    <GithubTab
-      branchesEnabled={true}
-      definitions={[mockGithubBindingDefinition()]}
-      definitionStatus={{}}
-      loadingAlmDefinitions={false}
-      loadingProjectCount={false}
-      multipleAlmEnabled={true}
-      onCheck={jest.fn()}
-      onDelete={jest.fn()}
-      onUpdateDefinitions={jest.fn()}
+function shallowRender(props: Partial<BitbucketCloudFormProps> = {}) {
+  return shallow<BitbucketCloudFormProps>(
+    <BitbucketCloudForm
+      onFieldChange={jest.fn()}
+      formData={mockBitbucketCloudBindingDefinition()}
       {...props}
     />
   );

@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+   
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.bitbucket.help"
+    id="name.bitbucket"
+    maxLength={100}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.url.bitbucket.help"
+        id="settings.almintegration.form.url.bitbucket.help"
+        values={
+          Object {
+            "example": "https://bitbucket-server.your-company.com",
+          }
+        }
+      />
+    }
+    id="url.bitbucket"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value="http://bbs.enterprise.com"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
+        id="settings.almintegration.form.personal_access_token.bitbucket.help"
+        values={
+          Object {
+            "pat": <a
+              href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              settings.almintegration.form.personal_access_token.bitbucket.help.url
+            </a>,
+          }
+        }
+      />
+    }
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="personalAccessToken"
+    value="asdf1234"
+  />
+</Fragment>
+`;

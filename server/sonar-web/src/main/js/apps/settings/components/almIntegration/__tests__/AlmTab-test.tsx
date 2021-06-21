@@ -21,14 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import { AlmKeys, AzureBindingDefinition } from '../../../../../types/alm-settings';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmTab from '../AlmTab';
-
-const DEFAULT_BINDING = {
-  key: '',
-  personalAccessToken: '',
-  url: undefined
-};
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -51,64 +45,47 @@ it('should handle cancel', async () => {
 it('should handle edit', async () => {
   const config = mockAzureBindingDefinition();
   const wrapper = shallowRender({ definitions: [config] });
+
   wrapper.instance().handleEdit(config.key);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().editedDefinition).toEqual(config);
 });
 
-it('should create config', async () => {
-  const onUpdateDefinitions = jest.fn();
-  const createConfiguration = jest.fn(() => Promise.resolve());
-  const config = mockAzureBindingDefinition();
-  const wrapper = shallowRender({ createConfiguration, onUpdateDefinitions });
+it('should handle create', async () => {
+  const wrapper = shallowRender();
 
   wrapper.instance().handleCreate();
-  expect(wrapper.state().editedDefinition).toBe(DEFAULT_BINDING);
-
-  wrapper.setState({ editedDefinition: config });
-  await wrapper.instance().handleSubmit(config, '');
-
-  expect(createConfiguration).toBeCalledWith(config);
-  expect(onUpdateDefinitions).toBeCalled();
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().editedDefinition).toBeUndefined();
 });
 
-it('should update config', async () => {
+it('should handle afterSubmit', async () => {
   const onUpdateDefinitions = jest.fn();
-  const updateConfiguration = jest.fn(() => Promise.resolve());
-  const config = mockAzureBindingDefinition();
-  const wrapper = shallowRender({ onUpdateDefinitions, updateConfiguration });
-  wrapper.setState({ editedDefinition: config });
+  const onCheck = jest.fn();
+  const binding = mockAzureBindingDefinition();
 
-  await wrapper.instance().handleSubmit(config, 'originalKey');
+  const wrapper = shallowRender({ onUpdateDefinitions, onCheck });
 
-  expect(updateConfiguration).toBeCalledWith({
-    newKey: 'key',
-    ...config,
-    key: 'originalKey'
-  });
-  expect(onUpdateDefinitions).toBeCalled();
+  wrapper.instance().handleAfterSubmit(binding);
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().editedDefinition).toBeUndefined();
+  expect(onUpdateDefinitions).toHaveBeenCalled();
+  expect(onCheck).toHaveBeenCalledWith(binding.key);
 });
 
-function shallowRender(props: Partial<AlmTab<AzureBindingDefinition>['props']> = {}) {
-  return shallow<AlmTab<AzureBindingDefinition>>(
+function shallowRender(props: Partial<AlmTab['props']> = {}) {
+  return shallow<AlmTab>(
     <AlmTab
-      alm={AlmKeys.Azure}
+      almTab={AlmKeys.Azure}
       branchesEnabled={true}
-      createConfiguration={jest.fn()}
-      defaultBinding={DEFAULT_BINDING}
       definitions={[mockAzureBindingDefinition()]}
       definitionStatus={{}}
-      form={jest.fn()}
-      help={<div />}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={true}
       onCheck={jest.fn()}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}
-      updateConfiguration={jest.fn()}
       {...props}
     />
   );

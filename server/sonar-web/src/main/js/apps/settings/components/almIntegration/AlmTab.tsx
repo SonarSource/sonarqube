@@ -20,43 +20,33 @@
 import * as React from 'react';
 import {
   AlmBindingDefinition,
-  AlmKeys,
+  AlmBindingDefinitionBase,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
-import { AlmBindingDefinitionFormChildrenProps } from './AlmBindingDefinitionForm';
+import { AlmTabs } from './AlmIntegration';
 import AlmTabRenderer from './AlmTabRenderer';
 
-interface Props<B> {
-  alm: AlmKeys;
+interface Props {
+  almTab: AlmTabs;
   branchesEnabled: boolean;
-  createConfiguration: (data: B) => Promise<void>;
-  defaultBinding: B;
-  definitions: B[];
+  definitions: AlmBindingDefinition[];
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
-  form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
-  help: React.ReactNode;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
-  optionalFields?: Array<keyof B>;
-  updateConfiguration: (data: B & { newKey?: string }) => Promise<void>;
 }
 
-interface State<B> {
-  editedDefinition?: B;
-  submitting: boolean;
-  success: boolean;
+interface State {
+  editedDefinition?: AlmBindingDefinition;
+  editDefinition?: boolean;
 }
 
-export default class AlmTab<B extends AlmBindingDefinition> extends React.PureComponent<
-  Props<B>,
-  State<B>
-> {
+export default class AlmTab extends React.PureComponent<Props, State> {
+  state: State = {};
   mounted = false;
-  state: State<B> = { submitting: false, success: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -67,81 +57,60 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
   }
 
   handleCancel = () => {
-    this.setState({ editedDefinition: undefined, success: false });
+    this.setState({ editDefinition: false, editedDefinition: undefined });
   };
 
   handleCreate = () => {
-    this.setState({ editedDefinition: this.props.defaultBinding, success: false });
+    this.setState({ editDefinition: true, editedDefinition: undefined });
   };
 
   handleEdit = (definitionKey: string) => {
     const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
-    this.setState({ editedDefinition, success: false });
+    this.setState({ editDefinition: true, editedDefinition });
   };
 
-  handleSubmit = (config: B, originalKey: string) => {
-    const call = originalKey
-      ? this.props.updateConfiguration({ newKey: config.key, ...config, key: originalKey })
-      : this.props.createConfiguration({ ...config });
-
-    this.setState({ submitting: true });
-    return call
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            editedDefinition: undefined,
-            submitting: false,
-            success: true
-          });
-        }
-      })
-      .then(this.props.onUpdateDefinitions)
-      .then(() => {
-        this.props.onCheck(config.key);
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ submitting: false, success: false });
-        }
+  handleAfterSubmit = (config: AlmBindingDefinitionBase) => {
+    if (this.mounted) {
+      this.setState({
+        editDefinition: false,
+        editedDefinition: undefined
       });
+    }
+
+    this.props.onUpdateDefinitions();
+
+    this.props.onCheck(config.key);
   };
 
   render() {
     const {
-      alm,
+      almTab,
       branchesEnabled,
       definitions,
       definitionStatus,
-      form,
-      help,
       loadingAlmDefinitions,
       loadingProjectCount,
-      multipleAlmEnabled,
-      optionalFields
+      multipleAlmEnabled
     } = this.props;
-    const { editedDefinition, submitting, success } = this.state;
+    const { editDefinition, editedDefinition } = this.state;
 
     return (
       <AlmTabRenderer
-        alm={alm}
+        almTab={almTab}
         branchesEnabled={branchesEnabled}
         definitions={definitions}
         definitionStatus={definitionStatus}
+        editDefinition={editDefinition}
         editedDefinition={editedDefinition}
-        form={form}
-        help={help}
         loadingAlmDefinitions={loadingAlmDefinitions}
         loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}
-        onCancel={this.handleCancel}
         onCheck={this.props.onCheck}
         onCreate={this.handleCreate}
         onDelete={this.props.onDelete}
         onEdit={this.handleEdit}
-        onSubmit={this.handleSubmit}
-        optionalFields={optionalFields}
-        submitting={submitting}
-        success={success}
+        onCancel={this.handleCancel}
+        afterSubmit={this.handleAfterSubmit}
       />
     );
   }

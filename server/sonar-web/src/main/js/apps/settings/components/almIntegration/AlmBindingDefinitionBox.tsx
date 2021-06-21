@@ -32,7 +32,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import {
-  AlmBindingDefinition,
+  AlmBindingDefinitionBase,
   AlmKeys,
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
@@ -42,7 +42,7 @@ import { EditionKey } from '../../../../types/editions';
 export interface AlmBindingDefinitionBoxProps {
   alm: AlmKeys;
   branchesEnabled: boolean;
-  definition: AlmBindingDefinition;
+  definition: AlmBindingDefinitionBase;
   multipleDefinitions: boolean;
   onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
@@ -105,7 +105,7 @@ function getPRDecorationFeatureStatus(
 
 function getImportFeatureStatus(
   alm: AlmKeys,
-  definition: AlmBindingDefinition,
+  definition: AlmBindingDefinitionBase,
   multipleDefinitions: boolean,
   type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
 ) {

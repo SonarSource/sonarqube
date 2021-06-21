@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { AlmBindingDefinition } from '../../../../../types/alm-settings';
+import { AlmBindingDefinitionBase } from '../../../../../types/alm-settings';
 import {
   AlmBindingDefinitionFormField,
   AlmBindingDefinitionFormFieldProps
@@ -60,7 +60,7 @@ it('should correctly toggle visibility for secret fields', () => {
 });
 
 function shallowRender(
-  props: Partial<AlmBindingDefinitionFormFieldProps<AlmBindingDefinition>> = {}
+  props: Partial<AlmBindingDefinitionFormFieldProps<AlmBindingDefinitionBase>> = {}
 ) {
   return shallow(
     <AlmBindingDefinitionFormField

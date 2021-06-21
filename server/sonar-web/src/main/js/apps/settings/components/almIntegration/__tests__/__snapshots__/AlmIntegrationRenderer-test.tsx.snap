@@ -32,7 +32,6 @@ exports[`should render correctly: azure 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -45,7 +44,6 @@ exports[`should render correctly: azure 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -58,7 +56,6 @@ exports[`should render correctly: azure 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -71,12 +68,12 @@ exports[`should render correctly: azure 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <AzureTab
+  <AlmTab
+    almTab="azure"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}
@@ -122,7 +119,6 @@ exports[`should render correctly: bitbucket 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -135,7 +131,6 @@ exports[`should render correctly: bitbucket 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -148,7 +143,6 @@ exports[`should render correctly: bitbucket 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -161,12 +155,12 @@ exports[`should render correctly: bitbucket 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <BitbucketTab
+  <AlmTab
+    almTab="bitbucket"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}
@@ -176,85 +170,6 @@ exports[`should render correctly: bitbucket 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
-  />
-</Fragment>
-`;
-
-exports[`should render correctly: bitbucketcloud 1`] = `
-<Fragment>
-  <header
-    className="page-header"
-  >
-    <h1
-      className="page-title"
-    >
-      settings.almintegration.title
-    </h1>
-  </header>
-  <div
-    className="markdown small spacer-top big-spacer-bottom"
-  >
-    settings.almintegration.description
-  </div>
-  <BoxedTabs
-    onSelect={[MockFunction]}
-    selected="bitbucketcloud"
-    tabs={
-      Array [
-        Object {
-          "key": "github",
-          "label": <React.Fragment>
-            <img
-              alt="github"
-              className="spacer-right"
-              height={16}
-              src="/images/alm/github.svg"
-            />
-            GitHub
-          </React.Fragment>,
-          "requiresBranchesEnabled": false,
-        },
-        Object {
-          "key": "bitbucket",
-          "label": <React.Fragment>
-            <img
-              alt="bitbucket"
-              className="spacer-right"
-              height={16}
-              src="/images/alm/bitbucket.svg"
-            />
-            Bitbucket
-          </React.Fragment>,
-          "requiresBranchesEnabled": false,
-        },
-        Object {
-          "key": "azure",
-          "label": <React.Fragment>
-            <img
-              alt="azure"
-              className="spacer-right"
-              height={16}
-              src="/images/alm/azure.svg"
-            />
-            Azure DevOps
-          </React.Fragment>,
-          "requiresBranchesEnabled": false,
-        },
-        Object {
-          "key": "gitlab",
-          "label": <React.Fragment>
-            <img
-              alt="gitlab"
-              className="spacer-right"
-              height={16}
-              src="/images/alm/gitlab.svg"
-            />
-            GitLab
-          </React.Fragment>,
-          "requiresBranchesEnabled": false,
-        },
-      ]
-    }
   />
 </Fragment>
 `;
@@ -291,7 +206,6 @@ exports[`should render correctly: default 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -304,7 +218,6 @@ exports[`should render correctly: default 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -317,7 +230,6 @@ exports[`should render correctly: default 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -330,12 +242,12 @@ exports[`should render correctly: default 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <GithubTab
+  <AlmTab
+    almTab="github"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}
@@ -381,7 +293,6 @@ exports[`should render correctly: delete modal 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -394,7 +305,6 @@ exports[`should render correctly: delete modal 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -407,7 +317,6 @@ exports[`should render correctly: delete modal 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -420,12 +329,12 @@ exports[`should render correctly: delete modal 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <GithubTab
+  <AlmTab
+    almTab="github"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}
@@ -476,7 +385,6 @@ exports[`should render correctly: gitlab 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -489,7 +397,6 @@ exports[`should render correctly: gitlab 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -502,7 +409,6 @@ exports[`should render correctly: gitlab 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -515,12 +421,12 @@ exports[`should render correctly: gitlab 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <GitlabTab
+  <AlmTab
+    almTab="gitlab"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}
@@ -566,7 +472,6 @@ exports[`should render correctly: loading 1`] = `
             />
             GitHub
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "bitbucket",
@@ -579,7 +484,6 @@ exports[`should render correctly: loading 1`] = `
             />
             Bitbucket
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "azure",
@@ -592,7 +496,6 @@ exports[`should render correctly: loading 1`] = `
             />
             Azure DevOps
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
         Object {
           "key": "gitlab",
@@ -605,12 +508,12 @@ exports[`should render correctly: loading 1`] = `
             />
             GitLab
           </React.Fragment>,
-          "requiresBranchesEnabled": false,
         },
       ]
     }
   />
-  <GithubTab
+  <AlmTab
+    almTab="github"
     branchesEnabled={true}
     definitionStatus={Object {}}
     definitions={Array []}

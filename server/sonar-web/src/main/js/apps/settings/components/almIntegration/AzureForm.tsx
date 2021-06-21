@@ -18,8 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AzureBindingDefinition } from '../../../../types/alm-settings';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { AlmKeys, AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface AzureFormProps {
@@ -31,43 +35,58 @@ export default function AzureForm(props: AzureFormProps) {
   const { formData, onFieldChange } = props;
 
   return (
-    <>
-      <AlmBindingDefinitionFormField
-        autoFocus={true}
-        help={translate('settings.almintegration.form.name.azure.help')}
-        id="name.azure"
-        onFieldChange={onFieldChange}
-        propKey="key"
-        value={formData.key}
-      />
-      <AlmBindingDefinitionFormField
-        help={
-          <>
-            {translate('settings.almintegration.form.url.azure.help1')}
-            <br />
-            <em>https://ado.your-company.com/your_collection</em>
-            <br />
-            <br />
-            {translate('settings.almintegration.form.url.azure.help2')}
-            <br />
-            <em>https://dev.azure.com/your_organization</em>
-          </>
-        }
-        id="url.azure"
-        maxLength={2000}
-        onFieldChange={onFieldChange}
-        propKey="url"
-        value={formData.url || ''}
-      />
-      <AlmBindingDefinitionFormField
-        help={translate('settings.almintegration.form.personal_access_token.azure.help')}
-        id="personal_access_token"
-        isTextArea={true}
-        onFieldChange={onFieldChange}
-        overwriteOnly={Boolean(formData.key)}
-        propKey="personalAccessToken"
-        value={formData.personalAccessToken}
-      />
-    </>
+    <div className="display-flex-start">
+      <div className="flex-1">
+        <AlmBindingDefinitionFormField
+          autoFocus={true}
+          help={translate('settings.almintegration.form.name.azure.help')}
+          id="name.azure"
+          onFieldChange={onFieldChange}
+          propKey="key"
+          value={formData.key}
+        />
+        <AlmBindingDefinitionFormField
+          help={
+            <>
+              {translate('settings.almintegration.form.url.azure.help1')}
+              <br />
+              <em>https://ado.your-company.com/your_collection</em>
+              <br />
+              <br />
+              {translate('settings.almintegration.form.url.azure.help2')}
+              <br />
+              <em>https://dev.azure.com/your_organization</em>
+            </>
+          }
+          id="url.azure"
+          maxLength={2000}
+          onFieldChange={onFieldChange}
+          propKey="url"
+          value={formData.url || ''}
+        />
+        <AlmBindingDefinitionFormField
+          help={translate('settings.almintegration.form.personal_access_token.azure.help')}
+          id="personal_access_token"
+          isTextArea={true}
+          onFieldChange={onFieldChange}
+          overwriteOnly={Boolean(formData.key)}
+          propKey="personalAccessToken"
+          value={formData.personalAccessToken}
+        />
+      </div>
+      <Alert className="huge-spacer-left flex-1" variant="info">
+        <FormattedMessage
+          defaultMessage={translate(`settings.almintegration.azure.info`)}
+          id="settings.almintegration.azure.info"
+          values={{
+            link: (
+              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
+                {translate('learn_more')}
+              </Link>
+            )
+          }}
+        />
+      </Alert>
+    </div>
   );
 }

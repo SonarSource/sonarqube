@@ -31,10 +31,10 @@ import {
   AlmSettingsInstance,
   AzureBindingDefinition,
   AzureProjectAlmBindingParams,
-  BitbucketBindingDefinition,
   BitbucketCloudBindingDefinition,
   BitbucketCloudProjectAlmBindingParams,
   BitbucketProjectAlmBindingParams,
+  BitbucketServerBindingDefinition,
   GithubBindingDefinition,
   GithubProjectAlmBindingParams,
   GitlabBindingDefinition,
@@ -85,12 +85,12 @@ export function updateAzureConfiguration(data: AzureBindingDefinition & { newKey
   return post('/api/alm_settings/update_azure', data).catch(throwGlobalError);
 }
 
-export function createBitbucketConfiguration(data: BitbucketBindingDefinition) {
+export function createBitbucketServerConfiguration(data: BitbucketServerBindingDefinition) {
   return post('/api/alm_settings/create_bitbucket', data).catch(throwGlobalError);
 }
 
-export function updateBitbucketConfiguration(
-  data: BitbucketBindingDefinition & { newKey: string }
+export function updateBitbucketServerConfiguration(
+  data: BitbucketServerBindingDefinition & { newKey: string }
 ) {
   return post('/api/alm_settings/update_bitbucket', data).catch(throwGlobalError);
 }

@@ -22,9 +22,9 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmBindingDefinition } from '../../../../types/alm-settings';
+import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
 
-export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefinition> {
+export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefinitionBase> {
   autoFocus?: boolean;
   help?: React.ReactNode;
   id: string;
@@ -37,7 +37,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   value: string;
 }
 
-export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
+export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase>(
   props: AlmBindingDefinitionFormFieldProps<B>
 ) {
   const {

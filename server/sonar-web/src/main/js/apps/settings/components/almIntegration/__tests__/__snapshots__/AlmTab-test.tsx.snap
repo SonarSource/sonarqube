@@ -2,7 +2,8 @@
 
 exports[`should render correctly 1`] = `
 <AlmTabRenderer
-  alm="azure"
+  afterSubmit={[Function]}
+  almTab="azure"
   branchesEnabled={true}
   definitionStatus={Object {}}
   definitions={
@@ -13,8 +14,6 @@ exports[`should render correctly 1`] = `
       },
     ]
   }
-  form={[MockFunction]}
-  help={<div />}
   loadingAlmDefinitions={false}
   loadingProjectCount={false}
   multipleAlmEnabled={true}
@@ -23,8 +22,5 @@ exports[`should render correctly 1`] = `
   onCreate={[Function]}
   onDelete={[MockFunction]}
   onEdit={[Function]}
-  onSubmit={[Function]}
-  submitting={false}
-  success={false}
 />
 `;

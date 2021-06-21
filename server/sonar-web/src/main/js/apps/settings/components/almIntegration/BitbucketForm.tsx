@@ -19,40 +19,42 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import {
   AlmKeys,
-  BitbucketBindingDefinition,
   BitbucketCloudBindingDefinition,
-  isBitbucketBindingDefinition,
-  isBitbucketCloudBindingDefinition
+  BitbucketServerBindingDefinition
 } from '../../../../types/alm-settings';
-import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
+import BitbucketCloudForm from './BitbucketCloudForm';
+import BitbucketServerForm from './BitbucketServerForm';
 
 export interface BitbucketFormProps {
-  formData: BitbucketBindingDefinition | BitbucketCloudBindingDefinition;
-  isCreating: boolean;
+  formData: BitbucketServerBindingDefinition | BitbucketCloudBindingDefinition;
+  isUpdate: boolean;
   onFieldChange: (
-    fieldId: keyof (BitbucketBindingDefinition & BitbucketCloudBindingDefinition),
+    fieldId: keyof (BitbucketServerBindingDefinition & BitbucketCloudBindingDefinition),
     value: string
   ) => void;
-  onSelectVariant: (variant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud) => void;
   variant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
+  onVariantChange: (variant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud) => void;
 }
 
 export default function BitbucketForm(props: BitbucketFormProps) {
-  const { formData, isCreating, variant } = props;
+  const { isUpdate, formData, variant } = props;
 
   return (
-    <div>
-      {isCreating && (
-        <>
+    <>
+      {!isUpdate && (
+        <div className="display-flex-column">
           <strong>{translate('settings.almintegration.form.choose_bitbucket_variant')}</strong>
           <RadioToggle
             className="little-spacer-top big-spacer-bottom"
             name="variant"
-            onCheck={props.onSelectVariant}
+            onCheck={props.onVariantChange}
             options={[
               {
                 label: 'Bitbucket Server',
@@ -62,117 +64,67 @@ export default function BitbucketForm(props: BitbucketFormProps) {
             ]}
             value={variant}
           />
+        </div>
+      )}
+
+      {variant !== undefined && (
+        <>
+          {variant === AlmKeys.BitbucketServer && (
+            <div className="display-flex-start">
+              <div className="flex-1">
+                <BitbucketServerForm
+                  onFieldChange={props.onFieldChange}
+                  formData={formData as BitbucketServerBindingDefinition}
+                />
+              </div>
+              <Alert className="huge-spacer-left flex-1" variant="info">
+                <>
+                  <h3>{translate('onboarding.create_project.pat_help.title')}</h3>
+
+                  <p className="big-spacer-top">
+                    {translate('settings.almintegration.bitbucket.help_1')}
+                  </p>
+
+                  <ul className="big-spacer-top list-styled">
+                    <li>{translate('settings.almintegration.bitbucket.help_2')}</li>
+                    <li>{translate('settings.almintegration.bitbucket.help_3')}</li>
+                  </ul>
+
+                  <p className="big-spacer-top big-spacer-bottom">
+                    <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer]}>
+                      {translate('learn_more')}
+                    </Link>
+                  </p>
+                </>
+              </Alert>
+            </div>
+          )}
+
+          {variant === AlmKeys.BitbucketCloud && (
+            <div className="display-flex-start">
+              <div className="flex-1">
+                <BitbucketCloudForm
+                  onFieldChange={props.onFieldChange}
+                  formData={formData as BitbucketCloudBindingDefinition}
+                />
+              </div>
+              <Alert className="huge-spacer-left flex-1" variant="info">
+                <FormattedMessage
+                  defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
+                  id="settings.almintegration.bitbucketcloud.info"
+                  values={{
+                    link: (
+                      <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
+                        {translate('learn_more')}
+                      </Link>
+                    )
+                  }}
+                />
+              </Alert>
+            </div>
+          )}
         </>
       )}
-
-      {variant === AlmKeys.BitbucketServer && isBitbucketBindingDefinition(formData) && (
-        <div>
-          <AlmBindingDefinitionFormField
-            autoFocus={true}
-            help={translate('settings.almintegration.form.name.bitbucket.help')}
-            id="name.bitbucket"
-            maxLength={100}
-            onFieldChange={props.onFieldChange}
-            propKey="key"
-            value={formData.key}
-          />
-          <AlmBindingDefinitionFormField
-            help={
-              <FormattedMessage
-                defaultMessage={translate('settings.almintegration.form.url.bitbucket.help')}
-                id="settings.almintegration.form.url.bitbucket.help"
-                values={{ example: 'https://bitbucket-server.your-company.com' }}
-              />
-            }
-            id="url.bitbucket"
-            maxLength={2000}
-            onFieldChange={props.onFieldChange}
-            propKey="url"
-            value={formData.url}
-          />
-          <AlmBindingDefinitionFormField
-            help={
-              <FormattedMessage
-                defaultMessage={translate(
-                  'settings.almintegration.form.personal_access_token.bitbucket.help'
-                )}
-                id="settings.almintegration.form.personal_access_token.bitbucket.help"
-                values={{
-                  pat: (
-                    <a
-                      href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
-                      rel="noopener noreferrer"
-                      target="_blank">
-                      {translate(
-                        'settings.almintegration.form.personal_access_token.bitbucket.help.url'
-                      )}
-                    </a>
-                  )
-                }}
-              />
-            }
-            id="personal_access_token"
-            isTextArea={true}
-            onFieldChange={props.onFieldChange}
-            overwriteOnly={Boolean(formData.key)}
-            propKey="personalAccessToken"
-            value={formData.personalAccessToken}
-          />
-        </div>
-      )}
-
-      {variant === AlmKeys.BitbucketCloud && isBitbucketCloudBindingDefinition(formData) && (
-        <div>
-          <AlmBindingDefinitionFormField
-            autoFocus={true}
-            help={translate('settings.almintegration.form.name.bitbucketcloud.help')}
-            id="name.bitbucket"
-            maxLength={100}
-            onFieldChange={props.onFieldChange}
-            propKey="key"
-            value={formData.key}
-          />
-          <AlmBindingDefinitionFormField
-            help={
-              <FormattedMessage
-                defaultMessage={translate(
-                  'settings.almintegration.form.workspace.bitbucketcloud.help'
-                )}
-                id="settings.almintegration.form.workspace.bitbucketcloud.help"
-                values={{
-                  example: (
-                    <>
-                      {'https://bitbucket.org/'}
-                      <strong>{'{workspace}'}</strong>
-                      {'/{repository}'}
-                    </>
-                  )
-                }}
-              />
-            }
-            id="workspace.bitbucketcloud"
-            maxLength={2000}
-            onFieldChange={props.onFieldChange}
-            propKey="workspace"
-            value={formData.workspace}
-          />
-          <AlmBindingDefinitionFormField
-            help={translate('settings.almintegration.form.oauth_key.bitbucketcloud.help')}
-            id="client_id.bitbucketcloud"
-            onFieldChange={props.onFieldChange}
-            propKey="clientId"
-            value={formData.clientId}
-          />
-          <AlmBindingDefinitionFormField
-            help={translate('settings.almintegration.form.oauth_secret.bitbucketcloud.help')}
-            id="client_secret.bitbucketcloud"
-            onFieldChange={props.onFieldChange}
-            overwriteOnly={Boolean(formData.key)}
-            propKey="clientSecret"
-            value={formData.clientSecret}
-          />
-        </div>
-      )}
-    </div>
+    </>
   );
 }

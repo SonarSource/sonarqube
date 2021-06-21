@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <AlmIntegrationRenderer
   branchesEnabled={true}
-  currentAlm="github"
+  currentAlmTab="github"
   definitionStatus={Object {}}
   definitions={
     Object {
@@ -17,11 +17,11 @@ exports[`should render correctly 1`] = `
   loadingAlmDefinitions={true}
   loadingProjectCount={false}
   multipleAlmEnabled={false}
-  onCancel={[Function]}
-  onCheck={[Function]}
+  onCancelDelete={[Function]}
+  onCheckConfiguration={[Function]}
   onConfirmDelete={[Function]}
   onDelete={[Function]}
-  onSelectAlm={[Function]}
+  onSelectAlmTab={[Function]}
   onUpdateDefinitions={[Function]}
 />
 `;

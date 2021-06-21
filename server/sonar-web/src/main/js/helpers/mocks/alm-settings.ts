@@ -23,8 +23,8 @@ import {
   AlmSettingsBindingStatusType,
   AlmSettingsInstance,
   AzureBindingDefinition,
-  BitbucketBindingDefinition,
   BitbucketCloudBindingDefinition,
+  BitbucketServerBindingDefinition,
   GithubBindingDefinition,
   GitlabBindingDefinition,
   ProjectAlmBindingConfigurationErrors,
@@ -67,9 +67,9 @@ export function mockAzureBindingDefinition(
   };
 }
 
-export function mockBitbucketBindingDefinition(
-  overrides: Partial<BitbucketBindingDefinition> = {}
-): BitbucketBindingDefinition {
+export function mockBitbucketServerBindingDefinition(
+  overrides: Partial<BitbucketServerBindingDefinition> = {}
+): BitbucketServerBindingDefinition {
   return {
     key: 'key',
     personalAccessToken: 'asdf1234',

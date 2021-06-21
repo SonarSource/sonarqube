@@ -23,24 +23,25 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   AlmBindingDefinition,
+  AlmBindingDefinitionBase,
   AlmKeys,
   AlmSettingsBindingStatus,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
+import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
+import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
-import AlmBindingDefinitionForm, {
-  AlmBindingDefinitionFormChildrenProps
-} from './AlmBindingDefinitionForm';
+import AlmBindingDefinitionForm from './AlmBindingDefinitionForm';
+import { AlmTabs } from './AlmIntegration';
 import CreationTooltip from './CreationTooltip';
 
-export interface AlmTabRendererProps<B> {
-  alm: AlmKeys;
+export interface AlmTabRendererProps {
+  almTab: AlmTabs;
   branchesEnabled: boolean;
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
-  editedDefinition?: B;
-  definitions: B[];
-  form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
-  help: React.ReactNode;
+  editDefinition?: boolean;
+  editedDefinition?: AlmBindingDefinition;
+  definitions: AlmBindingDefinition[];
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
@@ -49,74 +50,73 @@ export interface AlmTabRendererProps<B> {
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
-  onSubmit: (config: B, originalKey: string) => void;
-  optionalFields?: Array<keyof B>;
-  submitting: boolean;
-  success: boolean;
+  afterSubmit: (config: AlmBindingDefinitionBase) => void;
 }
 
-export default function AlmTabRenderer<B extends AlmBindingDefinition>(
-  props: AlmTabRendererProps<B>
-) {
+export default function AlmTabRenderer(props: AlmTabRendererProps) {
   const {
-    alm,
+    almTab,
     branchesEnabled,
     definitions,
     definitionStatus,
+    editDefinition,
     editedDefinition,
-    form,
     loadingAlmDefinitions,
     loadingProjectCount,
-    multipleAlmEnabled,
-    optionalFields,
-    help
+    multipleAlmEnabled
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
 
   return (
-    <div className="big-padded">
-      <DeferredSpinner loading={loadingAlmDefinitions}>
-        {definitions.length === 0 && (
-          <p className="spacer-top">{translate('settings.almintegration.empty', alm)}</p>
-        )}
+    <div className="bordered">
+      <div className="big-padded">
+        <DeferredSpinner loading={loadingAlmDefinitions}>
+          {definitions.length === 0 && (
+            <p className="spacer-top">{translate('settings.almintegration.empty', almTab)}</p>
+          )}
 
-        <div className={definitions.length > 0 ? 'spacer-bottom text-right' : 'big-spacer-top'}>
-          <CreationTooltip alm={alm} preventCreation={preventCreation}>
-            <Button
-              data-test="settings__alm-create"
-              disabled={preventCreation}
-              onClick={props.onCreate}>
-              {translate('settings.almintegration.create')}
-            </Button>
-          </CreationTooltip>
-        </div>
-        {definitions.map(def => (
-          <AlmBindingDefinitionBox
-            alm={isBitbucketCloudBindingDefinition(def) ? AlmKeys.BitbucketCloud : alm}
-            branchesEnabled={branchesEnabled}
-            definition={def}
-            key={def.key}
-            multipleDefinitions={definitions.length > 1}
-            onCheck={props.onCheck}
-            onDelete={props.onDelete}
-            onEdit={props.onEdit}
-            status={definitionStatus[def.key]}
-          />
-        ))}
+          <div className={definitions.length > 0 ? 'spacer-bottom text-right' : 'big-spacer-top'}>
+            <CreationTooltip alm={almTab} preventCreation={preventCreation}>
+              <Button
+                data-test="settings__alm-create"
+                disabled={preventCreation}
+                onClick={props.onCreate}>
+                {translate('settings.almintegration.create')}
+              </Button>
+            </CreationTooltip>
+          </div>
+          {definitions.map(def => (
+            <AlmBindingDefinitionBox
+              alm={isBitbucketCloudBindingDefinition(def) ? AlmKeys.BitbucketCloud : almTab}
+              branchesEnabled={branchesEnabled}
+              definition={def}
+              key={def.key}
+              multipleDefinitions={definitions.length > 1}
+              onCheck={props.onCheck}
+              onDelete={props.onDelete}
+              onEdit={props.onEdit}
+              status={definitionStatus[def.key]}
+            />
+          ))}
 
-        {editedDefinition && (
-          <AlmBindingDefinitionForm
-            bindingDefinition={editedDefinition}
-            help={help}
-            isSecondInstance={definitions.length === 1}
-            onCancel={props.onCancel}
-            onSubmit={props.onSubmit}
-            optionalFields={optionalFields}>
-            {form}
-          </AlmBindingDefinitionForm>
-        )}
-      </DeferredSpinner>
+          {editDefinition && (
+            <AlmBindingDefinitionForm
+              alm={almTab}
+              bindingDefinition={editedDefinition}
+              alreadyHaveInstanceConfigured={definitions.length > 0}
+              onCancel={props.onCancel}
+              afterSubmit={props.afterSubmit}
+            />
+          )}
+        </DeferredSpinner>
+      </div>
+
+      <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
+
+      <div className="big-padded">
+        <CategoryDefinitionsList category={ALM_INTEGRATION} subCategory={almTab} />
+      </div>
     </div>
   );
 }

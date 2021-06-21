@@ -17,12 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AlmKeys } from '../../../../types/alm-settings';
 
-export const ALM_KEY_LIST = [
-  AlmKeys.Azure,
-  AlmKeys.BitbucketServer,
-  AlmKeys.BitbucketCloud,
-  AlmKeys.GitHub,
-  AlmKeys.GitLab
-];
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockBitbucketServerBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
+import BitbucketServerForm, { BitbucketServerFormProps } from '../BitbucketServerForm';
+
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<BitbucketServerFormProps> = {}) {
+  return shallow<BitbucketServerFormProps>(
+    <BitbucketServerForm
+      onFieldChange={jest.fn()}
+      formData={mockBitbucketServerBindingDefinition()}
+      {...props}
+    />
+  );
+}

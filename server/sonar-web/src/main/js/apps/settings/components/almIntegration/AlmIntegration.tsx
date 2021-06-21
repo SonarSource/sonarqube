@@ -28,22 +28,22 @@ import {
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { withRouter } from '../../../../components/hoc/withRouter';
 import {
-  AlmBindingDefinition,
+  AlmBindingDefinitionBase,
   AlmKeys,
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
-import { ALM_KEY_LIST } from './utils';
 
 interface Props extends Pick<WithRouterProps, 'location'> {
   appState: Pick<T.AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
-  component?: T.Component;
 }
 
+export type AlmTabs = AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.GitLab | AlmKeys.BitbucketServer;
+
 interface State {
-  currentAlm: AlmKeys;
+  currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
   definitionStatus: T.Dict<AlmSettingsBindingStatus>;
@@ -59,13 +59,13 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let currentAlm = props.location.query.alm || AlmKeys.GitHub;
-    if (currentAlm === AlmKeys.BitbucketCloud) {
-      currentAlm = AlmKeys.BitbucketServer;
+    let currentAlmTab = props.location.query.alm || AlmKeys.GitHub;
+    if (currentAlmTab === AlmKeys.BitbucketCloud) {
+      currentAlmTab = AlmKeys.BitbucketServer;
     }
 
     this.state = {
-      currentAlm,
+      currentAlmTab,
       definitions: {
         [AlmKeys.Azure]: [],
         [AlmKeys.BitbucketServer]: [],
@@ -84,8 +84,14 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     return this.fetchPullRequestDecorationSetting().then(definitions => {
       if (definitions) {
         // Validate all alms on load:
-        ALM_KEY_LIST.forEach(alm => {
-          this.state.definitions[alm].forEach((def: AlmBindingDefinition) =>
+        [
+          AlmKeys.Azure,
+          AlmKeys.BitbucketCloud,
+          AlmKeys.BitbucketServer,
+          AlmKeys.GitHub,
+          AlmKeys.GitLab
+        ].forEach(alm => {
+          this.state.definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
             this.handleCheck(def.key, false)
           );
         });
@@ -97,7 +103,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  deleteConfiguration = (definitionKey: string) => {
+  handleConfirmDelete = (definitionKey: string) => {
     return deleteConfiguration(definitionKey)
       .then(() => {
         if (this.mounted) {
@@ -118,7 +124,6 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
           });
           return definitions;
         }
-        return undefined;
       })
       .catch(() => {
         if (this.mounted) {
@@ -127,11 +132,11 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       });
   };
 
-  handleSelectAlm = (currentAlm: AlmKeys) => {
-    this.setState({ currentAlm });
+  handleSelectAlm = (currentAlmTab: AlmTabs) => {
+    this.setState({ currentAlmTab });
   };
 
-  handleCancel = () => {
+  handleCancelDelete = () => {
     this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
   };
 
@@ -191,21 +196,35 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      appState: { branchesEnabled, multipleAlmEnabled },
-      component
+      appState: { branchesEnabled, multipleAlmEnabled }
     } = this.props;
+    const {
+      currentAlmTab,
+      definitionKeyForDeletion,
+      definitions,
+      definitionStatus,
+      loadingAlmDefinitions,
+      loadingProjectCount,
+      projectCount
+    } = this.state;
+
     return (
       <AlmIntegrationRenderer
         branchesEnabled={Boolean(branchesEnabled)}
-        component={component}
         multipleAlmEnabled={Boolean(multipleAlmEnabled)}
-        onCancel={this.handleCancel}
-        onConfirmDelete={this.deleteConfiguration}
-        onCheck={this.handleCheck}
+        onCancelDelete={this.handleCancelDelete}
+        onConfirmDelete={this.handleConfirmDelete}
+        onCheckConfiguration={this.handleCheck}
         onDelete={this.handleDelete}
-        onSelectAlm={this.handleSelectAlm}
+        onSelectAlmTab={this.handleSelectAlm}
         onUpdateDefinitions={this.fetchPullRequestDecorationSetting}
-        {...this.state}
+        currentAlmTab={currentAlmTab}
+        definitionKeyForDeletion={definitionKeyForDeletion}
+        definitions={definitions}
+        definitionStatus={definitionStatus}
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
+        projectCount={projectCount}
       />
     );
   }

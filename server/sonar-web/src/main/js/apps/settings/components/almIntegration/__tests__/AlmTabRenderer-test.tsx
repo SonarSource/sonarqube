@@ -24,11 +24,7 @@ import {
   mockBitbucketCloudBindingDefinition,
   mockGithubBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
-import {
-  AlmBindingDefinition,
-  AlmKeys,
-  AzureBindingDefinition
-} from '../../../../../types/alm-settings';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmTabRenderer, { AlmTabRendererProps } from '../AlmTabRenderer';
 
 it('should render correctly for multi-ALM binding', () => {
@@ -38,8 +34,7 @@ it('should render correctly for multi-ALM binding', () => {
   expect(shallowRenderAzure({ loadingProjectCount: true })).toMatchSnapshot(
     'loading project count'
   );
-  expect(shallowRenderAzure({ submitting: true })).toMatchSnapshot('submitting');
-  expect(shallowRenderAzure()).toMatchSnapshot('loaded');
+  expect(shallowRenderAzure({})).toMatchSnapshot('loaded');
   expect(shallowRenderAzure({ editedDefinition: mockAzureBindingDefinition() })).toMatchSnapshot(
     'editing a definition'
   );
@@ -80,30 +75,26 @@ it('should render correctly with validation', () => {
 
   expect(
     shallowRender({
-      alm: AlmKeys.BitbucketServer, // BitbucketServer will be passed for both Bitbucket variants.
+      almTab: AlmKeys.BitbucketServer, // BitbucketServer will be passed for both Bitbucket variants.
       definitions: [mockBitbucketCloudBindingDefinition()]
     })
   ).toMatchSnapshot('pass the correct key for bitbucket cloud');
 });
 
-function shallowRenderAzure(props: Partial<AlmTabRendererProps<AzureBindingDefinition>> = {}) {
+function shallowRenderAzure(props: Partial<AlmTabRendererProps>) {
   return shallowRender({
     definitions: [mockAzureBindingDefinition()],
     ...props
   });
 }
 
-function shallowRender<B extends AlmBindingDefinition>(
-  props: Partial<AlmTabRendererProps<B>> = {}
-) {
+function shallowRender(props: Partial<AlmTabRendererProps> = {}) {
   return shallow(
     <AlmTabRenderer
-      alm={AlmKeys.Azure}
+      almTab={AlmKeys.Azure}
       branchesEnabled={true}
       definitions={[]}
       definitionStatus={{}}
-      form={jest.fn()}
-      help={<div />}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={true}
@@ -112,9 +103,7 @@ function shallowRender<B extends AlmBindingDefinition>(
       onCreate={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
-      onSubmit={jest.fn()}
-      submitting={true}
-      success={false}
+      afterSubmit={jest.fn()}
       {...props}
     />
   );

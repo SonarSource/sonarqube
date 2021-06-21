@@ -29,6 +29,7 @@ import {
 import { mockLocation } from '../../../../../helpers/testMocks';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
+import AlmIntegrationRenderer from '../AlmIntegrationRenderer';
 
 jest.mock('../../../../../api/alm-settings', () => ({
   countBindedProjects: jest.fn().mockResolvedValue(0),
@@ -72,13 +73,13 @@ it('should validate existing configurations', async () => {
 it('should handle alm selection', async () => {
   const wrapper = shallowRender();
 
-  wrapper.setState({ currentAlm: AlmKeys.Azure });
+  wrapper.setState({ currentAlmTab: AlmKeys.Azure });
 
   wrapper.instance().handleSelectAlm(AlmKeys.GitHub);
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().currentAlm).toBe(AlmKeys.GitHub);
+  expect(wrapper.state().currentAlmTab).toBe(AlmKeys.GitHub);
 });
 
 it('should handle delete', async () => {
@@ -86,17 +87,27 @@ it('should handle delete', async () => {
   (countBindedProjects as jest.Mock).mockResolvedValueOnce(7);
   const wrapper = shallowRender();
 
-  wrapper.instance().handleDelete(toBeDeleted);
+  wrapper
+    .find(AlmIntegrationRenderer)
+    .props()
+    .onDelete(toBeDeleted);
   await waitAndUpdate(wrapper);
-
   expect(wrapper.state().projectCount).toBe(7);
   expect(wrapper.state().definitionKeyForDeletion).toBe(toBeDeleted);
+
+  wrapper
+    .find(AlmIntegrationRenderer)
+    .props()
+    .onCancelDelete();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().projectCount).toBeUndefined();
+  expect(wrapper.state().definitionKeyForDeletion).toBeUndefined();
 });
 
 it('should delete configuration', async () => {
   (deleteConfiguration as jest.Mock).mockResolvedValueOnce(undefined);
   const wrapper = shallowRender();
-  wrapper.instance().deleteConfiguration('8345678');
+  wrapper.instance().handleConfirmDelete('8345678');
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().projectCount).toBeUndefined();
@@ -164,10 +175,10 @@ it('should fetch settings', async () => {
 
 it('should detect the current ALM from the query', () => {
   let wrapper = shallowRender({ location: mockLocation() });
-  expect(wrapper.state().currentAlm).toBe(AlmKeys.GitHub);
+  expect(wrapper.state().currentAlmTab).toBe(AlmKeys.GitHub);
 
   wrapper = shallowRender({ location: mockLocation({ query: { alm: AlmKeys.BitbucketCloud } }) });
-  expect(wrapper.state().currentAlm).toBe(AlmKeys.BitbucketServer);
+  expect(wrapper.state().currentAlmTab).toBe(AlmKeys.BitbucketServer);
 });
 
 function shallowRender(props: Partial<AlmIntegration['props']> = {}) {

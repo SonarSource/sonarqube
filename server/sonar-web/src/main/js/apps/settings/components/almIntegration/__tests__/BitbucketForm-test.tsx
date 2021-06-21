@@ -19,41 +19,62 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import {
-  mockBitbucketBindingDefinition,
-  mockBitbucketCloudBindingDefinition
+  mockBitbucketCloudBindingDefinition,
+  mockBitbucketServerBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 
 it('should render correctly', () => {
-  expect(shallowRender({ isCreating: true })).toMatchSnapshot('variant select');
-  expect(shallowRender()).toMatchSnapshot('bitbucket server, empty');
-  expect(shallowRender({ formData: mockBitbucketBindingDefinition() })).toMatchSnapshot(
-    'bitbucket server, edit'
-  );
-  expect(
-    shallowRender({
-      formData: { key: '', clientId: '', clientSecret: '', workspace: '' },
-      variant: AlmKeys.BitbucketCloud
-    })
-  ).toMatchSnapshot('bitbucket cloud, empty');
-  expect(
-    shallowRender({
-      variant: AlmKeys.BitbucketCloud,
-      formData: mockBitbucketCloudBindingDefinition()
-    })
-  ).toMatchSnapshot('bitbucket cloud, edit');
+  let wrapper = shallowRender({
+    variant: AlmKeys.BitbucketServer,
+    formData: mockBitbucketServerBindingDefinition()
+  });
+  expect(wrapper).toMatchSnapshot('bbs');
+
+  wrapper = shallowRender({
+    variant: AlmKeys.BitbucketCloud,
+    formData: mockBitbucketCloudBindingDefinition()
+  });
+  expect(wrapper).toMatchSnapshot('bbc');
+
+  wrapper = shallowRender({
+    isUpdate: true,
+    variant: AlmKeys.BitbucketServer,
+    formData: mockBitbucketServerBindingDefinition()
+  });
+  expect(wrapper).toMatchSnapshot('update bbs');
+
+  wrapper = shallowRender({
+    isUpdate: true,
+    variant: AlmKeys.BitbucketCloud,
+    formData: mockBitbucketCloudBindingDefinition()
+  });
+  expect(wrapper).toMatchSnapshot('update bbc');
+});
+
+it('should render propagete variant properly', () => {
+  const onVariantChange = jest.fn();
+  const wrapper = shallowRender({ onVariantChange });
+
+  wrapper
+    .find(RadioToggle)
+    .props()
+    .onCheck(AlmKeys.BitbucketServer);
+
+  expect(onVariantChange).toHaveBeenCalledWith(AlmKeys.BitbucketServer);
 });
 
 function shallowRender(props: Partial<BitbucketFormProps> = {}) {
   return shallow(
     <BitbucketForm
-      formData={{ key: '', personalAccessToken: '', url: '' }}
-      isCreating={false}
+      formData={mockBitbucketServerBindingDefinition()}
+      isUpdate={false}
       onFieldChange={jest.fn()}
-      onSelectVariant={jest.fn()}
       variant={AlmKeys.BitbucketServer}
+      onVariantChange={jest.fn()}
       {...props}
     />
   );

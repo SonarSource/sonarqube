@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.bitbucketcloud.help"
+    id="name.bitbucket"
+    maxLength={100}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
+        id="settings.almintegration.form.workspace.bitbucketcloud.help"
+        values={
+          Object {
+            "example": <React.Fragment>
+              https://bitbucket.org/
+              <strong>
+                {workspace}
+              </strong>
+              /{repository}
+            </React.Fragment>,
+          }
+        }
+      />
+    }
+    id="workspace.bitbucketcloud"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="workspace"
+    value="workspace"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
+    id="client_id.bitbucketcloud"
+    onFieldChange={[MockFunction]}
+    propKey="clientId"
+    value="client1"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
+    id="client_secret.bitbucketcloud"
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="clientSecret"
+    value="**clientsecret**"
+  />
+</Fragment>
+`;

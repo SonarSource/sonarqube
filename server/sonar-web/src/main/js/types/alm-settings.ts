@@ -25,28 +25,35 @@ export const enum AlmKeys {
   GitLab = 'gitlab'
 }
 
-export interface AlmBindingDefinition {
+export type AlmBindingDefinition =
+  | AzureBindingDefinition
+  | GithubBindingDefinition
+  | GitlabBindingDefinition
+  | BitbucketServerBindingDefinition
+  | BitbucketCloudBindingDefinition;
+
+export interface AlmBindingDefinitionBase {
   key: string;
   url?: string;
 }
 
-export interface AzureBindingDefinition extends AlmBindingDefinition {
+export interface AzureBindingDefinition extends AlmBindingDefinitionBase {
   personalAccessToken: string;
   url?: string;
 }
 
-export interface BitbucketBindingDefinition extends AlmBindingDefinition {
+export interface BitbucketServerBindingDefinition extends AlmBindingDefinitionBase {
   personalAccessToken: string;
   url: string;
 }
 
-export interface BitbucketCloudBindingDefinition extends AlmBindingDefinition {
+export interface BitbucketCloudBindingDefinition extends AlmBindingDefinitionBase {
   clientId: string;
   clientSecret: string;
   workspace: string;
 }
 
-export interface GithubBindingDefinition extends AlmBindingDefinition {
+export interface GithubBindingDefinition extends AlmBindingDefinitionBase {
   appId: string;
   clientId: string;
   clientSecret: string;
@@ -54,7 +61,7 @@ export interface GithubBindingDefinition extends AlmBindingDefinition {
   url: string;
 }
 
-export interface GitlabBindingDefinition extends AlmBindingDefinition {
+export interface GitlabBindingDefinition extends AlmBindingDefinitionBase {
   personalAccessToken: string;
   url?: string;
 }
@@ -134,7 +141,7 @@ export interface AlmSettingsInstance {
 
 export interface AlmSettingsBindingDefinitions {
   [AlmKeys.Azure]: AzureBindingDefinition[];
-  [AlmKeys.BitbucketServer]: BitbucketBindingDefinition[];
+  [AlmKeys.BitbucketServer]: BitbucketServerBindingDefinition[];
   [AlmKeys.BitbucketCloud]: BitbucketCloudBindingDefinition[];
   [AlmKeys.GitHub]: GithubBindingDefinition[];
   [AlmKeys.GitLab]: GitlabBindingDefinition[];
@@ -195,25 +202,25 @@ export function isProjectAzureBindingResponse(
 }
 
 export function isBitbucketBindingDefinition(
-  binding?: AlmBindingDefinition & { url?: string }
-): binding is BitbucketBindingDefinition {
+  binding?: AlmBindingDefinitionBase & { url?: string }
+): binding is BitbucketServerBindingDefinition {
   return binding !== undefined && binding.url !== undefined;
 }
 
 export function isBitbucketCloudBindingDefinition(
-  binding?: AlmBindingDefinition & { clientId?: string; workspace?: string }
+  binding?: AlmBindingDefinitionBase & { clientId?: string; workspace?: string }
 ): binding is BitbucketCloudBindingDefinition {
   return binding !== undefined && binding.clientId !== undefined && binding.workspace !== undefined;
 }
 
 export function isGithubBindingDefinition(
-  binding?: AlmBindingDefinition & { appId?: string; url?: string }
+  binding?: AlmBindingDefinitionBase & { appId?: string; url?: string }
 ): binding is GithubBindingDefinition {
   return binding !== undefined && binding.appId !== undefined && binding.url !== undefined;
 }
 
 export function isGitLabBindingDefinition(
-  binding?: AlmBindingDefinition | GithubBindingDefinition | BitbucketCloudBindingDefinition
+  binding?: AlmBindingDefinitionBase | GithubBindingDefinition | BitbucketCloudBindingDefinition
 ): binding is GitlabBindingDefinition {
   // There's too much overlap with the others. We must not only validate that certain fields are
   // present, we must also validate that others are NOT present. And even so, we cannot be 100%

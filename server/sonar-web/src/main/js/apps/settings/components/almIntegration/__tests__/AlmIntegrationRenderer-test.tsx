@@ -30,27 +30,26 @@ it('should render correctly', () => {
   expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot(
     'delete modal'
   );
-  expect(shallowRender({ currentAlm: AlmKeys.Azure })).toMatchSnapshot('azure');
-  expect(shallowRender({ currentAlm: AlmKeys.BitbucketServer })).toMatchSnapshot('bitbucket');
-  expect(shallowRender({ currentAlm: AlmKeys.BitbucketCloud })).toMatchSnapshot('bitbucketcloud');
-  expect(shallowRender({ currentAlm: AlmKeys.GitLab })).toMatchSnapshot('gitlab');
+  expect(shallowRender({ currentAlmTab: AlmKeys.Azure })).toMatchSnapshot('azure');
+  expect(shallowRender({ currentAlmTab: AlmKeys.BitbucketServer })).toMatchSnapshot('bitbucket');
+  expect(shallowRender({ currentAlmTab: AlmKeys.GitLab })).toMatchSnapshot('gitlab');
 });
 
 function shallowRender(props: Partial<AlmIntegrationRendererProps> = {}) {
   return shallow(
     <AlmIntegrationRenderer
       branchesEnabled={true}
-      currentAlm={AlmKeys.GitHub}
+      currentAlmTab={AlmKeys.GitHub}
       definitions={{ azure: [], bitbucket: [], bitbucketcloud: [], github: [], gitlab: [] }}
       definitionStatus={{}}
       loadingAlmDefinitions={false}
       loadingProjectCount={false}
       multipleAlmEnabled={false}
-      onCancel={jest.fn()}
-      onCheck={jest.fn()}
+      onCancelDelete={jest.fn()}
+      onCheckConfiguration={jest.fn()}
       onConfirmDelete={jest.fn()}
       onDelete={jest.fn()}
-      onSelectAlm={jest.fn()}
+      onSelectAlmTab={jest.fn()}
       onUpdateDefinitions={jest.fn()}
       {...props}
     />
