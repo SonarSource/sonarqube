@@ -32,13 +32,13 @@ export default function GlobalFooterSonarCloud({
   return (
     <div className="page-footer page-container" id="footer">
       <div>
-        {`© 2008-${getYear(new Date())}, SonarCloud by `}
+        © 2017-{getYear(new Date())}
         <a
-          href="http://www.sonarsource.com"
+          href="https://www.codescan.io"
           rel="noopener noreferrer"
           target="_blank"
-          title="SonarSource SA">
-          SonarSource SA
+          title="CodeScan Enterprises LLC">
+          CodeScan Enterprises LLC
         </a>
         . All rights reserved.
       </div>
