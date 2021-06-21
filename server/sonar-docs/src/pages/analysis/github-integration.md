@@ -47,6 +47,14 @@ Specify the following settings in your app:
   | **GitHub Enterprise:** Repository metadata <br> **GitHub.com:** Metadata <br> (this setting is automatically set by GitHub)| Read-only |
   | Pull Requests       | Read & write |
   | Commit statuses     | Read-only    |
+
+- For private repositories, grant access to the following **Repository permissions**:
+  
+  | Permission          | Access       |
+  |---------------------|--------------|
+  | Contents            | Read-only    |
+  
+
 - If setting up **GitHub Authentication**, in addition to the aforementioned Repository permissions, grant access for the following **User permissions**:
 
   | Permission          | Access       |

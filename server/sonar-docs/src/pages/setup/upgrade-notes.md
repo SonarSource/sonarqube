@@ -13,6 +13,9 @@ The JavaScript custom rule API, which was previously deprecated, has been remove
 **Deprecated Plugin Java API dropped**  
 Parts of the Java API for plugins that were deprecated before SonarQube 7.0 have been dropped. You should compile plugins against SonarQube 9.0 to ensure they're compatible and to check if they're using a deprecated API that has been dropped.
 
+**Reporting Quality Gate status on GitHub branches requires an additional permission**
+When working in private GitHub repositories, you need to grant read-only access to the **Contents** permission on the GitHub application that you're using for SonarQube integration. See the [GitHub integration documentation](/analysis/github-integration/) for more information.
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15682)
 
 ## Release 8.9 LTS Upgrade Notes  
