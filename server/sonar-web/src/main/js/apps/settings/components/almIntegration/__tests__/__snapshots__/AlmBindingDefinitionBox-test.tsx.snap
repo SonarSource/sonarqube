@@ -514,6 +514,26 @@ exports[`should render correctly: success with alert 1`] = `
     >
       settings.almintegration.configuration_valid
     </Alert>
+    <Alert
+      variant="warning"
+    >
+      <FormattedMessage
+        defaultMessage="settings.almintegration.github.additional_permission"
+        id="settings.almintegration.github.additional_permission"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/github-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    </Alert>
   </div>
   <Button
     className="big-spacer-top"
@@ -622,6 +642,26 @@ exports[`should render correctly: success with branches disabled 1`] = `
       variant="success"
     >
       settings.almintegration.configuration_valid
+    </Alert>
+    <Alert
+      variant="warning"
+    >
+      <FormattedMessage
+        defaultMessage="settings.almintegration.github.additional_permission"
+        id="settings.almintegration.github.additional_permission"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/github-integration/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
     </Alert>
   </div>
   <Button

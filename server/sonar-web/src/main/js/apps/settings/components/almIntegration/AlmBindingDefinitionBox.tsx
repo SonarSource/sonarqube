@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
@@ -28,7 +29,7 @@ import DeleteIcon from 'sonar-ui-common/components/icons/DeleteIcon';
 import EditIcon from 'sonar-ui-common/components/icons/EditIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
+import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import {
   AlmBindingDefinition,
@@ -216,9 +217,28 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
             )}
 
             {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
-              <Alert variant="success">
-                {translate('settings.almintegration.configuration_valid')}
-              </Alert>
+              <>
+                <Alert variant="success">
+                  {translate('settings.almintegration.configuration_valid')}
+                </Alert>
+                {alm === AlmKeys.GitHub && (
+                  <Alert variant="warning">
+                    <FormattedMessage
+                      id="settings.almintegration.github.additional_permission"
+                      defaultMessage={translate(
+                        'settings.almintegration.github.additional_permission'
+                      )}
+                      values={{
+                        link: (
+                          <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                            {translate('learn_more')}
+                          </Link>
+                        )
+                      }}
+                    />
+                  </Alert>
+                )}
+              </>
             )}
           </div>
 
