@@ -91,6 +91,26 @@ export default function BitbucketForm(props: BitbucketFormProps) {
             value={formData.url}
           />
           <AlmBindingDefinitionFormField
+            help={
+              <FormattedMessage
+                defaultMessage={translate(
+                  'settings.almintegration.form.personal_access_token.bitbucket.help'
+                )}
+                id="settings.almintegration.form.personal_access_token.bitbucket.help"
+                values={{
+                  pat: (
+                    <a
+                      href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
+                      rel="noopener noreferrer"
+                      target="_blank">
+                      {translate(
+                        'settings.almintegration.form.personal_access_token.bitbucket.help.url'
+                      )}
+                    </a>
+                  )
+                }}
+              />
+            }
             id="personal_access_token"
             isTextArea={true}
             onFieldChange={props.onFieldChange}
@@ -137,12 +157,14 @@ export default function BitbucketForm(props: BitbucketFormProps) {
             value={formData.workspace}
           />
           <AlmBindingDefinitionFormField
+            help={translate('settings.almintegration.form.oauth_key.bitbucketcloud.help')}
             id="client_id.bitbucketcloud"
             onFieldChange={props.onFieldChange}
             propKey="clientId"
             value={formData.clientId}
           />
           <AlmBindingDefinitionFormField
+            help={translate('settings.almintegration.form.oauth_secret.bitbucketcloud.help')}
             id="client_secret.bitbucketcloud"
             onFieldChange={props.onFieldChange}
             overwriteOnly={Boolean(formData.key)}

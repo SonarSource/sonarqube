@@ -37,12 +37,14 @@ exports[`should render correctly: bitbucket cloud, edit 1`] = `
       value="workspace"
     />
     <AlmBindingDefinitionFormField
+      help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
       id="client_id.bitbucketcloud"
       onFieldChange={[MockFunction]}
       propKey="clientId"
       value="client1"
     />
     <AlmBindingDefinitionFormField
+      help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
       id="client_secret.bitbucketcloud"
       onFieldChange={[MockFunction]}
       overwriteOnly={true}
@@ -90,12 +92,14 @@ exports[`should render correctly: bitbucket cloud, empty 1`] = `
       value=""
     />
     <AlmBindingDefinitionFormField
+      help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
       id="client_id.bitbucketcloud"
       onFieldChange={[MockFunction]}
       propKey="clientId"
       value=""
     />
     <AlmBindingDefinitionFormField
+      help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
       id="client_secret.bitbucketcloud"
       onFieldChange={[MockFunction]}
       overwriteOnly={false}
@@ -137,6 +141,23 @@ exports[`should render correctly: bitbucket server, edit 1`] = `
       value="http://bbs.enterprise.com"
     />
     <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
+          id="settings.almintegration.form.personal_access_token.bitbucket.help"
+          values={
+            Object {
+              "pat": <a
+                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                settings.almintegration.form.personal_access_token.bitbucket.help.url
+              </a>,
+            }
+          }
+        />
+      }
       id="personal_access_token"
       isTextArea={true}
       onFieldChange={[MockFunction]}
@@ -179,6 +200,23 @@ exports[`should render correctly: bitbucket server, empty 1`] = `
       value=""
     />
     <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
+          id="settings.almintegration.form.personal_access_token.bitbucket.help"
+          values={
+            Object {
+              "pat": <a
+                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                settings.almintegration.form.personal_access_token.bitbucket.help.url
+              </a>,
+            }
+          }
+        />
+      }
       id="personal_access_token"
       isTextArea={true}
       onFieldChange={[MockFunction]}
@@ -243,6 +281,23 @@ exports[`should render correctly: variant select 1`] = `
       value=""
     />
     <AlmBindingDefinitionFormField
+      help={
+        <FormattedMessage
+          defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
+          id="settings.almintegration.form.personal_access_token.bitbucket.help"
+          values={
+            Object {
+              "pat": <a
+                href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                settings.almintegration.form.personal_access_token.bitbucket.help.url
+              </a>,
+            }
+          }
+        />
+      }
       id="personal_access_token"
       isTextArea={true}
       onFieldChange={[MockFunction]}
