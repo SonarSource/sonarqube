@@ -34,6 +34,7 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.app_id.github.help"
     id="app_id"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -41,6 +42,7 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_id.github.help"
     id="client_id.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -48,6 +50,7 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_secret.github.help"
     id="client_secret.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -56,6 +59,7 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.private_key.github.help"
     id="private_key"
     isTextArea={true}
     onFieldChange={[MockFunction]}
@@ -100,6 +104,7 @@ exports[`should render correctly 2`] = `
     value="http://github.enterprise.com"
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.app_id.github.help"
     id="app_id"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -107,6 +112,7 @@ exports[`should render correctly 2`] = `
     value="123456"
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_id.github.help"
     id="client_id.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -114,6 +120,7 @@ exports[`should render correctly 2`] = `
     value="client1"
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_secret.github.help"
     id="client_secret.github"
     maxLength={80}
     onFieldChange={[MockFunction]}
@@ -122,6 +129,7 @@ exports[`should render correctly 2`] = `
     value="**clientsecret**"
   />
   <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.private_key.github.help"
     id="private_key"
     isTextArea={true}
     onFieldChange={[MockFunction]}

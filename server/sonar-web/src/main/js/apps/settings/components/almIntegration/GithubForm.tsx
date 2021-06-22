@@ -60,6 +60,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.url}
       />
       <AlmBindingDefinitionFormField
+        help={translate('settings.almintegration.form.app_id.github.help')}
         id="app_id"
         maxLength={80}
         onFieldChange={onFieldChange}
@@ -67,6 +68,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.appId}
       />
       <AlmBindingDefinitionFormField
+        help={translate('settings.almintegration.form.client_id.github.help')}
         id="client_id.github"
         maxLength={80}
         onFieldChange={onFieldChange}
@@ -74,6 +76,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.clientId}
       />
       <AlmBindingDefinitionFormField
+        help={translate('settings.almintegration.form.client_secret.github.help')}
         id="client_secret.github"
         maxLength={80}
         onFieldChange={onFieldChange}
@@ -82,6 +85,7 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.clientSecret}
       />
       <AlmBindingDefinitionFormField
+        help={translate('settings.almintegration.form.private_key.github.help')}
         id="private_key"
         isTextArea={true}
         onFieldChange={onFieldChange}
