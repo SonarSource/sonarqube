@@ -390,7 +390,9 @@ public class EsSettingsTest {
 
     Map<String, String> outputParams = settings.build();
 
-    assertThat(outputParams).containsEntry("xpack.security.transport.ssl.enabled", "true")
+    assertThat(outputParams)
+      .containsEntry("xpack.security.transport.ssl.enabled", "true")
+      .containsEntry("xpack.security.transport.ssl.supported_protocols", "TLSv1.3,TLSv1.2")
       .containsEntry("xpack.security.transport.ssl.keystore.path", keystore.getName())
       .containsEntry("xpack.security.transport.ssl.truststore.path", truststore.getName());
   }

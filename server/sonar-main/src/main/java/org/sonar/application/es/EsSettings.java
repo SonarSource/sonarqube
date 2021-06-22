@@ -118,6 +118,7 @@ public class EsSettings {
 
       builder.put("xpack.security.enabled", "true");
       builder.put("xpack.security.transport.ssl.enabled", "true");
+      builder.put("xpack.security.transport.ssl.supported_protocols", "TLSv1.3,TLSv1.2");
       builder.put("xpack.security.transport.ssl.verification_mode", "certificate");
       builder.put("xpack.security.transport.ssl.keystore.path", clusterESKeystoreFileName);
       builder.put("xpack.security.transport.ssl.truststore.path", clusterESTruststoreFileName);
