@@ -20,7 +20,6 @@
 
 .dismissable-alert-banner .dismissable-alert-content {
   max-width: var(--maxPageWidth);
-  min-width: var(--minPageWidth);
 }
 
 .dismissable-alert-banner .button-icon {
