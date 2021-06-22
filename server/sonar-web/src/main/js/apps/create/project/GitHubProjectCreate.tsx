@@ -34,7 +34,7 @@ import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
   settings: AlmSettingsInstance[];
 }
 
@@ -252,7 +252,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
           selectedRepository.key
         );
 
-        this.props.onProjectCreate([project.key]);
+        this.props.onProjectCreate(project.key);
       } finally {
         if (this.mounted) {
           this.setState({ importing: false });

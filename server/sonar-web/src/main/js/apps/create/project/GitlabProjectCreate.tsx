@@ -27,7 +27,7 @@ import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
   settings: AlmSettingsInstance[];
 }
 
@@ -155,7 +155,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       this.setState({ importingGitlabProjectId: undefined });
 
       if (result) {
-        this.props.onProjectCreate([result.project.key]);
+        this.props.onProjectCreate(result.project.key);
       }
     }
   };

@@ -35,7 +35,7 @@ import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
   settings: AlmSettingsInstance[];
 }
 
@@ -224,7 +224,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     if (this.mounted) {
       this.setState({ importing: false });
       if (createdProject) {
-        this.props.onProjectCreate([createdProject.key]);
+        this.props.onProjectCreate(createdProject.key);
       }
     }
   };

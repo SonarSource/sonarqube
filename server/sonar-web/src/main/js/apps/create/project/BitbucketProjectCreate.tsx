@@ -38,7 +38,7 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   bitbucketSettings: AlmSettingsInstance[];
   loadingBindings: boolean;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
 }
 
 interface State {
@@ -196,7 +196,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       .then(({ project: { key } }) => {
         if (this.mounted) {
           this.setState({ importing: false });
-          this.props.onProjectCreate([key]);
+          this.props.onProjectCreate(key);
         }
       })
       .catch(() => {
@@ -258,7 +258,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         loading={loading || loadingBindings}
         onImportRepository={this.handleImportRepository}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
-        onProjectCreate={this.props.onProjectCreate}
         onSearch={this.handleSearch}
         onSelectRepository={this.handleSelectRepository}
         projectRepositories={projectRepositories}

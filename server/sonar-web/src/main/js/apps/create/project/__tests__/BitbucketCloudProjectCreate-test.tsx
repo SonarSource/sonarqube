@@ -148,7 +148,7 @@ it('Should import repository', async () => {
   });
   await wrapper.instance().handleImport('slug-test');
   expect(importBitbucketCloudRepository).toHaveBeenCalledWith('key', 'slug-test');
-  expect(onProjectCreate).toHaveBeenCalledWith(['project-key']);
+  expect(onProjectCreate).toHaveBeenCalledWith('project-key');
 });
 
 it('Should behave correctly when import fail', async () => {

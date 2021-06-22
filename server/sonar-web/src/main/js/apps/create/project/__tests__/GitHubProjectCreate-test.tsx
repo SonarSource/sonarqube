@@ -228,7 +228,7 @@ it('should handle importing', async () => {
     selectedOrganization.key,
     selectedRepository.key
   );
-  expect(onProjectCreate).toBeCalledWith([project.key]);
+  expect(onProjectCreate).toBeCalledWith(project.key);
 });
 
 function shallowRender(props: Partial<GitHubProjectCreate['props']> = {}) {

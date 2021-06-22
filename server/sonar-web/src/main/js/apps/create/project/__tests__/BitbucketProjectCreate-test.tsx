@@ -108,7 +108,7 @@ it('should correctly import a repo', async () => {
   instance.handleImportRepository();
   expect(importBitbucketServerProject).toBeCalledWith('foo', repo.projectKey, repo.slug);
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['baz']);
+  expect(onProjectCreate).toBeCalledWith('baz');
 });
 
 it('should correctly handle search', async () => {

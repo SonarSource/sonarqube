@@ -43,17 +43,10 @@ import {
 } from '../../../../types/alm-settings';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
-export interface AlmBindingDefinitionFormChildrenProps {
-  formData: AlmBindingDefinition;
-  onFieldChange: (fieldId: string, value: string) => void;
-}
-
 interface Props {
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
   alreadyHaveInstanceConfigured: boolean;
-  onDelete?: (definitionKey: string) => void;
-  onEdit?: (definitionKey: string) => void;
   onCancel?: () => void;
   afterSubmit?: (data: AlmBindingDefinitionBase) => void;
 }

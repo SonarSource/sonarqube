@@ -71,7 +71,7 @@ it('should correctly create a project', async () => {
   });
 
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['bar']);
+  expect(onProjectCreate).toBeCalledWith('bar');
 });
 
 it('should not display any status when the name is not defined', () => {

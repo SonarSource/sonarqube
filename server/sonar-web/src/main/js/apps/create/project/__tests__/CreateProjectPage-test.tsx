@@ -74,6 +74,27 @@ it('should render correctly if the GitLab method is selected', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should submit alm configuration creation properly for BBC', async () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+
+  wrapper
+    .find(CreateProjectModeSelection)
+    .props()
+    .onConfigMode(AlmKeys.BitbucketServer);
+  expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.BitbucketServer);
+
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce([{ alm: AlmKeys.BitbucketCloud }]);
+  wrapper
+    .find(AlmBindingDefinitionForm)
+    .props()
+    .afterSubmit({ key: 'test-key' });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
+  expect(getAlmSettings).toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith({ pathname: '/path', query: { mode: AlmKeys.BitbucketCloud } });
+});
+
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
   return shallow<CreateProjectPage>(
     <CreateProjectPage

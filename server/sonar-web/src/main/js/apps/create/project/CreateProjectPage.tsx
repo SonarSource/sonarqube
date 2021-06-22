@@ -27,6 +27,7 @@ import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
@@ -49,7 +50,16 @@ interface State {
   githubSettings: AlmSettingsInstance[];
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
+  creatingAlmDefinition?: AlmKeys;
 }
+
+const PROJECT_MODE_FOR_ALM_KEY = {
+  [AlmKeys.Azure]: CreateProjectModes.AzureDevOps,
+  [AlmKeys.BitbucketCloud]: CreateProjectModes.BitbucketCloud,
+  [AlmKeys.BitbucketServer]: CreateProjectModes.BitbucketServer,
+  [AlmKeys.GitHub]: CreateProjectModes.GitHub,
+  [AlmKeys.GitLab]: CreateProjectModes.GitLab
+};
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
@@ -73,7 +83,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
   fetchAlmBindings = () => {
     this.setState({ loading: true });
-    getAlmSettings()
+    return getAlmSettings()
       .then(almSettings => {
         if (this.mounted) {
           this.setState({
@@ -101,13 +111,37 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     });
   };
 
-  handleProjectCreate = (projectKeys: string[]) => {
-    if (projectKeys.length === 1) {
-      this.props.router.push(getProjectUrl(projectKeys[0]));
+  handleModeConfig = (alm: AlmKeys) => {
+    this.setState({ creatingAlmDefinition: alm });
+  };
+
+  handleProjectCreate = (projectKey: string) => {
+    this.props.router.push(getProjectUrl(projectKey));
+  };
+
+  handleOnCancelCreation = () => {
+    this.setState({ creatingAlmDefinition: undefined });
+  };
+
+  handleAfterSubmit = async () => {
+    let { creatingAlmDefinition: createdAlmDefinition } = this.state;
+
+    this.setState({ creatingAlmDefinition: undefined });
+
+    await this.fetchAlmBindings();
+
+    if (this.mounted && createdAlmDefinition) {
+      const { bitbucketCloudSettings } = this.state;
+
+      if (createdAlmDefinition === AlmKeys.BitbucketServer && bitbucketCloudSettings.length > 0) {
+        createdAlmDefinition = AlmKeys.BitbucketCloud;
+      }
+
+      this.handleModeSelect(PROJECT_MODE_FOR_ALM_KEY[createdAlmDefinition]);
     }
   };
 
-  renderForm(mode?: CreateProjectModes) {
+  renderProjectCreation(mode?: CreateProjectModes) {
     const {
       appState: { canAdmin },
       location,
@@ -199,6 +233,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             almCounts={almCounts}
             loadingBindings={loading}
             onSelectMode={this.handleModeSelect}
+            onConfigMode={this.handleModeConfig}
           />
         );
       }
@@ -207,6 +242,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
   render() {
     const { location } = this.props;
+    const { creatingAlmDefinition } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
 
     return (
@@ -214,7 +250,15 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          {this.renderForm(mode)}
+          {this.renderProjectCreation(mode)}
+          {creatingAlmDefinition && (
+            <AlmBindingDefinitionForm
+              alm={creatingAlmDefinition}
+              alreadyHaveInstanceConfigured={false}
+              onCancel={this.handleOnCancelCreation}
+              afterSubmit={this.handleAfterSubmit}
+            />
+          )}
         </div>
       </>
     );

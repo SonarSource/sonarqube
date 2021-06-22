@@ -188,7 +188,7 @@ it('should select and import a repository', async () => {
   expect(importAzureRepository).toBeCalledWith('foo', repository.projectName, repository.name);
   await waitAndUpdate(wrapper);
 
-  expect(onProjectCreate).toBeCalledWith(['baz']);
+  expect(onProjectCreate).toBeCalledWith('baz');
   expect(wrapper.state().importing).toBe(false);
 });
 

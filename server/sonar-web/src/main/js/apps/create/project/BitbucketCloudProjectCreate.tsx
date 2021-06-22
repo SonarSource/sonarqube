@@ -31,7 +31,7 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   settings: AlmSettingsInstance[];
   loadingBindings: boolean;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
 }
 
 interface State {
@@ -187,7 +187,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
       this.setState({ importingSlug: undefined });
 
       if (result) {
-        this.props.onProjectCreate([result.project.key]);
+        this.props.onProjectCreate(result.project.key);
       }
     }
   };

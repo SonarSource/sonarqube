@@ -150,7 +150,7 @@ it('should import', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().importingGitlabProjectId).toBeUndefined();
-  expect(onProjectCreate).toBeCalledWith([createdProjectkey]);
+  expect(onProjectCreate).toBeCalledWith(createdProjectkey);
 });
 
 it('should do nothing with missing settings', async () => {

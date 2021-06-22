@@ -42,7 +42,6 @@ export interface BitbucketProjectCreateRendererProps {
   onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   onPersonalAccessTokenCreated: () => void;
-  onProjectCreate: (projectKeys: string[]) => void;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
   resetPat: boolean;

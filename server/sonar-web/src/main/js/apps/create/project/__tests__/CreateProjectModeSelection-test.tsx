@@ -46,7 +46,16 @@ it('should render correctly', () => {
     )
   ).toMatchSnapshot('invalid configs, admin');
   expect(
-    shallowRender({ appState: { canAdmin: true } }, { [AlmKeys.BitbucketServer]: 0 })
+    shallowRender(
+      { appState: { canAdmin: true } },
+      {
+        [AlmKeys.Azure]: 0,
+        [AlmKeys.BitbucketCloud]: 0,
+        [AlmKeys.BitbucketServer]: 0,
+        [AlmKeys.GitHub]: 0,
+        [AlmKeys.GitLab]: 0
+      }
+    )
   ).toMatchSnapshot('no alm conf yet, admin');
 });
 
@@ -76,10 +85,47 @@ it('should correctly pass the selected mode up', () => {
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitLab);
   onSelectMode.mockClear();
 
-  wrapper = shallowRender({ onSelectMode }, { [AlmKeys.BitbucketCloud]: 1 });
+  wrapper = shallowRender(
+    { onSelectMode },
+    { [AlmKeys.BitbucketCloud]: 1, [AlmKeys.BitbucketServer]: 0 }
+  );
 
   click(wrapper.find(almButton).at(1));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketCloud);
+  onSelectMode.mockClear();
+});
+
+it('should call the proper click handler', () => {
+  const almButton = 'button.create-project-mode-type-alm';
+
+  const onSelectMode = jest.fn();
+  const onConfigMode = jest.fn();
+
+  let wrapper = shallowRender({ onSelectMode, onConfigMode }, { [AlmKeys.Azure]: 2 });
+
+  click(wrapper.find(almButton).at(0));
+  expect(onConfigMode).not.toHaveBeenCalled();
+  expect(onSelectMode).not.toHaveBeenCalled();
+  onConfigMode.mockClear();
+  onSelectMode.mockClear();
+
+  wrapper = shallowRender({ onSelectMode, onConfigMode });
+
+  click(wrapper.find(almButton).at(0));
+  expect(onConfigMode).not.toHaveBeenCalled();
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.AzureDevOps);
+  onConfigMode.mockClear();
+  onSelectMode.mockClear();
+
+  wrapper = shallowRender(
+    { onSelectMode, onConfigMode, appState: { canAdmin: true } },
+    { [AlmKeys.Azure]: 0 }
+  );
+
+  click(wrapper.find(almButton).at(0));
+  expect(onConfigMode).toHaveBeenCalledWith(CreateProjectModes.AzureDevOps);
+  expect(onSelectMode).not.toHaveBeenCalled();
+  onConfigMode.mockClear();
   onSelectMode.mockClear();
 });
 
@@ -88,11 +134,11 @@ function shallowRender(
   almCountOverrides = {}
 ) {
   const almCounts = {
-    [AlmKeys.Azure]: 0,
+    [AlmKeys.Azure]: 1,
     [AlmKeys.BitbucketCloud]: 0,
     [AlmKeys.BitbucketServer]: 1,
-    [AlmKeys.GitHub]: 0,
-    [AlmKeys.GitLab]: 0,
+    [AlmKeys.GitHub]: 1,
+    [AlmKeys.GitLab]: 1,
     ...almCountOverrides
   };
   return shallow<CreateProjectModeSelectionProps>(
@@ -101,6 +147,7 @@ function shallowRender(
       appState={{ canAdmin: false }}
       loadingBindings={false}
       onSelectMode={jest.fn()}
+      onConfigMode={jest.fn()}
       {...props}
     />
   );

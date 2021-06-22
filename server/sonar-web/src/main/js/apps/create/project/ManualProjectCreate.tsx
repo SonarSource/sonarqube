@@ -34,7 +34,7 @@ import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
 
 interface Props {
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKey: string) => void;
 }
 
 interface State {
@@ -115,7 +115,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         project: state.projectKey,
         name: (state.projectName || state.projectKey).trim()
       }).then(
-        ({ project }) => this.props.onProjectCreate([project.key]),
+        ({ project }) => this.props.onProjectCreate(project.key),
         () => {
           if (this.mounted) {
             this.setState({ submitting: false });

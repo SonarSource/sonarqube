@@ -34,6 +34,7 @@ export interface CreateProjectModeSelectionProps {
   appState: Pick<T.AppState, 'canAdmin'>;
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
+  onConfigMode: (mode: AlmKeys) => void;
 }
 
 const DEFAULT_ICON_SIZE = 80;
@@ -50,15 +51,29 @@ function renderAlmOption(
     loadingBindings
   } = props;
 
-  const hasBitbucketCloud = almCounts[AlmKeys.BitbucketCloud] > 0;
-  const isBitbucket = alm === AlmKeys.BitbucketServer;
+  const hasBitbucketCloudConf = almCounts[AlmKeys.BitbucketCloud] > 0;
+  const isBitbucketOption = alm === AlmKeys.BitbucketServer;
 
-  const count = isBitbucket
+  const count = isBitbucketOption
     ? almCounts[AlmKeys.BitbucketServer] + almCounts[AlmKeys.BitbucketCloud]
     : almCounts[alm];
   const hasConfig = count > 0;
   const hasTooManyConfig = count > 1;
   const disabled = loadingBindings || hasTooManyConfig || (!hasConfig && !canAdmin);
+
+  const onClick = () => {
+    if (hasTooManyConfig || (!hasConfig && !canAdmin)) {
+      return null;
+    }
+
+    if (!hasConfig && canAdmin) {
+      return props.onConfigMode(alm);
+    }
+
+    return props.onSelectMode(
+      isBitbucketOption && hasBitbucketCloudConf ? CreateProjectModes.BitbucketCloud : mode
+    );
+  };
 
   return (
     <div className="display-flex-column">
@@ -68,11 +83,7 @@ function renderAlmOption(
           { disabled, 'big-spacer-right': !last }
         )}
         disabled={disabled}
-        onClick={() =>
-          props.onSelectMode(
-            isBitbucket && hasBitbucketCloud ? CreateProjectModes.BitbucketCloud : mode
-          )
-        }
+        onClick={onClick}
         type="button">
         <img
           alt="" // Should be ignored by screen readers
