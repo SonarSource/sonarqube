@@ -20,7 +20,6 @@
 package org.sonar.ce.monitoring;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CeTasksMBean {
 
@@ -34,7 +33,7 @@ public interface CeTasksMBean {
   /**
    * The age, in ms, of the oldest pending task.
    */
-  Optional<Long> getLongestTimePending();
+  long getLongestTimePending();
 
   /**
    * Count of tasks under processing.

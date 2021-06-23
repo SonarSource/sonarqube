@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 public class CeTasksMBeanImplTest {
   private static final long PENDING_COUNT = 2;
-  private static final Optional<Long> PENDING_TIME = Optional.of(10_000L);
+  private static final long PENDING_TIME = 10_000L;
   private static final long IN_PROGRESS_COUNT = 5;
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
@@ -157,7 +157,7 @@ public class CeTasksMBeanImplTest {
 
     @Override
     public Optional<Long> getLongestTimePending() {
-      return PENDING_TIME;
+      return Optional.of(PENDING_TIME);
     }
 
     @Override
