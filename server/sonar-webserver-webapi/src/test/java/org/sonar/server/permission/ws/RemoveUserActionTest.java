@@ -33,9 +33,11 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
+import org.sonar.server.ws.TestRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -88,6 +90,39 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .execute();
 
     assertThat(db.users().selectPermissionsOfUser(user)).containsOnly(PROVISION_PROJECTS);
+  }
+
+  @Test
+  public void admin_can_not_remove_his_global_admin_right() {
+    db.users().insertPermissionOnUser(user, ADMINISTER);
+    loginAsAdmin();
+    UserDto admin = db.users().insertUser(userSession.getLogin());
+    db.users().insertPermissionOnUser(admin, ADMINISTER);
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, userSession.getLogin())
+      .setParam(PARAM_PERMISSION, ADMINISTER.getKey());
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("As an admin, you can't remove your own admin right");
+  }
+
+  @Test
+  public void project_admin_can_not_remove_his_project_admin_right() {
+    loginAsAdmin();
+    UserDto admin = db.users().insertUser(userSession.getLogin());
+    ComponentDto project = db.components().insertPrivateProject();
+    db.users().insertProjectPermissionOnUser(admin, ADMINISTER.getKey(), project);
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, userSession.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, ADMINISTER.getKey());
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("As an admin, you can't remove your own admin right");
   }
 
   @Test
