@@ -40,7 +40,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DOMAIN;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_ID;
@@ -112,7 +111,6 @@ public class UpdateActionTest {
   @Test
   public void update_one_field() {
     String uuid = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
     ws.newRequest()
@@ -180,19 +178,6 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_when_custom_measures_and_type_changed() {
-    expectedException.expect(ServerException.class);
-    String uuid = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
-    dbSession.commit();
-
-    ws.newRequest()
-      .setParam(PARAM_ID, uuid)
-      .setParam(PARAM_TYPE, ValueType.BOOL.name())
-      .execute();
-  }
-
-  @Test
   public void fail_when_no_id() {
     expectedException.expect(IllegalArgumentException.class);
 
@@ -222,7 +207,6 @@ public class UpdateActionTest {
   @Test
   public void fail_when_metric_key_is_not_well_formatted() {
     String uuid = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);

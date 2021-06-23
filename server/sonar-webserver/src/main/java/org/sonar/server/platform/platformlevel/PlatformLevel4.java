@@ -111,7 +111,6 @@ import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.LanguageValidation;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.log.ServerLogging;
-import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
@@ -324,7 +323,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // measure
       MetricsWsModule.class,
       MeasuresWsModule.class,
-      CustomMeasuresWsModule.class,
       CoreCustomMetrics.class,
       MetricFinder.class,
       UnanalyzedLanguageMetrics.class,

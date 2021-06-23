@@ -29,7 +29,6 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.measure.custom.CustomMeasureTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -181,25 +180,6 @@ public class CreateActionTest {
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, "any-name")
       .setParam(PARAM_TYPE, DEFAULT_TYPE).execute();
-  }
-
-  @Test
-  public void fail_when_metric_type_is_changed_and_associated_measures_exist() {
-    expectedException.expect(ServerException.class);
-    MetricDto metric = MetricTesting.newMetricDto()
-      .setKey(DEFAULT_KEY)
-      .setValueType(ValueType.BOOL.name())
-      .setUserManaged(true)
-      .setEnabled(false);
-    dbClient.metricDao().insert(dbSession, metric);
-    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newCustomMeasureDto().setMetricUuid(metric.getUuid()));
-    dbSession.commit();
-
-    tester.newRequest()
-      .setParam(PARAM_KEY, DEFAULT_KEY)
-      .setParam(PARAM_NAME, "any-name")
-      .setParam(PARAM_TYPE, ValueType.INT.name())
-      .execute();
   }
 
   @Test

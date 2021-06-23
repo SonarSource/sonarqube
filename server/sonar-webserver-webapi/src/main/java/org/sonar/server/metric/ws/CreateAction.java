@@ -19,7 +19,6 @@
  */
 package org.sonar.server.metric.ws;
 
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
@@ -29,7 +28,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 
@@ -186,18 +184,6 @@ public class CreateAction implements MetricsWsAction {
     }
     checkRequest(!isMetricEnabled(metricInDb), "An active metric already exist with key: " + metricInDb.getKey());
     checkRequest(!isMetricNonCustom(metricInDb), "An non custom metric already exist with key: %s", metricInDb.getKey());
-    if (hasMetricTypeChanged(metricInDb, template)) {
-      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricUuid(dbSession, metricInDb.getUuid());
-      checkRequest(!hasAssociatedCustomMeasures(customMeasures), "You're trying to change the type '%s' while there are associated measures.", metricInDb.getValueType());
-    }
-  }
-
-  private static boolean hasAssociatedCustomMeasures(List<CustomMeasureDto> customMeasures) {
-    return !customMeasures.isEmpty();
-  }
-
-  private static boolean hasMetricTypeChanged(MetricDto metricInDb, MetricDto template) {
-    return !metricInDb.getValueType().equals(template.getValueType());
   }
 
   private static boolean isMetricNonCustom(MetricDto metricInDb) {

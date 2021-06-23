@@ -69,7 +69,6 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -1528,25 +1527,6 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void deleteNonRootComponentsInView_deletes_manual_measures_of_subviews_of_a_view() {
-    ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview1 = db.components().insertComponent(newSubView(view));
-    ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
-    ComponentDto subview3 = db.components().insertComponent(newSubView(view));
-    ComponentDto pc = db.components().insertComponent(newProjectCopy("a", db.components().insertPrivateProject(), view));
-    insertManualMeasureFor(view, subview1, subview2, subview3, pc);
-    assertThat(getComponentUuidsOfManualMeasures()).containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
-
-    underTest.deleteNonRootComponentsInView(dbSession, singletonList(subview1));
-    assertThat(getComponentUuidsOfManualMeasures())
-      .containsOnly(view.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());
-
-    underTest.deleteNonRootComponentsInView(dbSession, asList(subview2, subview3, pc));
-    assertThat(getComponentUuidsOfManualMeasures())
-      .containsOnly(view.uuid(), pc.uuid());
-  }
-
-  @Test
   public void purgeCeActivities_deletes_activity_older_than_180_days_and_their_scanner_context() {
     LocalDateTime now = LocalDateTime.now();
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
@@ -1629,13 +1609,6 @@ public class PurgeDaoTest {
     insertCeTaskMessages(dto.getUuid(), 2);
     db.getDbClient().ceActivityDao().insert(db.getSession(), dto);
     db.getSession().commit();
-  }
-
-  private void insertManualMeasureFor(ComponentDto... componentDtos) {
-    Arrays.stream(componentDtos).forEach(componentDto -> dbClient.customMeasureDao().insert(dbSession, new CustomMeasureDto()
-      .setComponentUuid(componentDto.uuid())
-      .setMetricUuid(randomAlphabetic(3))));
-    dbSession.commit();
   }
 
   private Stream<String> getComponentUuidsOfManualMeasures() {

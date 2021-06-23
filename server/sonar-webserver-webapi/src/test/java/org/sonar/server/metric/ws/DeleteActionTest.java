@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -42,7 +41,6 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class DeleteActionTest {
@@ -103,22 +101,6 @@ public class DeleteActionTest {
 
     MetricDto metric = db.getDbClient().metricDao().selectByKey(db.getSession(), "custom-key");
     assertThat(metric.isEnabled()).isTrue();
-  }
-
-  @Test
-  public void delete_associated_measures() {
-    loggedAsSystemAdministrator();
-    MetricDto metric = insertCustomMetric("custom-key");
-    CustomMeasureDto customMeasure = newCustomMeasureDto().setMetricUuid(metric.getUuid());
-    CustomMeasureDto undeletedCustomMeasure = newCustomMeasureDto().setMetricUuid("unknown");
-    dbClient.customMeasureDao().insert(db.getSession(), customMeasure);
-    dbClient.customMeasureDao().insert(db.getSession(), undeletedCustomMeasure);
-    db.getSession().commit();
-
-    newRequest().setParam("keys", "custom-key").execute();
-
-    assertThat(dbClient.customMeasureDao().selectByUuid(db.getSession(), customMeasure.getUuid())).isEmpty();
-    assertThat(dbClient.customMeasureDao().selectByUuid(db.getSession(), undeletedCustomMeasure.getUuid())).isNotEmpty();
   }
 
   @Test

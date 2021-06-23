@@ -64,7 +64,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     NewCoverageMeasuresStep.class,
     CoverageMeasuresStep.class,
     CommentMeasuresStep.class,
-    CustomMeasuresCopyStep.class,
     DuplicationMeasuresStep.class,
     NewSizeMeasuresStep.class,
     LanguageDistributionMeasuresStep.class,

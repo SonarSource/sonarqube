@@ -46,7 +46,6 @@ import org.sonar.db.issue.IssueDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
@@ -135,7 +134,6 @@ public class DbClient {
   private final ProjectQgateAssociationDao projectQgateAssociationDao;
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
-  private final CustomMeasureDao customMeasureDao;
   private final MetricDao metricDao;
   private final GroupDao groupDao;
   private final RuleDao ruleDao;
@@ -210,7 +208,6 @@ public class DbClient {
     projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
     duplicationDao = getDao(map, DuplicationDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
-    customMeasureDao = getDao(map, CustomMeasureDao.class);
     metricDao = getDao(map, MetricDao.class);
     groupDao = getDao(map, GroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
@@ -416,10 +413,6 @@ public class DbClient {
 
   public NotificationQueueDao notificationQueueDao() {
     return notificationQueueDao;
-  }
-
-  public CustomMeasureDao customMeasureDao() {
-    return customMeasureDao;
   }
 
   public MetricDao metricDao() {

@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.authentication.AuthenticationService;
 import org.sonarqube.ws.client.batch.BatchService;
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
-import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
 import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
@@ -93,7 +92,6 @@ class DefaultWsClient implements WsClient {
   private final AuthenticationService authenticationService;
   private final CeService ceService;
   private final ComponentsService componentsService;
-  private final CustomMeasuresService customMeasuresService;
   private final DevelopersService developersService;
   private final DuplicationsService duplicationsService;
   private final EditionsService editionsService;
@@ -151,7 +149,6 @@ class DefaultWsClient implements WsClient {
     this.authenticationService = new AuthenticationService(wsConnector);
     this.ceService = new CeService(wsConnector);
     this.componentsService = new ComponentsService(wsConnector);
-    this.customMeasuresService = new CustomMeasuresService(wsConnector);
     this.developersService = new DevelopersService(wsConnector);
     this.duplicationsService = new DuplicationsService(wsConnector);
     this.editionsService = new EditionsService(wsConnector);
@@ -239,11 +236,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public ComponentsService components() {
     return componentsService;
-  }
-
-  @Override
-  public CustomMeasuresService customMeasures() {
-    return customMeasuresService;
   }
 
   @Override

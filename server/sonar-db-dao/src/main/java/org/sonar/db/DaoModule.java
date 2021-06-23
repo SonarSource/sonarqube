@@ -48,7 +48,6 @@ import org.sonar.db.issue.IssueDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.notification.NotificationQueueDao;
@@ -108,7 +107,6 @@ public class DaoModule extends Module {
     CeTaskMessageDao.class,
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
-    CustomMeasureDao.class,
     DefaultQProfileDao.class,
     DuplicationDao.class,
     EsQueueDao.class,

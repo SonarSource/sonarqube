@@ -19,22 +19,17 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.base.Preconditions;
 import java.util.Arrays;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.user.UserDto;
 
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class MeasureDbTester {
@@ -60,21 +55,6 @@ public class MeasureDbTester {
     LiveMeasureDto dto = newLiveMeasure(component, metric);
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     dbClient.liveMeasureDao().insert(dbSession, dto);
-    dbSession.commit();
-    return dto;
-  }
-
-  @SafeVarargs
-  public final CustomMeasureDto insertCustomMeasure(@Nullable UserDto user, ComponentDto component, MetricDto metricDto, Consumer<CustomMeasureDto>... consumers) {
-    Preconditions.checkArgument(metricDto.isUserManaged(),"Custom measure must be created from a custom metric");
-    CustomMeasureDto dto = newCustomMeasureDto()
-      .setComponentUuid(component.uuid())
-      .setMetricUuid(metricDto.getUuid());
-    if (user != null) {
-      dto.setUserUuid(user.getUuid());
-    }
-    Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dbClient.customMeasureDao().insert(dbSession, dto);
     dbSession.commit();
     return dto;
   }

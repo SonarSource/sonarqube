@@ -77,7 +77,6 @@ public class DeleteAction implements MetricsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<String> uuids = loadUuids(dbSession, request);
       dbClient.metricDao().disableCustomByUuids(dbSession, uuids);
-      dbClient.customMeasureDao().deleteByMetricUuids(dbSession, uuids);
       dbClient.gateConditionDao().deleteConditionsWithInvalidMetrics(dbSession);
       dbSession.commit();
     }

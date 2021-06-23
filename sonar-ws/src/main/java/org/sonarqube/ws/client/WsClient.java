@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.authentication.AuthenticationService;
 import org.sonarqube.ws.client.batch.BatchService;
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
-import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
 import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
@@ -111,8 +110,6 @@ public interface WsClient {
   CeService ce();
 
   ComponentsService components();
-
-  CustomMeasuresService customMeasures();
 
   DevelopersService developers();
 

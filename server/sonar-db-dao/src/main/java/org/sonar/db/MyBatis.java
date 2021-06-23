@@ -78,8 +78,6 @@ import org.sonar.db.mapping.ProjectMappingsMapper;
 import org.sonar.db.measure.LiveMeasureMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureMapper;
-import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.measure.custom.CustomMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
@@ -175,7 +173,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentWithModuleUuid", ComponentWithModuleUuidDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
-    confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
@@ -237,7 +234,6 @@ public class MyBatis implements Startable {
       ComponentKeyUpdaterMapper.class,
       ComponentMapper.class,
       LiveMeasureMapper.class,
-      CustomMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
       EsQueueMapper.class,
