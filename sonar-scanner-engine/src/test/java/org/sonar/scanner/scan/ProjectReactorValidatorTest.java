@@ -28,23 +28,19 @@ import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,14 +48,11 @@ import static org.mockito.Mockito.when;
 public class ProjectReactorValidatorTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Rule
   public LogTester logTester = new LogTester();
 
-  private GlobalConfiguration settings = mock(GlobalConfiguration.class);
-  private ProjectInfo projectInfo = mock(ProjectInfo.class);
-  private ProjectReactorValidator underTest = new ProjectReactorValidator(settings);
+  private final GlobalConfiguration settings = mock(GlobalConfiguration.class);
+  private final ProjectInfo projectInfo = mock(ProjectInfo.class);
+  private final ProjectReactorValidator underTest = new ProjectReactorValidator(settings);
 
   @Before
   public void prepare() {
@@ -69,7 +62,8 @@ public class ProjectReactorValidatorTest {
   @Test
   @UseDataProvider("validKeys")
   public void not_fail_with_valid_key(String validKey) {
-    underTest.validate(createProjectReactor(validKey));
+    ProjectReactor projectReactor = createProjectReactor(validKey);
+    underTest.validate(projectReactor);
   }
 
   @DataProvider
@@ -93,36 +87,33 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void log_warning_when_invalid_key() {
+  public void failg_when_invalid_key() {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
-    underTest.validate(reactor);
-
-    assertThat(logTester.getLogs(LoggerLevel.WARN))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .containsOnly("\"foo$bar\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("\"foo$bar\" is not a valid project key. Allowed characters are alphanumeric,"
+        + " '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
-  public void log_warning_when_only_digits() {
+  public void fail_when_only_digits() {
     ProjectReactor reactor = createProjectReactor("12345");
 
-    underTest.validate(reactor);
-
-    assertThat(logTester.getLogs(LoggerLevel.WARN))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .containsOnly("\"12345\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("\"12345\" is not a valid project key. Allowed characters are alphanumeric, "
+        + "'-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
-  public void log_warning_when_backslash_in_key() {
+  public void fail_when_backslash_in_key() {
     ProjectReactor reactor = createProjectReactor("foo\\bar");
 
-    underTest.validate(reactor);
-
-    assertThat(logTester.getLogs(LoggerLevel.WARN))
-      .extracting(LogAndArguments::getFormattedMsg)
-      .containsOnly("\"foo\\bar\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("\"foo\\bar\" is not a valid project key. Allowed characters are alphanumeric, "
+        + "'-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
@@ -130,12 +121,11 @@ public class ProjectReactorValidatorTest {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
-    when(settings.get(eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of("feature1"));
+    when(settings.get(ScannerProperties.BRANCH_NAME)).thenReturn(Optional.of("feature1"));
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("To use the property \"sonar.branch.name\" and analyze branches, Developer Edition or above is required");
-
-    underTest.validate(reactor);
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("To use the property \"sonar.branch.name\" and analyze branches, Developer Edition or above is required");
   }
 
   @Test
@@ -143,12 +133,11 @@ public class ProjectReactorValidatorTest {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
-    when(settings.get(eq(ScannerProperties.PULL_REQUEST_KEY))).thenReturn(Optional.of("#1984"));
+    when(settings.get(ScannerProperties.PULL_REQUEST_KEY)).thenReturn(Optional.of("#1984"));
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("To use the property \"sonar.pullrequest.key\" and analyze pull requests, Developer Edition or above is required");
-
-    underTest.validate(reactor);
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("To use the property \"sonar.pullrequest.key\" and analyze pull requests, Developer Edition or above is required");
   }
 
   @Test
@@ -156,12 +145,11 @@ public class ProjectReactorValidatorTest {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
-    when(settings.get(eq(ScannerProperties.PULL_REQUEST_BRANCH))).thenReturn(Optional.of("feature1"));
+    when(settings.get(ScannerProperties.PULL_REQUEST_BRANCH)).thenReturn(Optional.of("feature1"));
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("To use the property \"sonar.pullrequest.branch\" and analyze pull requests, Developer Edition or above is required");
-
-    underTest.validate(reactor);
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("To use the property \"sonar.pullrequest.branch\" and analyze pull requests, Developer Edition or above is required");
   }
 
   @Test
@@ -169,12 +157,11 @@ public class ProjectReactorValidatorTest {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
     ProjectReactor reactor = new ProjectReactor(def);
 
-    when(settings.get(eq(ScannerProperties.PULL_REQUEST_BASE))).thenReturn(Optional.of("feature1"));
+    when(settings.get(ScannerProperties.PULL_REQUEST_BASE)).thenReturn(Optional.of("feature1"));
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("To use the property \"sonar.pullrequest.base\" and analyze pull requests, Developer Edition or above is required");
-
-    underTest.validate(reactor);
+    assertThatThrownBy(() -> underTest.validate(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("To use the property \"sonar.pullrequest.base\" and analyze pull requests, Developer Edition or above is required");
   }
 
   @Test
@@ -182,7 +169,8 @@ public class ProjectReactorValidatorTest {
   public void not_fail_with_valid_version(String validVersion) {
     when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(validVersion));
 
-    underTest.validate(createProjectReactor("foo"));
+    ProjectReactor projectReactor = createProjectReactor("foo");
+    underTest.validate(projectReactor);
   }
 
   @DataProvider
@@ -200,7 +188,8 @@ public class ProjectReactorValidatorTest {
   public void not_fail_with_valid_buildString(String validBuildString) {
     when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(validBuildString));
 
-    underTest.validate(createProjectReactor("foo"));
+    ProjectReactor projectReactor = createProjectReactor("foo");
+    underTest.validate(projectReactor);
   }
 
   @DataProvider

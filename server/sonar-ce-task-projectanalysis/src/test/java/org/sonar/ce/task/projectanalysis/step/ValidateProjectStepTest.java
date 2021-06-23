@@ -23,7 +23,6 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
@@ -43,9 +42,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -61,19 +59,17 @@ public class ValidateProjectStepTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
-  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
-  private System2 system2 = new TestSystem2().setNow(NOW);
+  private final System2 system2 = new TestSystem2().setNow(NOW);
 
-  private CeTaskMessages taskMessages = mock(CeTaskMessages.class);
-  private DbClient dbClient = db.getDbClient();
+  private final CeTaskMessages taskMessages = mock(CeTaskMessages.class);
+  private final DbClient dbClient = db.getDbClient();
 
-  private ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder, taskMessages, system2);
+  private final ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder, taskMessages, system2);
 
   @Test
   public void dont_fail_for_long_forked_from_master_with_modules() {
@@ -114,9 +110,10 @@ public class ValidateProjectStepTest {
       .setKey("branch")
       .build());
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Due to an upgrade, you need first to re-analyze the target branch 'mergeBranch' before analyzing this pull request.");
-    underTest.execute(new TestComputationStepContext());
+    var stepContext = new TestComputationStepContext();
+    assertThatThrownBy(() -> underTest.execute(stepContext))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Due to an upgrade, you need first to re-analyze the target branch 'mergeBranch' before analyzing this pull request.");
   }
 
   @Test
@@ -130,16 +127,16 @@ public class ValidateProjectStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:");
-    thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
-    thrown.expectMessage("Latest analysis: ");
-
-    underTest.execute(new TestComputationStepContext());
+    var stepContext = new TestComputationStepContext();
+    assertThatThrownBy(() -> underTest.execute(stepContext))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContainingAll("Validation of project failed:",
+        "Date of analysis cannot be older than the date of the last known analysis on this project. Value: ",
+        "Latest analysis: ");
   }
 
   @Test
-  public void add_warning_when_project_key_is_invalid() {
+  public void fail_when_project_key_is_invalid() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("inv$lid!"));
     db.components().insertSnapshot(project, a -> a.setCreatedAt(PAST_ANALYSIS_TIME));
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
@@ -147,13 +144,13 @@ public class ValidateProjectStepTest {
       .setKey(project.getKey())
       .build());
 
-    underTest.execute(new TestComputationStepContext());
-
-    verify(taskMessages, times(1))
-      .add(new CeTaskMessages.Message(
-        "The project key ‘inv$lid!’ contains invalid characters. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit. " +
-          "You should update the project key with the expected format.",
-        NOW));
+    var stepContext = new TestComputationStepContext();
+    assertThatThrownBy(() -> underTest.execute(stepContext))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContainingAll("Validation of project failed:",
+        "The project key ‘inv$lid!’ contains invalid characters.",
+        "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
+        "You should update the project key with the expected format.");
   }
 
   private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {

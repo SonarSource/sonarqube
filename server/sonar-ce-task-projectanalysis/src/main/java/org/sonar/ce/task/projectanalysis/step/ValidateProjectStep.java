@@ -57,15 +57,11 @@ public class ValidateProjectStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final CeTaskMessages taskMessages;
-  private final System2 system2;
 
   public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, CeTaskMessages taskMessages, System2 system2) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.taskMessages = taskMessages;
-    this.system2 = system2;
   }
 
   @Override
@@ -121,32 +117,28 @@ public class ValidateProjectStep implements ComputationStep {
     public void visitProject(Component rawProject) {
       String rawProjectKey = rawProject.getDbKey();
       Optional<ComponentDto> baseProjectOpt = loadBaseComponent(rawProjectKey);
-      validateAnalysisDate(baseProjectOpt);
-      if (!baseProjectOpt.isPresent()) {
-        return;
-      }
-      if (!isValidProjectKey(baseProjectOpt.get().getKey())) {
+      if (baseProjectOpt.isPresent()) {
         ComponentDto baseProject = baseProjectOpt.get();
-        // As it was possible in the past to use project key with a format that is no more compatible, we need to display a warning to the user in
-        // order for him to update his project key.
-        // SONAR-13191 This warning should be removed in 9.0, and instead the analysis should fail
-        taskMessages.add(new CeTaskMessages.Message(
-          format("The project key ‘%s’ contains invalid characters. %s. You should update the project key with the expected format.", baseProject.getKey(),
-            ALLOWED_CHARACTERS_MESSAGE),
-          system2.now()));
+        validateAnalysisDate(baseProject);
+        validateProjectKey(baseProject);
       }
     }
 
-    private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
-      if (baseProject.isPresent()) {
-        Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, baseProject.get().uuid());
-        long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate();
-        Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
-        if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {
-          validationMessages.add(format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
-            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
-            formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
-        }
+    private void validateProjectKey(ComponentDto baseProject) {
+      if (!isValidProjectKey(baseProject.getKey())) {
+        validationMessages.add(format("The project key ‘%s’ contains invalid characters. %s. You should update the project key with the expected format.", baseProject.getKey(),
+          ALLOWED_CHARACTERS_MESSAGE));
+      }
+    }
+
+    private void validateAnalysisDate(ComponentDto baseProject) {
+      Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, baseProject.uuid());
+      long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate();
+      Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
+      if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {
+        validationMessages.add(format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
+          "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+          formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
       }
     }
 

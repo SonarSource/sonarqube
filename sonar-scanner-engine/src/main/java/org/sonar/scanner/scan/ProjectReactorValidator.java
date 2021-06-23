@@ -26,14 +26,11 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
 
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
@@ -49,9 +46,6 @@ import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_KEY;
  * @since 3.6
  */
 public class ProjectReactorValidator {
-
-  private static final Logger LOG = Loggers.get(ProjectReactorValidator.class);
-
   private final GlobalConfiguration settings;
 
   // null = branch plugin is not available
@@ -71,7 +65,7 @@ public class ProjectReactorValidator {
     List<String> validationMessages = new ArrayList<>();
 
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
-      validateModule(moduleDef);
+      validateModule(moduleDef, validationMessages);
     }
 
     if (isBranchFeatureAvailable()) {
@@ -82,17 +76,15 @@ public class ProjectReactorValidator {
     }
 
     if (!validationMessages.isEmpty()) {
-      throw MessageException.of("Validation of project reactor failed:\n  o " +
+      throw MessageException.of("Validation of project failed:\n  o " +
         String.join("\n  o ", validationMessages));
     }
   }
 
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
-    for (String param : singletonList(BRANCH_NAME)) {
-      if (isNotEmpty(settings.get(param).orElse(null))) {
-        validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
-          + "See %s for more information.", param, BRANCHES_DOC_LINK));
-      }
+    if (isNotEmpty(settings.get(BRANCH_NAME).orElse(null))) {
+      validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
+        + "See %s for more information.", BRANCH_NAME, BRANCHES_DOC_LINK));
     }
   }
 
@@ -103,12 +95,9 @@ public class ProjectReactorValidator {
         + "See %s for more information.", param, BRANCHES_DOC_LINK)));
   }
 
-  private static void validateModule(ProjectDefinition moduleDef) {
-    if (!ComponentKeys.isValidProjectKey(moduleDef.getKey())) {
-      // As it was possible in the past to use project key with a format that is no more compatible, we need to display a warning to the user in
-      // order for him to update his project key.
-      // SONAR-13191 This warning should be removed in 9.0
-      LOG.warn("\"{}\" is not a valid project or module key. {}.", moduleDef.getKey(), ALLOWED_CHARACTERS_MESSAGE);
+  private static void validateModule(ProjectDefinition projectDefinition, List<String> validationMessages) {
+    if (!ComponentKeys.isValidProjectKey(projectDefinition.getKey())) {
+      validationMessages.add(format("\"%s\" is not a valid project key. %s.", projectDefinition.getKey(), ALLOWED_CHARACTERS_MESSAGE));
     }
   }
 
