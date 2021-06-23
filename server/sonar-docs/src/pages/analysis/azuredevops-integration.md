@@ -285,7 +285,7 @@ Ensure all of your pull requests get automatically analyzed by adding a [build v
 Prevent the merge of pull requests with a failed Quality Gate by adding a `SonarQube/quality gate` [status check branch policy](https://docs.microsoft.com/en-us/azure/devops/repos/git/pr-status-policy) on the target branch.
  
 [[info]]
-| If your SonarQube project is configured as part of a mono repository in Enterprise Edition or above, you need to use a status check branch policy that uses a SonarQube project key (`SonarQube/quality_gate_[SQ_project_key]`) instead of `SonarQube/quality gate`.
+| Projects configured as part of a mono repository cannot use this status check branch policy to prevent pull request merges.
  
 Check out this [![YouTube link](/images/youtube.png) video](https://www.youtube.com/watch?v=be5aw9_7bBU) for a quick overview on preventing pull requests from being merged when they are failing the Quality Gate.
 
