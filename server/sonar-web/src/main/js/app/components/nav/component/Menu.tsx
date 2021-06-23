@@ -28,7 +28,6 @@ import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
-import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
@@ -42,7 +41,6 @@ const SETTINGS_URLS = [
   '/project/settings',
   '/project/quality_profiles',
   '/project/quality_gate',
-  '/custom_measures',
   '/project/links',
   '/project_roles',
   '/project/history',
@@ -296,7 +294,6 @@ export class Menu extends React.PureComponent<Props> {
       ...this.renderAdminExtensions(query, isApplication),
       this.renderProfilesLink(query),
       this.renderQualityGateLink(query),
-      this.renderCustomMeasuresLink(query),
       this.renderLinksLink(query),
       this.renderPermissionsLink(query),
       this.renderBackgroundTasksLink(query),
@@ -409,19 +406,6 @@ export class Menu extends React.PureComponent<Props> {
       <li key="quality_gate">
         <Link activeClassName="active" to={{ pathname: '/project/quality_gate', query }}>
           {translate('project_quality_gate.page')}
-        </Link>
-      </li>
-    );
-  };
-
-  renderCustomMeasuresLink = (query: Query) => {
-    if (isSonarCloud() || !this.getConfiguration().showManualMeasures) {
-      return null;
-    }
-    return (
-      <li key="custom_measures">
-        <Link activeClassName="active" to={{ pathname: '/custom_measures', query }}>
-          {translate('custom_measures.page')}
         </Link>
       </li>
     );

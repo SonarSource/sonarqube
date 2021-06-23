@@ -136,7 +136,6 @@ declare namespace T {
     showBackgroundTasks?: boolean;
     showHistory?: boolean;
     showLinks?: boolean;
-    showManualMeasures?: boolean;
     showQualityGates?: boolean;
     showQualityProfiles?: boolean;
     showPermissions?: boolean;

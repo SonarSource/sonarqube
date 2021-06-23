@@ -36,7 +36,6 @@ import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
-import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import customMetricsRoutes from '../../apps/custom-metrics/routes';
 import documentationRoutes from '../../apps/documentation/routes';
 import groupsRoutes from '../../apps/groups/routes';
@@ -192,7 +191,6 @@ function renderComponentRoutes() {
       />
       <RouteWithChildRoutes path="tutorials" childRoutes={tutorialsRoutes} />
       <Route component={lazyLoadComponent(() => import('../components/ProjectAdminContainer'))}>
-        <RouteWithChildRoutes path="custom_measures" childRoutes={customMeasuresRoutes} />
         <Route
           path="project/admin/extension/:pluginKey/:extensionKey"
           component={lazyLoadComponent(() =>

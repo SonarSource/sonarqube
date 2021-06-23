@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
+import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
 import {
@@ -81,37 +81,4 @@ export function getMeasuresForProjects(
     projectKeys: projectKeys.join(),
     metricKeys: metricKeys.join()
   }).then(r => r.measures);
-}
-
-export function getCustomMeasures(data: {
-  f?: string;
-  p?: number;
-  projectKey: string;
-  ps?: number;
-}): Promise<{ customMeasures: T.CustomMeasure[]; paging: T.Paging }> {
-  return getJSON('/api/custom_measures/search', data).then(
-    r =>
-      ({
-        customMeasures: r.customMeasures,
-        paging: { pageIndex: r.p, pageSize: r.ps, total: r.total }
-      } as any),
-    throwGlobalError
-  );
-}
-
-export function createCustomMeasure(data: {
-  description?: string;
-  metricKey: string;
-  projectKey: string;
-  value: string;
-}): Promise<T.CustomMeasure> {
-  return postJSON('/api/custom_measures/create', data).catch(throwGlobalError);
-}
-
-export function updateCustomMeasure(data: { description?: string; id: string; value?: string }) {
-  return post('/api/custom_measures/update', data).catch(throwGlobalError);
-}
-
-export function deleteCustomMeasure(data: { id: string }) {
-  return post('/api/custom_measures/delete', data).catch(throwGlobalError);
 }
