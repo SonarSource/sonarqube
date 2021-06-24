@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Rule;
@@ -183,6 +184,19 @@ public class TrackerTest {
     Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
     assertThat(tracking.baseFor(raw)).isNull();
     assertThat(tracking.getUnmatchedBases()).containsOnly(base);
+  }
+
+  // SONAR-15091
+  @Test
+  public void do_not_fail_if_message_is_null() {
+    FakeInput baseInput = new FakeInput("H1", "H2");
+    Issue base = baseInput.createIssueOnLine(1, RULE_UNUSED_LOCAL_VARIABLE, null);
+
+    FakeInput rawInput = new FakeInput("H1", "H2");
+    Issue raw = rawInput.createIssueOnLine(1, RULE_UNUSED_LOCAL_VARIABLE, null);
+
+    Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
+    assertThat(tracking.baseFor(raw)).isNotNull();
   }
 
   @Test
@@ -456,7 +470,7 @@ public class TrackerTest {
     private final String status;
     private final Date updateDate;
 
-    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status, Date updateDate) {
+    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, @Nullable String message, String status, Date updateDate) {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
@@ -470,6 +484,7 @@ public class TrackerTest {
       return line;
     }
 
+    @CheckForNull
     @Override
     public String getMessage() {
       return message;
@@ -521,7 +536,7 @@ public class TrackerTest {
     /**
      * No line (line 0)
      */
-    Issue createIssue(RuleKey ruleKey, String message) {
+    Issue createIssue(RuleKey ruleKey, @Nullable String message) {
       Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date());
       issues.add(issue);
       return issue;
