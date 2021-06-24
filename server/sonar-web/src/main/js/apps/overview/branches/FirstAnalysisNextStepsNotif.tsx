@@ -25,6 +25,7 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { isLoggedIn } from '../../../helpers/users';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { ComponentQualifier } from '../../../types/component';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';
 
 export interface FirstAnalysisNextStepsNotifProps {
@@ -44,7 +45,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     projectBinding
   } = props;
 
-  if (!isLoggedIn(currentUser)) {
+  if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project) {
     return null;
   }
 

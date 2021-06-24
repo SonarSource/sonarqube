@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockProjectAlmBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import {
   FirstAnalysisNextStepsNotif,
   FirstAnalysisNextStepsNotifProps
@@ -29,6 +30,11 @@ import {
 
 it('should render correctly', () => {
   expect(shallowRender({ currentUser: mockCurrentUser() }).type()).toBeNull();
+  expect(
+    shallowRender({
+      component: mockComponent({ qualifier: ComponentQualifier.Application })
+    }).type()
+  ).toBeNull();
   expect(shallowRender({ detectedCIOnLastAnalysis: false })).toMatchSnapshot(
     'show prompt to configure CI'
   );
