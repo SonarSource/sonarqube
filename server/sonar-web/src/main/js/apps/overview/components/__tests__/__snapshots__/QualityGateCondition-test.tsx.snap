@@ -1,63 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`new_maintainability_rating 1`] = `
-<Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
-  to={
-    Object {
-      "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "sinceLeakPeriod": "true",
-        "types": "CODE_SMELL",
-      },
-    }
-  }
->
-  <div
-    className="overview-quality-gate-condition-container display-flex-center"
-  >
-    <div
-      className="overview-quality-gate-condition-value text-center spacer-right"
-    >
-      <Measure
-        decimals={2}
-        metricKey="new_maintainability_rating"
-        metricType="RATING"
-        value="3"
-      />
-    </div>
-    <div>
-      <span
-        className="overview-quality-gate-condition-metric little-spacer-right"
-      >
-        <IssueTypeIcon
-          className="little-spacer-right"
-          query="new_maintainability_rating"
-        />
-        new_maintainability_rating
-      </span>
-      <span
-        className="little-spacer-top small text-muted"
-      >
-        quality_gates.operator.GT.rating
-         
-        A
-      </span>
-    </div>
-  </div>
-</Link>
-`;
-
-exports[`new_open_issues 1`] = `
+exports[`should render correclty 1`] = `
 <DrilldownLink
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   component="abcd-key"
-  metric="new_open_issues"
-  sinceLeakPeriod={true}
+  metric="open_issues"
+  sinceLeakPeriod={false}
 >
   <div
     className="overview-quality-gate-condition-container display-flex-center"
@@ -67,7 +15,7 @@ exports[`new_open_issues 1`] = `
     >
       <Measure
         decimals={2}
-        metricKey="new_open_issues"
+        metricKey="open_issues"
         metricType="INT"
         value="3"
       />
@@ -78,9 +26,9 @@ exports[`new_open_issues 1`] = `
       >
         <IssueTypeIcon
           className="little-spacer-right"
-          query="new_open_issues"
+          query="open_issues"
         />
-        new_open_issues
+        open_issues
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -94,7 +42,162 @@ exports[`new_open_issues 1`] = `
 </DrilldownLink>
 `;
 
-exports[`new_reliability_rating 1`] = `
+exports[`should render correclty 2`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "types": "BUG",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container display-flex-center"
+  >
+    <div
+      className="overview-quality-gate-condition-value text-center spacer-right"
+    >
+      <Measure
+        decimals={2}
+        metricKey="reliability_rating"
+        metricType="RATING"
+        value="3"
+      />
+    </div>
+    <div>
+      <span
+        className="overview-quality-gate-condition-metric little-spacer-right"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="reliability_rating"
+        />
+        reliability_rating
+      </span>
+      <span
+        className="little-spacer-top small text-muted"
+      >
+        quality_gates.operator.GT.rating
+         
+        A
+      </span>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`should render correclty 3`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
+        "types": "VULNERABILITY",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container display-flex-center"
+  >
+    <div
+      className="overview-quality-gate-condition-value text-center spacer-right"
+    >
+      <Measure
+        decimals={2}
+        metricKey="security_rating"
+        metricType="RATING"
+        value="3"
+      />
+    </div>
+    <div>
+      <span
+        className="overview-quality-gate-condition-metric little-spacer-right"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="security_rating"
+        />
+        security_rating
+      </span>
+      <span
+        className="little-spacer-top small text-muted"
+      >
+        quality_gates.operator.GT.rating
+         
+        A
+      </span>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`should render correclty 4`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "types": "CODE_SMELL",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container display-flex-center"
+  >
+    <div
+      className="overview-quality-gate-condition-value text-center spacer-right"
+    >
+      <Measure
+        decimals={2}
+        metricKey="sqale_rating"
+        metricType="RATING"
+        value="3"
+      />
+    </div>
+    <div>
+      <span
+        className="overview-quality-gate-condition-metric little-spacer-right"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="sqale_rating"
+        />
+        sqale_rating
+      </span>
+      <span
+        className="little-spacer-top small text-muted"
+      >
+        quality_gates.operator.GT.rating
+         
+        A
+      </span>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`should render correclty 5`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
@@ -147,7 +250,7 @@ exports[`new_reliability_rating 1`] = `
 </Link>
 `;
 
-exports[`new_security_rating 1`] = `
+exports[`should render correclty 6`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
@@ -200,49 +303,7 @@ exports[`new_security_rating 1`] = `
 </Link>
 `;
 
-exports[`open_issues 1`] = `
-<DrilldownLink
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  component="abcd-key"
-  metric="open_issues"
-  sinceLeakPeriod={false}
->
-  <div
-    className="overview-quality-gate-condition-container display-flex-center"
-  >
-    <div
-      className="overview-quality-gate-condition-value text-center spacer-right"
-    >
-      <Measure
-        decimals={2}
-        metricKey="open_issues"
-        metricType="INT"
-        value="3"
-      />
-    </div>
-    <div>
-      <span
-        className="overview-quality-gate-condition-metric little-spacer-right"
-      >
-        <IssueTypeIcon
-          className="little-spacer-right"
-          query="open_issues"
-        />
-        open_issues
-      </span>
-      <span
-        className="little-spacer-top small text-muted"
-      >
-        quality_gates.operator.GT
-         
-        1
-      </span>
-    </div>
-  </div>
-</DrilldownLink>
-`;
-
-exports[`reliability_rating 1`] = `
+exports[`should render correclty 7`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
@@ -253,8 +314,8 @@ exports[`reliability_rating 1`] = `
       "query": Object {
         "id": "abcd-key",
         "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "types": "BUG",
+        "sinceLeakPeriod": "true",
+        "types": "CODE_SMELL",
       },
     }
   }
@@ -267,7 +328,7 @@ exports[`reliability_rating 1`] = `
     >
       <Measure
         decimals={2}
-        metricKey="reliability_rating"
+        metricKey="new_maintainability_rating"
         metricType="RATING"
         value="3"
       />
@@ -278,9 +339,9 @@ exports[`reliability_rating 1`] = `
       >
         <IssueTypeIcon
           className="little-spacer-right"
-          query="reliability_rating"
+          query="new_maintainability_rating"
         />
-        reliability_rating
+        new_maintainability_rating
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -294,19 +355,21 @@ exports[`reliability_rating 1`] = `
 </Link>
 `;
 
-exports[`security_rating 1`] = `
+exports[`should render correclty 8`] = `
 <Link
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
     Object {
-      "pathname": "/project/issues",
+      "pathname": "/security_hotspots",
       "query": Object {
+        "assignedToMe": undefined,
+        "branch": undefined,
+        "hotspots": undefined,
         "id": "abcd-key",
-        "resolved": "false",
-        "severities": "BLOCKER,CRITICAL,MAJOR,MINOR",
-        "types": "VULNERABILITY",
+        "pullRequest": undefined,
+        "sinceLeakPeriod": undefined,
       },
     }
   }
@@ -319,7 +382,7 @@ exports[`security_rating 1`] = `
     >
       <Measure
         decimals={2}
-        metricKey="security_rating"
+        metricKey="security_hotspots_reviewed"
         metricType="RATING"
         value="3"
       />
@@ -330,9 +393,63 @@ exports[`security_rating 1`] = `
       >
         <IssueTypeIcon
           className="little-spacer-right"
-          query="security_rating"
+          query="security_hotspots_reviewed"
         />
-        security_rating
+        security_hotspots_reviewed
+      </span>
+      <span
+        className="little-spacer-top small text-muted"
+      >
+        quality_gates.operator.GT.rating
+         
+        A
+      </span>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`should render correclty 9`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/security_hotspots",
+      "query": Object {
+        "assignedToMe": undefined,
+        "branch": undefined,
+        "hotspots": undefined,
+        "id": "abcd-key",
+        "pullRequest": undefined,
+        "sinceLeakPeriod": "true",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container display-flex-center"
+  >
+    <div
+      className="overview-quality-gate-condition-value text-center spacer-right"
+    >
+      <Measure
+        decimals={2}
+        metricKey="new_security_hotspots_reviewed"
+        metricType="RATING"
+        value="3"
+      />
+    </div>
+    <div>
+      <span
+        className="overview-quality-gate-condition-metric little-spacer-right"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="new_security_hotspots_reviewed"
+        />
+        new_security_hotspots_reviewed
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -386,57 +503,6 @@ exports[`should work with branch 1`] = `
           query="new_maintainability_rating"
         />
         new_maintainability_rating
-      </span>
-      <span
-        className="little-spacer-top small text-muted"
-      >
-        quality_gates.operator.GT.rating
-         
-        A
-      </span>
-    </div>
-  </div>
-</Link>
-`;
-
-exports[`sqale_rating 1`] = `
-<Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
-  onlyActiveOnIndex={false}
-  style={Object {}}
-  to={
-    Object {
-      "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "types": "CODE_SMELL",
-      },
-    }
-  }
->
-  <div
-    className="overview-quality-gate-condition-container display-flex-center"
-  >
-    <div
-      className="overview-quality-gate-condition-value text-center spacer-right"
-    >
-      <Measure
-        decimals={2}
-        metricKey="sqale_rating"
-        metricType="RATING"
-        value="3"
-      />
-    </div>
-    <div>
-      <span
-        className="overview-quality-gate-condition-metric little-spacer-right"
-      >
-        <IssueTypeIcon
-          className="little-spacer-right"
-          query="sqale_rating"
-        />
-        sqale_rating
       </span>
       <span
         className="little-spacer-top small text-muted"

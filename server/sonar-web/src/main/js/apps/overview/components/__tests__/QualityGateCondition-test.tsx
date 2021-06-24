@@ -22,63 +22,30 @@ import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import QualityGateCondition from '../QualityGateCondition';
 
-it('open_issues', () => {
-  const condition = quickMock('open_issues', 'INT');
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('new_open_issues', () => {
-  const condition = quickMock('new_open_issues', 'INT', true);
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('reliability_rating', () => {
-  const condition = quickMock('reliability_rating');
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('security_rating', () => {
-  const condition = quickMock('security_rating');
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('sqale_rating', () => {
-  const condition = quickMock('sqale_rating');
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('new_reliability_rating', () => {
-  const condition = quickMock('new_reliability_rating', 'RATING', true);
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('new_security_rating', () => {
-  const condition = quickMock('new_security_rating', 'RATING', true);
-  expect(shallowRender({ condition })).toMatchSnapshot();
-});
-
-it('new_maintainability_rating', () => {
-  const condition = quickMock('new_maintainability_rating', 'RATING', true);
+it.each([
+  [quickMock(MetricKey.open_issues, 'INT')],
+  [quickMock(MetricKey.reliability_rating)],
+  [quickMock(MetricKey.security_rating)],
+  [quickMock(MetricKey.sqale_rating)],
+  [quickMock(MetricKey.new_reliability_rating, 'RATING', true)],
+  [quickMock(MetricKey.new_security_rating, 'RATING', true)],
+  [quickMock(MetricKey.new_maintainability_rating, 'RATING', true)],
+  [quickMock(MetricKey.security_hotspots_reviewed)],
+  [quickMock(MetricKey.new_security_hotspots_reviewed, 'RATING', true)]
+])('should render correclty', condition => {
   expect(shallowRender({ condition })).toMatchSnapshot();
 });
 
 it('should work with branch', () => {
-  const condition = quickMock('new_maintainability_rating');
-  expect(
-    shallow(
-      <QualityGateCondition
-        branchLike={mockBranch()}
-        component={{ key: 'abcd-key' }}
-        condition={condition}
-      />
-    )
-  ).toMatchSnapshot();
+  const condition = quickMock(MetricKey.new_maintainability_rating);
+  expect(shallowRender({ branchLike: mockBranch(), condition })).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
+function shallowRender(props: Partial<QualityGateCondition['props']>) {
   return shallow(
     <QualityGateCondition
       component={{ key: 'abcd-key' }}
@@ -89,7 +56,7 @@ function shallowRender(props = {}) {
 }
 
 function quickMock(
-  metric: string,
+  metric: MetricKey,
   type = 'RATING',
   addPeriod = false
 ): QualityGateStatusConditionEnhanced {

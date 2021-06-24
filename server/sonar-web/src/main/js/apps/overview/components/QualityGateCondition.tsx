@@ -23,12 +23,15 @@ import { Link } from 'react-router';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { Location } from 'sonar-ui-common/helpers/urls';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isDiffMetric } from '../../../helpers/measures';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { IssueType } from '../../../types/issues';
+import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 
 interface Props {
@@ -49,6 +52,16 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     }
     return getComponentIssuesUrl(this.props.component.key, query);
   };
+
+  getUrlForSecurityHotspot(sinceLeakPeriod: boolean) {
+    const query: T.Dict<string | undefined> = {
+      ...getBranchLikeQuery(this.props.branchLike)
+    };
+    if (sinceLeakPeriod) {
+      Object.assign(query, { sinceLeakPeriod: 'true' });
+    }
+    return getComponentSecurityHotspotsUrl(this.props.component.key, query);
+  }
 
   getUrlForCodeSmells(sinceLeakPeriod: boolean) {
     return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
@@ -71,12 +84,6 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     });
   }
 
-  getUrlForType(type: string, sinceLeakPeriod: boolean) {
-    return type === 'CODE_SMELL'
-      ? this.getUrlForCodeSmells(sinceLeakPeriod)
-      : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
-  }
-
   wrapWithLink(children: React.ReactNode) {
     const { branchLike, component, condition } = this.props;
 
@@ -87,17 +94,23 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    const RATING_METRICS_MAPPING: T.Dict<[string, boolean]> = {
-      reliability_rating: ['BUG', false],
-      new_reliability_rating: ['BUG', true],
-      security_rating: ['VULNERABILITY', false],
-      new_security_rating: ['VULNERABILITY', true],
-      sqale_rating: ['CODE_SMELL', false],
-      new_maintainability_rating: ['CODE_SMELL', true]
+    const METRICS_TO_URL_MAPPING: T.Dict<() => Location> = {
+      [MetricKey.reliability_rating]: () =>
+        this.getUrlForBugsOrVulnerabilities(IssueType.Bug, false),
+      [MetricKey.new_reliability_rating]: () =>
+        this.getUrlForBugsOrVulnerabilities(IssueType.Bug, true),
+      [MetricKey.security_rating]: () =>
+        this.getUrlForBugsOrVulnerabilities(IssueType.Vulnerability, false),
+      [MetricKey.new_security_rating]: () =>
+        this.getUrlForBugsOrVulnerabilities(IssueType.Vulnerability, true),
+      [MetricKey.sqale_rating]: () => this.getUrlForCodeSmells(false),
+      [MetricKey.new_maintainability_rating]: () => this.getUrlForCodeSmells(true),
+      [MetricKey.security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(false),
+      [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true)
     };
 
-    return RATING_METRICS_MAPPING[metricKey] ? (
-      <Link className={className} to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])}>
+    return METRICS_TO_URL_MAPPING[metricKey] ? (
+      <Link className={className} to={METRICS_TO_URL_MAPPING[metricKey]()}>
         {children}
       </Link>
     ) : (
