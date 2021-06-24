@@ -137,7 +137,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity, @Nullable Set<String> organizationAlmIds) {
-      Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
+      boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
       UserDto userDto = userRegistrar.register(
         UserRegistration.builder()
           .setUserIdentity(userIdentity)

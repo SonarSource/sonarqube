@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import com.google.common.collect.Sets;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
@@ -41,6 +43,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.user.ExternalIdentity;
@@ -71,7 +74,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   @Override
   public UserDto register(UserRegistration registration) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = getUser(dbSession, registration.getUserIdentity(), registration.getProvider());
+      UserDto userDto = getUser(dbSession, registration.getUserIdentity(), registration.getProvider(), registration.getSource());
       if (userDto == null) {
         return registerNewUser(dbSession, null, registration);
       }
@@ -83,18 +86,72 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   @CheckForNull
-  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, AuthenticationEvent.Source source) {
     // First, try to authenticate using the external ID
     UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey());
     if (user != null) {
       return user;
     }
-    // Then, try with the external login, for instance when external ID has changed
-    return dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+
+    // Then, try with the external login, for instance when external ID has changed or is not used by the provider
+    user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+    if (user == null) {
+      return null;
+    }
+    // all gitlab users have an external ID, so the other two authentication methods should never be used
+    if (provider.getKey().equals("gitlab")) {
+      throw loginAlreadyUsedException(userIdentity, source);
+    }
+
+    validateEmailToAvoidLoginRecycling(userIdentity, user, source);
+    updateUserExternalId(dbSession, user, userIdentity);
+    return user;
+  }
+
+  private void updateUserExternalId(DbSession dbSession, UserDto user, UserIdentity userIdentity) {
+    String externalId = userIdentity.getProviderId();
+    if (externalId != null) {
+      user.setExternalId(externalId);
+      dbClient.userDao().update(dbSession, user);
+    }
+  }
+
+  private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, AuthenticationEvent.Source source) {
+    String userEmail = user.getEmail();
+
+    if (userEmail == null) {
+      LOGGER.warn("User with login '{}' tried to login with email '{}' but we don't have a email on record",
+        userIdentity.getProviderLogin(), userIdentity.getEmail());
+      throw loginAlreadyUsedException(userIdentity, source);
+    }
+
+    if (!userEmail.equals(userIdentity.getEmail())) {
+      LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'",
+        userIdentity.getProviderLogin(), userIdentity.getEmail(), userEmail);
+      throw loginAlreadyUsedException(userIdentity, source);
+    }
+  }
+
+  private static AuthenticationException loginAlreadyUsedException(UserIdentity userIdentity, AuthenticationEvent.Source source) {
+    return authException(
+      userIdentity,
+      source,
+      String.format("Login '%s' is already used", userIdentity.getProviderLogin()),
+      String.format("You can't sign up because login '%s' is already used by an existing user.", userIdentity.getProviderLogin())
+    );
+  }
+
+  private static AuthenticationException authException(UserIdentity userIdentity, AuthenticationEvent.Source source, String message, String publicMessage) {
+    return AuthenticationException.newBuilder()
+      .setSource(source)
+      .setLogin(userIdentity.getProviderLogin())
+      .setMessage(message)
+      .setPublicMessage(publicMessage)
+      .build();
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {
-    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
+    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, disabledUser != null ? disabledUser.getUuid() : null);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
       return userUpdater.createAndCommit(dbSession, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
@@ -110,7 +167,7 @@ public class UserRegistrarImpl implements UserRegistrar {
         authenticatorParameters.getProvider().getKey(),
         authenticatorParameters.getUserIdentity().getProviderLogin(),
         authenticatorParameters.getUserIdentity().getProviderId()));
-    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
+    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, userDto.getUuid());
     userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
   }
@@ -119,7 +176,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     return user -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), user);
   }
 
-  private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserRegistration authenticatorParameters) {
+  private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserRegistration authenticatorParameters, @Nullable String authenticatingUserUuid) {
     String email = authenticatorParameters.getUserIdentity().getEmail();
     if (email == null) {
       return Optional.empty();
@@ -133,7 +190,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
 
     UserDto existingUser = existingUsers.get(0);
-    if (existingUser == null || isSameUser(existingUser, authenticatorParameters)) {
+    if (existingUser == null || existingUser.getUuid().equals(authenticatingUserUuid)) {
       return Optional.empty();
     }
     ExistingEmailStrategy existingEmailStrategy = authenticatorParameters.getExistingEmailStrategy();
@@ -149,13 +206,6 @@ public class UserRegistrarImpl implements UserRegistrar {
       default:
         throw new IllegalStateException(format("Unknown strategy %s", existingEmailStrategy));
     }
-  }
-
-  private static boolean isSameUser(UserDto existingUser, UserRegistration authenticatorParameters) {
-    // Check if same identity provider and same provider id or provider login
-    return (Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()) &&
-      (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
-        || Objects.equals(existingUser.getExternalLogin(), authenticatorParameters.getUserIdentity().getProviderLogin())));
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {

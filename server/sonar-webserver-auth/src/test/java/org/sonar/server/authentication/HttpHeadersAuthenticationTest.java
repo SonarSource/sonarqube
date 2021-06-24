@@ -143,7 +143,7 @@ public class HttpHeadersAuthenticationTest {
   public void update_user_when_authenticating_exiting_user() {
     startWithSso();
     setNotUserInToken();
-    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setName("old name").setEmail("old email"), group1);
+    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setName("old name").setEmail(DEFAULT_USER.getEmail()), group1);
     // Name, email and groups are different
     HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUP2);
 
@@ -174,6 +174,7 @@ public class HttpHeadersAuthenticationTest {
     insertUser(DEFAULT_USER, group1);
     Map<String, String> headerValuesByName = new HashMap<>();
     headerValuesByName.put("X-Forwarded-Login", DEFAULT_LOGIN);
+    headerValuesByName.put("X-Forwarded-Email", DEFAULT_USER.getEmail());
     headerValuesByName.put("X-Forwarded-Groups", null);
     HttpServletRequest request = createRequest(headerValuesByName);
 
@@ -217,12 +218,12 @@ public class HttpHeadersAuthenticationTest {
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => more than 5 minutes
     setUserInToken(user, NOW - 6 * 60 * 1000L);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
+    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
 
     underTest.authenticate(request, response);
 
     // User is updated
-    verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
+    verifyUserInDb(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), group2);
     verifyTokenIsUpdated(NOW);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
@@ -232,12 +233,12 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     setUserInToken(user, null);
-    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", "new email", GROUP2);
+    HttpServletRequest request = createRequest(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), GROUP2);
 
     underTest.authenticate(request, response);
 
     // User is updated
-    verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
+    verifyUserInDb(DEFAULT_LOGIN, "new name", DEFAULT_USER.getEmail(), group2);
     verifyTokenIsUpdated(NOW);
     verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
