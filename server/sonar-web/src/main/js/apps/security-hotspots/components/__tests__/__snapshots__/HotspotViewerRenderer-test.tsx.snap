@@ -11,11 +11,39 @@ exports[`should render correctly 1`] = `
     <div
       className="huge-spacer-bottom display-flex-space-between"
     >
-      <strong
-        className="big big-spacer-right"
+      <div
+        className="display-flex-column"
       >
-        '3' is a magic number.
-      </strong>
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
       <div
         className="display-flex-row flex-0"
       >
@@ -657,11 +685,39 @@ exports[`should render correctly: anonymous user 1`] = `
     <div
       className="huge-spacer-bottom display-flex-space-between"
     >
-      <strong
-        className="big big-spacer-right"
+      <div
+        className="display-flex-column"
       >
-        '3' is a magic number.
-      </strong>
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
       <div
         className="display-flex-row flex-0"
       >
@@ -1303,11 +1359,39 @@ exports[`should render correctly: assignee without name 1`] = `
     <div
       className="huge-spacer-bottom display-flex-space-between"
     >
-      <strong
-        className="big big-spacer-right"
+      <div
+        className="display-flex-column"
       >
-        '3' is a magic number.
-      </strong>
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
       <div
         className="display-flex-row flex-0"
       >
@@ -1949,11 +2033,39 @@ exports[`should render correctly: deleted assignee 1`] = `
     <div
       className="huge-spacer-bottom display-flex-space-between"
     >
-      <strong
-        className="big big-spacer-right"
+      <div
+        className="display-flex-column"
       >
-        '3' is a magic number.
-      </strong>
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
       <div
         className="display-flex-row flex-0"
       >
@@ -2602,11 +2714,39 @@ exports[`should render correctly: unassigned 1`] = `
     <div
       className="huge-spacer-bottom display-flex-space-between"
     >
-      <strong
-        className="big big-spacer-right"
+      <div
+        className="display-flex-column"
       >
-        '3' is a magic number.
-      </strong>
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
       <div
         className="display-flex-row flex-0"
       >

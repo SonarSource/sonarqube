@@ -19,6 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
@@ -27,7 +28,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import { getComponentSecurityHotspotsUrl, getRuleUrl } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -78,7 +79,17 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
       {hotspot && (
         <div className="big-padded hotspot-content">
           <div className="huge-spacer-bottom display-flex-space-between">
-            <strong className="big big-spacer-right">{hotspot.message}</strong>
+            <div className="display-flex-column">
+              <strong className="big big-spacer-right little-spacer-bottom">
+                {hotspot.message}
+              </strong>
+              <div>
+                <span className="note padded-right">{hotspot.rule.name}</span>
+                <Link className="small" to={getRuleUrl(hotspot.rule.key)} target="_blank">
+                  {hotspot.rule.key}
+                </Link>
+              </div>
+            </div>
             <div className="display-flex-row flex-0">
               {isLoggedIn(currentUser) && (
                 <>
