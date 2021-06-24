@@ -464,3 +464,76 @@ exports[`should render correctly: submitting 1`] = `
   </form>
 </Modal>
 `;
+
+exports[`should render correctly: with validation error 1`] = `
+<Modal
+  contentLabel="settings.almintegration.form.header.create"
+  onRequestClose={[MockFunction]}
+  shouldCloseOnOverlayClick={false}
+  size="medium"
+>
+  <form
+    className="views-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        settings.almintegration.form.header.create
+      </h2>
+    </div>
+    <div
+      className="modal-body modal-container"
+    >
+      <GithubForm
+        formData={
+          Object {
+            "appId": "123456",
+            "clientId": "client1",
+            "clientSecret": "**clientsecret**",
+            "key": "key",
+            "privateKey": "asdf1234",
+            "url": "http://github.enterprise.com",
+          }
+        }
+        onFieldChange={[MockFunction]}
+      />
+      <Alert
+        variant="error"
+      >
+        <p
+          className="spacer-bottom"
+        >
+          settings.almintegration.configuration_invalid
+        </p>
+        <ul
+          className="list-styled"
+        >
+          <li>
+            this is a validation error
+          </li>
+        </ul>
+      </Alert>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        settings.almintegration.form.save
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

@@ -257,6 +257,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
               alreadyHaveInstanceConfigured={false}
               onCancel={this.handleOnCancelCreation}
               afterSubmit={this.handleAfterSubmit}
+              enforceValidation={true}
             />
           )}
         </div>

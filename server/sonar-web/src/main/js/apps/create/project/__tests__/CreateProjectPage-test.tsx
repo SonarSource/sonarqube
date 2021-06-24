@@ -19,9 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getAlmSettings } from '../../../../api/alm-settings';
 import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
+import AlmBindingDefinitionForm from '../../../settings/components/almIntegration/AlmBindingDefinitionForm';
+import CreateProjectModeSelection from '../CreateProjectModeSelection';
 import { CreateProjectPage } from '../CreateProjectPage';
 import { CreateProjectModes } from '../types';
 
@@ -36,42 +39,65 @@ it('should render correctly', () => {
   expect(getAlmSettings).toBeCalled();
 });
 
-it('should render correctly if the manual method is selected', () => {
+it.each([
+  [CreateProjectModes.Manual],
+  [CreateProjectModes.AzureDevOps],
+  [CreateProjectModes.BitbucketServer],
+  [CreateProjectModes.BitbucketCloud],
+  [CreateProjectModes.GitHub],
+  [CreateProjectModes.GitLab]
+])('should render correctly for %s mode', (mode: CreateProjectModes) => {
   expect(
     shallowRender({
-      location: mockLocation({ query: { mode: CreateProjectModes.Manual } })
+      location: mockLocation({ query: { mode } })
     })
   ).toMatchSnapshot();
 });
 
-it('should render correctly if the Azure method is selected', () => {
-  expect(
-    shallowRender({
-      location: mockLocation({ query: { mode: CreateProjectModes.AzureDevOps } })
-    })
-  ).toMatchSnapshot();
-});
+it('should render alm configuration creation correctly', () => {
+  const wrapper = shallowRender();
 
-it('should render correctly if the BBS method is selected', () => {
-  expect(
-    shallowRender({
-      location: mockLocation({ query: { mode: CreateProjectModes.BitbucketServer } })
-    })
-  ).toMatchSnapshot();
-});
-
-it('should render correctly if the GitHub method is selected', () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { mode: CreateProjectModes.GitHub } })
-  });
+  wrapper
+    .find(CreateProjectModeSelection)
+    .props()
+    .onConfigMode(AlmKeys.Azure);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly if the GitLab method is selected', () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { mode: CreateProjectModes.GitLab } })
-  });
-  expect(wrapper).toMatchSnapshot();
+it('should cancel alm configuration creation properly', () => {
+  const wrapper = shallowRender();
+
+  wrapper
+    .find(CreateProjectModeSelection)
+    .props()
+    .onConfigMode(AlmKeys.Azure);
+  expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.Azure);
+
+  wrapper
+    .find(AlmBindingDefinitionForm)
+    .props()
+    .onCancel();
+  expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
+});
+
+it('should submit alm configuration creation properly', async () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+
+  wrapper
+    .find(CreateProjectModeSelection)
+    .props()
+    .onConfigMode(AlmKeys.Azure);
+  expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.Azure);
+
+  wrapper
+    .find(AlmBindingDefinitionForm)
+    .props()
+    .afterSubmit({ key: 'test-key' });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
+  expect(getAlmSettings).toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith({ pathname: '/path', query: { mode: AlmKeys.Azure } });
 });
 
 it('should submit alm configuration creation properly for BBC', async () => {

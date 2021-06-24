@@ -24,11 +24,13 @@ import {
   createBitbucketServerConfiguration,
   createGithubConfiguration,
   createGitlabConfiguration,
+  deleteConfiguration,
   updateAzureConfiguration,
   updateBitbucketCloudConfiguration,
   updateBitbucketServerConfiguration,
   updateGithubConfiguration,
-  updateGitlabConfiguration
+  updateGitlabConfiguration,
+  validateAlmSettings
 } from '../../../../api/alm-settings';
 import {
   AlmBindingDefinition,
@@ -47,8 +49,9 @@ interface Props {
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
   alreadyHaveInstanceConfigured: boolean;
-  onCancel?: () => void;
-  afterSubmit?: (data: AlmBindingDefinitionBase) => void;
+  onCancel: () => void;
+  afterSubmit: (data: AlmBindingDefinitionBase) => void;
+  enforceValidation?: boolean;
 }
 
 interface State {
@@ -56,6 +59,8 @@ interface State {
   touched: boolean;
   submitting: boolean;
   bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
+  alreadySavedFormData?: AlmBindingDefinition;
+  validationError?: string;
 }
 
 const BINDING_PER_ALM = {
@@ -144,31 +149,69 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
   };
 
   handleFormSubmit = async () => {
-    const { alm } = this.props;
-    const { formData, bitbucketVariant } = this.state;
+    const { alm, enforceValidation } = this.props;
+    const { formData, bitbucketVariant, alreadySavedFormData, validationError } = this.state;
     const apiAlm = bitbucketVariant ?? alm;
 
-    const apiMethod = this.props.bindingDefinition?.key
-      ? BINDING_PER_ALM[apiAlm].updateApi({
-          newKey: formData.key,
-          ...formData,
-          key: this.props.bindingDefinition.key
-        } as any)
-      : BINDING_PER_ALM[apiAlm].createApi({ ...formData } as any);
+    let apiMethod;
+
+    if (alreadySavedFormData && validationError) {
+      apiMethod = BINDING_PER_ALM[apiAlm].updateApi({
+        newKey: formData.key,
+        ...formData,
+        key: alreadySavedFormData.key
+      } as any);
+    } else if (this.props.bindingDefinition?.key) {
+      apiMethod = BINDING_PER_ALM[apiAlm].updateApi({
+        newKey: formData.key,
+        ...formData,
+        key: this.props.bindingDefinition.key
+      } as any);
+    } else {
+      apiMethod = BINDING_PER_ALM[apiAlm].createApi({ ...formData } as any);
+    }
 
     this.setState({ submitting: true });
 
     try {
       await apiMethod;
 
-      if (this.props.afterSubmit) {
+      if (!this.mounted) {
+        return;
+      }
+
+      this.setState({ alreadySavedFormData: formData });
+
+      let error: string | undefined;
+
+      if (enforceValidation) {
+        error = await validateAlmSettings(formData.key);
+      }
+
+      if (!this.mounted) {
+        return;
+      }
+
+      if (error) {
+        this.setState({ validationError: error });
+      } else {
         this.props.afterSubmit(formData);
       }
     } finally {
       if (this.mounted) {
-        this.setState({ submitting: false });
+        this.setState({ submitting: false, touched: false });
       }
     }
+  };
+
+  handleOnCancel = async () => {
+    const { alreadySavedFormData } = this.state;
+
+    if (alreadySavedFormData) {
+      await deleteConfiguration(alreadySavedFormData.key);
+    }
+
+    this.props.onCancel();
   };
 
   handleBitbucketVariantChange = (
@@ -188,7 +231,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
 
   render() {
     const { alm, bindingDefinition, alreadyHaveInstanceConfigured } = this.props;
-    const { formData, submitting, bitbucketVariant } = this.state;
+    const { formData, submitting, bitbucketVariant, validationError } = this.state;
 
     const isUpdate = !!bindingDefinition;
 
@@ -198,13 +241,14 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
         isUpdate={isUpdate}
         canSubmit={this.canSubmit()}
         alreadyHaveInstanceConfigured={alreadyHaveInstanceConfigured}
-        onCancel={() => this.props.onCancel && this.props.onCancel()}
+        onCancel={this.handleOnCancel}
         onSubmit={this.handleFormSubmit}
         onFieldChange={this.handleFieldChange}
         formData={formData}
         submitting={submitting}
         bitbucketVariant={bitbucketVariant}
         onBitbucketVariantChange={this.handleBitbucketVariantChange}
+        validationError={validationError}
       />
     );
   }

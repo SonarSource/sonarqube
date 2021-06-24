@@ -34,6 +34,9 @@ it('should render correctly', () => {
   expect(shallowRender({ alreadyHaveInstanceConfigured: true })).toMatchSnapshot('second instance');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
   expect(shallowRender({ isUpdate: true })).toMatchSnapshot('editing');
+  expect(shallowRender({ validationError: 'this is a validation error' })).toMatchSnapshot(
+    'with validation error'
+  );
 });
 
 it.each([[AlmKeys.Azure], [AlmKeys.GitHub], [AlmKeys.GitLab], [AlmKeys.BitbucketServer]])(

@@ -51,6 +51,7 @@ export interface AlmBindingDefinitionFormProps {
   onBitbucketVariantChange: (
     bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud
   ) => void;
+  validationError?: string;
 }
 
 export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<
@@ -99,7 +100,13 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
   };
 
   render() {
-    const { isUpdate, alreadyHaveInstanceConfigured, canSubmit, submitting } = this.props;
+    const {
+      isUpdate,
+      alreadyHaveInstanceConfigured,
+      canSubmit,
+      submitting,
+      validationError
+    } = this.props;
     const header = translate('settings.almintegration.form.header', isUpdate ? 'edit' : 'create');
 
     const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -125,6 +132,16 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
               </Alert>
             )}
             {this.renderForm()}
+            {validationError && !canSubmit && (
+              <Alert variant="error">
+                <p className="spacer-bottom">
+                  {translate('settings.almintegration.configuration_invalid')}
+                </p>
+                <ul className="list-styled">
+                  <li>{validationError}</li>
+                </ul>
+              </Alert>
+            )}
           </div>
 
           <div className="modal-foot">

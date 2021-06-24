@@ -26,11 +26,13 @@ import {
   createBitbucketServerConfiguration,
   createGithubConfiguration,
   createGitlabConfiguration,
+  deleteConfiguration,
   updateAzureConfiguration,
   updateBitbucketCloudConfiguration,
   updateBitbucketServerConfiguration,
   updateGithubConfiguration,
-  updateGitlabConfiguration
+  updateGitlabConfiguration,
+  validateAlmSettings
 } from '../../../../../api/alm-settings';
 import {
   mockAzureBindingDefinition,
@@ -53,7 +55,9 @@ jest.mock('../../../../../api/alm-settings', () => ({
   updateBitbucketCloudConfiguration: jest.fn().mockResolvedValue({}),
   updateBitbucketServerConfiguration: jest.fn().mockResolvedValue({}),
   updateGithubConfiguration: jest.fn().mockResolvedValue({}),
-  updateGitlabConfiguration: jest.fn().mockResolvedValue({})
+  updateGitlabConfiguration: jest.fn().mockResolvedValue({}),
+  validateAlmSettings: jest.fn().mockResolvedValue(undefined),
+  deleteConfiguration: jest.fn().mockResolvedValue(undefined)
 }));
 
 beforeEach(() => {
@@ -89,10 +93,29 @@ it('should handle form submit', async () => {
   const wrapper = shallowRender({ afterSubmit });
 
   wrapper.instance().setState({ formData });
-  await waitAndUpdate(wrapper);
   await wrapper.instance().handleFormSubmit();
-  await waitAndUpdate(wrapper);
   expect(afterSubmit).toHaveBeenCalledWith(formData);
+});
+
+it('should handle validation error during submit, and cancellation', async () => {
+  const afterSubmit = jest.fn();
+  const formData = mockGithubBindingDefinition();
+  const error = 'This a test error message';
+  (validateAlmSettings as jest.Mock).mockResolvedValueOnce(error);
+
+  const wrapper = shallowRender({ afterSubmit, enforceValidation: true });
+
+  wrapper.instance().setState({ formData });
+  await wrapper.instance().handleFormSubmit();
+  expect(validateAlmSettings).toHaveBeenCalledWith(formData.key);
+  expect(wrapper.state().validationError).toBe(error);
+  expect(afterSubmit).not.toHaveBeenCalledWith();
+
+  wrapper
+    .find(AlmBindingDefinitionFormRenderer)
+    .props()
+    .onCancel();
+  expect(deleteConfiguration).toHaveBeenCalledWith(formData.key);
 });
 
 it.each([
