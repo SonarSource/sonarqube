@@ -57,8 +57,22 @@ public @interface SonarLintSide {
 
   /**
    * The component will be instantiated once and reused by all analyses, as long as the SonarLint engine is not restarted.
+   * @deprecated since 9.0 use {@link #INSTANCE} as a direct replacement
    */
+  @Deprecated
   String MULTIPLE_ANALYSES = "MULTIPLE_ANALYSES";
+
+  /**
+   * The component will be instantiated when a module is opened and kept alive until the module is closed.
+   * A module is a project in Eclipse, a folder in VSCode and a module in IntelliJ.
+   */
+  String MODULE = "MODULE";
+
+  /**
+   * The component will be instantiated once and reused by all analyses, as long as SonarLint is active in the IDE.
+   * @since 9.0
+   */
+  String INSTANCE = "INSTANCE";
 
   /**
    * Control the lifecycle of the component in the IoC container.
