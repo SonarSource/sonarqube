@@ -15,28 +15,7 @@ exports[`should render correctly: default 1`] = `
   <p
     className="big-spacer-top"
   >
-    <FormattedMessage
-      defaultMessage="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci"
-      id="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci"
-      values={
-        Object {
-          "link_see_tutorials": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/tutorials",
-                "query": Object {
-                  "id": "my-project",
-                },
-              }
-            }
-          >
-            onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.see_tutorials
-          </Link>,
-        }
-      }
-    />
+    onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci
   </p>
   <p
     className="big-spacer-top"
@@ -86,43 +65,7 @@ exports[`should render correctly: project admin 1`] = `
   <p
     className="big-spacer-top"
   >
-    <FormattedMessage
-      defaultMessage="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin"
-      id="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin"
-      values={
-        Object {
-          "link_project_settings": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project/settings",
-                "query": Object {
-                  "category": "pull_request_decoration_binding",
-                  "id": "my-project",
-                },
-              }
-            }
-          >
-            onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.project_settings
-          </Link>,
-          "link_see_tutorials": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/tutorials",
-                "query": Object {
-                  "id": "my-project",
-                },
-              }
-            }
-          >
-            onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.see_tutorials
-          </Link>,
-        }
-      }
-    />
+    onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin
   </p>
   <p
     className="big-spacer-top"

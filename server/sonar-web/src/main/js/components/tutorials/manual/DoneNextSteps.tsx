@@ -21,21 +21,12 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../apps/settings/components/AdditionalCategoryKeys';
-import { getProjectSettingsUrl } from '../../../helpers/urls';
 
 export interface DoneNextStepsProps {
   component: T.Component;
 }
 
 export default function DoneNextSteps({ component }: DoneNextStepsProps) {
-  const tutorialsLink = (
-    <Link to={{ pathname: '/tutorials', query: { id: component.key } }}>
-      {translate(
-        'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.see_tutorials'
-      )}
-    </Link>
-  );
   const isProjectAdmin = component.configuration?.showSettings;
 
   return (
@@ -47,38 +38,9 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
         {translate('onboarding.analysis.auto_refresh_after_analysis.auto_refresh')}
       </p>
       <p className="big-spacer-top">
-        {isProjectAdmin ? (
-          <FormattedMessage
-            defaultMessage={translate(
-              'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin'
-            )}
-            id="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin"
-            values={{
-              link_project_settings: (
-                <Link
-                  to={getProjectSettingsUrl(
-                    component.key,
-                    PULL_REQUEST_DECORATION_BINDING_CATEGORY
-                  )}>
-                  {translate(
-                    'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.project_settings'
-                  )}
-                </Link>
-              ),
-              link_see_tutorials: tutorialsLink
-            }}
-          />
-        ) : (
-          <FormattedMessage
-            defaultMessage={translate(
-              'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci'
-            )}
-            id="onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci"
-            values={{
-              link_see_tutorials: tutorialsLink
-            }}
-          />
-        )}
+        {isProjectAdmin
+          ? translate('onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin')
+          : translate('onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci')}
       </p>
       <p className="big-spacer-top">
         <FormattedMessage
