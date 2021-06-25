@@ -62,7 +62,6 @@ public final class SqTables {
     "issues",
     "issue_changes",
     "live_measures",
-    "manual_measures",
     "metrics",
     "new_code_periods",
     "notifications",

@@ -308,18 +308,6 @@ public class MetricDaoTest {
     assertThat(result).hasSize(3);
   }
 
-  @Test
-  public void selectAvailableByComponentUuid() {
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true).setKey("metric-key"));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(false).setEnabled(true).setKey("another-metric-key"));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(false).setKey("third-metric-key"));
-
-    List<MetricDto> result = underTest.selectAvailableCustomMetricsByComponentUuid(dbSession, "project-uuid");
-
-    assertThat(result).hasSize(1)
-      .extracting("key").containsOnly("metric-key");
-  }
-
   private void assertEquals(MetricDto expected, MetricDto result) {
     assertThat(result.getKey()).isEqualTo(expected.getKey());
     assertThat(result.getShortName()).isEqualTo(expected.getShortName());

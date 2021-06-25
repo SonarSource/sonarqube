@@ -56,17 +56,6 @@
     ORDER BY UPPER(m.short_name), m.short_name
   </select>
 
-  <select id="selectAvailableCustomMetricsByComponentUuid" resultType="org.sonar.db.metric.MetricDto">
-    select
-    <include refid="metricColumns"/>
-    from metrics m
-    left join manual_measures mm on mm.metric_uuid = m.uuid and mm.component_uuid=#{componentUuid}
-    where m.enabled=${_true}
-    and m.user_managed=${_true}
-    and mm.uuid is null
-    ORDER BY UPPER(m.short_name), m.short_name
-  </select>
-
   <select id="countEnabled" resultType="Integer">
     SELECT COUNT(1)
     FROM metrics m

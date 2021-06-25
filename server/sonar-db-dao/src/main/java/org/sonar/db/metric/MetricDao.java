@@ -102,10 +102,6 @@ public class MetricDao implements Dao {
     return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
   }
 
-  public List<MetricDto> selectAvailableCustomMetricsByComponentUuid(DbSession session, String projectUuid) {
-    return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectUuid);
-  }
-
   public List<MetricDto> selectByUuids(DbSession session, Set<String> uuidsSet) {
     return executeLargeInputs(new ArrayList<>(uuidsSet), mapper(session)::selectByUuids);
   }

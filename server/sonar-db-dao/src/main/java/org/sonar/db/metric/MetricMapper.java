@@ -52,6 +52,4 @@ public interface MetricMapper {
   int countEnabled(@Param("isCustom") @Nullable Boolean isCustom);
 
   void update(MetricDto metric);
-
-  List<MetricDto> selectAvailableCustomMetricsByComponentUuid(String projectUuid);
 }
