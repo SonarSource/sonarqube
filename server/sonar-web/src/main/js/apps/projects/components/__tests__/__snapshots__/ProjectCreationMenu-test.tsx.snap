@@ -28,8 +28,8 @@ exports[`should render correctly: default 1`] = `
           }
         >
           <EllipsisIcon
-            className="big spacer-right"
-            width={16}
+            className="spacer-right"
+            size={16}
           />
           more
         </Link>

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import EllipsisIcon from 'sonar-ui-common/components/icons/EllipsisIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
-import EllipsisIcon from '../icons/EllipsisIcon';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -178,7 +178,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
             {renderButton(
               TutorialModes.OtherCI,
               props.onSelectTutorial,
-              <EllipsisIcon className="gigantic" height={DEFAULT_ICON_SIZE} />
+              <EllipsisIcon size={DEFAULT_ICON_SIZE / 2} />
             )}
           </div>
         </div>

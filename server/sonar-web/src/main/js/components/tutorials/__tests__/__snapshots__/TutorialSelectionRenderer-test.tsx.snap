@@ -55,8 +55,7 @@ exports[`should render correctly for azure 1`] = `
         type="button"
       >
         <EllipsisIcon
-          className="gigantic"
-          height={80}
+          size={40}
         />
         <div
           className="medium big-spacer-top"
@@ -124,8 +123,7 @@ exports[`should render correctly for bitbucket server 1`] = `
         type="button"
       >
         <EllipsisIcon
-          className="gigantic"
-          height={80}
+          size={40}
         />
         <div
           className="medium big-spacer-top"
@@ -226,8 +224,7 @@ exports[`should render correctly for github 1`] = `
         type="button"
       >
         <EllipsisIcon
-          className="gigantic"
-          height={80}
+          size={40}
         />
         <div
           className="medium big-spacer-top"
@@ -311,8 +308,7 @@ exports[`should render correctly for gitlab 1`] = `
         type="button"
       >
         <EllipsisIcon
-          className="gigantic"
-          height={80}
+          size={40}
         />
         <div
           className="medium big-spacer-top"
@@ -666,8 +662,7 @@ exports[`should render correctly: selection 1`] = `
         type="button"
       >
         <EllipsisIcon
-          className="gigantic"
-          height={80}
+          size={40}
         />
         <div
           className="medium big-spacer-top"
