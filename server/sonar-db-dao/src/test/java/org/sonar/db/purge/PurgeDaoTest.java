@@ -1611,11 +1611,6 @@ public class PurgeDaoTest {
     db.getSession().commit();
   }
 
-  private Stream<String> getComponentUuidsOfManualMeasures() {
-    return db.select("select component_uuid as \"COMPONENT_UUID\" from manual_measures").stream()
-      .map(row -> (String) row.get("COMPONENT_UUID"));
-  }
-
   private Stream<String> getResourceIdOfProperties() {
     return db.select("select component_uuid as \"uuid\" from properties").stream()
       .map(row -> (String) row.get("uuid"));

@@ -256,13 +256,6 @@
       component_uuid = #{rootUuid,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteManualMeasuresByComponentUuids" parameterType="map">
-    delete from manual_measures where component_uuid in
-    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-      #{componentUuid,jdbcType=VARCHAR}
-    </foreach>
-  </delete>
-
   <delete id="deleteEventsByComponentUuid" parameterType="map">
     delete from events
     where

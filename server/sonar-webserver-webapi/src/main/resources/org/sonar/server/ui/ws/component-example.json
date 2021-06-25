@@ -37,7 +37,6 @@
     "showSettings": true,
     "showQualityProfiles": true,
     "showQualityGates": true,
-    "showManualMeasures": true,
     "showLinks": true,
     "showPermissions": true,
     "showHistory": true,

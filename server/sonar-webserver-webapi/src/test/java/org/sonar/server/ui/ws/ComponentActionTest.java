@@ -451,7 +451,6 @@ public class ComponentActionTest {
       "    \"showSettings\": true,\n" +
       "    \"showQualityProfiles\": true,\n" +
       "    \"showQualityGates\": true,\n" +
-      "    \"showManualMeasures\": true,\n" +
       "    \"showLinks\": true,\n" +
       "    \"showPermissions\": true,\n" +
       "    \"showHistory\": true,\n" +
@@ -480,7 +479,6 @@ public class ComponentActionTest {
       "    \"showSettings\": true,\n" +
       "    \"showQualityProfiles\": true,\n" +
       "    \"showQualityGates\": true,\n" +
-      "    \"showManualMeasures\": true,\n" +
       "    \"showLinks\": true,\n" +
       "    \"showPermissions\": false,\n" +
       "    \"showHistory\": true,\n" +

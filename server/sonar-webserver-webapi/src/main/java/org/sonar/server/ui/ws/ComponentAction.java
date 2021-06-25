@@ -286,7 +286,6 @@ public class ComponentAction implements NavigationWsAction {
 
   private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
-    boolean showManualMeasures = isProjectAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
     boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
     boolean isQualityProfileAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     boolean isQualityGateAdmin = userSession.hasPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
@@ -298,7 +297,6 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showSettings", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
     json.prop("showQualityProfiles", isProject && (isProjectAdmin || isQualityProfileAdmin));
     json.prop("showQualityGates", isProject && (isProjectAdmin || isQualityGateAdmin));
-    json.prop("showManualMeasures", showManualMeasures);
     json.prop("showLinks", isProjectAdmin && isProject);
     json.prop("showPermissions", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY)
       && (isGlobalAdmin || allowChangingPermissionsByProjectAdmins));

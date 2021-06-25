@@ -78,8 +78,6 @@ public interface PurgeMapper {
 
   void deleteUserRolesByComponentUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteManualMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
-
   void deleteEventsByComponentUuid(@Param("componentUuid") String componentUuid);
 
   void deleteEventComponentChangesByComponentUuid(@Param("componentUuid") String componentUuid);

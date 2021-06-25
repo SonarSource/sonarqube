@@ -96,7 +96,6 @@
     "rule.php.S101.param.format": "Regular expression used to check the class names against.",
     "select2.tooShort": "Please enter at least {0} characters",
     "widget.custom_measures.property.metric10.name": "Metric 10",
-    "manual_measures.save_button": "Save",
     "issue_filter.sharing": "Sharing",
     "widget.measure_filter_cloud.property.colorMetric.name": "Color Metric",
     "dashboard.TimeMachine.name": "Time Machine",

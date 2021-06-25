@@ -229,11 +229,6 @@ class PurgeCommands {
     uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
     session.commit();
     profiler.stop();
-
-    profiler.start("deleteByRootAndModulesOrSubviews (manual_measures)");
-    uuidsPartitions.forEach(purgeMapper::deleteManualMeasuresByComponentUuids);
-    session.commit();
-    profiler.stop();
   }
 
   void deleteDisabledComponentsWithoutIssues(List<String> disabledComponentsWithoutIssue) {
@@ -244,11 +239,6 @@ class PurgeCommands {
 
     profiler.start("deleteDisabledComponentsWithoutIssues (properties)");
     uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteDisabledComponentsWithoutIssues (manual_measures)");
-    uuidsPartitions.forEach(purgeMapper::deleteManualMeasuresByComponentUuids);
     session.commit();
     profiler.stop();
 

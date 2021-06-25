@@ -197,23 +197,6 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/manual_measure">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   */
-  public void manualMeasure(ManualMeasureRequest request) {
-    call(
-      new PostRequest(path("manual_measure"))
-        .setParam("key", request.getKey())
-        .setParam("measure", request.getMeasure())
-        .setParam("value", request.getValue())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/mode">Further information about this action online (including a response example)</a>
    * @since 2.6
    * @deprecated since 7.4
