@@ -124,6 +124,7 @@ exports[`should render correctly for hotspots 1`] = `
         "query": Object {
           "assignedToMe": undefined,
           "branch": undefined,
+          "file": undefined,
           "hotspots": undefined,
           "id": "my-project",
           "pullRequest": "1001",
@@ -157,6 +158,7 @@ exports[`should render correctly for hotspots 2`] = `
         "query": Object {
           "assignedToMe": undefined,
           "branch": undefined,
+          "file": undefined,
           "hotspots": undefined,
           "id": "my-project",
           "pullRequest": "1001",

@@ -25,8 +25,16 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ filtered: true })).toMatchSnapshot('filtered');
   expect(shallowRender({ isStaticListOfHotspots: true })).toMatchSnapshot('keys');
+  expect(shallowRender({ filterByFile: true })).toMatchSnapshot('file');
 });
 
 function shallowRender(props: Partial<EmptyHotspotsPageProps> = {}) {
-  return shallow(<EmptyHotspotsPage filtered={false} isStaticListOfHotspots={false} {...props} />);
+  return shallow(
+    <EmptyHotspotsPage
+      filtered={false}
+      filterByFile={false}
+      isStaticListOfHotspots={false}
+      {...props}
+    />
+  );
 }

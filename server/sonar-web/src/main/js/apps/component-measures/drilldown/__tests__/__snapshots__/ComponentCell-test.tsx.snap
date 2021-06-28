@@ -1,0 +1,139 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo:src/index.tsx"
+      onClick={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "foo",
+            "metric": "bugs",
+            "selected": "foo:src/index.tsx",
+          },
+        }
+      }
+    >
+      <span
+        title="foo:src/index.tsx"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="FIL"
+        />
+        <span
+          className="note"
+        >
+          src
+          /
+        </span>
+        <span>
+          index.tsx
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: ref component 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-project-key"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "project-key",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="project-key"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: security review domain 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo:src/index.tsx"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/security_hotspots",
+          "query": Object {
+            "assignedToMe": undefined,
+            "branch": undefined,
+            "file": "src/index.tsx",
+            "hotspots": undefined,
+            "id": "foo",
+            "pullRequest": undefined,
+            "sinceLeakPeriod": undefined,
+          },
+        }
+      }
+    >
+      <span
+        title="foo:src/index.tsx"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="FIL"
+        />
+        <span
+          className="note"
+        >
+          src
+          /
+        </span>
+        <span>
+          index.tsx
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;

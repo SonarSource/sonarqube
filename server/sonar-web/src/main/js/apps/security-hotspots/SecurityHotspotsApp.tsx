@@ -63,6 +63,7 @@ type Props = DispatchProps & OwnProps;
 interface State {
   filterByCategory?: { standard: SecurityStandard; category: string };
   filterByCWE?: string;
+  filterByFile?: string;
   filters: HotspotFilters;
   hotspotKeys?: string[];
   hotspots: RawHotspot[];
@@ -114,7 +115,8 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     if (
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
-      SECURITY_STANDARDS.some(s => this.props.location.query[s] !== previous.location.query[s])
+      SECURITY_STANDARDS.some(s => this.props.location.query[s] !== previous.location.query[s]) ||
+      this.props.location.query.file !== previous.location.query.file
     ) {
       this.fetchInitialData();
     }
@@ -256,7 +258,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     const filterByCWE: string | undefined = location.query.cwe;
 
-    this.setState({ filterByCategory, filterByCWE, hotspotKeys });
+    const filterByFile: string | undefined = location.query.file;
+
+    this.setState({ filterByCategory, filterByCWE, filterByFile, hotspotKeys });
 
     if (hotspotKeys && hotspotKeys.length > 0) {
       return getSecurityHotspotList(hotspotKeys, {
@@ -265,7 +269,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       });
     }
 
-    if (filterByCategory || filterByCWE) {
+    if (filterByCategory || filterByCWE || filterByFile) {
       const hotspotFilters: T.Dict<string> = {};
 
       if (filterByCategory) {
@@ -274,6 +278,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       if (filterByCWE) {
         hotspotFilters[SecurityStandard.CWE] = filterByCWE;
       }
+      if (filterByFile) {
+        hotspotFilters.files = filterByFile;
+      }
 
       return getSecurityHotspots({
         ...hotspotFilters,
@@ -281,6 +288,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         p: page,
         ps: PAGE_SIZE,
         status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
+        sinceLeakPeriod: filters.sinceLeakPeriod && Boolean(filterByFile), // only add leak period when filtering by file
         ...getBranchLikeQuery(branchLike)
       });
     }
@@ -379,7 +387,8 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         [SecurityStandard.CWE]: undefined,
         [SecurityStandard.OWASP_TOP10]: undefined,
         [SecurityStandard.SANS_TOP25]: undefined,
-        [SecurityStandard.SONARSOURCE]: undefined
+        [SecurityStandard.SONARSOURCE]: undefined,
+        file: undefined
       }
     });
   };
@@ -409,6 +418,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     const {
       filterByCategory,
       filterByCWE,
+      filterByFile,
       filters,
       hotspotKeys,
       hotspots,
@@ -428,11 +438,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         filters={filters}
         filterByCategory={filterByCategory}
         filterByCWE={filterByCWE}
+        filterByFile={filterByFile}
         hotspots={hotspots}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
         isStaticListOfHotspots={Boolean(
-          (hotspotKeys && hotspotKeys.length > 0) || filterByCategory || filterByCWE
+          (hotspotKeys && hotspotKeys.length > 0) || filterByCategory || filterByCWE || filterByFile
         )}
         loading={loading}
         loadingMeasure={loadingMeasure}

@@ -107,6 +107,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   private static final String PARAM_CWE = "cwe";
+  private static final String PARAM_FILES = "files";
 
   private static final List<String> STATUSES = ImmutableList.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
@@ -128,22 +129,23 @@ public class SearchAction implements HotspotsWsAction {
     this.system2 = system2;
   }
 
+  private static Set<String> setFromList(@Nullable List<String> list) {
+    return list != null ? ImmutableSet.copyOf(list) : ImmutableSet.of();
+  }
+
   private static WsRequest toWsRequest(Request request) {
-    List<String> hotspotList = request.paramAsStrings(PARAM_HOTSPOTS);
-    Set<String> hotspotKeys = hotspotList != null ? ImmutableSet.copyOf(hotspotList) : ImmutableSet.of();
-    List<String> owaspTop10List = request.paramAsStrings(PARAM_OWASP_TOP_10);
-    Set<String> owaspTop10 = owaspTop10List != null ? ImmutableSet.copyOf(owaspTop10List) : ImmutableSet.of();
-    List<String> sansTop25List = request.paramAsStrings(PARAM_SANS_TOP_25);
-    Set<String> sansTop25 = sansTop25List != null ? ImmutableSet.copyOf(sansTop25List) : ImmutableSet.of();
-    List<String> sonarsourceSecurityList = request.paramAsStrings(PARAM_SONARSOURCE_SECURITY);
-    Set<String> sonarsourceSecurity = sonarsourceSecurityList != null ? ImmutableSet.copyOf(sonarsourceSecurityList) : ImmutableSet.of();
-    List<String> cwesList = request.paramAsStrings(PARAM_CWE);
-    Set<String> cwes = cwesList != null ? ImmutableSet.copyOf(cwesList) : ImmutableSet.of();
+    Set<String> hotspotKeys = setFromList(request.paramAsStrings(PARAM_HOTSPOTS));
+    Set<String> owaspTop10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10));
+    Set<String> sansTop25 = setFromList(request.paramAsStrings(PARAM_SANS_TOP_25));
+    Set<String> sonarsourceSecurity = setFromList(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+    Set<String> cwes = setFromList(request.paramAsStrings(PARAM_CWE));
+    Set<String> files = setFromList(request.paramAsStrings(PARAM_FILES));
 
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owaspTop10, sansTop25, sonarsourceSecurity, cwes);
+      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owaspTop10, sansTop25, sonarsourceSecurity, cwes,
+      files);
   }
 
   @Override
@@ -232,6 +234,10 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of CWE numbers")
       .setExampleValue("89,434,352")
       .setSince("8.8");
+    action.createParam(PARAM_FILES)
+      .setDescription("Comma-separated list of files. Returns only hotspots found in those files")
+      .setExampleValue("src/main/java/org/sonar/server/Test.java")
+      .setSince("9.0");
 
     action.setResponseExample(getClass().getResource("search-example.json"));
   }
@@ -351,6 +357,10 @@ public class SearchAction implements HotspotsWsAction {
 
     if (!wsRequest.getHotspotKeys().isEmpty()) {
       builder.issueKeys(wsRequest.getHotspotKeys());
+    }
+
+    if (!wsRequest.getFiles().isEmpty()) {
+      builder.files(wsRequest.getFiles());
     }
 
     if (wsRequest.isOnlyMine()) {
@@ -495,13 +505,14 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> sansTop25;
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
+    private final Set<String> files;
 
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod,
       @Nullable Boolean onlyMine, Set<String> owaspTop10, Set<String> sansTop25, Set<String> sonarsourceSecurity,
-      Set<String> cwe) {
+      Set<String> cwe, @Nullable Set<String> files) {
       this.page = page;
       this.index = index;
       this.projectKey = projectKey;
@@ -516,6 +527,7 @@ public class SearchAction implements HotspotsWsAction {
       this.sansTop25 = sansTop25;
       this.sonarsourceSecurity = sonarsourceSecurity;
       this.cwe = cwe;
+      this.files = files;
     }
 
     int getPage() {
@@ -572,6 +584,10 @@ public class SearchAction implements HotspotsWsAction {
 
     public Set<String> getCwe() {
       return cwe;
+    }
+
+    public Set<String> getFiles() {
+      return files;
     }
   }
 

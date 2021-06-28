@@ -23,15 +23,16 @@ import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { splitPath } from 'sonar-ui-common/helpers/path';
-import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import {
   getBranchLikeUrl,
   getComponentDrilldownUrlWithSelection,
+  getComponentSecurityHotspotsUrl,
   getProjectUrl
 } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { View } from '../utils';
+import { isFileType, isSecurityReviewMetric, View } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;
@@ -73,42 +74,49 @@ export default class ComponentCell extends React.PureComponent<Props> {
         <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
         {head.length > 0 && <span className="note">{head}/</span>}
         <span>{tail}</span>
-        {isApp && (
-          <>
-            {component.branch ? (
-              <>
-                <BranchIcon className="spacer-left little-spacer-right" />
-                <span className="note">{component.branch}</span>
-              </>
-            ) : (
-              <span className="spacer-left badge">{translate('branches.main_branch')}</span>
-            )}
-          </>
-        )}
+        {isApp &&
+          (component.branch ? (
+            <>
+              <BranchIcon className="spacer-left little-spacer-right" />
+              <span className="note">{component.branch}</span>
+            </>
+          ) : (
+            <span className="spacer-left badge">{translate('branches.main_branch')}</span>
+          ))}
       </span>
     );
   }
 
   render() {
     const { branchLike, component, metric, rootComponent } = this.props;
+
+    let hotspotsUrl;
+    if (isFileType(component) && isSecurityReviewMetric(metric.key)) {
+      hotspotsUrl = getComponentSecurityHotspotsUrl(this.props.rootComponent.key, {
+        file: component.path,
+        sinceLeakPeriod: isDiffMetric(metric.key) ? 'true' : undefined
+      });
+    }
+
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
           {!component.refKey ? (
-            <a
+            <Link
               className="link-no-underline"
-              href={getPathUrlAsString(
+              to={
+                hotspotsUrl ||
                 getComponentDrilldownUrlWithSelection(
                   rootComponent.key,
                   component.key,
                   metric.key,
                   branchLike
                 )
-              )}
+              }
               id={'component-measures-component-link-' + component.key}
-              onClick={this.handleClick}>
+              onClick={hotspotsUrl ? undefined : this.handleClick}>
               {this.renderInner(component.key)}
-            </a>
+            </Link>
           ) : (
             <Link
               className="link-no-underline"

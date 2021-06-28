@@ -130,6 +130,7 @@ public class SearchActionTest {
     WebService.Param owaspTop10Param = actionTester.getDef().param("owaspTop10");
     WebService.Param sansTop25Param = actionTester.getDef().param("sansTop25");
     WebService.Param sonarsourceSecurityParam = actionTester.getDef().param("sonarsourceSecurity");
+    WebService.Param filesParam = actionTester.getDef().param("files");
 
     assertThat(actionTester.getDef().isInternal()).isTrue();
     assertThat(onlyMineParam).isNotNull();
@@ -143,6 +144,7 @@ public class SearchActionTest {
     assertThat(sansTop25Param.isRequired()).isFalse();
     assertThat(sonarsourceSecurityParam).isNotNull();
     assertThat(sonarsourceSecurityParam.isRequired()).isFalse();
+    assertThat(filesParam).isNotNull();
   }
 
   @Test
@@ -1402,6 +1404,28 @@ public class SearchActionTest {
     assertThat(response.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspot3.getKey());
+  }
+
+  @Test
+  public void returns_hotspots_with_specified_files() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+
+    final IssueDto hotspot = insertHotspot(project, file1, rule);
+    insertHotspot(project, file2, rule);
+
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project).setParam("files", file1.path())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot.getKey());
   }
 
   @Test

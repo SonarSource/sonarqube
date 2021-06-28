@@ -19,9 +19,13 @@
  */
 import * as React from 'react';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
+import { fileFromPath } from 'sonar-ui-common/helpers/path';
+import { ComponentQualifier } from '../../../types/component';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { RawHotspot } from '../../../types/security-hotspots';
 import { SECURITY_STANDARD_RENDERER } from '../utils';
@@ -33,6 +37,7 @@ export interface HotspotSimpleListProps {
     category: string;
   };
   filterByCWE?: string;
+  filterByFile?: string;
   hotspots: RawHotspot[];
   hotspotsTotal: number;
   loadingMore: boolean;
@@ -55,6 +60,7 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
     const {
       filterByCategory,
       filterByCWE,
+      filterByFile,
       hotspots,
       hotspotsTotal,
       loadingMore,
@@ -79,9 +85,23 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
           <div className="hotspot-category">
             <div className="hotspot-category-header">
               <strong className="flex-1 spacer-right break-word">
-                {categoryLabel}
-                {categoryLabel && cweLabel && <hr />}
-                {cweLabel}
+                {filterByFile ? (
+                  <Tooltip overlay={filterByFile}>
+                    <span>
+                      <QualifierIcon
+                        className="little-spacer-right"
+                        qualifier={ComponentQualifier.File}
+                      />
+                      {fileFromPath(filterByFile)}
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <>
+                    {categoryLabel}
+                    {categoryLabel && cweLabel && <hr />}
+                    {cweLabel}
+                  </>
+                )}
               </strong>
             </div>
             <ul>

@@ -25,6 +25,7 @@ import { isBranch, isPullRequest } from '../../helpers/branch-like';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
+import { MetricKey } from '../../types/metrics';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
@@ -104,7 +105,7 @@ export function enhanceComponent(
   return { ...component, value, leak, measures: enhancedMeasures };
 }
 
-export function isFileType(component: T.ComponentMeasure): boolean {
+export function isFileType(component: { qualifier: string | ComponentQualifier }): boolean {
   return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
     component.qualifier as ComponentQualifier
   );
@@ -116,6 +117,17 @@ export function isViewType(component: T.ComponentMeasure): boolean {
     ComponentQualifier.SubPortfolio,
     ComponentQualifier.Application
   ].includes(component.qualifier as ComponentQualifier);
+}
+
+export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
+  return [
+    MetricKey.security_hotspots,
+    MetricKey.security_hotspots_reviewed,
+    MetricKey.security_review_rating,
+    MetricKey.new_security_hotspots,
+    MetricKey.new_security_hotspots_reviewed,
+    MetricKey.new_security_review_rating
+  ].includes(metricKey as MetricKey);
 }
 
 export function banQualityGateMeasure({

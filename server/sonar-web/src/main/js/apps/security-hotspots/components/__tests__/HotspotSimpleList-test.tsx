@@ -36,6 +36,9 @@ it('should render correctly', () => {
     'filter by cwe'
   );
   expect(shallowRender({ filterByCWE: '327' })).toMatchSnapshot('filter by both');
+  expect(shallowRender({ filterByFile: 'src/apps/something/main.ts' })).toMatchSnapshot(
+    'filter by file'
+  );
 });
 
 it('should add/remove sidebar classes', async () => {

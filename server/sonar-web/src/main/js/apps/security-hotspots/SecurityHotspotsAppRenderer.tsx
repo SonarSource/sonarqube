@@ -44,6 +44,7 @@ export interface SecurityHotspotsAppRendererProps {
     category: string;
   };
   filterByCWE?: string;
+  filterByFile?: string;
   filters: HotspotFilters;
   hotspots: RawHotspot[];
   hotspotsReviewedMeasure?: string;
@@ -68,6 +69,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     component,
     filterByCategory,
     filterByCWE,
+    filterByFile,
     filters,
     hotspots,
     hotspotsReviewedMeasure,
@@ -125,6 +127,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               (isBranch(branchLike) && filters.sinceLeakPeriod) ||
               filters.status !== HotspotStatusFilter.TO_REVIEW
             }
+            filterByFile={Boolean(filterByFile)}
             isStaticListOfHotspots={isStaticListOfHotspots}
           />
         ) : (
@@ -133,10 +136,11 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               {({ top }) => (
                 <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
                   <div className="layout-page-side-inner">
-                    {filterByCategory || filterByCWE ? (
+                    {filterByCategory || filterByCWE || filterByFile ? (
                       <HotspotSimpleList
                         filterByCategory={filterByCategory}
                         filterByCWE={filterByCWE}
+                        filterByFile={filterByFile}
                         hotspots={hotspots}
                         hotspotsTotal={hotspotsTotal}
                         loadingMore={loadingMore}

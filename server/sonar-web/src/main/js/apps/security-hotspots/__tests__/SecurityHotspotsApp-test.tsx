@@ -129,6 +129,19 @@ it('should handle cwe request', () => {
   );
 });
 
+it('should handle file request', () => {
+  (getStandards as jest.Mock).mockResolvedValue(mockStandards());
+  (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
+
+  const filepath = 'src/path/to/file.java';
+
+  shallowRender({
+    location: mockLocation({ query: { file: filepath } })
+  });
+
+  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ files: filepath }));
+});
+
 it('should load data correctly when hotspot key list is forced', async () => {
   const hotspots = [
     mockRawHotspot({ key: 'test1' }),

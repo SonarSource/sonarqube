@@ -41,6 +41,7 @@ public class SearchRequest {
   private String resolution;
   private String sinceLeakPeriod;
   private String status;
+  private String files;
 
   /**
    * This is part of the internal API.
@@ -182,5 +183,13 @@ public class SearchRequest {
 
   public String getStatus() {
     return status;
+  }
+
+  public String getFiles() {
+    return files;
+  }
+
+  public void setFiles(String files) {
+    this.files = files;
   }
 }

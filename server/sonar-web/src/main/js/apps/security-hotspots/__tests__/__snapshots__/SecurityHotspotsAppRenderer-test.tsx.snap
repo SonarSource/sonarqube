@@ -52,6 +52,7 @@ exports[`should render correctly 1`] = `
     onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
+    filterByFile={false}
     filtered={false}
     isStaticListOfHotspots={true}
   />
@@ -353,6 +354,7 @@ exports[`should render correctly with hotspots 1`] = `
     onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
+    filterByFile={false}
     filtered={false}
     isStaticListOfHotspots={true}
   />
@@ -552,6 +554,7 @@ exports[`should render correctly: no hotspots with filters 1`] = `
     onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
+    filterByFile={false}
     filtered={true}
     isStaticListOfHotspots={true}
   />

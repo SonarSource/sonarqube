@@ -24,14 +24,17 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 
 export interface EmptyHotspotsPageProps {
   filtered: boolean;
+  filterByFile: boolean;
   isStaticListOfHotspots: boolean;
 }
 
 export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
-  const { filtered, isStaticListOfHotspots } = props;
+  const { filtered, filterByFile, isStaticListOfHotspots } = props;
 
   let translationRoot;
-  if (isStaticListOfHotspots) {
+  if (filterByFile) {
+    translationRoot = 'no_hotspots_for_file';
+  } else if (isStaticListOfHotspots) {
     translationRoot = 'no_hotspots_for_keys';
   } else if (filtered) {
     translationRoot = 'no_hotspots_for_filters';
@@ -45,7 +48,9 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         alt={translate('hotspots.page')}
         className="huge-spacer-top"
         height={100}
-        src={`${getBaseUrl()}/images/${filtered ? 'filter-large' : 'hotspot-large'}.svg`}
+        src={`${getBaseUrl()}/images/${
+          filtered && !filterByFile ? 'filter-large' : 'hotspot-large'
+        }.svg`}
       />
       <h1 className="huge-spacer-top">{translate(`hotspots.${translationRoot}.title`)}</h1>
       <div className="abs-width-400 text-center big-spacer-top">

@@ -115,7 +115,7 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
  * Generate URL for a component's security hotspot page
  */
 export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Location {
-  const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe } = query;
+  const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe, file } = query;
   return {
     pathname: '/security_hotspots',
     query: {
@@ -125,6 +125,7 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
       sinceLeakPeriod,
       hotspots,
       assignedToMe,
+      file,
       ...pick(query, [
         SecurityStandard.SONARSOURCE,
         SecurityStandard.OWASP_TOP10,

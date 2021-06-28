@@ -36,6 +36,42 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
+exports[`should render correctly: file 1`] = `
+<div
+  className="display-flex-column display-flex-center huge-spacer-top"
+>
+  <img
+    alt="hotspots.page"
+    className="huge-spacer-top"
+    height={100}
+    src="/images/hotspot-large.svg"
+  />
+  <h1
+    className="huge-spacer-top"
+  >
+    hotspots.no_hotspots_for_file.title
+  </h1>
+  <div
+    className="abs-width-400 text-center big-spacer-top"
+  >
+    hotspots.no_hotspots_for_file.description
+  </div>
+  <Link
+    className="big-spacer-top"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    target="_blank"
+    to={
+      Object {
+        "pathname": "/documentation/user-guide/security-hotspots/",
+      }
+    }
+  >
+    hotspots.learn_more
+  </Link>
+</div>
+`;
+
 exports[`should render correctly: filtered 1`] = `
 <div
   className="display-flex-column display-flex-center huge-spacer-top"
