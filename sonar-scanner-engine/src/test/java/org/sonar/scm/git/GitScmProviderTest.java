@@ -44,11 +44,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -63,6 +61,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,6 +123,7 @@ public class GitScmProviderTest {
   private Path worktree;
   private Git git;
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private final ScannerWsClient client = mock(ScannerWsClient.class);
 
   @Before
   public void before() throws IOException, GitAPIException {
@@ -141,7 +141,7 @@ public class GitScmProviderTest {
   @Test
   public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand(new PathResolver(), analysisWarnings);
-    GitScmProvider gitScmProvider = new GitScmProvider(jblameCommand, analysisWarnings, gitIgnoreCommand, system2);
+    GitScmProvider gitScmProvider = new GitScmProvider(jblameCommand, analysisWarnings, gitIgnoreCommand, system2, client);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(jblameCommand);
   }
@@ -630,7 +630,7 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedFiles_should_return_null_on_io_errors_of_repo_builder() {
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client) {
       @Override
       Repository buildRepo(Path basedir) throws IOException {
         throw new IOException();
@@ -646,8 +646,9 @@ public class GitScmProviderTest {
     RefDatabase refDatabase = mock(RefDatabase.class);
     when(repository.getRefDatabase()).thenReturn(refDatabase);
     when(refDatabase.findRef(BRANCH_NAME)).thenReturn(null);
+    when(client.baseUrl()).thenReturn("http://sonarqube.org");
 
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client) {
       @Override
       Repository buildRepo(Path basedir) {
         return repository;
@@ -662,7 +663,7 @@ public class GitScmProviderTest {
 
     String warning = refNotFound
       + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis"
-      + " and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.";
+      + " and refer to <a href=\"http://sonarqube.org/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.";
     verify(analysisWarnings).addUnique(warning);
   }
 
@@ -677,7 +678,7 @@ public class GitScmProviderTest {
     Git git = mock(Git.class);
     when(git.diff()).thenReturn(diffCommand);
 
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client) {
       @Override
       Git newGit(Repository repo) {
         return git;
@@ -710,7 +711,7 @@ public class GitScmProviderTest {
     commit(f2);
 
     AtomicInteger callCount = new AtomicInteger(0);
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client) {
       @Override
       AbstractTreeIterator prepareTreeParser(Repository repo, RevCommit commit) throws IOException {
         if (callCount.getAndIncrement() == 1) {
@@ -729,7 +730,7 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedLines_returns_null_on_io_errors_of_repo_builder() {
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client) {
       @Override
       Repository buildRepo(Path basedir) throws IOException {
         throw new IOException();
@@ -744,7 +745,7 @@ public class GitScmProviderTest {
   }
 
   private GitScmProvider newGitScmProvider() {
-    return new GitScmProvider(mock(JGitBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2);
+    return new GitScmProvider(mock(JGitBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2, client);
   }
 
   @Test
@@ -889,6 +890,6 @@ public class GitScmProviderTest {
   }
 
   private GitScmProvider newScmProvider() {
-    return new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2);
+    return new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, client);
   }
 }

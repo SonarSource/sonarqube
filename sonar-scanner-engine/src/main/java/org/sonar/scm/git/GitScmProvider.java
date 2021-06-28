@@ -59,6 +59,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 public class GitScmProvider extends ScmProvider {
 
@@ -68,12 +69,14 @@ public class GitScmProvider extends ScmProvider {
   private final AnalysisWarnings analysisWarnings;
   private final GitIgnoreCommand gitIgnoreCommand;
   private final System2 system2;
+  private final String documentationLink;
 
-  public GitScmProvider(JGitBlameCommand jgitBlameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2) {
+  public GitScmProvider(JGitBlameCommand jgitBlameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2, ScannerWsClient client) {
     this.jgitBlameCommand = jgitBlameCommand;
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
+    this.documentationLink = client.baseUrl() + "/documentation/analysis/scm-integration/";
   }
 
   @Override
@@ -103,10 +106,7 @@ public class GitScmProvider extends ScmProvider {
     try (Repository repo = buildRepo(rootBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
-        analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
-          + ". You may see unexpected issues and changes. "
-          + "Please make sure to fetch this ref before pull request analysis and refer to"
-          + " <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.", targetBranchName));
+        addWarningTargetNotFound(targetBranchName);
         return null;
       }
 
@@ -148,10 +148,7 @@ public class GitScmProvider extends ScmProvider {
     try (Repository repo = buildRepo(projectBaseDir)) {
       Ref targetRef = resolveTargetRef(targetBranchName, repo);
       if (targetRef == null) {
-        analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
-          + ". You may see unexpected issues and changes. "
-          + "Please make sure to fetch this ref before pull request analysis"
-          + " and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.", targetBranchName));
+        addWarningTargetNotFound(targetBranchName);
         return null;
       }
 
@@ -179,6 +176,13 @@ public class GitScmProvider extends ScmProvider {
       LOG.warn("Failed to get changed lines from git", e);
     }
     return null;
+  }
+
+  private void addWarningTargetNotFound(String targetBranchName) {
+    analysisWarnings.addUnique(String.format(COULD_NOT_FIND_REF
+      + ". You may see unexpected issues and changes. "
+      + "Please make sure to fetch this ref before pull request analysis and refer to"
+      + " <a href=\"%s\" target=\"_blank\">the documentation</a>.", targetBranchName, documentationLink));
   }
 
   private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFile) {
