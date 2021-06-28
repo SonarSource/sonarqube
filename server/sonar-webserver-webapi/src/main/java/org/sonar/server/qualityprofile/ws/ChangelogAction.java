@@ -78,12 +78,12 @@ public class ChangelogAction implements QProfileWsAction {
     wsAction.addPagingParams(50, MAX_PAGE_SIZE);
 
     wsAction.createParam(PARAM_SINCE)
-      .setDescription("Start date for the changelog. <br>" +
+      .setDescription("Start date for the changelog (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
 
     wsAction.createParam(PARAM_TO)
-      .setDescription("End date for the changelog. <br>" +
+      .setDescription("End date for the changelog (exclusive, strictly before). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
   }
