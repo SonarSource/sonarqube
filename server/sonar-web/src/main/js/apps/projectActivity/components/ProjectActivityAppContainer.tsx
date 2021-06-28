@@ -32,6 +32,7 @@ import {
 } from '../../../components/activity-graph/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import * as actions from '../actions';
 import {
@@ -245,8 +246,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
 
   filterMetrics({ qualifier }: T.Component, metrics: T.Metric[]) {
     return ['VW', 'SVW'].includes(qualifier)
-      ? metrics
-      : metrics.filter(metric => metric.key !== 'security_review_rating');
+      ? metrics.filter(metric => metric.key !== MetricKey.security_hotspots_reviewed)
+      : metrics.filter(metric => metric.key !== MetricKey.security_review_rating);
   }
 
   firstLoadData(query: Query, component: T.Component) {

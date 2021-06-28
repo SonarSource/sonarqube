@@ -19,11 +19,31 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { mockComponent, mockLocation, mockMetric, mockRouter } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
 import ProjectActivityAppContainer from '../ProjectActivityAppContainer';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should filter metric correctly', () => {
+  const wrapper = shallowRender();
+  let metrics = wrapper
+    .instance()
+    .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Project }), [
+      mockMetric({ key: MetricKey.bugs }),
+      mockMetric({ key: MetricKey.security_review_rating })
+    ]);
+  expect(metrics).toHaveLength(1);
+  metrics = wrapper
+    .instance()
+    .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Portfolio }), [
+      mockMetric({ key: MetricKey.bugs }),
+      mockMetric({ key: MetricKey.security_hotspots_reviewed })
+    ]);
+  expect(metrics).toHaveLength(1);
 });
 
 function shallowRender(props: Partial<ProjectActivityAppContainer['props']> = {}) {
