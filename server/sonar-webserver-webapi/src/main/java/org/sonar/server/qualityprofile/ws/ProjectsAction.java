@@ -63,7 +63,7 @@ public class ProjectsAction implements QProfileWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setDescription("List projects with their association status regarding a quality profile <br/>" +
-        "See api/qualitygates/search in order to get the Quality Gate Profile Key")
+        "See api/qualityprofiles/search in order to get the Quality Profile Key")
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
