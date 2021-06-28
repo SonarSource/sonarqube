@@ -160,6 +160,31 @@ public class FileUtilsTest {
   }
 
   @Test
+  public void humanReadableByteCountSI_returns_bytes() {
+    assertThat(FileUtils.humanReadableByteCountSI(123)).isEqualTo("123 bytes");
+    assertThat(FileUtils.humanReadableByteCountSI(0)).isEqualTo("0 bytes");
+    assertThat(FileUtils.humanReadableByteCountSI(1)).isEqualTo("1 byte");
+  }
+
+  @Test
+  public void humanReadableByteCountSI_returns_kbs() {
+    assertThat(FileUtils.humanReadableByteCountSI(1_234)).isEqualTo("1.2 kB");
+    assertThat(FileUtils.humanReadableByteCountSI(1_000)).isEqualTo("1.0 kB");
+    assertThat(FileUtils.humanReadableByteCountSI(9_999)).isEqualTo("10.0 kB");
+    assertThat(FileUtils.humanReadableByteCountSI(999_949)).isEqualTo("999.9 kB");
+  }
+
+  @Test
+  public void humanReadableByteCountSI_returns_tbs() {
+    assertThat(FileUtils.humanReadableByteCountSI(1_234_000_000_000L)).isEqualTo("1.2 TB");
+  }
+
+  @Test
+  public void humanReadableByteCountSI_returns_mbs() {
+    assertThat(FileUtils.humanReadableByteCountSI(1234567)).isEqualTo("1.2 MB");
+  }
+
+  @Test
   public void deleteQuietly_deletes_symbolicLink() throws IOException {
     assumeTrue(SystemUtils.IS_OS_UNIX);
     Path folder = temporaryFolder.newFolder().toPath();

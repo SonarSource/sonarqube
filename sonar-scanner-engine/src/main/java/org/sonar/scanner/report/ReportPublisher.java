@@ -58,6 +58,7 @@ import static java.net.URLEncoder.encode;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 
 public class ReportPublisher implements Startable {
@@ -162,13 +163,13 @@ public class ReportPublisher implements Startable {
         publisher.publish(writer);
       }
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir.toFile())));
+      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOfDirectory(reportDir.toFile())));
 
       startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("scanner-report", ".zip");
       ZipUtils.zipDir(reportDir.toFile(), reportZip);
       stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report compressed in {}ms, zip size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
+      LOG.info("Analysis report compressed in {}ms, zip size={}", stopTime - startTime, humanReadableByteCountSI(FileUtils.sizeOf(reportZip)));
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare analysis report", e);

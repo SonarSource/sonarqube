@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
@@ -37,6 +36,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.process.FileUtils2;
+
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 
 /**
  * Extracts the content zip file of the {@link CeTask} to a temp directory and adds a {@link File}
@@ -76,7 +77,7 @@ public class ExtractReportStep implements ComputationStep {
           // size is not added to context statistics because computation
           // can take time. It's enabled only if log level is DEBUG.
           try {
-            String dirSize = FileUtils.byteCountToDisplaySize(FileUtils2.sizeOf(unzippedDir.toPath()));
+            String dirSize = humanReadableByteCountSI(FileUtils2.sizeOf(unzippedDir.toPath()));
             LOGGER.debug("Analysis report is {} uncompressed", dirSize);
           } catch (IOException e) {
             LOGGER.warn("Fail to compute size of directory " + unzippedDir, e);

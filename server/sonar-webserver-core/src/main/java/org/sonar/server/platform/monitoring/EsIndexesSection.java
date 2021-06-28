@@ -29,7 +29,7 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.IndexStats;
 import org.sonar.server.es.response.IndicesStatsResponse;
 
-import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
@@ -60,7 +60,7 @@ public class EsIndexesSection implements SystemInfoSection, Global {
       String prefix = "Index " + indexStats.getName() + " - ";
       setAttribute(protobuf, prefix + "Docs", indexStats.getDocCount());
       setAttribute(protobuf, prefix + "Shards", indexStats.getShardsCount());
-      setAttribute(protobuf, prefix + "Store Size", byteCountToDisplaySize(indexStats.getStoreSizeBytes()));
+      setAttribute(protobuf, prefix + "Store Size", humanReadableByteCountSI(indexStats.getStoreSizeBytes()));
     }
   }
 }

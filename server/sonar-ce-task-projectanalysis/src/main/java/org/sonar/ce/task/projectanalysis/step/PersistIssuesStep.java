@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
@@ -39,6 +38,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.issue.IssueStorage;
 
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -68,7 +68,7 @@ public class PersistIssuesStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    context.getStatistics().add("cacheSize", FileUtils.byteCountToDisplaySize(protoIssueCache.fileSize()));
+    context.getStatistics().add("cacheSize", humanReadableByteCountSI(protoIssueCache.fileSize()));
     IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
 

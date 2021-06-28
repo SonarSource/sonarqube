@@ -31,7 +31,7 @@ import org.sonar.server.es.response.NodeStats;
 import org.sonar.server.es.response.NodeStatsResponse;
 
 import static java.lang.String.format;
-import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
+import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class EsStateSection implements SystemInfoSection {
@@ -70,28 +70,28 @@ public class EsStateSection implements SystemInfoSection {
 
   public static void toProtobuf(NodeStats stats, ProtobufSystemInfo.Section.Builder protobuf) {
     setAttribute(protobuf, "CPU Usage (%)", stats.getCpuUsage());
-    setAttribute(protobuf, "Disk Available", byteCountToDisplaySize(stats.getDiskAvailableBytes()));
-    setAttribute(protobuf, "Store Size", byteCountToDisplaySize(stats.getIndicesStats().getStoreSizeInBytes()));
-    setAttribute(protobuf, "Translog Size", byteCountToDisplaySize(stats.getIndicesStats().getTranslogSizeInBytes()));
+    setAttribute(protobuf, "Disk Available", humanReadableByteCountSI(stats.getDiskAvailableBytes()));
+    setAttribute(protobuf, "Store Size", humanReadableByteCountSI(stats.getIndicesStats().getStoreSizeInBytes()));
+    setAttribute(protobuf, "Translog Size", humanReadableByteCountSI(stats.getIndicesStats().getTranslogSizeInBytes()));
     setAttribute(protobuf, "Open File Descriptors", stats.getOpenFileDescriptors());
     setAttribute(protobuf, "Max File Descriptors", stats.getMaxFileDescriptors());
     setAttribute(protobuf, "JVM Heap Usage", formatPercent(stats.getJvmStats().getHeapUsedPercent()));
-    setAttribute(protobuf, "JVM Heap Used", byteCountToDisplaySize(stats.getJvmStats().getHeapUsedInBytes()));
-    setAttribute(protobuf, "JVM Heap Max", byteCountToDisplaySize(stats.getJvmStats().getHeapMaxInBytes()));
-    setAttribute(protobuf, "JVM Non Heap Used", byteCountToDisplaySize(stats.getJvmStats().getNonHeapUsedInBytes()));
+    setAttribute(protobuf, "JVM Heap Used", humanReadableByteCountSI(stats.getJvmStats().getHeapUsedInBytes()));
+    setAttribute(protobuf, "JVM Heap Max", humanReadableByteCountSI(stats.getJvmStats().getHeapMaxInBytes()));
+    setAttribute(protobuf, "JVM Non Heap Used", humanReadableByteCountSI(stats.getJvmStats().getNonHeapUsedInBytes()));
     setAttribute(protobuf, "JVM Threads", stats.getJvmStats().getThreadCount());
-    setAttribute(protobuf, "Field Data Memory", byteCountToDisplaySize(stats.getIndicesStats().getFieldDataMemorySizeInBytes()));
+    setAttribute(protobuf, "Field Data Memory", humanReadableByteCountSI(stats.getIndicesStats().getFieldDataMemorySizeInBytes()));
     setAttribute(protobuf, "Field Data Circuit Breaker Limit",
-      byteCountToDisplaySize(stats.getFieldDataCircuitBreakerLimit()));
+      humanReadableByteCountSI(stats.getFieldDataCircuitBreakerLimit()));
     setAttribute(protobuf, "Field Data Circuit Breaker Estimation",
-      byteCountToDisplaySize(stats.getFieldDataCircuitBreakerEstimation()));
+      humanReadableByteCountSI(stats.getFieldDataCircuitBreakerEstimation()));
     setAttribute(protobuf, "Request Circuit Breaker Limit",
-      byteCountToDisplaySize(stats.getRequestCircuitBreakerLimit()));
+      humanReadableByteCountSI(stats.getRequestCircuitBreakerLimit()));
     setAttribute(protobuf, "Request Circuit Breaker Estimation",
-      byteCountToDisplaySize(stats.getRequestCircuitBreakerEstimation()));
-    setAttribute(protobuf, "Query Cache Memory", byteCountToDisplaySize(stats.getIndicesStats().getQueryCacheMemorySizeInBytes()));
+      humanReadableByteCountSI(stats.getRequestCircuitBreakerEstimation()));
+    setAttribute(protobuf, "Query Cache Memory", humanReadableByteCountSI(stats.getIndicesStats().getQueryCacheMemorySizeInBytes()));
     setAttribute(protobuf, "Request Cache Memory",
-      byteCountToDisplaySize(stats.getIndicesStats().getRequestCacheMemorySizeInBytes()));
+      humanReadableByteCountSI(stats.getIndicesStats().getRequestCacheMemorySizeInBytes()));
   }
 
   private static String formatPercent(long amount) {
