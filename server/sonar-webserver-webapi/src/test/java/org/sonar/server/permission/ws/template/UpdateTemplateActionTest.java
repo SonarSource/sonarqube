@@ -96,6 +96,26 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
+  public void update_with_null_values() {
+    template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto()
+      .setName("Test")
+      .setDescription(null)
+      .setKeyPattern(null)
+      .setCreatedAt(new Date(1_000_000_000_000L))
+      .setUpdatedAt(new Date(1_000_000_000_000L)));
+    db.commit();
+
+    loginAsAdmin();
+
+    call(template.getUuid(), template.getName(), null, null);
+
+    PermissionTemplateDto reloaded = db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid());
+    assertThat(reloaded.getName()).isEqualTo(template.getName());
+    assertThat(reloaded.getDescription()).isNull();
+    assertThat(reloaded.getKeyPattern()).isNull();
+  }
+
+  @Test
   public void update_name_only() {
     loginAsAdmin();
 

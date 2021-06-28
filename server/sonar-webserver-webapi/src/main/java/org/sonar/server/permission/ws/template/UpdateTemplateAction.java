@@ -39,7 +39,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -131,12 +130,17 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String uuid, @Nullable String newName, @Nullable String newDescription,
     @Nullable String newProjectKeyPattern) {
     PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
-    templateToUpdate.setName(firstNonNull(newName, templateToUpdate.getName()));
-    templateToUpdate.setDescription(firstNonNull(newDescription, templateToUpdate.getDescription()));
-    templateToUpdate.setKeyPattern(firstNonNull(newProjectKeyPattern, templateToUpdate.getKeyPattern()));
+    templateToUpdate.setName(coalesce(newName, templateToUpdate.getName()));
+    templateToUpdate.setDescription(coalesce(newDescription, templateToUpdate.getDescription()));
+    templateToUpdate.setKeyPattern(coalesce(newProjectKeyPattern, templateToUpdate.getKeyPattern()));
     templateToUpdate.setUpdatedAt(new Date(system.now()));
 
     return templateToUpdate;
+  }
+
+  @CheckForNull
+  private static String coalesce(@Nullable String s1, @Nullable String s2) {
+    return s1 != null ? s1 : s2;
   }
 
   private PermissionTemplateDto updateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
