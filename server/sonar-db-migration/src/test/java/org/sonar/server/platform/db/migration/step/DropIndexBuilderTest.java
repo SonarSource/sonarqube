@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.sql;
+package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
 import org.junit.Rule;

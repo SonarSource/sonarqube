@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 
 public abstract class DropIndexChange extends DdlChange {
   private final String indexName;

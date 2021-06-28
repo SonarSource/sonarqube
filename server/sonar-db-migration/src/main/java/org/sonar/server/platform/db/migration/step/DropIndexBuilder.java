@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.sql;
+package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
 import org.sonar.db.dialect.Dialect;
@@ -30,13 +30,17 @@ import static java.util.Collections.singletonList;
 import static org.sonar.server.platform.db.migration.def.Validations.validateIndexNameIgnoreCase;
 import static org.sonar.server.platform.db.migration.def.Validations.validateTableName;
 
-public class DropIndexBuilder {
+/**
+ * Should not be used directly.
+ * Use {@link org.sonar.server.platform.db.migration.step.DropIndexChange} instead.
+ */
+class DropIndexBuilder {
 
   private final Dialect dialect;
   private String tableName;
   private String indexName;
 
-  public DropIndexBuilder(Dialect dialect) {
+  DropIndexBuilder(Dialect dialect) {
     this.dialect = dialect;
   }
 
