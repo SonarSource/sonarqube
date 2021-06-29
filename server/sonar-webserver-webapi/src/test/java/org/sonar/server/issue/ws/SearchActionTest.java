@@ -56,6 +56,7 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -200,6 +201,41 @@ public class SearchActionTest {
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
       .containsExactlyInAnyOrder(tuple(issue.getKey(), rule.getKey().toString(), "xoo"));
+  }
+
+  @Test
+  public void issue_on_external_adhoc_rule_without_metadata() {
+    ComponentDto project = db.components().insertPublicProject();
+    indexPermissions();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo").setIsAdHoc(true));
+    IssueDto issue = db.issues().insertIssue(rule, project, file);
+    indexIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
+      .containsExactlyInAnyOrder(tuple(issue.getKey(), rule.getKey().toString(), "xoo"));
+  }
+
+  @Test
+  public void issue_on_external_adhoc_rule_with_metadata() {
+    ComponentDto project = db.components().insertPublicProject();
+    indexPermissions();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo").setIsAdHoc(true));
+    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, m -> m.setAdHocName("different_rule_name"));
+    IssueDto issue = db.issues().insertIssue(rule, project, file);
+    indexIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
+      .containsExactlyInAnyOrder(tuple(issue.getKey(), ruleMetadata.getAdHocName(), "xoo"));
   }
 
   @Test

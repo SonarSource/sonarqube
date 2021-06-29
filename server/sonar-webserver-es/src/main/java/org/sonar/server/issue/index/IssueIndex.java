@@ -71,7 +71,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;

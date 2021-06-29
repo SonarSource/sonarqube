@@ -106,6 +106,20 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void selectMetadataByKeys() {
+    RuleDefinitionDto rule1 = db.rules().insert();
+    db.rules().insertOrUpdateMetadata(rule1);
+
+    assertThat(underTest.selectMetadataByKeys(db.getSession(), Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectMetadataByKeys(db.getSession(), singletonList(RuleKey.of("NOT", "FOUND")))).isEmpty();
+
+    List<RuleMetadataDto> rulesMetadata = underTest.selectMetadataByKeys(db.getSession(), asList(rule1.getKey(),
+      RuleKey.of("java", "OTHER")));
+    assertThat(rulesMetadata).hasSize(1);
+    assertThat(rulesMetadata.get(0).getRuleUuid()).isEqualTo(rule1.getUuid());
+  }
+
+  @Test
   public void selectByUuid() {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
     RuleMetadataDto metadata = newRuleMetadata(ruleDefinition);

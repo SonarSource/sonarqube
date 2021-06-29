@@ -176,7 +176,13 @@ public class SearchResponseFormat {
         issueBuilder.setSubProject(subProject.getKey());
       }
     }
-    issueBuilder.setRule(dto.getRuleKey().toString());
+
+    String ruleName = data.getRules().stream()
+      .filter(r -> r.isAdHoc() && r.getName() != null && r.getUuid().equals(dto.getRuleUuid()))
+      .findFirst()
+      .map(RuleDefinitionDto::getName)
+      .orElse(dto.getRuleKey().toString());
+    issueBuilder.setRule(ruleName);
     if (dto.isExternal()) {
       issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
     }

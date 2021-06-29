@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -41,6 +42,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TransitionService;
@@ -167,7 +169,11 @@ public class SearchResponseLoader {
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
     ruleUuidsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size())));
-    result.addRules(dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad));
+    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad);
+
+    getRulesMetadata(dbSession, rules);
+
+    result.addRules(rules);
   }
 
   private void loadComments(Collector collector, DbSession dbSession, Set<SearchAdditionalField> fields, SearchResponseData result) {
@@ -340,5 +346,23 @@ public class SearchResponseLoader {
     public IssueDto apply(String issueKey) {
       return map.get(issueKey);
     }
+  }
+
+  private void getRulesMetadata(DbSession dbSession, List<RuleDefinitionDto> rules) {
+    List<RuleKey> adHocRuleKeys = rules.stream().filter(RuleDefinitionDto::isAdHoc)
+      .map(r -> RuleKey.of(r.getRepositoryKey(), r.getRuleKey()))
+      .collect(toList());
+
+    List<RuleMetadataDto> adHocRulesMetadata = dbClient.ruleDao().selectMetadataByKeys(dbSession, adHocRuleKeys);
+
+    rules.stream().forEach(r -> {
+      if (r.isAdHoc()) {
+        String adHocName = adHocRulesMetadata.stream()
+          .filter(m -> m.getRuleUuid().equals(r.getUuid())).findFirst().
+            map(RuleMetadataDto::getAdHocName)
+          .orElse(null);
+        r.setName(adHocName);
+      }
+    });
   }
 }

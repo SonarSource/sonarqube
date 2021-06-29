@@ -49,6 +49,8 @@ public interface RuleMapper {
 
   RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey);
 
+  List<RuleMetadataDto> selectMetadataByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);

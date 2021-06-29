@@ -60,6 +60,13 @@ public class RuleDao implements Dao {
     return ofNullable(mapper(session).selectMetadataByKey(key));
   }
 
+  public List<RuleMetadataDto> selectMetadataByKeys(DbSession session, Collection<RuleKey> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
+    return executeLargeInputs(keys, mapper(session)::selectMetadataByKeys);
+  }
+
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
     RuleDto rule = mapper(session).selectByKey(key);
     if (rule == null) {
