@@ -11,5 +11,5 @@ To restore data from backup, follow these steps:
 
 1. Stop the server.
 1. Restore the backup.
-1. Drop the Elasticsearch indexes by deleting the contents of `$SQ_HOME/data/es6 directory`.
+1. Drop the Elasticsearch indexes by deleting the contents of `$SQ_HOME/data/es7 directory`.
 1. Restart the server.
