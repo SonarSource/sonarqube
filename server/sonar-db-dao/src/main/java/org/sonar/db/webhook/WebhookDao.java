@@ -34,10 +34,6 @@ public class WebhookDao implements Dao {
     this.system2 = system2;
   }
 
-  public List<WebhookDto> selectAll(DbSession dbSession) {
-    return mapper(dbSession).selectAllOrderedByName();
-  }
-
   public List<WebhookDto> selectGlobalWebhooks(DbSession dbSession) {
     return mapper(dbSession).selectGlobalWebhooksOrderedByName();
   }

@@ -28,8 +28,6 @@ public interface WebhookMapper {
   @CheckForNull
   WebhookDto selectByUuid(@Param("webhookUuid") String webhookUuid);
 
-  List<WebhookDto> selectAllOrderedByName();
-
   List<WebhookDto> selectGlobalWebhooksOrderedByName();
 
   List<WebhookDto> selectForProjectUuidOrderedByName(@Param("projectUuid") String projectUuid);
