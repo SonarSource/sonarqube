@@ -168,6 +168,9 @@ public class ListActionTest {
   public void list_global_webhooks() {
     WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
     WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
+    // insert a project-specific webhook, that should not be returned when listing global webhooks
+    webhookDbTester.insertWebhook(componentDbTester.insertPrivateProjectDto());
+
     userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
@@ -175,7 +178,7 @@ public class ListActionTest {
 
     assertThat(response.getWebhooksList())
       .extracting(Webhooks.ListResponseElement::getName, Webhooks.ListResponseElement::getUrl)
-      .contains(tuple(dto1.getName(), dto1.getUrl()),
+      .containsExactlyInAnyOrder(tuple(dto1.getName(), dto1.getUrl()),
         tuple(dto2.getName(), dto2.getUrl()));
 
   }

@@ -51,26 +51,6 @@ public class WebhookDaoTest {
   }
 
   @Test
-  public void select_all_webhooks() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
-    webhookDbTester.insertGlobalWebhook();
-    webhookDbTester.insertGlobalWebhook();
-    webhookDbTester.insertWebhook(projectDto);
-    webhookDbTester.insertWebhook(projectDto);
-
-    List<WebhookDto> results = underTest.selectAll(dbSession);
-
-    assertThat(results).hasSize(4);
-  }
-
-  @Test
-  public void select_all_webhooks_returns_empty_list_if_there_are_no_webhooks() {
-    List<WebhookDto> results = underTest.selectAll(dbSession);
-
-    assertThat(results).isEmpty();
-  }
-
-  @Test
   public void select_global_webhooks() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
     webhookDbTester.insertGlobalWebhook();

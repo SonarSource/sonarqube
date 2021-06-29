@@ -20,12 +20,6 @@
     where uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
-    select <include refid="sqlColumns" />
-    from webhooks
-    order by name asc
-  </select>
-
   <select id="selectGlobalWebhooksOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
     select <include refid="sqlColumns" />
     from webhooks

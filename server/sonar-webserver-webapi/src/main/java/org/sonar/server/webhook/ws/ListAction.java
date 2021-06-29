@@ -101,7 +101,7 @@ public class ListAction implements WebhooksWsAction {
       return dbClient.webhookDao().selectByProject(dbSession, projectDto);
     } else {
       webhookSupport.checkPermission();
-      return dbClient.webhookDao().selectAll(dbSession);
+      return dbClient.webhookDao().selectGlobalWebhooks(dbSession);
     }
   }
 
