@@ -49,6 +49,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
@@ -81,7 +82,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -326,7 +326,7 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private SearchResponse doIndexSearch(WsRequest wsRequest, DbSession dbSession, @Nullable ComponentDto project) {
-    IssueQuery.Builder builder = IssueQuery.builder()
+    var builder = IssueQuery.builder()
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
       .asc(true)
@@ -336,11 +336,13 @@ public class SearchAction implements HotspotsWsAction {
       String projectUuid = firstNonNull(project.getMainBranchProjectUuid(), project.uuid());
       if (Qualifiers.APP.equals(project.qualifier())) {
         builder.viewUuids(singletonList(projectUuid));
-        addCreatedAfterByProjects(builder, dbSession, wsRequest, project);
+        if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
+          addCreatedAfterByProjects(builder, dbSession, project);
+        }
       } else {
         builder.projectUuids(singletonList(projectUuid));
-        if (wsRequest.isSinceLeakPeriod() && !wsRequest.getPullRequest().isPresent()) {
-          Date sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid())
+        if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
+          var sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid())
             .map(s -> longToDate(s.getPeriodDate()))
             .orElseGet(() -> new Date(system2.now()));
           builder.createdAfter(sinceDate, false);
@@ -390,18 +392,21 @@ public class SearchAction implements HotspotsWsAction {
     return issueIndex.search(query, searchOptions);
   }
 
-  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, WsRequest wsRequest, ComponentDto application) {
-    if (!wsRequest.isSinceLeakPeriod() || wsRequest.getPullRequest().isPresent()) {
-      return;
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, ComponentDto application) {
+    Set<String> projectUuids;
+    if (application.getMainBranchProjectUuid() == null) {
+      projectUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, application.uuid()).stream()
+        .map(ProjectDto::getUuid)
+        .collect(Collectors.toSet());
+    } else {
+      projectUuids = dbClient.applicationProjectsDao().selectProjectBranchesFromAppBranch(dbSession, application.uuid()).stream()
+        .map(BranchDto::getUuid)
+        .collect(Collectors.toSet());
     }
 
-    Set<String> projectUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, application.uuid()).stream()
-      .map(ProjectDto::getUuid)
-      .collect(Collectors.toSet());
     long now = system2.now();
     Map<String, IssueQuery.PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s ->
-        new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
   }

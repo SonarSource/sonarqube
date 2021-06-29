@@ -47,6 +47,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -1547,7 +1548,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_issues_when_sinceLeakPeriod_is_true_and_is_application() {
+  public void returns_issues_when_sinceLeakPeriod_is_true_and_is_application_for_main_branch() {
     long referenceDate = 800_996_999_332L;
 
     system2.setNow(referenceDate + 10_000);
@@ -1585,11 +1586,69 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(application,
       t -> t.setParam("sinceLeakPeriod", "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey());
+  }
 
+  @Test
+  public void returns_issues_when_sinceLeakPeriod_is_true_and_is_application_for_branch_other_than_main() {
+    long referenceDate = 800_996_999_332L;
+
+    system2.setNow(referenceDate + 10_000);
+    ProjectDto application = dbTester.components().insertPublicApplicationDto();
+    BranchDto applicationBranch = dbTester.components().insertProjectBranch(application, branchDto -> branchDto.setKey("application_branch_1"));
+    ProjectDto project = dbTester.components().insertPublicProjectDto();
+    BranchDto projectBranch = dbTester.components().insertProjectBranch(project, branchDto -> branchDto.setKey("project_1_branch_1"));
+
+    ProjectDto project2 = dbTester.components().insertPublicProjectDto();
+    BranchDto project2Branch = dbTester.components().insertProjectBranch(project2, branchDto -> branchDto.setKey("project_2_branch_1"));
+
+    dbTester.components().addApplicationProject(application, project);
+    dbTester.components().addApplicationProject(application, project2);
+
+    dbTester.components().addProjectBranchToApplicationBranch(applicationBranch, projectBranch, project2Branch);
+
+    ComponentDto applicationBranchComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), applicationBranch.getUuid()).get();
+    ComponentDto projectBranchComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), projectBranch.getUuid()).get();
+    ComponentDto project2BranchComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), project2Branch.getUuid()).get();
+
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(projectBranchComponentDto, applicationBranchComponentDto));
+    dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2BranchComponentDto, applicationBranchComponentDto));
+
+    indexViews();
+
+    userSessionRule.registerProjects(application, project, project2);
+    indexPermissions();
+
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(projectBranchComponentDto));
+    dbTester.components().insertSnapshot(projectBranch, t -> t.setPeriodDate(referenceDate).setLast(true));
+
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto afterRef = dbTester.issues().insertHotspot(rule, projectBranchComponentDto, file, t -> t.setIssueCreationTime(referenceDate + 1000));
+    IssueDto atRef = dbTester.issues().insertHotspot(rule, projectBranchComponentDto, file, t -> t.setType(SECURITY_HOTSPOT).setIssueCreationTime(referenceDate));
+    IssueDto beforeRef = dbTester.issues().insertHotspot(rule, projectBranchComponentDto, file, t -> t.setIssueCreationTime(referenceDate - 1000));
+
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2BranchComponentDto));
+    IssueDto project2Issue = dbTester.issues().insertHotspot(rule, project2BranchComponentDto, file2, t -> t.setIssueCreationTime(referenceDate - 1000));
+
+    indexIssues();
+
+    ComponentDto applicationComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), application.getUuid()).get();
+    SearchWsResponse responseAll = newRequest(applicationComponentDto,
+      t -> t.setParam("branch", applicationBranch.getKey()))
+        .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseAll.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
+
+    SearchWsResponse responseOnLeak = newRequest(applicationComponentDto,
+      t -> t.setParam("sinceLeakPeriod", "true").setParam("branch", applicationBranch.getKey()))
+        .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseOnLeak.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(afterRef.getKey());
   }
 
   @Test
