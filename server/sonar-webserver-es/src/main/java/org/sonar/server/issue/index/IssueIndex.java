@@ -320,10 +320,15 @@ public class IssueIndex {
 
     this.sorting = new Sorting();
     this.sorting.add(IssueQuery.SORT_BY_STATUS, FIELD_ISSUE_STATUS);
+    this.sorting.add(IssueQuery.SORT_BY_STATUS, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_SEVERITY, FIELD_ISSUE_SEVERITY_VALUE);
+    this.sorting.add(IssueQuery.SORT_BY_SEVERITY, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_CREATION_DATE, FIELD_ISSUE_FUNC_CREATED_AT);
+    this.sorting.add(IssueQuery.SORT_BY_CREATION_DATE, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_UPDATE_DATE, FIELD_ISSUE_FUNC_UPDATED_AT);
+    this.sorting.add(IssueQuery.SORT_BY_UPDATE_DATE, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_CLOSE_DATE, FIELD_ISSUE_FUNC_CLOSED_AT);
+    this.sorting.add(IssueQuery.SORT_BY_CLOSE_DATE, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_PROJECT_UUID);
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_FILE_PATH);
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_LINE);

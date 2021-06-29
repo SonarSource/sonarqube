@@ -21,15 +21,18 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
 import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
@@ -124,7 +127,7 @@ public class IssueIndexTest {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[] {}));
+    indexIssues(issues.toArray(new IssueDoc[]{}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
@@ -141,13 +144,60 @@ public class IssueIndexTest {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[] {}));
+    indexIssues(issues.toArray(new IssueDoc[]{}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
     assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
     assertThat(result.getHits().getTotalHits().value).isEqualTo(11_000L);
     assertThat(result.getHits().getTotalHits().relation).isEqualTo(Relation.EQUAL_TO);
+  }
+
+  @Test
+  public void search_nine_issues_with_same_creation_date_sorted_by_creation_date_order_is_sorted_also_by_key() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+    List<IssueDoc> issues = new ArrayList<>();
+    //we are adding issues in reverse order to see if the sort is actually doing anything
+    for (int i = 9; i >= 1; i--) {
+      String key = "I" + i;
+      issues.add(newDoc(key, file));
+    }
+    indexIssues(issues.toArray(new IssueDoc[]{}));
+    IssueQuery.Builder query = IssueQuery.builder().asc(true);
+
+    SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
+
+    SearchHit[] hits = result.getHits().getHits();
+    for (int i = 1; i <= 9; i++) {
+      assertThat(hits[i - 1].getId()).isEqualTo("I" + i);
+    }
+  }
+
+  @Test
+  public void search_nine_issues_5_times_with_same_creation_date_sorted_by_creation_date_returned_issues_same_order() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+    List<IssueDoc> issues = new ArrayList<>();
+    //we are adding issues in reverse order to see if the sort is actually doing anything
+    for (int i = 9; i >= 1; i--) {
+      String key = "I" + i;
+      issues.add(newDoc(key, file));
+    }
+    indexIssues(issues.toArray(new IssueDoc[]{}));
+    IssueQuery.Builder query = IssueQuery.builder().asc(true);
+
+    SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
+
+    SearchHit[] originalHits = result.getHits().getHits();
+    for (int i = 0; i < 4; i++) {
+      result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
+      for (int j = 0; j < originalHits.length; j++) {
+        SearchHit[] hits = result.getHits().getHits();
+        assertThat(originalHits[j].getId()).isEqualTo(hits[j].getId());
+      }
+    }
+
   }
 
   @Test

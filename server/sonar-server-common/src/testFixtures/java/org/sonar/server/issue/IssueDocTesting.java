@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import org.sonar.api.resources.Scopes;
@@ -50,7 +52,8 @@ public class IssueDocTesting {
       .setProjectUuid(mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid)
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
-      .setIsMainBranch(mainBranchProjectUuid == null);
+      .setIsMainBranch(mainBranchProjectUuid == null)
+      .setFuncCreationDate(Date.from(LocalDateTime.of(1970, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)));
   }
 
   public static IssueDoc newDoc() {
