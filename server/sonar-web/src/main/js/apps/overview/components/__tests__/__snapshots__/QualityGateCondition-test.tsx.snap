@@ -366,6 +366,7 @@ exports[`should render correclty 8`] = `
       "query": Object {
         "assignedToMe": undefined,
         "branch": undefined,
+        "file": undefined,
         "hotspots": undefined,
         "id": "abcd-key",
         "pullRequest": undefined,
@@ -420,6 +421,7 @@ exports[`should render correclty 9`] = `
       "query": Object {
         "assignedToMe": undefined,
         "branch": undefined,
+        "file": undefined,
         "hotspots": undefined,
         "id": "abcd-key",
         "pullRequest": undefined,
