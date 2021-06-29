@@ -425,6 +425,19 @@ The rules are:
 
 ## API Changes
 
+### Release 9.0
+![](/images/exclamation.svg) Deprecated
+* `org.sonar.api.server.rule.RulesDefinition` is deprecated. Use the `sonar-check-api` to annotate rule classes instead of loading the metadata from XML files
+
+![](/images/cross.svg) Removed
+* `org.sonar.api.ExtensionProvider` Use `org.sonar.api.Plugin.Context#addExtensions()` to add objects to the container.
+* `org.sonar.api.batch.sensor.SensorDescriptor#requireProperty()`. Use `#onlyWhenConfiguration()` instead. 
+* All API related to preview/issues analysis mode.
+* Coverage types (unit, IT, overall) was removed.
+* Resource perspectives. Use methods in `SensorContext`.
+* `org.sonar.api.platform.Server#getRootDir()`. Use `ServerFileSystem#getHomeDir()`.
+* `org.sonar.api.profiles.ProfileDefinition.java`. Define quality profiles with `BuiltInQualityProfilesDefinition`.
+
 ### Release 8.4
 ![](/images/check.svg) Added
 * `org.sonar.api.batch.scm.ScmProvider#forkDate`
