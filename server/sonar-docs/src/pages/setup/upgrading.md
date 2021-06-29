@@ -25,7 +25,7 @@ Upgrading across multiple non-LTS versions is handled automatically. However, if
 
 **Migration Path Examples**:
 
-**Example 1** – From 7.1 > 8.1, the migration path is 7.1 > 7.9.6 LTS > 8.1  
+**Example 1** – From 8.1 > 9.0, the migration path is 8.1 > 8.9.1 LTS > 9.0  
 **Example 2** – From 8.2 > 8.9 LTS, the migration path is 8.2 > the latest 8.9 LTS patch.  
 **Example 3** – From 6.7.7 LTS > 8.9 LTS, the migration path is 6.7.7 LTS > 7.9.6 LTS > the latest 8.9 LTS patch.
 

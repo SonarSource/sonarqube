@@ -3,7 +3,7 @@ title: LTS to LTS Release Upgrade Notes
 url: /setup/lts-to-lts-upgrade-notes/
 ---
 
-These Upgrade Notes are intended for users who are directly upgrading from SonarQube _v7.9 LTS_. Just upgrading a few minor versions? Refer to the regular [Upgrade Notes](/setup/upgrade-notes/).
+These Upgrade Notes are intended for users who are directly upgrading from SonarQube _v7.9 LTS_ to _v8.9 LTS_. Just upgrading a few minor versions? Refer to the regular [Upgrade Notes](/setup/upgrade-notes/).
 
 ## Authentication
 **Default Authentication and Administrator credentials (8.6)**  

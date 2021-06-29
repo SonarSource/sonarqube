@@ -25,7 +25,6 @@
       "/setup/sonarqube-on-kubernetes/",
       "/setup/upgrading/",
       "/setup/upgrade-notes/",
-      "/setup/lts-to-lts-upgrade-notes/",
       "/setup/troubleshooting/"
     ]
   },
