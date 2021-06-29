@@ -133,7 +133,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     const { branchLike, branchLikes } = await this.fetchBranches(componentWithQualifier);
 
-    const projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
+    let projectBinding;
+    if (componentWithQualifier.qualifier === ComponentQualifier.Project) {
+      projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
+    }
 
     if (this.mounted) {
       this.setState({
@@ -247,7 +250,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   fetchProjectBindingErrors = async (component: T.Component) => {
-    if (component.analysisDate === undefined && this.props.appState.branchesEnabled) {
+    if (
+      component.qualifier === ComponentQualifier.Project &&
+      component.analysisDate === undefined &&
+      this.props.appState.branchesEnabled
+    ) {
       const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
         () => undefined
       );

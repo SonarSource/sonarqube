@@ -97,6 +97,13 @@ it('changes component', () => {
 });
 
 it('loads the project binding, if any', async () => {
+  const component = mockComponent({
+    breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }]
+  });
+  (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
+  (getComponentData as jest.Mock<any>)
+    .mockResolvedValueOnce({ component })
+    .mockResolvedValueOnce({ component });
   (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(undefined).mockResolvedValueOnce({
     alm: AlmKeys.GitHub,
     key: 'foo'
@@ -339,6 +346,27 @@ describe('should correctly validate the project binding depending on the context
     expect(validateProjectAlmBinding).toBeCalledTimes(n);
   });
 });
+
+it.each([
+  [ComponentQualifier.Application],
+  [ComponentQualifier.Portfolio],
+  [ComponentQualifier.SubPortfolio]
+])(
+  'should not care about PR decoration settings for %s',
+  async (componentQualifier: ComponentQualifier) => {
+    const component = mockComponent({
+      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: componentQualifier }]
+    });
+    (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
+    (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
+
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+
+    expect(getProjectAlmBinding).not.toHaveBeenCalled();
+    expect(validateProjectAlmBinding).not.toHaveBeenCalled();
+  }
+);
 
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
   return shallow<ComponentContainer>(
