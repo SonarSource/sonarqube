@@ -64,6 +64,18 @@ public class ProjectMeasuresIndexTextSearchTest {
   private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   @Test
+  public void search_partial_text_from_project_key() {
+    index(
+      newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts").setDbKey("org.apache.commons.structs")),
+      newDoc(newPrivateProjectDto().setUuid("sonarqube").setName("SonarQube").setDbKey("org.sonar.sonarqube")));
+
+    assertTextQueryResults("apache", "struts");
+    assertTextQueryResults("apache.comm", "struts");
+    assertTextQueryResults("org.apache.commons.structs", "struts");
+    assertTextQueryResults("org.", "struts", "sonarqube");
+  }
+
+  @Test
   public void match_exact_case_insensitive_name() {
     index(
       newDoc(newPrivateProjectDto().setUuid("struts").setName("Apache Struts")),
@@ -242,14 +254,6 @@ public class ProjectMeasuresIndexTextSearchTest {
   }
 
   @Test
-  public void does_not_match_partial_key() {
-    index(newDoc(newPrivateProjectDto().setUuid("project").setName("some name").setDbKey("theKey")));
-
-    assertNoResults("theke");
-    assertNoResults("hekey");
-  }
-
-  @Test
   public void facets_take_into_account_text_search() {
     index(
       // docs with ncloc<1K
@@ -264,7 +268,7 @@ public class ProjectMeasuresIndexTextSearchTest {
     assertNclocFacet(new ProjectMeasuresQuery().setQueryText("PAch"), 1L, 1L, 0L, 1L, 0L);
     assertNclocFacet(new ProjectMeasuresQuery().setQueryText("apache foundation"), 0L, 0L, 0L, 1L, 0L);
     assertNclocFacet(new ProjectMeasuresQuery().setQueryText("project3"), 0L, 1L, 0L, 0L, 0L);
-    assertNclocFacet(new ProjectMeasuresQuery().setQueryText("project"), 0L, 0L, 0L, 0L, 0L);
+    assertNclocFacet(new ProjectMeasuresQuery().setQueryText("project"), 2L, 1L, 0L, 1L, 0L);
   }
 
   @Test

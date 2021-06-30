@@ -32,6 +32,7 @@ import org.sonar.server.es.newindex.DefaultIndexSettings;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
+import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
@@ -92,7 +93,7 @@ class ProjectsTextSearchQueryFactory {
     KEY {
       @Override
       QueryBuilder getQuery(String queryText) {
-        return matchQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), queryText)
+        return wildcardQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), "*" + queryText + "*")
           .boost(50f);
       }
     };
