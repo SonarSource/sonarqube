@@ -113,6 +113,7 @@ public class EmailSettings {
         .defaultValue(SMTP_HOST_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(0)
         .build(),
       PropertyDefinition.builder(SMTP_PORT)
         .name("SMTP port")
@@ -121,6 +122,7 @@ public class EmailSettings {
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
         .type(INTEGER)
+        .index(1)
         .build(),
       PropertyDefinition.builder(SMTP_SECURE_CONNECTION)
         .name("Secure connection")
@@ -130,6 +132,7 @@ public class EmailSettings {
         .subCategory(SUBCATEGORY_EMAIL)
         .type(SINGLE_SELECT_LIST)
         .options("ssl", "starttls")
+        .index(2)
         .build(),
       PropertyDefinition.builder(SMTP_USERNAME)
         .name("SMTP username")
@@ -137,6 +140,7 @@ public class EmailSettings {
         .defaultValue(SMTP_USERNAME_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(3)
         .build(),
       PropertyDefinition.builder(SMTP_PASSWORD)
         .name("SMTP password")
@@ -145,6 +149,7 @@ public class EmailSettings {
         .type(PropertyType.PASSWORD)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(4)
         .build(),
       PropertyDefinition.builder(FROM)
         .name("From address")
@@ -152,6 +157,7 @@ public class EmailSettings {
         .defaultValue(FROM_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(5)
         .build(),
       PropertyDefinition.builder(FROM_NAME)
         .name("From name")
@@ -159,6 +165,7 @@ public class EmailSettings {
         .defaultValue(FROM_NAME_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(6)
         .build(),
       PropertyDefinition.builder(PREFIX)
         .name("Email prefix")
@@ -166,6 +173,7 @@ public class EmailSettings {
         .defaultValue(PREFIX_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
+        .index(7)
         .build());
   }
 }

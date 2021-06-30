@@ -58,4 +58,11 @@ public class EmailSettingsTest {
   public void return_definitions() {
     assertThat(EmailSettings.definitions()).hasSize(8);
   }
+
+  @Test
+  public void definitions_should_have_index() {
+    assertThat(EmailSettings.definitions())
+      .extracting(PropertyDefinition::index)
+    .isNotEqualTo(999);
+  }
 }
