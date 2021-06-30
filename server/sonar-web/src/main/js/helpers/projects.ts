@@ -20,20 +20,21 @@
 import { ProjectKeyValidationResult } from '../types/component';
 import { PROJECT_KEY_MAX_LEN } from './constants';
 
+// This is the regex used on the backend:
+//   [\p{Alnum}\-_.:]*[\p{Alpha}\-_.:]+[\p{Alnum}\-_.:]*
+// See sonar-core/src/main/java/org/sonar/core/component/ComponentKeys.java
+export const PROJECT_KEY_REGEX = /^[\w\-.:]*[a-z\-_.:]+[\w\-.:]*$/i;
+export const PROJECT_KEY_INVALID_CHARACTERS = /[^\w\-:.]+/gi;
+
 export function validateProjectKey(projectKey: string): ProjectKeyValidationResult {
-  // This is the regex used on the backend:
-  //   [\p{Alnum}\-_.:]*[\p{Alpha}\-_.:]+[\p{Alnum}\-_.:]*
-  // See sonar-core/src/main/java/org/sonar/core/component/ComponentKeys.java
-  const regex = /^[\w\-.:]*[a-z\-_.:]+[\w\-.:]*$/i;
   if (projectKey.length === 0) {
     return ProjectKeyValidationResult.Empty;
   } else if (projectKey.length > PROJECT_KEY_MAX_LEN) {
     return ProjectKeyValidationResult.TooLong;
-  } else if (regex.test(projectKey)) {
+  } else if (PROJECT_KEY_REGEX.test(projectKey)) {
     return ProjectKeyValidationResult.Valid;
-  } else {
-    return /^[0-9]+$/.test(projectKey)
-      ? ProjectKeyValidationResult.OnlyDigits
-      : ProjectKeyValidationResult.InvalidChar;
+  } else if (/^[0-9]+$/.test(projectKey)) {
+    return ProjectKeyValidationResult.OnlyDigits;
   }
+  return ProjectKeyValidationResult.InvalidChar;
 }

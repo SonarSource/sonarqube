@@ -39,8 +39,11 @@ jest.mock('../../../../api/components', () => ({
 }));
 
 jest.mock('../../../../helpers/projects', () => {
-  const { ProjectKeyValidationResult } = jest.requireActual('../../../../types/component');
-  return { validateProjectKey: jest.fn(() => ProjectKeyValidationResult.Valid) };
+  const { PROJECT_KEY_INVALID_CHARACTERS } = jest.requireActual('../../../../helpers/projects');
+  return {
+    validateProjectKey: jest.fn(() => ProjectKeyValidationResult.Valid),
+    PROJECT_KEY_INVALID_CHARACTERS
+  };
 });
 
 beforeEach(() => {
@@ -49,6 +52,12 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+
+  const wrapper = shallowRender();
+  wrapper.instance().handleProjectNameChange('My new awesome app');
+  expect(wrapper).toMatchSnapshot('with form filled');
+
+  expect(shallowRender({ branchesEnabled: true })).toMatchSnapshot('with branches enabled');
 });
 
 it('should correctly create a project', async () => {
@@ -83,9 +92,10 @@ it('should not display any status when the name is not defined', () => {
 
 it('should have an error when the key is invalid', () => {
   (validateProjectKey as jest.Mock).mockReturnValueOnce(ProjectKeyValidationResult.TooLong);
+
   const wrapper = shallowRender();
-  const instance = wrapper.instance();
-  instance.handleProjectKeyChange(mockEvent());
+
+  wrapper.instance().handleProjectKeyChange('');
   expect(wrapper.find(ProjectKeyInput).props().error).toBe(
     `onboarding.create_project.project_key.error.${ProjectKeyValidationResult.TooLong}`
   );
@@ -93,7 +103,7 @@ it('should have an error when the key is invalid', () => {
 
 it('should have an error when the key already exists', async () => {
   const wrapper = shallowRender();
-  wrapper.instance().handleProjectKeyChange(mockEvent({ currentTarget: { value: 'exists' } }));
+  wrapper.instance().handleProjectKeyChange('exists', true);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().projectKeyError).toBe('onboarding.create_project.project_key.taken');
 });
@@ -105,45 +115,42 @@ it('should ignore promise return if value has been changed in the meantime', asy
   const wrapper = shallowRender();
   const instance = wrapper.instance();
 
-  instance.handleProjectKeyChange(mockEvent({ currentTarget: { value: 'exists' } }));
-  instance.handleProjectKeyChange(mockEvent({ currentTarget: { value: 'exists%' } }));
+  instance.handleProjectKeyChange('exists', true);
+  instance.handleProjectKeyChange('exists%', true);
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().touched).toBe(true);
+  expect(wrapper.state().projectKeyTouched).toBe(true);
   expect(wrapper.state().projectKeyError).toBe(
     `onboarding.create_project.project_key.error.${ProjectKeyValidationResult.InvalidChar}`
   );
 });
 
-it('should autofill the name based on the key', () => {
+it('should autofill the key based on the name, and sanitize it', () => {
   const wrapper = shallowRender();
-  wrapper.instance().handleProjectKeyChange(mockEvent({ currentTarget: { value: 'bar' } }));
-  expect(wrapper.find('input#project-name').props().value).toBe('bar');
+
+  wrapper.instance().handleProjectNameChange('newName', true);
+  expect(wrapper.state().projectKey).toBe('newName');
+
+  wrapper.instance().handleProjectNameChange('my invalid +"*ç%&/()= name', true);
+  expect(wrapper.state().projectKey).toBe('my-invalid-name');
 });
 
-it('should have an error when the name is incorrect', () => {
+it.each([
+  ['empty', ''],
+  ['too_long', new Array(PROJECT_NAME_MAX_LEN + 1).fill('a').join('')]
+])('should have an error when the name is %s', (errorSuffix: string, projectName: string) => {
   const wrapper = shallowRender();
-  wrapper.setState({ touched: true });
-  const instance = wrapper.instance();
 
-  instance.handleProjectNameChange(mockEvent({ currentTarget: { value: '' } }));
+  wrapper.instance().handleProjectNameChange(projectName, true);
   expect(wrapper.find(ValidationInput).props().isInvalid).toBe(true);
   expect(wrapper.state().projectNameError).toBe(
-    'onboarding.create_project.display_name.error.empty'
-  );
-
-  instance.handleProjectNameChange(
-    mockEvent({ currentTarget: { value: new Array(PROJECT_NAME_MAX_LEN + 1).fill('a').join('') } })
-  );
-  expect(wrapper.find(ValidationInput).props().isInvalid).toBe(true);
-  expect(wrapper.state().projectNameError).toBe(
-    'onboarding.create_project.display_name.error.too_long'
+    `onboarding.create_project.display_name.error.${errorSuffix}`
   );
 });
 
 function shallowRender(props: Partial<ManualProjectCreate['props']> = {}) {
   return shallow<ManualProjectCreate>(
-    <ManualProjectCreate onProjectCreate={jest.fn()} {...props} />
+    <ManualProjectCreate branchesEnabled={false} onProjectCreate={jest.fn()} {...props} />
   );
 }

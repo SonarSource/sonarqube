@@ -344,6 +344,7 @@ exports[`should render correctly for manual mode 1`] = `
     id="create-project"
   >
     <ManualProjectCreate
+      branchesEnabled={false}
       onProjectCreate={[Function]}
     />
   </div>

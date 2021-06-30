@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: default 1`] = `
+exports[`should render correctly: autofocus 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
@@ -11,6 +11,27 @@ exports[`should render correctly: default 1`] = `
 >
   <input
     autoFocus={true}
+    className="input-super-large"
+    id="project-key"
+    maxLength={400}
+    minLength={1}
+    onChange={[MockFunction]}
+    type="text"
+  />
+</ValidationInput>
+`;
+
+exports[`should render correctly: default 1`] = `
+<ValidationInput
+  className="form-field"
+  description="onboarding.create_project.project_key.description"
+  id="project-key"
+  isInvalid={false}
+  isValid={false}
+  required={false}
+>
+  <input
+    autoFocus={false}
     className="input-super-large"
     id="project-key"
     maxLength={400}
@@ -32,7 +53,7 @@ exports[`should render correctly: invalid 1`] = `
   required={false}
 >
   <input
-    autoFocus={true}
+    autoFocus={false}
     className="input-super-large is-invalid"
     id="project-key"
     maxLength={400}
@@ -53,7 +74,7 @@ exports[`should render correctly: valid 1`] = `
   required={false}
 >
   <input
-    autoFocus={true}
+    autoFocus={false}
     className="input-super-large is-valid"
     id="project-key"
     maxLength={400}
@@ -74,7 +95,7 @@ exports[`should render correctly: validating 1`] = `
   required={false}
 >
   <input
-    autoFocus={true}
+    autoFocus={false}
     className="input-super-large"
     id="project-key"
     maxLength={400}
@@ -97,7 +118,7 @@ exports[`should render correctly: with label, help, and placeholder 1`] = `
   required={true}
 >
   <input
-    autoFocus={true}
+    autoFocus={false}
     className="input-super-large"
     id="project-key"
     maxLength={400}
@@ -119,7 +140,7 @@ exports[`should render correctly: with value 1`] = `
   required={false}
 >
   <input
-    autoFocus={true}
+    autoFocus={false}
     className="input-super-large"
     id="project-key"
     maxLength={400}

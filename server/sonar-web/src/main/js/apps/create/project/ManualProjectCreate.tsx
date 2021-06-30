@@ -22,30 +22,32 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject, doesComponentExists } from '../../../api/components';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
-import { validateProjectKey } from '../../../helpers/projects';
+import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../types/component';
 import { PROJECT_NAME_MAX_LEN } from './constants';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
 
 interface Props {
+  branchesEnabled: boolean;
   onProjectCreate: (projectKey: string) => void;
 }
 
 interface State {
   projectName: string;
-  projectNameChanged: boolean;
   projectNameError?: string;
+  projectNameTouched?: boolean;
   projectKey: string;
   projectKeyError?: string;
+  projectKeyTouched?: boolean;
+  validatingProjectKey: boolean;
   submitting: boolean;
-  touched: boolean;
-  validating: boolean;
 }
 
 type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
@@ -58,10 +60,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.state = {
       projectKey: '',
       projectName: '',
-      projectNameChanged: false,
       submitting: false,
-      touched: false,
-      validating: false
+      validatingProjectKey: false
     };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
   }
@@ -75,23 +75,22 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   }
 
   checkFreeKey = (key: string) => {
+    this.setState({ validatingProjectKey: true });
+
     return doesComponentExists({ component: key })
       .then(alreadyExist => {
         if (this.mounted && key === this.state.projectKey) {
-          if (!alreadyExist) {
-            this.setState({ projectKeyError: undefined, validating: false });
-          } else {
-            this.setState({
-              projectKeyError: translate('onboarding.create_project.project_key.taken'),
-              touched: true,
-              validating: false
-            });
-          }
+          this.setState({
+            projectKeyError: alreadyExist
+              ? translate('onboarding.create_project.project_key.taken')
+              : undefined,
+            validatingProjectKey: false
+          });
         }
       })
       .catch(() => {
         if (this.mounted && key === this.state.projectKey) {
-          this.setState({ projectKeyError: undefined, validating: false });
+          this.setState({ projectKeyError: undefined, validatingProjectKey: false });
         }
       });
   };
@@ -125,20 +124,13 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     }
   };
 
-  handleProjectKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectKey = event.currentTarget.value || '';
+  handleProjectKeyChange = (projectKey: string, fromUI = false) => {
     const projectKeyError = this.validateKey(projectKey);
 
-    this.setState(prevState => {
-      const projectName = prevState.projectNameChanged ? prevState.projectName : projectKey;
-      return {
-        projectKey,
-        projectKeyError,
-        projectName,
-        projectNameError: this.validateName(projectName),
-        touched: true,
-        validating: projectKeyError === undefined
-      };
+    this.setState({
+      projectKey,
+      projectKeyError,
+      projectKeyTouched: fromUI
     });
 
     if (projectKeyError === undefined) {
@@ -146,13 +138,22 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     }
   };
 
-  handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const projectName = event.currentTarget.value;
-    this.setState({
-      projectName,
-      projectNameChanged: true,
-      projectNameError: this.validateName(projectName)
-    });
+  handleProjectNameChange = (projectName: string, fromUI = false) => {
+    this.setState(
+      {
+        projectName,
+        projectNameError: this.validateName(projectName),
+        projectNameTouched: fromUI
+      },
+      () => {
+        if (!this.state.projectKeyTouched) {
+          const sanitizedProjectKey = this.state.projectName
+            .trim()
+            .replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+          this.handleProjectKeyChange(sanitizedProjectKey);
+        }
+      }
+    );
   };
 
   validateKey = (projectKey: string) => {
@@ -175,12 +176,16 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     const {
       projectKey,
       projectKeyError,
+      projectKeyTouched,
       projectName,
       projectNameError,
-      submitting,
-      touched,
-      validating
+      projectNameTouched,
+      validatingProjectKey,
+      submitting
     } = this.state;
+    const { branchesEnabled } = this.props;
+
+    const touched = !!(projectKeyTouched || projectNameTouched);
     const projectNameIsInvalid = touched && projectNameError !== undefined;
     const projectNameIsValid = touched && projectNameError === undefined;
 
@@ -193,21 +198,10 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
               <MandatoryFieldsExplanation className="big-spacer-bottom" />
 
-              <ProjectKeyInput
-                error={projectKeyError}
-                help={translate('onboarding.create_project.project_key.help')}
-                label={translate('onboarding.create_project.project_key')}
-                onProjectKeyChange={this.handleProjectKeyChange}
-                projectKey={projectKey}
-                touched={touched}
-                validating={validating}
-              />
-
               <ValidationInput
                 className="form-field"
                 description={translate('onboarding.create_project.display_name.description')}
                 error={projectNameError}
-                help={translate('onboarding.create_project.display_name.help')}
                 id="project-name"
                 isInvalid={projectNameIsInvalid}
                 isValid={projectNameIsValid}
@@ -221,17 +215,32 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                   id="project-name"
                   maxLength={PROJECT_NAME_MAX_LEN}
                   minLength={1}
-                  onChange={this.handleProjectNameChange}
+                  onChange={e => this.handleProjectNameChange(e.currentTarget.value, true)}
                   type="text"
                   value={projectName}
+                  autoFocus={true}
                 />
               </ValidationInput>
+              <ProjectKeyInput
+                error={projectKeyError}
+                label={translate('onboarding.create_project.project_key')}
+                onProjectKeyChange={e => this.handleProjectKeyChange(e.currentTarget.value, true)}
+                projectKey={projectKey}
+                touched={touched}
+                validating={validatingProjectKey}
+              />
 
               <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
                 {translate('set_up')}
               </SubmitButton>
               <DeferredSpinner className="spacer-left" loading={submitting} />
             </form>
+
+            {branchesEnabled && (
+              <Alert variant="info" display="inline" className="big-spacer-top">
+                {translate('onboarding.create_project.pr_decoration.information')}
+              </Alert>
+            )}
           </div>
         </div>
       </>

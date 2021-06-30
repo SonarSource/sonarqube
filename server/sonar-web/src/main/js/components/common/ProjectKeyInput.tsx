@@ -32,10 +32,20 @@ export interface ProjectKeyInputProps {
   projectKey?: string;
   touched: boolean;
   validating?: boolean;
+  autofocus?: boolean;
 }
 
 export default function ProjectKeyInput(props: ProjectKeyInputProps) {
-  const { error, help, label, placeholder, projectKey, touched, validating } = props;
+  const {
+    error,
+    help,
+    label,
+    placeholder,
+    projectKey,
+    touched,
+    validating,
+    autofocus = false
+  } = props;
 
   const isInvalid = touched && error !== undefined;
   const isValid = touched && !validating && error === undefined;
@@ -52,7 +62,7 @@ export default function ProjectKeyInput(props: ProjectKeyInputProps) {
       label={label}
       required={label !== undefined}>
       <input
-        autoFocus={true}
+        autoFocus={autofocus}
         className={classNames('input-super-large', {
           'is-invalid': isInvalid,
           'is-valid': isValid

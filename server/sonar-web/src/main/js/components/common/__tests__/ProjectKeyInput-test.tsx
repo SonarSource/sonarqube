@@ -31,6 +31,7 @@ it('should render correctly', () => {
   expect(shallowRender({ touched: true })).toMatchSnapshot('valid');
   expect(shallowRender({ touched: true, error: 'bar.baz' })).toMatchSnapshot('invalid');
   expect(shallowRender({ touched: true, validating: true })).toMatchSnapshot('validating');
+  expect(shallowRender({ autofocus: true })).toMatchSnapshot('autofocus');
 });
 
 it('should not display any status when the key is not defined', () => {

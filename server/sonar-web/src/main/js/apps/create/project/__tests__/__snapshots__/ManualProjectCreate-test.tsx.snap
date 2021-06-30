@@ -18,18 +18,9 @@ exports[`should render correctly 1`] = `
         <MandatoryFieldsExplanation
           className="big-spacer-bottom"
         />
-        <ProjectKeyInput
-          help="onboarding.create_project.project_key.help"
-          label="onboarding.create_project.project_key"
-          onProjectKeyChange={[Function]}
-          projectKey=""
-          touched={false}
-          validating={false}
-        />
         <ValidationInput
           className="form-field"
           description="onboarding.create_project.display_name.description"
-          help="onboarding.create_project.display_name.help"
           id="project-name"
           isInvalid={false}
           isValid={false}
@@ -37,6 +28,7 @@ exports[`should render correctly 1`] = `
           required={true}
         >
           <input
+            autoFocus={true}
             className="input-super-large"
             id="project-name"
             maxLength={255}
@@ -46,8 +38,142 @@ exports[`should render correctly 1`] = `
             value=""
           />
         </ValidationInput>
+        <ProjectKeyInput
+          label="onboarding.create_project.project_key"
+          onProjectKeyChange={[Function]}
+          projectKey=""
+          touched={false}
+          validating={false}
+        />
         <SubmitButton
           disabled={true}
+        >
+          set_up
+        </SubmitButton>
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </form>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: with branches enabled 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    title="onboarding.create_project.setup_manually"
+  />
+  <div
+    className="create-project-manual"
+  >
+    <div
+      className="flex-1 huge-spacer-right"
+    >
+      <form
+        className="manual-project-create"
+        onSubmit={[Function]}
+      >
+        <MandatoryFieldsExplanation
+          className="big-spacer-bottom"
+        />
+        <ValidationInput
+          className="form-field"
+          description="onboarding.create_project.display_name.description"
+          id="project-name"
+          isInvalid={false}
+          isValid={false}
+          label="onboarding.create_project.display_name"
+          required={true}
+        >
+          <input
+            autoFocus={true}
+            className="input-super-large"
+            id="project-name"
+            maxLength={255}
+            minLength={1}
+            onChange={[Function]}
+            type="text"
+            value=""
+          />
+        </ValidationInput>
+        <ProjectKeyInput
+          label="onboarding.create_project.project_key"
+          onProjectKeyChange={[Function]}
+          projectKey=""
+          touched={false}
+          validating={false}
+        />
+        <SubmitButton
+          disabled={true}
+        >
+          set_up
+        </SubmitButton>
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+        />
+      </form>
+      <Alert
+        className="big-spacer-top"
+        display="inline"
+        variant="info"
+      >
+        onboarding.create_project.pr_decoration.information
+      </Alert>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: with form filled 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    title="onboarding.create_project.setup_manually"
+  />
+  <div
+    className="create-project-manual"
+  >
+    <div
+      className="flex-1 huge-spacer-right"
+    >
+      <form
+        className="manual-project-create"
+        onSubmit={[Function]}
+      >
+        <MandatoryFieldsExplanation
+          className="big-spacer-bottom"
+        />
+        <ValidationInput
+          className="form-field"
+          description="onboarding.create_project.display_name.description"
+          id="project-name"
+          isInvalid={false}
+          isValid={false}
+          label="onboarding.create_project.display_name"
+          required={true}
+        >
+          <input
+            autoFocus={true}
+            className="input-super-large"
+            id="project-name"
+            maxLength={255}
+            minLength={1}
+            onChange={[Function]}
+            type="text"
+            value="My new awesome app"
+          />
+        </ValidationInput>
+        <ProjectKeyInput
+          label="onboarding.create_project.project_key"
+          onProjectKeyChange={[Function]}
+          projectKey="My-new-awesome-app"
+          touched={false}
+          validating={true}
+        />
+        <SubmitButton
+          disabled={false}
         >
           set_up
         </SubmitButton>

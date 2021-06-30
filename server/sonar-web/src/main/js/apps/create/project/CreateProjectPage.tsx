@@ -39,7 +39,7 @@ import './style.css';
 import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  appState: Pick<T.AppState, 'canAdmin'>;
+  appState: Pick<T.AppState, 'canAdmin' | 'branchesEnabled'>;
   currentUser: T.LoggedInUser;
 }
 
@@ -143,7 +143,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
   renderProjectCreation(mode?: CreateProjectModes) {
     const {
-      appState: { canAdmin },
+      appState: { canAdmin, branchesEnabled },
       location,
       router
     } = this.props;
@@ -218,7 +218,12 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         );
       }
       case CreateProjectModes.Manual: {
-        return <ManualProjectCreate onProjectCreate={this.handleProjectCreate} />;
+        return (
+          <ManualProjectCreate
+            branchesEnabled={!!branchesEnabled}
+            onProjectCreate={this.handleProjectCreate}
+          />
+        );
       }
       default: {
         const almCounts = {

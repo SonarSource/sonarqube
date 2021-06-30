@@ -40,6 +40,7 @@ exports[`should render: form 1`] = `
       className="spacer-bottom"
     />
     <ProjectKeyInput
+      autofocus={true}
       label="update_key.new_key"
       onProjectKeyChange={[Function]}
       placeholder="update_key.new_key"
