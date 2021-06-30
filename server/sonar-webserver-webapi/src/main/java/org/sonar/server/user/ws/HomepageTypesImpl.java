@@ -19,19 +19,41 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.sonar.api.Startable;
+import org.sonar.api.config.Configuration;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.process.ProcessProperties;
+import org.sonar.server.organization.OrganizationFlags;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
+import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
+import static org.sonar.server.user.ws.HomepageTypes.Type.values;
 
-public class HomepageTypesImpl implements HomepageTypes {
+public class HomepageTypesImpl implements HomepageTypes, Startable {
+
+  private static final EnumSet<Type> ON_SONARQUBE = EnumSet.of(PROJECTS, PROJECT, ISSUES, ORGANIZATION);
+  private static final EnumSet<Type> ON_SONARCLOUD = EnumSet.of(PROJECT, MY_PROJECTS, MY_ISSUES, ORGANIZATION);
+
+  private final Configuration configuration;
+  private final OrganizationFlags organizationFlags;
+  private final DbClient dbClient;
 
   private List<Type> types;
 
-  public HomepageTypesImpl() {
-    types = Stream.of(HomepageTypes.Type.values()).collect(Collectors.toList());
+  public HomepageTypesImpl(Configuration configuration, OrganizationFlags organizationFlags, DbClient dbClient) {
+    this.configuration = configuration;
+    this.organizationFlags = organizationFlags;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -42,7 +64,31 @@ public class HomepageTypesImpl implements HomepageTypes {
 
   @Override
   public Type getDefaultType() {
-    return PROJECTS;
+    return isOnSonarCloud() ? MY_PROJECTS : PROJECTS;
   }
 
+  @Override
+  public void start() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      boolean isOnSonarCloud = isOnSonarCloud();
+      boolean isOrganizationEnabled = isOrganizationEnabled(dbSession);
+      this.types = stream(values())
+        .filter(type -> (isOnSonarCloud && ON_SONARCLOUD.contains(type)) || (!isOnSonarCloud && ON_SONARQUBE.contains(type)))
+        .filter(type -> isOrganizationEnabled || !(type.equals(ORGANIZATION)))
+        .collect(toList());
+    }
+  }
+
+  private boolean isOrganizationEnabled(DbSession dbSession) {
+    return organizationFlags.isEnabled(dbSession);
+  }
+
+  private Boolean isOnSonarCloud() {
+    return configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false);
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
+  }
 }

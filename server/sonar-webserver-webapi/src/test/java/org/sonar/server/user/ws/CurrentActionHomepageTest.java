@@ -19,29 +19,25 @@
  */
 package org.sonar.server.user.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,9 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECTS;
 
-@RunWith(DataProviderRunner.class)
 public class CurrentActionHomepageTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -66,13 +60,27 @@ public class CurrentActionHomepageTest {
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
-  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
+  private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private MapSettings settings = new MapSettings();
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl(settings.asConfig(), organizationFlags, db.getDbClient());
   private PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
     ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
 
   private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
+    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, pluginRepository, permissionService));
+
+  @Test
+  public void return_homepage_when_set_to_MY_PROJECTS() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("MY_PROJECTS"));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType)
+      .isEqualTo(CurrentWsResponse.HomepageType.MY_PROJECTS);
+  }
 
   @Test
   public void return_homepage_when_set_to_portfolios() {
@@ -87,9 +95,8 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void return_homepage_when_set_to_a_portfolio(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_homepage_when_set_to_a_portfolio() {
+    withGovernancePlugin();
     ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, portfolio);
@@ -102,9 +109,8 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void return_default_when_set_to_a_portfolio_but_no_rights_on_this_portfolio(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_default_when_set_to_a_portfolio_but_no_rights_on_this_portfolio() {
+    withGovernancePlugin();
     ComponentDto portfolio = db.components().insertPrivatePortfolio(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
     userSessionRule.logIn(user);
@@ -113,13 +119,12 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .isEqualTo(PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
   }
 
   @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void return_homepage_when_set_to_an_application(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_homepage_when_set_to_an_application() {
+    withGovernancePlugin();
     ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, application);
@@ -132,9 +137,8 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void return_default_homepage_when_set_to_an_application_but_no_rights_on_this_application(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_default_homepage_when_set_to_an_application_but_no_rights_on_this_application() {
+    withGovernancePlugin();
     ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user);
@@ -143,13 +147,11 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .isEqualTo(PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
   }
 
   @Test
-  @UseDataProvider("allEditions")
-  public void return_homepage_when_set_to_a_project(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_homepage_when_set_to_a_project() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     userSessionRule.logIn(user).addProjectPermission(USER, project);
@@ -162,9 +164,7 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("allEditions")
-  public void return_default_homepage_when_set_to_a_project_but_no_rights_on_this_project(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void return_default_homepage_when_set_to_a_project_but_no_rights_on_this_project() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     userSessionRule.logIn(user);
@@ -173,7 +173,20 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .isEqualTo(PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
+  }
+
+  @Test
+  public void return_homepage_when_set_to_an_organization() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageParameter(organizationDto.getUuid()));
+    userSessionRule.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getHomepage())
+      .extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getOrganization)
+      .containsExactly(CurrentWsResponse.HomepageType.ORGANIZATION, organizationDto.getKey());
   }
 
   @Test
@@ -201,9 +214,18 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void fallback_when_user_homepage_portfolio_does_not_exist_in_db(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void fallback_when_user_homepage_organization_does_not_exist_in_db() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageParameter("not-existing-organization-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage()).isNotNull();
+  }
+
+  @Test
+  public void fallback_when_user_homepage_portfolio_does_not_exist_in_db() {
+    withGovernancePlugin();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter("not-existing-portfolio-uuid"));
     userSessionRule.logIn(user.getLogin());
 
@@ -213,22 +235,8 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  public void fallback_when_edition_is_null() {
-    setPlatformEdition(null);
-    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
-    UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
-    userSessionRule.logIn(user.getLogin());
-
-    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
-
-    assertThat(response.getHomepage()).isNotNull();
-    assertThat(response.getHomepage().getType()).isEqualTo(PROJECTS);
-  }
-
-  @Test
-  @UseDataProvider("enterpriseAndAbove")
-  public void fallback_when_user_homepage_application_does_not_exist_in_db(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void fallback_when_user_homepage_application_does_not_exist_in_db() {
+    withGovernancePlugin();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter("not-existing-application-uuid"));
     userSessionRule.logIn(user.getLogin());
 
@@ -238,9 +246,8 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  @UseDataProvider("belowEnterprise")
-  public void fallback_when_user_homepage_application_and_edition_below_enterprise(EditionProvider.Edition edition) {
-    setPlatformEdition(edition);
+  public void fallback_when_user_homepage_application_and_governance_plugin_is_not_installed() {
+    withoutGovernancePlugin();
     ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
     userSessionRule.logIn(user.getLogin());
@@ -251,7 +258,7 @@ public class CurrentActionHomepageTest {
   }
 
   @Test
-  public void fallback_to_PROJECTS() {
+  public void fallback_to_PROJECTS_when_on_SonarQube() {
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
     userSessionRule.logIn(user.getLogin());
 
@@ -260,37 +267,31 @@ public class CurrentActionHomepageTest {
     assertThat(response.getHomepage().getType().toString()).isEqualTo("PROJECTS");
   }
 
+  @Test
+  public void fallback_to_MY_PROJECTS_when_on_SonarCloud() {
+    onSonarCloud();
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+
+    assertThat(response.getHomepage().getType().toString()).isEqualTo("MY_PROJECTS");
+  }
+
   private CurrentWsResponse call() {
     return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
   }
 
-  private void setPlatformEdition(@Nullable EditionProvider.Edition edition) {
-    when(platformEditionProvider.get()).thenReturn(Optional.ofNullable(edition));
+  private void onSonarCloud() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
   }
 
-  @DataProvider
-  public static Object[][] enterpriseAndAbove() {
-    return new Object[][] {
-      {EditionProvider.Edition.ENTERPRISE},
-      {EditionProvider.Edition.DATACENTER}
-    };
+  private void withGovernancePlugin() {
+    when(pluginRepository.hasPlugin("governance")).thenReturn(true);
   }
 
-  @DataProvider
-  public static Object[][] belowEnterprise() {
-    return new Object[][] {
-      {EditionProvider.Edition.COMMUNITY},
-      {EditionProvider.Edition.DEVELOPER}
-    };
+  private void withoutGovernancePlugin() {
+    when(pluginRepository.hasPlugin("governance")).thenReturn(false);
   }
 
-  @DataProvider
-  public static Object[][] allEditions() {
-    return new Object[][] {
-      {EditionProvider.Edition.COMMUNITY},
-      {EditionProvider.Edition.DEVELOPER},
-      {EditionProvider.Edition.ENTERPRISE},
-      {EditionProvider.Edition.DATACENTER}
-    };
-  }
 }

@@ -26,13 +26,13 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -52,31 +52,34 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
-import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
+import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
+
+  private static final String GOVERNANCE_PLUGIN_KEY = "governance";
 
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
-  private final PlatformEditionProvider editionProvider;
+  private final PluginRepository pluginRepository;
   private final PermissionService permissionService;
 
   public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PlatformEditionProvider editionProvider, PermissionService permissionService) {
+    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PluginRepository pluginRepository, PermissionService permissionService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
-    this.editionProvider = editionProvider;
+    this.pluginRepository = pluginRepository;
     this.permissionService = permissionService;
   }
 
@@ -101,9 +104,9 @@ public class CurrentAction implements UsersWsAction {
       }
     } else {
       writeProtobuf(newBuilder()
-        .setIsLoggedIn(false)
-        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-        .build(),
+          .setIsLoggedIn(false)
+          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+          .build(),
         request, response);
     }
   }
@@ -157,6 +160,10 @@ public class CurrentAction implements UsersWsAction {
       return applicationAndPortfolioHomepage(dbSession, user);
     }
 
+    if (ORGANIZATION.toString().equals(user.getHomepageType())) {
+      return organizationHomepage(dbSession, user);
+    }
+
     return of(CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
       .build());
@@ -198,22 +205,21 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private boolean shouldCleanApplicationOrPortfolioHomepage(Optional<ComponentDto> componentOptional) {
-    return !componentOptional.isPresent() || !hasValidEdition()
+    return !componentOptional.isPresent() || !pluginRepository.hasPlugin(GOVERNANCE_PLUGIN_KEY)
       || !userSession.hasComponentPermission(USER, componentOptional.get());
   }
 
-  private boolean hasValidEdition() {
-    Optional<EditionProvider.Edition> edition = editionProvider.get();
-    if (!edition.isPresent()) {
-      return false;
+  private Optional<CurrentWsResponse.Homepage> organizationHomepage(DbSession dbSession, UserDto user) {
+    Optional<OrganizationDto> organizationOptional = dbClient.organizationDao().selectByUuid(dbSession, of(user.getHomepageParameter()).orElse(EMPTY));
+    if (!organizationOptional.isPresent()) {
+      cleanUserHomepageInDb(dbSession, user);
+      return empty();
     }
-    switch (edition.get()) {
-      case ENTERPRISE:
-      case DATACENTER:
-        return true;
-      default:
-        return false;
-    }
+
+    return of(CurrentWsResponse.Homepage.newBuilder()
+      .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
+      .setOrganization(organizationOptional.get().getKey())
+      .build());
   }
 
   private void cleanUserHomepageInDb(DbSession dbSession, UserDto user) {

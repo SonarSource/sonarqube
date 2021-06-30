@@ -118,17 +118,21 @@ message CurrentWsResponse {
 
   enum HomepageType {
     PROJECT = 1;
-    PROJECTS = 2;
-    ISSUES = 3;
-    PORTFOLIO = 4;
-    PORTFOLIOS = 5;
-    APPLICATION = 6;
+    ORGANIZATION = 2;
+    MY_PROJECTS = 3;
+    MY_ISSUES = 4;
+    PROJECTS = 5;
+    ISSUES = 6;
+    PORTFOLIO = 7;
+    PORTFOLIOS = 8;
+    APPLICATION = 9;
   }
 
   message Homepage {
     optional HomepageType type = 1;
     optional string component = 2;
-    optional string branch = 3;
+    optional string organization = 3;
+    optional string branch = 4;
   }
 
   message Setting {

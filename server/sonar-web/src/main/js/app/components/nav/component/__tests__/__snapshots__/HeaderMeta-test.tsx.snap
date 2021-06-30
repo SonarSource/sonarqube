@@ -9,20 +9,10 @@ exports[`should render correctly for a branch 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
-        componentKey="my-project"
-        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_1",
-            },
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_2",
-            },
+            "ERROR_1",
+            "ERROR_2",
           ]
         }
       />
@@ -53,99 +43,6 @@ exports[`should render correctly for a branch 1`] = `
 </Fragment>
 `;
 
-exports[`should render correctly for a main project branch 1`] = `
-<Fragment>
-  <div
-    className="display-flex-center flex-0 small"
-  >
-    <span
-      className="header-meta-warnings"
-    >
-      <ComponentNavWarnings
-        componentKey="my-project"
-        onWarningDismiss={[MockFunction]}
-        warnings={
-          Array [
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_1",
-            },
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_2",
-            },
-          ]
-        }
-      />
-    </span>
-    <span
-      className="spacer-left nowrap note"
-    >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
-    </span>
-    <span
-      className="spacer-left nowrap note"
-    >
-      version 0.0.1
-    </span>
-    <Connect(HomePageSelect)
-      className="spacer-left"
-      currentPage={
-        Object {
-          "branch": undefined,
-          "component": "my-project",
-          "type": "PROJECT",
-        }
-      }
-    />
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly for a portfolio 1`] = `
-<Fragment>
-  <div
-    className="display-flex-center flex-0 small"
-  >
-    <span
-      className="header-meta-warnings"
-    >
-      <ComponentNavWarnings
-        componentKey="foo"
-        onWarningDismiss={[MockFunction]}
-        warnings={
-          Array [
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_1",
-            },
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_2",
-            },
-          ]
-        }
-      />
-    </span>
-    <Connect(HomePageSelect)
-      className="spacer-left"
-      currentPage={
-        Object {
-          "component": "foo",
-          "type": "PORTFOLIO",
-        }
-      }
-    />
-  </div>
-</Fragment>
-`;
-
 exports[`should render correctly for a pull request 1`] = `
 <Fragment>
   <div
@@ -155,20 +52,10 @@ exports[`should render correctly for a pull request 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
-        componentKey="my-project"
-        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_1",
-            },
-            Object {
-              "dismissable": false,
-              "key": "foo",
-              "message": "ERROR_2",
-            },
+            "ERROR_1",
+            "ERROR_2",
           ]
         }
       />

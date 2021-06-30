@@ -19,27 +19,85 @@
  */
 package org.sonar.server.user.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.db.DbTester;
+import org.sonar.server.organization.TestOrganizationFlags;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.user.ws.HomepageTypes.Type.APPLICATION;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.sonar.server.user.ws.HomepageTypes.Type.ISSUES;
-import static org.sonar.server.user.ws.HomepageTypes.Type.PORTFOLIO;
-import static org.sonar.server.user.ws.HomepageTypes.Type.PORTFOLIOS;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_ISSUES;
+import static org.sonar.server.user.ws.HomepageTypes.Type.MY_PROJECTS;
+import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
 
 public class HomepageTypesImplTest {
 
-  private HomepageTypesImpl underTest = new HomepageTypesImpl();
+  @Rule
+  public DbTester db = DbTester.create();
+
+  private MapSettings settings = new MapSettings();
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+
+  private HomepageTypesImpl underTest = new HomepageTypesImpl(settings.asConfig(), organizationFlags, db.getDbClient());
 
   @Test
-  public void types() {
-    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION);
+  public void types_on_sonarcloud_and_organization_disabled() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+    organizationFlags.setEnabled(false);
+
+    underTest.start();
+
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, MY_PROJECTS, MY_ISSUES);
   }
 
   @Test
-  public void default_type() {
+  public void types_on_sonarcloud_and_organization_enabled() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+    organizationFlags.setEnabled(true);
+
+    underTest.start();
+
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, MY_PROJECTS, MY_ISSUES, ORGANIZATION);
+  }
+
+  @Test
+  public void types_on_sonarqube_and_organization_disabled() {
+    settings.setProperty("sonar.sonarcloud.enabled", false);
+    organizationFlags.setEnabled(false);
+
+    underTest.start();
+
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ISSUES);
+  }
+
+  @Test
+  public void types_on_sonarqube_and_organization_enabled() {
+    settings.setProperty("sonar.sonarcloud.enabled", false);
+    organizationFlags.setEnabled(true);
+
+    underTest.start();
+
+    assertThat(underTest.getTypes()).containsExactlyInAnyOrder(PROJECT, PROJECTS, ISSUES, ORGANIZATION);
+  }
+
+  @Test
+  public void default_type_on_sonarcloud() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+
+    underTest.start();
+
+    assertThat(underTest.getDefaultType()).isEqualTo(MY_PROJECTS);
+  }
+
+  @Test
+  public void default_type_on_sonarqube() {
+    settings.setProperty("sonar.sonarcloud.enabled", false);
+
+    underTest.start();
+
     assertThat(underTest.getDefaultType()).isEqualTo(PROJECTS);
   }
 
