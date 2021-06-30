@@ -203,7 +203,7 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
   @CheckForNull
   private static String readNextEndPoint(okhttp3.Response response) {
-    String links = response.header("link");
+    String links = response.headers().get("link");
     if (links == null || links.isEmpty() || !links.contains("rel=\"next\"")) {
       return null;
     }

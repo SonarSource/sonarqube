@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -302,11 +303,12 @@ public class GitlabHttpClient {
       .build();
 
     try (Response response = client.newCall(request).execute()) {
+      Headers headers = response.headers();
       checkResponseIsSuccessful(response, "Could not get projects from GitLab instance");
       List<Project> projectList = Project.parseJsonArray(response.body().string());
-      int returnedPageNumber = parseAndGetIntegerHeader(response.header("X-Page"));
-      int returnedPageSize = parseAndGetIntegerHeader(response.header("X-Per-Page"));
-      int totalProjects = parseAndGetIntegerHeader(response.header("X-Total"));
+      int returnedPageNumber = parseAndGetIntegerHeader(headers.get("X-Page"));
+      int returnedPageSize = parseAndGetIntegerHeader(headers.get("X-Per-Page"));
+      int totalProjects = parseAndGetIntegerHeader(headers.get("X-Total"));
       return new ProjectList(projectList, returnedPageNumber, returnedPageSize, totalProjects);
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to search projects. Got a non-json payload as result.");

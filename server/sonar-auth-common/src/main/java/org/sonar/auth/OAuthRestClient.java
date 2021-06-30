@@ -27,6 +27,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -81,11 +82,14 @@ public class OAuthRestClient {
   }
 
   private static Optional<String> readNextEndPoint(Response response) {
-    String link = response.getHeader("Link");
-    if (link == null || link.isEmpty() || !link.contains("rel=\"next\"")) {
+    Optional<String> link = response.getHeaders().entrySet().stream()
+      .filter(e -> "Link".equalsIgnoreCase(e.getKey()))
+      .map(Map.Entry::getValue)
+      .findAny();
+    if (link.isEmpty() || link.get().isEmpty() || !link.get().contains("rel=\"next\"")) {
       return Optional.empty();
     }
-    Matcher nextLinkMatcher = NEXT_LINK_PATTERN.matcher(link);
+    Matcher nextLinkMatcher = NEXT_LINK_PATTERN.matcher(link.get());
     if (!nextLinkMatcher.find()) {
       return Optional.empty();
     }

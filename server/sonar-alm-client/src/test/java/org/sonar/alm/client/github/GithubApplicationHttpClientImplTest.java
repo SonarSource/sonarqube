@@ -162,6 +162,17 @@ public class GithubApplicationHttpClientImplTest {
     assertThat(response.getNextEndPoint()).contains("https://api.github.com/installation/repositories?per_page=5&page=2");
   }
 
+  @Test
+  public void get_returns_endPoint_when_link_header_has_next_rel_different_case() throws IOException {
+    String linkHeader = "<https://api.github.com/installation/repositories?per_page=5&page=2>; rel=\"next\"";
+    server.enqueue(new MockResponse().setBody(randomBody)
+      .setHeader("Link", linkHeader));
+
+    GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
+
+    assertThat(response.getNextEndPoint()).contains("https://api.github.com/installation/repositories?per_page=5&page=2");
+  }
+
   @DataProvider
   public static Object[][] linkHeadersWithNextRel() {
     String expected = "https://api.github.com/installation/repositories?per_page=5&page=2";

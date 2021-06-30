@@ -98,6 +98,20 @@ public class OAuthRestClientTest {
   }
 
   @Test
+  public void execute_paginated_request_case_insensitive_headers() {
+    mockWebServer.enqueue(new MockResponse()
+      .setHeader("link", "<" + serverUrl + "/test?per_page=100&page=2>; rel=\"next\", <" + serverUrl + "/test?per_page=100&page=2>; rel=\"last\"")
+      .setBody("A"));
+    mockWebServer.enqueue(new MockResponse()
+      .setHeader("link", "<" + serverUrl + "/test?per_page=100&page=1>; rel=\"prev\", <" + serverUrl + "/test?per_page=100&page=1>; rel=\"first\"")
+      .setBody("B"));
+
+    List<String> response = executePaginatedRequest(serverUrl + "/test", oAuth20Service, auth2AccessToken, Arrays::asList);
+
+    assertThat(response).contains("A", "B");
+  }
+
+  @Test
   public void fail_to_executed_paginated_request() {
     mockWebServer.enqueue(new MockResponse()
       .setHeader("Link", "<" + serverUrl + "/test?per_page=100&page=2>; rel=\"next\", <" + serverUrl + "/test?per_page=100&page=2>; rel=\"last\"")
