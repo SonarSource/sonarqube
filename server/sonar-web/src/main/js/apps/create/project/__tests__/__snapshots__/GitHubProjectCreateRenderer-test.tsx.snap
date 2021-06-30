@@ -342,7 +342,7 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="text-ellipsis"
+          className="display-flex-start text-ellipsis"
         >
           repository 1
         </div>
@@ -361,9 +361,28 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="text-ellipsis"
+          className="display-flex-start text-ellipsis"
         >
-          repository 1
+          <Link
+            className="display-flex-center"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "repo2",
+                },
+              }
+            }
+          >
+            <QualifierIcon
+              className="spacer-right"
+              qualifier="TRK"
+            />
+            repository 1
+          </Link>
         </div>
         <em
           className="notice text-muted-2 small display-flex-center"
@@ -389,7 +408,7 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="text-ellipsis"
+          className="display-flex-start text-ellipsis"
         >
           repository 1
         </div>

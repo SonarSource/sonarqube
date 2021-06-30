@@ -26,11 +26,14 @@ import Radio from 'sonar-ui-common/components/controls/Radio';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { getProjectUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
+import { ComponentQualifier } from '../../../types/component';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 
 export interface GitHubProjectCreateRendererProps {
@@ -107,7 +110,19 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
               value={r.key}
               onCheck={props.onSelectRepository}>
               <div className="big overflow-hidden" title={r.name}>
-                <div className="text-ellipsis">{r.name}</div>
+                <div className="display-flex-start text-ellipsis">
+                  {r.sqProjectKey ? (
+                    <Link className="display-flex-center" to={getProjectUrl(r.sqProjectKey)}>
+                      <QualifierIcon
+                        className="spacer-right"
+                        qualifier={ComponentQualifier.Project}
+                      />
+                      {r.name}
+                    </Link>
+                  ) : (
+                    r.name
+                  )}
+                </div>
                 {r.sqProjectKey && (
                   <em className="notice text-muted-2 small display-flex-center">
                     {translate('onboarding.create_project.repository_imported')}
