@@ -447,7 +447,7 @@ public class UserRegistrarImplTest {
   }
 
   @Test
-  public void do_not_authenticate_and_update_existing_user_matching_external_login_if_email_is_missing() {
+  public void authenticate_and_update_existing_user_matching_external_login_if_email_is_missing() {
     db.users().insertUser(u -> u
       .setLogin("Old login")
       .setName("Old name")
@@ -456,12 +456,11 @@ public class UserRegistrarImplTest {
       .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    assertThatThrownBy(() -> underTest.register(newUserRegistration()))
-      .isInstanceOf(AuthenticationException.class)
-      .hasMessage(String.format("Login '%s' is already used", USER_IDENTITY.getProviderLogin()));
+    underTest.register(newUserRegistration());
 
-    assertThat(logTester.logs()).contains(String.format("User with login '%s' tried to login with email '%s' but we don't have a email on record",
-      USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getEmail()));
+    Optional<UserDto> user = db.users().selectUserByLogin("Old login");
+    assertThat(user).isPresent();
+    assertThat(user.get().getEmail()).isEqualTo(USER_IDENTITY.getEmail());
   }
 
   @Test

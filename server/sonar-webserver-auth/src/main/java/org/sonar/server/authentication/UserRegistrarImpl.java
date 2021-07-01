@@ -117,17 +117,17 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, AuthenticationEvent.Source source) {
-    String userEmail = user.getEmail();
+    String dbEmail = user.getEmail();
 
-    if (userEmail == null) {
-      LOGGER.warn("User with login '{}' tried to login with email '{}' but we don't have a email on record",
-        userIdentity.getProviderLogin(), userIdentity.getEmail());
-      throw loginAlreadyUsedException(userIdentity, source);
+    if (dbEmail == null) {
+      return;
     }
 
-    if (!userEmail.equals(userIdentity.getEmail())) {
+    String externalEmail = userIdentity.getEmail();
+
+    if (!dbEmail.equals(externalEmail)) {
       LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'",
-        userIdentity.getProviderLogin(), userIdentity.getEmail(), userEmail);
+        userIdentity.getProviderLogin(), externalEmail, dbEmail);
       throw loginAlreadyUsedException(userIdentity, source);
     }
   }
@@ -278,7 +278,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static UserDto[] toArray(Optional<UserDto> userDto) {
-    return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
+    return userDto.map(u -> new UserDto[]{u}).orElse(new UserDto[]{});
   }
 
   private static AuthenticationException generateExistingEmailError(UserRegistration authenticatorParameters, String email) {
