@@ -116,14 +116,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         }
       >
         <SnippetViewer
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           component={
             Object {
               "key": "foo",
@@ -140,6 +132,7 @@ exports[`should render correctly: with sourcelines 1`] = `
               "uuid": "foo-bar",
             }
           }
+          displayLineNumberOptions={false}
           displaySCM={false}
           expandBlock={[Function]}
           handleCloseIssues={[Function]}
@@ -167,48 +160,22 @@ exports[`should render correctly: with sourcelines 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {

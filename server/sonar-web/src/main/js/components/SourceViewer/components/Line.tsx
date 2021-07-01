@@ -37,6 +37,7 @@ interface Props {
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayIssues: boolean;
+  displayLineNumberOptions?: boolean;
   displayLocationMarkers?: boolean;
   displaySCM?: boolean;
   duplications: number[];
@@ -94,6 +95,7 @@ export default class Line extends React.PureComponent<Props> {
       displayDuplications,
       displayIssueLocationsCount,
       displayIssueLocationsLink,
+      displayLineNumberOptions,
       displayLocationMarkers,
       highlightedLocationMessage,
       displayIssues,
@@ -127,9 +129,12 @@ export default class Line extends React.PureComponent<Props> {
 
     const bottomPadding = verticalBuffer ? verticalBuffer * LINE_HEIGHT : undefined;
 
+    // default is true
+    const displayOptions = displayLineNumberOptions !== false;
+
     return (
       <tr className={className} data-line-number={line.line}>
-        <LineNumber firstLineNumber={firstLineNumber} line={line} />
+        <LineNumber displayOptions={displayOptions} firstLineNumber={firstLineNumber} line={line} />
 
         {displaySCM && <LineSCM line={line} previousLine={previousLine} />}
         {displayIssues && !displayAllIssues ? (

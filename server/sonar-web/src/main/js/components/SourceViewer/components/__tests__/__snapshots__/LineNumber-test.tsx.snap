@@ -73,3 +73,12 @@ exports[`should render correctly: no line number 1`] = `
   className="source-meta source-line-number"
 />
 `;
+
+exports[`should render correctly: no options 1`] = `
+<td
+  className="source-meta source-line-number"
+  data-line-number={12}
+>
+  12
+</td>
+`;

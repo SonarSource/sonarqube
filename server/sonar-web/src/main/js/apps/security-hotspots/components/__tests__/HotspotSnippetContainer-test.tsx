@@ -23,8 +23,9 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
+import { mockHotspot, mockHotspotComponent } from '../../../../helpers/mocks/security-hotspots';
 import { mockComponent, mockSourceLine } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import HotspotSnippetContainer from '../HotspotSnippetContainer';
 import HotspotSnippetContainerRenderer from '../HotspotSnippetContainerRenderer';
 
@@ -46,6 +47,7 @@ it('should load sources on mount', async () => {
   );
 
   const hotspot = mockHotspot({
+    project: mockHotspotComponent({ branch: branch.name, qualifier: ComponentQualifier.Project }),
     textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
   });
 
@@ -116,6 +118,7 @@ describe('Expansion', () => {
   });
 
   const hotspot = mockHotspot({
+    project: mockHotspotComponent({ branch: branch.name, qualifier: ComponentQualifier.Project }),
     textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
   });
 

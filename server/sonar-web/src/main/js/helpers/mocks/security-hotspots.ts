@@ -21,6 +21,7 @@ import { ComponentQualifier } from '../../types/component';
 import { Standards } from '../../types/security';
 import {
   Hotspot,
+  HotspotComponent,
   HotspotResolution,
   HotspotRule,
   HotspotStatus,
@@ -29,7 +30,7 @@ import {
   ReviewHistoryType,
   RiskExposure
 } from '../../types/security-hotspots';
-import { mockComponent, mockUser } from '../testMocks';
+import { mockUser } from '../testMocks';
 
 export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot {
   return {
@@ -61,12 +62,12 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
     canChangeStatus: true,
     changelog: [],
     comment: [],
-    component: mockComponent({ qualifier: ComponentQualifier.File }),
+    component: mockHotspotComponent({ qualifier: ComponentQualifier.File }),
     creationDate: '2013-05-13T17:55:41+0200',
     key: '01fc972e-2a3c-433e-bcae-0bd7f88f5123',
     line: 142,
     message: "'3' is a magic number.",
-    project: mockComponent({ qualifier: ComponentQualifier.Project }),
+    project: mockHotspotComponent({ qualifier: ComponentQualifier.Project }),
     resolution: HotspotResolution.FIXED,
     rule: mockHotspotRule(),
     status: HotspotStatus.REVIEWED,
@@ -78,6 +79,17 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
     },
     updateDate: '2013-05-13T17:55:42+0200',
     users: [assigneeUser, authorUser],
+    ...overrides
+  };
+}
+
+export function mockHotspotComponent(overrides?: Partial<HotspotComponent>): HotspotComponent {
+  return {
+    key: 'hotspot-component',
+    name: 'Hotspot Component',
+    longName: 'Hotspot component long name',
+    qualifier: ComponentQualifier.File,
+    path: 'path/to/component',
     ...overrides
   };
 }

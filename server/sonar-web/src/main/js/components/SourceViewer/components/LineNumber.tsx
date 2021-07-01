@@ -23,32 +23,37 @@ import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import LineOptionsPopup from './LineOptionsPopup';
 
 export interface LineNumberProps {
+  displayOptions: boolean;
   firstLineNumber: number;
   line: T.SourceLine;
 }
 
-export function LineNumber({ firstLineNumber, line }: LineNumberProps) {
+export function LineNumber({ displayOptions, firstLineNumber, line }: LineNumberProps) {
   const [isOpen, setOpen] = React.useState<boolean>(false);
   const { line: lineNumber } = line;
   const hasLineNumber = !!lineNumber;
 
   return hasLineNumber ? (
     <td className="source-meta source-line-number" data-line-number={lineNumber}>
-      <Toggler
-        closeOnClickOutside={true}
-        onRequestClose={() => setOpen(false)}
-        open={isOpen}
-        overlay={<LineOptionsPopup firstLineNumber={firstLineNumber} line={line} />}>
-        <span
-          aria-expanded={isOpen}
-          aria-haspopup={true}
-          aria-label={translateWithParameters('source_viewer.line_X', lineNumber)}
-          onClick={() => setOpen(true)}
-          role="button"
-          tabIndex={0}>
-          {lineNumber}
-        </span>
-      </Toggler>
+      {displayOptions ? (
+        <Toggler
+          closeOnClickOutside={true}
+          onRequestClose={() => setOpen(false)}
+          open={isOpen}
+          overlay={<LineOptionsPopup firstLineNumber={firstLineNumber} line={line} />}>
+          <span
+            aria-expanded={isOpen}
+            aria-haspopup={true}
+            aria-label={translateWithParameters('source_viewer.line_X', lineNumber)}
+            onClick={() => setOpen(true)}
+            role="button"
+            tabIndex={0}>
+            {lineNumber}
+          </span>
+        </Toggler>
+      ) : (
+        lineNumber
+      )}
     </td>
   ) : (
     <td className="source-meta source-line-number" />

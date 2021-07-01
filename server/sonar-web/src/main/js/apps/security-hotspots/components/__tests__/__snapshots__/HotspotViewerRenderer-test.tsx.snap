@@ -62,7 +62,7 @@ exports[`should render correctly 1`] = `
         >
           <HotspotOpenInIdeButton
             hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="my-project"
+            projectKey="hotspot-component"
           />
         </div>
         <ClipboardButton
@@ -142,48 +142,22 @@ exports[`should render correctly 1`] = `
                   "changelog": Array [],
                   "comment": Array [],
                   "component": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "FIL",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
                   "project": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "resolution": "FIXED",
                   "rule": Object {
@@ -248,48 +222,22 @@ exports[`should render correctly 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {
@@ -330,14 +278,6 @@ exports[`should render correctly 1`] = `
       </div>
     </div>
     <HotspotSnippetContainer
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "name": "branch-6.7",
-        }
-      }
       component={
         Object {
           "breadcrumbs": Array [],
@@ -380,48 +320,22 @@ exports[`should render correctly 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -479,48 +393,22 @@ exports[`should render correctly 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -589,48 +477,22 @@ exports[`should render correctly 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -736,7 +598,7 @@ exports[`should render correctly: anonymous user 1`] = `
         >
           <HotspotOpenInIdeButton
             hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="my-project"
+            projectKey="hotspot-component"
           />
         </div>
         <ClipboardButton
@@ -816,48 +678,22 @@ exports[`should render correctly: anonymous user 1`] = `
                   "changelog": Array [],
                   "comment": Array [],
                   "component": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "FIL",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
                   "project": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "resolution": "FIXED",
                   "rule": Object {
@@ -922,48 +758,22 @@ exports[`should render correctly: anonymous user 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {
@@ -1004,14 +814,6 @@ exports[`should render correctly: anonymous user 1`] = `
       </div>
     </div>
     <HotspotSnippetContainer
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "name": "branch-6.7",
-        }
-      }
       component={
         Object {
           "breadcrumbs": Array [],
@@ -1054,48 +856,22 @@ exports[`should render correctly: anonymous user 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -1153,48 +929,22 @@ exports[`should render correctly: anonymous user 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -1263,48 +1013,22 @@ exports[`should render correctly: anonymous user 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -1410,7 +1134,7 @@ exports[`should render correctly: assignee without name 1`] = `
         >
           <HotspotOpenInIdeButton
             hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="my-project"
+            projectKey="hotspot-component"
           />
         </div>
         <ClipboardButton
@@ -1490,48 +1214,22 @@ exports[`should render correctly: assignee without name 1`] = `
                   "changelog": Array [],
                   "comment": Array [],
                   "component": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "FIL",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
                   "project": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "resolution": "FIXED",
                   "rule": Object {
@@ -1596,48 +1294,22 @@ exports[`should render correctly: assignee without name 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {
@@ -1678,14 +1350,6 @@ exports[`should render correctly: assignee without name 1`] = `
       </div>
     </div>
     <HotspotSnippetContainer
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "name": "branch-6.7",
-        }
-      }
       component={
         Object {
           "breadcrumbs": Array [],
@@ -1728,48 +1392,22 @@ exports[`should render correctly: assignee without name 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -1827,48 +1465,22 @@ exports[`should render correctly: assignee without name 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -1937,48 +1549,22 @@ exports[`should render correctly: assignee without name 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -2084,7 +1670,7 @@ exports[`should render correctly: deleted assignee 1`] = `
         >
           <HotspotOpenInIdeButton
             hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="my-project"
+            projectKey="hotspot-component"
           />
         </div>
         <ClipboardButton
@@ -2164,48 +1750,22 @@ exports[`should render correctly: deleted assignee 1`] = `
                   "changelog": Array [],
                   "comment": Array [],
                   "component": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "FIL",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
                   "project": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "resolution": "FIXED",
                   "rule": Object {
@@ -2270,48 +1830,22 @@ exports[`should render correctly: deleted assignee 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {
@@ -2352,14 +1886,6 @@ exports[`should render correctly: deleted assignee 1`] = `
       </div>
     </div>
     <HotspotSnippetContainer
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "name": "branch-6.7",
-        }
-      }
       component={
         Object {
           "breadcrumbs": Array [],
@@ -2402,48 +1928,22 @@ exports[`should render correctly: deleted assignee 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -2501,48 +2001,22 @@ exports[`should render correctly: deleted assignee 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -2611,48 +2085,22 @@ exports[`should render correctly: deleted assignee 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -2765,7 +2213,7 @@ exports[`should render correctly: unassigned 1`] = `
         >
           <HotspotOpenInIdeButton
             hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="my-project"
+            projectKey="hotspot-component"
           />
         </div>
         <ClipboardButton
@@ -2845,48 +2293,22 @@ exports[`should render correctly: unassigned 1`] = `
                   "changelog": Array [],
                   "comment": Array [],
                   "component": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "FIL",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
                   "project": Object {
-                    "breadcrumbs": Array [],
-                    "key": "my-project",
-                    "name": "MyProject",
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
-                      "isDefault": true,
-                      "key": "30",
-                      "name": "Sonar way",
-                    },
-                    "qualityProfiles": Array [
-                      Object {
-                        "deleted": false,
-                        "key": "my-qp",
-                        "language": "ts",
-                        "name": "Sonar way",
-                      },
-                    ],
-                    "tags": Array [],
                   },
                   "resolution": "FIXED",
                   "rule": Object {
@@ -2951,48 +2373,22 @@ exports[`should render correctly: unassigned 1`] = `
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "creationDate": "2013-05-13T17:55:41+0200",
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
               "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
                 "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
               },
               "resolution": "FIXED",
               "rule": Object {
@@ -3033,14 +2429,6 @@ exports[`should render correctly: unassigned 1`] = `
       </div>
     </div>
     <HotspotSnippetContainer
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": false,
-          "name": "branch-6.7",
-        }
-      }
       component={
         Object {
           "breadcrumbs": Array [],
@@ -3083,48 +2471,22 @@ exports[`should render correctly: unassigned 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -3182,48 +2544,22 @@ exports[`should render correctly: unassigned 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {
@@ -3292,48 +2628,22 @@ exports[`should render correctly: unassigned 1`] = `
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "creationDate": "2013-05-13T17:55:41+0200",
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
           "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
             "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
           },
           "resolution": "FIXED",
           "rule": Object {

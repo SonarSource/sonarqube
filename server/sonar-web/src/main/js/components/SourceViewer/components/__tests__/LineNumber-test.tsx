@@ -25,8 +25,13 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ line: { line: 0 } })).toMatchSnapshot('no line number');
   expect(shallowRender({ line: { line: 12 } })).toMatchSnapshot('first line');
+  expect(shallowRender({ displayOptions: false, line: { line: 12 } })).toMatchSnapshot(
+    'no options'
+  );
 });
 
 function shallowRender(props: Partial<LineNumberProps> = {}) {
-  return shallow(<LineNumber firstLineNumber={10} line={{ line: 20 }} {...props} />);
+  return shallow(
+    <LineNumber displayOptions={true} firstLineNumber={10} line={{ line: 20 }} {...props} />
+  );
 }
