@@ -75,6 +75,19 @@ function renderAlmOption(
     );
   };
 
+  let errorMessage = '';
+
+  if (hasTooManyConfig) {
+    errorMessage = translateWithParameters(
+      'onboarding.create_project.too_many_alm_instances_X',
+      translate('alm', alm)
+    );
+  } else if (!hasConfig) {
+    errorMessage = canAdmin
+      ? translate('onboarding.create_project.alm_not_configured.admin')
+      : translate('onboarding.create_project.alm_not_configured');
+  }
+
   return (
     <div className="display-flex-column">
       <button
@@ -101,14 +114,9 @@ function renderAlmOption(
           </span>
         )}
 
-        {!loadingBindings && disabled && (
+        {!loadingBindings && errorMessage && (
           <p className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
-            {!hasConfig && translate('onboarding.create_project.alm_not_configured')}
-            {hasTooManyConfig &&
-              translateWithParameters(
-                'onboarding.create_project.too_many_alm_instances_X',
-                translate('alm', alm)
-              )}
+            {errorMessage}
           </p>
         )}
       </button>
@@ -139,9 +147,22 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
         </div>
       </header>
 
-      <div className="create-project-modes huge-spacer-top display-flex-justify-center">
+      <div className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center">
+        <div className="display-flex-column">
+          {almTotalCount === 0 && canAdmin && (
+            <Alert variant="info" className="big-spacer-bottom">
+              {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
+            </Alert>
+          )}
+          <div className="display-flex-center display-flex-space-between">
+            {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
+            {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
+            {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
+            {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
+          </div>
+        </div>
         <button
-          className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
+          className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
           onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
           type="button">
           <ChevronsIcon size={DEFAULT_ICON_SIZE} />
@@ -149,20 +170,6 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
             {translate('onboarding.create_project.select_method.manual')}
           </div>
         </button>
-
-        <div className="display-flex-column">
-          <div className="display-flex-center display-flex-space-between">
-            {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-            {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-            {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-            {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
-          </div>
-          {almTotalCount === 0 && canAdmin && (
-            <Alert variant="info" className="big-spacer-top">
-              {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
-            </Alert>
-          )}
-        </div>
       </div>
     </>
   );

@@ -26,22 +26,8 @@ exports[`should render correctly: default 1`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
@@ -134,6 +120,20 @@ exports[`should render correctly: default 1`] = `
         </div>
       </div>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
@@ -164,22 +164,8 @@ exports[`should render correctly: invalid configs, admin 1`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
@@ -226,6 +212,16 @@ exports[`should render correctly: invalid configs, admin 1`] = `
             >
               onboarding.create_project.select_method.bitbucket
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
         <div
@@ -282,6 +278,20 @@ exports[`should render correctly: invalid configs, admin 1`] = `
         </div>
       </div>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
@@ -312,22 +322,8 @@ exports[`should render correctly: invalid configs, admin 2`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
@@ -374,6 +370,16 @@ exports[`should render correctly: invalid configs, admin 2`] = `
             >
               onboarding.create_project.select_method.bitbucket
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
         <div
@@ -430,6 +436,20 @@ exports[`should render correctly: invalid configs, admin 2`] = `
         </div>
       </div>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
@@ -460,22 +480,8 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
@@ -588,6 +594,20 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         </div>
       </div>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
@@ -618,22 +638,8 @@ exports[`should render correctly: loading instances 1`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
@@ -750,6 +756,20 @@ exports[`should render correctly: loading instances 1`] = `
         </div>
       </div>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
@@ -780,25 +800,17 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
     </div>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-justify-center"
+    className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center"
   >
-    <button
-      className="button button-huge big-spacer-right display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <ChevronsIcon
-        size={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <div
       className="display-flex-column"
     >
+      <Alert
+        className="big-spacer-bottom"
+        variant="info"
+      >
+        onboarding.create_project.select_method.no_alm_yet.admin
+      </Alert>
       <div
         className="display-flex-center display-flex-space-between"
       >
@@ -821,6 +833,16 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
             >
               onboarding.create_project.select_method.azure
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
         <div
@@ -842,6 +864,16 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
             >
               onboarding.create_project.select_method.bitbucket
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
         <div
@@ -863,6 +895,16 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
             >
               onboarding.create_project.select_method.github
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
         <div
@@ -884,16 +926,34 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
             >
               onboarding.create_project.select_method.gitlab
             </div>
+            <p
+              className="text-muted small spacer-top"
+              style={
+                Object {
+                  "lineHeight": 1.5,
+                }
+              }
+            >
+              onboarding.create_project.alm_not_configured.admin
+            </p>
           </button>
         </div>
       </div>
-      <Alert
-        className="big-spacer-top"
-        variant="info"
-      >
-        onboarding.create_project.select_method.no_alm_yet.admin
-      </Alert>
     </div>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <ChevronsIcon
+        size={80}
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
   </div>
 </Fragment>
 `;
