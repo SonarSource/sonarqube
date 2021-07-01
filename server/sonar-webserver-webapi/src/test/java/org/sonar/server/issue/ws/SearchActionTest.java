@@ -231,11 +231,16 @@ public class SearchActionTest {
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
+      .setParam("additionalFields", "rules")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
-      .containsExactlyInAnyOrder(tuple(issue.getKey(), ruleMetadata.getAdHocName(), "xoo"));
+      .containsExactlyInAnyOrder(tuple(issue.getKey(), rule.getKey().toString(), "xoo"));
+
+    assertThat(response.getRules().getRulesList())
+      .extracting(Common.Rule::getKey, Common.Rule::getName)
+      .containsExactlyInAnyOrder(tuple(rule.getKey().toString(), ruleMetadata.getAdHocName()));
   }
 
   @Test

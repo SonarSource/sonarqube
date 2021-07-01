@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -80,7 +79,7 @@ public class IssueQueryFactoryTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    RuleDefinitionDto rule1 = ruleDbTester.insert(r -> r.setIsAdHoc(true));
+    RuleDefinitionDto rule1 = ruleDbTester.insert();
     RuleDefinitionDto rule2 = ruleDbTester.insert();
     ruleDbTester.insertOrUpdateMetadata(rule1, m -> m.setAdHocName(ruleAdHocName));
     ruleDbTester.insertOrUpdateMetadata(rule2, m -> m.setAdHocName(ruleAdHocName));
@@ -130,18 +129,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
-
-    Optional<RuleDefinitionDto> ruleWithMetadata = query.rules().stream()
-      .filter(r -> r.getUuid().equals(rule1.getUuid())).findFirst();
-    assertThat(ruleWithMetadata).isPresent();
-    assertThat(ruleWithMetadata.get().getName()).isEqualTo(ruleAdHocName);
-    assertThat(ruleWithMetadata.get().getName()).isNotEqualTo(rule1.getName());
-
-    Optional<RuleDefinitionDto> ruleWithMetadata2 = query.rules().stream()
-      .filter(r -> r.getUuid().equals(rule2.getUuid())).findFirst();
-    assertThat(ruleWithMetadata2).isPresent();
-    assertThat(ruleWithMetadata2.get().getName()).isNotEqualTo(ruleAdHocName);
-    assertThat(ruleWithMetadata2.get().getName()).isEqualTo(rule2.getName());
 
   }
 

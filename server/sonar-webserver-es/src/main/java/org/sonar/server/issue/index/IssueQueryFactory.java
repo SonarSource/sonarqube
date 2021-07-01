@@ -53,7 +53,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
@@ -111,10 +110,7 @@ public class IssueQueryFactory {
       final ZoneId timeZone = parseTimeZone(request.getTimeZone()).orElse(clock.getZone());
 
       Collection<RuleDefinitionDto> ruleDefinitionDtos = ruleKeysToRuleId(dbSession, request.getRules());
-      Collection<RuleMetadataDto> ruleMetadataDtos = ruleKeysToRuleMetadata(dbSession, request.getRules());
       Collection<String> ruleUuids = ruleDefinitionDtos.stream().map(RuleDefinitionDto::getUuid).collect(Collectors.toSet());
-
-      ruleDefinitionDtos.stream().forEach(rule -> getRuleName(ruleMetadataDtos, rule));
 
       if (request.getRules() != null && request.getRules().stream().collect(toSet()).size() != ruleDefinitionDtos.size()) {
         ruleUuids.add("non-existing-uuid");
@@ -386,13 +382,6 @@ public class IssueQueryFactory {
     return Collections.emptyList();
   }
 
-  private Collection<RuleMetadataDto> ruleKeysToRuleMetadata(DbSession dbSession, @Nullable Collection<String> rules) {
-    if (rules != null) {
-      return dbClient.ruleDao().selectMetadataByKeys(dbSession, transform(rules, RuleKey::parse));
-    }
-    return Collections.emptyList();
-  }
-
   private static String toProjectUuid(ComponentDto componentDto) {
     String mainBranchProjectUuid = componentDto.getMainBranchProjectUuid();
     return mainBranchProjectUuid == null ? componentDto.projectUuid() : mainBranchProjectUuid;
@@ -404,15 +393,5 @@ public class IssueQueryFactory {
       || (branch == null && pullRequest == null)
       || (branch != null && !branch.equals(component.getBranch()))
       || (pullRequest != null && !pullRequest.equals(component.getPullRequest())));
-  }
-
-  private static void getRuleName(Collection<RuleMetadataDto> ruleMetadataDtos, RuleDefinitionDto rule) {
-    if (rule.isAdHoc()) {
-      String name = ruleMetadataDtos.stream()
-        .filter(m -> m.getRuleUuid().equals(rule.getUuid())).findFirst()
-        .map(RuleMetadataDto::getAdHocName)
-        .orElse(null);
-      rule.setName(name);
-    }
   }
 }

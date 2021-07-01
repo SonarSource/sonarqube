@@ -169,6 +169,7 @@ public class SearchResponseLoader {
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
     ruleUuidsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size())));
+
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad);
 
     getRulesMetadata(dbSession, rules);
@@ -365,4 +366,5 @@ public class SearchResponseLoader {
       }
     });
   }
+
 }
