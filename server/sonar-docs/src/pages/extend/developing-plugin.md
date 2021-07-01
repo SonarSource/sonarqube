@@ -437,6 +437,7 @@ The rules are:
 * Resource perspectives. Use methods in `SensorContext`.
 * `org.sonar.api.platform.Server#getRootDir()`. Use `ServerFileSystem#getHomeDir()`.
 * `org.sonar.api.profiles.ProfileDefinition.java`. Define quality profiles with `BuiltInQualityProfilesDefinition`.
+* `org.sonar.api.rules.XMLRuleParser`. Use the `sonar-check-api` to annotate rule classes.
 
 ### Release 8.4
 ![](/images/check.svg) Added
