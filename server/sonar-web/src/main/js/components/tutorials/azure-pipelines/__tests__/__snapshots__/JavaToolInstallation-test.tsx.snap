@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<li>
+  onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.title
+  <ul
+    className="list-styled"
+  >
+    <li>
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        values={
+          Object {
+            "field": <strong>
+              onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version
+            </strong>,
+            "value": <strong>
+              11
+            </strong>,
+          }
+        }
+      />
+       
+      onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher
+    </li>
+    <li>
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        values={
+          Object {
+            "field": <strong>
+              onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture
+            </strong>,
+            "value": <strong>
+              x64
+            </strong>,
+          }
+        }
+      />
+    </li>
+    <li>
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
+        values={
+          Object {
+            "field": <strong>
+              onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source
+            </strong>,
+            "value": <strong>
+              onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed
+            </strong>,
+          }
+        }
+      />
+    </li>
+  </ul>
+</li>
+`;

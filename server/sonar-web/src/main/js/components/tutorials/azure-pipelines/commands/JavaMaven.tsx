@@ -22,6 +22,7 @@ import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools } from '../../types';
+import JavaToolInstallation from '../JavaToolInstallation';
 import AlertClassicEditor from './AlertClassicEditor';
 import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
 import PublishSteps from './PublishSteps';
@@ -47,6 +48,8 @@ export default function JavaMaven(props: JavaMavenProps) {
           kind={PrepareType.JavaMavenGradle}
           projectKey={projectKey}
         />
+
+        <JavaToolInstallation />
 
         <li>
           {translateWithParameters(

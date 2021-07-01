@@ -23,6 +23,7 @@ exports[`should render correctly 1`] = `
       kind={0}
       projectKey="projectKey"
     />
+    <JavaToolInstallation />
     <li>
       onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.onboarding.build.gradle
     </li>

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools } from '../../types';
+import JavaToolInstallation from '../JavaToolInstallation';
 import AlertClassicEditor from './AlertClassicEditor';
 import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
 import PublishSteps from './PublishSteps';
@@ -48,6 +49,9 @@ export default function JavaGradle(props: JavaGradleProps) {
           kind={PrepareType.JavaMavenGradle}
           projectKey={projectKey}
         />
+
+        <JavaToolInstallation />
+
         <li>
           {translateWithParameters(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java',
