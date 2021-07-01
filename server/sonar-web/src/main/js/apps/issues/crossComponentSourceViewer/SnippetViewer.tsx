@@ -37,6 +37,7 @@ import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 interface Props {
   branchLike: BranchLike | undefined;
   component: T.SourceViewerFile;
+  displayLineNumberOptions?: boolean;
   displaySCM?: boolean;
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
@@ -130,7 +131,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
   }) {
     const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, this.props.locations);
 
-    const { duplications, duplicationsByLine } = this.props;
+    const { displayLineNumberOptions, duplications, duplicationsByLine } = this.props;
     const duplicationsCount = duplications ? duplications.length : 0;
     const lineDuplications =
       (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
@@ -146,6 +147,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         displayCoverage={true}
         displayDuplications={displayDuplications}
         displayIssues={!isSinkLine || issuesForLine.length > 1}
+        displayLineNumberOptions={displayLineNumberOptions}
         displayLocationMarkers={true}
         displaySCM={displaySCM}
         duplications={lineDuplications}

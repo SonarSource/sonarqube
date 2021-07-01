@@ -75,8 +75,9 @@ export default function HotspotSnippetContainerRenderer(
             <SourceViewerContext.Provider /* Used by LineOptionsPopup */
               value={{ branchLike, file: sourceViewerFile }}>
               <SnippetViewer
-                branchLike={branchLike}
+                branchLike={undefined}
                 component={sourceViewerFile}
+                displayLineNumberOptions={false}
                 displaySCM={false}
                 expandBlock={(_i, direction) => props.onExpandBlock(direction)}
                 handleCloseIssues={noop}

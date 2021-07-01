@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from './component';
+
 export enum RiskExposure {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
@@ -77,18 +79,28 @@ export interface Hotspot {
   canChangeStatus: boolean;
   changelog: T.IssueChangelog[];
   comment: HotspotComment[];
-  component: T.Component;
+  component: HotspotComponent;
   creationDate: string;
   key: string;
   line?: number;
   message: string;
-  project: T.Component;
+  project: HotspotComponent;
   resolution?: HotspotResolution;
   rule: HotspotRule;
   status: HotspotStatus;
   textRange?: T.TextRange;
   updateDate: string;
   users: T.UserBase[];
+}
+
+export interface HotspotComponent {
+  key: string;
+  qualifier: ComponentQualifier;
+  name: string;
+  longName: string;
+  path: string;
+  branch?: string;
+  pullRequest?: string;
 }
 
 export interface HotspotUpdateFields {

@@ -26,7 +26,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { fillBranchLike, getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
@@ -133,7 +133,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
           </div>
 
           <HotspotSnippetContainer
-            branchLike={branchLike}
+            branchLike={fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest)}
             component={component}
             hotspot={hotspot}
           />

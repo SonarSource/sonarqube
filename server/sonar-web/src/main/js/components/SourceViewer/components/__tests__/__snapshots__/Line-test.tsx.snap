@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
@@ -145,6 +146,7 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
@@ -284,6 +286,7 @@ exports[`should render correctly with coverage 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
@@ -439,6 +442,7 @@ exports[`should render correctly with duplication information 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
@@ -639,6 +643,7 @@ exports[`should render correctly with issues info 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
@@ -854,6 +859,7 @@ exports[`should render correctly: no SCM 1`] = `
   data-line-number={16}
 >
   <Memo(LineNumber)
+    displayOptions={true}
     firstLineNumber={1}
     line={
       Object {
