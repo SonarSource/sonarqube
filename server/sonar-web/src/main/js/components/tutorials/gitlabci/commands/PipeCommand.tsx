@@ -115,7 +115,7 @@ sonarqube-check:
   return (
     <>
       <CodeSnippet snippet={command} />
-      <CompilationInfo />
+      {buildTool === BuildTools.CFamily && <CompilationInfo />}
     </>
   );
 }
