@@ -167,7 +167,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   @Override
   public Repositories listRepositories(String appUrl, AccessToken accessToken, String organization, @Nullable String query, int page, int pageSize) {
     checkPageArgs(page, pageSize);
-    String searchQuery = "org:" + organization;
+    String searchQuery = "fork:true+org:" + organization;
     if (query != null) {
       searchQuery = query.replace(" ", "+") + "+" + searchQuery;
     }

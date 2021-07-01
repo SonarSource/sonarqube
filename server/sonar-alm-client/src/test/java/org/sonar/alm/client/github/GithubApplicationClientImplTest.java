@@ -404,7 +404,7 @@ public class GithubApplicationClientImplTest {
 
     assertThatThrownBy(() -> underTest.listRepositories(appUrl, accessToken, "test", null, 1, 100))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to list all repositories of 'test' accessible by user access token on 'https://github.sonarsource.com' using query 'org:test'");
+      .hasMessage("Failed to list all repositories of 'test' accessible by user access token on 'https://github.sonarsource.com' using query 'fork:true+org:test'");
   }
 
   @Test
@@ -434,7 +434,7 @@ public class GithubApplicationClientImplTest {
       + "  \"total_count\": 0\n"
       + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "org:github", 1, 100)))
+    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
@@ -522,7 +522,7 @@ public class GithubApplicationClientImplTest {
       + "  ]\n"
       + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "org:github", 1, 100)))
+    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
 
@@ -577,7 +577,7 @@ public class GithubApplicationClientImplTest {
       + "  ]\n"
       + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+org:github", 1, 100)))
+    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
       .thenReturn(new GithubApplicationHttpClient.GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
