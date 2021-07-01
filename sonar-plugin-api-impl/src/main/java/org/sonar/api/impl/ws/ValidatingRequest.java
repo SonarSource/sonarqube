@@ -153,7 +153,11 @@ public abstract class ValidatingRequest extends Request {
   private String readParam(String key, @Nullable WebService.Param definition) {
     checkArgument(definition != null, "BUG - parameter '%s' is undefined for action '%s'", key, action.key());
     String deprecatedKey = definition.deprecatedKey();
-    return deprecatedKey != null ? defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
+    String param = deprecatedKey != null ? defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
+    if (param != null && param.contains("\0")) {
+      throw new IllegalArgumentException("Request parameters are not allowed to contain NUL character");
+    }
+    return param;
   }
 
   private List<String> readMultiParamOrDefaultValue(String key, @Nullable WebService.Param definition) {

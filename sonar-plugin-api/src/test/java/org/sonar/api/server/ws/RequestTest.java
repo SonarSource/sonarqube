@@ -49,8 +49,10 @@ import static com.google.common.base.Strings.repeat;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
@@ -214,6 +216,15 @@ public class RequestTest {
   public void param_as_string() {
     assertThat(underTest.setParam("a_string", "foo").param("a_string")).isEqualTo("foo");
     assertThat(underTest.setParam("a_string", " f o o \r\n ").param("a_string")).isEqualTo("f o o");
+  }
+
+  @Test
+  public void param_contains_NUL_char_should_throw_exception() {
+    underTest.setParam("a_string", "value\0value");
+
+    assertThatThrownBy(() -> underTest.param("a_string"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Request parameters are not allowed to contain NUL character");
   }
 
   @Test
