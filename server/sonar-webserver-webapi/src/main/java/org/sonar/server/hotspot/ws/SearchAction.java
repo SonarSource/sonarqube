@@ -198,7 +198,7 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription(format(
         "Comma-separated list of Security Hotspot keys. This parameter is required unless %s is provided.",
         PARAM_PROJECT_KEY))
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+      .setExampleValue("AWhXpLoInp4On-Y3xc8x");
     action.createParam(PARAM_STATUS)
       .setDescription("If '%s' is provided, only Security Hotspots with the specified status are returned.", PARAM_PROJECT_KEY)
       .setPossibleValues(STATUSES)

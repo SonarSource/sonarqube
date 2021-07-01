@@ -57,7 +57,7 @@ public class SearchRequest {
   }
 
   /**
-   * Example value: "my_project"
+   * Example value: "AWhXpLoInp4On-Y3xc8x"
    */
   public SearchRequest setHotspots(List<String> hotspots) {
     this.hotspots = hotspots;
