@@ -2,7 +2,7 @@
 
 exports[`should render a version correctly 1`] = `
 <span
-  className="overview-analysis-event analysis-version"
+  className="overview-analysis-event analysis-version text-ellipsis max-width-80"
   title="version 6.5-SNAPSHOT"
 >
   6.5-SNAPSHOT
@@ -14,7 +14,7 @@ exports[`should render an event correctly 1`] = `
   className="overview-analysis-event"
 >
   <span
-    className="note"
+    className="note text-ellipsis width-80"
   >
     event.category.OTHER
     :

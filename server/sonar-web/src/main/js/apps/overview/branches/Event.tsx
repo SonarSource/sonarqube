@@ -32,7 +32,7 @@ export function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
       <span
-        className="overview-analysis-event analysis-version"
+        className="overview-analysis-event analysis-version text-ellipsis max-width-80"
         title={`${translate('version')} ${event.name}`}>
         {event.name}
       </span>
@@ -67,7 +67,7 @@ export function Event({ event }: Props) {
 
   return (
     <div className="overview-analysis-event">
-      <span className="note">{eventCategory}:</span>{' '}
+      <span className="note text-ellipsis width-80">{eventCategory}:</span>{' '}
       {event.description ? (
         <strong title={event.description}>{event.name}</strong>
       ) : (

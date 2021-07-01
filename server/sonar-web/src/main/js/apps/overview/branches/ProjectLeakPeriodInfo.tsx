@@ -59,7 +59,9 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
 
   return (
     <>
-      <div className="note spacer-top">{leakPeriodLabel}</div>
+      <div className="note spacer-top text-ellipsis" title={leakPeriodLabel}>
+        {leakPeriodLabel}
+      </div>
       <DateFromNow date={leakPeriodDate}>
         {fromNow => (
           <div className="note little-spacer-top">

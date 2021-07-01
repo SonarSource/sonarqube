@@ -3,7 +3,8 @@
 exports[`should render a more precise date 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.previous_version_only_date"
   >
     overview.period.previous_version_only_date
   </div>
@@ -18,7 +19,8 @@ exports[`should render a more precise date 1`] = `
 exports[`should render correctly for "manual_baseline" 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.manual_baseline.formattedTime.2019-04-23T02:12:32+0100"
   >
     overview.period.manual_baseline.formattedTime.2019-04-23T02:12:32+0100
   </div>
@@ -33,7 +35,8 @@ exports[`should render correctly for "manual_baseline" 1`] = `
 exports[`should render correctly for "manual_baseline" 2`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.manual_baseline.1.1.2"
   >
     overview.period.manual_baseline.1.1.2
   </div>
@@ -48,7 +51,8 @@ exports[`should render correctly for "manual_baseline" 2`] = `
 exports[`should render correctly for "previous_analysis" 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.previous_analysis."
   >
     overview.period.previous_analysis.
   </div>
@@ -63,7 +67,8 @@ exports[`should render correctly for "previous_analysis" 1`] = `
 exports[`should render correctly for "previous_version" 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.previous_version_only_date"
   >
     overview.period.previous_version_only_date
   </div>
@@ -87,7 +92,8 @@ exports[`should render correctly for 10 days 1`] = `
 exports[`should render correctly for a specific date 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.date.formatted.2013-01-01"
   >
     overview.period.date.formatted.2013-01-01
   </div>
@@ -102,7 +108,8 @@ exports[`should render correctly for a specific date 1`] = `
 exports[`should render correctly for a specific version 1`] = `
 <Fragment>
   <div
-    className="note spacer-top"
+    className="note spacer-top text-ellipsis"
+    title="overview.period.version.0.1"
   >
     overview.period.version.0.1
   </div>
