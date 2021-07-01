@@ -126,8 +126,11 @@ public class PermissionIndexerDao {
     return doSelectByProjects(dbClient, session, Collections.emptyList());
   }
 
-  List<IndexPermissions> selectByUuids(DbClient dbClient, DbSession session, Collection<String> projectOrViewUuids) {
-    return executeLargeInputs(projectOrViewUuids, subProjectOrViewUuids -> doSelectByProjects(dbClient, session, subProjectOrViewUuids));
+  public List<IndexPermissions> selectByUuids(DbClient dbClient, DbSession session, Collection<String> projectOrViewUuids) {
+    // we use a smaller partitionSize because the SQL_TEMPLATE contain 4x the list of project uuid.
+    // the MsSQL jdbc driver accept a maximum of 2100 prepareStatement parameter. To stay under the limit,
+    // we go with batch of 1000/2=500 project uuids, to stay under the limit (4x500 < 2100)
+    return executeLargeInputs(projectOrViewUuids, subProjectOrViewUuids -> doSelectByProjects(dbClient, session, subProjectOrViewUuids), i -> i / 2);
   }
 
   private static List<IndexPermissions> doSelectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {

@@ -163,7 +163,7 @@ public class PermissionIndexerDaoTest {
   @Test
   public void select_by_projects_with_high_number_of_projects() {
     List<String> projectUuids = new ArrayList<>();
-    for (int i = 0; i < 350; i++) {
+    for (int i = 0; i < 3500; i++) {
       ComponentDto project = dbTester.components().insertPrivateProject(Integer.toString(i));
       projectUuids.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()
@@ -176,7 +176,7 @@ public class PermissionIndexerDaoTest {
     dbSession.commit();
 
     assertThat(underTest.selectByUuids(dbClient, dbSession, projectUuids))
-      .hasSize(350)
+      .hasSize(3500)
       .extracting(IndexPermissions::getProjectUuid)
       .containsAll(projectUuids);
   }
