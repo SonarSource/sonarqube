@@ -44,7 +44,6 @@ public class MetricTesting {
       .setEnabled(true)
       .setOptimizedBestValue(RandomUtils.nextBoolean())
       .setQualitative(RandomUtils.nextBoolean())
-      .setUserManaged(RandomUtils.nextBoolean())
       .setWorstValue(RandomUtils.nextDouble());
   }
 }

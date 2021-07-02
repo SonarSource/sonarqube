@@ -100,7 +100,6 @@ public class MetricFinder {
       metric.setQualitative(dto.isQualitative());
       metric.setType(Metric.ValueType.valueOf(dto.getValueType()));
       metric.setOptimizedBestValue(dto.isOptimizedBestValue());
-      metric.setUserManaged(dto.isUserManaged());
       metric.setWorstValue(dto.getWorstValue());
       return metric;
     }

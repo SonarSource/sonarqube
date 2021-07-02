@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
 
-  private static final String METRICS_SEARCH_URL = "/api/metrics/search?f=name,description,direction,qualitative,custom&ps=500&p=";
+  private static final String METRICS_SEARCH_URL = "/api/metrics/search?ps=500&p=";
   private DefaultScannerWsClient wsClient;
 
   public DefaultMetricsRepositoryLoader(DefaultScannerWsClient wsClient) {
@@ -61,7 +61,7 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
             .create()
             .setDirection(metric.getDirection())
             .setQualitative(metric.isQualitative())
-            .setUserManaged(metric.isCustom())
+            .setUserManaged(false)
             .setDescription(metric.getDescription())
             .setUuid(metric.getUuid()));
         }
@@ -78,7 +78,6 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
     private String description;
     private int direction;
     private boolean qualitative;
-    private boolean custom;
 
     public String getUuid() {
       return uuid;
@@ -108,9 +107,6 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
       return qualitative;
     }
 
-    public boolean isCustom() {
-      return custom;
-    }
   }
 
   private static class WsMetricsResponse {

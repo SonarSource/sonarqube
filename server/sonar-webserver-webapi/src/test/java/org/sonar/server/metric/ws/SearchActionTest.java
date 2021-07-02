@@ -69,8 +69,7 @@ public class SearchActionTest {
       .setDirection(0)
       .setQualitative(true)
       .setHidden(false)
-      .setEnabled(true)
-      .setUserManaged(false));
+      .setEnabled(true));
     db.measures().insertMetric(metricDto -> metricDto
       .setKey("custom-key-2")
       .setShortName("custom-name-2")
@@ -80,8 +79,7 @@ public class SearchActionTest {
       .setDirection(0)
       .setQualitative(true)
       .setHidden(false)
-      .setEnabled(true)
-      .setUserManaged(false));
+      .setEnabled(true));
     db.measures().insertMetric(metricDto -> metricDto
       .setKey("custom-key-3")
       .setShortName("custom-name-3")
@@ -91,8 +89,7 @@ public class SearchActionTest {
       .setDirection(0)
       .setQualitative(true)
       .setHidden(false)
-      .setEnabled(true)
-      .setUserManaged(false));
+      .setEnabled(true));
 
     TestResponse result = ws.newRequest().execute();
 
@@ -126,7 +123,7 @@ public class SearchActionTest {
 
   private void insertMetrics(String... ids) {
     for (String id : ids) {
-      db.measures().insertMetric(metricDto -> metricDto.setUuid(id).setShortName("name-" + id).setEnabled(true).setUserManaged(false));
+      db.measures().insertMetric(metricDto -> metricDto.setUuid(id).setShortName("name-" + id).setEnabled(true));
     }
     dbSession.commit();
   }

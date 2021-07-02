@@ -12,7 +12,6 @@
     m.short_name as shortName,
     m.qualitative,
     m.val_type as valueType,
-    m.user_managed as userManaged,
     m.enabled,
     m.worst_value as worstValue,
     m.best_value as bestValue,
@@ -44,14 +43,6 @@
     FROM metrics m
     <where>
       m.enabled=${_true}
-      <if test="isCustom!=null">
-        <if test="isCustom.equals(true)">
-          AND m.user_managed=${_true}
-        </if>
-        <if test="isCustom.equals(false)">
-          AND m.user_managed=${_false}
-        </if>
-      </if>
     </where>
     ORDER BY UPPER(m.short_name), m.short_name
   </select>
@@ -61,25 +52,17 @@
     FROM metrics m
     <where>
       m.enabled=${_true}
-      <if test="isCustom!=null">
-        <if test="isCustom.equals(true)">
-          AND m.user_managed=${_true}
-        </if>
-        <if test="isCustom.equals(false)">
-          AND m.user_managed=${_false}
-        </if>
-      </if>
     </where>
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.metric.MetricDto" useGeneratedKeys="false">
     INSERT INTO metrics (
-    uuid, name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
+    uuid, name, description, direction, domain, short_name, qualitative, val_type, enabled, worst_value,
     best_value, optimized_best_value, hidden, delete_historical_data, decimal_scale)
     VALUES (
     #{uuid, jdbcType=VARCHAR}, #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
-    #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
+    #{valueType, jdbcType=VARCHAR}, #{enabled, jdbcType=BOOLEAN},
     #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
     #{optimizedBestValue, jdbcType=BOOLEAN}, #{hidden, jdbcType=BOOLEAN}, #{deleteHistoricalData, jdbcType=BOOLEAN},
     #{decimalScale, jdbcType=INTEGER}
@@ -100,24 +83,6 @@
     qualitative=#{qualitative, jdbcType=BOOLEAN},
     decimal_scale=#{decimalScale, jdbcType=INTEGER}
     where uuid=#{uuid}
-  </update>
-
-  <select id="selectDomains" resultType="String">
-    select distinct domain
-    from metrics m
-    where m.domain is not null and m.enabled=${_true}
-  </select>
-
-  <update id="disableByUuids">
-    update metrics
-    set enabled=${_false}
-    <where>
-      AND user_managed=${_true}
-      AND uuid in
-      <foreach item="uuid" collection="uuids" open="(" separator="," close=")">
-        #{uuid}
-      </foreach>
-    </where>
   </update>
 
   <update id="disableByKey" parameterType="string">

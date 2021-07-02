@@ -42,7 +42,6 @@ class MetricDtoToWsMetric {
     }
     metric.setQualitative(metricDto.isQualitative());
     metric.setHidden(metricDto.isHidden());
-    metric.setCustom(metricDto.isUserManaged());
     ofNullable(metricDto.getDecimalScale()).ifPresent(metric::setDecimalScale);
     ofNullable(metricDto.getBestValue()).ifPresent(bv -> metric.setBestValue(formatNumericalValue(bv, metricDto)));
     ofNullable(metricDto.getWorstValue()).ifPresent(wv -> metric.setWorstValue(formatNumericalValue(wv, metricDto)));

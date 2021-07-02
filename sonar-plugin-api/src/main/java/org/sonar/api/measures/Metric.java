@@ -327,6 +327,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   /**
    * @return whether the metric is a managed by the users ("manual metric")
    */
+  @Deprecated
   public Boolean getUserManaged() {
     return userManaged;
   }
@@ -697,6 +698,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * @return the builder
      * @since 2.10
      */
+    @Deprecated
     public Builder setUserManaged(boolean b) {
       this.userManaged = b;
       return this;

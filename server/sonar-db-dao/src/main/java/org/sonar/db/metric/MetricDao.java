@@ -19,26 +19,18 @@
  */
 package org.sonar.db.metric;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MetricDao implements Dao {
 
@@ -67,19 +59,12 @@ public class MetricDao implements Dao {
     return mapper(session).selectAllEnabled();
   }
 
-  public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, int offset, int limit) {
-    Map<String, Object> properties;
-    if (isCustom != null) {
-      properties = Collections.singletonMap("isCustom", isCustom);
-    } else {
-      properties = Collections.emptyMap();
-    }
-
-    return mapper(session).selectAllEnabled(properties, new RowBounds(offset, limit));
+  public List<MetricDto> selectEnabled(DbSession session, int offset, int limit) {
+    return mapper(session).selectAllEnabled(new RowBounds(offset, limit));
   }
 
-  public int countEnabled(DbSession session, @Nullable Boolean isCustom) {
-    return mapper(session).countEnabled(isCustom);
+  public int countEnabled(DbSession session) {
+    return mapper(session).countEnabled();
   }
 
   public MetricDto insert(DbSession session, MetricDto dto) {
@@ -98,35 +83,19 @@ public class MetricDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
-  public List<String> selectEnabledDomains(DbSession session) {
-    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
-  }
-
   public List<MetricDto> selectByUuids(DbSession session, Set<String> uuidsSet) {
     return executeLargeInputs(new ArrayList<>(uuidsSet), mapper(session)::selectByUuids);
-  }
-
-  private static class NotEmptyPredicate implements Predicate<String> {
-
-    @Override
-    public boolean apply(@Nonnull String input) {
-      return !input.isEmpty();
-    }
   }
 
   private static MetricMapper mapper(DbSession session) {
     return session.getMapper(MetricMapper.class);
   }
 
-  public void disableCustomByUuids(final DbSession session, List<String> uuids) {
-    executeLargeInputsWithoutOutput(uuids, input -> mapper(session).disableByUuids(input));
-  }
-
   /**
    * Disable a metric and return {@code false} if the metric does not exist
    * or is already disabled.
    */
-  public boolean disableCustomByKey(DbSession session, String key) {
+  public boolean disableByKey(DbSession session, String key) {
     return mapper(session).disableByKey(key) == 1;
   }
 

@@ -42,7 +42,6 @@ public class MetricDtoTest {
       .setDomain("Tests")
       .setValueType("PERCENT")
       .setQualitative(true)
-      .setUserManaged(false)
       .setWorstValue(0d)
       .setBestValue(100d)
       .setOptimizedBestValue(true)
@@ -58,7 +57,6 @@ public class MetricDtoTest {
     assertThat(metricDto.getDomain()).isEqualTo("Tests");
     assertThat(metricDto.getValueType()).isEqualTo("PERCENT");
     assertThat(metricDto.isQualitative()).isTrue();
-    assertThat(metricDto.isUserManaged()).isFalse();
     assertThat(metricDto.getWorstValue()).isEqualTo(0d);
     assertThat(metricDto.getBestValue()).isEqualTo(100d);
     assertThat(metricDto.isOptimizedBestValue()).isTrue();

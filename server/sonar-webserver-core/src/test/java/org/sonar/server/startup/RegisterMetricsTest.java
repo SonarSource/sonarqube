@@ -38,7 +38,6 @@ import org.sonar.db.metric.MetricDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class RegisterMetricsTest {
@@ -76,10 +75,10 @@ public class RegisterMetricsTest {
   }
 
   /**
-   * Update existing metrics, except if custom metric
+   * Update existing metrics
    */
   @Test
-  public void update_non_custom_metrics() {
+  public void update_metrics() {
     dbTester.measures().insertMetric(t -> t.setKey("m1")
       .setShortName("name")
       .setValueType(Metric.ValueType.INT.name())
@@ -87,22 +86,10 @@ public class RegisterMetricsTest {
       .setDomain("old domain")
       .setShortName("old short name")
       .setQualitative(false)
-      .setUserManaged(false)
       .setEnabled(true)
       .setOptimizedBestValue(false)
       .setDirection(1)
       .setHidden(false));
-    MetricDto customMetric = dbTester.measures().insertMetric(t -> t.setKey("custom")
-      .setValueType(Metric.ValueType.FLOAT.name())
-      .setDescription("old desc")
-      .setShortName("Custom")
-      .setQualitative(false)
-      .setUserManaged(true)
-      .setEnabled(true)
-      .setOptimizedBestValue(false)
-      .setDirection(0)
-      .setHidden(false)
-      .setDecimalScale(1));
 
     RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
@@ -114,23 +101,11 @@ public class RegisterMetricsTest {
       .setDecimalScale(3)
       .setHidden(true)
       .create();
-    Metric custom = new Metric.Builder("custom", "New custom", Metric.ValueType.FLOAT)
-      .setDescription("New description of custom metric")
-      .setUserManaged(true)
-      .create();
-    register.register(asList(m1, custom));
+    register.register(asList(m1));
 
     Map<String, MetricDto> metricsByKey = selectAllMetrics();
-    assertThat(metricsByKey).hasSize(2);
+    assertThat(metricsByKey).hasSize(1);
     assertEquals(m1, metricsByKey.get("m1"));
-    MetricDto actual = metricsByKey.get("custom");
-    assertThat(actual.getKey()).isEqualTo(custom.getKey());
-    assertThat(actual.getShortName()).isEqualTo(customMetric.getShortName());
-    assertThat(actual.getValueType()).isEqualTo(customMetric.getValueType());
-    assertThat(actual.getDescription()).isEqualTo(customMetric.getDescription());
-    assertThat(actual.getDirection()).isEqualTo(customMetric.getDirection());
-    assertThat(actual.isQualitative()).isEqualTo(customMetric.isQualitative());
-    assertThat(actual.isUserManaged()).isEqualTo(customMetric.isUserManaged());
   }
 
   @Test
@@ -138,7 +113,7 @@ public class RegisterMetricsTest {
     Random random = new Random();
     int count = 1 + random.nextInt(10);
     IntStream.range(0, count)
-      .forEach(t -> dbTester.measures().insertMetric(m -> m.setEnabled(random.nextBoolean()).setUserManaged(false)));
+      .forEach(t -> dbTester.measures().insertMetric(m -> m.setEnabled(random.nextBoolean())));
 
     RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(Collections.emptyList());
@@ -150,8 +125,8 @@ public class RegisterMetricsTest {
 
   @Test
   public void enable_disabled_metrics() {
-    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(false));
-    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(false));
+    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
+    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
 
     RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
@@ -159,21 +134,6 @@ public class RegisterMetricsTest {
     assertThat(selectAllMetrics().values())
       .extracting(MetricDto::isEnabled)
       .containsOnly(true, true);
-  }
-
-  @Test
-  public void does_not_enable_disabled_custom_metrics() {
-    MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(true));
-    MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(true));
-
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
-    register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
-
-    assertThat(selectAllMetrics().values())
-      .extracting(MetricDto::getKey, MetricDto::isEnabled)
-      .containsOnly(
-        tuple(enabledMetric.getKey(), true),
-        tuple(disabledMetric.getKey(), false));
   }
 
   @Test
@@ -225,7 +185,6 @@ public class RegisterMetricsTest {
     assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
     assertThat(actual.getDirection()).isEqualTo(expected.getDirection());
     assertThat(actual.isQualitative()).isEqualTo(expected.getQualitative());
-    assertThat(actual.isUserManaged()).isEqualTo(expected.getUserManaged());
   }
 
   private static Metric.Builder builderOf(MetricDto enabledMetric) {
@@ -235,7 +194,6 @@ public class RegisterMetricsTest {
       .setQualitative(enabledMetric.isQualitative())
       .setQualitative(enabledMetric.isQualitative())
       .setDomain(enabledMetric.getDomain())
-      .setUserManaged(enabledMetric.isUserManaged())
       .setHidden(enabledMetric.isHidden());
   }
 }

@@ -40,8 +40,7 @@
       "type": "INT",
       "higherValuesAreBetter": false,
       "qualitative": false,
-      "hidden": false,
-      "custom": false
+      "hidden": false
     },
     {
       "key": "ncloc",
@@ -51,8 +50,7 @@
       "type": "INT",
       "higherValuesAreBetter": false,
       "qualitative": false,
-      "hidden": false,
-      "custom": false
+      "hidden": false
     },
     {
       "key": "new_violations",
@@ -62,8 +60,7 @@
       "type": "INT",
       "higherValuesAreBetter": false,
       "qualitative": true,
-      "hidden": false,
-      "custom": false
+      "hidden": false
     }
   ],
   "period": {

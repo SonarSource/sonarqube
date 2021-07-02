@@ -52,21 +52,14 @@ public class MetricDaoTest {
 
   @Test
   public void select_by_key_enabled_metric() {
-    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(false));
+    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(true));
 
     assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
   }
 
   @Test
   public void select_by_key_disabled_metric() {
-    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(false));
-
-    assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
-  }
-
-  @Test
-  public void select_by_key_manual_metric() {
-    MetricDto expected = db.measures().insertMetric(t -> t.setUserManaged(true));
+    MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(false));
 
     assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
   }
@@ -128,7 +121,7 @@ public class MetricDaoTest {
       .setDomain("Tests")
       .setValueType("PERCENT")
       .setQualitative(true)
-      .setUserManaged(true)
+
       .setWorstValue(0d)
       .setBestValue(100d)
       .setOptimizedBestValue(true)
@@ -146,7 +139,6 @@ public class MetricDaoTest {
     assertThat(result.getValueType()).isEqualTo("PERCENT");
     assertThat(result.getDirection()).isEqualTo(1);
     assertThat(result.isQualitative()).isTrue();
-    assertThat(result.isUserManaged()).isTrue();
     assertThat(result.getWorstValue()).isEqualTo(0d);
     assertThat(result.getBestValue()).isEqualTo(100d);
     assertThat(result.isOptimizedBestValue()).isTrue();
@@ -165,7 +157,7 @@ public class MetricDaoTest {
       .setDomain("Tests")
       .setValueType("PERCENT")
       .setQualitative(true)
-      .setUserManaged(true)
+
       .setWorstValue(0d)
       .setBestValue(100d)
       .setOptimizedBestValue(true)
@@ -181,7 +173,7 @@ public class MetricDaoTest {
         .setDomain("Tests")
         .setValueType("INT")
         .setQualitative(true)
-        .setUserManaged(true)
+
         .setWorstValue(0d)
         .setBestValue(100d)
         .setOptimizedBestValue(true)
@@ -225,25 +217,13 @@ public class MetricDaoTest {
 
   @Test
   public void countEnabled() {
-    underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
-    underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(false));
 
-    int result = underTest.countEnabled(dbSession, true);
+    int result = underTest.countEnabled(dbSession);
 
     assertThat(result).isEqualTo(2);
-  }
-
-  @Test
-  public void selectDomains() {
-    underTest.insert(dbSession, newMetricDto().setDomain("first-domain").setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setDomain("second-domain").setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setDomain("second-domain").setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setDomain("third-domain").setEnabled(true));
-
-    List<String> domains = underTest.selectEnabledDomains(dbSession);
-
-    assertThat(domains).hasSize(3).containsOnly("first-domain", "second-domain", "third-domain");
   }
 
   @Test
@@ -259,29 +239,17 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void disableByUuids() {
-    MetricDto metric1 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
-    MetricDto metric2 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
-
-    underTest.disableCustomByUuids(dbSession, Arrays.asList(metric1.getUuid(), metric2.getUuid()));
-
-    List<MetricDto> result = underTest.selectByUuids(dbSession, newHashSet(metric1.getUuid(), metric2.getUuid()));
-    assertThat(result).hasSize(2);
-    assertThat(result).extracting("enabled").containsOnly(false);
-  }
-
-  @Test
   public void disableByKey() {
-    underTest.insert(dbSession, newMetricDto().setKey("metric-key").setEnabled(true).setUserManaged(true));
+    underTest.insert(dbSession, newMetricDto().setKey("metric-key").setEnabled(true));
 
-    boolean updated = underTest.disableCustomByKey(dbSession, "metric-key");
+    boolean updated = underTest.disableByKey(dbSession, "metric-key");
     assertThat(updated).isTrue();
 
     MetricDto result = underTest.selectByKey(dbSession, "metric-key");
     assertThat(result.isEnabled()).isFalse();
 
     // disable again -> zero rows are touched
-    updated = underTest.disableCustomByKey(dbSession, "metric-key");
+    updated = underTest.disableByKey(dbSession, "metric-key");
     assertThat(updated).isFalse();
   }
 
@@ -296,14 +264,13 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void selectEnabled_with_paging_and_custom() {
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(false).setEnabled(true));
-    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(false));
+  public void selectEnabled_with_paging() {
+    underTest.insert(dbSession, newMetricDto().setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(false));
 
-    List<MetricDto> result = underTest.selectEnabled(dbSession, true, 0, 100);
+    List<MetricDto> result = underTest.selectEnabled(dbSession, 0, 100);
 
     assertThat(result).hasSize(3);
   }
@@ -316,7 +283,6 @@ public class MetricDaoTest {
     assertThat(result.getValueType()).isEqualTo(expected.getValueType());
     assertThat(result.getDirection()).isEqualTo(expected.getDirection());
     assertThat(result.isQualitative()).isEqualTo(expected.isQualitative());
-    assertThat(result.isUserManaged()).isEqualTo(expected.isUserManaged());
     assertThat(result.getWorstValue()).isCloseTo(expected.getWorstValue(), within(0.001d));
     assertThat(result.getBestValue()).isCloseTo(expected.getBestValue(), within(0.001d));
     assertThat(result.isOptimizedBestValue()).isEqualTo(expected.isOptimizedBestValue());
@@ -324,6 +290,5 @@ public class MetricDaoTest {
     assertThat(result.isHidden()).isEqualTo(expected.isHidden());
     assertThat(result.isEnabled()).isEqualTo(expected.isEnabled());
     assertThat(result.getDecimalScale()).isEqualTo(expected.getDecimalScale());
-    assertThat(result.isUserManaged()).isEqualTo(expected.isUserManaged());
   }
 }

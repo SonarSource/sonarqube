@@ -228,7 +228,7 @@ public class ShowActionTest {
     db.qualityGates().setDefaultQualityGate(qualityGate);
     MetricDto metric = db.measures().insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
-    db.getDbClient().metricDao().disableCustomByKey(db.getSession(), metric.getKey());
+    db.getDbClient().metricDao().disableByKey(db.getSession(), metric.getKey());
     db.commit();
 
     expectedException.expect(IllegalStateException.class);

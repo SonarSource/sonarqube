@@ -45,8 +45,6 @@ public class MetricDto {
 
   private boolean qualitative;
 
-  private boolean userManaged;
-
   private Double worstValue;
 
   private Double bestValue;
@@ -135,15 +133,6 @@ public class MetricDto {
 
   public MetricDto setQualitative(boolean qualitative) {
     this.qualitative = qualitative;
-    return this;
-  }
-
-  public boolean isUserManaged() {
-    return userManaged;
-  }
-
-  public MetricDto setUserManaged(boolean userManaged) {
-    this.userManaged = userManaged;
     return this;
   }
 

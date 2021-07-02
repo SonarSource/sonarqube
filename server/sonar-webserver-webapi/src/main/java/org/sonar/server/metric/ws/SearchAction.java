@@ -61,18 +61,14 @@ public class SearchAction implements MetricsWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE),
         request.mandatoryParamAsInt(Param.PAGE_SIZE));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, false, searchOptions.getOffset(), searchOptions.getLimit());
-      int nbMetrics = dbClient.metricDao().countEnabled(dbSession, false);
+      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, searchOptions.getOffset(), searchOptions.getLimit());
+      int nbMetrics = dbClient.metricDao().countEnabled(dbSession);
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeMetrics(json, metrics);
+        MetricJsonWriter.write(json, metrics);
         searchOptions.writeJson(json, nbMetrics);
         json.endObject();
       }
     }
-  }
-
-  public static void writeMetrics(JsonWriter json, List<MetricDto> metrics) {
-    MetricJsonWriter.write(json, metrics);
   }
 }

@@ -20,8 +20,6 @@
 package org.sonar.db.metric;
 
 import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -39,17 +37,13 @@ public interface MetricMapper {
 
   List<MetricDto> selectAllEnabled();
 
-  List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
+  List<MetricDto> selectAllEnabled(RowBounds rowBounds);
 
   void insert(MetricDto dto);
 
-  List<String> selectDomains();
-
-  void disableByUuids(@Param("uuids") List<String> uuids);
-
   int disableByKey(@Param("key") String key);
 
-  int countEnabled(@Param("isCustom") @Nullable Boolean isCustom);
+  int countEnabled();
 
   void update(MetricDto metric);
 }

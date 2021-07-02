@@ -986,8 +986,7 @@ public class ComponentTreeActionTest {
     return MetricTesting.newMetricDto()
       .setWorstValue(null)
       .setBestValue(null)
-      .setOptimizedBestValue(false)
-      .setUserManaged(false);
+      .setOptimizedBestValue(false);
   }
 
   private MetricDto insertNewViolationsMetric() {
@@ -1000,7 +999,6 @@ public class ComponentTreeActionTest {
       .setDirection(-1)
       .setQualitative(true)
       .setHidden(false)
-      .setUserManaged(false)
       .setOptimizedBestValue(true)
       .setBestValue(0.0d));
     db.commit();
@@ -1016,8 +1014,7 @@ public class ComponentTreeActionTest {
       .setValueType(INT.name())
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }
@@ -1031,8 +1028,7 @@ public class ComponentTreeActionTest {
       .setValueType(INT.name())
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }
@@ -1046,8 +1042,7 @@ public class ComponentTreeActionTest {
       .setValueType(FLOAT.name())
       .setDirection(1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }

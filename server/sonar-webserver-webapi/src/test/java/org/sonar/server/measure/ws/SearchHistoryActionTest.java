@@ -498,8 +498,7 @@ public class SearchHistoryActionTest {
     return newMetricDto()
       .setWorstValue(null)
       .setOptimizedBestValue(false)
-      .setBestValue(null)
-      .setUserManaged(false);
+      .setBestValue(null);
   }
 
   private MetricDto insertNclocMetric() {
@@ -511,8 +510,7 @@ public class SearchHistoryActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }
@@ -526,8 +524,7 @@ public class SearchHistoryActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }
@@ -541,8 +538,7 @@ public class SearchHistoryActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(true)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.commit();
     return metric;
   }

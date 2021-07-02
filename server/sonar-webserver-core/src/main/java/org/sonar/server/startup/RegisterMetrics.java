@@ -19,6 +19,9 @@
  */
 package org.sonar.server.startup;
 
+import static com.google.common.collect.FluentIterable.concat;
+import static com.google.common.collect.Lists.newArrayList;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.List;
@@ -35,10 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.metric.MetricToDto;
-
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Lists.newArrayList;
 
 public class RegisterMetrics implements Startable {
 
@@ -87,7 +86,8 @@ public class RegisterMetrics implements Startable {
 
   private void save(DbSession session, Iterable<Metric> metrics) {
     Map<String, MetricDto> basesByKey = new HashMap<>();
-    for (MetricDto base : from(dbClient.metricDao().selectAll(session)).toList()) {
+    var allMetrics = dbClient.metricDao().selectAll(session);
+    for (MetricDto base : allMetrics) {
       basesByKey.put(base.getKey(), base);
     }
 
@@ -98,8 +98,7 @@ public class RegisterMetrics implements Startable {
         // new metric, never installed
         dto.setUuid(uuidFactory.create());
         dbClient.metricDao().insert(session, dto);
-      } else if (!base.isUserManaged()) {
-        // existing metric, update changes. Existing custom metrics are kept without applying changes.
+      } else {
         dto.setUuid(base.getUuid());
         dbClient.metricDao().update(session, dto);
       }
@@ -107,7 +106,7 @@ public class RegisterMetrics implements Startable {
     }
 
     for (MetricDto nonUpdatedBase : basesByKey.values()) {
-      if (!nonUpdatedBase.isUserManaged() && dbClient.metricDao().disableCustomByKey(session, nonUpdatedBase.getKey())) {
+      if (dbClient.metricDao().disableByKey(session, nonUpdatedBase.getKey())) {
         LOG.info("Disable metric {} [{}]", nonUpdatedBase.getShortName(), nonUpdatedBase.getKey());
       }
     }

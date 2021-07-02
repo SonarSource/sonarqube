@@ -417,8 +417,7 @@ public class ComponentActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.measures().insertLiveMeasure(file, complexity,
       m -> m.setValue(12.0d)
         .setVariation(2.0d)
@@ -431,8 +430,7 @@ public class ComponentActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.measures().insertLiveMeasure(file, ncloc,
       m -> m.setValue(114.0d)
         .setVariation(3.0d)
@@ -445,8 +443,7 @@ public class ComponentActionTest {
       .setValueType("INT")
       .setDirection(-1)
       .setQualitative(true)
-      .setHidden(false)
-      .setUserManaged(false));
+      .setHidden(false));
     db.measures().insertLiveMeasure(file, newViolations,
       m -> m.setVariation(25.0d)
         .setValue(null)

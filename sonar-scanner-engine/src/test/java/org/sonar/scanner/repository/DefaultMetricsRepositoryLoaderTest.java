@@ -24,13 +24,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
@@ -39,12 +38,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultMetricsRepositoryLoaderTest {
-  private static final String WS_URL = "/api/metrics/search?f=name,description,direction,qualitative,custom&ps=500&p=";
+  private static final String WS_URL = "/api/metrics/search?ps=500&p=";
   private DefaultScannerWsClient wsClient;
   private DefaultMetricsRepositoryLoader metricsRepositoryLoader;
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws IOException {
@@ -68,8 +64,8 @@ public class DefaultMetricsRepositoryLoaderTest {
     Reader reader = mock(Reader.class);
     when(reader.read(any(char[].class), anyInt(), anyInt())).thenThrow(new IOException());
     WsTestUtil.mockReader(wsClient, reader);
-    exception.expect(IllegalStateException.class);
-    metricsRepositoryLoader.load();
+    assertThatThrownBy(() -> metricsRepositoryLoader.load())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -78,7 +74,7 @@ public class DefaultMetricsRepositoryLoaderTest {
     when(reader.read(any(char[].class), anyInt(), anyInt())).thenReturn(-1);
     doThrow(new IOException()).when(reader).close();
     WsTestUtil.mockReader(wsClient, reader);
-    exception.expect(IllegalStateException.class);
-    metricsRepositoryLoader.load();
+    assertThatThrownBy(() -> metricsRepositoryLoader.load())
+      .isInstanceOf(IllegalStateException.class);
   }
 }
