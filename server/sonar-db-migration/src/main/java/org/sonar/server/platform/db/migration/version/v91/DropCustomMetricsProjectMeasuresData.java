@@ -19,18 +19,21 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.Database;
 
-public class DbVersion91 implements DbVersion {
+public class DropCustomMetricsProjectMeasuresData extends DropCustomMetricsData {
+
+  public DropCustomMetricsProjectMeasuresData(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6001, "Drop 'manual_measures_component_uuid' index", DropManualMeasuresComponentUuidIndex.class)
-      .add(6002, "Drop 'manual_measures' table", DropManualMeasuresTable.class)
-      .add(6003, "Drop custom metrics data from 'live_measures' table", DropCustomMetricsLiveMeasuresData.class)
-      .add(6004, "Drop custom metrics data from 'project_measures' table", DropCustomMetricsProjectMeasuresData.class)
-      .add(6005, "Drop custom metrics data from 'metrics' table", DropUserManagedMetricsData.class)
-      .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class);
+  String selectQuery() {
+    return "SELECT pm.uuid FROM metrics m JOIN project_measures pm ON m.uuid = pm.metric_uuid WHERE m.user_managed = ?";
+  }
+
+  @Override
+  String updateQuery() {
+    return "DELETE FROM project_measures WHERE uuid = ?";
   }
 }

@@ -19,18 +19,26 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion91 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6001, "Drop 'manual_measures_component_uuid' index", DropManualMeasuresComponentUuidIndex.class)
-      .add(6002, "Drop 'manual_measures' table", DropManualMeasuresTable.class)
-      .add(6003, "Drop custom metrics data from 'live_measures' table", DropCustomMetricsLiveMeasuresData.class)
-      .add(6004, "Drop custom metrics data from 'project_measures' table", DropCustomMetricsProjectMeasuresData.class)
-      .add(6005, "Drop custom metrics data from 'metrics' table", DropUserManagedMetricsData.class)
-      .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class);
+public class DropUserManagedColumnFromMetricsTableTest {
+  private static final String COLUMN_NAME = "user_managed";
+  private static final String TABLE_NAME = "metrics";
+
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropUserManagedColumnFromMetricsTableTest.class, "schema.sql");
+
+  private final DdlChange underTest = new DropUserManagedColumnFromMetricsTable(db.database());
+
+  @Test
+  public void migration_should_drop_unique_index_on_manual_measures() throws SQLException {
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.BOOLEAN, null, true);
+    underTest.execute();
+    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 }

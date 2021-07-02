@@ -19,18 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class DbVersion91 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6001, "Drop 'manual_measures_component_uuid' index", DropManualMeasuresComponentUuidIndex.class)
-      .add(6002, "Drop 'manual_measures' table", DropManualMeasuresTable.class)
-      .add(6003, "Drop custom metrics data from 'live_measures' table", DropCustomMetricsLiveMeasuresData.class)
-      .add(6004, "Drop custom metrics data from 'project_measures' table", DropCustomMetricsProjectMeasuresData.class)
-      .add(6005, "Drop custom metrics data from 'metrics' table", DropUserManagedMetricsData.class)
-      .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class);
+abstract class DropCustomMetricsData extends DataChange {
+
+  DropCustomMetricsData(Database db) {
+    super(db);
   }
+
+  @Override
+  protected void execute(Context context) throws SQLException {
+    var massUpdate = context.prepareMassUpdate();
+    massUpdate.select(selectQuery()).setBoolean(1, true);
+    massUpdate.update(updateQuery());
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
+  }
+
+  abstract String selectQuery();
+
+  abstract String updateQuery();
 }
