@@ -43,7 +43,7 @@ public class JwtCsrfVerifierTest {
 
   private static final int TIMEOUT = 30;
   private static final String CSRF_STATE = "STATE";
-  private static final String JAVA_WS_URL = "/api/metrics/create";
+  private static final String JAVA_WS_URL = "/api/projects/create";
   private static final String LOGIN = "foo login";
 
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);

@@ -19,14 +19,9 @@
  */
 package org.sonar.server.metric.ws;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.util.List;
-import java.util.Set;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.metric.MetricDto;
-
-import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 
 public class MetricJsonWriter {
   public static final String FIELD_ID = "id";
@@ -38,39 +33,33 @@ public class MetricJsonWriter {
   public static final String FIELD_DIRECTION = "direction";
   public static final String FIELD_QUALITATIVE = "qualitative";
   public static final String FIELD_HIDDEN = "hidden";
-  public static final String FIELD_CUSTOM = "custom";
   public static final String FIELD_DECIMAL_SCALE = "decimalScale";
-  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN,
-    FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN, FIELD_CUSTOM, FIELD_DECIMAL_SCALE);
-  public static final Set<String> MANDATORY_FIELDS = ImmutableSet.of(FIELD_ID, FIELD_KEY, FIELD_NAME, FIELD_DOMAIN, FIELD_TYPE);
-  public static final Set<String> ALL_FIELDS = ImmutableSet.copyOf(Sets.union(MANDATORY_FIELDS, OPTIONAL_FIELDS));
 
   private MetricJsonWriter() {
     // static stuff only for the time being
   }
 
-  public static void write(JsonWriter json, List<MetricDto> metrics, Set<String> fieldsToReturn) {
+  public static void write(JsonWriter json, List<MetricDto> metrics) {
     json.name("metrics");
     json.beginArray();
     for (MetricDto metric : metrics) {
-      write(json, metric, fieldsToReturn);
+      write(json, metric);
     }
     json.endArray();
   }
 
-  public static void write(JsonWriter json, MetricDto metric, Set<String> fieldsToReturn) {
+  public static void write(JsonWriter json, MetricDto metric) {
     json.beginObject();
     json.prop(FIELD_ID, String.valueOf(metric.getUuid()));
     json.prop(FIELD_KEY, metric.getKey());
     json.prop(FIELD_TYPE, metric.getValueType());
-    writeIfNeeded(json, metric.getShortName(), FIELD_NAME, fieldsToReturn);
-    writeIfNeeded(json, metric.getDescription(), FIELD_DESCRIPTION, fieldsToReturn);
-    writeIfNeeded(json, metric.getDomain(), FIELD_DOMAIN, fieldsToReturn);
-    writeIfNeeded(json, metric.getDirection(), FIELD_DIRECTION, fieldsToReturn);
-    writeIfNeeded(json, metric.isQualitative(), FIELD_QUALITATIVE, fieldsToReturn);
-    writeIfNeeded(json, metric.isHidden(), FIELD_HIDDEN, fieldsToReturn);
-    writeIfNeeded(json, metric.isUserManaged(), FIELD_CUSTOM, fieldsToReturn);
-    writeIfNeeded(json, metric.getDecimalScale(), FIELD_DECIMAL_SCALE, fieldsToReturn);
+    json.prop(FIELD_NAME, metric.getShortName());
+    json.prop(FIELD_DESCRIPTION, metric.getDescription());
+    json.prop(FIELD_DOMAIN, metric.getDomain());
+    json.prop(FIELD_DIRECTION, metric.getDirection());
+    json.prop(FIELD_QUALITATIVE, metric.isQualitative());
+    json.prop(FIELD_HIDDEN, metric.isHidden());
+    json.prop(FIELD_DECIMAL_SCALE, metric.getDecimalScale());
     json.endObject();
   }
 }

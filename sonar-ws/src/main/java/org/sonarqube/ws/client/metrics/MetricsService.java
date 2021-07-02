@@ -40,55 +40,6 @@ public class MetricsService extends BaseService {
   /**
    *
    * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/create">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   */
-  public void create(CreateRequest request) {
-    call(
-      new PostRequest(path("create"))
-        .setParam("description", request.getDescription())
-        .setParam("domain", request.getDomain())
-        .setParam("key", request.getKey())
-        .setParam("name", request.getName())
-        .setParam("type", request.getType())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/delete">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   */
-  public void delete(DeleteRequest request) {
-    call(
-      new PostRequest(path("delete"))
-        .setParam("ids", request.getIds())
-        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/domains">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   */
-  public String domains() {
-    return call(
-      new GetRequest(path("domains"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/search">Further information about this action online (including a response example)</a>
    * @since 5.2
@@ -118,23 +69,4 @@ public class MetricsService extends BaseService {
       ).content();
   }
 
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/update">Further information about this action online (including a response example)</a>
-   * @since 5.2
-   */
-  public void update(UpdateRequest request) {
-    call(
-      new PostRequest(path("update"))
-        .setParam("description", request.getDescription())
-        .setParam("domain", request.getDomain())
-        .setParam("id", request.getId())
-        .setParam("key", request.getKey())
-        .setParam("name", request.getName())
-        .setParam("type", request.getType())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
 }

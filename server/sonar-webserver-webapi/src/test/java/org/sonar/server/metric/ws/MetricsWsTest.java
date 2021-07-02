@@ -21,26 +21,17 @@ package org.sonar.server.metric.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.SequenceUuidFactory;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
-import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MetricsWsTest {
 
-  private DbClient dbClient = mock(DbClient.class);
-  private UserSession userSession = mock(UserSession.class);
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private MetricsWs underTest = new MetricsWs(
-      new SearchAction(dbClient),
-      new CreateAction(dbClient, userSession, uuidFactory),
-      new UpdateAction(dbClient, userSession),
-      new DeleteAction(dbClient, userSession),
-      new TypesAction(),
-      new DomainsAction(dbClient));
+  private final DbClient dbClient = mock(DbClient.class);
+  private final MetricsWs underTest = new MetricsWs(
+    new SearchAction(dbClient),
+    new TypesAction());
 
   @Test
   public void define_ws() {
@@ -51,7 +42,7 @@ public class MetricsWsTest {
     WebService.Controller controller = context.controller("api/metrics");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(2);
   }
 
 }

@@ -107,7 +107,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
@@ -375,7 +374,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       Languages.class, // used by CommonRuleDefinitionsImpl
 
       // measure
-      CoreCustomMetrics.class,
       MetricFinder.class,
       UnanalyzedLanguageMetrics.class,
 

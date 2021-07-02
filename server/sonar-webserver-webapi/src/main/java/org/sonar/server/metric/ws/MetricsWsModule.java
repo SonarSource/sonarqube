@@ -26,12 +26,7 @@ public class MetricsWsModule extends Module {
   protected void configureModule() {
     add(
       MetricsWs.class,
-      CreateAction.class,
-      DeleteAction.class,
-      DomainsAction.class,
       SearchAction.class,
-      UpdateAction.class,
-      UserMetricsAction.class,
       TypesAction.class);
   }
 }

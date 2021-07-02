@@ -20,8 +20,6 @@
 package org.sonar.server.metric.ws;
 
 import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,52 +31,28 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.SearchOptions;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_ID;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_KEY;
 
 public class SearchAction implements MetricsWsAction {
 
   private static final String ACTION = "search";
 
-  public static final String PARAM_IS_CUSTOM = "isCustom";
-
-  private final Set<String> allPossibleFields;
-
   private final DbClient dbClient;
 
   public SearchAction(DbClient dbClient) {
     this.dbClient = dbClient;
-    Set<String> possibleFields = newHashSet(FIELD_ID, FIELD_KEY);
-    possibleFields.addAll(MetricJsonWriter.OPTIONAL_FIELDS);
-    allPossibleFields = possibleFields;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION)
+    context.createAction(ACTION)
       .setSince("5.2")
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setChangelog(
-        new Change("8.4", "Field 'id' in the response is deprecated"),
-        new Change("7.7", "Field 'custom' in the response is deprecated"))
+        new Change("8.4", "Field 'id' in the response is deprecated"))
       .setHandler(this);
-
-    action.createFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
-      .setDeprecatedSince("7.7");
-
-    action.createParam(PARAM_IS_CUSTOM)
-      .setDeprecatedSince("7.7")
-      .setExampleValue("true")
-      .setDescription("Choose custom metrics following 3 cases:" +
-        "<ul>" +
-        "<li>true: only custom metrics are returned</li>" +
-        "<li>false: only non custom metrics are returned</li>" +
-        "<li>not specified: all metrics are returned</li>" +
-        "</ul>");
   }
 
   @Override
@@ -86,29 +60,19 @@ public class SearchAction implements MetricsWsAction {
     SearchOptions searchOptions = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE),
         request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    Boolean isCustom = request.paramAsBoolean(PARAM_IS_CUSTOM);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions.getOffset(), searchOptions.getLimit());
-      int nbMetrics = dbClient.metricDao().countEnabled(dbSession, isCustom);
+      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, false, searchOptions.getOffset(), searchOptions.getLimit());
+      int nbMetrics = dbClient.metricDao().countEnabled(dbSession, false);
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        Set<String> desiredFields = desiredFields(request.paramAsStrings(Param.FIELDS));
-        writeMetrics(json, metrics, desiredFields);
+        writeMetrics(json, metrics);
         searchOptions.writeJson(json, nbMetrics);
         json.endObject();
       }
     }
   }
 
-  private Set<String> desiredFields(@Nullable List<String> fields) {
-    if (fields == null || fields.isEmpty()) {
-      return allPossibleFields;
-    }
-
-    return newHashSet(fields);
-  }
-
-  public static void writeMetrics(JsonWriter json, List<MetricDto> metrics, Set<String> desiredFields) {
-    MetricJsonWriter.write(json, metrics, desiredFields);
+  public static void writeMetrics(JsonWriter json, List<MetricDto> metrics) {
+    MetricJsonWriter.write(json, metrics);
   }
 }

@@ -29,24 +29,21 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.metric.ws.SearchAction.PARAM_IS_CUSTOM;
 
 public class SearchActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private SearchAction underTest = new SearchAction(dbClient);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final SearchAction underTest = new SearchAction(dbClient);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void verify_definition() {
@@ -58,13 +55,44 @@ public class SearchActionTest {
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
-        tuple("8.4", "Field 'id' in the response is deprecated"),
-        tuple("7.7", "Field 'custom' in the response is deprecated"));
+        tuple("8.4", "Field 'id' in the response is deprecated"));
   }
 
   @Test
   public void search_metrics_in_database() {
-    insertNewCustomMetric("1", "2", "3");
+    db.measures().insertMetric(metricDto -> metricDto
+      .setKey("custom-key-1")
+      .setShortName("custom-name-1")
+      .setValueType("INT")
+      .setDomain("custom-domain-1")
+      .setDescription("custom-description-1")
+      .setDirection(0)
+      .setQualitative(true)
+      .setHidden(false)
+      .setEnabled(true)
+      .setUserManaged(false));
+    db.measures().insertMetric(metricDto -> metricDto
+      .setKey("custom-key-2")
+      .setShortName("custom-name-2")
+      .setValueType("INT")
+      .setDomain("custom-domain-2")
+      .setDescription("custom-description-2")
+      .setDirection(0)
+      .setQualitative(true)
+      .setHidden(false)
+      .setEnabled(true)
+      .setUserManaged(false));
+    db.measures().insertMetric(metricDto -> metricDto
+      .setKey("custom-key-3")
+      .setShortName("custom-name-3")
+      .setValueType("INT")
+      .setDomain("custom-domain-3")
+      .setDescription("custom-description-3")
+      .setDirection(0)
+      .setQualitative(true)
+      .setHidden(false)
+      .setEnabled(true)
+      .setUserManaged(false));
 
     TestResponse result = ws.newRequest().execute();
 
@@ -73,94 +101,34 @@ public class SearchActionTest {
 
   @Test
   public void search_metrics_ordered_by_name_case_insensitive() {
-    insertNewCustomMetric("3", "1", "2");
+    insertMetrics("uuid-3", "uuid-1", "uuid-2");
 
     String firstResult = ws.newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().getInput();
     String secondResult = ws.newRequest().setParam(Param.PAGE, "2").setParam(Param.PAGE_SIZE, "1").execute().getInput();
     String thirdResult = ws.newRequest().setParam(Param.PAGE, "3").setParam(Param.PAGE_SIZE, "1").execute().getInput();
 
-    assertThat(firstResult).contains("custom-key-1").doesNotContain("custom-key-2").doesNotContain("custom-key-3");
-    assertThat(secondResult).contains("custom-key-2").doesNotContain("custom-key-1").doesNotContain("custom-key-3");
-    assertThat(thirdResult).contains("custom-key-3").doesNotContain("custom-key-1").doesNotContain("custom-key-2");
+    assertThat(firstResult).contains("uuid-1").doesNotContain("uuid-2").doesNotContain("uuid-3");
+    assertThat(secondResult).contains("uuid-2").doesNotContain("uuid-1").doesNotContain("uuid-3");
+    assertThat(thirdResult).contains("uuid-3").doesNotContain("uuid-1").doesNotContain("uuid-2");
   }
 
   @Test
   public void search_metrics_with_pagination() {
-    insertNewCustomMetric("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+    insertMetrics("uuid-1", "uuid-2", "uuid-3", "uuid-4", "uuid-5", "uuid-6", "uuid-7", "uuid-8", "uuid-9", "uuid-10");
 
     TestResponse result = ws.newRequest()
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4")
       .execute();
 
-    assertThat(StringUtils.countMatches(result.getInput(), "custom-key")).isEqualTo(2);
+    assertThat(StringUtils.countMatches(result.getInput(), "name-uuid-")).isEqualTo(2);
   }
 
-  @Test
-  public void list_metric_with_is_custom_true() {
-    insertNewCustomMetric("1", "2");
-    insertNewNonCustomMetric("3");
-
-    String result = ws.newRequest()
-      .setParam(PARAM_IS_CUSTOM, "true").execute().getInput();
-
-    assertThat(result).contains("custom-key-1", "custom-key-2")
-      .doesNotContain("non-custom-key-3");
-  }
-
-  @Test
-  public void list_metric_with_is_custom_false() {
-    insertNewCustomMetric("1", "2");
-    insertNewNonCustomMetric("3");
-
-    String result = ws.newRequest()
-      .setParam(PARAM_IS_CUSTOM, "false").execute().getInput();
-
-    assertThat(result).doesNotContain("custom-key-1")
-      .doesNotContain("custom-key-2")
-      .contains("non-custom-key-3");
-  }
-
-  @Test
-  public void list_metric_with_chosen_fields() {
-    insertNewCustomMetric("1");
-
-    String result = ws.newRequest().setParam(Param.FIELDS, "name").execute().getInput();
-
-    assertThat(result).contains("id", "key", "name", "type")
-      .doesNotContain("domain")
-      .doesNotContain("description");
-  }
-
-  private void insertNewNonCustomMetric(String... ids) {
+  private void insertMetrics(String... ids) {
     for (String id : ids) {
-      dbClient.metricDao().insert(dbSession, newMetricDto()
-        .setKey("non-custom-key-" + id)
-        .setEnabled(true)
-        .setUserManaged(false));
+      db.measures().insertMetric(metricDto -> metricDto.setUuid(id).setShortName("name-" + id).setEnabled(true).setUserManaged(false));
     }
     dbSession.commit();
-  }
-
-  private void insertNewCustomMetric(String... ids) {
-    for (String id : ids) {
-      dbClient.metricDao().insert(dbSession, newCustomMetric(id));
-    }
-    dbSession.commit();
-  }
-
-  private MetricDto newCustomMetric(String id) {
-    return newMetricDto()
-      .setKey("custom-key-" + id)
-      .setShortName("custom-name-" + id)
-      .setDomain("custom-domain-" + id)
-      .setDescription("custom-description-" + id)
-      .setValueType("INT")
-      .setUserManaged(true)
-      .setDirection(0)
-      .setHidden(false)
-      .setQualitative(true)
-      .setEnabled(true);
   }
 
 }

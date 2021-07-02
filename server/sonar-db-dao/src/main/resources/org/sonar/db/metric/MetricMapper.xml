@@ -43,7 +43,7 @@
     <include refid="metricColumns"/>
     FROM metrics m
     <where>
-      AND m.enabled=${_true}
+      m.enabled=${_true}
       <if test="isCustom!=null">
         <if test="isCustom.equals(true)">
           AND m.user_managed=${_true}
@@ -60,7 +60,7 @@
     SELECT COUNT(1)
     FROM metrics m
     <where>
-      AND m.enabled=${_true}
+      m.enabled=${_true}
       <if test="isCustom!=null">
         <if test="isCustom.equals(true)">
           AND m.user_managed=${_true}

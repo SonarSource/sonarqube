@@ -34,7 +34,7 @@ public class MetricsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(ENDPOINT);
-    controller.setDescription("Get information on automatic metrics, and manage custom metrics. See also api/custom_measures.");
+    controller.setDescription("Get information on automatic metrics");
     controller.setSince("2.6");
 
     for (MetricsWsAction action : actions) {
