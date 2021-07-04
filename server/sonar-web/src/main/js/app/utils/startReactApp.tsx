@@ -36,7 +36,6 @@ import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
-import customMetricsRoutes from '../../apps/custom-metrics/routes';
 import documentationRoutes from '../../apps/documentation/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import Issues from '../../apps/issues/components/AppContainer';
@@ -231,7 +230,6 @@ function renderAdminRoutes() {
         )}
       />
       <RouteWithChildRoutes path="background_tasks" childRoutes={backgroundTasksRoutes} />
-      <RouteWithChildRoutes path="custom_metrics" childRoutes={customMetricsRoutes} />
       <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
       <RouteWithChildRoutes path="permission_templates" childRoutes={permissionTemplatesRoutes} />
       <RouteWithChildRoutes path="permissions" childRoutes={globalPermissionsRoutes} />

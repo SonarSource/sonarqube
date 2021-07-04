@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
+import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface MetricsResponse {
@@ -54,37 +54,4 @@ export function getAllMetrics(data?: {
       return inner({ ...data, p: r.p + 1 }, { ...r, metrics: result });
     });
   }
-}
-
-export function getMetricDomains(): Promise<string[]> {
-  return getJSON('/api/metrics/domains').then(r => r.domains, throwGlobalError);
-}
-
-export function getMetricTypes(): Promise<string[]> {
-  return getJSON('/api/metrics/types').then(r => r.types, throwGlobalError);
-}
-
-export function createMetric(data: {
-  description?: string;
-  domain?: string;
-  key: string;
-  name: string;
-  type: string;
-}): Promise<T.Metric> {
-  return postJSON('/api/metrics/create', data).catch(throwGlobalError);
-}
-
-export function updateMetric(data: {
-  description?: string;
-  domain?: string;
-  id: string;
-  key?: string;
-  name?: string;
-  type?: string;
-}) {
-  return post('/api/metrics/update', data).catch(throwGlobalError);
-}
-
-export function deleteMetric(data: { keys: string }) {
-  return post('/api/metrics/delete', data).catch(throwGlobalError);
 }

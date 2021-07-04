@@ -61,14 +61,6 @@ exports[`should work with extensions 1`] = `
           <li>
             <IndexLink
               activeClassName="active"
-              to="/admin/custom_metrics"
-            >
-              custom_metrics.page
-            </IndexLink>
-          </li>
-          <li>
-            <IndexLink
-              activeClassName="active"
               to="/admin/webhooks"
             >
               webhooks.page
@@ -201,14 +193,6 @@ Array [
             to="/admin/settings/encryption"
           >
             property.category.security.encryption
-          </IndexLink>
-        </li>
-        <li>
-          <IndexLink
-            activeClassName="active"
-            to="/admin/custom_metrics"
-          >
-            custom_metrics.page
           </IndexLink>
         </li>
         <li>
