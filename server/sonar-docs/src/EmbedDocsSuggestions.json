@@ -24,18 +24,6 @@
       "text": "Metric Definitions"
     }
   ],
-  "custom_measures": [
-    {
-      "link": "/documentation/instance-administration/custom-measures/",
-      "text": "About Custom Measures"
-    }
-  ],
-  "custom_metrics": [
-    {
-      "link": "/documentation/instance-administration/custom-measures/",
-      "text": "Custom Measures"
-    }
-  ],
   "extension_billing": [
     {
       "link": "/documentation/sonarcloud-pricing/",
