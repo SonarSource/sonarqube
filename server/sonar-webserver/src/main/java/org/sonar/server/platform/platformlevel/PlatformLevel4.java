@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import io.codescan.sonarqube.codescanhosted.ce.CodeScanBranchSupportDelegate;
+import io.codescan.sonarqube.codescanhosted.web.CodeScanBranchFeatureExtension;
 import java.util.List;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -493,6 +495,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Branch
       BranchFeatureProxyImpl.class,
+      CodeScanBranchFeatureExtension.class,
 
       // Project badges
       ProjectBadgesWsModule.class,
@@ -505,6 +508,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Compute engine (must be after Views and Developer Cockpit)
       ReportAnalysisFailureNotificationModule.class,
+      CodeScanBranchSupportDelegate.class,
       CeModule.class,
       CeWsModule.class,
       ReportTaskProcessor.class,
