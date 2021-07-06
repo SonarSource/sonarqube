@@ -40,7 +40,6 @@ import TagsFilter from '../filters/TagsFilter';
 import { hasFilterParams } from '../query';
 import { Facets } from '../types';
 import ClearAll from './ClearAll';
-import FavoriteFilterContainer from './FavoriteFilterContainer';
 
 export interface PageSidebarProps {
   applicationsEnabled: boolean;
@@ -79,8 +78,6 @@ export default function PageSidebar(props: PageSidebarProps) {
 
   return (
     <div>
-      <FavoriteFilterContainer organization={organization} query={linkQuery} />
-
       <div className="projects-facets-header clearfix">
         {isFiltered && <ClearAll onClearAll={props.onClearAll} />}
 
