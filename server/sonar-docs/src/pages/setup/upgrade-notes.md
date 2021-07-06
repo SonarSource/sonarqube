@@ -3,6 +3,10 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.1 Upgrade Notes  
+**Custom measures feature has been dropped**
+The custom measures feature, which was previously deprecated, has been removed. ([SONAR-10762)[https://jira.sonarsource.com/browse/SONAR-10762]).
+
 ## Release 9.0 Upgrade Notes  
 **Scanners require Java 11**  
 Java 11 is required for SonarQube scanners. Use of Java 8 is no longer supported. See the documentation on [Moving Analysis to Java 11](/analysis/analysis-with-java-11/) for more information. ([MMF-2051](https://jira.sonarsource.com/browse/MMF-2051)).
