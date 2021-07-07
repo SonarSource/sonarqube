@@ -105,7 +105,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -114,7 +114,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[]{});
+    when(request.getCookies()).thenReturn(new Cookie[] {});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -123,7 +123,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -131,54 +131,8 @@ public class OAuth2AuthenticationParametersImplTest {
   }
 
   @Test
-  public void get_allowEmailShift_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"allowEmailShift\":\"true\"}")});
-
-    Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
-
-    assertThat(allowEmailShift).isNotEmpty();
-    assertThat(allowEmailShift.get()).isTrue();
-  }
-
-  @Test
-  public void get_allowEmailShift_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[]{});
-
-    Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
-
-    assertThat(allowEmailShift).isEmpty();
-  }
-
-  @Test
-  public void get_allowEmailShift_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
-
-    Optional<Boolean> allowEmailShift = underTest.getAllowEmailShift(request);
-
-    assertThat(allowEmailShift).isEmpty();
-  }
-
-  @Test
-  public void getAllowUpdateLogin_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[]{});
-
-    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
-
-    assertThat(allowLoginUpdate).isEmpty();
-  }
-
-  @Test
-  public void getAllowUpdateLogin_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
-
-    Optional<Boolean> allowLoginUpdate = underTest.getAllowUpdateLogin(request);
-
-    assertThat(allowLoginUpdate).isEmpty();
-  }
-
-  @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
     underTest.delete(request, response);
 

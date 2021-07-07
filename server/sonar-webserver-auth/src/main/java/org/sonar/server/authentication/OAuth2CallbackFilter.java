@@ -30,13 +30,11 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
-import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilter extends AuthenticationFilter {
@@ -78,10 +76,6 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
       } else {
         handleError(request, response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
-    } catch (EmailAlreadyExistsRedirectionException e) {
-      oauth2Parameters.delete(request, response);
-      e.addCookie(request, response);
-      redirectTo(response, e.getPath(request.getContextPath()));
     } catch (AuthenticationException e) {
       oauth2Parameters.delete(request, response);
       authenticationEvent.loginFailure(request, e);

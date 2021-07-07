@@ -34,11 +34,9 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -51,7 +49,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
-import static org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
@@ -123,7 +120,6 @@ public class UserRegistrarImplTest {
       .setUserIdentity(USER_IDENTITY)
       .setProvider(sqIdentityProvider)
       .setSource(Source.realm(BASIC, sqIdentityProvider.getName()))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
     UserDto user = db.users().selectUserByLogin(createdUser.getLogin()).get();
@@ -213,7 +209,6 @@ public class UserRegistrarImplTest {
         .setEnabled(true)
         .setAllowsUsersToSignUp(true))
       .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(FORBID)
       .build();
 
     UserDto newUser = underTest.register(registration);
@@ -223,55 +218,15 @@ public class UserRegistrarImplTest {
   }
 
   @Test
-  public void authenticate_new_user_update_existing_user_email_when_strategy_is_ALLOW() {
-    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserIdentity newUser = UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setName(existingUser.getName())
-      .setEmail(existingUser.getEmail())
-      .build();
-
-    UserDto user = underTest.register(UserRegistration.builder()
-      .setUserIdentity(newUser)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .build());
-
-    UserDto newUserReloaded = db.users().selectUserByLogin(user.getLogin()).get();
-    assertThat(newUserReloaded.getEmail()).isEqualTo(existingUser.getEmail());
-    UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
-    assertThat(existingUserReloaded.getEmail()).isNull();
-  }
-
-  @Test
-  public void authenticate_new_user_throws_EmailAlreadyExistException_when_email_already_exists_and_strategy_is_WARN() {
-    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserIdentity newUser = UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setName(existingUser.getName())
-      .setEmail(existingUser.getEmail())
-      .build();
-
-    expectedException.expect(EmailAlreadyExistsRedirectionException.class);
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(newUser)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
-      .build());
-  }
-
-  @Test
-  public void authenticate_new_user_throws_AuthenticationException_when_when_email_already_exists_and_strategy_is_FORBID() {
+  public void authenticate_new_user_throws_AuthenticationException_when_when_email_already_exists() {
     db.users().insertUser(u -> u.setEmail("john@email.com"));
     Source source = Source.local(BASIC);
 
     expectedException.expect(authenticationException().from(source)
       .withLogin(USER_IDENTITY.getProviderLogin())
-      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
-        "This means that you probably already registered with another account."));
+      .andPublicMessage("This account is already associated with another authentication method."
+        + " Sign in using the current authentication method,"
+        + " or contact your administrator to transfer your account to a different authentication method."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
     underTest.register(newUserRegistration());
@@ -285,8 +240,9 @@ public class UserRegistrarImplTest {
 
     expectedException.expect(authenticationException().from(source)
       .withLogin(USER_IDENTITY.getProviderLogin())
-      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
-        "This means that you probably already registered with another account."));
+      .andPublicMessage("This account is already associated with another authentication method."
+        + " Sign in using the current authentication method,"
+        + " or contact your administrator to transfer your account to a different authentication method."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
     underTest.register(newUserRegistration(source));
@@ -308,7 +264,6 @@ public class UserRegistrarImplTest {
       .setUserIdentity(USER_IDENTITY)
       .setProvider(identityProvider)
       .setSource(source)
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
   }
 
@@ -420,7 +375,6 @@ public class UserRegistrarImplTest {
         .setName("name of gitlab")
         .setEnabled(true))
       .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(FORBID)
       .build();
 
     assertThatThrownBy(() -> underTest.register(registration))
@@ -516,54 +470,7 @@ public class UserRegistrarImplTest {
   }
 
   @Test
-  public void authenticate_existing_user_when_email_already_exists_and_strategy_is_ALLOW() {
-    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserDto currentUser = db.users().insertUser(u -> u.setExternalId("id").setExternalLogin("login").setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()).setEmail(null));
-
-    UserIdentity userIdentity = UserIdentity.builder()
-      .setProviderLogin(currentUser.getExternalLogin())
-      .setProviderId(currentUser.getExternalId())
-      .setName("John")
-      .setEmail("john@email.com")
-      .build();
-
-    currentUser = underTest.register(UserRegistration.builder()
-      .setUserIdentity(userIdentity)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
-      .build());
-
-    UserDto existingUserReloaded = db.users().selectUserByLogin(existingUser.getLogin()).get();
-    assertThat(existingUserReloaded.getEmail()).isNull();
-
-    UserDto currentUserReloaded = db.users().selectUserByLogin(currentUser.getLogin()).get();
-    assertThat(currentUserReloaded.getEmail()).isEqualTo("john@email.com");
-
-  }
-
-  @Test
-  public void authenticating_existing_user_throws_EmailAlreadyExistException_when_email_already_exists_and_strategy_is_WARN() {
-    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
-    UserIdentity userIdentity = UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setName("John")
-      .setEmail("john@email.com")
-      .build();
-
-    expectedException.expect(EmailAlreadyExistsRedirectionException.class);
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(userIdentity)
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.WARN)
-      .build());
-  }
-
-  @Test
-  public void authenticating_existing_user_throws_AuthenticationException_when_email_already_exists_and_strategy_is_FORBID() {
+  public void authenticating_existing_user_throws_AuthenticationException_when_email_already_exists() {
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
@@ -575,15 +482,16 @@ public class UserRegistrarImplTest {
     Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
     expectedException.expect(authenticationException().from(source)
       .withLogin(userIdentity.getProviderLogin())
-      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
-        "This means that you probably already registered with another account."));
+      .andPublicMessage("This account is already associated with another authentication method."
+        + " Sign in using the current authentication method,"
+        + " or contact your administrator to transfer your account to a different authentication method."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
     underTest.register(newUserRegistration(userIdentity, source));
   }
 
   @Test
-  public void authenticate_existing_user_succeeds_when_email_has_not_changed_and_strategy_is_FORBID() {
+  public void authenticate_existing_user_succeeds_when_email_has_not_changed() {
     UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
     UserIdentity userIdentity = UserIdentity.builder()
@@ -658,7 +566,6 @@ public class UserRegistrarImplTest {
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(source)
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build();
   }
 

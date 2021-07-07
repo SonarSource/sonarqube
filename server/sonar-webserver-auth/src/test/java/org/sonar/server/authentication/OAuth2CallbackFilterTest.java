@@ -33,10 +33,8 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +43,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilterTest {
@@ -222,27 +219,6 @@ public class OAuth2CallbackFilterTest {
   }
 
   @Test
-  public void redirect_when_failing_because_of_EmailAlreadyExistException() throws Exception {
-    UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalLogin("john.bitbucket").setExternalIdentityProvider("bitbucket");
-    FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException(existingUser);
-    when(request.getRequestURI()).thenReturn("/oauth2/callback/" + identityProvider.getKey());
-    identityProviderRepository.addIdentityProvider(identityProvider);
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sessions/email_already_exists");
-    verify(oAuthRedirection).delete(eq(request), eq(response));
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    Cookie cookie = cookieArgumentCaptor.getValue();
-    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
-    assertThat(cookie.getValue()).contains("john%40email.com");
-    assertThat(cookie.getPath()).isEqualTo("/");
-    assertThat(cookie.isHttpOnly()).isFalse();
-    assertThat(cookie.getMaxAge()).isEqualTo(300);
-    assertThat(cookie.getSecure()).isFalse();
-  }
-
-  @Test
   public void fail_when_no_oauth2_provider_provided() throws Exception {
     when(request.getRequestURI()).thenReturn("/oauth2/callback");
 
@@ -274,24 +250,6 @@ public class OAuth2CallbackFilterTest {
     @Override
     public void callback(CallbackContext context) {
       throw new IllegalStateException("Failure !");
-    }
-  }
-
-  private static class FailWithEmailAlreadyExistException extends FailingIdentityProvider {
-
-    private final UserDto existingUser;
-
-    public FailWithEmailAlreadyExistException(UserDto existingUser) {
-      this.existingUser = existingUser;
-    }
-
-    @Override
-    public void callback(CallbackContext context) {
-      throw new EmailAlreadyExistsRedirectionException(existingUser.getEmail(), existingUser, UserIdentity.builder()
-        .setProviderLogin("john.github")
-        .setName(existingUser.getName())
-        .setEmail(existingUser.getEmail())
-        .build(), this);
     }
   }
 

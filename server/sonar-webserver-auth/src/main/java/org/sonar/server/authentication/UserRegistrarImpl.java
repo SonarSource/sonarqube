@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import com.google.common.collect.Sets;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,7 +31,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
@@ -42,10 +40,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -137,8 +133,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       userIdentity,
       source,
       String.format("Login '%s' is already used", userIdentity.getProviderLogin()),
-      String.format("You can't sign up because login '%s' is already used by an existing user.", userIdentity.getProviderLogin())
-    );
+      String.format("You can't sign up because login '%s' is already used by an existing user.", userIdentity.getProviderLogin()));
   }
 
   private static AuthenticationException authException(UserIdentity userIdentity, AuthenticationEvent.Source source, String message, String publicMessage) {
@@ -193,19 +188,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     if (existingUser == null || existingUser.getUuid().equals(authenticatingUserUuid)) {
       return Optional.empty();
     }
-    ExistingEmailStrategy existingEmailStrategy = authenticatorParameters.getExistingEmailStrategy();
-    switch (existingEmailStrategy) {
-      case ALLOW:
-        existingUser.setEmail(null);
-        dbClient.userDao().update(dbSession, existingUser);
-        return Optional.of(existingUser);
-      case WARN:
-        throw new EmailAlreadyExistsRedirectionException(email, existingUser, authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider());
-      case FORBID:
-        throw generateExistingEmailError(authenticatorParameters, email);
-      default:
-        throw new IllegalStateException(format("Unknown strategy %s", existingEmailStrategy));
-    }
+    throw generateExistingEmailError(authenticatorParameters, email);
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
@@ -278,7 +261,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static UserDto[] toArray(Optional<UserDto> userDto) {
-    return userDto.map(u -> new UserDto[]{u}).orElse(new UserDto[]{});
+    return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
   }
 
   private static AuthenticationException generateExistingEmailError(UserRegistration authenticatorParameters, String email) {
@@ -286,9 +269,10 @@ public class UserRegistrarImpl implements UserRegistrar {
       .setSource(authenticatorParameters.getSource())
       .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())
       .setMessage(format("Email '%s' is already used", email))
-      .setPublicMessage(format(
-        "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
-        email))
+      .setPublicMessage(
+        "This account is already associated with another authentication method. "
+          + "Sign in using the current authentication method, "
+          + "or contact your administrator to transfer your account to a different authentication method.")
       .build();
   }
 

@@ -31,10 +31,6 @@ const routes = [
   {
     path: 'unauthorized',
     component: lazyLoadComponent(() => import('./components/Unauthorized'))
-  },
-  {
-    path: 'email_already_exists',
-    component: lazyLoadComponent(() => import('./components/EmailAlreadyExists'))
   }
 ];
 
