@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.empty;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
@@ -54,11 +53,6 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   private static final String RETURN_TO_PARAMETER = "return_to";
 
   /**
-   * This parameter is used to allow the shift of email from an existing user to the authenticating user
-   */
-  private static final String ALLOW_EMAIL_SHIFT_PARAMETER = "allowEmailShift";
-
-  /**
    * This parameter is used to allow the update of login
    */
   private static final String ALLOW_LOGIN_UPDATE_PARAMETER = "allowUpdateLogin";
@@ -69,13 +63,9 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   @Override
   public void init(HttpServletRequest request, HttpServletResponse response) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
-    String allowEmailShift = request.getParameter(ALLOW_EMAIL_SHIFT_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     Optional<String> sanitizeRedirectUrl = sanitizeRedirectUrl(returnTo);
     sanitizeRedirectUrl.ifPresent(s -> parameters.put(RETURN_TO_PARAMETER, s));
-    if (isNotBlank(allowEmailShift)) {
-      parameters.put(ALLOW_EMAIL_SHIFT_PARAMETER, allowEmailShift);
-    }
     if (parameters.isEmpty()) {
       return;
     }
@@ -91,18 +81,6 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   public Optional<String> getReturnTo(HttpServletRequest request) {
     return getParameter(request, RETURN_TO_PARAMETER)
       .flatMap(OAuth2AuthenticationParametersImpl::sanitizeRedirectUrl);
-  }
-
-  @Override
-  public Optional<Boolean> getAllowEmailShift(HttpServletRequest request) {
-    Optional<String> parameter = getParameter(request, ALLOW_EMAIL_SHIFT_PARAMETER);
-    return parameter.map(Boolean::parseBoolean);
-  }
-
-  @Override
-  public Optional<Boolean> getAllowUpdateLogin(HttpServletRequest request) {
-    Optional<String> parameter = getParameter(request, ALLOW_LOGIN_UPDATE_PARAMETER);
-    return parameter.map(Boolean::parseBoolean);
   }
 
   private static Optional<String> getParameter(HttpServletRequest request, String parameterKey) {

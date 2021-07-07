@@ -31,12 +31,10 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
-import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class InitFilter extends AuthenticationFilter {
@@ -83,10 +81,6 @@ public class InitFilter extends AuthenticationFilter {
       } else {
         handleError(request, response, format("Unsupported IdentityProvider class: %s", provider.getClass()));
       }
-    } catch (EmailAlreadyExistsRedirectionException e) {
-      oAuthOAuth2AuthenticationParameters.delete(request, response);
-      e.addCookie(request, response);
-      redirectTo(response, e.getPath(request.getContextPath()));
     } catch (AuthenticationException e) {
       oAuthOAuth2AuthenticationParameters.delete(request, response);
       authenticationEvent.loginFailure(request, e);

@@ -33,13 +33,10 @@ import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
-import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +45,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class InitFilterTest {
 
@@ -226,27 +222,6 @@ public class InitFilterTest {
   }
 
   @Test
-  public void redirect_contains_cookie_when_failing_because_of_EmailAlreadyExistException() throws Exception {
-    UserDto existingUser = newUserDto().setEmail("john@email.com").setExternalLogin("john.bitbucket").setExternalIdentityProvider("bitbucket");
-    FailWithEmailAlreadyExistException identityProvider = new FailWithEmailAlreadyExistException("failing", existingUser);
-    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
-    identityProviderRepository.addIdentityProvider(identityProvider);
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sessions/email_already_exists");
-    verify(auth2AuthenticationParameters).delete(eq(request), eq(response));
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-    Cookie cookie = cookieArgumentCaptor.getValue();
-    assertThat(cookie.getName()).isEqualTo("AUTHENTICATION-ERROR");
-    assertThat(cookie.getValue()).contains("john%40email.com");
-    assertThat(cookie.getPath()).isEqualTo("/");
-    assertThat(cookie.isHttpOnly()).isFalse();
-    assertThat(cookie.getMaxAge()).isEqualTo(300);
-    assertThat(cookie.getSecure()).isFalse();
-  }
-
-  @Test
   public void redirect_when_failing_because_of_Exception() throws Exception {
     IdentityProvider identityProvider = new FailWithIllegalStateException("failing");
     when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
@@ -312,25 +287,6 @@ public class InitFilterTest {
     @Override
     public void init(Context context) {
       throw new IllegalStateException("Failure !");
-    }
-  }
-
-  private static class FailWithEmailAlreadyExistException extends FakeBasicIdentityProvider {
-
-    private final UserDto existingUser;
-
-    public FailWithEmailAlreadyExistException(String key, UserDto existingUser) {
-      super(key, true);
-      this.existingUser = existingUser;
-    }
-
-    @Override
-    public void init(Context context) {
-      throw new EmailAlreadyExistsRedirectionException(existingUser.getEmail(), existingUser, UserIdentity.builder()
-        .setProviderLogin("john.github")
-        .setName(existingUser.getName())
-        .setEmail(existingUser.getEmail())
-        .build(), this);
     }
   }
 

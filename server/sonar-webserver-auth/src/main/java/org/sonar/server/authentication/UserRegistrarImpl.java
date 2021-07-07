@@ -40,9 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -136,19 +134,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     if (existingUser == null || isSameUser(existingUser, authenticatorParameters)) {
       return Optional.empty();
     }
-    ExistingEmailStrategy existingEmailStrategy = authenticatorParameters.getExistingEmailStrategy();
-    switch (existingEmailStrategy) {
-      case ALLOW:
-        existingUser.setEmail(null);
-        dbClient.userDao().update(dbSession, existingUser);
-        return Optional.of(existingUser);
-      case WARN:
-        throw new EmailAlreadyExistsRedirectionException(email, existingUser, authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider());
-      case FORBID:
-        throw generateExistingEmailError(authenticatorParameters, email);
-      default:
-        throw new IllegalStateException(format("Unknown strategy %s", existingEmailStrategy));
-    }
+    throw generateExistingEmailError(authenticatorParameters, email);
   }
 
   private static boolean isSameUser(UserDto existingUser, UserRegistration authenticatorParameters) {
@@ -236,9 +222,10 @@ public class UserRegistrarImpl implements UserRegistrar {
       .setSource(authenticatorParameters.getSource())
       .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())
       .setMessage(format("Email '%s' is already used", email))
-      .setPublicMessage(format(
-        "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
-        email))
+      .setPublicMessage(
+        "This account is already associated with another authentication method. "
+          + "Sign in using the current authentication method, "
+          + "or contact your administrator to transfer your account to a different authentication method.")
       .build();
   }
 

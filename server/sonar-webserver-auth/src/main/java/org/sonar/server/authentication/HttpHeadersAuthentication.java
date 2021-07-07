@@ -42,7 +42,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -169,7 +168,6 @@ public class HttpHeadersAuthentication implements Startable {
         .setUserIdentity(userIdentityBuilder.build())
         .setProvider(new SsoIdentityProvider())
         .setSource(Source.sso())
-        .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
         .build());
   }
 

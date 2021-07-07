@@ -35,7 +35,6 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.OAuth2ContextFactory.OAuthContextImpl;
-import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -137,28 +136,6 @@ public class OAuth2ContextFactoryTest {
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo(PROVIDER_KEY);
-  }
-
-  @Test
-  public void authenticate_with_allow_email_shift() {
-    when(oAuthParameters.getAllowEmailShift(request)).thenReturn(Optional.of(true));
-    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
-
-    callback.authenticate(USER_IDENTITY);
-
-    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(ExistingEmailStrategy.ALLOW);
-  }
-
-  @Test
-  public void authenticate_without_email_shift() {
-    when(oAuthParameters.getAllowEmailShift(request)).thenReturn(Optional.of(false));
-    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
-
-    callback.authenticate(USER_IDENTITY);
-
-    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(ExistingEmailStrategy.WARN);
   }
 
   @Test
