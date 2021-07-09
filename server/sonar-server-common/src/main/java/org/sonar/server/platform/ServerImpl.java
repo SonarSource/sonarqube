@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import java.io.File;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;

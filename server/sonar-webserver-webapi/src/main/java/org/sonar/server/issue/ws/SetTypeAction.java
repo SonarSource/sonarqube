@@ -38,7 +38,6 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
