@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.platform;
 
-import java.io.File;
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;

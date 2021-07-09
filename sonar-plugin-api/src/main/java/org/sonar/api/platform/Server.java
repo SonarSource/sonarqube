@@ -19,7 +19,6 @@
  */
 package org.sonar.api.platform;
 
-import java.io.File;
 import java.util.Date;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;

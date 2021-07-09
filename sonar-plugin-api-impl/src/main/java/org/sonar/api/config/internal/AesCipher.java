@@ -30,7 +30,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
