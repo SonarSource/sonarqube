@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for 7days: default 1`] = `
+<Fragment>
+  <a
+    className="button button-primary"
+    download="audit_logs.json"
+    href="/api/audit_logs/download?from=2020-07-14T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z"
+    onClick={[MockFunction]}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;
+
+exports[`should render correctly for 30days: default 1`] = `
+<Fragment>
+  <a
+    className="button button-primary"
+    download="audit_logs.json"
+    href="/api/audit_logs/download?from=2020-06-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z"
+    onClick={[MockFunction]}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;
+
+exports[`should render correctly for 90days: default 1`] = `
+<Fragment>
+  <a
+    className="button button-primary"
+    download="audit_logs.json"
+    href="/api/audit_logs/download?from=2020-04-22T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z"
+    onClick={[MockFunction]}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;
+
+exports[`should render correctly for custom range: no dates 1`] = `
+<Fragment>
+  <a
+    className="button button-primary disabled"
+    download="audit_logs.json"
+    href="#"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;
+
+exports[`should render correctly for custom range: with dates 1`] = `
+<Fragment>
+  <a
+    className="button button-primary"
+    download="audit_logs.json"
+    href="/api/audit_logs/download?from=2020-07-19T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z"
+    onClick={[MockFunction]}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;
+
+exports[`should render correctly for today: default 1`] = `
+<Fragment>
+  <a
+    className="button button-primary"
+    download="audit_logs.json"
+    href="/api/audit_logs/download?from=2020-07-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z"
+    onClick={[MockFunction]}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    download_verb
+  </a>
+</Fragment>
+`;

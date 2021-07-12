@@ -29,6 +29,21 @@ it('should render', () => {
   expect(
     shallow(<DateRangeInput onChange={jest.fn()} value={{ from: dateA, to: dateB }} />)
   ).toMatchSnapshot();
+
+  expect(
+    shallow(<DateRangeInput onChange={jest.fn()} minDate={dateA} maxDate={dateB} />)
+  ).toMatchSnapshot('with min/max');
+
+  expect(
+    shallow(
+      <DateRangeInput
+        onChange={jest.fn()}
+        minDate={dateA}
+        maxDate={dateB}
+        value={{ from: dateA, to: dateB }}
+      />
+    )
+  ).toMatchSnapshot('with min/max and value');
 });
 
 it('should change', () => {

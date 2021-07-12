@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { AdminPageExtension } from '../../../../../types/extension';
 import SettingsNav from '../SettingsNav';
 
 it('should work with extensions', () => {
@@ -48,6 +49,14 @@ it('should display a pending plugin notif', () => {
 it('should display restart notif', () => {
   const wrapper = shallowRender({ systemStatus: 'RESTARTING' });
   expect(wrapper.find('ContextNavBar').prop('notif')).toMatchSnapshot();
+});
+
+it('should render correctly when governance is active', () => {
+  expect(
+    shallowRender({
+      extensions: [{ key: AdminPageExtension.GovernanceConsole, name: 'governance' }]
+    })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<SettingsNav['props']> = {}) {

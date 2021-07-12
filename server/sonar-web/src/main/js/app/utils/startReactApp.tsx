@@ -32,6 +32,7 @@ import getHistory from 'sonar-ui-common/helpers/getHistory';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
 import applicationConsoleRoutes from '../../apps/application-console/routes';
+import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
@@ -229,6 +230,7 @@ function renderAdminRoutes() {
           import('../components/extensions/GlobalAdminPageExtension')
         )}
       />
+      <RouteWithChildRoutes path="audit" childRoutes={auditLogsRoutes} />
       <RouteWithChildRoutes path="background_tasks" childRoutes={backgroundTasksRoutes} />
       <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
       <RouteWithChildRoutes path="permission_templates" childRoutes={permissionTemplatesRoutes} />

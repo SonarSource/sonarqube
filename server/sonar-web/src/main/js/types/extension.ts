@@ -24,6 +24,10 @@ import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
 import { L10nBundle } from './l10n';
 
+export enum AdminPageExtension {
+  GovernanceConsole = 'governance/views_console'
+}
+
 export interface ExtensionStartMethod {
   (params: ExtensionStartMethodParameter | string): ExtensionStartMethodReturnType;
 }

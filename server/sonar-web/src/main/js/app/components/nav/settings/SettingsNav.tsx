@@ -26,6 +26,7 @@ import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
@@ -72,6 +73,11 @@ export default class SettingsNav extends React.PureComponent<Props> {
 
   isMarketplace() {
     const urls = ['/admin/marketplace'];
+    return this.isSomethingActive(urls);
+  }
+
+  isAudit() {
+    const urls = ['/admin/audit'];
     return this.isSomethingActive(urls);
   }
 
@@ -124,7 +130,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
                   !this.isProjectsActive() &&
                   !this.isSystemActive() &&
                   !this.isSomethingActive(['/admin/extension/license/support']) &&
-                  !this.isMarketplace())
+                  !this.isMarketplace() &&
+                  !this.isAudit())
             })}
             href="#"
             id="settings-navigation-configuration"
@@ -218,6 +225,9 @@ export default class SettingsNav extends React.PureComponent<Props> {
   render() {
     const { extensions, pendingPlugins } = this.props;
     const hasSupportExtension = extensions.find(extension => extension.key === 'license/support');
+    const hasGovernanceExtension = extensions.find(
+      e => e.key === AdminPageExtension.GovernanceConsole
+    );
     const totalPendingPlugins =
       pendingPlugins.installing.length +
       pendingPlugins.removing.length +
@@ -262,6 +272,14 @@ export default class SettingsNav extends React.PureComponent<Props> {
               {translate('marketplace.page')}
             </IndexLink>
           </li>
+
+          {hasGovernanceExtension && (
+            <li>
+              <IndexLink activeClassName="active" to="/admin/audit">
+                {translate('audit_logs.page')}
+              </IndexLink>
+            </li>
+          )}
 
           {hasSupportExtension && (
             <li>

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
+import { max, min } from 'date-fns';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DateInput from './DateInput';
@@ -59,13 +60,16 @@ export default class DateRangeInput extends React.PureComponent<Props> {
   };
 
   render() {
+    const { minDate, maxDate } = this.props;
+
     return (
       <div className={classNames('display-inline-flex-center', this.props.className)}>
         <DateInput
           currentMonth={this.to}
           data-test="from"
           highlightTo={this.to}
-          maxDate={this.to}
+          minDate={minDate}
+          maxDate={maxDate && this.to ? min(maxDate, this.to) : maxDate || this.to}
           onChange={this.handleFromChange}
           placeholder={translate('start_date')}
           value={this.from}
@@ -75,7 +79,8 @@ export default class DateRangeInput extends React.PureComponent<Props> {
           currentMonth={this.from}
           data-test="to"
           highlightFrom={this.from}
-          minDate={this.from}
+          minDate={minDate && this.from ? max(minDate, this.from) : minDate || this.from}
+          maxDate={maxDate}
           onChange={this.handleToChange}
           placeholder={translate('end_date')}
           ref={element => (this.toDateInput = element)}

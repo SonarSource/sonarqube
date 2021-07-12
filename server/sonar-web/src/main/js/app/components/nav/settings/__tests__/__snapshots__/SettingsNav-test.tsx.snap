@@ -24,6 +24,162 @@ exports[`should display a pending plugin notif 1`] = `
 
 exports[`should display restart notif 1`] = `<SystemRestartNotif />`;
 
+exports[`should render correctly when governance is active 1`] = `
+<ContextNavBar
+  height={72}
+  id="context-navigation"
+>
+  <header
+    className="navbar-context-header"
+  >
+    <h1>
+      layout.settings
+    </h1>
+  </header>
+  <NavBarTabs>
+    <Dropdown
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/settings"
+            >
+              settings.page
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/settings/encryption"
+            >
+              property.category.security.encryption
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/webhooks"
+            >
+              webhooks.page
+            </IndexLink>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/admin/extension/governance/views_console"
+            >
+              governance
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
+    <Dropdown
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/users"
+            >
+              users.page
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/groups"
+            >
+              user_groups.page
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/permissions"
+            >
+              global_permissions.page
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/permission_templates"
+            >
+              permission_templates
+            </IndexLink>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
+    <Dropdown
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/projects_management"
+            >
+              management
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink
+              activeClassName="active"
+              to="/admin/background_tasks"
+            >
+              background_tasks.page
+            </IndexLink>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
+    <li>
+      <IndexLink
+        activeClassName="active"
+        to="/admin/system"
+      >
+        sidebar.system
+      </IndexLink>
+    </li>
+    <li>
+      <IndexLink
+        activeClassName="active"
+        to="/admin/marketplace"
+      >
+        marketplace.page
+      </IndexLink>
+    </li>
+    <li>
+      <IndexLink
+        activeClassName="active"
+        to="/admin/audit"
+      >
+        audit_logs.page
+      </IndexLink>
+    </li>
+  </NavBarTabs>
+</ContextNavBar>
+`;
+
 exports[`should work with extensions 1`] = `
 <ContextNavBar
   height={72}
