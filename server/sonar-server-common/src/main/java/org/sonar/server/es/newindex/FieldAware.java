@@ -43,17 +43,17 @@ public abstract class FieldAware<U extends FieldAware<U>> {
 
   @SuppressWarnings("unchecked")
   public KeywordFieldBuilder<U> keywordFieldBuilder(String fieldName) {
-    return (KeywordFieldBuilder<U>) new KeywordFieldBuilder(this, fieldName);
+    return new KeywordFieldBuilder(this, fieldName);
   }
 
   @SuppressWarnings("unchecked")
   public TextFieldBuilder<U> textFieldBuilder(String fieldName) {
-    return (TextFieldBuilder<U>) new TextFieldBuilder(this, fieldName);
+    return new TextFieldBuilder(this, fieldName);
   }
 
   @SuppressWarnings("unchecked")
   public NestedFieldBuilder<U> nestedFieldBuilder(String fieldName) {
-    return (NestedFieldBuilder<U>) new NestedFieldBuilder(this, fieldName);
+    return new NestedFieldBuilder(this, fieldName);
   }
 
   public U createBooleanField(String fieldName) {

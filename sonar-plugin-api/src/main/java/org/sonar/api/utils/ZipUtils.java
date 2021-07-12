@@ -56,11 +56,11 @@ public final class ZipUtils {
    * @return the target directory
    */
   public static File unzip(File zip, File toDir) throws IOException {
-    return unzip(zip, toDir, (Predicate<ZipEntry>) ze -> true);
+    return unzip(zip, toDir, ze -> true);
   }
 
   public static File unzip(InputStream zip, File toDir) throws IOException {
-    return unzip(zip, toDir, (Predicate<ZipEntry>) ze -> true);
+    return unzip(zip, toDir, ze -> true);
   }
 
   /**
