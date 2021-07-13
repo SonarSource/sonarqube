@@ -94,6 +94,7 @@ class ProjectsTextSearchQueryFactory {
       @Override
       QueryBuilder getQuery(String queryText) {
         return wildcardQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), "*" + queryText + "*")
+          .caseInsensitive(true)
           .boost(50f);
       }
     };
