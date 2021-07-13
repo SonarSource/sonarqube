@@ -52,7 +52,7 @@ public class BatchMeasureToMeasure {
       case LEVEL:
         return toLevelMeasure(builder, batchMeasure);
       case NO_VALUE:
-        return toNoValueMeasure(builder, batchMeasure);
+        return toNoValueMeasure(builder);
       default:
         throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
@@ -60,21 +60,21 @@ public class BatchMeasureToMeasure {
 
   private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(batchMeasure.getIntValue().getValue(), trimToNull(batchMeasure.getIntValue().getData())));
   }
 
   private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(batchMeasure.getLongValue().getValue(), trimToNull(batchMeasure.getLongValue().getData())));
   }
 
   private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(batchMeasure.getDoubleValue().getValue(),
       // Decimals are not truncated in scanner report, so an arbitrary decimal scale is applied when reading values from report
@@ -83,30 +83,30 @@ public class BatchMeasureToMeasure {
 
   private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(batchMeasure.getBooleanValue().getValue(), trimToNull(batchMeasure.getBooleanValue().getData())));
   }
 
   private static Optional<Measure> toStringMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(batchMeasure.getStringValue().getValue()));
   }
 
   private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
-      return toNoValueMeasure(builder, batchMeasure);
+      return toNoValueMeasure(builder);
     }
     Optional<Measure.Level> level = Measure.Level.toLevel(batchMeasure.getStringValue().getValue());
-    if (!level.isPresent()) {
-      return toNoValueMeasure(builder, batchMeasure);
+    if (level.isEmpty()) {
+      return toNoValueMeasure(builder);
     }
     return of(builder.create(level.get()));
   }
 
-  private static Optional<Measure> toNoValueMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
+  private static Optional<Measure> toNoValueMeasure(Measure.NewMeasureBuilder builder) {
     return of(builder.createNoValue());
   }
 }

@@ -31,17 +31,14 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 @ServerSide
 public class ServerImpl extends Server {
-
   private final Configuration config;
   private final StartupMetadata state;
-  private final ServerFileSystem fs;
   private final UrlSettings urlSettings;
   private final SonarRuntime runtime;
 
-  public ServerImpl(Configuration config, StartupMetadata state, ServerFileSystem fs, UrlSettings urlSettings, SonarRuntime runtime) {
+  public ServerImpl(Configuration config, StartupMetadata state, UrlSettings urlSettings, SonarRuntime runtime) {
     this.config = config;
     this.state = state;
-    this.fs = fs;
     this.urlSettings = urlSettings;
     this.runtime = runtime;
   }
@@ -84,5 +81,4 @@ public class ServerImpl extends Server {
   public boolean isSecured() {
     return urlSettings.isSecured();
   }
-
 }
