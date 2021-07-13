@@ -23,7 +23,6 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -48,10 +47,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ValidateProjectStepTest {
-
   static long PAST_ANALYSIS_TIME = 1_420_088_400_000L; // 2015-01-01
   static long DEFAULT_ANALYSIS_TIME = 1_433_131_200_000L; // 2015-06-01
-  static long NOW = 1_500_000_000_000L;
 
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
@@ -64,12 +61,11 @@ public class ValidateProjectStepTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
-  private final System2 system2 = new TestSystem2().setNow(NOW);
 
   private final CeTaskMessages taskMessages = mock(CeTaskMessages.class);
   private final DbClient dbClient = db.getDbClient();
 
-  private final ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder, taskMessages, system2);
+  private final ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void dont_fail_for_long_forked_from_master_with_modules() {

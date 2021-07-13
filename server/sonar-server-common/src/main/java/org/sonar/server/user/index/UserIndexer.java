@@ -45,7 +45,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexer implements ResilientIndexer {
-
   private final DbClient dbClient;
   private final EsClient esClient;
 
@@ -93,14 +92,10 @@ public class UserIndexer implements ResilientIndexer {
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
-    postCommit(dbSession, users.stream().map(UserDto::getLogin).collect(toList()), items);
+    postCommit(dbSession, items);
   }
 
-  /**
-   * Entry point for Byteman tests. See directory tests/resilience.
-   * The parameter "logins" is used only by the Byteman script.
-   */
-  private void postCommit(DbSession dbSession, Collection<String> logins, Collection<EsQueueDto> items) {
+  private void postCommit(DbSession dbSession, Collection<EsQueueDto> items) {
     index(dbSession, items);
   }
 

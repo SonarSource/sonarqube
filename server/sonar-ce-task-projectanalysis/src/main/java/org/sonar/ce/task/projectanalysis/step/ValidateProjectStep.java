@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
@@ -51,14 +49,13 @@ import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 
 public class ValidateProjectStep implements ComputationStep {
-
   private static final Joiner MESSAGES_JOINER = Joiner.on("\n  o ");
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, CeTaskMessages taskMessages, System2 system2) {
+  public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -151,5 +148,4 @@ public class ValidateProjectStep implements ComputationStep {
       return Optional.of(baseComponent);
     }
   }
-
 }
