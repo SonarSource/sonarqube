@@ -257,9 +257,13 @@ public class GitlabHttpClient {
   }
 
   public ProjectList searchProjects(String gitlabUrl, String personalAccessToken, @Nullable String projectName,
-    int pageNumber, int pageSize) {
-    String url = String.format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%s&page=%d&per_page=%d",
-      gitlabUrl, projectName == null ? "" : urlEncode(projectName), pageNumber, pageSize);
+    @Nullable Integer pageNumber, @Nullable Integer pageSize) {
+    String url = String.format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%s%s%s",
+      gitlabUrl,
+      projectName == null ? "" : urlEncode(projectName),
+      pageNumber == null ? "" : String.format("&page=%d", pageNumber),
+      pageSize == null ? "" : String.format("&per_page=%d", pageSize)
+    );
 
     LOG.debug(String.format("get projects : [%s]", url));
     Request request = new Request.Builder()

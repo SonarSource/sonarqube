@@ -108,7 +108,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
           gitlabHttpClient.searchProjects(
             requireNonNull(almSettingDto.getUrl(), URL_CANNOT_BE_NULL),
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL),
-            null, 1, 10);
+            null, null, null);
           break;
         case GITHUB:
         default:

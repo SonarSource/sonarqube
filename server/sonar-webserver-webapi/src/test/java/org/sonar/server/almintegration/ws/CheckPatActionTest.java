@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -130,7 +129,7 @@ public class CheckPatActionTest {
       .execute();
 
     assertThat(almSetting.getUrl()).isNotNull();
-    verify(gitlabPrHttpClient).searchProjects(almSetting.getUrl(), PAT_SECRET, null, 1, 10);
+    verify(gitlabPrHttpClient).searchProjects(almSetting.getUrl(), PAT_SECRET, null, null, null);
   }
 
   @Test
@@ -152,7 +151,7 @@ public class CheckPatActionTest {
 
   @Test
   public void fail_when_personal_access_token_is_invalid_for_gitlab() {
-    when(gitlabPrHttpClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
+    when(gitlabPrHttpClient.searchProjects(any(), any(), any(), any(), any()))
       .thenThrow(new IllegalArgumentException("Invalid personal access token"));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
