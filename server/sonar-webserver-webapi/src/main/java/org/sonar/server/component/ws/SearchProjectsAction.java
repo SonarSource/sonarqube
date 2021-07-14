@@ -72,7 +72,6 @@ import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
@@ -95,7 +94,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUA
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class SearchProjectsAction implements ComponentsWsAction {
-
   public static final int MAX_PAGE_SIZE = 500;
   public static final int DEFAULT_PAGE_SIZE = 100;
   private static final String ALL = "_all";
@@ -368,7 +366,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (httpRequest.hasParam(FIELDS)) {
       List<String> paramsAsString = httpRequest.mandatoryParamAsStrings(FIELDS);
       if (paramsAsString.contains(ALL)) {
-        request.setAdditionalFields(of(ANALYSIS_DATE, LEAK_PERIOD_DATE));
+        request.setAdditionalFields(List.of(ANALYSIS_DATE, LEAK_PERIOD_DATE));
       } else {
         request.setAdditionalFields(paramsAsString);
       }

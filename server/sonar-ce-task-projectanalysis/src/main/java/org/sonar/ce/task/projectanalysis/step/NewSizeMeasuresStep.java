@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -53,7 +53,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
  * Computes measures on new code related to the size
  */
 public class NewSizeMeasuresStep implements ComputationStep {
-
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
@@ -76,7 +75,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-        .buildFor(ImmutableList.of(duplicationFormula)))
+        .buildFor(List.of(duplicationFormula)))
       .visit(treeRootHolder.getRoot());
   }
 

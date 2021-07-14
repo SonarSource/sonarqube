@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.formula.AverageFormula;
@@ -48,8 +48,7 @@ import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumF
  * Computes complexity measures on files and then aggregates them on higher components.
  */
 public class ComplexityMeasuresStep implements ComputationStep {
-
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(
+  private static final List<Formula> FORMULAS = List.of(
     createIntSumFormula(COMPLEXITY_KEY),
     createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
     createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
@@ -67,7 +66,8 @@ public class ComplexityMeasuresStep implements ComputationStep {
     AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
       .setByMetricKey(FUNCTIONS_KEY)
-      .build());
+      .build()
+  );
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

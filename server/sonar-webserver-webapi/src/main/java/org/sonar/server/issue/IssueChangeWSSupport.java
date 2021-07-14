@@ -20,7 +20,6 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
@@ -105,8 +104,8 @@ public class IssueChangeWSSupport {
     Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {
     Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(toSet());
 
-    List<IssueChangeDto> changes = ImmutableList.of();
-    List<IssueChangeDto> comments = ImmutableList.of();
+    List<IssueChangeDto> changes = List.of();
+    List<IssueChangeDto> comments = List.of();
     switch (load) {
       case CHANGE_LOG:
         changes = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbSession, issueKeys, TYPE_FIELD_CHANGE);
@@ -316,18 +315,18 @@ public class IssueChangeWSSupport {
     public List<FieldDiffs> getChanges(IssueDto dto) {
       List<FieldDiffs> fieldDiffs = changesByIssueKey.get(dto.getKey());
       if (fieldDiffs == null) {
-        return ImmutableList.of();
+        return List.of();
       }
-      return ImmutableList.copyOf(fieldDiffs);
+      return List.copyOf(fieldDiffs);
     }
 
     @Override
     public List<IssueChangeDto> getComments(IssueDto dto) {
       List<IssueChangeDto> comments = commentsByIssueKey.get(dto.getKey());
       if (comments == null) {
-        return ImmutableList.of();
+        return List.of();
       }
-      return ImmutableList.copyOf(comments);
+      return List.copyOf(comments);
     }
 
     @Override

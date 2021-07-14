@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -47,7 +47,7 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 
 public class DuplicationMeasures {
-  protected final ImmutableList<Formula> formulas;
+  protected final List<Formula> formulas;
   protected final TreeRootHolder treeRootHolder;
   protected final MetricRepository metricRepository;
   protected final MeasureRepository measureRepository;
@@ -60,7 +60,7 @@ public class DuplicationMeasures {
     this.measureRepository = measureRepository;
     // will be null for views
     this.duplicationRepository = duplicationRepository;
-    this.formulas = ImmutableList.of(new DuplicationFormula());
+    this.formulas = List.of(new DuplicationFormula());
   }
 
   /**

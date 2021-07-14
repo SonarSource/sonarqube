@@ -20,7 +20,6 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -201,7 +200,7 @@ public class SetAction implements SettingsWsAction {
     checkValueIsSet(request);
     String settingKey = request.getKey();
     SettingData settingData = new SettingData(settingKey, valuesFromRequest(request), component.orElse(null));
-    ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
+    List.of(validations.scope(), validations.qualifier(), validations.valueType())
       .forEach(validation -> validation.accept(settingData));
   }
 

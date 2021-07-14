@@ -19,7 +19,6 @@
  */
 package org.sonar.db.dialect;
 
-import com.google.common.collect.ImmutableList;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,11 +27,9 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Version;
 
 public class Oracle extends AbstractDialect {
-
   public static final String ID = "oracle";
-  private static final List<String> INIT_STATEMENTS = ImmutableList.of("ALTER SESSION SET NLS_SORT='BINARY'");
+  private static final List<String> INIT_STATEMENTS = List.of("ALTER SESSION SET NLS_SORT='BINARY'");
   private static final Version MIN_SUPPORTED_VERSION = Version.create(11, 0, 0);
-
 
   public Oracle() {
     super(ID, "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");

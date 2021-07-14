@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -50,10 +50,9 @@ import static org.sonar.api.utils.KeyValueFormat.newStringConverter;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class LanguageDistributionMeasuresStep implements ComputationStep {
-
   private static final String UNKNOWN_LANGUAGE_KEY = "<null>";
 
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(new LanguageDistributionFormula());
+  private static final List<Formula> FORMULAS = List.of(new LanguageDistributionFormula());
 
   private static final String[] LANGUAGE_DISTRIBUTION_FORMULA_METRICS = new String[] {NCLOC_LANGUAGE_DISTRIBUTION_KEY};
 

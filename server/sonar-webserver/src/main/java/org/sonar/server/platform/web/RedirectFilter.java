@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -37,11 +36,11 @@ import org.sonar.core.util.stream.MoreCollectors;
 import static java.lang.String.format;
 
 public class RedirectFilter implements Filter {
-
   private static final String EMPTY = "";
 
-  private static final List<Redirect> REDIRECTS = ImmutableList.of(
-    newSimpleRedirect("/api", "/api/webservices/list"));
+  private static final List<Redirect> REDIRECTS = List.of(
+    newSimpleRedirect("/api", "/api/webservices/list")
+  );
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {

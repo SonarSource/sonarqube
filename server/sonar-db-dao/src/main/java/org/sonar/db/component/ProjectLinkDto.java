@@ -19,13 +19,11 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class ProjectLinkDto {
-
   public static final String TYPE_HOME_PAGE = "homepage";
   public static final String TYPE_CI = "ci";
   public static final String TYPE_ISSUE_TRACKER = "issue";
@@ -33,7 +31,13 @@ public class ProjectLinkDto {
 
   public static final String TYPE_SOURCES_DEV = "scm_dev";
 
-  public static final List<String> PROVIDED_TYPES = ImmutableList.of(TYPE_HOME_PAGE, TYPE_CI, TYPE_ISSUE_TRACKER, TYPE_SOURCES, TYPE_SOURCES_DEV);
+  public static final List<String> PROVIDED_TYPES = List.of(
+    TYPE_HOME_PAGE,
+    TYPE_CI,
+    TYPE_ISSUE_TRACKER,
+    TYPE_SOURCES,
+    TYPE_SOURCES_DEV
+  );
 
   private String uuid;
   private String projectUuid;

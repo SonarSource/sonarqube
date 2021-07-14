@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
@@ -52,15 +52,16 @@ public class CommentMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  private final ImmutableList<Formula> formulas;
+  private final List<Formula> formulas;
 
   public CommentMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.formulas = ImmutableList.of(
+    this.formulas = List.of(
       new DocumentationFormula(),
-      new CommentDensityFormula());
+      new CommentDensityFormula()
+    );
   }
 
   @Override

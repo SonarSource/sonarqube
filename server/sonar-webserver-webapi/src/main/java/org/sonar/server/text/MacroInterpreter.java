@@ -19,7 +19,6 @@
  */
 package org.sonar.server.text;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.Server;
 
@@ -27,13 +26,12 @@ import java.util.List;
 
 @ServerSide
 public class MacroInterpreter {
-
   private final List<Macro> macros;
 
   public MacroInterpreter(Server server) {
-    this.macros = ImmutableList.of(
+    this.macros = List.of(
       new RuleMacro(server.getContextPath())
-      );
+    );
   }
 
   public String interpret(String text) {
@@ -43,5 +41,4 @@ public class MacroInterpreter {
     }
     return textReplaced;
   }
-
 }
