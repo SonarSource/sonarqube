@@ -19,7 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -41,7 +41,6 @@ import static org.sonar.server.permission.ws.WsParameters.createProjectParameter
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupAction implements PermissionsWsAction {
-
   public static final String ACTION = "add_group";
 
   private final DbClient dbClient;
@@ -95,9 +94,8 @@ public class AddGroupAction implements PermissionsWsAction {
         request.mandatoryParam(PARAM_PERMISSION),
         project.orElse(null),
         group, permissionService);
-      permissionUpdater.apply(dbSession, ImmutableList.of(change));
+      permissionUpdater.apply(dbSession, List.of(change));
     }
     response.noContent();
   }
-
 }

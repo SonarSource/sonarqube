@@ -19,8 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Date;
+import java.util.List;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -56,7 +56,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 
 @ServerSide
 public class RuleQueryFactory {
-
   private final DbClient dbClient;
 
   public RuleQueryFactory(DbClient dbClient) {
@@ -90,7 +89,7 @@ public class RuleQueryFactory {
     setProfile(dbSession, query, request);
     setCompareToProfile(dbSession, query, request);
     QProfileDto profile = query.getQProfile();
-    query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : ImmutableList.of(profile.getLanguage()));
+    query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : List.of(profile.getLanguage()));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));

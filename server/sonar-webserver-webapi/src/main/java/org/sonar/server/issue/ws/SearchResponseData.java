@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +43,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * All the data required to write response of api/issues/search
  */
 public class SearchResponseData {
-
   private final List<IssueDto> issues;
 
   private Long effortTotal = null;
@@ -58,7 +56,7 @@ public class SearchResponseData {
 
   public SearchResponseData(IssueDto issue) {
     checkNotNull(issue);
-    this.issues = ImmutableList.of(issue);
+    this.issues = List.of(issue);
   }
 
   public SearchResponseData(List<IssueDto> issues) {

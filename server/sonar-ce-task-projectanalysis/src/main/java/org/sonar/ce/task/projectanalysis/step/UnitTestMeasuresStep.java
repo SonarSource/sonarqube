@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
@@ -47,10 +47,9 @@ import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
  * Computes unit test measures on files and then aggregates them on higher components.
  */
 public class UnitTestMeasuresStep implements ComputationStep {
-
   private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, SKIPPED_TESTS_KEY, TEST_SUCCESS_DENSITY_KEY, TEST_EXECUTION_TIME_KEY};
 
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(new UnitTestsFormula());
+  private static final List<Formula> FORMULAS = List.of(new UnitTestsFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

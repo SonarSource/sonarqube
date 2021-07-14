@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,12 +130,11 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TIMEZONE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 public class SearchAction implements IssuesWsAction {
-
   private static final String LOGIN_MYSELF = "__me__";
   private static final Set<String> ISSUE_SCOPES = Arrays.stream(IssueScope.values()).map(Enum::name).collect(Collectors.toSet());
   private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
-  static final List<String> SUPPORTED_FACETS = ImmutableList.of(
+  static final List<String> SUPPORTED_FACETS = List.of(
     FACET_PROJECTS,
     PARAM_MODULE_UUIDS,
     PARAM_FILES,
@@ -157,7 +155,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_SANS_TOP_25,
     PARAM_CWE,
     PARAM_CREATED_AT,
-    PARAM_SONARSOURCE_SECURITY);
+    PARAM_SONARSOURCE_SECURITY
+  );
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILES, PARAM_DIRECTORIES);
@@ -422,7 +421,7 @@ public class SearchAction implements IssuesWsAction {
       collectFacets(collector, facets);
     }
     SearchResponseData preloadedData = new SearchResponseData(emptyList());
-    preloadedData.addRules(ImmutableList.copyOf(query.rules()));
+    preloadedData.addRules(List.copyOf(query.rules()));
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
     // FIXME allow long in Paging
@@ -588,7 +587,7 @@ public class SearchAction implements IssuesWsAction {
     List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).collect(toList());
 
     if ((assigneeLogins != null) && firstNonNull(assigneeUuid, emptyList()).isEmpty()) {
-      assigneeUuid = ImmutableList.of("non-existent-uuid");
+      assigneeUuid = List.of("non-existent-uuid");
     }
     return assigneeUuid;
   }

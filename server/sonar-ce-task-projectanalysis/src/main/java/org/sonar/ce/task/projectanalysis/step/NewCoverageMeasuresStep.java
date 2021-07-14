@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.List;
@@ -60,12 +59,12 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
  * Computes measures related to the New Coverage. These measures do not have values, only variations.
  */
 public class NewCoverageMeasuresStep implements ComputationStep {
-
-  private static final List<Formula> FORMULAS = ImmutableList.of(
+  private static final List<Formula> FORMULAS = List.of(
     // UT coverage
     new NewCoverageFormula(),
     new NewBranchCoverageFormula(),
-    new NewLineCoverageFormula());
+    new NewLineCoverageFormula()
+  );
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

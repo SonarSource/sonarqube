@@ -19,7 +19,6 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,7 +108,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_CWE = "cwe";
   private static final String PARAM_FILES = "files";
 
-  private static final List<String> STATUSES = ImmutableList.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
+  private static final List<String> STATUSES = List.of(STATUS_TO_REVIEW, STATUS_REVIEWED);
 
   private final DbClient dbClient;
   private final UserSession userSession;

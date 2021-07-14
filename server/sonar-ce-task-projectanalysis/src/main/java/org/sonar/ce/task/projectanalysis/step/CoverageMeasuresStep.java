@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -55,14 +55,15 @@ import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumF
  * Computes coverage measures on files and then aggregates them on higher components.
  */
 public class CoverageMeasuresStep implements ComputationStep {
-  private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.of(
+  private static final List<Formula> COVERAGE_FORMULAS = List.of(
     createIntSumFormula(LINES_TO_COVER_KEY),
     createIntSumFormula(UNCOVERED_LINES_KEY),
     createIntSumFormula(CONDITIONS_TO_COVER_KEY),
     createIntSumFormula(UNCOVERED_CONDITIONS_KEY),
     new CodeCoverageFormula(),
     new BranchCoverageFormula(),
-    new LineCoverageFormula());
+    new LineCoverageFormula()
+  );
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

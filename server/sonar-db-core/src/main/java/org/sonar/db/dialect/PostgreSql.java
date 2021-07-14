@@ -19,7 +19,6 @@
  */
 package org.sonar.db.dialect;
 
-import com.google.common.collect.ImmutableList;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
@@ -30,9 +29,8 @@ import org.sonar.api.utils.log.Loggers;
 import static com.google.common.base.Preconditions.checkState;
 
 public class PostgreSql extends AbstractDialect {
-
   public static final String ID = "postgresql";
-  static final List<String> INIT_STATEMENTS = ImmutableList.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
+  static final List<String> INIT_STATEMENTS = List.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
   private static final Version MIN_SUPPORTED_VERSION = Version.create(9, 3, 0);
   private static final Version MIN_UPSERT_VERSION = Version.create(9, 5, 0);
 

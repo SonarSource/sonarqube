@@ -19,7 +19,6 @@
  */
 package org.sonar.server.setting.ws;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +49,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ResetAction implements SettingsWsAction {
-
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final SettingsUpdater settingsUpdater;
@@ -114,7 +112,7 @@ public class ResetAction implements SettingsWsAction {
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
         SettingData data = new SettingData(key, emptyList(), component.orElse(null));
-        ImmutableList.of(validations.scope(), validations.qualifier())
+        List.of(validations.scope(), validations.qualifier())
           .forEach(validation -> validation.accept(data));
       });
 
