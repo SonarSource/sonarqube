@@ -24,6 +24,7 @@ import org.sonar.server.platform.db.migration.history.MigrationHistoryImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryMeddler;
 import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.sql.OracleTriggerFinder;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
@@ -65,6 +66,7 @@ public class MigrationConfigurationModule extends Module {
       MigrationHistoryMeddler.class,
 
       // Utility classes
+      OracleTriggerFinder.class,
       DbPrimaryKeyConstraintFinder.class,
       DropPrimaryKeySqlGenerator.class,
       NetworkInterfaceProvider.class);
