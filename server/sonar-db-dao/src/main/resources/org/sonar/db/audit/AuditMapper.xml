@@ -13,27 +13,16 @@
     a.created_at as "createdAt"
   </sql>
 
-  <select id="selectAll" resultType="org.sonar.db.audit.AuditDto">
-    select <include refid="sqlColumns"/>
-    from
-      audits a
-  </select>
-
-  <select id="selectByPeriod" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
-    select <include refid="sqlColumns"/>
-    from
-      audits a
+  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
+    select <include refid="sqlColumns"/> from (
+      select
+        row_number() over(order by created_at, uuid) as row_number, *
+        from audits
+        where created_at &gt;= #{start} and created_at &lt; #{end}
+    ) as a
     where
-      a.created_at &gt; #{start, jdbcType=BIGINT} AND
-      a.created_at &lt; #{end, jdbcType=BIGINT}
-  </select>
-
-    <select id="selectIfBeforeSelectedDate" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
-    select <include refid="sqlColumns"/>
-    from
-      audits a
-    where
-      a.created_at &gt; #{end, jdbcType=BIGINT}
+    a.row_number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by a.row_number asc
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

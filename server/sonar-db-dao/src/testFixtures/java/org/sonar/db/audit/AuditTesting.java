@@ -28,14 +28,26 @@ public class AuditTesting {
   private static final Random random = new Random();
 
   public static AuditDto newAuditDto() {
+    return newAuditDto(random.nextLong(), "operation");
+  }
+
+  public static AuditDto newAuditDto(String operation) {
+    return newAuditDto(random.nextLong(), operation);
+  }
+
+  public static AuditDto newAuditDto(long createdAt) {
+    return newAuditDto(createdAt, "operation");
+  }
+
+  public static AuditDto newAuditDto(long createdAt, String operation) {
     AuditDto auditDto = new AuditDto();
     auditDto.setUuid(randomAlphanumeric(20));
     auditDto.setUserUuid(randomAlphanumeric(40));
     auditDto.setUserLogin(randomAlphanumeric(40));
-    auditDto.setNewValue(randomAlphanumeric(2000));
-    auditDto.setOperation("operation");
+    auditDto.setNewValue("{ \"someKey\": \"someValue\" }");
+    auditDto.setOperation(operation);
     auditDto.setCategory("category");
-    auditDto.setCreatedAt(random.nextLong());
+    auditDto.setCreatedAt(createdAt);
     return auditDto;
   }
 }

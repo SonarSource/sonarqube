@@ -19,19 +19,25 @@
  */
 package org.sonar.db.audit;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-import java.util.List;
+public class AuditDbTester {
 
-public interface AuditMapper {
+  private final DbTester db;
+  private final DbClient dbClient;
+  private final DbSession dbSession;
 
-  void insert(@Param("dto") AuditDto auditDto);
+  public AuditDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
+  }
 
-  void delete(@Param("uuids") List<String> uuids);
-
-  void deleteIfBeforeSelectedDate(@Param("timestamp") long timestamp);
-
-  List<AuditDto> selectByPeriodPaginated(@Param("start")long start, @Param("end") long end, @Param("pagination") Pagination pagination);
-
+  public final void insertRandomAuditEntry(long createdAt) {
+    AuditDto auditDto = AuditTesting.newAuditDto(createdAt);
+    dbClient.auditDao().insert(dbSession, auditDto);
+    db.commit();
+  }
 }

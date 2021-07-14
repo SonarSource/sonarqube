@@ -34,6 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
+import org.sonar.db.audit.AuditDbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
@@ -88,6 +89,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final InternalComponentPropertyDbTester internalComponentPropertyTester;
   private final AlmSettingsDbTester almSettingsDbTester;
   private final AlmPatsDbTester almPatsDbtester;
+  private final AuditDbTester auditDbTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
@@ -116,6 +118,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.newCodePeriodTester = new NewCodePeriodDbTester(this);
     this.almSettingsDbTester = new AlmSettingsDbTester(this);
     this.almPatsDbtester = new AlmPatsDbTester(this);
+    this.auditDbTester = new AuditDbTester(this);
   }
 
   public static DbTester create() {
@@ -242,6 +245,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public AlmPatsDbTester almPats() {
     return almPatsDbtester;
+  }
+
+  public AuditDbTester audits() {
+    return auditDbTester;
   }
 
   @Override

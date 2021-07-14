@@ -23,110 +23,94 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.audit.AuditDao.EXCEEDED_LENGTH;
 
 public class AuditDaoTest {
 
   private static final long NOW = 1000000L;
-  private static final String A_UUID = "SOME_UUID";
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public final DbTester db = DbTester.create(system2);
   private final DbSession dbSession = db.getSession();
-  private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
   private final AuditDao testAuditDao = new AuditDao(system2, UuidFactoryImpl.INSTANCE);
 
   @Test
-  public void selectAll_oneEntryInserted_returnThisEntry() {
-    AuditDao auditDaoDeterministicUUID = new AuditDao(system2, uuidFactory);
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    AuditDto auditDto = AuditTesting.newAuditDto();
-    auditDaoDeterministicUUID.insert(dbSession, auditDto);
+  public void selectByPeriodPaginated_10001EntriesInserted_defaultPageSizeEntriesReturned() {
+    prepareRowsWithDeterministicCreatedAt(10001);
 
-    List<AuditDto> auditDtos = auditDaoDeterministicUUID.selectAll(dbSession);
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 20000, 1);
 
-    assertThat(auditDtos.size()).isEqualTo(1);
-    assertThat(auditDtos.get(0))
-      .extracting(AuditDto::getUuid, AuditDto::getUserLogin,
-        AuditDto::getUserUuid, AuditDto::getCategory,
-        AuditDto::getOperation, AuditDto::getNewValue,
-        AuditDto::getCreatedAt)
-      .containsExactly(A_UUID, auditDto.getUserLogin(),
-        auditDto.getUserUuid(), auditDto.getCategory(),
-        auditDto.getOperation(), auditDto.getNewValue(),
-        auditDto.getCreatedAt());
+    assertThat(auditDtos.size()).isEqualTo(10000);
   }
 
   @Test
-  public void selectAll_100EntriesInserted_100EntriesReturned() {
-    AuditDao auditDao = new AuditDao(system2, UuidFactoryImpl.INSTANCE);
-    for(int i=0; i<100; i++) {
-      AuditDto auditDto = AuditTesting.newAuditDto();
-      auditDto.setUuid(randomAlphanumeric(20));
-      auditDao.insert(dbSession, auditDto);
-    }
+  public void selectByPeriodPaginated_10001EntriesInserted_querySecondPageReturns1Item() {
+    prepareRowsWithDeterministicCreatedAt(10001);
 
-    List<AuditDto> auditDtos = auditDao.selectAll(dbSession);
-
-    assertThat(auditDtos.size()).isEqualTo(100);
-  }
-
-  @Test
-  public void selectByPeriod_selectOneRowFromTheMiddle() {
-    prepareThreeRowsWithDeterministicCreatedAt();
-
-    List<AuditDto> auditDtos = testAuditDao.selectByPeriod(dbSession, 1, 3);
-
-    assertThat(auditDtos.size()).isEqualTo(1);
-    assertThat(auditDtos.get(0).getCreatedAt()).isEqualTo(2);
-  }
-
-  @Test
-  public void selectByPeriod_selectOneRowFromTheEnd() {
-    prepareThreeRowsWithDeterministicCreatedAt();
-
-    List<AuditDto> auditDtos = testAuditDao.selectByPeriod(dbSession, 2, 4);
-
-    assertThat(auditDtos.size()).isEqualTo(1);
-    assertThat(auditDtos.get(0).getCreatedAt()).isEqualTo(3);
-  }
-
-  @Test
-  public void selectByPeriod_selectAllRows() {
-    prepareThreeRowsWithDeterministicCreatedAt();
-
-    List<AuditDto> auditDtos = testAuditDao.selectByPeriod(dbSession, 0, 4);
-
-    assertThat(auditDtos.size()).isEqualTo(3);
-  }
-
-  @Test
-  public void selectIfBeforeSelectedDate_select1Row() {
-    prepareThreeRowsWithDeterministicCreatedAt();
-
-    List<AuditDto> auditDtos = testAuditDao.selectIfBeforeSelectedDate(dbSession, 2);
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 20000, 2);
 
     assertThat(auditDtos.size()).isEqualTo(1);
   }
 
   @Test
   public void deleteIfBeforeSelectedDate_deleteTwoRows() {
-    prepareThreeRowsWithDeterministicCreatedAt();
+    prepareRowsWithDeterministicCreatedAt(3);
 
     testAuditDao.deleteIfBeforeSelectedDate(dbSession, 2);
 
-    List<AuditDto> auditDtos = testAuditDao.selectAll(dbSession);
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 4, 1);
     assertThat(auditDtos.size()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectByPeriodPaginated_100EntriesInserted_100EntriesReturned() {
+    prepareRowsWithDeterministicCreatedAt(100);
+
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 101, 1);
+
+    assertThat(auditDtos.size()).isEqualTo(100);
+  }
+
+  @Test
+  public void insert_doNotSetACreatedAtIfAlreadySet() {
+    AuditDto auditDto = AuditTesting.newAuditDto();
+    auditDto.setCreatedAt(1041375600000L);
+
+    testAuditDao.insert(dbSession, auditDto);
+
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1041375500000L, 1041375700000L, 1);
+    AuditDto storedAuditDto = auditDtos.get(0);
+    assertThat(storedAuditDto.getCreatedAt()).isEqualTo(auditDto.getCreatedAt());
+  }
+
+  @Test
+  public void insert_setACreatedAtIfAlreadySet() {
+    AuditDto auditDto = AuditTesting.newAuditDto();
+    auditDto.setCreatedAt(0);
+
+    testAuditDao.insert(dbSession, auditDto);
+
+    assertThat(auditDto.getCreatedAt()).isNotZero();
+  }
+
+  @Test
+  public void insert_doNotSetAUUIDIfAlreadySet() {
+    AuditDto auditDto = AuditTesting.newAuditDto();
+    auditDto.setUuid("myuuid");
+    auditDto.setCreatedAt(1041375600000L);
+
+    testAuditDao.insert(dbSession, auditDto);
+
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1041375500000L, 1041375700000L, 1);
+    AuditDto storedAuditDto = auditDtos.get(0);
+    assertThat(storedAuditDto.getUuid()).isEqualTo(auditDto.getUuid());
   }
 
   @Test
@@ -140,10 +124,9 @@ public class AuditDaoTest {
     assertThat(auditDto.getNewValue()).isEqualTo(EXCEEDED_LENGTH);
   }
 
-  private void prepareThreeRowsWithDeterministicCreatedAt() {
-    for(int i=1; i<=3; i++) {
-      AuditDto auditDto = AuditTesting.newAuditDto();
-      system2.setNow(i);
+  private void prepareRowsWithDeterministicCreatedAt(int size) {
+    for (int i = 1; i <= size; i++) {
+      AuditDto auditDto = AuditTesting.newAuditDto(i);
       testAuditDao.insert(dbSession, auditDto);
     }
   }

@@ -19,12 +19,12 @@
  */
 package org.sonar.db.audit;
 
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-
-import java.util.List;
+import org.sonar.db.Pagination;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 
@@ -45,23 +45,19 @@ public class AuditDao implements Dao {
     return dbSession.getMapper(AuditMapper.class);
   }
 
-  public List<AuditDto> selectAll(DbSession dbSession) {
-    return getMapper(dbSession).selectAll();
-  }
-
-  public List<AuditDto> selectByPeriod(DbSession dbSession, long beginning, long end) {
-    return getMapper(dbSession).selectByPeriod(beginning, end);
-  }
-
-  public List<AuditDto> selectIfBeforeSelectedDate(DbSession dbSession, long end) {
-    return getMapper(dbSession).selectIfBeforeSelectedDate(end);
+  public List<AuditDto> selectByPeriodPaginated(DbSession dbSession, long start, long end, int page) {
+    return getMapper(dbSession).selectByPeriodPaginated(start, end, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
   }
 
   public void insert(DbSession dbSession, AuditDto auditDto) {
-    long now = system2.now();
-    auditDto.setUuid(uuidFactory.create());
-    auditDto.setCreatedAt(now);
-    if (auditDto.getNewValue().length() > MAX_SIZE) {
+    if (auditDto.getUuid() == null) {
+      auditDto.setUuid(uuidFactory.create());
+    }
+    if (auditDto.getCreatedAt() == 0) {
+      long now = system2.now();
+      auditDto.setCreatedAt(now);
+    }
+    if(auditDto.getNewValue().length() > MAX_SIZE) {
       auditDto.setNewValue(EXCEEDED_LENGTH);
     }
     getMapper(dbSession).insert(auditDto);
