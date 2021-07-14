@@ -61,9 +61,10 @@ public class UserPropertiesDaoTest {
     UserDto user = db.users().insertUser();
 
     UserPropertyDto userSetting = underTest.insertOrUpdate(db.getSession(), new UserPropertyDto()
-      .setUserUuid(user.getUuid())
-      .setKey("a_key")
-      .setValue("a_value"));
+        .setUserUuid(user.getUuid())
+        .setKey("a_key")
+        .setValue("a_value"),
+      user.getLogin());
 
     Map<String, Object> map = db.selectFirst(db.getSession(), "select uuid as \"uuid\",\n" +
       " user_uuid as \"userUuid\",\n" +
@@ -85,15 +86,17 @@ public class UserPropertiesDaoTest {
   public void update() {
     UserDto user = db.users().insertUser();
     UserPropertyDto userProperty = underTest.insertOrUpdate(db.getSession(), new UserPropertyDto()
-      .setUserUuid(user.getUuid())
-      .setKey("a_key")
-      .setValue("old_value"));
+        .setUserUuid(user.getUuid())
+        .setKey("a_key")
+        .setValue("old_value"),
+      user.getLogin());
 
     system2.setNow(2_000_000_000_000L);
     underTest.insertOrUpdate(db.getSession(), new UserPropertyDto()
-      .setUserUuid(user.getUuid())
-      .setKey("a_key")
-      .setValue("new_value"));
+        .setUserUuid(user.getUuid())
+        .setKey("a_key")
+        .setValue("new_value"),
+      user.getLogin());
 
     Map<String, Object> map = db.selectFirst(db.getSession(), "select uuid as \"uuid\",\n" +
       " user_uuid as \"userUuid\",\n" +

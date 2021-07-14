@@ -33,21 +33,21 @@ import static org.sonar.api.PropertyType.PASSWORD;
 @ServerSide
 public class SamlSettings {
 
-  private static final String ENABLED = "sonar.auth.saml.enabled";
-  private static final String PROVIDER_ID = "sonar.auth.saml.providerId";
-  private static final String PROVIDER_NAME = "sonar.auth.saml.providerName";
+  public static final String ENABLED = "sonar.auth.saml.enabled";
+  public static final String PROVIDER_ID = "sonar.auth.saml.providerId";
+  public static final String PROVIDER_NAME = "sonar.auth.saml.providerName";
 
-  private static final String APPLICATION_ID = "sonar.auth.saml.applicationId";
-  private static final String LOGIN_URL = "sonar.auth.saml.loginUrl";
-  private static final String CERTIFICATE = "sonar.auth.saml.certificate.secured";
+  public static final String APPLICATION_ID = "sonar.auth.saml.applicationId";
+  public static final String LOGIN_URL = "sonar.auth.saml.loginUrl";
+  public static final String CERTIFICATE = "sonar.auth.saml.certificate.secured";
 
-  private static final String USER_LOGIN_ATTRIBUTE = "sonar.auth.saml.user.login";
-  private static final String USER_NAME_ATTRIBUTE = "sonar.auth.saml.user.name";
-  private static final String USER_EMAIL_ATTRIBUTE = "sonar.auth.saml.user.email";
-  private static final String GROUP_NAME_ATTRIBUTE = "sonar.auth.saml.group.name";
+  public static final String USER_LOGIN_ATTRIBUTE = "sonar.auth.saml.user.login";
+  public static final String USER_NAME_ATTRIBUTE = "sonar.auth.saml.user.name";
+  public static final String USER_EMAIL_ATTRIBUTE = "sonar.auth.saml.user.email";
+  public static final String GROUP_NAME_ATTRIBUTE = "sonar.auth.saml.group.name";
 
-  private static final String CATEGORY = "security";
-  private static final String SUBCATEGORY = "saml";
+  public static final String CATEGORY = "security";
+  public static final String SUBCATEGORY = "saml";
 
   private final Configuration configuration;
 

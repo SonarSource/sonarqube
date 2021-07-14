@@ -214,7 +214,7 @@ public class GroupDaoTest {
   public void deleteByUuid() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    underTest.deleteByUuid(dbSession, aGroup.getUuid());
+    underTest.deleteByUuid(dbSession, aGroup.getUuid(), aGroup.getName());
 
     assertThat(db.countRowsOfTable(dbSession, "groups")).isZero();
   }

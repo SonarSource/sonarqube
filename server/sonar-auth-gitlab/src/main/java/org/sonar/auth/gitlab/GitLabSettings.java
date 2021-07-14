@@ -32,12 +32,12 @@ import static org.sonar.api.PropertyType.PASSWORD;
 
 public class GitLabSettings {
 
-  static final String GITLAB_AUTH_ENABLED = "sonar.auth.gitlab.enabled";
-  static final String GITLAB_AUTH_URL = "sonar.auth.gitlab.url";
-  static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId.secured";
-  static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
-  static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
-  static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
+  public static final String GITLAB_AUTH_ENABLED = "sonar.auth.gitlab.enabled";
+  public static final String GITLAB_AUTH_URL = "sonar.auth.gitlab.url";
+  public static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId.secured";
+  public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
+  public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
+  public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
 
   private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
   private static final String SUBCATEGORY = "gitlab";

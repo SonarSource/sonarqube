@@ -83,7 +83,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
       ensureLastAdminIsNotRemoved(dbSession, group, user);
 
-      dbClient.userGroupDao().delete(dbSession, group.getUuid(), user.getUuid());
+      dbClient.userGroupDao().delete(dbSession, group, user);
       dbSession.commit();
 
       response.noContent();

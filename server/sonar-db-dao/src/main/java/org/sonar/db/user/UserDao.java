@@ -34,6 +34,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -48,9 +50,16 @@ public class UserDao implements Dao {
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
+  private AuditPersister auditPersister;
+
   public UserDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+  }
+
+  public UserDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+    this(system2, uuidFactory);
+    this.auditPersister = auditPersister;
   }
 
   @CheckForNull
@@ -105,11 +114,23 @@ public class UserDao implements Dao {
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
     mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));
+
+    if (auditPersister != null) {
+      auditPersister.addUser(session, new UserNewValue(dto.getUuid(), dto.getLogin()));
+    }
+
     return dto;
   }
 
   public UserDto update(DbSession session, UserDto dto) {
+    return update(session, dto, true);
+  }
+
+  public UserDto update(DbSession session, UserDto dto, boolean track) {
     mapper(session).update(dto.setUpdatedAt(system2.now()));
+    if (track && auditPersister != null) {
+      auditPersister.updateUser(session, new UserNewValue(dto));
+    }
     return dto;
   }
 
@@ -123,6 +144,10 @@ public class UserDao implements Dao {
 
   public void deactivateUser(DbSession dbSession, UserDto user) {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
+
+    if (auditPersister != null) {
+      auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));
+    }
   }
 
   public void cleanHomepage(DbSession dbSession, ProjectDto project) {

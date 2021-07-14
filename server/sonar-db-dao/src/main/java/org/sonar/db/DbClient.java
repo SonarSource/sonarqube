@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
+import org.sonar.db.audit.AuditDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -100,6 +101,7 @@ public class DbClient {
   private final PropertiesDao propertiesDao;
   private final AlmSettingDao almSettingDao;
   private final AlmPatDao almPatDao;
+  private final AuditDao auditDao;
   private final ProjectAlmSettingDao projectAlmSettingDao;
   private final InternalComponentPropertiesDao internalComponentPropertiesDao;
   private final InternalPropertiesDao internalPropertiesDao;
@@ -169,6 +171,7 @@ public class DbClient {
       map.put(dao.getClass(), dao);
     }
     almSettingDao = getDao(map, AlmSettingDao.class);
+    auditDao = getDao(map, AuditDao.class);
     almPatDao = getDao(map, AlmPatDao.class);
     projectAlmSettingDao = getDao(map, ProjectAlmSettingDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
@@ -253,6 +256,10 @@ public class DbClient {
 
   public ApplicationProjectsDao applicationProjectsDao() {
     return applicationProjectsDao;
+  }
+
+  public AuditDao auditDao() {
+    return auditDao;
   }
 
   public ProjectAlmSettingDao projectAlmSettingDao() {

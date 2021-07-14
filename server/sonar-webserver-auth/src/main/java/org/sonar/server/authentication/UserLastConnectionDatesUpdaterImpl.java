@@ -46,7 +46,7 @@ public class UserLastConnectionDatesUpdaterImpl implements UserLastConnectionDat
       return;
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.userDao().update(dbSession, user.setLastConnectionDate(now));
+      dbClient.userDao().update(dbSession, user.setLastConnectionDate(now), false);
       dbSession.commit();
     }
   }
@@ -59,7 +59,7 @@ public class UserLastConnectionDatesUpdaterImpl implements UserLastConnectionDat
       return;
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.userTokenDao().update(dbSession, userToken.setLastConnectionDate(now));
+      dbClient.userTokenDao().update(dbSession, userToken.setLastConnectionDate(now), false, null);
       userToken.setLastConnectionDate(now);
       dbSession.commit();
     }

@@ -20,35 +20,63 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.PropertyNewValue;
 
 public class UserPropertiesDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
+  private AuditPersister auditPersister;
+
   public UserPropertiesDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+  }
+
+  public UserPropertiesDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+    this(system2, uuidFactory);
+    this.auditPersister = auditPersister;
   }
 
   public List<UserPropertyDto> selectByUser(DbSession session, UserDto user) {
     return mapper(session).selectByUserUuid(user.getUuid());
   }
 
-  public UserPropertyDto insertOrUpdate(DbSession session, UserPropertyDto dto) {
+  public UserPropertyDto insertOrUpdate(DbSession session, UserPropertyDto dto, @Nullable String login) {
     long now = system2.now();
+    boolean isUpdate = true;
     if (mapper(session).update(dto, now) == 0) {
       mapper(session).insert(dto.setUuid(uuidFactory.create()), now);
+      isUpdate = false;
     }
+
+    if (auditPersister != null && auditPersister.isTrackedProperty(dto.getKey())) {
+      if (isUpdate) {
+        auditPersister.updateUserProperty(session, new PropertyNewValue(dto, login));
+      } else {
+        auditPersister.addUserProperty(session, new PropertyNewValue(dto, login));
+      }
+    }
+
     return dto;
   }
 
   public void deleteByUser(DbSession session, UserDto user) {
+    List<UserPropertyDto> userProperties = selectByUser(session, user);
     mapper(session).deleteByUserUuid(user.getUuid());
+
+    if (auditPersister != null) {
+      userProperties.stream()
+        .filter(p -> auditPersister.isTrackedProperty(p.getKey()))
+        .forEach(p -> auditPersister.deleteUserProperty(session, new PropertyNewValue(p, user.getLogin())));
+    }
   }
 
   private static UserPropertiesMapper mapper(DbSession session) {

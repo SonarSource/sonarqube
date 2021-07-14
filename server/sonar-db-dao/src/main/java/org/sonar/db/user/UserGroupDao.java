@@ -22,11 +22,27 @@ package org.sonar.db.user;
 import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserGroupNewValue;
 
 public class UserGroupDao implements Dao {
 
-  public UserGroupDto insert(DbSession session, UserGroupDto dto) {
+  private AuditPersister auditPersister;
+
+  public UserGroupDao() {
+  }
+
+  public UserGroupDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
+
+  public UserGroupDto insert(DbSession session, UserGroupDto dto, String groupName, String login) {
     mapper(session).insert(dto);
+
+    if (auditPersister != null) {
+      auditPersister.addUserToGroup(session, new UserGroupNewValue(dto, groupName, login));
+    }
+
     return dto;
   }
 
@@ -34,16 +50,28 @@ public class UserGroupDao implements Dao {
     return mapper(session).selectUserUuidsInGroup(groupUuid);
   }
 
-  public void delete(DbSession session, String groupUuid, String userUuid) {
-    mapper(session).delete(groupUuid, userUuid);
+  public void delete(DbSession session, GroupDto group, UserDto user) {
+    mapper(session).delete(group.getUuid(), user.getUuid());
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(group, user));
+    }
   }
 
-  public void deleteByGroupUuid(DbSession session, String groupUuid) {
+  public void deleteByGroupUuid(DbSession session, String groupUuid, String groupName) {
     mapper(session).deleteByGroupUuid(groupUuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(groupUuid, groupName));
+    }
   }
 
-  public void deleteByUserUuid(DbSession dbSession, String userUuid) {
-    mapper(dbSession).deleteByUserUuid(userUuid);
+  public void deleteByUserUuid(DbSession dbSession, UserDto userDto) {
+    mapper(dbSession).deleteByUserUuid(userDto.getUuid());
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserFromGroup(dbSession, new UserGroupNewValue(userDto));
+    }
   }
 
   private static UserGroupMapper mapper(DbSession session) {

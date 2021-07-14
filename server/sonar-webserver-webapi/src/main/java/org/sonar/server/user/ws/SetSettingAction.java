@@ -82,7 +82,8 @@ public class SetSettingAction implements UsersWsAction {
         new UserPropertyDto()
           .setUserUuid(requireNonNull(userSession.getUuid(), "Authenticated user uuid cannot be null"))
           .setKey(key)
-          .setValue(value));
+          .setValue(value),
+        userSession.getLogin());
       dbSession.commit();
     }
   }

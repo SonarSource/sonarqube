@@ -31,6 +31,7 @@ public class DbVersion91 implements DbVersion {
       .add(6003, "Drop custom metrics data from 'live_measures' table", DropCustomMetricsLiveMeasuresData.class)
       .add(6004, "Drop custom metrics data from 'project_measures' table", DropCustomMetricsProjectMeasuresData.class)
       .add(6005, "Drop custom metrics data from 'metrics' table", DropUserManagedMetricsData.class)
-      .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class);
+      .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class)
+      .add(6007, "Create Audit table", CreateAuditTable.class);
   }
 }

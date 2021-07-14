@@ -79,7 +79,7 @@ public class UserLastConnectionDatesUpdaterImplTest {
   public void update_last_connection_date_from_user_token_when_last_connection_was_more_than_one_hour() {
     UserDto user = db.users().insertUser();
     UserTokenDto userToken = db.users().insertToken(user);
-    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - TWO_HOUR));
+    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - TWO_HOUR), false, null);
     db.commit();
 
     underTest.updateLastConnectionDateIfNeeded(userToken);
@@ -103,7 +103,7 @@ public class UserLastConnectionDatesUpdaterImplTest {
   public void do_not_update_when_last_connection_from_user_token_was_less_than_one_hour() {
     UserDto user = db.users().insertUser();
     UserTokenDto userToken = db.users().insertToken(user);
-    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - ONE_MINUTE));
+    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - ONE_MINUTE), false, null);
     db.commit();
 
     underTest.updateLastConnectionDateIfNeeded(userToken);

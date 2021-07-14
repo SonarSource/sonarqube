@@ -100,7 +100,7 @@ public class SearchActionTest {
     UserDto user = db.users().insertUser();
     UserTokenDto token1 = db.users().insertToken(user);
     UserTokenDto token2 = db.users().insertToken(user);
-    db.getDbClient().userTokenDao().update(db.getSession(), token1.setLastConnectionDate(10_000_000_000L));
+    db.getDbClient().userTokenDao().update(db.getSession(), token1.setLastConnectionDate(10_000_000_000L), false, user.getLogin());
     db.commit();
     logInAsSystemAdministrator();
 

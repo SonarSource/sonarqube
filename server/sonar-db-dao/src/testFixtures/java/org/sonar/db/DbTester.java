@@ -34,6 +34,7 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
 import org.sonar.db.event.EventDbTester;
@@ -88,11 +89,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final AlmSettingsDbTester almSettingsDbTester;
   private final AlmPatsDbTester almPatsDbtester;
 
-  private DbTester(System2 system2, @Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
+  private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
     this.system2 = system2;
 
-    initDbClient();
+    initDbClient(auditPersister);
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
     this.componentLinkTester = new ProjectLinkDbTester(this);
@@ -118,19 +119,26 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null);
+    return new DbTester(System2.INSTANCE, null, null);
+  }
+
+  public static DbTester create(System2 system2, AuditPersister auditPersister) {
+    return new DbTester(system2, null, auditPersister);
   }
 
   public static DbTester create(System2 system2) {
-    return new DbTester(system2, null);
+    return new DbTester(system2, null, null);
   }
 
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(system2, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+    return new DbTester(system2, null, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
-  private void initDbClient() {
+  private void initDbClient(AuditPersister auditPersister) {
     TransientPicoContainer ioc = new TransientPicoContainer();
+    if (auditPersister != null) {
+      ioc.addComponent(auditPersister);
+    }
     ioc.addComponent(db.getMyBatis());
     ioc.addComponent(system2);
     ioc.addComponent(uuidFactory);
@@ -145,7 +153,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   protected void before() {
     db.start();
     db.truncateTables();
-    initDbClient();
+    initDbClient(null);
   }
 
   public UserDbTester users() {

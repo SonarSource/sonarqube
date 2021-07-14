@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.audit.AuditMapper">
+
+  <sql id="sqlColumns">
+    a.uuid as "uuid",
+    a.user_uuid as "userUuid",
+    a.user_login as "userLogin",
+    a.category as "category",
+    a.operation as "operation",
+    a.new_value as "newValue",
+    a.created_at as "createdAt"
+  </sql>
+
+  <select id="selectAll" resultType="org.sonar.db.audit.AuditDto">
+    select <include refid="sqlColumns"/>
+    from
+      audits a
+  </select>
+
+  <select id="selectByPeriod" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
+    select <include refid="sqlColumns"/>
+    from
+      audits a
+    where
+      a.created_at &gt; #{start, jdbcType=BIGINT} AND
+      a.created_at &lt; #{end, jdbcType=BIGINT}
+  </select>
+
+    <select id="selectIfBeforeSelectedDate" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
+    select <include refid="sqlColumns"/>
+    from
+      audits a
+    where
+      a.created_at &gt; #{end, jdbcType=BIGINT}
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO audits
+    (
+      uuid,
+      user_uuid,
+      user_login,
+      category,
+      operation,
+      new_value,
+      created_at
+    )
+    VALUES (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.userUuid, jdbcType=VARCHAR},
+      #{dto.userLogin, jdbcType=VARCHAR},
+      #{dto.category, jdbcType=VARCHAR},
+      #{dto.operation, jdbcType=VARCHAR},
+      #{dto.newValue, jdbcType=VARCHAR},
+      #{dto.createdAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteIfBeforeSelectedDate">
+    delete from audits
+    where
+    created_at &lt;= #{timestamp,jdbcType=BIGINT}
+  </delete>
+
+</mapper>

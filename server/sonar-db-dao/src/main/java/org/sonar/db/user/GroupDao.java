@@ -33,20 +33,28 @@ import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.WildcardPosition;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserGroupNewValue;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupDao implements Dao {
 
   private final System2 system;
+  private AuditPersister auditPersister;
 
   public GroupDao(System2 system) {
     this.system = system;
   }
 
+  public GroupDao(System2 system, AuditPersister auditPersister) {
+    this(system);
+    this.auditPersister = auditPersister;
+  }
+
   /**
    * @param dbSession
-   * @param name non-null group name
+   * @param name      non-null group name
    * @return the group with the given name
    */
   public Optional<GroupDto> selectByName(DbSession dbSession, String name) {
@@ -66,8 +74,12 @@ public class GroupDao implements Dao {
     return executeLargeInputs(uuids, mapper(dbSession)::selectByUuids);
   }
 
-  public void deleteByUuid(DbSession dbSession, String groupUuid) {
+  public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
     mapper(dbSession).deleteByUuid(groupUuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserGroup(dbSession, new UserGroupNewValue(groupUuid, groupName));
+    }
   }
 
   public int countByQuery(DbSession session, @Nullable String query) {
@@ -83,12 +95,22 @@ public class GroupDao implements Dao {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
+
+    if (auditPersister != null) {
+      auditPersister.addUserGroup(session, new UserGroupNewValue(item.getUuid(), item.getName()));
+    }
+
     return item;
   }
 
   public GroupDto update(DbSession session, GroupDto item) {
     item.setUpdatedAt(new Date(system.now()));
     mapper(session).update(item);
+
+    if (auditPersister != null) {
+      auditPersister.updateUserGroup(session, new UserGroupNewValue(item));
+    }
+
     return item;
   }
 

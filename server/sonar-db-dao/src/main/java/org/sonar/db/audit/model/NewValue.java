@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v91;
+package org.sonar.db.audit.model;
 
-import org.junit.Test;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public interface NewValue {
 
-public class DbVersion91Test {
-
-  private final DbVersion91 underTest = new DbVersion91();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  default void addField(StringBuilder sb, String field, String value, boolean isString) {
+    if (!isNullOrEmpty(value)) {
+      sb.append(field);
+      addQuote(sb, isString);
+      sb.append(value);
+      addQuote(sb, isString);
+      sb.append(",");
+    }
   }
 
-  @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
+  private static void addQuote(StringBuilder sb, boolean isString) {
+    if(isString) {
+      sb.append("'");
+    }
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
-  }
-
 }

@@ -76,7 +76,7 @@ public class DeleteAction implements UserGroupsWsAction {
       removeFromPermissionTemplates(dbSession, group);
       removeGroupMembers(dbSession, group);
       dbClient.qProfileEditGroupsDao().deleteByGroup(dbSession, group);
-      dbClient.groupDao().deleteByUuid(dbSession, group.getUuid());
+      dbClient.groupDao().deleteByUuid(dbSession, group.getUuid(), group.getName());
 
       dbSession.commit();
       response.noContent();
@@ -99,6 +99,6 @@ public class DeleteAction implements UserGroupsWsAction {
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto group) {
-    dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
+    dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid(), group.getName());
   }
 }

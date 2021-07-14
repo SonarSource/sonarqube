@@ -117,7 +117,7 @@ public class GenerateAction implements UserTokensWsAction {
       .setName(name)
       .setTokenHash(tokenHash)
       .setCreatedAt(system.now());
-    dbClient.userTokenDao().insert(dbSession, userTokenDto);
+    dbClient.userTokenDao().insert(dbSession, userTokenDto, user.getLogin());
     dbSession.commit();
     return userTokenDto;
   }

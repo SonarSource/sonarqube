@@ -216,7 +216,8 @@ public class UserRegistrarImpl implements UserRegistrar {
     groupsToAdd.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
       groupDto -> {
         LOGGER.debug("Adding group '{}' to user '{}'", groupDto.getName(), userDto.getLogin());
-        dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(groupDto.getUuid()).setUserUuid(userDto.getUuid()));
+        dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(groupDto.getUuid()).setUserUuid(userDto.getUuid()),
+          groupDto.getName(), userDto.getLogin());
       });
   }
 
@@ -229,7 +230,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       .filter(group -> !defaultGroup.isPresent() || !group.getUuid().equals(defaultGroup.get().getUuid()))
       .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
-        dbClient.userGroupDao().delete(dbSession, groupDto.getUuid(), userDto.getUuid());
+        dbClient.userGroupDao().delete(dbSession, groupDto, userDto);
       });
   }
 

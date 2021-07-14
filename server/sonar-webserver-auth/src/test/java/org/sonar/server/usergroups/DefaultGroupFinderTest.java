@@ -58,7 +58,7 @@ public class DefaultGroupFinderTest {
   @Test
   public void fail_with_ISE_when_default_group_does_not_exist() {
     GroupDto defaultGroup = db.users().insertDefaultGroup();
-    db.getDbClient().groupDao().deleteByUuid(db.getSession(), defaultGroup.getUuid());
+    db.getDbClient().groupDao().deleteByUuid(db.getSession(), defaultGroup.getUuid(), defaultGroup.getName());
     DbSession session = db.getSession();
 
     assertThatThrownBy(() -> underTest.findDefaultGroup(session))

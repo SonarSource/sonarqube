@@ -26,6 +26,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
+import org.sonar.db.audit.AuditDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -98,6 +99,7 @@ public class DaoModule extends Module {
     AnalysisPropertiesDao.class,
     AuthorizationDao.class,
     ApplicationProjectsDao.class,
+    AuditDao.class,
     BranchDao.class,
     CeActivityDao.class,
     CeQueueDao.class,

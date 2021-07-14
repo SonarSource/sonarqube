@@ -19,29 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import java.sql.SQLException;
 
-public class DbVersion91Test {
+public class CreateAuditTableTest {
+  private static final String TABLE_NAME = "audits";
 
-  private final DbVersion91 underTest = new DbVersion91();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateAuditTableTest.class, "schema.sql");
 
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
-  }
+  private final CreateAuditTable underTest = new CreateAuditTable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
+  public void migration_should_create_a_table_with_index() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
-  }
+    underTest.execute();
 
+    db.assertTableExists(TABLE_NAME);
+    db.assertIndex(TABLE_NAME, "audits_created_at", "created_at");
+  }
 }

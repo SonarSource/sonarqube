@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v91;
+package org.sonar.db.audit;
 
-import org.junit.Test;
+import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
-public class DbVersion91Test {
+public class AuditTesting {
 
-  private final DbVersion91 underTest = new DbVersion91();
+  private static final Random random = new Random();
 
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public static AuditDto newAuditDto() {
+    AuditDto auditDto = new AuditDto();
+    auditDto.setUuid(randomAlphanumeric(20));
+    auditDto.setUserUuid(randomAlphanumeric(40));
+    auditDto.setUserLogin(randomAlphanumeric(40));
+    auditDto.setNewValue(randomAlphanumeric(2000));
+    auditDto.setOperation("operation");
+    auditDto.setCategory("category");
+    auditDto.setCreatedAt(random.nextLong());
+    return auditDto;
   }
-
-  @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
-  }
-
 }

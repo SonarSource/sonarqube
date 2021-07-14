@@ -82,7 +82,7 @@ public class AddUserAction implements UserGroupsWsAction {
 
       if (!isMemberOf(dbSession, user, group)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-        dbClient.userGroupDao().insert(dbSession, membershipDto);
+        dbClient.userGroupDao().insert(dbSession, membershipDto, group.getName(), login);
         dbSession.commit();
       }
 

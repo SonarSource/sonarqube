@@ -134,7 +134,7 @@ public class UserDbTester {
   public final UserPropertyDto insertUserSetting(UserDto user, Consumer<UserPropertyDto>... populators) {
     UserPropertyDto dto = UserTesting.newUserSettingDto(user);
     stream(populators).forEach(p -> p.accept(dto));
-    dbClient.userPropertiesDao().insertOrUpdate(db.getSession(), dto);
+    dbClient.userPropertiesDao().insertOrUpdate(db.getSession(), dto, user.getLogin());
     db.commit();
     return dto;
   }
@@ -176,7 +176,7 @@ public class UserDbTester {
 
   public UserGroupDto insertMember(GroupDto group, UserDto user) {
     UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-    db.getDbClient().userGroupDao().insert(db.getSession(), dto);
+    db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin());
     db.commit();
     return dto;
   }
@@ -184,7 +184,7 @@ public class UserDbTester {
   public void insertMembers(GroupDto group, UserDto... users) {
     Arrays.stream(users).forEach(user -> {
       UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-      db.getDbClient().userGroupDao().insert(db.getSession(), dto);
+      db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin());
     });
     db.commit();
   }
@@ -342,7 +342,7 @@ public class UserDbTester {
   public final UserTokenDto insertToken(UserDto user, Consumer<UserTokenDto>... populators) {
     UserTokenDto dto = UserTokenTesting.newUserToken().setUserUuid(user.getUuid());
     stream(populators).forEach(p -> p.accept(dto));
-    db.getDbClient().userTokenDao().insert(db.getSession(), dto);
+    db.getDbClient().userTokenDao().insert(db.getSession(), dto, user.getLogin());
     db.commit();
     return dto;
   }

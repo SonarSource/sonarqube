@@ -34,15 +34,14 @@ import static org.sonar.api.PropertyType.STRING;
 
 public class GitHubSettings {
 
-  private static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
-  private static final String CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
-  private static final String ENABLED = "sonar.auth.github.enabled";
-  private static final String ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
-  private static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
-  private static final String API_URL = "sonar.auth.github.apiUrl";
-  private static final String WEB_URL = "sonar.auth.github.webUrl";
-
-  private static final String ORGANIZATIONS = "sonar.auth.github.organizations";
+  public static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
+  public static final String CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
+  public static final String ENABLED = "sonar.auth.github.enabled";
+  public static final String ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
+  public static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
+  public static final String API_URL = "sonar.auth.github.apiUrl";
+  public static final String WEB_URL = "sonar.auth.github.webUrl";
+  public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
 
   private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
   private static final String SUBCATEGORY = "github";

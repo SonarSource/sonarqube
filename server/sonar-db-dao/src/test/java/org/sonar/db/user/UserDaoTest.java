@@ -785,7 +785,7 @@ public class UserDaoTest {
     dbClient.groupDao().insert(session, group);
 
     UserGroupDto dto = new UserGroupDto().setUserUuid(user.getUuid()).setGroupUuid(group.getUuid());
-    dbClient.userGroupDao().insert(session, dto);
+    dbClient.userGroupDao().insert(session, dto, group.getName(), user.getLogin());
     return dto;
   }
 }

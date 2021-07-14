@@ -19,34 +19,42 @@
  */
 package org.sonar.db.user;
 
-import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserTokenNewValue;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
-public class UserTokenDaoTest {
+public class UserTokenDaoWithPersisterTest {
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final ArgumentCaptor<UserTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(UserTokenNewValue.class);
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbSession dbSession = db.getSession();
-
-  private UserTokenDao underTest = db.getDbClient().userTokenDao();
+  private final DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final UserTokenDao underTest = dbClient.userTokenDao();
 
   @Test
   public void insert_token() {
     UserTokenDto userToken = newUserToken();
-
     underTest.insert(db.getSession(), userToken, "login");
 
+    verify(auditPersister).addUserToken(eq(db.getSession()), newValueCaptor.capture());
     UserTokenDto userTokenFromDb = underTest.selectByTokenHash(db.getSession(), userToken.getTokenHash());
     assertThat(userTokenFromDb).isNotNull();
     assertThat(userTokenFromDb.getUuid()).isEqualTo(userToken.getUuid());
@@ -54,46 +62,27 @@ public class UserTokenDaoTest {
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
     assertThat(userTokenFromDb.getUserUuid()).isEqualTo(userToken.getUserUuid());
+    UserTokenNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
+      .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate());
+    assertThat(newValue.toString()).contains("'tokenUuid':");
   }
 
   @Test
-  public void update_last_connection_date() {
+  public void update_token() {
     UserDto user1 = db.users().insertUser();
     UserTokenDto userToken1 = db.users().insertToken(user1);
-    UserTokenDto userToken2 = db.users().insertToken(user1);
+
     assertThat(underTest.selectByTokenHash(dbSession, userToken1.getTokenHash()).getLastConnectionDate()).isNull();
 
     underTest.update(dbSession, userToken1.setLastConnectionDate(10_000_000_000L), false, null);
+    underTest.update(dbSession, userToken1.setName("new_name"), user1.getLogin());
 
-    UserTokenDto userTokenReloaded = underTest.selectByTokenHash(dbSession, userToken1.getTokenHash());
-    assertThat(userTokenReloaded.getLastConnectionDate()).isEqualTo(10_000_000_000L);
-    assertThat(userTokenReloaded.getTokenHash()).isEqualTo(userToken1.getTokenHash());
-    assertThat(userTokenReloaded.getCreatedAt()).isEqualTo(userToken1.getCreatedAt());
-  }
-
-  @Test
-  public void select_by_token_hash() {
-    UserDto user = db.users().insertUser();
-    String tokenHash = "123456789";
-    db.users().insertToken(user, t -> t.setTokenHash(tokenHash));
-
-    UserTokenDto result = underTest.selectByTokenHash(db.getSession(), tokenHash);
-
-    assertThat(result).isNotNull();
-  }
-
-  @Test
-  public void select_by_user_and_name() {
-    UserDto user = db.users().insertUser();
-    UserTokenDto userToken = db.users().insertToken(user, t -> t.setName("name").setTokenHash("token"));
-
-    UserTokenDto resultByLoginAndName = underTest.selectByUserAndName(db.getSession(), user, userToken.getName());
-    assertThat(resultByLoginAndName.getUserUuid()).isEqualTo(user.getUuid());
-    assertThat(resultByLoginAndName.getName()).isEqualTo(userToken.getName());
-    assertThat(resultByLoginAndName.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
-    assertThat(resultByLoginAndName.getTokenHash()).isEqualTo(userToken.getTokenHash());
-
-    assertThat(underTest.selectByUserAndName(db.getSession(), user, "unknown-name")).isNull();
+    verify(auditPersister).updateUserToken(eq(db.getSession()), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue())
+      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
+      .containsExactly(userToken1.getUuid(), "new_name", userToken1.getUserUuid(), userToken1.getLastConnectionDate());
   }
 
   @Test
@@ -103,12 +92,15 @@ public class UserTokenDaoTest {
     db.users().insertToken(user1);
     db.users().insertToken(user1);
     db.users().insertToken(user2);
-
     underTest.deleteByUser(dbSession, user1);
     db.commit();
 
     assertThat(underTest.selectByUser(dbSession, user1)).isEmpty();
     assertThat(underTest.selectByUser(dbSession, user2)).hasSize(1);
+    verify(auditPersister).deleteUserToken(eq(db.getSession()), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue())
+      .extracting(UserTokenNewValue::getUserUuid, UserTokenNewValue::getUserLogin)
+      .containsExactly(user1.getUuid(), user1.getLogin());
   }
 
   @Test
@@ -118,23 +110,14 @@ public class UserTokenDaoTest {
     db.users().insertToken(user1, t -> t.setName("name"));
     db.users().insertToken(user1, t -> t.setName("another-name"));
     db.users().insertToken(user2, t -> t.setName("name"));
-
     underTest.deleteByUserAndName(dbSession, user1, "name");
 
     assertThat(underTest.selectByUserAndName(dbSession, user1, "name")).isNull();
     assertThat(underTest.selectByUserAndName(dbSession, user1, "another-name")).isNotNull();
     assertThat(underTest.selectByUserAndName(dbSession, user2, "name")).isNotNull();
-  }
-
-  @Test
-  public void count_tokens_by_user() {
-    UserDto user = db.users().insertUser();
-    db.users().insertToken(user, t -> t.setName("name"));
-    db.users().insertToken(user, t -> t.setName("another-name"));
-
-    Map<String, Integer> result = underTest.countTokensByUsers(dbSession, singletonList(user));
-
-    assertThat(result.get(user.getUuid())).isEqualTo(2);
-    assertThat(result.get("unknown-user_uuid")).isNull();
+    verify(auditPersister).deleteUserToken(eq(db.getSession()), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue())
+      .extracting(UserTokenNewValue::getUserUuid, UserTokenNewValue::getUserLogin, UserTokenNewValue::getTokenName)
+      .containsExactly(user1.getUuid(), user1.getLogin(), "name");
   }
 }
