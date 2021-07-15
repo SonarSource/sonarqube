@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es.newindex;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -52,11 +51,11 @@ public class NestedFieldBuilder<U extends FieldAware<U>> {
   }
 
   public NestedFieldBuilder addDoubleField(String fieldName) {
-    return setProperty(fieldName, ImmutableMap.of("type", "double"));
+    return setProperty(fieldName, Map.of("type", "double"));
   }
 
   public NestedFieldBuilder addIntegerField(String fieldName) {
-    return setProperty(fieldName, ImmutableMap.of("type", "integer"));
+    return setProperty(fieldName, Map.of("type", "integer"));
   }
 
   public U build() {

@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -45,7 +44,6 @@ import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
  * {@link CoreMetrics#SECURITY_RATING_KEY}
  */
 public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisitorAdapter<ReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
-
   private final MeasureRepository measureRepository;
   private final ComponentIssuesRepository componentIssuesRepository;
   private final Map<String, Metric> metricsByKey;
@@ -59,9 +57,10 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     Metric reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
     Metric securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
 
-    this.metricsByKey = ImmutableMap.of(
+    this.metricsByKey = Map.of(
       RELIABILITY_RATING_KEY, reliabilityRatingMetric,
-      SECURITY_RATING_KEY, securityRatingMetric);
+      SECURITY_RATING_KEY, securityRatingMetric
+    );
   }
 
   @Override
@@ -105,9 +104,10 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   }
 
   static final class Counter {
-    private Map<String, RatingValue> ratingValueByMetric = ImmutableMap.of(
+    private Map<String, RatingValue> ratingValueByMetric = Map.of(
       RELIABILITY_RATING_KEY, new RatingValue(),
-      SECURITY_RATING_KEY, new RatingValue());
+      SECURITY_RATING_KEY, new RatingValue()
+    );
 
     private Counter() {
       // prevents instantiation

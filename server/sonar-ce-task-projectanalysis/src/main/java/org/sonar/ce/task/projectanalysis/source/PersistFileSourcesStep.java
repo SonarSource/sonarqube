@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +88,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitProject(Component project) {
       this.projectUuid = project.getUuid();
-      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid),
+      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", Map.of("projectUuid", projectUuid),
         context -> {
           FileSourceDto dto = (FileSourceDto) context.getResultObject();
           previousFileSourcesByUuid.put(dto.getFileUuid(), dto);

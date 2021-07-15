@@ -20,7 +20,7 @@
 package org.sonar.ce.app;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -60,7 +60,7 @@ public class CeServer implements Monitored {
     this.computeEngine = computeEngine;
     mvs
       .checkWritableTempDir()
-      .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
+      .checkRequiredJavaOptions(Map.of("file.encoding", "UTF-8"));
   }
 
   @Override
@@ -213,5 +213,4 @@ public class CeServer implements Monitored {
       awaitStop.countDown();
     }
   }
-
 }

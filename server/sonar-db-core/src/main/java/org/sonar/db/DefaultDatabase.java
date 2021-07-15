@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -49,7 +48,6 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
  * @since 2.12
  */
 public class DefaultDatabase implements Database {
-
   private static final Logger LOG = Loggers.get(Database.class);
 
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
@@ -60,9 +58,10 @@ public class DefaultDatabase implements Database {
   private static final String DBCP_JDBC_MAX_ACTIVE = "maxTotal";
   private static final String SONAR_JDBC_MAX_WAIT = "sonar.jdbc.maxWait";
   private static final String DBCP_JDBC_MAX_WAIT = "maxWaitMillis";
-  private static final Map<String, String> SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS = ImmutableMap.of(
+  private static final Map<String, String> SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS = Map.of(
     SONAR_JDBC_MAX_ACTIVE, DBCP_JDBC_MAX_ACTIVE,
-    SONAR_JDBC_MAX_WAIT, DBCP_JDBC_MAX_WAIT);
+    SONAR_JDBC_MAX_WAIT, DBCP_JDBC_MAX_WAIT
+  );
 
   private final LogbackHelper logbackHelper;
   private final Settings settings;

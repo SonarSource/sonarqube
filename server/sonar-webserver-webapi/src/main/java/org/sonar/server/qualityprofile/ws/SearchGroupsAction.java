@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +58,9 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchGroupsAction implements QProfileWsAction {
-
-  private static final Map<WebService.SelectionMode, String> MEMBERSHIP = ImmutableMap.of(WebService.SelectionMode.SELECTED, IN, DESELECTED, OUT, ALL, ANY);
+  private static final Map<WebService.SelectionMode, String> MEMBERSHIP = Map.of(WebService.SelectionMode.SELECTED, IN,
+    DESELECTED, OUT, ALL, ANY
+  );
 
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.security;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 
@@ -49,7 +48,6 @@ import static org.sonar.server.security.SecurityStandards.VulnerabilityProbabili
 
 @Immutable
 public final class SecurityStandards {
-
   public static final String UNKNOWN_STANDARD = "unknown";
   public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
   public static final String SANS_TOP_25_RISKY_RESOURCE = "risky-resource";
@@ -66,10 +64,11 @@ public final class SecurityStandards {
    * @deprecated SansTop25 report is outdated and will be removed in future versions
    */
   @Deprecated
-  public static final Map<String, Set<String>> CWES_BY_SANS_TOP_25 = ImmutableMap.of(
+  public static final Map<String, Set<String>> CWES_BY_SANS_TOP_25 = Map.of(
     SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
-    SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
+    SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE
+  );
 
   // https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html
   public static final List<String> CWE_TOP25_2019 =
@@ -83,9 +82,10 @@ public final class SecurityStandards {
       "78", "190", "22", "476", "287", "434", "732", "94", "522",
       "611", "798", "502", "269", "400", "306", "862"));
 
-  public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = ImmutableMap.of(
+  public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = Map.of(
     "2019", CWE_TOP25_2019,
-    "2020", CWE_TOP25_2020);
+    "2020", CWE_TOP25_2020
+  );
 
   public enum VulnerabilityProbability {
     HIGH(3),
@@ -157,28 +157,28 @@ public final class SecurityStandards {
     }
   }
 
-  public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
-    .put(SQCategory.BUFFER_OVERFLOW, ImmutableSet.of("119", "120", "131", "676", "788"))
-    .put(SQCategory.SQL_INJECTION, ImmutableSet.of("89", "564"))
-    .put(SQCategory.COMMAND_INJECTION, ImmutableSet.of("77", "78", "88", "214"))
-    .put(SQCategory.PATH_TRAVERSAL_INJECTION, ImmutableSet.of("22"))
-    .put(SQCategory.LDAP_INJECTION, ImmutableSet.of("90"))
-    .put(SQCategory.XPATH_INJECTION, ImmutableSet.of("643"))
-    .put(SQCategory.RCE, ImmutableSet.of("94", "95"))
-    .put(SQCategory.DOS, ImmutableSet.of("400", "624"))
-    .put(SQCategory.SSRF, ImmutableSet.of("918"))
-    .put(SQCategory.CSRF, ImmutableSet.of("352"))
-    .put(SQCategory.XSS, ImmutableSet.of("79", "80", "81", "82", "83", "84", "85", "86", "87"))
-    .put(SQCategory.LOG_INJECTION, ImmutableSet.of("117"))
-    .put(SQCategory.HTTP_RESPONSE_SPLITTING, ImmutableSet.of("113"))
-    .put(SQCategory.OPEN_REDIRECT, ImmutableSet.of("601"))
-    .put(SQCategory.XXE, ImmutableSet.of("611", "827"))
-    .put(SQCategory.OBJECT_INJECTION, ImmutableSet.of("134", "470", "502"))
-    .put(SQCategory.WEAK_CRYPTOGRAPHY, ImmutableSet.of("295", "297", "321", "322", "323", "324", "325", "326", "327", "328", "330", "780"))
-    .put(SQCategory.AUTH, ImmutableSet.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284"))
-    .put(SQCategory.INSECURE_CONF, ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942"))
-    .put(SQCategory.FILE_MANIPULATION, ImmutableSet.of("97", "73"))
-    .build();
+  public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = Map.ofEntries(
+    Map.entry(SQCategory.BUFFER_OVERFLOW, ImmutableSet.of("119", "120", "131", "676", "788")),
+    Map.entry(SQCategory.SQL_INJECTION, ImmutableSet.of("89", "564")),
+    Map.entry(SQCategory.COMMAND_INJECTION, ImmutableSet.of("77", "78", "88", "214")),
+    Map.entry(SQCategory.PATH_TRAVERSAL_INJECTION, ImmutableSet.of("22")),
+    Map.entry(SQCategory.LDAP_INJECTION, ImmutableSet.of("90")),
+    Map.entry(SQCategory.XPATH_INJECTION, ImmutableSet.of("643")),
+    Map.entry(SQCategory.RCE, ImmutableSet.of("94", "95")),
+    Map.entry(SQCategory.DOS, ImmutableSet.of("400", "624")),
+    Map.entry(SQCategory.SSRF, ImmutableSet.of("918")),
+    Map.entry(SQCategory.CSRF, ImmutableSet.of("352")),
+    Map.entry(SQCategory.XSS, ImmutableSet.of("79", "80", "81", "82", "83", "84", "85", "86", "87")),
+    Map.entry(SQCategory.LOG_INJECTION, ImmutableSet.of("117")),
+    Map.entry(SQCategory.HTTP_RESPONSE_SPLITTING, ImmutableSet.of("113")),
+    Map.entry(SQCategory.OPEN_REDIRECT, ImmutableSet.of("601")),
+    Map.entry(SQCategory.XXE, ImmutableSet.of("611", "827")),
+    Map.entry(SQCategory.OBJECT_INJECTION, ImmutableSet.of("134", "470", "502")),
+    Map.entry(SQCategory.WEAK_CRYPTOGRAPHY, ImmutableSet.of("295", "297", "321", "322", "323", "324", "325", "326", "327", "328", "330", "780")),
+    Map.entry(SQCategory.AUTH, ImmutableSet.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284")),
+    Map.entry(SQCategory.INSECURE_CONF, ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942")),
+    Map.entry(SQCategory.FILE_MANIPULATION, ImmutableSet.of("97", "73"))
+  );
   private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).collect(Collectors.toList()));
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
 

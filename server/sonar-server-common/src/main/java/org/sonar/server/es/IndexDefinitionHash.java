@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,7 +43,7 @@ class IndexDefinitionHash {
     IndexType.IndexMainType mainType = index.getMainType();
     return of(
       index.getSettings().toString(),
-      ImmutableMap.of(mainType.getIndex(), mainType),
+      Map.of(mainType.getIndex(), mainType),
       index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
       index.getAttributes());
   }

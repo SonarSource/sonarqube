@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -61,7 +60,6 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
  * is responsible for validating user identity.
  */
 public class HttpHeadersAuthentication implements Startable {
-
   private static final Logger LOG = Loggers.get(HttpHeadersAuthentication.class);
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
@@ -133,7 +131,7 @@ public class HttpHeadersAuthentication implements Startable {
     }
 
     UserDto userDto = doAuthenticate(headerValuesByNames, login);
-    jwtHttpHandler.generateToken(userDto, ImmutableMap.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
+    jwtHttpHandler.generateToken(userDto, Map.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
     authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.sso());
     return Optional.of(userDto);
   }

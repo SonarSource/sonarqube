@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -78,16 +77,16 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUA
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
 public class TreeAction implements ComponentsWsAction {
-
   private static final int MAX_SIZE = 500;
   private static final int QUERY_MINIMUM_LENGTH = 3;
   private static final String ALL_STRATEGY = "all";
   private static final String CHILDREN_STRATEGY = "children";
   private static final String LEAVES_STRATEGY = "leaves";
-  private static final Map<String, Strategy> STRATEGIES = ImmutableMap.of(
+  private static final Map<String, Strategy> STRATEGIES = Map.of(
     ALL_STRATEGY, LEAVES,
     CHILDREN_STRATEGY, CHILDREN,
-    LEAVES_STRATEGY, LEAVES);
+    LEAVES_STRATEGY, LEAVES
+  );
 
   private static final String NAME_SORT = "name";
   private static final String PATH_SORT = "path";
@@ -315,11 +314,11 @@ public class TreeAction implements ComponentsWsAction {
       return components;
     }
     boolean isAscending = wsRequest.getAsc();
-    Map<String, Ordering<ComponentDto>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDto>>builder()
-      .put(NAME_SORT, stringOrdering(isAscending, ComponentDto::name))
-      .put(QUALIFIER_SORT, stringOrdering(isAscending, ComponentDto::qualifier))
-      .put(PATH_SORT, stringOrdering(isAscending, ComponentDto::path))
-      .build();
+    Map<String, Ordering<ComponentDto>> orderingsBySortField = Map.of(
+      NAME_SORT, stringOrdering(isAscending, ComponentDto::name),
+      QUALIFIER_SORT, stringOrdering(isAscending, ComponentDto::qualifier),
+      PATH_SORT, stringOrdering(isAscending, ComponentDto::path)
+    );
 
     String firstSortParameter = sortParameters.get(0);
     Ordering<ComponentDto> primaryOrdering = orderingsBySortField.get(firstSortParameter);
@@ -452,5 +451,4 @@ public class TreeAction implements ComponentsWsAction {
       return this;
     }
   }
-
 }

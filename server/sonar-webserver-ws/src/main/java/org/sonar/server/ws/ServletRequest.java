@@ -20,12 +20,12 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,13 +43,13 @@ import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 public class ServletRequest extends ValidatingRequest {
-
   private final HttpServletRequest source;
 
-  static final Map<String, String> SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX = ImmutableMap.of(
+  static final Map<String, String> SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX = Map.of(
     "json", MediaTypes.JSON,
     "protobuf", MediaTypes.PROTOBUF,
-    "text", MediaTypes.TXT);
+    "text", MediaTypes.TXT
+  );
 
   public ServletRequest(HttpServletRequest source) {
     this.source = source;
@@ -161,12 +161,12 @@ public class ServletRequest extends ValidatingRequest {
 
   @Override
   public Map<String, String> getHeaders() {
-    ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
+    Map<String, String> mapBuilder = new HashMap<>();
     Enumeration<String> headerNames = source.getHeaderNames();
     while (headerNames.hasMoreElements()) {
       String headerName = headerNames.nextElement();
       mapBuilder.put(headerName, source.getHeader(headerName));
     }
-    return mapBuilder.build();
+    return Map.copyOf(mapBuilder);
   }
 }

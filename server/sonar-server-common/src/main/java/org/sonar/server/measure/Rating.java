@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -54,12 +53,13 @@ public enum Rating {
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown value '%s'", index)));
   }
 
-  public static final Map<String, Rating> RATING_BY_SEVERITY = ImmutableMap.of(
+  public static final Map<String, Rating> RATING_BY_SEVERITY = Map.of(
     BLOCKER, E,
     CRITICAL, D,
     MAJOR, C,
     MINOR, B,
-    INFO, A);
+    INFO, A
+  );
 
 
   public static Rating ratingFromValue(String value) {

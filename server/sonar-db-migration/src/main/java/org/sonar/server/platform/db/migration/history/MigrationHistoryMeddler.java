@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.history;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
@@ -29,11 +28,12 @@ import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
  * which is called by {@link MigrationHistory#start()}.
  */
 public class MigrationHistoryMeddler {
-  private final Map<Long, Long> meddledSteps = ImmutableMap.of(
+  private final Map<Long, Long> meddledSteps = Map.of(
     // SONAR-12127 several DB migration were added in 7.9 to migrate to from 6.7 to 7.0
     // If already on 7.0, we don't want any of these DB migrations ran
     // => we change last migration number of those 7.0 instance to the new max migration number for 7.0
-    1_923L, 1_959L);
+    1_923L, 1_959L
+  );
   private final MigrationSteps migrationSteps;
 
   public MigrationHistoryMeddler(MigrationSteps migrationSteps) {

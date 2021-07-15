@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -32,9 +31,10 @@ import org.sonar.core.i18n.I18n;
 import static java.util.Objects.requireNonNull;
 
 public final class EvaluationResultTextConverterImpl implements EvaluationResultTextConverter {
-  private static final Map<Condition.Operator, String> OPERATOR_LABELS = ImmutableMap.of(
+  private static final Map<Condition.Operator, String> OPERATOR_LABELS = Map.of(
     Condition.Operator.GREATER_THAN, ">",
-    Condition.Operator.LESS_THAN, "<");
+    Condition.Operator.LESS_THAN, "<"
+  );
 
   private final I18n i18n;
   private final Durations durations;

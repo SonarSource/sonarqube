@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,33 +87,32 @@ import static org.sonar.api.rules.RuleType.VULNERABILITY;
  * For each value, the variation on configured periods is also computed.
  */
 public class IssueCounter extends IssueVisitor {
-
-  private static final Map<String, String> SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
+  private static final Map<String, String> SEVERITY_TO_METRIC_KEY = Map.of(
     BLOCKER, BLOCKER_VIOLATIONS_KEY,
     CRITICAL, CRITICAL_VIOLATIONS_KEY,
     MAJOR, MAJOR_VIOLATIONS_KEY,
     MINOR, MINOR_VIOLATIONS_KEY,
     INFO, INFO_VIOLATIONS_KEY);
 
-  private static final Map<String, String> SEVERITY_TO_NEW_METRIC_KEY = ImmutableMap.of(
+  private static final Map<String, String> SEVERITY_TO_NEW_METRIC_KEY = Map.of(
     BLOCKER, NEW_BLOCKER_VIOLATIONS_KEY,
     CRITICAL, NEW_CRITICAL_VIOLATIONS_KEY,
     MAJOR, NEW_MAJOR_VIOLATIONS_KEY,
     MINOR, NEW_MINOR_VIOLATIONS_KEY,
     INFO, NEW_INFO_VIOLATIONS_KEY);
 
-  private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
-    .put(CODE_SMELL, CODE_SMELLS_KEY)
-    .put(BUG, BUGS_KEY)
-    .put(VULNERABILITY, VULNERABILITIES_KEY)
-    .put(SECURITY_HOTSPOT, SECURITY_HOTSPOTS_KEY)
-    .build();
-  private static final Map<RuleType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
-    .put(CODE_SMELL, NEW_CODE_SMELLS_KEY)
-    .put(BUG, NEW_BUGS_KEY)
-    .put(VULNERABILITY, NEW_VULNERABILITIES_KEY)
-    .put(SECURITY_HOTSPOT, NEW_SECURITY_HOTSPOTS_KEY)
-    .build();
+  private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = Map.of(
+    CODE_SMELL, CODE_SMELLS_KEY,
+    BUG, BUGS_KEY,
+    VULNERABILITY, VULNERABILITIES_KEY,
+    SECURITY_HOTSPOT, SECURITY_HOTSPOTS_KEY
+  );
+  private static final Map<RuleType, String> TYPE_TO_NEW_METRIC_KEY = Map.of(
+    CODE_SMELL, NEW_CODE_SMELLS_KEY,
+    BUG, NEW_BUGS_KEY,
+    VULNERABILITY, NEW_VULNERABILITIES_KEY,
+    SECURITY_HOTSPOT, NEW_SECURITY_HOTSPOTS_KEY
+    );
 
   private final PeriodHolder periodHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;

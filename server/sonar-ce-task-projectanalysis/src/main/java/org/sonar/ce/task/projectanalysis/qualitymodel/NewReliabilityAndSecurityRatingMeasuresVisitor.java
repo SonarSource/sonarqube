@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
@@ -59,13 +58,13 @@ import static org.sonar.server.measure.Rating.E;
  * {@link CoreMetrics#NEW_SECURITY_RATING_KEY}
  */
 public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisitorAdapter<NewReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
-
-  private static final Map<String, Rating> RATING_BY_SEVERITY = ImmutableMap.of(
+  private static final Map<String, Rating> RATING_BY_SEVERITY = Map.of(
     BLOCKER, E,
     CRITICAL, D,
     MAJOR, C,
     MINOR, B,
-    INFO, A);
+    INFO, A
+  );
 
   private final MeasureRepository measureRepository;
   private final ComponentIssuesRepository componentIssuesRepository;
@@ -82,9 +81,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     this.periodHolder = periodHolder;
 
     // Output metrics
-    this.metricsByKey = ImmutableMap.of(
+    this.metricsByKey = Map.of(
       NEW_RELIABILITY_RATING_KEY, metricRepository.getByKey(NEW_RELIABILITY_RATING_KEY),
-      NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY));
+      NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY)
+    );
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
@@ -139,9 +139,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   static final class Counter {
-    private Map<String, RatingValue> newRatingValueByMetric = ImmutableMap.of(
+    private Map<String, RatingValue> newRatingValueByMetric = Map.of(
       NEW_RELIABILITY_RATING_KEY, new RatingValue(),
-      NEW_SECURITY_RATING_KEY, new RatingValue());
+      NEW_SECURITY_RATING_KEY, new RatingValue()
+    );
 
     private Counter() {
       // prevents instantiation

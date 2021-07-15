@@ -20,7 +20,6 @@
 package org.sonar.db.property;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Collections;
@@ -42,7 +41,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 
 public class InternalPropertiesDao implements Dao {
-
   /**
    * A common prefix used by locks. {@see InternalPropertiesDao#tryLock}
    */
@@ -110,7 +108,7 @@ public class InternalPropertiesDao implements Dao {
     }
     if (keys.size() == 1) {
       String key = keys.iterator().next();
-      return ImmutableMap.of(key, selectByKey(dbSession, key));
+      return Map.of(key, selectByKey(dbSession, key));
     }
     keys.forEach(InternalPropertiesDao::checkKey);
 
@@ -132,7 +130,7 @@ public class InternalPropertiesDao implements Dao {
     // keys for which there isn't a text or empty value found yet
     List<String> keyWithClobValue = ImmutableList.copyOf(Sets.difference(keys, builder.keySet()));
     if (keyWithClobValue.isEmpty()) {
-      return ImmutableMap.copyOf(builder);
+      return Map.copyOf(builder);
     }
 
     // retrieve properties with a clob value
@@ -142,7 +140,7 @@ public class InternalPropertiesDao implements Dao {
     // return Optional.empty() for all key with a DB entry which neither has text value, nor is empty nor has clob value
     Sets.difference(ImmutableSet.copyOf(keyWithClobValue), builder.keySet()).forEach(key -> builder.put(key, Optional.empty()));
 
-    return ImmutableMap.copyOf(builder);
+    return Map.copyOf(builder);
   }
 
   /**

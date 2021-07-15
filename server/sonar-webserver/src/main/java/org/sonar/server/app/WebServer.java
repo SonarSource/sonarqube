@@ -19,8 +19,8 @@
  */
 package org.sonar.server.app;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
@@ -39,7 +39,7 @@ public class WebServer implements Monitored {
   WebServer(Props props) {
     new MinimumViableSystem()
       .checkWritableTempDir()
-      .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
+      .checkRequiredJavaOptions(Map.of("file.encoding", "UTF-8"));
     this.sharedDir = getSharedDir(props);
     this.tomcat = new EmbeddedTomcat(props);
   }

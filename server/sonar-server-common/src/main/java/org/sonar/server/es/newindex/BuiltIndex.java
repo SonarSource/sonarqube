@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es.newindex;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.io.Serializable;
 import java.util.Collection;
@@ -61,7 +60,7 @@ public final class BuiltIndex<T extends NewIndex<T>> {
 
   private static void setRouting(Map<String, Object> indexAttributes, NewIndex newIndex) {
     if (!newIndex.getRelations().isEmpty()) {
-      indexAttributes.put("_routing", ImmutableMap.of("required", true));
+      indexAttributes.put("_routing", Map.of("required", true));
     }
   }
 
@@ -77,11 +76,13 @@ public final class BuiltIndex<T extends NewIndex<T>> {
     if (!relations.isEmpty()) {
       indexProperties.put(
         FIELD_INDEX_TYPE,
-        ImmutableMap.of(
+        Map.of(
           TYPE, "keyword",
           NORMS, false,
           STORE, false,
-          "doc_values", false));
+          "doc_values", false
+        )
+      );
     }
   }
 
@@ -89,9 +90,10 @@ public final class BuiltIndex<T extends NewIndex<T>> {
     Collection<IndexRelationType> relations = newIndex.getRelations();
     IndexType.IndexMainType mainType = newIndex.getMainType();
     if (!relations.isEmpty()) {
-      indexProperties.put(mainType.getIndex().getJoinField(), ImmutableMap.of(
+      indexProperties.put(mainType.getIndex().getJoinField(), Map.of(
         TYPE, "join",
-        "relations", ImmutableMap.of(mainType.getType(), namesToStringOrStringArray(relations))));
+        "relations", Map.of(mainType.getType(), namesToStringOrStringArray(relations)))
+      );
     }
   }
 

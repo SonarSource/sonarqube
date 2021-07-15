@@ -19,7 +19,6 @@
  */
 package org.sonar.server.badge.ws;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -76,39 +75,41 @@ import static org.sonar.server.measure.Rating.valueOf;
 import static org.sonarqube.ws.MediaTypes.SVG;
 
 public class MeasureAction implements ProjectBadgesWsAction {
-
   private static final String PARAM_METRIC = "metric";
 
-  private static final Map<String, String> METRIC_NAME_BY_KEY = ImmutableMap.<String, String>builder()
-    .put(BUGS_KEY, "bugs")
-    .put(CODE_SMELLS_KEY, "code smells")
-    .put(COVERAGE_KEY, "coverage")
-    .put(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines")
-    .put(NCLOC_KEY, "lines of code")
-    .put(SQALE_RATING_KEY, "maintainability")
-    .put(ALERT_STATUS_KEY, "quality gate")
-    .put(RELIABILITY_RATING_KEY, "reliability")
-    .put(SECURITY_RATING_KEY, "security")
-    .put(TECHNICAL_DEBT_KEY, "technical debt")
-    .put(VULNERABILITIES_KEY, "vulnerabilities")
-    .build();
+  private static final Map<String, String> METRIC_NAME_BY_KEY = Map.ofEntries(
+    Map.entry(BUGS_KEY, "bugs"),
+    Map.entry(CODE_SMELLS_KEY, "code smells"),
+    Map.entry(COVERAGE_KEY, "coverage"),
+    Map.entry(DUPLICATED_LINES_DENSITY_KEY, "duplicated lines"),
+    Map.entry(NCLOC_KEY, "lines of code"),
+    Map.entry(SQALE_RATING_KEY, "maintainability"),
+    Map.entry(ALERT_STATUS_KEY, "quality gate"),
+    Map.entry(RELIABILITY_RATING_KEY, "reliability"),
+    Map.entry(SECURITY_RATING_KEY, "security"),
+    Map.entry(TECHNICAL_DEBT_KEY, "technical debt"),
+    Map.entry(VULNERABILITIES_KEY, "vulnerabilities")
+  );
 
-  private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
     WARN, "warning",
-    ERROR, "failed"));
+    ERROR, "failed")
+  );
 
-  private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(Map.of(
     OK, Color.QUALITY_GATE_OK,
     WARN, Color.QUALITY_GATE_WARN,
-    ERROR, Color.QUALITY_GATE_ERROR));
+    ERROR, Color.QUALITY_GATE_ERROR)
+  );
 
-  private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(ImmutableMap.of(
+  private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(Map.of(
     A, Color.RATING_A,
     B, Color.RATING_B,
     C, Color.RATING_C,
     D, Color.RATING_D,
-    E, Color.RATING_E));
+    E, Color.RATING_E)
+  );
 
   private final DbClient dbClient;
   private final ProjectBadgesSupport support;
@@ -204,6 +205,4 @@ public class MeasureAction implements ProjectBadgesWsAction {
     checkState(value != null, "Measure has not been found");
     return value;
   }
-
-
 }

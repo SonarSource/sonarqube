@@ -22,11 +22,9 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.PatternLayoutEncoderBase;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
 public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent> {
-
   @Override
   public void start() {
     PatternLayout patternLayout = new PatternLayout();
@@ -40,10 +38,10 @@ public class PatternLayoutEncoder extends PatternLayoutEncoderBase<ILoggingEvent
   }
 
   private static Map<String, String> getEscapedMessageConverterConfig() {
-    return ImmutableMap.of(
+    return Map.of(
       "m", EscapedMessageConverter.class.getName(),
       "msg", EscapedMessageConverter.class.getName(),
-      "message", EscapedMessageConverter.class.getName());
+      "message", EscapedMessageConverter.class.getName()
+    );
   }
-
 }

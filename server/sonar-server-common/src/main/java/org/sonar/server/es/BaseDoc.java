@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,6 @@ import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
  * Base implementation for business objects based on elasticsearch document
  */
 public abstract class BaseDoc {
-
   private static final String SETPARENT_NOT_CALLED = "parent must be set on a doc associated to a IndexRelationType (see BaseDoc#setParent(String))";
   private final IndexType indexType;
   private String parentId = null;
@@ -54,7 +52,7 @@ public abstract class BaseDoc {
     if (indexType instanceof IndexMainType) {
       IndexMainType mainType = (IndexMainType) indexType;
       if (mainType.getIndex().acceptsRelations()) {
-        setField(mainType.getIndex().getJoinField(), ImmutableMap.of("name", mainType.getType()));
+        setField(mainType.getIndex().getJoinField(), Map.of("name", mainType.getType()));
         setField(FIELD_INDEX_TYPE, mainType.getType());
       }
     }
@@ -65,7 +63,7 @@ public abstract class BaseDoc {
     checkArgument(parentId != null && !parentId.isEmpty(), "parentId can't be null nor empty");
     this.parentId = parentId;
     IndexRelationType indexRelationType = (IndexRelationType) this.indexType;
-    setField(indexRelationType.getMainType().getIndex().getJoinField(), ImmutableMap.of("name", indexRelationType.getName(), "parent", parentId));
+    setField(indexRelationType.getMainType().getIndex().getJoinField(), Map.of("name", indexRelationType.getName(), "parent", parentId));
     setField(FIELD_INDEX_TYPE, indexRelationType.getName());
   }
 

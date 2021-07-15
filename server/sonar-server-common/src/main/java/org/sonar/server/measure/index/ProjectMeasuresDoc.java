@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.index;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,8 +50,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
-
-  public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
+  public static final Map<String, Integer> QUALITY_GATE_STATUS = Map.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
     super(TYPE_PROJECT_MEASURES, new HashMap<>(8));
@@ -118,10 +116,11 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setMeasuresFromMap(Map<String, Double> measures) {
     setMeasures(
       measures.entrySet().stream()
-        .map(entry -> ImmutableMap.<String, Object>of(
+        .map(entry -> Map.<String, Object>of(
           SUB_FIELD_MEASURES_KEY, entry.getKey(),
           SUB_FIELD_MEASURES_VALUE, entry.getValue()))
-        .collect(MoreCollectors.toList()));
+        .collect(MoreCollectors.toList())
+    );
     return this;
   }
 
@@ -142,10 +141,11 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setNclocLanguageDistributionFromMap(Map<String, Integer> distribution) {
     setNclocLanguageDistribution(
       distribution.entrySet().stream()
-        .map(entry -> ImmutableMap.<String, Object>of(
+        .map(entry -> Map.<String, Object>of(
           SUB_FIELD_DISTRIB_LANGUAGE, entry.getKey(),
           SUB_FIELD_DISTRIB_NCLOC, entry.getValue()))
-        .collect(MoreCollectors.toList()));
+        .collect(MoreCollectors.toList())
+    );
     return this;
   }
 
@@ -158,5 +158,4 @@ public class ProjectMeasuresDoc extends BaseDoc {
     setField(FIELD_TAGS, tags);
     return this;
   }
-
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es.newindex;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -33,7 +32,6 @@ import static org.sonar.server.es.newindex.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
 public abstract class FieldAware<U extends FieldAware<U>> {
-
   abstract U setFieldImpl(String fieldName, Object attributes);
 
   protected final U setField(String fieldName, Object attributes) {
@@ -57,11 +55,11 @@ public abstract class FieldAware<U extends FieldAware<U>> {
   }
 
   public U createBooleanField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "boolean"));
+    return setField(fieldName, Map.of("type", "boolean"));
   }
 
   public U createByteField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "byte"));
+    return setField(fieldName, Map.of("type", "byte"));
   }
 
   public U createDateTimeField(String fieldName) {
@@ -72,19 +70,19 @@ public abstract class FieldAware<U extends FieldAware<U>> {
   }
 
   public U createDoubleField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "double"));
+    return setField(fieldName, Map.of("type", "double"));
   }
 
   public U createIntegerField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "integer"));
+    return setField(fieldName, Map.of("type", "integer"));
   }
 
   public U createLongField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "long"));
+    return setField(fieldName, Map.of("type", "long"));
   }
 
   public U createShortField(String fieldName) {
-    return setField(fieldName, ImmutableMap.of("type", "short"));
+    return setField(fieldName, Map.of("type", "short"));
   }
 
   public U createUuidPathField(String fieldName) {
@@ -93,5 +91,4 @@ public abstract class FieldAware<U extends FieldAware<U>> {
       INDEX, DefaultIndexSettings.INDEX_SEARCHABLE,
       ANALYZER, UUID_MODULE_ANALYZER.getName()));
   }
-
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.Filter;
@@ -37,7 +36,6 @@ import static java.lang.String.format;
  * This servlet filter sets response headers that enable cache control on some static resources
  */
 public class CacheControlFilter implements Filter {
-
   private static final String CACHE_CONTROL_HEADER = "Cache-Control";
 
   /**
@@ -50,13 +48,14 @@ public class CacheControlFilter implements Filter {
 
   private static final String MAX_AGE_TEMPLATE = "max-age=%d";
 
-  private static final Map<String, Integer> MAX_AGE_BY_PATH = ImmutableMap.of(
+  private static final Map<String, Integer> MAX_AGE_BY_PATH = Map.of(
     // These folders contains files that are suffixed with their content hash : the cache should never be invalidated
     "/js/", ONE_YEAR_IN_SECONDS,
     "/css/", ONE_YEAR_IN_SECONDS,
     // This folder contains static resources from plugins : the cache should be set to a small value
     "/static/", FIVE_MINUTES_IN_SECONDS,
-    "/images/", FIVE_MINUTES_IN_SECONDS);
+    "/images/", FIVE_MINUTES_IN_SECONDS
+  );
 
   @Override
   public void init(FilterConfig filterConfig) {

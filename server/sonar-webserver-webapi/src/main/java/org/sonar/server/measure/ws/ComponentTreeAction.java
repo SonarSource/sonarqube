@@ -22,7 +22,6 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
@@ -132,10 +131,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_STRATEGY = "all";
   static final String CHILDREN_STRATEGY = "children";
   static final String LEAVES_STRATEGY = "leaves";
-  static final Map<String, Strategy> STRATEGIES = ImmutableMap.of(
+  static final Map<String, Strategy> STRATEGIES = Map.of(
     ALL_STRATEGY, LEAVES,
     CHILDREN_STRATEGY, CHILDREN,
-    LEAVES_STRATEGY, LEAVES);
+    LEAVES_STRATEGY, LEAVES
+  );
   // sort
   static final String NAME_SORT = "name";
   static final String PATH_SORT = "path";

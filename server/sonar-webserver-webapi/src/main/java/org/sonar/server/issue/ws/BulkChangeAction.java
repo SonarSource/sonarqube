@@ -75,7 +75,7 @@ import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableMap.of;
+import static java.util.Map.of;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
@@ -115,7 +115,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_SEVERIT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_TYPE;
 
 public class BulkChangeAction implements IssuesWsAction {
-
   private static final Logger LOG = Loggers.get(BulkChangeAction.class);
 
   private final System2 system2;
