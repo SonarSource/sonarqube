@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`add custom className 1`] = `
+<DeferredSpinner
+  className="foo"
+>
+  <i
+    className="deferred-spinner foo"
+  />
+</DeferredSpinner>
+`;
+
+exports[`is controlled by loading prop 1`] = `
+<DeferredSpinner
+  loading={false}
+>
+  <div>
+    foo
+  </div>
+</DeferredSpinner>
+`;
+
+exports[`is controlled by loading prop 2`] = `
+<DeferredSpinner
+  loading={true}
+>
+  <div>
+    foo
+  </div>
+</DeferredSpinner>
+`;
+
+exports[`is controlled by loading prop 3`] = `
+<DeferredSpinner
+  loading={true}
+>
+  <i
+    className="deferred-spinner"
+  />
+</DeferredSpinner>
+`;
+
+exports[`is controlled by loading prop 4`] = `
+<DeferredSpinner
+  loading={false}
+>
+  <div>
+    foo
+  </div>
+</DeferredSpinner>
+`;
+
+exports[`renders a placeholder while waiting 1`] = `
+<DeferredSpinner
+  placeholder={true}
+>
+  <i
+    className="deferred-spinner-placeholder"
+  />
+</DeferredSpinner>
+`;
+
+exports[`renders children before timeout 1`] = `
+<DeferredSpinner>
+  <div>
+    foo
+  </div>
+</DeferredSpinner>
+`;
+
+exports[`renders children before timeout 2`] = `
+<DeferredSpinner>
+  <i
+    className="deferred-spinner"
+  />
+</DeferredSpinner>
+`;
+
+exports[`renders spinner after timeout 1`] = `<DeferredSpinner />`;
+
+exports[`renders spinner after timeout 2`] = `
+<DeferredSpinner>
+  <i
+    className="deferred-spinner"
+  />
+</DeferredSpinner>
+`;

@@ -1,0 +1,212 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with a message 1`] = `
+<Styled(div)>
+  <GlobalMessage
+    closeGlobalMessage={[MockFunction]}
+    key="1"
+    message={
+      Object {
+        "id": "1",
+        "level": "ERROR",
+        "message": "Test",
+      }
+    }
+  />
+  <GlobalMessage
+    closeGlobalMessage={[MockFunction]}
+    key="2"
+    message={
+      Object {
+        "id": "2",
+        "level": "SUCCESS",
+        "message": "Test 2",
+      }
+    }
+  />
+</Styled(div)>
+`;
+
+exports[`should render correctly with a message 2`] = `
+<Styled(div)
+  data-test="global-message__ERROR"
+  level="ERROR"
+  role="alert"
+>
+  Test
+  <Styled(ClearButton)
+    className="button-small"
+    color="#fff"
+    level="ERROR"
+    onClick={[Function]}
+  />
+</Styled(div)>
+`;
+
+exports[`should render correctly with a message 3`] = `
+<Styled(div)
+  data-test="global-message__SUCCESS"
+  level="SUCCESS"
+  role="status"
+>
+  Test 2
+  <Styled(ClearButton)
+    className="button-small"
+    color="#fff"
+    level="SUCCESS"
+    onClick={[Function]}
+  />
+</Styled(div)>
+`;
+
+exports[`should render with correct css 1`] = `
+@keyframes animation-0 {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes animation-0 {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.emotion-4 {
+  position: fixed;
+  z-index: 7000;
+  top: 0;
+  left: 50%;
+  width: 350px;
+  margin-left: -175px;
+}
+
+.emotion-1 {
+  position: relative;
+  padding: 0 30px 0 10px;
+  line-height: 24px;
+  border-radius: 0 0 3px 3px;
+  box-sizing: border-box;
+  color: #ffffff;
+  background-color: #d4333f;
+  text-align: center;
+  opacity: 0;
+  -webkit-animation: animation-0 0.2s ease forwards;
+  animation: animation-0 0.2s ease forwards;
+}
+
+.emotion-1 + .emotion-1 {
+  margin-top: calc(8px / 2);
+  border-radius: 3px;
+}
+
+.emotion-0 {
+  position: absolute;
+  top: calc(8px / 4);
+  right: calc(8px / 4);
+}
+
+.emotion-0:hover svg,
+.emotion-0:focus svg {
+  color: #d4333f;
+}
+
+.emotion-3 {
+  position: relative;
+  padding: 0 30px 0 10px;
+  line-height: 24px;
+  border-radius: 0 0 3px 3px;
+  box-sizing: border-box;
+  color: #ffffff;
+  background-color: #00aa00;
+  text-align: center;
+  opacity: 0;
+  -webkit-animation: animation-0 0.2s ease forwards;
+  animation: animation-0 0.2s ease forwards;
+}
+
+.emotion-3 + .emotion-3 {
+  margin-top: calc(8px / 2);
+  border-radius: 3px;
+}
+
+.emotion-2 {
+  position: absolute;
+  top: calc(8px / 4);
+  right: calc(8px / 4);
+}
+
+.emotion-2:hover svg,
+.emotion-2:focus svg {
+  color: #00aa00;
+}
+
+<div
+  class="emotion-4"
+>
+  <div
+    class="emotion-1"
+    data-test="global-message__ERROR"
+    role="alert"
+  >
+    Test
+    <button
+      class="button button-small emotion-0 button-icon"
+      level="ERROR"
+      style="color:#fff"
+      type="button"
+    >
+      <svg
+        height="16"
+        space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421"
+        version="1.1"
+        viewBox="0 0 16 16"
+        width="16"
+        xlink="http://www.w3.org/1999/xlink"
+      >
+        <path
+          d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
+          style="fill:currentColor"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    class="emotion-3"
+    data-test="global-message__SUCCESS"
+    role="status"
+  >
+    Test 2
+    <button
+      class="button button-small emotion-2 button-icon"
+      level="SUCCESS"
+      style="color:#fff"
+      type="button"
+    >
+      <svg
+        height="16"
+        space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421"
+        version="1.1"
+        viewBox="0 0 16 16"
+        width="16"
+        xlink="http://www.w3.org/1999/xlink"
+      >
+        <path
+          d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
+          style="fill:currentColor"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+`;

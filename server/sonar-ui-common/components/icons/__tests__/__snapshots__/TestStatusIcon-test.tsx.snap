@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `<OkTestStatusIcon />`;
+
+exports[`should render correctly 2`] = `<FailureTestStatusIcon />`;
+
+exports[`should render correctly 3`] = `<SkippedTestStatusIcon />`;
+
+exports[`should render correctly 4`] = `<ErrorTestStatusIcon />`;

@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<nav
+  className="navbar"
+  style={
+    Object {
+      "height": 42,
+      "top": undefined,
+    }
+  }
+>
+  <div
+    className="navbar-inner"
+    style={
+      Object {
+        "height": 42,
+        "left": 0,
+      }
+    }
+  >
+    <div
+      className="clearfix navbar-limited"
+    >
+      <div
+        className="my-navbar-content"
+      />
+    </div>
+  </div>
+</nav>
+`;
+
+exports[`should render correctly with notif and not limited 1`] = `
+<nav
+  className="navbar"
+  style={
+    Object {
+      "height": 42,
+      "top": undefined,
+    }
+  }
+>
+  <div
+    className="navbar-inner navbar-inner-with-notif"
+    style={
+      Object {
+        "height": 42,
+        "left": 0,
+      }
+    }
+  >
+    <div
+      className="clearfix"
+    >
+      <div
+        className="my-navbar-content"
+      />
+    </div>
+    <div
+      className="my-notifs"
+    />
+  </div>
+</nav>
+`;

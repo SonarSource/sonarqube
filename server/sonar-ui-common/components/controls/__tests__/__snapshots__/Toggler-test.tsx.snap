@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render click wrappers 1`] = `
+<Fragment>
+  <div
+    id="toggle"
+  />
+  <div
+    id="overlay"
+  />
+</Fragment>
+`;
+
+exports[`should render children and overlay 1`] = `
+<Fragment>
+  <div
+    id="toggle"
+  />
+  <OutsideClickHandler
+    onClickOutside={[MockFunction]}
+  >
+    <EscKeydownHandler
+      onKeydown={[MockFunction]}
+    >
+      <div
+        id="overlay"
+      />
+    </EscKeydownHandler>
+  </OutsideClickHandler>
+</Fragment>
+`;
+
+exports[`should render only children 1`] = `
+<Fragment>
+  <div
+    id="toggle"
+  />
+</Fragment>
+`;
+
+exports[`should render when closeOnClick=true 1`] = `
+<Fragment>
+  <div
+    id="toggle"
+  />
+  <DocumentClickHandler
+    onClick={[MockFunction]}
+  >
+    <EscKeydownHandler
+      onKeydown={[MockFunction]}
+    >
+      <div
+        id="overlay"
+      />
+    </EscKeydownHandler>
+  </DocumentClickHandler>
+</Fragment>
+`;

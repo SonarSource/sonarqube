@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<em
+  aria-label="field_required"
+  className="mandatory little-spacer-left"
+>
+  *
+</em>
+`;
+
+exports[`should render correctly: with className 1`] = `
+<em
+  aria-label="field_required"
+  className="mandatory little-spacer-left foo-bar"
+>
+  *
+</em>
+`;

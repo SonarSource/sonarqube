@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display only total of files 1`] = `
+<span>
+  <strong>
+    123,455
+  </strong>
+   
+  component_measures.files
+</span>
+`;
+
+exports[`should display x files on y total 1`] = `
+<span>
+  <strong>
+    <span>
+      12
+       / 
+    </span>
+    123,455
+  </strong>
+   
+  component_measures.files
+</span>
+`;

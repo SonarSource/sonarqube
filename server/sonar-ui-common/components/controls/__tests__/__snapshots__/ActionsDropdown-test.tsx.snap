@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ActionsDropdown should render correctly 1`] = `
+<Dropdown
+  className="foo"
+  onOpen={[MockFunction]}
+  overlay={
+    <ul
+      className="menu"
+    >
+      <span>
+        Hello world
+      </span>
+    </ul>
+  }
+  overlayPlacement="bottom"
+>
+  <Button
+    className="dropdown-toggle bar button-small"
+  >
+    <SettingsIcon
+      size={12}
+    />
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`ActionsDropdown should render correctly 2`] = `
+<Dropdown
+  className="foo"
+  onOpen={[MockFunction]}
+  overlay={
+    <ul
+      className="menu"
+    >
+      <span>
+        Hello world
+      </span>
+    </ul>
+  }
+  overlayPlacement="bottom"
+>
+  <Button
+    className="dropdown-toggle bar"
+  >
+    <SettingsIcon
+      size={14}
+    />
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`ActionsDropdownDivider should render correctly 1`] = `
+<li
+  className="divider"
+/>
+`;
+
+exports[`ActionsDropdownItem should render correctly 1`] = `
+<li>
+  <a
+    className="foo"
+    href="#"
+    onClick={[Function]}
+  >
+    <span>
+      Hello world
+    </span>
+  </a>
+</li>
+`;
+
+exports[`ActionsDropdownItem should render correctly 2`] = `
+<li>
+  <Link
+    className="foo text-danger"
+    id="baz"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="path/name"
+  >
+    <span>
+      Hello world
+    </span>
+  </Link>
+</li>
+`;
+
+exports[`ActionsDropdownItem should render correctly 3`] = `
+<li>
+  <a
+    className="foo"
+    download="foo/bar"
+    href="path/name"
+  >
+    <span>
+      Hello world
+    </span>
+  </a>
+</li>
+`;
+
+exports[`ActionsDropdownItem should render correctly copy item 1`] = `
+<ActionsDropdownItem
+  className="foo"
+  copyValue="my content to copy to clipboard"
+>
+  <ClipboardBase>
+    <Tooltip
+      overlay="copied_action"
+      visible={false}
+    >
+      <TooltipInner
+        mouseEnterDelay={0.1}
+        overlay="copied_action"
+        visible={false}
+      >
+        <li
+          data-clipboard-text="my content to copy to clipboard"
+          onMouseEnter={[Function]}
+          onMouseLeave={[Function]}
+        >
+          <a
+            className="foo"
+            href="#"
+            onClick={[Function]}
+          >
+            <span>
+              Hello world
+            </span>
+          </a>
+        </li>
+      </TooltipInner>
+    </Tooltip>
+  </ClipboardBase>
+</ActionsDropdownItem>
+`;

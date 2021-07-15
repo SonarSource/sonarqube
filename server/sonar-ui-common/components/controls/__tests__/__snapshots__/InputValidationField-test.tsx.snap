@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ModalValidationField
+  description="Field description"
+  dirty={true}
+  error="Bad formatting"
+  label="Foo field"
+  touched={true}
+>
+  <Component />
+</ModalValidationField>
+`;

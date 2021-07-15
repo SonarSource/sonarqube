@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  aria-hidden={true}
+  className="text-muted"
+>
+  <FormattedMessage
+    defaultMessage="fields_marked_with_x_required"
+    id="fields_marked_with_x_required"
+    values={
+      Object {
+        "star": <em
+          className="mandatory"
+        >
+          *
+        </em>,
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly: with className 1`] = `
+<div
+  aria-hidden={true}
+  className="text-muted foo-bar"
+>
+  <FormattedMessage
+    defaultMessage="fields_marked_with_x_required"
+    id="fields_marked_with_x_required"
+    values={
+      Object {
+        "star": <em
+          className="mandatory"
+        >
+          *
+        </em>,
+      }
+    }
+  />
+</div>
+`;

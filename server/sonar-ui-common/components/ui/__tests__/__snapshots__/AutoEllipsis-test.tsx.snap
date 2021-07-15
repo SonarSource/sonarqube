@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<span
+  className="medium"
+>
+  my test text
+</span>
+`;

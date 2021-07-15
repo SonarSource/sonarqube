@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly set given display name 1`] = `
+<div>
+  <CustomDisplayName />
+</div>
+`;
+
+exports[`should lazy load and display the component 1`] = `
+<LazyComponentWrapper>
+  <LazyErrorBoundary>
+    <Suspense
+      fallback={null}
+    />
+  </LazyErrorBoundary>
+</LazyComponentWrapper>
+`;
+
+exports[`should lazy load and display the component 2`] = `null`;
+
+exports[`should lazy load and display the component 3`] = `
+<LazyComponentWrapper>
+  <LazyErrorBoundary>
+    <Suspense
+      fallback={null}
+    >
+      <Checkbox>
+        <a
+          className="icon-checkbox"
+          href="#"
+          onClick={[Function]}
+          role="checkbox"
+        />
+      </Checkbox>
+    </Suspense>
+  </LazyErrorBoundary>
+</LazyComponentWrapper>
+`;
+
+exports[`should lazy load and display the component 4`] = `
+<a
+  class="icon-checkbox"
+  href="#"
+  role="checkbox"
+/>
+`;

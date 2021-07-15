@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "checkJs": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictFunctionTypes": false,
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es2018", "dom"],
+    "outDir": "build/dist",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "sourceMap": true,
+    "declaration": true,
+    "rootDir": "./",
+    "baseUrl": "."
+  },
+  "include": ["components", "helpers", "types.d.ts"],
+  "exclude": ["**/*-test.*"]
+}

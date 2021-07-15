@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render favorite 1`] = `
+<Tooltip
+  overlay="favorite.current.TRK"
+>
+  <ButtonLink
+    aria-label="favorite.action.remove"
+    className="favorite-link link-no-underline"
+    onClick={[MockFunction]}
+  >
+    <FavoriteIcon
+      favorite={true}
+    />
+  </ButtonLink>
+</Tooltip>
+`;
+
+exports[`should render not favorite 1`] = `
+<Tooltip
+  overlay="favorite.check.TRK"
+>
+  <ButtonLink
+    aria-label="favorite.action.add"
+    className="favorite-link link-no-underline"
+    onClick={[MockFunction]}
+  >
+    <FavoriteIcon
+      favorite={false}
+    />
+  </ButtonLink>
+</Tooltip>
+`;
+
+exports[`should update properly 1`] = `
+<Tooltip
+  overlay="favorite.check.TRK"
+>
+  <ButtonLink
+    aria-label="favorite.action.add"
+    className="favorite-link link-no-underline"
+    onClick={[MockFunction]}
+  >
+    <FavoriteIcon
+      favorite={false}
+    />
+  </ButtonLink>
+</Tooltip>
+`;
+
+exports[`should update properly 2`] = `
+<Tooltip
+  overlay="favorite.current.TRK"
+>
+  <ButtonLink
+    aria-label="favorite.action.remove"
+    className="favorite-link link-no-underline"
+    onClick={[MockFunction]}
+  >
+    <FavoriteIcon
+      favorite={true}
+    />
+  </ButtonLink>
+</Tooltip>
+`;

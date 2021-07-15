@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <ClickEventBoundary>
+    <button
+      onClick={[Function]}
+      type="button"
+    >
+      Click me
+    </button>
+  </ClickEventBoundary>
+</div>
+`;

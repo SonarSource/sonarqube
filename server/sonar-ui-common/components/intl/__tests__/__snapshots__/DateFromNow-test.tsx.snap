@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DateTimeFormatter
+  date={2020-02-20T20:20:20.000Z}
+>
+  <Component />
+</DateTimeFormatter>
+`;
+
+exports[`should render correctly: children 1`] = `
+<span
+  title="2020-02-20T20:20:20Z"
+>
+  <FormattedRelative
+    updateInterval={10000}
+    value={2020-02-20T20:20:20.000Z}
+  >
+    [Function]
+  </FormattedRelative>
+</span>
+`;

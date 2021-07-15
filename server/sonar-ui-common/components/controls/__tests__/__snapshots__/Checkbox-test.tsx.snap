@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<a
+  aria-checked={true}
+  className="icon-checkbox icon-checkbox-checked"
+  href="#"
+  onClick={[Function]}
+  role="checkbox"
+  title="Title value"
+/>
+`;
+
+exports[`should render the checkbox on the right 1`] = `
+<a
+  aria-checked={true}
+  className="icon-checkbox icon-checkbox-checked"
+  href="#"
+  onClick={[Function]}
+  role="checkbox"
+/>
+`;

@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `<BugIcon />`;
+
+exports[`should render correctly 2`] = `<VulnerabilityIcon />`;
+
+exports[`should render correctly 3`] = `<CodeSmellIcon />`;
+
+exports[`should render correctly 4`] = `<SecurityHotspotIcon />`;

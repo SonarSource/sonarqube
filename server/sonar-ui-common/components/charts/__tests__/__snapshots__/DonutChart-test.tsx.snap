@@ -1,0 +1,122 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<svg
+  className="donut-chart"
+  height={20}
+  width={20}
+>
+  <g
+    transform="translate(0, 0)"
+  >
+    <g
+      transform="translate(10, 10)"
+    >
+      <Sector
+        data={
+          Object {
+            "data": Object {
+              "fill": "#000000",
+              "value": 25,
+            },
+            "endAngle": 1.5707963267948968,
+            "index": 0,
+            "padAngle": 0,
+            "startAngle": 0,
+            "value": 25,
+          }
+        }
+        fill="#000000"
+        key="0"
+        radius={10}
+        thickness={2}
+      />
+      <Sector
+        data={
+          Object {
+            "data": Object {
+              "fill": "#ffffff",
+              "value": 75,
+            },
+            "endAngle": 6.283185307179586,
+            "index": 1,
+            "padAngle": 0,
+            "startAngle": 1.5707963267948968,
+            "value": 75,
+          }
+        }
+        fill="#ffffff"
+        key="1"
+        radius={10}
+        thickness={2}
+      />
+    </g>
+  </g>
+</svg>
+`;
+
+exports[`should render correctly 2`] = `
+<path
+  d="M6.123233995736766e-16,-10A10,10,0,0,1,10,2.220446049250313e-15L8,1.7763568394002505e-15A8,8,0,0,0,4.898587196589413e-16,-8Z"
+  style={
+    Object {
+      "fill": "#000000",
+    }
+  }
+/>
+`;
+
+exports[`should render correctly with padding and pad angle too 1`] = `
+<svg
+  className="donut-chart"
+  height={20}
+  width={20}
+>
+  <g
+    transform="translate(2, 2)"
+  >
+    <g
+      transform="translate(8, 8)"
+    >
+      <Sector
+        data={
+          Object {
+            "data": Object {
+              "fill": "#000000",
+              "value": 25,
+            },
+            "endAngle": 1.6207963267948966,
+            "index": 0,
+            "padAngle": 0.1,
+            "startAngle": 0,
+            "value": 25,
+          }
+        }
+        fill="#000000"
+        key="0"
+        radius={8}
+        thickness={2}
+      />
+      <Sector
+        data={
+          Object {
+            "data": Object {
+              "fill": "#ffffff",
+              "value": 75,
+            },
+            "endAngle": 6.283185307179585,
+            "index": 1,
+            "padAngle": 0.1,
+            "startAngle": 1.6207963267948966,
+            "value": 75,
+          }
+        }
+        fill="#ffffff"
+        key="1"
+        radius={8}
+        thickness={2}
+      />
+    </g>
+  </g>
+</svg>
+`;

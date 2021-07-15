@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the field as valid 1`] = `
+<div
+  className="modal-validation-field"
+>
+  <label>
+    Foo
+  </label>
+  <input
+    className="is-valid"
+    type="text"
+  />
+  <AlertSuccessIcon
+    className="little-spacer-top"
+  />
+</div>
+`;
+
+exports[`should display the field with an error 1`] = `
+<div
+  className="modal-validation-field"
+>
+  <label>
+    Foo
+  </label>
+  <input
+    className="is-invalid"
+    type="text"
+  />
+  <AlertErrorIcon
+    className="little-spacer-top"
+  />
+  <p
+    className="text-danger"
+  >
+    Is required
+  </p>
+</div>
+`;
+
+exports[`should display the field without any error/validation 1`] = `
+<div
+  className="modal-validation-field"
+>
+  <label>
+    Foo
+  </label>
+  <input
+    className=""
+    type="text"
+  />
+  <div
+    className="modal-field-description"
+  >
+    Describe Foo.
+  </div>
+</div>
+`;
+
+exports[`should display the field without any error/validation 2`] = `
+<div
+  className="modal-validation-field"
+>
+  <label>
+    Foo
+  </label>
+  <input
+    className=""
+    type="text"
+  />
+</div>
+`;

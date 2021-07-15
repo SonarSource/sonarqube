@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: long 1`] = `
+<FormattedTime
+  hour="numeric"
+  minute="numeric"
+  second="numeric"
+  value={2020-02-20T20:20:20.000Z}
+>
+  <Component />
+</FormattedTime>
+`;
+
+exports[`should render correctly: standard 1`] = `
+<FormattedTime
+  hour="numeric"
+  minute="numeric"
+  value={2020-02-20T20:20:20.000Z}
+>
+  <Component />
+</FormattedTime>
+`;

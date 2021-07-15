@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default error 1`] = `
+<span
+  className="foo level level-ERROR"
+>
+  ERROR
+</span>
+`;
+
+exports[`should render correctly: default ok 1`] = `
+<span
+  className="foo level level-OK"
+>
+  OK
+</span>
+`;
+
+exports[`should render correctly: muted and small 1`] = `
+<span
+  className="foo level level-OK level-small level-muted"
+>
+  OK
+</span>
+`;
+
+exports[`should render correctly: with aria-label 1`] = `
+<span
+  aria-label="ARIA Label"
+  className="foo level level-OK"
+>
+  OK
+</span>
+`;
+
+exports[`should render correctly: with aria-labelledby 1`] = `
+<span
+  aria-labelledby="element-id"
+  className="foo level level-OK"
+>
+  OK
+</span>
+`;

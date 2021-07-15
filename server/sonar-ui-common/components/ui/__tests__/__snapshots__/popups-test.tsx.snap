@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Popup should render Popup 1`] = `
+<ClickEventBoundary>
+  <div
+    className="popup is-left-top foo"
+    style={
+      Object {
+        "left": -5,
+      }
+    }
+  >
+    <PopupArrow
+      style={
+        Object {
+          "top": -5,
+        }
+      }
+    />
+  </div>
+</ClickEventBoundary>
+`;
+
+exports[`Popup should render PopupArrow 1`] = `
+<div
+  className="popup-arrow"
+  style={
+    Object {
+      "left": -5,
+    }
+  }
+/>
+`;
+
+exports[`PortalPopup should render correctly with overlay 1`] = `
+<Fragment>
+  <div
+    id="popup-trigger"
+  />
+  <PortalWrapper>
+    <WithTheme(ScreenPositionFixer)
+      ready={true}
+    >
+      <Component />
+    </WithTheme(ScreenPositionFixer)>
+  </PortalWrapper>
+</Fragment>
+`;
+
+exports[`PortalPopup should render correctly with overlay 2`] = `
+<Popup
+  arrowStyle={
+    Object {
+      "marginLeft": 0,
+    }
+  }
+  placement="bottom"
+  style={
+    Object {
+      "height": 10,
+      "left": 0,
+      "top": 0,
+      "width": 10,
+    }
+  }
+>
+  <span
+    id="overlay"
+  />
+</Popup>
+`;
+
+exports[`PortalPopup should render correctly without overlay 1`] = `
+<Fragment>
+  <div
+    id="popup-trigger"
+  />
+</Fragment>
+`;

@@ -1,0 +1,178 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+.emotion-6 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+
+.emotion-1 {
+  position: relative;
+  background-color: white;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: none;
+  border-bottom: none;
+  margin-bottom: -1px;
+  min-width: 128px;
+  min-height: 56px;
+  outline: 0;
+  padding: calc(2 * 8px);
+}
+
+.emotion-1:last-child {
+  border-right: 1px solid #e6e6e6;
+}
+
+.emotion-0 {
+  display: block;
+  background-color: #4b9fd5;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: -1px;
+}
+
+.emotion-3 {
+  position: relative;
+  background-color: #f3f3f3;
+  border-top: 1px solid #e6e6e6;
+  border-left: 1px solid #e6e6e6;
+  border-right: none;
+  border-bottom: none;
+  margin-bottom: -1px;
+  min-width: 128px;
+  min-height: 56px;
+  cursor: pointer;
+  outline: 0;
+  padding: calc(2 * 8px);
+}
+
+.emotion-3:hover {
+  background-color: #f8f8f8;
+}
+
+.emotion-3:last-child {
+  border-right: 1px solid #e6e6e6;
+}
+
+.emotion-2 {
+  display: none;
+  background-color: #4b9fd5;
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: -1px;
+}
+
+<BoxedTabs
+  className="boxed-tabs"
+  onSelect={[MockFunction]}
+  selected="a"
+  tabs={
+    Array [
+      Object {
+        "key": "a",
+        "label": "labela",
+      },
+      Object {
+        "key": "b",
+        "label": "labelb",
+      },
+      Object {
+        "key": "c",
+        "label": <span>
+          Complex label 
+          <strong>
+            !!!
+          </strong>
+        </span>,
+      },
+    ]
+  }
+>
+  <Styled(div)
+    className="boxed-tabs"
+  >
+    <div
+      className="boxed-tabs emotion-6"
+    >
+      <Styled(button)
+        active={true}
+        key="0"
+        onClick={[Function]}
+        type="button"
+      >
+        <button
+          className="emotion-1"
+          onClick={[Function]}
+          type="button"
+        >
+          <Styled(div)
+            active={true}
+          >
+            <div
+              className="emotion-0"
+            />
+          </Styled(div)>
+          labela
+        </button>
+      </Styled(button)>
+      <Styled(button)
+        active={false}
+        key="1"
+        onClick={[Function]}
+        type="button"
+      >
+        <button
+          className="emotion-3"
+          onClick={[Function]}
+          type="button"
+        >
+          <Styled(div)
+            active={false}
+          >
+            <div
+              className="emotion-2"
+            />
+          </Styled(div)>
+          labelb
+        </button>
+      </Styled(button)>
+      <Styled(button)
+        active={false}
+        key="2"
+        onClick={[Function]}
+        type="button"
+      >
+        <button
+          className="emotion-3"
+          onClick={[Function]}
+          type="button"
+        >
+          <Styled(div)
+            active={false}
+          >
+            <div
+              className="emotion-2"
+            />
+          </Styled(div)>
+          <span>
+            Complex label 
+            <strong>
+              !!!
+            </strong>
+          </span>
+        </button>
+      </Styled(button)>
+    </div>
+  </Styled(div)>
+</BoxedTabs>
+`;

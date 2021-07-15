@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <Button
+    className="spacer-left"
+    data-test="show-more"
+    onClick={[MockFunction]}
+  >
+    show_more
+  </Button>
+</footer>
+`;
+
+exports[`should render correctly: empty if everything is loaded 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.5.5
+</footer>
+`;
+
+exports[`should render correctly: empty if no loadMore nor reload props 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+</footer>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <Button
+    className="spacer-left"
+    data-test="show-more"
+    disabled={true}
+    onClick={[MockFunction]}
+  >
+    show_more
+  </Button>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
+</footer>
+`;
+
+exports[`should render correctly: reload 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <Button
+    className="spacer-left"
+    data-test="reload"
+    onClick={[MockFunction]}
+  >
+    reload
+  </Button>
+</footer>
+`;
+
+exports[`should render correctly: reload, loading 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_of_y_shown.3.5
+  <Button
+    className="spacer-left"
+    data-test="reload"
+    disabled={true}
+    onClick={[MockFunction]}
+  >
+    reload
+  </Button>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
+</footer>
+`;

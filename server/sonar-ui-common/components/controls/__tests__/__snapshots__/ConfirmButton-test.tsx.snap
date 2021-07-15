@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a confirm modal 1`] = `
+<ConfirmModal
+  confirmButtonText="submit"
+  header="title"
+  onClose={[MockFunction]}
+  onConfirm={[MockFunction]}
+>
+  <div />
+</ConfirmModal>
+`;
+
+exports[`should display a modal button 1`] = `
+<ModalButton
+  modal={[Function]}
+>
+  <Component />
+</ModalButton>
+`;

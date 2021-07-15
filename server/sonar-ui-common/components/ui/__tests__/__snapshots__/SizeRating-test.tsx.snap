@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  aria-hidden="true"
+  className="size-rating"
+>
+  XS
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  aria-hidden="true"
+  className="size-rating size-rating-small size-rating-muted"
+>
+  S
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div
+  aria-hidden="true"
+  className="size-rating"
+>
+  M
+</div>
+`;
+
+exports[`should render correctly 4`] = `
+<div
+  aria-hidden="true"
+  className="size-rating"
+>
+  L
+</div>
+`;
+
+exports[`should render correctly 5`] = `
+<div
+  aria-hidden="true"
+  className="size-rating"
+>
+  XL
+</div>
+`;

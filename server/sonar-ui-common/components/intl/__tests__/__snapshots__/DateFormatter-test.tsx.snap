@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: long 1`] = `
+<FormattedDate
+  day="numeric"
+  month="long"
+  value={2020-02-20T20:20:20.000Z}
+  year="numeric"
+>
+  <Component />
+</FormattedDate>
+`;
+
+exports[`should render correctly: standard 1`] = `
+<FormattedDate
+  day="2-digit"
+  month="short"
+  value={2020-02-20T20:20:20.000Z}
+  year="numeric"
+>
+  <Component />
+</FormattedDate>
+`;

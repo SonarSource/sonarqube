@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: standard 1`] = `
+<FormattedDate
+  day="numeric"
+  hour="numeric"
+  minute="numeric"
+  month="long"
+  value={2020-02-20T20:20:20.000Z}
+  year="numeric"
+>
+  <Component />
+</FormattedDate>
+`;

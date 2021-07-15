@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="title"
+  onRequestClose={[MockFunction]}
+>
+  <ValidationForm
+    initialValues={
+      Object {
+        "field": "foo",
+      }
+    }
+    isInitialValid={true}
+    onSubmit={[Function]}
+    validate={[MockFunction]}
+  >
+    <Component />
+  </ValidationForm>
+</Modal>
+`;
+
+exports[`should render correctly 2`] = `
+<ContextProvider
+  value={
+    Object {
+      "dirty": false,
+      "errors": Object {},
+      "handleBlur": [Function],
+      "handleChange": [Function],
+      "handleReset": [Function],
+      "handleSubmit": [Function],
+      "initialValues": Object {
+        "field": "foo",
+      },
+      "isSubmitting": false,
+      "isValid": true,
+      "isValidating": false,
+      "registerField": [Function],
+      "resetForm": [Function],
+      "setError": [Function],
+      "setErrors": [Function],
+      "setFieldError": [Function],
+      "setFieldTouched": [Function],
+      "setFieldValue": [Function],
+      "setFormikState": [Function],
+      "setStatus": [Function],
+      "setSubmitting": [Function],
+      "setTouched": [Function],
+      "setValues": [Function],
+      "submitCount": 0,
+      "submitForm": [Function],
+      "touched": Object {},
+      "unregisterField": [Function],
+      "validate": [MockFunction],
+      "validateField": [Function],
+      "validateForm": [Function],
+      "validateOnBlur": true,
+      "validateOnChange": true,
+      "validationSchema": undefined,
+      "values": Object {
+        "field": "foo",
+      },
+    }
+  }
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        title
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <input
+        name="field"
+        onBlur={[Function]}
+        onChange={[Function]}
+        type="text"
+        value="foo"
+      />
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+      />
+      <SubmitButton
+        className="button-red"
+        disabled={true}
+      >
+        confirm
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</ContextProvider>
+`;

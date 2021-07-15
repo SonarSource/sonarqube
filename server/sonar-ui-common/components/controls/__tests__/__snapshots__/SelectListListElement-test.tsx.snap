@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a loader when checking 1`] = `
+<li
+  className=""
+>
+  <Checkbox
+    checked={false}
+    className="select-list-list-checkbox"
+    loading={false}
+    onCheck={[Function]}
+    thirdState={false}
+  >
+    <span
+      className="little-spacer-left"
+    >
+      foo
+    </span>
+  </Checkbox>
+</li>
+`;
+
+exports[`should display a loader when checking 2`] = `
+<li
+  className=""
+>
+  <Checkbox
+    checked={false}
+    className="select-list-list-checkbox"
+    loading={true}
+    onCheck={[Function]}
+    thirdState={false}
+  >
+    <span
+      className="little-spacer-left"
+    >
+      foo
+    </span>
+  </Checkbox>
+</li>
+`;
