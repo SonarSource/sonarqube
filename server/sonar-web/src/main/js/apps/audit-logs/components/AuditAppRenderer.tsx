@@ -74,7 +74,10 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
       <Suggestions suggestions="audit-logs" />
       <Helmet title={translate('audit_logs.page')} />
 
-      <h1 className="spacer-bottom">{translate('audit_logs.page')}</h1>
+      <header className="page-header">
+        <h1 className="page-title">{translate('audit_logs.page')}</h1>
+      </header>
+
       <p className="big-spacer-bottom">
         {translate('audit_logs.page.description.1')}
         <br />

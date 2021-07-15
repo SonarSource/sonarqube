@@ -76,7 +76,7 @@ export default function DownloadButton(props: DownloadButtonProps) {
     <>
       <a
         className={classNames('button button-primary', { disabled: downloadDisabled })}
-        download="audit-logs.json"
+        download="audit_logs.json"
         onClick={downloadDisabled ? undefined : props.onStartDownload}
         href={downloadUrl}
         rel="noopener noreferrer"

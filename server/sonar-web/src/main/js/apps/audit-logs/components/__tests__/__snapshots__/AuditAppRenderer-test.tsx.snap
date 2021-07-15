@@ -13,11 +13,15 @@ exports[`should render correctly for monthly housekeeping policy 1`] = `
     encodeSpecialCharacters={true}
     title="audit_logs.page"
   />
-  <h1
-    className="spacer-bottom"
+  <header
+    className="page-header"
   >
-    audit_logs.page
-  </h1>
+    <h1
+      className="page-title"
+    >
+      audit_logs.page
+    </h1>
+  </header>
   <p
     className="big-spacer-bottom"
   >
@@ -133,11 +137,15 @@ exports[`should render correctly for trimestrial housekeeping policy 1`] = `
     encodeSpecialCharacters={true}
     title="audit_logs.page"
   />
-  <h1
-    className="spacer-bottom"
+  <header
+    className="page-header"
   >
-    audit_logs.page
-  </h1>
+    <h1
+      className="page-title"
+    >
+      audit_logs.page
+    </h1>
+  </header>
   <p
     className="big-spacer-bottom"
   >
@@ -265,11 +273,15 @@ exports[`should render correctly for weekly housekeeping policy 1`] = `
     encodeSpecialCharacters={true}
     title="audit_logs.page"
   />
-  <h1
-    className="spacer-bottom"
+  <header
+    className="page-header"
   >
-    audit_logs.page
-  </h1>
+    <h1
+      className="page-title"
+    >
+      audit_logs.page
+    </h1>
+  </header>
   <p
     className="big-spacer-bottom"
   >
@@ -373,11 +385,15 @@ exports[`should render correctly for yearly housekeeping policy 1`] = `
     encodeSpecialCharacters={true}
     title="audit_logs.page"
   />
-  <h1
-    className="spacer-bottom"
+  <header
+    className="page-header"
   >
-    audit_logs.page
-  </h1>
+    <h1
+      className="page-title"
+    >
+      audit_logs.page
+    </h1>
+  </header>
   <p
     className="big-spacer-bottom"
   >
