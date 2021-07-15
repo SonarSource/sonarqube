@@ -182,7 +182,7 @@ qa_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
-qa_bitbucket_task:
+task: #bitbucket
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
