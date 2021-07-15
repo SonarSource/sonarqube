@@ -4,6 +4,10 @@ pluginManagement {
       url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
     }
   }
+  plugins {
+    id 'com.bmuschko.docker-remote-api' version '7.1.0'
+    id 'org.ajoberstar.grgit' version '4.1.0'
+  }
 }
 
 rootProject.name = 'sonarqube'

@@ -423,6 +423,25 @@ deploy_docs_task:
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
+package_docker_task:
+  depends_on: promote
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  gce_instance:
+    image_project: sonarqube-team
+    image_family: docker-builder
+    zone: us-central1-a
+    disk: 10
+    cpu: 4
+    memory: 8G
+  env:
+    CIRRUS_CLONE_DEPTH: '1'
+  install_tooling_script: |
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -yq openjdk-11-jdk-headless
+  package_script:
+    - ./private/cirrus/cirrus-package-docker.sh
+
 sql_mssql2017_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
