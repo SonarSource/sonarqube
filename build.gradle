@@ -624,7 +624,7 @@ subprojects {
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     required {
       def branch = System.getenv()["CIRRUS_BRANCH"]
-      return (branch == 'master' || branch ==~ 'branch-[\\d.]+') &&
+      return (branch in ['master', 'dogfood-on-next'] || branch ==~ 'branch-[\\d.]+') &&
              gradle.taskGraph.hasTask(":artifactoryPublish")
     }
     sign publishing.publications
@@ -634,7 +634,7 @@ subprojects {
     onlyIf {
       def branch = System.getenv()["CIRRUS_BRANCH"]
       return !artifactoryPublish.skip &&
-             (branch == 'master' || branch ==~ 'branch-[\\d.]+') &&
+             (branch in ['master', 'dogfood-on-next'] || branch ==~ 'branch-[\\d.]+') &&
              gradle.taskGraph.hasTask(":artifactoryPublish")
     }
   }
