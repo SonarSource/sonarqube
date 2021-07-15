@@ -311,7 +311,7 @@
       <if test="query.anyBranchAnalyzedAfter != null">
         and (
           exists(
-            -- branches of projects
+            -- branches of projects and applications
             select 1 from snapshots s
             inner join project_branches pb on s.component_uuid = pb.uuid
             where pb.project_uuid = p.uuid
@@ -320,7 +320,7 @@
             and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
           )
           or exists (
-            -- applications, portfolios
+            -- portfolios
             select 1 from snapshots s
             where s.component_uuid = p.uuid
             and s.status='P'
@@ -332,7 +332,7 @@
       <if test="query.anyBranchAnalyzedBefore != null">
         and (
           exists(
-          -- branches of projects
+          -- branches of projects and applications
           select 1 from snapshots s
           inner join project_branches pb on s.component_uuid = pb.uuid
           where pb.project_uuid = p.uuid
@@ -341,13 +341,33 @@
           and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
           )
           or exists (
-          -- applications, portfolios
+          -- portfolios
           select 1 from snapshots s
           where s.component_uuid = p.uuid
           and s.status='P'
           and s.islast = ${_true}
           and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
           )
+        )
+      </if>
+      <if test="query.allBranchesAnalyzedBefore != null">
+        and
+        (
+            (select max(s.created_at) from snapshots s
+            inner join project_branches pb on s.component_uuid = pb.uuid
+            where pb.project_uuid = p.uuid
+            and s.status='P'
+            and s.islast = ${_true}
+            ) &lt; #{query.allBranchesAnalyzedBefore,jdbcType=BIGINT}
+          or
+            exists (
+            -- portfolios
+            select 1 from snapshots s
+            where s.component_uuid = p.uuid
+            and p.qualifier = 'VW'
+            and s.status='P'
+            and s.islast = ${_true}
+            and s.created_at &lt; #{query.allBranchesAnalyzedBefore,jdbcType=BIGINT})
         )
       </if>
     <if test="query.createdAfter != null">

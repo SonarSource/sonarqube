@@ -51,6 +51,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -74,7 +75,7 @@ public class SnapshotDaoTest {
   private final SnapshotDao underTest = dbClient.snapshotDao();
 
   @Test
-  public void test_selectByUuid() {
+  public void selectByUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project)
       .setUuid("ABCD")
@@ -107,14 +108,14 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void selectLastSnapshotByRootComponentUuid_returns_absent_when_no_last_snapshot() {
+  public void selectLastAnalysisByRootComponentUuid_returns_absent_when_no_last_snapshot() {
     Optional<SnapshotDto> snapshot = underTest.selectLastAnalysisByRootComponentUuid(db.getSession(), "uuid_123");
 
     assertThat(snapshot).isNotPresent();
   }
 
   @Test
-  public void selectLastSnapshotByRootComponentUuid_returns_snapshot_flagged_as_last() {
+  public void selectLastAnalysisByRootComponentUuid_returns_snapshot_flagged_as_last() {
     ComponentDto project1 = db.components().insertPrivateProject();
     db.components().insertSnapshot(project1, t -> t.setLast(false));
     SnapshotDto lastSnapshot1 = db.components().insertSnapshot(project1, t -> t.setLast(true));
@@ -134,7 +135,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void selectLastSnapshotByRootComponentUuid_returns_absent_if_only_unprocessed_snapshots() {
+  public void selectLastAnalysisByRootComponentUuid_returns_absent_if_only_unprocessed_snapshots() {
     ComponentDto project1 = db.components().insertPrivateProject();
     db.components().insertSnapshot(project1, t -> t.setLast(false));
     db.components().insertSnapshot(project1, t -> t.setLast(false));
@@ -145,14 +146,14 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void selectLastSnapshotsByRootComponentUuids_returns_empty_list_if_empty_input() {
+  public void selectLastAnalysesByRootComponentUuids_returns_empty_list_if_empty_input() {
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, emptyList());
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void selectLastSnapshotsByRootComponentUuids_returns_snapshots_flagged_as_last() {
+  public void selectLastAnalysesByRootComponentUuids_returns_snapshots_flagged_as_last() {
     ComponentDto firstProject = db.components().insertComponent(newPrivateProjectDto("PROJECT_UUID_1"));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(false));
     SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true));
@@ -163,6 +164,63 @@ public class SnapshotDaoTest {
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 
     assertThat(result).extracting(SnapshotDto::getUuid).containsOnly(lastSnapshotOfFirstProject.getUuid(), lastSnapshotOfSecondProject.getUuid());
+  }
+
+  @Test
+  public void selectLastAnalysisDateByProject_takes_all_branches_into_account() {
+    ComponentDto firstProject = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(firstProject);
+    ComponentDto branch2 = db.components().insertProjectBranch(firstProject);
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(false).setCreatedAt(1L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(false).setCreatedAt(2L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(false).setCreatedAt(10L));
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true).setCreatedAt(7L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(8L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(true).setCreatedAt(9L));
+
+    Optional<Long> date = underTest.selectLastAnalysisDateByProject(dbSession, firstProject.uuid());
+
+    assertThat(date).contains(9L);
+  }
+
+  @Test
+  public void selectLastAnalysisDateByProject_is_empty_if_no_snapshot() {
+    ComponentDto firstProject = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(firstProject);
+    ComponentDto branch2 = db.components().insertProjectBranch(firstProject);
+
+    assertThat(underTest.selectLastAnalysisDateByProject(dbSession, firstProject.uuid())).isEmpty();
+  }
+
+  @Test
+  public void selectLastAnalysisDateByProjects_is_empty_if_no_project_passed() {
+    assertThat(underTest.selectLastAnalysisDateByProjects(dbSession, emptyList())).isEmpty();
+  }
+
+  @Test
+  public void selectLastAnalysisDateByProjects_returns_all_existing_projects_with_a_snapshot() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project2);
+    ComponentDto branch2 = db.components().insertProjectBranch(project2);
+
+    ComponentDto project3 = db.components().insertPrivateProject();
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project1).setLast(false).setCreatedAt(2L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project1).setLast(true).setCreatedAt(1L));
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project2).setLast(true).setCreatedAt(2L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch2).setLast(false).setCreatedAt(5L));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch1).setLast(true).setCreatedAt(4L));
+
+    List<ProjectLastAnalysisDateDto> lastAnalysisByProject = underTest.selectLastAnalysisDateByProjects(dbSession,
+      List.of(project1.uuid(), project2.uuid(), project3.uuid(), "non-existing"));
+
+    assertThat(lastAnalysisByProject).extracting(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate)
+      .containsOnly(tuple(project1.uuid(), 1L), tuple(project2.uuid(), 4L));
   }
 
   @Test
@@ -256,7 +314,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_first_snapshots() {
+  public void selectOldestSnapshot() {
     ComponentDto project = db.components().insertPrivateProject();
     db.getDbClient().snapshotDao().insert(dbSession,
       newAnalysis(project).setCreatedAt(5L),
@@ -422,7 +480,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void is_last_snapshot_when_no_previous_snapshot() {
+  public void isLast_is_true_when_no_previous_snapshot() {
     SnapshotDto snapshot = defaultSnapshot();
 
     boolean isLast = SnapshotDao.isLast(snapshot, null);
@@ -431,7 +489,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void is_last_snapshot_when_previous_snapshot_is_older() {
+  public void isLast_is_true_when_previous_snapshot_is_older() {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 
@@ -444,7 +502,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void is_not_last_snapshot_when_previous_snapshot_is_newer() {
+  public void isLast_is_false_when_previous_snapshot_is_newer() {
     Date today = new Date();
     Date yesterday = DateUtils.addDays(today, -1);
 

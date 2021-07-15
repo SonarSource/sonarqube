@@ -54,4 +54,8 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs);
 
+  @CheckForNull
+  Long selectLastAnalysisDateByProject(String projectUuid);
+
+  List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(@Param("projectUuids") Collection<String> projectUuids);
 }

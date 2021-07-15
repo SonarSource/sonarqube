@@ -20,6 +20,8 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Joiner;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -46,10 +49,11 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.utils.DateUtils.formatDate;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -186,18 +190,33 @@ public class SearchActionTest {
   public void search_for_old_projects() {
     userSession.addPermission(ADMINISTER);
     long aLongTimeAgo = 1_000_000_000L;
+    long inBetween = 2_000_000_000L;
     long recentTime = 3_000_000_000L;
+
     ComponentDto oldProject = db.components().insertPublicProject();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
+    ComponentDto branch = db.components().insertProjectBranch(oldProject);
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(inBetween));
+
     ComponentDto recentProject = db.components().insertPublicProject();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(recentTime));
     db.commit();
 
-    SearchWsResponse result = call(SearchRequest.builder().setAnalyzedBefore(formatDate(new Date(recentTime))).build());
+    SearchWsResponse result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(recentTime + 1_000))).build());
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate)
+      .containsExactlyInAnyOrder(tuple(oldProject.getKey(), formatDateTime(inBetween)), tuple(recentProject.getKey(), formatDateTime(recentTime)));
 
-    assertThat(result.getComponentsList()).extracting(Component::getKey)
-      .containsExactlyInAnyOrder(oldProject.getKey())
-      .doesNotContain(recentProject.getKey());
+    result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(recentTime))).build());
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate)
+      .containsExactlyInAnyOrder(tuple(oldProject.getKey(), formatDateTime(inBetween)));
+
+    result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(aLongTimeAgo + 1_000L))).build());
+    assertThat(result.getComponentsList()).isEmpty();
+  }
+
+  private static String toStringAtUTC(Date d) {
+    OffsetDateTime offsetTime = d.toInstant().atOffset(ZoneOffset.UTC);
+    return DateUtils.formatDateTime(offsetTime);
   }
 
   @Test

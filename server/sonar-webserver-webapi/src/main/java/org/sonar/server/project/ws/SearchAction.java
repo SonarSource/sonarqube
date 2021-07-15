@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.component.ProjectLastAnalysisDateDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.project.Visibility;
@@ -105,7 +107,7 @@ public class SearchAction implements ProjectsWsAction {
       .setPossibleValues(Visibility.getLabels());
 
     action.createParam(PARAM_ANALYZED_BEFORE)
-      .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
+      .setDescription("Filter the projects for which the last analysis of all branches are older than the given date (exclusive).<br> " +
         "Either a date (server timezone) or datetime can be provided.")
       .setSince("6.6")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
@@ -154,10 +156,13 @@ public class SearchAction implements ProjectsWsAction {
       Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, paging.offset(), paging.pageSize());
       Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toHashSet(components.size()));
+      Map<String, Long> lastAnalysisDateByComponentUuid = dbClient.snapshotDao().selectLastAnalysisDateByProjects(dbSession, componentUuids).stream()
+        .collect(Collectors.toMap(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate));
       Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
         .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, identity()));
-      return buildResponse(components, snapshotsByComponentUuid, paging);
+
+      return buildResponse(components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, paging);
     }
   }
 
@@ -171,7 +176,7 @@ public class SearchAction implements ProjectsWsAction {
       query.setPartialMatchOnKey(true);
     });
     ofNullable(request.getVisibility()).ifPresent(v -> query.setPrivate(Visibility.isPrivate(v)));
-    ofNullable(request.getAnalyzedBefore()).ifPresent(d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
+    ofNullable(request.getAnalyzedBefore()).ifPresent(d -> query.setAllBranchesAnalyzedBefore(parseDateOrDateTime(d).getTime()));
     query.setOnProvisionedOnly(request.isOnProvisionedOnly());
     ofNullable(request.getProjects()).ifPresent(keys -> query.setComponentKeys(new HashSet<>(keys)));
 
@@ -185,7 +190,8 @@ public class SearchAction implements ProjectsWsAction {
       .andTotal(total);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, SnapshotDto> snapshotsByComponentUuid, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, SnapshotDto> snapshotsByComponentUuid,
+    Map<String, Long> lastAnalysisDateByComponentUuid, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -194,20 +200,19 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(dto, snapshotsByComponentUuid.get(dto.uuid())))
+      .map(dto -> dtoToProject(dto, snapshotsByComponentUuid.get(dto.uuid()), lastAnalysisDateByComponentUuid.get(dto.uuid())))
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }
 
-  private static Component dtoToProject(ComponentDto dto, @Nullable SnapshotDto snapshot) {
+  private static Component dtoToProject(ComponentDto dto, @Nullable SnapshotDto snapshot, @Nullable Long lastAnalysisDate) {
     Component.Builder builder = Component.newBuilder()
       .setKey(dto.getDbKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
     if (snapshot != null) {
-      // FIXME created_at should not be nullable
-      ofNullable(snapshot.getCreatedAt()).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
+      ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
       ofNullable(snapshot.getRevision()).ifPresent(builder::setRevision);
     }
 

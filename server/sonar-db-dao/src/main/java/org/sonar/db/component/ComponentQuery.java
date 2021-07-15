@@ -40,6 +40,7 @@ public class ComponentQuery {
   private final Long analyzedBefore;
   private final Long anyBranchAnalyzedBefore;
   private final Long anyBranchAnalyzedAfter;
+  private final Long allBranchesAnalyzedBefore;
   private final Date createdAfter;
   private final boolean onProvisionedOnly;
 
@@ -53,6 +54,7 @@ public class ComponentQuery {
     this.analyzedBefore = builder.analyzedBefore;
     this.anyBranchAnalyzedBefore = builder.anyBranchAnalyzedBefore;
     this.anyBranchAnalyzedAfter = builder.anyBranchAnalyzedAfter;
+    this.allBranchesAnalyzedBefore = builder.allBranchesAnalyzedBefore;
     this.createdAfter = builder.createdAfter;
     this.onProvisionedOnly = builder.onProvisionedOnly;
   }
@@ -112,6 +114,11 @@ public class ComponentQuery {
   }
 
   @CheckForNull
+  public Long getAllBranchesAnalyzedBefore() {
+    return allBranchesAnalyzedBefore;
+  }
+
+  @CheckForNull
   public Date getCreatedAfter() {
     return createdAfter;
   }
@@ -139,6 +146,7 @@ public class ComponentQuery {
     private Long analyzedBefore;
     private Long anyBranchAnalyzedBefore;
     private Long anyBranchAnalyzedAfter;
+    private Long allBranchesAnalyzedBefore;
     private Date createdAfter;
     private boolean onProvisionedOnly = false;
 
@@ -180,8 +188,8 @@ public class ComponentQuery {
       return this;
     }
 
-    public Builder setAnyBranchAnalyzedBefore(@Nullable Long l) {
-      this.anyBranchAnalyzedBefore = l;
+    public Builder setAllBranchesAnalyzedBefore(@Nullable Long l) {
+      this.allBranchesAnalyzedBefore = l;
       return this;
     }
 
@@ -192,6 +200,11 @@ public class ComponentQuery {
      */
     public Builder setAnyBranchAnalyzedAfter(@Nullable Long l) {
       this.anyBranchAnalyzedAfter = l;
+      return this;
+    }
+
+    public Builder setAnyBranchAnalyzedBefore(@Nullable Long l) {
+      this.anyBranchAnalyzedBefore = l;
       return this;
     }
 

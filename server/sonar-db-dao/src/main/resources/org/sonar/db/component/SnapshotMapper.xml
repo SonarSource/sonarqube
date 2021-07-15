@@ -4,7 +4,7 @@
 
   <sql id="snapshotColumns">
     s.uuid as uuid,
-    s.component_uuid as componentUuId,
+    s.component_uuid as componentUuid,
     s.created_at as createdAt,
     s.build_date as buildDate,
     s.status as status,
@@ -42,6 +42,27 @@
     where
       s.islast=${_true}
       and p.uuid = #{componentUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectLastAnalysisDateByProject" resultType="long">
+    select max(s.created_at)
+    from snapshots s
+    inner join components p on s.component_uuid = p.project_uuid
+    where
+      s.islast=${_true}
+      and coalesce(p.main_branch_project_uuid, p.project_uuid) = #{projectUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectLastAnalysisDateByProjects" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
+    select coalesce(p.main_branch_project_uuid, p.project_uuid) as project_uuid, max(s.created_at) as last_analysis_date
+    from snapshots s
+    inner join components p on s.component_uuid = p.project_uuid
+    where s.islast=${_true}
+    and coalesce(p.main_branch_project_uuid, p.project_uuid) in
+      <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+        #{projectUuid,jdbcType=VARCHAR}
+      </foreach>
+    group by coalesce(p.main_branch_project_uuid, p.project_uuid)
   </select>
 
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">

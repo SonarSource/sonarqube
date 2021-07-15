@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -1485,6 +1484,44 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void selectByQuery_filter_last_analysisof_all_branches_before() {
+    long aLongTimeAgo = 1_000_000_000L;
+    long recentTime = 3_000_000_000L;
+    // project with only a non-main and old analyzed branch
+    ComponentDto oldProject = db.components().insertPublicProject();
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BRANCH));
+    db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
+
+    // project with only a old main branch and a recent non-main branch
+    ComponentDto recentProject = db.components().insertPublicProject();
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BRANCH));
+    db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
+    db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
+
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000L))).containsOnly(oldProject.uuid(), recentProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo))).isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo + 1_000L))).containsOnly(oldProject.uuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_last_analysisof_all_branches_before_for_portfolios() {
+    long aLongTimeAgo = 1_000_000_000L;
+    long recentTime = 3_000_000_000L;
+
+    // old portfolio
+    ComponentDto oldPortfolio = db.components().insertPublicPortfolio();
+    db.components().insertSnapshot(oldPortfolio, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
+
+    // recent portfolio
+    ComponentDto recentPortfolio = db.components().insertPublicPortfolio();
+    db.components().insertSnapshot(recentPortfolio, s -> s.setCreatedAt(recentTime).setLast(true));
+
+    assertThat(selectPortfolioUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000_000L))).containsOnly(oldPortfolio.uuid(), recentPortfolio.uuid());
+    assertThat(selectPortfolioUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo))).isEmpty();
+    assertThat(selectPortfolioUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo + 1_000L))).containsOnly(oldPortfolio.uuid());
+  }
+
+  @Test
   public void selectByQuery_filter_created_at() {
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01")));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01")));
@@ -1499,7 +1536,15 @@ public class ComponentDaoTest {
   }
 
   private List<String> selectProjectUuidsByQuery(Consumer<ComponentQuery.Builder> query) {
-    ComponentQuery.Builder builder = ComponentQuery.builder().setQualifiers(PROJECT);
+    return selectUuidsByQuery(PROJECT, query);
+  }
+
+  private List<String> selectPortfolioUuidsByQuery(Consumer<ComponentQuery.Builder> query) {
+    return selectUuidsByQuery(VIEW, query);
+  }
+
+  private List<String> selectUuidsByQuery(String qualifier, Consumer<ComponentQuery.Builder> query) {
+    ComponentQuery.Builder builder = ComponentQuery.builder().setQualifiers(qualifier);
     query.accept(builder);
     return underTest.selectByQuery(dbSession, builder.build(), 0, 5)
       .stream()

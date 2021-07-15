@@ -116,7 +116,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setPossibleValues(Visibility.getLabels());
 
     action.createParam(PARAM_ANALYZED_BEFORE)
-      .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
+      .setDescription("Filter the projects for which last analysis of any branch is older than the given date (exclusive).<br> " +
         "Either a date (server timezone) or datetime can be provided.")
       .setSince("6.6")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");

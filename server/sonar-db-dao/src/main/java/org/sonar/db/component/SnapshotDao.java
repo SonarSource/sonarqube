@@ -59,6 +59,23 @@ public class SnapshotDao implements Dao {
     return Optional.ofNullable(mapper(session).selectLastSnapshotByComponentUuid(componentUuid));
   }
 
+  /**
+   * returns the last analysis of any branch of a project
+   */
+  public Optional<Long> selectLastAnalysisDateByProject(DbSession session, String projectUuid) {
+    return Optional.ofNullable(mapper(session).selectLastAnalysisDateByProject(projectUuid));
+  }
+
+  /**
+   * returns the last analysis of any branch for each existing project
+   */
+  public List<ProjectLastAnalysisDateDto> selectLastAnalysisDateByProjects(DbSession session, Collection<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return mapper(session).selectLastAnalysisDateByProjects(projectUuids);
+  }
+
   public Optional<SnapshotDto> selectLastAnalysisByRootComponentUuid(DbSession session, String componentUuid) {
     return Optional.ofNullable(mapper(session).selectLastSnapshotByRootComponentUuid(componentUuid));
   }

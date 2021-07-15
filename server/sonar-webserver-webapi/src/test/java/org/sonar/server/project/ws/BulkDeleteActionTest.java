@@ -149,7 +149,9 @@ public class BulkDeleteActionTest {
     ComponentDto oldProject = db.components().insertPublicProject();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
     ComponentDto recentProject = db.components().insertPublicProject();
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(recentTime));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProject).setCreatedAt(aLongTimeAgo));
+    ComponentDto branch = db.components().insertProjectBranch(recentProject);
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(recentTime));
     db.commit();
 
     ws.newRequest()
