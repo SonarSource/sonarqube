@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import { scaleTime } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import testTheme from '../../../config/jest/testTheme';
@@ -40,6 +40,11 @@ const series = [
     type: 'bar',
   },
 ];
+
+it('should render correctly', () => {
+  expect(shallowRender({ width: undefined })).toMatchSnapshot('no width');
+  expect(shallowRender({ height: undefined })).toMatchSnapshot('no height');
+});
 
 it('should draw a graph with lines', () => {
   const wrapper = shallowRender();
@@ -65,6 +70,29 @@ it('should render a leak period', () => {
 
 it('should render areas under the graph lines', () => {
   expect(shallowRender({ showAreas: true }).find('.line-chart-area').exists()).toBe(true);
+});
+
+it('should handle zoom update correctly', () => {
+  const updateZoom = jest.fn();
+  const startDate = new Date('1970-01-01T00:00:00.001Z');
+  const endDate = new Date('2000-01-01T00:00:00.001Z');
+  let wrapper = shallowRender({ updateZoom, startDate, endDate });
+  wrapper
+    .instance()
+    .handleZoomUpdate(scaleTime().domain([startDate, endDate]).range([0, 150]), [3, 50]);
+  expect(updateZoom).toBeCalledWith(
+    new Date('1970-08-08T03:21:36.001Z'),
+    new Date('1980-01-01T08:00:00.001Z')
+  );
+
+  updateZoom.mockClear();
+
+  // We throttle the handleZoomUpdate so re-render to avoid issue
+  wrapper = shallowRender({ updateZoom, startDate, endDate });
+  wrapper
+    .instance()
+    .handleZoomUpdate(scaleTime().domain([startDate, endDate]).range([0, 150]), [-1, 151]);
+  expect(updateZoom).toBeCalledWith(undefined, undefined);
 });
 
 function shallowRender(props: Partial<ZoomTimeLine['props']> = {}) {

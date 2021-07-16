@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -174,9 +174,7 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
       xArray[1] > xRange[0] && xArray[1] < xRange[xRange.length - 1]
         ? xScale.invert(xArray[1])
         : undefined;
-    if (this.props.startDate !== startDate || this.props.endDate !== endDate) {
-      this.props.updateZoom(startDate, endDate);
-    }
+    this.props.updateZoom(startDate, endDate);
   };
 
   renderBaseLine = (xScale: XScale, yScale: YScale) => {

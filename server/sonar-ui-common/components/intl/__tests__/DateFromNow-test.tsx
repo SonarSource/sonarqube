@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
 
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find(DateTimeFormatter).props().children(date)).toMatchSnapshot('children');
+  expect(wrapper.find(DateTimeFormatter).props().children!(date)).toMatchSnapshot('children');
 });
 
 it('should render correctly when there is no date', () => {
@@ -50,8 +50,7 @@ it('should render correctly when the date is less than one hour in the past', ()
     .dive()
     .dive()
     .find(FormattedRelative)
-    .props()
-    .children(date);
+    .props().children!(date);
 
   expect(children).toHaveBeenCalledWith('less_than_1_hour_ago');
 });

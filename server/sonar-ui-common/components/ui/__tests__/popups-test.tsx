@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -104,7 +104,6 @@ describe('PortalPopup', () => {
 
   it('should correctly compute the popup arrow positioning', () => {
     const wrapper = shallowRender({ arrowOffset: -2 });
-    const getPlacementSpy = jest.spyOn(wrapper.instance(), 'getPlacement');
 
     expect(
       wrapper.instance().adjustArrowPosition(PopupPlacement.BottomLeft, { leftFix: 10, topFix: 10 })

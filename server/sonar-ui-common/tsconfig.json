@@ -18,6 +18,5 @@
     "rootDir": "./",
     "baseUrl": "."
   },
-  "include": ["components", "helpers", "types.d.ts"],
-  "exclude": ["**/*-test.*"]
+  "include": ["components", "helpers", "types.d.ts"]
 }

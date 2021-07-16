@@ -38,7 +38,7 @@
     "rehype-slug": "3.0.0",
     "remark-custom-blocks": "2.5.1",
     "remark-rehype": "6.0.0",
-    "sonar-ui-common": "1.0.33",
+    "sonar-ui-common": "../sonar-ui-common/build/dist",
     "unist-util-visit": "2.0.2",
     "valid-url": "1.0.9",
     "whatwg-fetch": "3.0.0"

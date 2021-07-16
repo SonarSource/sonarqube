@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,11 +19,12 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
+import testTheme from '../../../config/jest/testTheme';
 import { resizeWindowTo, setNodeRect } from '../../../helpers/testUtils';
-import ScreenPositionFixer from '../ScreenPositionFixer';
+import { ScreenPositionFixer } from '../ScreenPositionFixer';
 
 jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
+  const lodash = jest.requireActual('lodash');
   lodash.throttle = (fn: any) => () => fn();
   return lodash;
 });
@@ -88,6 +89,7 @@ it('should re-position when window is resized', () => {
   expect(children).toHaveBeenCalledTimes(3);
 });
 
-function mountRender(props: ScreenPositionFixer['props']) {
-  return mount(<ScreenPositionFixer {...props} />);
+function mountRender(props: Partial<ScreenPositionFixer['props']>) {
+  // eslint-disable-next-line react/no-children-prop
+  return mount(<ScreenPositionFixer theme={testTheme} children={() => <div />} {...props} />);
 }

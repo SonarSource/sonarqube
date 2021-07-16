@@ -14,6 +14,10 @@ apply plugin: 'com.github.node-gradle.node'
 
 def webappDir = "${buildDir}/webapp"
 
+yarn.configure {
+  dependsOn tasks.getByPath(':server:sonar-ui-common:yarn_run')
+}
+
 yarn_run {
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)

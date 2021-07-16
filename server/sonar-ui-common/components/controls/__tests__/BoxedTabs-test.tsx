@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,7 +42,7 @@ function mountRender(overrides: Partial<BoxedTabsProps<string>> = {}) {
   return mount(dom(overrides));
 }
 
-function dom(overrides) {
+function dom<K>(overrides: Partial<BoxedTabsProps<K>>) {
   return (
     <BoxedTabs
       className="boxed-tabs"

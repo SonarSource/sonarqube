@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -205,6 +205,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     const parentBbox = event.currentTarget.getBoundingClientRect();
     const mouseXPos = (event.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
+
     const speed = event.deltaMode
       ? (25 / event.deltaMode) * this.props.zoomSpeed
       : this.props.zoomSpeed;

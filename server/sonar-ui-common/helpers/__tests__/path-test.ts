@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { collapsedDirFromPath, cutLongWords, fileFromPath } from '../path';
+import {
+  collapsedDirFromPath,
+  collapsePath,
+  cutLongWords,
+  fileFromPath,
+  limitComponentName,
+  splitPath,
+} from '../path';
 
 describe('#collapsedDirFromPath()', () => {
   it('should return null when pass null', () => {
@@ -76,5 +83,46 @@ describe('#cutLongWords', () => {
 
   it('should not cut anything', () => {
     expect(cutLongWords('This is a test')).toBe('This is a test');
+  });
+});
+
+describe('collapsePath', () => {
+  it('should fail fast if path is not a string', () => {
+    expect(collapsePath({} as string)).toBe('');
+  });
+
+  it('should not collapse short path', () => {
+    const path = 'my/path';
+    expect(collapsePath(path)).toBe(path);
+  });
+
+  it('should collapse path longer than the limit', () => {
+    const path = 'my/long/path/very/long/path';
+    expect(collapsePath(path, 10)).toBe('my/.../very/long/path');
+    expect(collapsePath(path, 5)).toBe('my/.../long/path');
+    expect(collapsePath(path, 2)).toBe('my/.../path');
+  });
+});
+
+describe('splitPath', () => {
+  it('should split path properly', () => {
+    expect(splitPath('my/super/path')).toEqual({ head: 'my/super', tail: 'path' });
+    expect(splitPath('my/super/very/long/path')).toEqual({
+      head: 'my/super/very/long',
+      tail: 'path',
+    });
+  });
+});
+
+describe('limitComponentName', () => {
+  const name = 'my/super/name';
+
+  it('should fail fast if component name is not a string', () => {
+    expect(limitComponentName({} as string)).toBe('');
+  });
+
+  it('should limiit component name longer than the limit', () => {
+    expect(limitComponentName(name)).toBe(name);
+    expect(limitComponentName(name, 10)).toBe('my/super/n...');
   });
 });

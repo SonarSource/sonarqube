@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -69,11 +69,11 @@ describe('ClipboardBase', () => {
   });
 
   function shallowRender(children?: ClipboardBase['props']['children']) {
-    return shallow<ClipboardBase>(<ClipboardBase>{children}</ClipboardBase>);
+    return shallow<ClipboardBase>(<ClipboardBase>{children || (() => null)}</ClipboardBase>);
   }
 
   function mountRender(children?: ClipboardBase['props']['children']) {
-    return mount<ClipboardBase>(<ClipboardBase>{children}</ClipboardBase>);
+    return mount<ClipboardBase>(<ClipboardBase>{children || (() => null)}</ClipboardBase>);
   }
 });
 

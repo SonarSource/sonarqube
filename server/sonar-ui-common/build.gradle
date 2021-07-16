@@ -1,0 +1,66 @@
+description = 'SonarSource :: Sonar UI Common'
+
+sonarqube {
+  properties {
+    property "sonar.sources", "components,helpers"
+    property "sonar.exclusions", "**/__tests__/**"
+    property "sonar.test", "components,helpers"
+    property "sonar.test.inclusions", "**/__tests__/**"
+    property "sonar.eslint.reportPaths", "eslint-report.json"
+    property "sonar.javascript.lcov.reportPaths", "coverage/lcov.info"
+    property "sonar.coverage.exclusions", "components/icons/*,helpers/testUtils.ts,helpers/keycodes.ts"
+    property "sonar.typescript.lcov.reportPaths", "build/coverage/lcov.info"
+    property "sonar.eslint.reportPaths", "build/eslint-report.json"
+  }
+}
+
+yarn_run {
+  ['config', 'scripts', 'components', 'helpers'].each {
+    inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
+  ['package.json', 'tsconfig.json', 'yarn.lock'].each {
+    inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
+  outputs.cacheIf { true }
+  args = ['build']
+  ignoreExitValue = false
+}
+
+"yarn_check-ci" {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'scripts', 'components', 'helpers'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json'].each {
+    inputs.file(it)
+  }
+
+  dependsOn(yarn)
+}
+
+"yarn_validate-ci" {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'scripts', 'components', 'helpers'].each {
+    inputs.dir(it)
+  }
+  ['.eslintrc', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
+    inputs.file(it)
+  }
+  outputs.file("eslint-report.json")
+  outputs.dir("coverage")
+  outputs.cacheIf { true }
+
+  dependsOn(yarn)
+}
+
+def sources = fileTree(dir: "components") + fileTree(dir: "config") + fileTree(dir: "helpers")
+
+task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
+  source = sources
+}
+licenseMain.dependsOn licenseCheckWeb
+
+task licenseFormatWeb(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+  source = sources
+}
+licenseFormat.dependsOn licenseFormatWeb

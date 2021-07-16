@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,11 +36,18 @@ jest.mock('d3-scale', () => {
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
-  return { ...lodash, throttle: (f) => f };
+  return { ...lodash, throttle: (f: any) => f };
 });
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ disableZoom: false, updateZoom: () => {} })).toMatchSnapshot(
+    'Zoom enabled'
+  );
+  expect(shallowRender({ formatYTick: (t) => `Nicer tick ${t}` })).toMatchSnapshot('format y tick');
+  expect(shallowRender({ width: undefined })).toMatchSnapshot('no width');
+  expect(shallowRender({ height: undefined })).toMatchSnapshot('no height');
+  expect(shallowRender({ showAreas: undefined })).toMatchSnapshot('no areas');
 });
 
 it('should render leak correctly', () => {
@@ -144,6 +151,98 @@ it('should update tootlips when selected date changes', () => {
   expect(updateTooltip).toBeCalled();
 });
 
+it('should handle scroll correcly', () => {
+  let updateZoom = jest.fn();
+  let preventDefault = jest.fn();
+  let wrapper = shallowRender({ updateZoom });
+  wrapper.instance().handleWheel(({
+    preventDefault,
+    deltaX: 1,
+    deltaY: -2,
+    deltaZ: 0,
+    pageX: 100,
+    pageY: 1,
+    currentTarget: ({
+      getBoundingClientRect: () => ({
+        bottom: 0,
+        height: 100,
+        width: 50,
+        left: 0,
+        right: 0,
+        top: 10,
+        x: 12,
+        y: 23,
+        toJSON: () => '',
+      }),
+    } as any) as SVGElement,
+  } as any) as React.WheelEvent<SVGElement>);
+  expect(preventDefault).toBeCalled();
+  expect(updateZoom).toBeCalledWith(new Date('2019-10-01T06:24:00.000Z'), undefined);
+
+  updateZoom = jest.fn();
+  preventDefault = jest.fn();
+  wrapper = shallowRender({ updateZoom });
+  wrapper.instance().handleWheel(({
+    preventDefault,
+    deltaX: 1,
+    deltaY: 2,
+    deltaZ: 0,
+    pageX: 100,
+    pageY: 1,
+    deltaMode: 25,
+    currentTarget: ({
+      getBoundingClientRect: () => ({
+        bottom: 0,
+        height: 100,
+        width: 50,
+        left: 0,
+        right: 0,
+        top: 10,
+        x: 12,
+        y: 23,
+        toJSON: () => '',
+      }),
+    } as any) as SVGElement,
+  } as any) as React.WheelEvent<SVGElement>);
+  expect(preventDefault).toBeCalled();
+  expect(updateZoom).toBeCalledWith(undefined, new Date('2019-10-02T20:48:00.000Z'));
+});
+
+it('should handle mouse out correcly', () => {
+  const updateTooltip = jest.fn();
+  const wrapper = shallowRender({ updateTooltip: undefined });
+  wrapper.setState({
+    mouseOver: true,
+    selectedDate: new Date(),
+    selectedDateXPos: 1,
+    selectedDateIdx: 1,
+  });
+  wrapper.instance().handleMouseOut();
+  expect(wrapper.state().mouseOver).toBe(true);
+
+  wrapper.setProps({ updateTooltip });
+  wrapper.instance().handleMouseOut();
+  expect(wrapper.state().mouseOver).toBe(false);
+  expect(wrapper.state().selectedDate).toBeUndefined();
+  expect(wrapper.state().selectedDateXPos).toBeUndefined();
+  expect(wrapper.state().selectedDateIdx).toBeUndefined();
+  wrapper.instance().handleMouseOut();
+});
+
+it('should handle click correcly', () => {
+  const updateSelectedDate = jest.fn();
+  const wrapper = shallowRender({ updateSelectedDate });
+  wrapper.setState({ selectedDate: new Date() });
+
+  wrapper.instance().handleClick();
+  expect(updateSelectedDate).toBeCalledWith(wrapper.state().selectedDate);
+
+  wrapper.setProps({ updateSelectedDate: undefined });
+  updateSelectedDate.mockClear();
+  wrapper.instance().handleClick();
+  expect(updateSelectedDate).not.toBeCalled();
+});
+
 function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
   return shallow<AdvancedTimeline>(
     <AdvancedTimeline
@@ -154,6 +253,7 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
         {
           name: 'test-1',
           type: 'test-type-1',
+          translatedName: '',
           data: [
             {
               x: new Date('2019-10-01'),
@@ -168,6 +268,7 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
         {
           name: 'test-2',
           type: 'test-type-2',
+          translatedName: '',
           data: [
             {
               x: new Date('2019-10-03'),
@@ -183,10 +284,11 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
   );
 }
 
-function mockData(i: number, date: string) {
+function mockData(i: number, date: string): T.Chart.Serie {
   return {
     name: `t${i}`,
     type: 'type',
+    translatedName: '',
     data: [{ x: new Date(date), y: i }],
   };
 }

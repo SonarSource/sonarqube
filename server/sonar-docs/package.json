@@ -23,7 +23,7 @@
     "react-helmet": "5.2.1",
     "react-typography": "0.16.19",
     "rehype-react": "6.1.0",
-    "sonar-ui-common": "1.0.33",
+    "sonar-ui-common": "../sonar-ui-common/build/dist",
     "typography": "0.16.19"
   },
   "devDependencies": {

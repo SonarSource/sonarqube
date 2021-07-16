@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,24 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Tooltip, { TooltipInner } from '../Tooltip';
+import Tooltip, { TooltipInner, TooltipProps } from '../Tooltip';
 
 jest.useFakeTimers();
 jest.mock('react-dom', () => {
-  const actual = require.requireActual('react-dom');
+  const actual = jest.requireActual('react-dom');
   return Object.assign({}, actual, {
-    findDOMNode: () => undefined,
+    findDOMNode: jest.fn().mockReturnValue(undefined),
   });
 });
 
+beforeEach(jest.clearAllMocks);
+
 it('should render', () => {
-  expect(
-    shallow(
-      <TooltipInner overlay={<span id="overlay" />} visible={false}>
-        <div id="tooltip" />
-      </TooltipInner>
-    )
-  ).toMatchSnapshot();
+  expect(shallowRenderTooltipInner()).toMatchSnapshot();
   expect(
     shallow(
       <TooltipInner overlay={<span id="overlay" />} visible={true}>
@@ -50,11 +46,8 @@ it('should render', () => {
 it('should open & close', () => {
   const onShow = jest.fn();
   const onHide = jest.fn();
-  const wrapper = shallow(
-    <TooltipInner onHide={onHide} onShow={onShow} overlay={<span id="overlay" />}>
-      <div id="tooltip" />
-    </TooltipInner>
-  );
+  const wrapper = shallowRenderTooltipInner({ onHide, onShow });
+
   wrapper.find('#tooltip').simulate('mouseenter');
   jest.runOnlyPendingTimers();
   wrapper.update();
@@ -71,11 +64,7 @@ it('should open & close', () => {
 it('should not open when mouse goes away quickly', () => {
   const onShow = jest.fn();
   const onHide = jest.fn();
-  const wrapper = shallow(
-    <TooltipInner onHide={onHide} onShow={onShow} overlay={<span id="overlay" />}>
-      <div id="tooltip" />
-    </TooltipInner>
-  );
+  const wrapper = shallowRenderTooltipInner({ onHide, onShow });
 
   wrapper.find('#tooltip').simulate('mouseenter');
   wrapper.find('#tooltip').simulate('mouseleave');
@@ -86,27 +75,44 @@ it('should not open when mouse goes away quickly', () => {
 });
 
 it('should not render tooltip without overlay', () => {
-  const wrapper = shallow(
-    <Tooltip overlay={undefined}>
-      <div id="tooltip" />
-    </Tooltip>
-  );
+  const wrapper = shallowRenderTooltip();
   expect(wrapper.type()).toBe('div');
 });
 
 it('should not render empty tooltips', () => {
-  expect(
-    shallow(
-      <Tooltip overlay={undefined} visible={true}>
-        <div id="tooltip" />
-      </Tooltip>
-    )
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <Tooltip overlay="" visible={true}>
-        <div id="tooltip" />
-      </Tooltip>
-    )
-  ).toMatchSnapshot();
+  expect(shallowRenderTooltip()).toMatchSnapshot();
+  expect(shallowRenderTooltip()).toMatchSnapshot();
 });
+
+it('should adjust arrow position', () => {
+  const wrapper = shallowRenderTooltipInner();
+
+  expect(wrapper.instance().adjustArrowPosition('left', { leftFix: 10, topFix: 20 })).toEqual({
+    marginTop: -20,
+  });
+  expect(wrapper.instance().adjustArrowPosition('right', { leftFix: 10, topFix: 20 })).toEqual({
+    marginTop: -20,
+  });
+  expect(wrapper.instance().adjustArrowPosition('top', { leftFix: 10, topFix: 20 })).toEqual({
+    marginLeft: -10,
+  });
+  expect(wrapper.instance().adjustArrowPosition('bottom', { leftFix: 10, topFix: 20 })).toEqual({
+    marginLeft: -10,
+  });
+});
+
+function shallowRenderTooltip() {
+  return shallow<TooltipProps>(
+    <Tooltip overlay={undefined}>
+      <div id="tooltip" />
+    </Tooltip>
+  );
+}
+
+function shallowRenderTooltipInner(props?: Partial<TooltipProps>) {
+  return shallow<TooltipInner>(
+    <TooltipInner overlay={<span id="overlay" />} {...props}>
+      <div id="tooltip" />
+    </TooltipInner>
+  );
+}

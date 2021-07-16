@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,17 @@
  */
 /* eslint-disable camelcase */
 import Initializer, { getMessages } from '../init';
-import { hasMessage, translate, translateWithParameters } from '../l10n';
+import {
+  getLocalizedCategoryMetricName,
+  getLocalizedMetricDomain,
+  getLocalizedMetricName,
+  getShortMonthName,
+  getShortWeekDayName,
+  getWeekDayName,
+  hasMessage,
+  translate,
+  translateWithParameters,
+} from '../l10n';
 
 const originalMessages = getMessages();
 const MSG = 'my_message';
@@ -94,5 +104,80 @@ describe('hasMessage', () => {
   it('should return that the message is missing', () => {
     expect(hasMessage('foo')).toBe(false);
     expect(hasMessage('foo', 'bar')).toBe(false);
+  });
+});
+
+describe('getLocalizedMetricName', () => {
+  const metric = { key: 'new_code', name: 'new_code_metric_name' };
+
+  it('should return the metric name translation', () => {
+    Initializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    expect(getLocalizedMetricName(metric)).toBe('metric.new_code.name_t');
+  });
+
+  it('should return the metric short name', () => {
+    Initializer.setMessages({ 'metric.new_code.short_name': 'metric.new_code.short_name_t' });
+    expect(getLocalizedMetricName(metric, true)).toBe('metric.new_code.short_name_t');
+  });
+
+  it('should fallback on name if short name is absent', () => {
+    Initializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    expect(getLocalizedMetricName(metric, true)).toBe('metric.new_code.name_t');
+  });
+
+  it('should fallback on metric name if translation is absent', () => {
+    expect(getLocalizedMetricName(metric)).toBe('new_code_metric_name');
+  });
+
+  it('should fallback on metric key if nothing else is available', () => {
+    expect(getLocalizedMetricName({ key: 'new_code' })).toBe('new_code');
+  });
+});
+
+describe('getLocalizedCategoryMetricName', () => {
+  it('should return metric category name translation', () => {
+    Initializer.setMessages({
+      'metric.new_code.extra_short_name': 'metric.new_code.extra_short_name_t',
+    });
+    expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe(
+      'metric.new_code.extra_short_name_t'
+    );
+  });
+
+  it('should fallback on metric name if extra_short_name is absent', () => {
+    Initializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe('metric.new_code.name_t');
+  });
+});
+
+describe('getLocalizedMetricDomain', () => {
+  it('should return metric domain name translation', () => {
+    Initializer.setMessages({ 'metric_domain.domain': 'metric_domain.domain_t' });
+    expect(getLocalizedMetricDomain('domain')).toBe('metric_domain.domain_t');
+  });
+
+  it('should fallback on metric domain name', () => {
+    expect(getLocalizedMetricDomain('domain')).toBe('domain');
+  });
+});
+
+describe('getShortMonthName', () => {
+  it('should properly translation months', () => {
+    Initializer.setMessages({ Jan: 'Jan_t' });
+    expect(getShortMonthName(0)).toBe('Jan_t');
+  });
+});
+
+describe('getWeekDayName', () => {
+  it('should properly translation weekday', () => {
+    Initializer.setMessages({ Sunday: 'Sunday_t' });
+    expect(getWeekDayName(0)).toBe('Sunday_t');
+  });
+});
+
+describe('getShortWeekDayName', () => {
+  it('should properly translation short weekday', () => {
+    Initializer.setMessages({ Sun: 'Sun_t' });
+    expect(getShortWeekDayName(0)).toBe('Sun_t');
   });
 });

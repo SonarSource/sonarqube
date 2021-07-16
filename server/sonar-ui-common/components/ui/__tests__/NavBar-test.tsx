@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import NavBar from '../NavBar';
+import NavBar, { NavBarProps } from '../NavBar';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -31,7 +31,7 @@ it('should render correctly with notif and not limited', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<NavBar['props']> = {}) {
+function shallowRender(props: Partial<NavBarProps> = {}) {
   return shallow(
     <NavBar height={42} {...props}>
       <div className="my-navbar-content" />

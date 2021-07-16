@@ -1,6 +1,6 @@
 /*
- * Sonar UI Common
- * Copyright (C) 2019-2020 SonarSource SA
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ import { throttle } from 'lodash';
 import * as React from 'react';
 import './NavBar.css';
 
-interface Props extends React.HTMLProps<HTMLDivElement> {
+export interface NavBarProps {
   children?: React.ReactNode;
   className?: string;
   height: number;
@@ -35,10 +35,13 @@ interface State {
   left: number;
 }
 
-export default class NavBar extends React.PureComponent<Props, State> {
+export default class NavBar extends React.PureComponent<
+  NavBarProps & React.HTMLProps<HTMLDivElement>,
+  State
+> {
   throttledFollowHorizontalScroll: () => void;
 
-  constructor(props: Props) {
+  constructor(props: NavBarProps) {
     super(props);
     this.state = { left: 0 };
     this.throttledFollowHorizontalScroll = throttle(this.followHorizontalScroll, 10);

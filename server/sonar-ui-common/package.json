@@ -92,12 +92,12 @@
     "test": "jest",
     "format": "prettier --write --list-different \"{,!(build|node_modules)/**/}*.{ts,tsx,css}\"",
     "format-check": "prettier --list-different \"{,!(build|node_modules)/**/}*.{ts,tsx,css}\"",
-    "license-check": "node scripts/license-check",
     "lint": "eslint --ext ts,tsx --quiet \"{,!(build|node_modules)/**/}*.{ts,tsx}\"",
     "lint-report": "eslint --ext ts,tsx -f json -o build/eslint-report.json \"{,!(build|node_modules)/**/}*.{ts,tsx}\"",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn ts-check && yarn license-check && yarn lint && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn license-check && yarn format-check && yarn test --coverage"
+    "validate": "yarn ts-check && yarn lint && yarn format-check && yarn test",
+    "validate-ci": "yarn lint-report && yarn test --coverage",
+    "check-ci": "yarn ts-check && yarn format-check"
   },
   "engines": {
     "node": ">=10.15.3",
