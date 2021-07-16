@@ -305,7 +305,7 @@ subprojects {
         entry 'log4j-to-slf4j'
         entry 'log4j-core'
       }
-      dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.63') {
+      dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.68') {
         entry 'tomcat-embed-core'
         entry('tomcat-embed-jasper') {
           exclude 'org.eclipse.jdt.core.compiler:ecj'
