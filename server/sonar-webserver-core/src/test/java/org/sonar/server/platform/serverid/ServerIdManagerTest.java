@@ -236,8 +236,7 @@ public class ServerIdManagerTest {
     try {
       test(SERVER);
       fail("An ISE should have been raised");
-    }
-    catch (IllegalStateException e) {
+    } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Server ID is invalid");
       // no changes
       verifyDb(serverId, dbChecksum);
@@ -284,8 +283,7 @@ public class ServerIdManagerTest {
     try {
       test(SERVER);
       fail("An ISE should have been raised");
-    }
-    catch (IllegalStateException e) {
+    } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Server ID is invalid");
       // no changes
       verifyDb(serverId, dbChecksum);
@@ -294,10 +292,10 @@ public class ServerIdManagerTest {
 
   @DataProvider
   public static Object[][] allFormatsOfServerId() {
-    return new Object[][] {
-        {OLD_FORMAT_SERVER_ID},
-        {NO_DATABASE_ID_SERVER_ID},
-        {WITH_DATABASE_ID_SERVER_ID}
+    return new Object[][]{
+      {OLD_FORMAT_SERVER_ID},
+      {NO_DATABASE_ID_SERVER_ID},
+      {WITH_DATABASE_ID_SERVER_ID}
     };
   }
 
@@ -346,7 +344,8 @@ public class ServerIdManagerTest {
   }
 
   private void insertServerId(String serverId) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(CoreProperties.SERVER_ID).setValue(serverId));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(CoreProperties.SERVER_ID).setValue(serverId),
+      null, null);
     dbSession.commit();
   }
 

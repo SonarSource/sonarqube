@@ -90,9 +90,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user2 = insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
 
     PermissionTemplateDto template1 = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user1));
-    addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user2));
-    addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2));
+    addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user1), template1.getName());
+    addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user2), template1.getName());
+    addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2), template1.getName());
     loginAsAdmin();
 
     String result = newRequest(null, template1.getUuid()).execute().getInput();
@@ -108,13 +108,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
     PermissionTemplateDto template = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     PermissionTemplateDto anotherTemplate = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
+    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
     Permissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -135,13 +135,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
     PermissionTemplateDto template = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     PermissionTemplateDto anotherTemplate = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
+    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
     Permissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -158,13 +158,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
     PermissionTemplateDto template = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     PermissionTemplateDto anotherTemplate = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
+    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
     loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(USER, template.getUuid())
@@ -181,13 +181,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user3 = insertUser(newUserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
 
     PermissionTemplateDto template = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     PermissionTemplateDto anotherTemplate = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
+    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1), anotherTemplate.getName());
 
     loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(USER, null)
@@ -207,9 +207,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     UserDto user3 = insertUser(newUserDto().setLogin("login-1").setName("name-1"));
 
     PermissionTemplateDto template = addTemplate();
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user1));
-    addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
-    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user1), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(USER, template, user2), template.getName());
+    addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3), template.getName());
 
     loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(null, null)
@@ -310,8 +310,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     return userDto;
   }
 
-  private void addUserToTemplate(PermissionTemplateUserDto dto) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getTemplateUuid(), dto.getUserUuid(), dto.getPermission());
+  private void addUserToTemplate(PermissionTemplateUserDto dto, String templateName) {
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getTemplateUuid(), dto.getUserUuid(),
+      dto.getPermission(), templateName, dto.getUserLogin());
     db.commit();
   }
 

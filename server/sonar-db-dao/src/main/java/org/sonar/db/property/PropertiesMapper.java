@@ -77,6 +77,8 @@ public interface PropertiesMapper {
 
   void deleteByKeyAndValue(@Param("key") String key, @Param("value") String value);
 
+  List<PropertyDto> selectByUuids(@Param("uuids") List<String> uuids);
+
   int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 
 }

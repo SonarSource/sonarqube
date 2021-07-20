@@ -26,6 +26,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -34,31 +36,62 @@ public class ProjectAlmSettingDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
+  private AuditPersister auditPersister;
 
   public ProjectAlmSettingDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto) {
+  public ProjectAlmSettingDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+    this(system2, uuidFactory);
+    this.auditPersister = auditPersister;
+  }
+
+  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto,
+    String key, String projectName) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
+    boolean isUpdate = true;
 
     if (mapper.update(projectAlmSettingDto, now) == 0) {
       mapper.insert(projectAlmSettingDto, uuid, now);
       projectAlmSettingDto.setUuid(uuid);
       projectAlmSettingDto.setCreatedAt(now);
+      isUpdate = false;
     }
     projectAlmSettingDto.setUpdatedAt(now);
+
+    if (auditPersister != null) {
+      if (isUpdate) {
+        auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key, projectName));
+      } else {
+        auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(projectAlmSettingDto.getAlmSettingUuid(),
+          projectAlmSettingDto.getProjectUuid(), key, projectName));
+      }
+    }
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto project) {
     getMapper(dbSession).deleteByProjectUuid(project.getUuid());
+
+    if (auditPersister != null) {
+      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(project));
+    }
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
+    deleteByAlmSetting(dbSession, almSetting, false);
+  }
+
+  public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting, boolean track) {
     getMapper(dbSession).deleteByAlmSettingUuid(almSetting.getUuid());
+
+    if (track && auditPersister != null) {
+      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSetting.getUuid(),
+        almSetting.getKey()));
+    }
   }
 
   public int countByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {

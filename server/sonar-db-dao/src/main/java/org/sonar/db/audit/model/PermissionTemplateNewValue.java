@@ -1,0 +1,149 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.db.audit.model;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.ObjectUtils;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+
+public class PermissionTemplateNewValue implements NewValue {
+  private String templateUuid;
+  private String name;
+
+  @Nullable
+  private String keyPattern;
+
+  @Nullable
+  private String description;
+
+  @Nullable
+  private String role;
+
+  @Nullable
+  private String userUuid;
+
+  @Nullable
+  private String userLogin;
+
+  @Nullable
+  private String groupUuid;
+
+  @Nullable
+  private String groupName;
+
+  @Nullable
+  private Boolean withProjectCreator;
+
+  public PermissionTemplateNewValue(String templateUuid, String name) {
+    this.templateUuid = templateUuid;
+    this.name = name;
+  }
+
+  public PermissionTemplateNewValue(PermissionTemplateDto permissionTemplateDto) {
+    this.templateUuid = permissionTemplateDto.getUuid();
+    this.name = permissionTemplateDto.getName();
+    this.keyPattern = permissionTemplateDto.getKeyPattern();
+    this.description = permissionTemplateDto.getDescription();
+  }
+
+  public PermissionTemplateNewValue(@Nullable String templateUuid, @Nullable String name, @Nullable String role,
+    @Nullable String userUuid, @Nullable String userLogin, @Nullable String groupUuid, @Nullable String groupName) {
+    this.templateUuid = templateUuid;
+    this.name = name;
+    this.role = role;
+    this.userUuid = userUuid;
+    this.userLogin = userLogin;
+    this.groupUuid = groupUuid;
+    this.groupName = groupName;
+  }
+
+  public PermissionTemplateNewValue(String templateUuid, String role, String name, boolean withProjectCreator) {
+    this.templateUuid = templateUuid;
+    this.name = name;
+    this.role = role;
+    this.withProjectCreator = withProjectCreator;
+  }
+
+  public String getTemplateUuid() {
+    return this.templateUuid;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  @CheckForNull
+  public String getKeyPattern() {
+    return this.keyPattern;
+  }
+
+  @CheckForNull
+  public String getDescription() {
+    return this.description;
+  }
+
+  @CheckForNull
+  public String getRole() {
+    return this.role;
+  }
+
+  @CheckForNull
+  public String getUserUuid() {
+    return this.userUuid;
+  }
+
+  @CheckForNull
+  public String getUserLogin() {
+    return this.userLogin;
+  }
+
+  @CheckForNull
+  public String getGroupUuid() {
+    return this.groupUuid;
+  }
+
+  @CheckForNull
+  public String getGroupName() {
+    return this.groupName;
+  }
+
+  @CheckForNull
+  public Boolean isWithProjectCreator() {
+    return this.withProjectCreator;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("{");
+    addField(sb, "\"templateUuid\": ", this.templateUuid, true);
+    addField(sb, "\"name\": ", this.name, true);
+    addField(sb, "\"keyPattern\": ", this.keyPattern, true);
+    addField(sb, "\"description\": ", this.description, true);
+    addField(sb, "\"role\": ", this.role, true);
+    addField(sb, "\"userUuid\": ", this.userUuid, true);
+    addField(sb, "\"userLogin\": ", this.userLogin, true);
+    addField(sb, "\"groupUuid\": ", this.groupUuid, true);
+    addField(sb, "\"groupName\": ", this.groupName, true);
+    addField(sb, "\"withProjectCreator\": ", ObjectUtils.toString(this.withProjectCreator), false);
+    endString(sb);
+    return sb.toString();
+  }
+}

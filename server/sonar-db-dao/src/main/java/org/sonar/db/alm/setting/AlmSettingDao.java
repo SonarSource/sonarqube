@@ -25,15 +25,24 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 
 public class AlmSettingDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
+  private AuditPersister auditPersister;
+
   public AlmSettingDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+  }
+
+  public AlmSettingDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+    this(system2, uuidFactory);
+    this.auditPersister = auditPersister;
   }
 
   private static AlmSettingMapper getMapper(DbSession dbSession) {
@@ -47,6 +56,11 @@ public class AlmSettingDao implements Dao {
     almSettingDto.setCreatedAt(now);
     almSettingDto.setUpdatedAt(now);
     getMapper(dbSession).insert(almSettingDto);
+
+    if (auditPersister != null) {
+      auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(),
+        almSettingDto.getKey()));
+    }
   }
 
   public Optional<AlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -67,11 +81,20 @@ public class AlmSettingDao implements Dao {
 
   public void delete(DbSession dbSession, AlmSettingDto almSettingDto) {
     getMapper(dbSession).deleteByKey(almSettingDto.getKey());
+
+    if (auditPersister != null) {
+      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(),
+        almSettingDto.getKey()));
+    }
   }
 
   public void update(DbSession dbSession, AlmSettingDto almSettingDto) {
     long now = system2.now();
     almSettingDto.setUpdatedAt(now);
     getMapper(dbSession).update(almSettingDto);
+
+    if (auditPersister != null) {
+      auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
+    }
   }
 }

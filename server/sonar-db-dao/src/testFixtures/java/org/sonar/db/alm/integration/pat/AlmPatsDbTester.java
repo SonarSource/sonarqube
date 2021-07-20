@@ -41,7 +41,7 @@ public class AlmPatsDbTester {
 
   private AlmPatDto insert(AlmPatDto dto, Consumer<AlmPatDto>[] populators) {
     stream(populators).forEach(p -> p.accept(dto));
-    db.getDbClient().almPatDao().insert(db.getSession(), dto);
+    db.getDbClient().almPatDao().insert(db.getSession(), dto, null, null);
     db.commit();
     return dto;
   }

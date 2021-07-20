@@ -59,9 +59,9 @@ public class UserPropertiesDao implements Dao {
 
     if (auditPersister != null && auditPersister.isTrackedProperty(dto.getKey())) {
       if (isUpdate) {
-        auditPersister.updateUserProperty(session, new PropertyNewValue(dto, login));
+        auditPersister.updateProperty(session, new PropertyNewValue(dto, login), true);
       } else {
-        auditPersister.addUserProperty(session, new PropertyNewValue(dto, login));
+        auditPersister.addProperty(session, new PropertyNewValue(dto, login), true);
       }
     }
 
@@ -75,7 +75,7 @@ public class UserPropertiesDao implements Dao {
     if (auditPersister != null) {
       userProperties.stream()
         .filter(p -> auditPersister.isTrackedProperty(p.getKey()))
-        .forEach(p -> auditPersister.deleteUserProperty(session, new PropertyNewValue(p, user.getLogin())));
+        .forEach(p -> auditPersister.deleteProperty(session, new PropertyNewValue(p, user.getLogin()), true));
     }
   }
 

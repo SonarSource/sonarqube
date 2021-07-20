@@ -99,7 +99,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
         .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getUuid());
       if (templatePermission.isPresent()) {
-        updateTemplatePermission(dbSession, templatePermission.get());
+        updateTemplatePermission(dbSession, templatePermission.get(), template.getName());
       } else {
         addTemplatePermission(dbSession, request, template);
       }
@@ -109,20 +109,21 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
   private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateRequest request, PermissionTemplateDto template) {
     long now = system.now();
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid(Uuids.create())
-      .setPermission(request.getPermission())
-      .setTemplateUuid(template.getUuid())
-      .setWithProjectCreator(true)
-      .setCreatedAt(now)
-      .setUpdatedAt(now));
+        .setUuid(Uuids.create())
+        .setPermission(request.getPermission())
+        .setTemplateUuid(template.getUuid())
+        .setWithProjectCreator(true)
+        .setCreatedAt(now)
+        .setUpdatedAt(now),
+      template.getName());
     dbSession.commit();
   }
 
-  private void updateTemplatePermission(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermission) {
+  private void updateTemplatePermission(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermission, String templateName) {
     PermissionTemplateCharacteristicDto targetTemplatePermission = templatePermission
       .setUpdatedAt(system.now())
       .setWithProjectCreator(true);
-    dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission);
+    dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission, templateName);
     dbSession.commit();
   }
 

@@ -126,7 +126,8 @@ public class CreateAction implements WebhooksWsAction {
 
       webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
       WebhookDto dto = doHandle(dbSession, projectDto, name, url, secret);
-      dbClient.webhookDao().insert(dbSession, dto);
+      String projectName = projectDto == null ? null : projectDto.getName();
+      dbClient.webhookDao().insert(dbSession, dto, projectName);
       dbSession.commit();
       writeResponse(request, response, dto);
     }

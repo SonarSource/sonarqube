@@ -55,7 +55,7 @@ public class AlmPatDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
 
     AlmPatDto almPatDto = newAlmPatDto();
-    underTest.insert(dbSession, almPatDto);
+    underTest.insert(dbSession, almPatDto, null, null);
 
     assertThat(underTest.selectByUuid(dbSession, A_UUID).get())
       .extracting(AlmPatDto::getUuid, AlmPatDto::getPersonalAccessToken,
@@ -79,7 +79,7 @@ public class AlmPatDaoTest {
 
     String userUuid = randomAlphanumeric(40);
     almPatDto.setUserUuid(userUuid);
-    underTest.insert(dbSession, almPatDto);
+    underTest.insert(dbSession, almPatDto, null, null);
 
     assertThat(underTest.selectByUserAndAlmSetting(dbSession, userUuid, almSetting).get())
       .extracting(AlmPatDto::getUuid, AlmPatDto::getPersonalAccessToken,
@@ -95,13 +95,13 @@ public class AlmPatDaoTest {
   public void update() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmPatDto almPatDto = newAlmPatDto();
-    underTest.insert(dbSession, almPatDto);
+    underTest.insert(dbSession, almPatDto, null, null);
 
     String updated_pat = "updated pat";
     almPatDto.setPersonalAccessToken(updated_pat);
 
     system2.setNow(NOW + 1);
-    underTest.update(dbSession, almPatDto);
+    underTest.update(dbSession, almPatDto, null, null);
 
     AlmPatDto result = underTest.selectByUuid(dbSession, A_UUID).get();
     assertThat(result)
@@ -117,9 +117,9 @@ public class AlmPatDaoTest {
   public void delete() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmPatDto almPat = newAlmPatDto();
-    underTest.insert(dbSession, almPat);
+    underTest.insert(dbSession, almPat, null, null);
 
-    underTest.delete(dbSession, almPat);
+    underTest.delete(dbSession, almPat, null, null);
 
     assertThat(underTest.selectByUuid(dbSession, almPat.getUuid())).isNotPresent();
   }
@@ -130,7 +130,7 @@ public class AlmPatDaoTest {
     UserDto userDto = db.users().insertUser();
     AlmPatDto almPat = newAlmPatDto();
     almPat.setUserUuid(userDto.getUuid());
-    underTest.insert(dbSession, almPat);
+    underTest.insert(dbSession, almPat, userDto.getLogin(), null);
 
     underTest.deleteByUser(dbSession, userDto);
 
@@ -143,7 +143,7 @@ public class AlmPatDaoTest {
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
     AlmPatDto almPat = newAlmPatDto();
     almPat.setAlmSettingUuid(almSettingDto.getUuid());
-    underTest.insert(dbSession, almPat);
+    underTest.insert(dbSession, almPat, null, null);
 
     underTest.deleteByAlmSetting(dbSession, almSettingDto);
 

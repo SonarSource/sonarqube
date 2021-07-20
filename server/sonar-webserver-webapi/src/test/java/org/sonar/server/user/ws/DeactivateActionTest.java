@@ -143,9 +143,9 @@ public class DeactivateActionTest {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperty(newUserPropertyDto(user));
-    db.properties().insertProperty(newUserPropertyDto(user));
-    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()));
+    db.properties().insertProperty(newUserPropertyDto(user), null, user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user), null, user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()), project.name(), user.getLogin());
 
     deactivate(user.getLogin());
 
@@ -177,8 +177,8 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), USER);
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), CODEVIEWER);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), USER, template.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), CODEVIEWER, anotherTemplate.getName(), user.getLogin());
 
     deactivate(user.getLogin());
 
@@ -208,9 +208,12 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
-    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setComponentUuid(project.uuid()));
-    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setComponentUuid(anotherProject.uuid()));
-    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setComponentUuid(anotherProject.uuid()));
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
+      .setComponentUuid(project.uuid()), project.name(), user.getLogin());
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
+      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), user.getLogin());
+    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin())
+      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), user.getLogin());
 
     deactivate(user.getLogin());
 
@@ -372,7 +375,7 @@ public class DeactivateActionTest {
   @Test
   public void administrators_can_be_deactivated_if_there_are_still_other_administrators() {
     UserDto admin = createAdminUser();
-    ;
+
     UserDto anotherAdmin = createAdminUser();
     logInAsSystemAdministrator();
 

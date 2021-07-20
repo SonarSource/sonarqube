@@ -47,20 +47,20 @@ public class PropertyDbTester {
     this.dbSession = db.getSession();
   }
 
-  public PropertyDto insertProperty(PropertyDto property) {
-    dbClient.propertiesDao().saveProperty(dbSession, property);
+  public PropertyDto insertProperty(PropertyDto property, @Nullable String componentName, @Nullable String userLogin) {
+    dbClient.propertiesDao().saveProperty(dbSession, property, userLogin, componentName);
     db.commit();
 
     return property;
   }
 
-  public void insertProperties(PropertyDto... properties) {
-    insertProperties(asList(properties));
+  public void insertProperties(@Nullable String userLogin, @Nullable String projectName, PropertyDto... properties) {
+    insertProperties(asList(properties), userLogin, projectName);
   }
 
-  public void insertProperties(List<PropertyDto> properties) {
+  public void insertProperties(List<PropertyDto> properties, @Nullable String userLogin, @Nullable String projectName) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().saveProperty(dbSession, propertyDto);
+      dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectName);
     }
     dbSession.commit();
   }
@@ -87,7 +87,8 @@ public class PropertyDbTester {
     } else {
       propertyDtos.add(newGlobalPropertyDto().setKey(settingBaseKey).setValue(idsValue));
     }
-    insertProperties(propertyDtos);
+    String componentName = componentDto == null ? null : componentDto.name();
+    insertProperties(propertyDtos, null, componentName);
   }
 
   public PropertyDbTester verifyInternal(String key, @Nullable String expectedValue) {

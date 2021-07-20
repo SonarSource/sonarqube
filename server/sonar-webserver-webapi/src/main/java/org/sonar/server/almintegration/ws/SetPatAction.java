@@ -111,13 +111,13 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       if (almPatDto.isPresent()) {
         AlmPatDto almPat = almPatDto.get();
         almPat.setPersonalAccessToken(resultingPat);
-        dbClient.almPatDao().update(dbSession, almPat);
+        dbClient.almPatDao().update(dbSession, almPat, userSession.getLogin(), almSetting.getKey());
       } else {
         AlmPatDto almPat = new AlmPatDto()
           .setPersonalAccessToken(resultingPat)
           .setAlmSettingUuid(almSetting.getUuid())
           .setUserUuid(userUuid);
-        dbClient.almPatDao().insert(dbSession, almPat);
+        dbClient.almPatDao().insert(dbSession, almPat, userSession.getLogin(), almSetting.getKey());
       }
       dbSession.commit();
     }

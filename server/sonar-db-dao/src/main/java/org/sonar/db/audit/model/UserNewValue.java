@@ -19,22 +19,46 @@
  */
 package org.sonar.db.audit.model;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.user.UserDto;
 
 public class UserNewValue implements NewValue {
   private String userUuid;
   private String login;
+
+  @Nullable
   private String name;
+
+  @Nullable
   private String email;
+
+  @Nullable
   private Boolean isActive;
+
+  @Nullable
   private String scmAccounts;
+
+  @Nullable
   private String externalId;
+
+  @Nullable
   private String externalLogin;
+
+  @Nullable
   private String externalIdentityProvider;
+
+  @Nullable
   private Boolean local;
+
+  @Nullable
   private Boolean onboarded;
+
+  @Nullable
   private Boolean root;
+
+  @Nullable
   private Long lastConnectionDate;
 
   public UserNewValue(String userUuid, String userLogin) {
@@ -66,46 +90,57 @@ public class UserNewValue implements NewValue {
     return this.login;
   }
 
+  @CheckForNull
   public String getName() {
     return this.name;
   }
 
+  @CheckForNull
   public String getEmail() {
     return this.email;
   }
 
+  @CheckForNull
   public boolean isActive() {
     return this.isActive;
   }
 
+  @CheckForNull
   public String getScmAccounts() {
     return this.scmAccounts;
   }
 
+  @CheckForNull
   public String getExternalId() {
     return this.externalId;
   }
 
+  @CheckForNull
   public String getExternalLogin() {
     return this.externalLogin;
   }
 
+  @CheckForNull
   public String getExternalIdentityProvider() {
     return this.externalIdentityProvider;
   }
 
+  @CheckForNull
   public boolean isLocal() {
     return this.local;
   }
 
+  @CheckForNull
   public boolean isOnboarded() {
     return this.onboarded;
   }
 
+  @CheckForNull
   public boolean isRoot() {
     return this.root;
   }
 
+  @CheckForNull
   public Long getLastConnectionDate() {
     return this.lastConnectionDate;
   }
@@ -113,21 +148,20 @@ public class UserNewValue implements NewValue {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
-    addField(sb, "'userUuid':", this.userUuid, true);
-    addField(sb, "'login':", this.login, true);
-    addField(sb, "'name':", this.name, true);
-    addField(sb, "'email':", this.email, true);
-    addField(sb, "'isActive':", ObjectUtils.toString(this.isActive), false);
-    addField(sb, "'scmAccounts':", this.scmAccounts, true);
-    addField(sb, "'externalId':", this.externalId, true);
-    addField(sb, "'externalLogin':", this.externalLogin, true);
-    addField(sb, "'externalIdentityProvider':", this.externalIdentityProvider, true);
-    addField(sb, "'local':", ObjectUtils.toString(this.local), false);
-    addField(sb, "'onboarded':", ObjectUtils.toString(this.onboarded), false);
-    addField(sb, "'root':", ObjectUtils.toString(this.root), false);
-    addField(sb, "'lastConnectionDate':", ObjectUtils.toString(this.lastConnectionDate), false);
-    sb.append("}");
+    addField(sb, "\"userUuid\": ", this.userUuid, true);
+    addField(sb, "\"login\": ", this.login, true);
+    addField(sb, "\"name\": ", this.name, true);
+    addField(sb, "\"email\": ", this.email, true);
+    addField(sb, "\"isActive\": ", ObjectUtils.toString(this.isActive), false);
+    addField(sb, "\"scmAccounts\": ", this.scmAccounts, true);
+    addField(sb, "\"externalId\": ", this.externalId, true);
+    addField(sb, "\"externalLogin\": ", this.externalLogin, true);
+    addField(sb, "\"externalIdentityProvider\": ", this.externalIdentityProvider, true);
+    addField(sb, "\"local\": ", ObjectUtils.toString(this.local), false);
+    addField(sb, "\"onboarded\": ", ObjectUtils.toString(this.onboarded), false);
+    addField(sb, "\"root\": ", ObjectUtils.toString(this.root), false);
+    addField(sb, "\"lastConnectionDate\": ", ObjectUtils.toString(this.lastConnectionDate), false);
+    endString(sb);
     return sb.toString();
   }
-
 }

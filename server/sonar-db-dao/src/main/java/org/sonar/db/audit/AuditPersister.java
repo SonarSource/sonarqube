@@ -42,17 +42,69 @@ public interface AuditPersister {
 
   void deleteUserFromGroup(DbSession dbSession, NewValue newValue);
 
-  void addUserProperty(DbSession dbSession, NewValue newValue);
+  void addProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
 
-  void updateUserProperty(DbSession dbSession, NewValue newValue);
+  void updateProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
 
-  void deleteUserProperty(DbSession dbSession, NewValue newValue);
+  void deleteProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
 
   void addUserToken(DbSession dbSession, NewValue newValue);
 
   void updateUserToken(DbSession dbSession, NewValue newValue);
 
   void deleteUserToken(DbSession dbSession, NewValue newValue);
+
+  void addGroupPermission(DbSession dbSession, NewValue newValue);
+
+  void deleteGroupPermission(DbSession dbSession, NewValue newValue);
+
+  void addUserPermission(DbSession dbSession, NewValue newValue);
+
+  void deleteUserPermission(DbSession dbSession, NewValue newValue);
+
+  void addPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void updatePermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void deletePermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void addUserToPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void deleteUserFromPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void addGroupToPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void deleteGroupFromPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void addCharacteristicToPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void updateCharacteristicInPermissionTemplate(DbSession dbSession, NewValue newValue);
+
+  void addPlugin(DbSession dbSession, NewValue newValue);
+
+  void updatePlugin(DbSession dbSession, NewValue newValue);
+
+  void generateSecretKey(DbSession dbSession);
+
+  void setLicense(DbSession dbSession, boolean isSet, NewValue newValue);
+
+  void addWebhook(DbSession dbSession, NewValue newValue);
+
+  void updateWebhook(DbSession dbSession, NewValue newValue);
+
+  void deleteWebhook(DbSession dbSession, NewValue newValue);
+
+  void addDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+
+  void updateDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+
+  void deleteDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+
+  void addPersonalAccessToken(DbSession dbSession, NewValue newValue);
+
+  void updatePersonalAccessToken(DbSession dbSession, NewValue newValue);
+
+  void deletePersonalAccessToken(DbSession dbSession, NewValue newValue);
 
   boolean isTrackedProperty(String propertyKey);
 }

@@ -19,15 +19,25 @@
  */
 package org.sonar.db.audit.model;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
 public class UserTokenNewValue implements NewValue {
+  @Nullable
   private String tokenUuid;
+
   private String userUuid;
+
+  @Nullable
   private String userLogin;
+
+  @Nullable
   private String tokenName;
+
+  @Nullable
   private Long lastConnectionDate;
 
   public UserTokenNewValue(UserTokenDto userTokenDto, @Nullable String userLogin) {
@@ -48,6 +58,7 @@ public class UserTokenNewValue implements NewValue {
     this.tokenName = tokenName;
   }
 
+  @CheckForNull
   public String getTokenUuid() {
     return this.tokenUuid;
   }
@@ -56,14 +67,17 @@ public class UserTokenNewValue implements NewValue {
     return this.userUuid;
   }
 
+  @CheckForNull
   public String getUserLogin() {
     return this.userLogin;
   }
 
+  @CheckForNull
   public String getTokenName() {
     return this.tokenName;
   }
 
+  @CheckForNull
   public Long getLastConnectionDate() {
     return this.lastConnectionDate;
   }
@@ -71,13 +85,12 @@ public class UserTokenNewValue implements NewValue {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
-    addField(sb, "'tokenUuid':", this.tokenUuid, true);
-    addField(sb, "'userUuid':", this.userUuid, true);
-    addField(sb, "'userLogin':", this.userLogin, true);
-    addField(sb, "'tokenName':", this.tokenName, true);
-    addField(sb, "'lastConnectionDate':", ObjectUtils.toString(this.lastConnectionDate), false);
-    sb.append("}");
+    addField(sb, "\"tokenUuid\": ", this.tokenUuid, true);
+    addField(sb, "\"userUuid\": ", this.userUuid, true);
+    addField(sb, "\"userLogin\": ", this.userLogin, true);
+    addField(sb, "\"tokenName\": ", this.tokenName, true);
+    addField(sb, "\"lastConnectionDate\": ", ObjectUtils.toString(this.lastConnectionDate), false);
+    endString(sb);
     return sb.toString();
   }
-
 }

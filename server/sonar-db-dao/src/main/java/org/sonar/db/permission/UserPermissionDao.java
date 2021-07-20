@@ -22,16 +22,28 @@ package org.sonar.db.permission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.PermissionNewValue;
+import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserPermissionDao implements Dao {
+  private AuditPersister auditPersister;
+
+  public UserPermissionDao() {
+  }
+
+  public UserPermissionDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
 
   /**
    * List of user permissions ordered by alphabetical order of user names.
@@ -101,8 +113,13 @@ public class UserPermissionDao implements Dao {
     return mapper(session).selectUserUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, UserPermissionDto dto) {
+  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable ComponentDto componentDto) {
     mapper(dbSession).insert(dto);
+
+    if (auditPersister != null) {
+      String projectName = (componentDto != null) ? componentDto.name() : null;
+      auditPersister.addUserPermission(dbSession, new PermissionNewValue(dto, projectName));
+    }
   }
 
   /**
@@ -110,31 +127,54 @@ public class UserPermissionDao implements Dao {
    */
   public void deleteGlobalPermission(DbSession dbSession, String userUuid, String permission) {
     mapper(dbSession).deleteGlobalPermission(userUuid, permission);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null,
+        null, userUuid));
+    }
   }
 
   /**
    * Removes a single project permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, String userUuid, String permission, String projectUuid) {
+  public void deleteProjectPermission(DbSession dbSession, String userUuid, String permission, String projectUuid, @Nullable String projectName) {
     mapper(dbSession).deleteProjectPermission(userUuid, permission, projectUuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, projectUuid, projectName, userUuid));
+    }
   }
 
   /**
    * Deletes all the permissions defined on a project
    */
-  public void deleteProjectPermissions(DbSession dbSession, String projectUuid) {
+  public void deleteProjectPermissions(DbSession dbSession, String projectUuid, String projectName) {
     mapper(dbSession).deleteProjectPermissions(projectUuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, projectUuid, projectName, null));
+    }
   }
 
   /**
    * Deletes the specified permission on the specified project for any user.
    */
-  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String projectUuid, String permission) {
-    return mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
+  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String projectUuid, String permission, String projectName) {
+    int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, projectUuid, projectName, null));
+    }
+
+    return deletedRows;
   }
 
   public void deleteByUserUuid(DbSession dbSession, String userUuid) {
     mapper(dbSession).deleteByUserUuid(userUuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, null, userUuid));
+    }
   }
 
   private static UserPermissionMapper mapper(DbSession dbSession) {

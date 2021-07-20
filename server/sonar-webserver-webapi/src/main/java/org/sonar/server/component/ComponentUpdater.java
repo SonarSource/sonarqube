@@ -78,8 +78,8 @@ public class ComponentUpdater {
    * - Add component to favorite if the component has the 'Project Creators' permission
    * - Index component in es indexes
    */
-  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid) {
-    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, c -> {
+  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin) {
+    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, c -> {
     });
     commitAndIndex(dbSession, componentDto);
     return componentDto;
@@ -90,8 +90,8 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, Consumer<ComponentDto> componentModifier) {
-    return createWithoutCommit(dbSession, newComponent, userUuid, null, componentModifier);
+    @Nullable String userUuid, @Nullable String userLogin,  Consumer<ComponentDto> componentModifier) {
+    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null, componentModifier);
   }
 
   /**
@@ -99,14 +99,14 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String mainBranchName,
+    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName,
     Consumer<ComponentDto> componentModifier) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent, componentModifier);
     if (isRootProject(componentDto)) {
       createMainBranch(dbSession, componentDto.uuid(), mainBranchName);
     }
-    handlePermissionTemplate(dbSession, componentDto, userUuid);
+    handlePermissionTemplate(dbSession, componentDto, userUuid, userLogin);
     return componentDto;
   }
 
@@ -175,11 +175,11 @@ public class ComponentUpdater {
     dbClient.branchDao().upsert(session, branch);
   }
 
-  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid) {
+  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin) {
     permissionTemplateService.applyDefault(dbSession, componentDto, userUuid);
     if (componentDto.qualifier().equals(PROJECT)
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
-      favoriteUpdater.add(dbSession, componentDto, userUuid, false);
+      favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, false);
     }
   }
 

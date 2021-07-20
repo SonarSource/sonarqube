@@ -21,17 +21,27 @@ package org.sonar.db.webhook;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.WebhookNewValue;
 import org.sonar.db.project.ProjectDto;
 
 public class WebhookDao implements Dao {
 
   private final System2 system2;
+  private AuditPersister auditPersister;
+
 
   public WebhookDao(System2 system2) {
     this.system2 = system2;
+  }
+
+  public WebhookDao(System2 system2, AuditPersister auditPersister) {
+    this.system2 = system2;
+    this.auditPersister = auditPersister;
   }
 
   public List<WebhookDto> selectGlobalWebhooks(DbSession dbSession) {
@@ -46,20 +56,37 @@ public class WebhookDao implements Dao {
     return mapper(dbSession).selectForProjectUuidOrderedByName(projectDto.getUuid());
   }
 
-  public void insert(DbSession dbSession, WebhookDto dto) {
+  public void insert(DbSession dbSession, WebhookDto dto, @Nullable String projectName) {
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()).setUpdatedAt(system2.now()));
+
+    if (auditPersister != null) {
+      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto.getUuid(), dto.getName(),
+        dto.getProjectUuid(), projectName));
+    }
   }
 
-  public void update(DbSession dbSession, WebhookDto dto) {
+  public void update(DbSession dbSession, WebhookDto dto, @Nullable String projectName) {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
+
+    if (auditPersister != null) {
+      auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectName));
+    }
   }
 
-  public void delete(DbSession dbSession, String uuid) {
+  public void delete(DbSession dbSession, String uuid, String webhookName) {
     mapper(dbSession).delete(uuid);
+
+    if (auditPersister != null) {
+      auditPersister.deleteWebhook(dbSession, new WebhookNewValue(uuid, webhookName));
+    }
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto projectDto) {
     mapper(dbSession).deleteForProjectUuid(projectDto.getUuid());
+
+    if (auditPersister != null) {
+      auditPersister.deleteWebhook(dbSession, new WebhookNewValue(projectDto));
+    }
   }
 
   private static WebhookMapper mapper(DbSession dbSession) {

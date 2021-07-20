@@ -89,7 +89,8 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
         .setPermission(UserRole.USER)
         .setWithProjectCreator(false)
         .setCreatedAt(1_000_000_000L)
-        .setUpdatedAt(1_000_000_000L));
+        .setUpdatedAt(1_000_000_000L),
+      template.getName());
     db.commit();
     when(system.now()).thenReturn(3_000_000_000L);
 

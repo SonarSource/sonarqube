@@ -77,7 +77,7 @@ public class ComponentUpdaterTest {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(true)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getDbKey()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -111,7 +111,7 @@ public class ComponentUpdaterTest {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(true)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
@@ -123,7 +123,7 @@ public class ComponentUpdaterTest {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(false)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
@@ -136,7 +136,7 @@ public class ComponentUpdaterTest {
       .setQualifier(VIEW)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), view, null);
+    ComponentDto returned = underTest.create(db.getSession(), view, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getDbKey()).isEqualTo("view-key");
@@ -155,7 +155,7 @@ public class ComponentUpdaterTest {
       .setQualifier(APP)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), application, null);
+    ComponentDto returned = underTest.create(db.getSession(), application, null, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getDbKey()).isEqualTo("app-key");
@@ -178,7 +178,7 @@ public class ComponentUpdaterTest {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    ComponentDto dto = underTest.create(db.getSession(), project, userUuid);
+    ComponentDto dto = underTest.create(db.getSession(), project, userUuid, "user-login");
 
     verify(permissionTemplateService).applyDefault(db.getSession(), dto, userUuid);
   }
@@ -193,7 +193,7 @@ public class ComponentUpdaterTest {
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
       .thenReturn(true);
 
-    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getUuid());
+    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin());
 
     assertThat(db.favorites().hasFavorite(dto, userDto.getUuid())).isTrue();
   }
@@ -201,7 +201,7 @@ public class ComponentUpdaterTest {
   @Test
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid(), user.getLogin()));
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -211,7 +211,8 @@ public class ComponentUpdaterTest {
 
     ComponentDto dto = underTest.create(db.getSession(),
       project,
-      user.getUuid());
+      user.getUuid(),
+      user.getLogin());
 
     assertThat(db.favorites().hasFavorite(dto, user.getUuid())).isFalse();
   }
@@ -223,7 +224,7 @@ public class ComponentUpdaterTest {
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null);
+      null, null);
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
@@ -235,7 +236,7 @@ public class ComponentUpdaterTest {
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
         .build(),
-      null);
+      null, null);
 
     assertThat(db.favorites().hasNoFavorite(project)).isTrue();
   }
@@ -249,7 +250,7 @@ public class ComponentUpdaterTest {
       .setKey(existing.getDbKey())
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project, key already exists: " + existing.getDbKey());
   }
@@ -261,7 +262,7 @@ public class ComponentUpdaterTest {
       .setKey("1234")
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Malformed key for Project: '1234'");
   }
@@ -273,7 +274,7 @@ public class ComponentUpdaterTest {
       .setKey("roject%Key")
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null))
+    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Malformed key for Project: 'roject%Key'");
   }

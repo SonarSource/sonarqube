@@ -95,7 +95,7 @@ public class DeleteAction implements UserGroupsWsAction {
   }
 
   private void removeFromPermissionTemplates(DbSession dbSession, GroupDto group) {
-    dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid());
+    dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid(), group.getName());
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto group) {

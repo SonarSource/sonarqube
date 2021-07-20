@@ -137,7 +137,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build(),
-      userSession.getUuid(), mainBranchName, s -> {});
+      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {});
   }
 
   static String getProjectKeyFromRepository(Repository repo) {
@@ -152,6 +152,6 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setProjectUuid(componentDto.uuid())
       .setSummaryCommentEnabled(true)
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
   }
 }

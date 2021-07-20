@@ -202,7 +202,7 @@ public class ReportSubmitterTest {
   @Test
   public void do_no_add_favorite_when_already_100_favorite_projects_and_no_project_creator_permission_on_permission_template() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid(), user.getLogin()));
     userSession
       .logIn(user)
       .addPermission(GlobalPermission.SCAN)

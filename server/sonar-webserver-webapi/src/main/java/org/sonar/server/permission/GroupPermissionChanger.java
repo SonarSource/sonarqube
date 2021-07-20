@@ -120,7 +120,7 @@ public class GroupPermissionChanger {
       .setRole(change.getPermission())
       .setGroupUuid(change.getGroupUuidOrAnyone().getUuid())
       .setComponentUuid(change.getProjectUuid());
-    dbClient.groupPermissionDao().insert(dbSession, addedDto);
+    dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getProject());
     return true;
   }
 
@@ -137,7 +137,8 @@ public class GroupPermissionChanger {
     dbClient.groupPermissionDao().delete(dbSession,
       change.getPermission(),
       change.getGroupUuidOrAnyone().getUuid(),
-      change.getProjectUuid());
+      change.getProjectUuid(),
+      change.getProject());
     return true;
   }
 

@@ -152,6 +152,7 @@ public class ReportSubmitter {
   private ComponentDto createProject(DbSession dbSession, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
     String userUuid = userSession.getUuid();
+    String userName = userSession.getLogin();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
       dbSession, userUuid, componentKey.getDbKey());
@@ -165,7 +166,7 @@ public class ReportSubmitter {
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, c -> {
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userName, c -> {
     });
   }
 

@@ -149,7 +149,7 @@ public class SearchBitbucketCloudReposActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmPatDto almPatDto = newAlmPatDto();
-    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto);
+    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
 
     TestRequest request = ws.newRequest().setParam("almSetting", "testKey");
 

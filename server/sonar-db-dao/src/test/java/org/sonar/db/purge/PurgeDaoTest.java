@@ -391,7 +391,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses() {
-    SnapshotDto[] analyses = new SnapshotDto[] {
+    SnapshotDto[] analyses = new SnapshotDto[]{
       newSnapshot()
         .setUuid("u1")
         .setComponentUuid(PROJECT_UUID)
@@ -1618,9 +1618,10 @@ public class PurgeDaoTest {
 
   private void insertPropertyFor(ComponentDto... components) {
     Stream.of(components).forEach(componentDto -> db.properties().insertProperty(new PropertyDto()
-      .setKey(randomAlphabetic(3))
-      .setValue(randomAlphabetic(3))
-      .setComponentUuid(componentDto.uuid())));
+        .setKey(randomAlphabetic(3))
+        .setValue(randomAlphabetic(3))
+        .setComponentUuid(componentDto.uuid()),
+      componentDto.name(), null));
   }
 
   private Stream<String> getComponentUuidsOfMeasures() {

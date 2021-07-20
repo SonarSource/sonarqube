@@ -38,11 +38,12 @@ public class FavoriteDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void add(ComponentDto componentDto, String userUuid) {
+  public void add(ComponentDto componentDto, String userUuid, String userLogin) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey(PROP_FAVORITE_KEY)
-      .setUserUuid(userUuid)
-      .setComponentUuid(componentDto.uuid()));
+        .setKey(PROP_FAVORITE_KEY)
+        .setUserUuid(userUuid)
+        .setComponentUuid(componentDto.uuid()),
+      userLogin, componentDto.name());
     dbSession.commit();
   }
 

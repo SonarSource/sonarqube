@@ -20,21 +20,31 @@
 package org.sonar.db.alm.pat;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.user.UserDto;
 
 public class AlmPatDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
+  private AuditPersister auditPersister;
 
   public AlmPatDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+  }
+
+  public AlmPatDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
+    this.auditPersister = auditPersister;
   }
 
   private static AlmPatMapper getMapper(DbSession dbSession) {
@@ -49,31 +59,46 @@ public class AlmPatDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).selectByUserAndAlmSetting(userUuid, almSettingDto.getUuid()));
   }
 
-  public void insert(DbSession dbSession, AlmPatDto almPatDto) {
+  public void insert(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     almPatDto.setUuid(uuid);
     almPatDto.setCreatedAt(now);
     almPatDto.setUpdatedAt(now);
     getMapper(dbSession).insert(almPatDto);
+
+    if (auditPersister != null) {
+      auditPersister.addPersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
+    }
   }
 
-  public void update(DbSession dbSession, AlmPatDto almPatDto) {
+  public void update(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     long now = system2.now();
     almPatDto.setUpdatedAt(now);
     getMapper(dbSession).update(almPatDto);
+    if (auditPersister != null) {
+      auditPersister.updatePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
+    }
   }
 
-  public void delete(DbSession dbSession, AlmPatDto almPatDto) {
+  public void delete(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     getMapper(dbSession).deleteByUuid(almPatDto.getUuid());
+    if (auditPersister != null) {
+      auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
+    }
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
     getMapper(dbSession).deleteByUser(user.getUuid());
+    if (auditPersister != null) {
+      auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(user));
+    }
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
     getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
+    if (auditPersister != null) {
+      auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almSetting));
+    }
   }
-
 }

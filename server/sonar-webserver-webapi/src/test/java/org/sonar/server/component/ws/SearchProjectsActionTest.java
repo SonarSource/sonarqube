@@ -126,27 +126,27 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+    return new Object[][]{{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] component_qualifiers_for_valid_editions() {
-    return new Object[][] {
-      {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
-      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
+    return new Object[][]{
+      {new String[]{Qualifiers.PROJECT}, Edition.COMMUNITY},
+      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
+      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
     };
   }
 
   @DataProvider
   public static Object[][] community_or_developer_edition() {
-    return new Object[][] {
+    return new Object[][]{
       {Edition.COMMUNITY},
       {Edition.DEVELOPER},
     };
@@ -154,7 +154,7 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] enterprise_or_datacenter_edition() {
-    return new Object[][] {
+    return new Object[][]{
       {Edition.ENTERPRISE},
       {Edition.DATACENTER},
     };
@@ -558,7 +558,7 @@ public class SearchProjectsActionTest {
     Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
     index();
 
-    addFavourite((String) null);
+    addFavourite(null, null);
 
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
 
@@ -1291,7 +1291,7 @@ public class SearchProjectsActionTest {
 
     List<Component> projects = call(request
       .setFilter("alert_status = WARN"))
-        .getComponentsList();
+      .getComponentsList();
 
     assertThat(projects)
       .extracting(Component::getKey)
@@ -1342,11 +1342,12 @@ public class SearchProjectsActionTest {
   }
 
   private void addFavourite(ComponentDto project) {
-    addFavourite(project.uuid());
+    addFavourite(project.uuid(), project.name());
   }
 
-  private void addFavourite(@Nullable String componentUuid) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()));
+  private void addFavourite(@Nullable String componentUuid, @Nullable String componentName) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
+      .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentName);
     dbSession.commit();
   }
 

@@ -131,8 +131,9 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
       .setQualifier(PROJECT)
       .build();
     String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
+    String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
 
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, defaultBranchName, p -> {
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName, p -> {
     });
   }
 
@@ -143,7 +144,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
       .setAlmRepo(repo.getSlug())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
   }
 
 }

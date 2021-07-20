@@ -20,9 +20,7 @@
 package org.sonar.server.almintegration.ws.azure;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import java.util.Optional;
-
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.api.server.ws.Request;
@@ -137,6 +135,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
         .setQualifier(PROJECT)
         .build(),
       userSession.isLoggedIn() ? userSession.getUuid() : null,
+      userSession.isLoggedIn() ? userSession.getLogin() : null,
       repo.getDefaultBranchName(),
       s -> {
       });
@@ -149,7 +148,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setAlmSlug(repo.getProject().getName())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto);
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
   }
 
   @VisibleForTesting

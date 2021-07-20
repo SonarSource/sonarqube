@@ -334,12 +334,14 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getUuid(), user.getUuid(), permission);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getUuid(), user.getUuid(),
+      permission, permissionTemplate.getName(), user.getLogin());
     db.commit();
   }
 
   private void addGroupToTemplate(GroupDto group, PermissionTemplateDto permissionTemplate, String permission) {
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplate.getUuid(), group.getUuid(), permission);
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplate.getUuid(), group.getUuid(),
+      permission, permissionTemplate.getName(), group.getName());
     db.commit();
   }
 

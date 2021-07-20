@@ -29,13 +29,21 @@ public interface NewValue {
       addQuote(sb, isString);
       sb.append(value);
       addQuote(sb, isString);
-      sb.append(",");
+      sb.append(", ");
     }
+  }
+
+  default void endString(StringBuilder sb) {
+    int length = sb.length();
+    if(sb.length() > 1) {
+      sb.delete(length - 2, length - 1);
+    }
+    sb.append("}");
   }
 
   private static void addQuote(StringBuilder sb, boolean isString) {
     if(isString) {
-      sb.append("'");
+      sb.append("\"");
     }
   }
 }

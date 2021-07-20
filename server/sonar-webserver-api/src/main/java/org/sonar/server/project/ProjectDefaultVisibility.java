@@ -46,6 +46,6 @@ public class ProjectDefaultVisibility {
   public void set(DbSession dbSession, Visibility visibility) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROJECTS_DEFAULT_VISIBILITY_PROPERTY_NAME)
-      .setValue(visibility.getLabel()));
+      .setValue(visibility.getLabel()), null, null);
   }
 }

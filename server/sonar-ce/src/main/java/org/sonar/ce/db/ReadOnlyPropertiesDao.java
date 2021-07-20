@@ -20,6 +20,7 @@
 package org.sonar.ce.db;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -42,7 +43,8 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void saveProperty(DbSession session, PropertyDto property) {
+  public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin,
+    @Nullable String projectName) {
     // do nothing
   }
 
@@ -52,12 +54,12 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteProjectProperty(String key, String projectUuid) {
+  public void deleteProjectProperty(String key, String projectUuid, String projectName) {
     // do nothing
   }
 
   @Override
-  public void deleteProjectProperty(String key, String projectUuid, DbSession session) {
+  public void deleteProjectProperty(String key, String projectUuid, DbSession session, String projectName) {
     // do nothing
   }
 

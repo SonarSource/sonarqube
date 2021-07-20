@@ -50,7 +50,7 @@ public class FavoriteUpdaterTest {
     UserDto user = db.users().insertUser();
     assertNoFavorite(project, user);
 
-    underTest.add(dbSession, project, user.getUuid(), true);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
 
     assertFavorite(project, user);
   }
@@ -59,7 +59,7 @@ public class FavoriteUpdaterTest {
   public void do_nothing_when_no_user() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.add(dbSession, project, null, true);
+    underTest.add(dbSession, project, null, null,true);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setComponentUuid(project.uuid())
@@ -69,13 +69,13 @@ public class FavoriteUpdaterTest {
   @Test
   public void do_not_add_favorite_when_already_100_favorite_projects() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid(), user.getName()));
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.add(dbSession, project, user.getUuid(), false);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), false);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
@@ -85,13 +85,14 @@ public class FavoriteUpdaterTest {
   @Test
   public void do_not_add_favorite_when_already_100_favorite_portfolios() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(),
+      user.getUuid(), user.getLogin()));
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.add(dbSession, project, user.getUuid(), false);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), false);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserUuid(user.getUuid())
@@ -101,26 +102,27 @@ public class FavoriteUpdaterTest {
   @Test
   public void fail_when_more_than_100_projects_favorites() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(),
+      user.getUuid(), user.getLogin()));
     ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You cannot have more than 100 favorites on components with qualifier 'TRK'");
 
-    underTest.add(dbSession, project, user.getUuid(), true);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
   }
 
   @Test
   public void fail_when_adding_existing_favorite() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    underTest.add(dbSession, project, user.getUuid(), true);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
     assertFavorite(project, user);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(String.format("Component '%s' is already a favorite", project.getKey()));
 
-    underTest.add(dbSession, project, user.getUuid(), true);
+    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
   }
 
   private void assertFavorite(ComponentDto project, UserDto user) {

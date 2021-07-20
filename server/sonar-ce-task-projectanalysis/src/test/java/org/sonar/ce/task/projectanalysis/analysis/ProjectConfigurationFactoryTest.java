@@ -52,7 +52,7 @@ public class ProjectConfigurationFactoryTest {
   @Test
   public void return_project_settings() {
     ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperties(
+    db.properties().insertProperties(null, project.name(),
       newComponentPropertyDto(project).setKey("1").setValue("val1"),
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
@@ -68,7 +68,7 @@ public class ProjectConfigurationFactoryTest {
   public void project_settings_override_global_settings() {
     settings.setProperty("key", "value");
     ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperties(newComponentPropertyDto(project).setKey("key").setValue("value2"));
+    db.properties().insertProperties(null, project.name(), newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
     Configuration projectConfig = underTest.newProjectConfiguration(project.getDbKey(), new DefaultBranchImpl());
 

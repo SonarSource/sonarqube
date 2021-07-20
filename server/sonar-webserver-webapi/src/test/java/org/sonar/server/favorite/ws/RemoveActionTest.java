@@ -70,8 +70,8 @@ public class RemoveActionTest {
   public void remove_a_favorite_project() {
     ComponentDto project = insertProjectAndPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    db.favorites().add(project, user.getUuid());
-    db.favorites().add(file, user.getUuid());
+    db.favorites().add(project, user.getUuid(), user.getLogin());
+    db.favorites().add(file, user.getUuid(), user.getLogin());
 
     TestResponse result = call(PROJECT_KEY);
 

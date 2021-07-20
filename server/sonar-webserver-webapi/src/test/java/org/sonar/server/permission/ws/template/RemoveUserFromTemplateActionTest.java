@@ -219,7 +219,8 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto template, String permission) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getUuid(), user.getUuid(), permission);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getUuid(), user.getUuid(), permission,
+      template.getName(), user.getLogin());
     db.commit();
   }
 

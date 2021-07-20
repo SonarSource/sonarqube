@@ -30,6 +30,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -44,10 +47,13 @@ public class GenerateSecretKeyActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private DbClient dbClient = db.getDbClient();
   private MapSettings settings = new MapSettings();
   private Encryption encryption = settings.getEncryption();
-  private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
+  private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(dbClient, settings, userSession);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

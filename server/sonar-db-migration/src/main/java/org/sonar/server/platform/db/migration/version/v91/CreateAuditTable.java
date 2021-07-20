@@ -49,7 +49,7 @@ public class CreateAuditTable extends DdlChange {
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnBuilder("user_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnBuilder("user_login").setIsNullable(false).setLimit(255).build())
-      .addColumn(newVarcharColumnBuilder("category").setIsNullable(false).setLimit(20).build())
+      .addColumn(newVarcharColumnBuilder("category").setIsNullable(false).setLimit(25).build())
       .addColumn(newVarcharColumnBuilder("operation").setIsNullable(false).setLimit(50).build())
       .addColumn(newVarcharColumnBuilder("new_value").setIsNullable(true).setLimit(4000).build())
       .addColumn(createdAtColumn)

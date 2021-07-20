@@ -101,7 +101,8 @@ public class StartupMetadataProviderTest {
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
-    dbTester.properties().insertProperty(new PropertyDto().setKey(CoreProperties.SERVER_STARTTIME).setValue(formatDateTime(A_DATE)));
+    dbTester.properties().insertProperty(new PropertyDto().setKey(CoreProperties.SERVER_STARTTIME).setValue(formatDateTime(A_DATE)),
+      null, null);
     when(webServer.isStartupLeader()).thenReturn(isStartupLeader);
 
     StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());

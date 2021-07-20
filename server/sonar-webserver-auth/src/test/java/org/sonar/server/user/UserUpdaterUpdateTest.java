@@ -88,7 +88,7 @@ public class UserUpdaterUpdateTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setScmAccounts(singletonList("ma2")), u -> {
-      });
+    });
 
     UserDto updatedUser = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(updatedUser.isActive()).isTrue();
@@ -116,7 +116,7 @@ public class UserUpdaterUpdateTest {
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setExternalIdentity(new ExternalIdentity("github", "john", "ABCD")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalId()).isEqualTo("ABCD");
@@ -134,7 +134,7 @@ public class UserUpdaterUpdateTest {
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setExternalIdentity(new ExternalIdentity("github", "john", "ABCD")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalId()).isEqualTo("ABCD");
@@ -157,7 +157,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2", "", null)), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -170,7 +170,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setLogin("new_login"), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN)).isNull();
     UserDto userReloaded = dbClient.userDao().selectByUuid(session, user.getUuid());
@@ -194,7 +194,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setLogin("new_login"), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN)).isNull();
     UserDto userReloaded = dbClient.userDao().selectByUuid(session, user.getUuid());
@@ -218,7 +218,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {
-      });
+    });
 
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
@@ -233,16 +233,18 @@ public class UserUpdaterUpdateTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
-    db.properties().insertProperties(
+    db.properties().insertProperties(oldUser.getLogin(), project1.name(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()),
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()));
+    db.properties().insertProperties(oldUser.getLogin(), project2.name(),
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()));
+    db.properties().insertProperties(oldUser.getLogin(), anotherProject.name(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
     userIndexer.indexAll();
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
       .setLogin("new_login"), u -> {
-      });
+    });
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey(DEFAULT_ISSUE_ASSIGNEE).build(), db.getSession()))
       .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid)
@@ -263,7 +265,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getName()).isEqualTo("Marius2");
@@ -285,7 +287,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setEmail("marius2@mail.com"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -307,7 +309,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -327,7 +329,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setScmAccounts(asList("ma", "marius33")), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
@@ -341,7 +343,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setScmAccounts(null), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccounts()).isNull();
@@ -357,7 +359,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setPassword("password2"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getSalt()).isNotEqualTo("salt");
@@ -380,7 +382,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setPassword("password2"), u -> {
-      });
+    });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getSalt()).isNotEqualTo("salt");
@@ -453,7 +455,7 @@ public class UserUpdaterUpdateTest {
       .setEmail(user.getEmail())
       .setScmAccounts(user.getScmAccountsAsList())
       .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalLogin(), user.getExternalId())), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -470,7 +472,7 @@ public class UserUpdaterUpdateTest {
       .setEmail(user.getEmail())
       .setScmAccounts(asList("ma2", "ma1"))
       .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalLogin(), user.getExternalId())), u -> {
-      });
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -487,7 +489,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      }, otherUser);
+    }, otherUser);
 
     assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(user.getUuid(), otherUser.getUuid());
   }
@@ -527,7 +529,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
@@ -548,7 +550,7 @@ public class UserUpdaterUpdateTest {
       .setEmail("marius2@mail.com")
       .setPassword("password2")
       .setScmAccounts(asList("ma2")), u -> {
-      });
+    });
 
     // Nothing as changed
     groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));

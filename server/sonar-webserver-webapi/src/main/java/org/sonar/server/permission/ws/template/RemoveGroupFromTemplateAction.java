@@ -36,6 +36,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
@@ -78,7 +79,8 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
 
-      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission);
+      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,
+        template.getName(), request.param(PARAM_GROUP_NAME));
       dbSession.commit();
     }
     response.noContent();

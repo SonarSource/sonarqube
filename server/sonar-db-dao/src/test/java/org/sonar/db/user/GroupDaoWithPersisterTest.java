@@ -62,7 +62,7 @@ public class GroupDaoWithPersisterTest {
   }
 
   @Test
-  public void insert_and_update() {
+  public void insertAndUpdateGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
     verify(auditPersister).addUserGroup(eq(db.getSession()), newValueCaptor.capture());
@@ -72,7 +72,7 @@ public class GroupDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName)
       .containsExactly(aGroup.getUuid(), aGroup.getName());
-    assertThat(newValue.toString()).doesNotContain("'description':");
+    assertThat(newValue.toString()).doesNotContain("description");
 
     GroupDto dto = new GroupDto()
       .setUuid(aGroup.getUuid())
@@ -87,11 +87,11 @@ public class GroupDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getDescription)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getDescription());
-    assertThat(newValue.toString()).contains("'description':");
+    assertThat(newValue.toString()).contains("description");
   }
 
   @Test
-  public void deleteByUuid() {
+  public void deleteGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
     verify(auditPersister).addUserGroup(eq(db.getSession()), any());

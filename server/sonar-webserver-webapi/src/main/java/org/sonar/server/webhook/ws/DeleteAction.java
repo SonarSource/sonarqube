@@ -94,7 +94,7 @@ public class DeleteAction implements WebhooksWsAction {
 
   private void deleteWebhook(DbSession dbSession, WebhookDto webhookDto) {
     dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, webhookDto);
-    dbClient.webhookDao().delete(dbSession, webhookDto.getUuid());
+    dbClient.webhookDao().delete(dbSession, webhookDto.getUuid(), webhookDto.getName());
   }
 
 }

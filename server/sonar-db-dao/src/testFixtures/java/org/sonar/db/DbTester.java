@@ -125,6 +125,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return new DbTester(System2.INSTANCE, null, null);
   }
 
+  public static DbTester create(AuditPersister auditPersister) {
+    return new DbTester(System2.INSTANCE, null, auditPersister);
+  }
+
   public static DbTester create(System2 system2, AuditPersister auditPersister) {
     return new DbTester(system2, null, auditPersister);
   }

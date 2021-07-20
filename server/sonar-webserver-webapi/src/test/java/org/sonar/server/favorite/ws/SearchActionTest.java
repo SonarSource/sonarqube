@@ -54,6 +54,7 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class SearchActionTest {
   private String userUuid;
+  private String userLogin;
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -70,6 +71,7 @@ public class SearchActionTest {
     UserDto userDto = db.users().insertUser();
     userSession.logIn(userDto);
     userUuid = userDto.getUuid();
+    userLogin = userDto.getLogin();
   }
 
   @Test
@@ -104,7 +106,7 @@ public class SearchActionTest {
   public void filter_authorized_components() {
     addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
-    db.favorites().add(unauthorizedProject, userUuid);
+    db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
     SearchResponse result = call();
 
@@ -117,7 +119,7 @@ public class SearchActionTest {
     IntStream.rangeClosed(1, 9)
       .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K" + i).setName("N" + i)));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto());
-    db.favorites().add(unauthorizedProject, userUuid);
+    db.favorites().add(unauthorizedProject, userUuid, userLogin);
 
     SearchResponse result = call(2, 3);
 
@@ -133,7 +135,7 @@ public class SearchActionTest {
     addComponent(ComponentTesting.newPrivateProjectDto().setDbKey("K1"));
     ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto().setDbKey("K42");
     db.components().insertComponent(otherUserFavorite);
-    db.favorites().add(otherUserFavorite, "42");
+    db.favorites().add(otherUserFavorite, "42", userLogin);
     db.commit();
 
     SearchResponse result = call();
@@ -183,7 +185,7 @@ public class SearchActionTest {
 
   private void addComponent(ComponentDto component) {
     db.components().insertComponent(component);
-    db.favorites().add(component, userUuid);
+    db.favorites().add(component, userUuid, userLogin);
     db.commit();
     userSession.addProjectPermission(UserRole.USER, component);
   }

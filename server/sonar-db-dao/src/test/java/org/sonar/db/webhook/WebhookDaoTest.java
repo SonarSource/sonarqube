@@ -82,7 +82,7 @@ public class WebhookDaoTest {
       .setUrl("URL_1")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, null);
 
     WebhookDto stored = selectByUuid(dto.getUuid());
 
@@ -104,7 +104,7 @@ public class WebhookDaoTest {
       .setProjectUuid("UUID_2")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, "project_name");
 
     WebhookDto reloaded = selectByUuid(dto.getUuid());
 
@@ -122,9 +122,10 @@ public class WebhookDaoTest {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.update(dbSession, dto
-      .setName("a-fancy-webhook")
-      .setUrl("http://www.fancy-webhook.io")
-      .setSecret(null));
+        .setName("a-fancy-webhook")
+        .setUrl("http://www.fancy-webhook.io")
+        .setSecret(null),
+      null);
 
     Optional<WebhookDto> optionalResult = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(optionalResult).isPresent();
@@ -143,9 +144,10 @@ public class WebhookDaoTest {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.update(dbSession, dto
-      .setName("a-fancy-webhook")
-      .setUrl("http://www.fancy-webhook.io")
-      .setSecret("a_new_secret"));
+        .setName("a-fancy-webhook")
+        .setUrl("http://www.fancy-webhook.io")
+        .setSecret("a_new_secret"),
+      null);
 
     Optional<WebhookDto> optionalResult = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(optionalResult).isPresent();
@@ -177,7 +179,7 @@ public class WebhookDaoTest {
   public void delete() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
-    underTest.delete(dbSession, dto.getUuid());
+    underTest.delete(dbSession, dto.getUuid(), dto.getName());
 
     Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(reloaded).isEmpty();
@@ -190,7 +192,7 @@ public class WebhookDaoTest {
       .setName("NAME_1")
       .setUrl("URL_1");
 
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, null);
 
     Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(reloaded).isPresent();

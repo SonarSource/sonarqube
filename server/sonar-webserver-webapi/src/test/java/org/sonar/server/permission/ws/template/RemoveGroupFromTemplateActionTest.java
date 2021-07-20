@@ -74,7 +74,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
     group = db.users().insertGroup("group-name");
     template = db.permissionTemplates().insertTemplate();
-    addGroupToTemplate(template, group.getUuid(), PERMISSION);
+    addGroupToTemplate(template, group.getUuid(), PERMISSION, group.getName());
   }
 
   @Test
@@ -127,7 +127,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void remove_anyone_group_from_template() {
-    addGroupToTemplate(template, null, PERMISSION);
+    addGroupToTemplate(template, null, PERMISSION, null);
 
     newRequest(ANYONE, template.getUuid(), PERMISSION);
 
@@ -210,8 +210,9 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     request.execute();
   }
 
-  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, String permission) {
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupUuid, permission);
+  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, String permission, String groupName) {
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupUuid,
+      permission, template.getName(), groupName);
     db.commit();
   }
 

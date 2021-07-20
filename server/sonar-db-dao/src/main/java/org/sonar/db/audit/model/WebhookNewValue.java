@@ -1,0 +1,103 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.db.audit.model;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.db.webhook.WebhookDto;
+
+public class WebhookNewValue implements NewValue {
+  @Nullable
+  private String webhookUuid;
+
+  @Nullable
+  private String name;
+
+  @Nullable
+  private String url;
+
+  @Nullable
+  private String projectUuid;
+
+  @Nullable
+  private String projectName;
+
+  public WebhookNewValue(WebhookDto dto, @Nullable String projectName) {
+    this.webhookUuid = dto.getUuid();
+    this.name = dto.getName();
+    this.url = dto.getUrl();
+    this.projectUuid = dto.getProjectUuid();
+    this.projectName = projectName;
+  }
+
+  public WebhookNewValue(String webhookUuid, String webhookName) {
+    this.webhookUuid = webhookUuid;
+    this.name = webhookName;
+  }
+
+  public WebhookNewValue(String webhookUuid, String webhookName, @Nullable String projectUuid, @Nullable String projectName) {
+    this(webhookUuid, webhookName);
+    this.projectUuid = projectUuid;
+    this.projectName = projectName;
+  }
+
+  public WebhookNewValue(ProjectDto projectDto) {
+    this.projectUuid = projectDto.getUuid();
+    this.projectName = projectDto.getName();
+  }
+
+  @CheckForNull
+  public String getWebhookUuid() {
+    return this.webhookUuid;
+  }
+
+  @CheckForNull
+  public String getName() {
+    return this.name;
+  }
+
+  @CheckForNull
+  public String getUrl() {
+    return this.url;
+  }
+
+  @CheckForNull
+  public String getProjectUuid() {
+    return this.projectUuid;
+  }
+
+  @CheckForNull
+  public String getProjectName() {
+    return this.projectName;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("{");
+    addField(sb, "\"webhookUuid\": ", this.webhookUuid, true);
+    addField(sb, "\"name\": ", this.name, true);
+    addField(sb, "\"url\": ", this.url, true);
+    addField(sb, "\"projectUuid\": ", this.projectUuid, true);
+    addField(sb, "\"projectName\": ", this.projectName, true);
+    endString(sb);
+    return sb.toString();
+  }
+}

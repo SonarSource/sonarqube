@@ -44,33 +44,37 @@ public class PermissionTemplateCharacteristicDaoTest {
   @Test
   public void selectByTemplateId_filter_by_template_uuid() {
     PermissionTemplateCharacteristicDto templatePermission1 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid1")
-      .setPermission(UserRole.ADMIN)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(true)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid1")
+        .setPermission(UserRole.ADMIN)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(true)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     PermissionTemplateCharacteristicDto templatePermission2 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid2")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("2")
-      .setWithProjectCreator(false)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid2")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("2")
+        .setWithProjectCreator(false)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     PermissionTemplateCharacteristicDto templatePermission3 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid3")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("3")
-      .setWithProjectCreator(false)
-      .setCreatedAt(1_000_000_001L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid3")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("3")
+        .setWithProjectCreator(false)
+        .setCreatedAt(1_000_000_001L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     PermissionTemplateCharacteristicDto templatePermissionForAnotherTemplate = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid4")
-      .setPermission(UserRole.ADMIN)
-      .setTemplateUuid("42")
-      .setWithProjectCreator(true)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid4")
+        .setPermission(UserRole.ADMIN)
+        .setTemplateUuid("42")
+        .setWithProjectCreator(true)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
 
     List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateUuids(dbSession, newArrayList("1", "2", "3"));
     assertThat(result)
@@ -92,26 +96,29 @@ public class PermissionTemplateCharacteristicDaoTest {
   @Test
   public void selectByPermissionAndTemplateId() {
     PermissionTemplateCharacteristicDto templatePermission1 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid1")
-      .setPermission(UserRole.ADMIN)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(true)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid1")
+        .setPermission(UserRole.ADMIN)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(true)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid2")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(false)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid2")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(false)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid3")
-      .setPermission(UserRole.ADMIN)
-      .setTemplateUuid("42")
-      .setWithProjectCreator(true)
-      .setCreatedAt(1_000_000_000L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid3")
+        .setPermission(UserRole.ADMIN)
+        .setTemplateUuid("42")
+        .setWithProjectCreator(true)
+        .setCreatedAt(1_000_000_000L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
 
     Optional<PermissionTemplateCharacteristicDto> result = underTest.selectByPermissionAndTemplateId(dbSession, UserRole.ADMIN, "1");
 
@@ -122,12 +129,13 @@ public class PermissionTemplateCharacteristicDaoTest {
   @Test
   public void insert() {
     PermissionTemplateCharacteristicDto expectedResult = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(true)
-      .setCreatedAt(123_456_789L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(true)
+        .setCreatedAt(123_456_789L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
 
     PermissionTemplateCharacteristicDto result = dbSession.getMapper(PermissionTemplateCharacteristicMapper.class).selectByUuid(expectedResult.getUuid());
     assertThat(result.getUuid()).isEqualTo("uuid");
@@ -137,20 +145,22 @@ public class PermissionTemplateCharacteristicDaoTest {
   @Test
   public void update_only_change_with_project_creator_and_updated_at() {
     PermissionTemplateCharacteristicDto insertedDto = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(true)
-      .setCreatedAt(123_456_789L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(true)
+        .setCreatedAt(123_456_789L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
 
     underTest.update(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid")
-      .setPermission("PERMISSION_ARE_NOT_UPDATABLE")
-      .setTemplateUuid("42")
-      .setCreatedAt(42L)
-      .setWithProjectCreator(false)
-      .setUpdatedAt(3_000_000_000L));
+        .setUuid("uuid")
+        .setPermission("PERMISSION_ARE_NOT_UPDATABLE")
+        .setTemplateUuid("42")
+        .setCreatedAt(42L)
+        .setWithProjectCreator(false)
+        .setUpdatedAt(3_000_000_000L),
+      "template");
 
     PermissionTemplateCharacteristicDto result = underTest.selectByPermissionAndTemplateId(dbSession, insertedDto.getPermission(), insertedDto.getTemplateUuid()).get();
     assertThat(result).extracting("uuid", "permission", "templateUuid", "createdAt")
@@ -167,7 +177,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
       .setUpdatedAt(2_000_000_000L);
-    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto))
+    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto, "template"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -179,7 +189,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setTemplateUuid("1")
       .setWithProjectCreator(true)
       .setCreatedAt(2_000_000_000L);
-    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto))
+    assertThatThrownBy(() -> underTest.insert(dbSession, characteristicDto, "template"))
       .isInstanceOf(IllegalArgumentException.class);
 
   }
@@ -192,26 +202,28 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setWithProjectCreator(true)
       .setCreatedAt(123_456_789L)
       .setUpdatedAt(2_000_000_000L);
-    assertThatThrownBy(() -> underTest.update(dbSession, characteristicDto))
+    assertThatThrownBy(() -> underTest.update(dbSession, characteristicDto, "template"))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void delete_by_permission_template_uuid() {
     underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid1")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("1")
-      .setWithProjectCreator(true)
-      .setCreatedAt(123_456_789L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid1")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("1")
+        .setWithProjectCreator(true)
+        .setCreatedAt(123_456_789L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
     underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
-      .setUuid("uuid2")
-      .setPermission(UserRole.USER)
-      .setTemplateUuid("2")
-      .setWithProjectCreator(true)
-      .setCreatedAt(123_456_789L)
-      .setUpdatedAt(2_000_000_000L));
+        .setUuid("uuid2")
+        .setPermission(UserRole.USER)
+        .setTemplateUuid("2")
+        .setWithProjectCreator(true)
+        .setCreatedAt(123_456_789L)
+        .setUpdatedAt(2_000_000_000L),
+      "template");
 
     assertThat(underTest.selectByTemplateUuids(dbSession, singletonList("1"))).hasSize(1);
     assertThat(underTest.selectByTemplateUuids(dbSession, asList("1", "2"))).hasSize(2);

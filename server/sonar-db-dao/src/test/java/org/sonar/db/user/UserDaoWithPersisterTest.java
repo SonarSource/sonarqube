@@ -54,7 +54,7 @@ public class UserDaoWithPersisterTest {
   private final UserDao underTest = db.getDbClient().userDao();
 
   @Test
-  public void insert_user_with_default_values() {
+  public void insertUserIsPersisted() {
     UserDto userDto = new UserDto()
       .setLogin("john")
       .setName("John")
@@ -71,11 +71,11 @@ public class UserDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(UserNewValue::getUserUuid, UserNewValue::getLogin)
       .containsExactly(user.getUuid(), user.getLogin());
-    assertThat(newValue.toString()).doesNotContain("'name':");
+    assertThat(newValue.toString()).doesNotContain("name");
   }
 
   @Test
-  public void update_user() {
+  public void updateUserIsPersisted() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
       .setName("John")
@@ -114,11 +114,11 @@ public class UserDaoWithPersisterTest {
       .containsExactly(updatedUser.getUuid(), updatedUser.getLogin(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.isActive(),
         updatedUser.getScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(), updatedUser.getExternalIdentityProvider(),
         updatedUser.isLocal(), updatedUser.isOnboarded(), updatedUser.isRoot(), updatedUser.getLastConnectionDate());
-    assertThat(newValue.toString()).contains("'name':");
+    assertThat(newValue.toString()).contains("name");
   }
 
   @Test
-  public void update_user_without_track() {
+  public void updateUserWithoutTrackIsNotPersisted() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
       .setName("John")
@@ -139,7 +139,7 @@ public class UserDaoWithPersisterTest {
   }
 
   @Test
-  public void deactivate_user() {
+  public void deactivateUserIsPersisted() {
     UserDto user = insertActiveUser();
     insertUserGroup(user);
     underTest.update(db.getSession(), user.setLastConnectionDate(10_000_000_000L));

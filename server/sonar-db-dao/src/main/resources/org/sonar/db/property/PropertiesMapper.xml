@@ -381,6 +381,18 @@
     </foreach>
   </delete>
 
+  <select id="selectByUuids" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid}
+    </foreach>
+  </select>
+
   <update id="renamePropertyKey" parameterType="map">
     update properties set
       prop_key=#{newKey}

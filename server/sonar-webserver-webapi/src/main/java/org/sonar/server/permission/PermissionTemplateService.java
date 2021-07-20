@@ -126,8 +126,8 @@ public class PermissionTemplateService {
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable String projectCreatorUserUuid) {
-    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project.uuid());
-    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.uuid());
+    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project.uuid(), project.name());
+    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.uuid(), project.name());
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
     Map<String, String> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
@@ -137,7 +137,7 @@ public class PermissionTemplateService {
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
-        dbClient.userPermissionDao().insert(dbSession, dto);
+        dbClient.userPermissionDao().insert(dbSession, dto, project);
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
@@ -151,7 +151,7 @@ public class PermissionTemplateService {
           .setGroupUuid(isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid())
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid());
-        dbClient.groupPermissionDao().insert(dbSession, dto);
+        dbClient.groupPermissionDao().insert(dbSession, dto, project);
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));
@@ -168,7 +168,7 @@ public class PermissionTemplateService {
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
           UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), c.getPermission(), userDto.getUuid(), project.uuid());
-          dbClient.userPermissionDao().insert(dbSession, dto);
+          dbClient.userPermissionDao().insert(dbSession, dto, project);
         });
     }
   }

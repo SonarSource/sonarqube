@@ -425,10 +425,10 @@ public class PermissionTemplateServiceTest {
     dbTester.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate();
     dbTester.permissionTemplates().setDefaultTemplates(template, null, null);
-    templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN.getKey());
-    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
-    templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
+    templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN.getKey(), template.getName());
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER, template.getName(), group.getName());
+    templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN, template.getName(), null);
 
     // authenticated user
     checkWouldUserHaveScanPermission(user.getUuid(), true);

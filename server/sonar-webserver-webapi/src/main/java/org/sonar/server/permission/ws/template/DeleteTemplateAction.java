@@ -85,7 +85,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
 
       checkTemplateUuidIsNotDefault(dbSession, template);
-      dbClient.permissionTemplateDao().deleteByUuid(dbSession, template.getUuid());
+      dbClient.permissionTemplateDao().deleteByUuid(dbSession, template.getUuid(), template.getName());
       dbSession.commit();
     }
   }

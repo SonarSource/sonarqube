@@ -122,13 +122,13 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
         if (almPatDto.isPresent()) {
           AlmPatDto almPat = almPatDto.get();
           almPat.setPersonalAccessToken(accessToken.getValue());
-          dbClient.almPatDao().update(dbSession, almPat);
+          dbClient.almPatDao().update(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
         } else {
           AlmPatDto almPat = new AlmPatDto()
             .setPersonalAccessToken(accessToken.getValue())
             .setAlmSettingUuid(almSettingDto.getUuid())
             .setUserUuid(userUuid);
-          dbClient.almPatDao().insert(dbSession, almPat);
+          dbClient.almPatDao().insert(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
         }
         dbSession.commit();
       } else {

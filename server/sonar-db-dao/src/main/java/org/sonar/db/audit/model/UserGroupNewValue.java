@@ -19,15 +19,27 @@
  */
 package org.sonar.db.audit.model;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 
 public class UserGroupNewValue implements NewValue {
+
+  @Nullable
   private String groupUuid;
+
+  @Nullable
   private String name;
+
+  @Nullable
   private String description;
+
+  @Nullable
   private String userUuid;
+
+  @Nullable
   private String userLogin;
 
   public UserGroupNewValue(String groupUuid, String name) {
@@ -60,22 +72,27 @@ public class UserGroupNewValue implements NewValue {
     this.userLogin = userLogin;
   }
 
+  @CheckForNull
   public String getGroupUuid() {
     return this.groupUuid;
   }
 
+  @CheckForNull
   public String getName() {
     return this.name;
   }
 
+  @CheckForNull
   public String getDescription() {
     return this.description;
   }
 
+  @CheckForNull
   public String getUserUuid() {
     return this.userUuid;
   }
 
+  @CheckForNull
   public String getUserLogin() {
     return this.userLogin;
   }
@@ -83,13 +100,12 @@ public class UserGroupNewValue implements NewValue {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
-    addField(sb, "'groupUuid':", this.groupUuid, true);
-    addField(sb, "'name':", this.name, true);
-    addField(sb, "'description':", this.description, true);
-    addField(sb, "'userUuid':", this.userUuid, true);
-    addField(sb, "'userLogin':", this.userLogin, true);
-    sb.append("}");
+    addField(sb, "\"groupUuid\": ", this.groupUuid, true);
+    addField(sb, "\"name\": ", this.name, true);
+    addField(sb, "\"description\": ", this.description, true);
+    addField(sb, "\"userUuid\": ", this.userUuid, true);
+    addField(sb, "\"userLogin\": ", this.userLogin, true);
+    endString(sb);
     return sb.toString();
   }
-
 }

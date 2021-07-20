@@ -140,7 +140,7 @@ public class UserWithPermissionTemplateDaoTest {
     UserDto user1 = db.users().insertUser(u -> u.setName("A"));
     UserDto user2 = db.users().insertUser(u -> u.setName("B"));
     UserDto user3 = db.users().insertUser(u -> u.setName("C"));
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user3.getUuid(), UserRole.USER);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user3.getUuid(), UserRole.USER, template.getName(), user3.getLogin());
 
     PermissionQuery query = PermissionQuery.builder().build();
     assertThat(underTest.selectUserLoginsByQueryAndTemplate(db.getSession(), query, template.getUuid()))

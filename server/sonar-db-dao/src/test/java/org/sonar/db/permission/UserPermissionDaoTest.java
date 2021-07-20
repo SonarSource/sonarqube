@@ -397,10 +397,10 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm", user2, project1);
 
     // no such provision -> ignore
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "anotherPerm", project1.uuid());
+    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "anotherPerm", project1.uuid(), project1.name());
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
 
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "perm", project1.uuid());
+    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "perm", project1.uuid(), project1.name());
     assertThatProjectPermissionDoesNotExist(user1, "perm", project1);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(3);
   }
@@ -416,7 +416,7 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm", user2, project1);
     addProjectPermission("perm", user1, project2);
 
-    underTest.deleteProjectPermissions(dbSession, project1.uuid());
+    underTest.deleteProjectPermissions(dbSession, project1.uuid(), project1.name());
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(2);
     assertThatProjectHasNoPermissions(project1);
   }
@@ -521,7 +521,7 @@ public class UserPermissionDaoTest {
     UserDto user = insertUser();
     db.users().insertPermissionOnUser(user, SCAN);
 
-    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, "124", SCAN.getKey());
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, "124", SCAN.getKey(), "");
 
     assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
@@ -533,7 +533,7 @@ public class UserPermissionDaoTest {
     db.users().insertPermissionOnUser(user, SCAN);
     ComponentDto project = randomPublicOrPrivateProject();
 
-    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), SCAN.getKey());
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), SCAN.getKey(), "");
 
     assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
@@ -546,7 +546,7 @@ public class UserPermissionDaoTest {
     ComponentDto project = randomPublicOrPrivateProject();
     db.users().insertProjectPermissionOnUser(user, SCAN.getKey(), project);
 
-    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), "p1");
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), "p1", project.name());
 
     assertThat(deletedCount).isZero();
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
@@ -567,7 +567,7 @@ public class UserPermissionDaoTest {
     db.users().insertProjectPermissionOnUser(user2, SCAN.getKey(), project2);
     db.users().insertProjectPermissionOnUser(user2, PROVISION_PROJECTS.getKey(), project2);
 
-    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project1.uuid(), SCAN.getKey());
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project1.uuid(), SCAN.getKey(), project1.name());
 
     assertThat(deletedCount).isEqualTo(2);
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid())).containsOnly(SCAN.getKey());
@@ -577,7 +577,7 @@ public class UserPermissionDaoTest {
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project2.uuid())).containsOnly(SCAN.getKey());
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getUuid(), project2.uuid())).containsOnly(SCAN.getKey(), PROVISION_PROJECTS.getKey());
 
-    deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project2.uuid(), SCAN.getKey());
+    deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project2.uuid(), SCAN.getKey(), project2.name());
 
     assertThat(deletedCount).isEqualTo(2);
     assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid())).containsOnly(SCAN.getKey());
@@ -632,14 +632,14 @@ public class UserPermissionDaoTest {
 
   private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, null);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, project);
     db.commit();
     return dto;
   }

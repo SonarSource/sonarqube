@@ -41,7 +41,7 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user, no action is done
    */
-  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, boolean failIfTooManyFavorites) {
+  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin, boolean failIfTooManyFavorites) {
     if (userUuid == null) {
       return;
     }
@@ -59,24 +59,28 @@ public class FavoriteUpdater {
       return;
     }
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey(PROP_FAVORITE_KEY)
-      .setComponentUuid(componentDto.uuid())
-      .setUserUuid(userUuid));
+        .setKey(PROP_FAVORITE_KEY)
+        .setComponentUuid(componentDto.uuid())
+        .setUserUuid(userUuid),
+      userLogin,
+      componentDto.name());
   }
 
   /**
    * Remove a favorite to the user.
+   *
    * @throws IllegalArgumentException if the component is not a favorite
    */
-  public void remove(DbSession dbSession, ComponentDto component, @Nullable String userUuid) {
+  public void remove(DbSession dbSession, ComponentDto component, @Nullable String userUuid, @Nullable String userLogin) {
     if (userUuid == null) {
       return;
     }
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
-      .setKey(PROP_FAVORITE_KEY)
-      .setComponentUuid(component.uuid())
-      .setUserUuid(userUuid));
+        .setKey(PROP_FAVORITE_KEY)
+        .setComponentUuid(component.uuid())
+        .setUserUuid(userUuid),
+      userLogin, component.name());
     checkArgument(result == 1, "Component '%s' is not a favorite", component.getDbKey());
   }
 }

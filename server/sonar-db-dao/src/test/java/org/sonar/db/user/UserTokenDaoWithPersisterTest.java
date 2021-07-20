@@ -66,7 +66,7 @@ public class UserTokenDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
       .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate());
-    assertThat(newValue.toString()).contains("'tokenUuid':");
+    assertThat(newValue.toString()).contains("tokenUuid");
   }
 
   @Test

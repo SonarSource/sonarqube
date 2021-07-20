@@ -23,18 +23,31 @@ import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GenerateSecretKeyAction implements SettingsWsAction {
+  private final DbClient dbClient;
   private final Settings settings;
   private final UserSession userSession;
+  private AuditPersister auditPersister;
 
-  public GenerateSecretKeyAction(Settings settings, UserSession userSession) {
+  public GenerateSecretKeyAction(DbClient dbClient, Settings settings, UserSession userSession) {
+    this.dbClient = dbClient;
     this.settings = settings;
     this.userSession = userSession;
+  }
+
+  public GenerateSecretKeyAction(DbClient dbClient, Settings settings, UserSession userSession, AuditPersister auditPersister) {
+    this.dbClient = dbClient;
+    this.settings = settings;
+    this.userSession = userSession;
+    this.auditPersister = auditPersister;
   }
 
   @Override
@@ -53,5 +66,12 @@ public class GenerateSecretKeyAction implements SettingsWsAction {
     userSession.checkIsSystemAdministrator();
 
     writeProtobuf(GenerateSecretKeyWsResponse.newBuilder().setSecretKey(settings.getEncryption().generateRandomSecretKey()).build(), request, response);
+
+    if (auditPersister != null) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        auditPersister.generateSecretKey(dbSession);
+        dbSession.commit();
+      }
+    }
   }
 }

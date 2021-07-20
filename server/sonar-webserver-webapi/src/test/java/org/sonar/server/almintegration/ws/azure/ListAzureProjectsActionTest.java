@@ -124,9 +124,9 @@ public class ListAzureProjectsActionTest {
 
   @Test
   public void fail_check_alm_setting_not_found() {
-    insertUser();
+    UserDto user = insertUser();
     AlmPatDto almPatDto = newAlmPatDto();
-    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto);
+    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
 
     TestRequest request = ws.newRequest()
       .setParam("almSetting", "testKey");

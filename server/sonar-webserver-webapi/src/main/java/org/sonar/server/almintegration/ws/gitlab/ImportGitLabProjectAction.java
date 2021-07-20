@@ -124,11 +124,13 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private void populateMRSetting(DbSession dbSession, Long gitlabProjectId, ComponentDto componentDto, AlmSettingDto almSettingDto) {
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, new ProjectAlmSettingDto()
-      .setProjectUuid(componentDto.projectUuid())
-      .setAlmSettingUuid(almSettingDto.getUuid())
-      .setAlmRepo(gitlabProjectId.toString())
-      .setAlmSlug(null)
-      .setMonorepo(false));
+        .setProjectUuid(componentDto.projectUuid())
+        .setAlmSettingUuid(almSettingDto.getUuid())
+        .setAlmRepo(gitlabProjectId.toString())
+        .setAlmSlug(null)
+        .setMonorepo(false),
+      almSettingDto.getKey(),
+      componentDto.name());
   }
 
   private ComponentDto createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
@@ -136,12 +138,12 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
     String sqProjectKey = generateProjectKey(gitlabProject.getPathWithNamespace(), uuidFactory.create());
 
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-      .setKey(sqProjectKey)
-      .setName(gitlabProject.getName())
-      .setPrivate(visibility)
-      .setQualifier(PROJECT)
-      .build(),
-      userSession.getUuid(), mainBranchName, s -> {
+        .setKey(sqProjectKey)
+        .setName(gitlabProject.getName())
+        .setPrivate(visibility)
+        .setQualifier(PROJECT)
+        .build(),
+      userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {
       });
   }
 

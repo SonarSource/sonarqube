@@ -20,6 +20,7 @@
 package org.sonar.db.webhook;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
@@ -36,16 +37,16 @@ public class WebhookDbTester {
   }
 
   public WebhookDto insertGlobalWebhook() {
-    return insert(newGlobalWebhook());
+    return insert(newGlobalWebhook(), null);
   }
 
   public WebhookDto insertWebhook(ProjectDto project) {
-    return insert(newWebhook(project));
+    return insert(newWebhook(project), project.getName());
   }
 
-  public WebhookDto insert(WebhookDto dto) {
+  public WebhookDto insert(WebhookDto dto, @Nullable String projectName) {
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().webhookDao().insert(dbSession, dto);
+    dbTester.getDbClient().webhookDao().insert(dbSession, dto, projectName);
     dbSession.commit();
     return dto;
   }

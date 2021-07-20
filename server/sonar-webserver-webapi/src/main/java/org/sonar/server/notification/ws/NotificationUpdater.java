@@ -48,6 +48,7 @@ public class NotificationUpdater {
   public void add(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
     String projectUuid = project == null ? null : project.uuid();
+    String projectName = project == null ? null : project.name();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
@@ -65,7 +66,8 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid));
+      .setComponentUuid(projectUuid),
+      user.getLogin(), projectName);
   }
 
   /**
@@ -74,6 +76,7 @@ public class NotificationUpdater {
   public void remove(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
     String projectUuid = project == null ? null : project.uuid();
+    String projectName = project == null ? null : project.name();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
@@ -90,7 +93,7 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setComponentUuid(projectUuid));
+      .setComponentUuid(projectUuid), user.getLogin(), projectName);
   }
 
   private static Predicate<PropertyDto> notificationScope(@Nullable ComponentDto project) {

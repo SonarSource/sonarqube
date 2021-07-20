@@ -46,7 +46,7 @@ public class UserGroupDaoWithPersisterTest {
   private final UserGroupDao underTest = dbClient.userGroupDao();
 
   @Test
-  public void insert() {
+  public void insertUserGroupIsPersisted() {
     UserDto user = db.users().insertUser();
 
     verify(auditPersister).addUser(eq(db.getSession()), any());
@@ -64,7 +64,7 @@ public class UserGroupDaoWithPersisterTest {
   }
 
   @Test
-  public void delete_members_by_group_uuid() {
+  public void deleteUserGroupByGroupIsPersisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -85,7 +85,7 @@ public class UserGroupDaoWithPersisterTest {
   }
 
   @Test
-  public void delete_by_user() {
+  public void deleteUserGroupByUserIsPersisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();

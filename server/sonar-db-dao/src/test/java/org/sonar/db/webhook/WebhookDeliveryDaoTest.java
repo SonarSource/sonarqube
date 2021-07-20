@@ -114,7 +114,7 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void selectByWebhookUuid_returns_records_ordered_by_date() {
-    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"));
+    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"), "COMPONENT_NAME");
     WebhookDeliveryDto dto1 = WebhookDeliveryTesting.newDto("D1", webhookDto.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE);
     WebhookDeliveryDto dto2 = WebhookDeliveryTesting.newDto("D2", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW);
     WebhookDeliveryDto dto3 = WebhookDeliveryTesting.newDto("D3", "fake-webhook-uuid", "COMPONENT_2", "TASK_1").setCreatedAt(NOW);
@@ -129,7 +129,7 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void selectByWebhookUuid_returns_records_according_to_pagination() {
-    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"));
+    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"), "COMPONENT_NAME");
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW - 5_000L));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D2", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW - 4_000L));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D3", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW - 3_000L));
@@ -144,11 +144,11 @@ public class WebhookDeliveryDaoTest {
 
   @Test
   public void selectLatestDelivery_of_a_webhook() {
-    WebhookDto webhook1 = dbWebhooks.insert(newProjectWebhook("COMPONENT_1"));
+    WebhookDto webhook1 = dbWebhooks.insert(newProjectWebhook("COMPONENT_1"), "COMPONENT_NAME");
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
-    WebhookDto webhook2 = dbWebhooks.insert(newProjectWebhook("COMPONENT_1"));
+    WebhookDto webhook2 = dbWebhooks.insert(newProjectWebhook("COMPONENT_1"), "COMPONENT_NAME");
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
@@ -197,7 +197,7 @@ public class WebhookDeliveryDaoTest {
   @Test
   public void deleteByWebhook() {
 
-    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"));
+    WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("COMPONENT_1"), "COMPONENT_NAME");
 
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_1", webhookDto.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(1_000_000L));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_2", webhookDto.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(2_000_000L));

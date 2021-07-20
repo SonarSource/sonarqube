@@ -94,13 +94,13 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
-        "Either '%s' or '%s' must be provided.<br> " +
-        "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>",
+          "Either '%s' or '%s' must be provided.<br> " +
+          "The settings defined in conf/sonar.properties are read-only and can't be changed.<br/>" +
+          "Requires one of the following permissions: " +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified component</li>" +
+          "</ul>",
         PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
       .setChangelog(
@@ -145,6 +145,7 @@ public class SetAction implements SettingsWsAction {
 
   private void doHandle(DbSession dbSession, SetRequest request) {
     Optional<ComponentDto> component = searchComponent(dbSession, request);
+    String projectName = component.isPresent() ? component.get().name() : null;
     checkPermissions(component);
 
     PropertyDefinition definition = propertyDefinitions.get(request.getKey());
@@ -159,7 +160,7 @@ public class SetAction implements SettingsWsAction {
       validate(request);
       PropertyDto property = toProperty(request, component);
       value = property.getValue();
-      dbClient.propertiesDao().saveProperty(dbSession, property);
+      dbClient.propertiesDao().saveProperty(dbSession, property, null, projectName);
     }
 
     dbSession.commit();
@@ -176,15 +177,18 @@ public class SetAction implements SettingsWsAction {
     String inlinedFieldKeys = IntStream.of(fieldIds).mapToObj(String::valueOf).collect(COMMA_JOINER);
     String key = persistedKey(request);
     String componentUuid = component.isPresent() ? component.get().uuid() : null;
+    String componentName = component.isPresent() ? component.get().name() : null;
 
     deleteSettings(dbSession, component, key);
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setComponentUuid(componentUuid));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys)
+      .setComponentUuid(componentUuid), null, componentName);
 
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
       .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
         .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
-      .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentUuid)));
+      .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentUuid),
+        null, componentName));
 
     return inlinedFieldKeys;
   }

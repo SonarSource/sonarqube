@@ -97,11 +97,11 @@ public class ListActionTest {
 
   @Test
   public void list_webhooks_and_their_latest_delivery() {
-    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"), null);
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
-    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"));
+    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"), null);
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
@@ -125,8 +125,8 @@ public class ListActionTest {
 
   @Test
   public void list_webhooks_when_no_delivery() {
-    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"));
-    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"), null);
+    WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"), null);
 
     userSession.logIn().addPermission(ADMINISTER);
 
@@ -148,10 +148,10 @@ public class ListActionTest {
   public void obfuscate_credentials_in_webhook_URLs() {
     String url = "http://foo:barouf@toto/bop";
     String expectedUrl = "http://***:******@toto/bop";
-    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa", t -> t.setUrl(url)));
+    WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa", t -> t.setUrl(url)), null);
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
-    webhookDbTester.insert(newGlobalWebhook("bbb", t -> t.setUrl(url)));
+    webhookDbTester.insert(newGlobalWebhook("bbb", t -> t.setUrl(url)), null);
 
     userSession.logIn().addPermission(ADMINISTER);
 

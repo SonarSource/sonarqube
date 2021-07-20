@@ -183,7 +183,7 @@ public class BranchReportSubmitterTest {
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(createdBranch);
     when(branchSupportDelegate.createComponentKey(nonExistingProject.getDbKey(), randomCharacteristics))
       .thenReturn(componentKey);
-    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), any()))
+    when(componentUpdater.createWithoutCommit(any(), any(), eq(user.getUuid()), eq(user.getLogin()), any()))
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject));
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingProject), any()))
       .thenReturn(createdBranch);
