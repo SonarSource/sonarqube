@@ -96,7 +96,7 @@ public class ClusterSettings implements Consumer<Props> {
   private void checkForApplicationNode(Props props) {
     ensureNotH2(props);
     requireValue(props, AUTH_JWT_SECRET);
-    Set<AddressAndPort> hzNodes = parseHosts(CLUSTER_HZ_HOSTS, requireValue(props, CLUSTER_HZ_HOSTS));
+    Set<AddressAndPort> hzNodes = parseAndCheckHosts(CLUSTER_HZ_HOSTS, requireValue(props, CLUSTER_HZ_HOSTS));
     ensureNotLoopbackAddresses(CLUSTER_HZ_HOSTS, hzNodes);
     checkClusterNodeHost(props);
     checkClusterSearchHosts(props);
@@ -117,28 +117,32 @@ public class ClusterSettings implements Consumer<Props> {
   }
 
   private void checkClusterSearchHosts(Props props) {
-    Set<AddressAndPort> searchHosts = parseHosts(CLUSTER_SEARCH_HOSTS, requireValue(props, CLUSTER_SEARCH_HOSTS));
+    Set<AddressAndPort> searchHosts = parseAndCheckHosts(CLUSTER_SEARCH_HOSTS, requireValue(props, CLUSTER_SEARCH_HOSTS));
     ensureNotLoopbackAddresses(CLUSTER_SEARCH_HOSTS, searchHosts);
   }
 
   private void checkClusterEsHosts(Props props) {
-    Set<AddressAndPort> esHosts = parseHosts(CLUSTER_ES_HOSTS, requireValue(props, CLUSTER_ES_HOSTS));
+    Set<AddressAndPort> esHosts = parseHosts(requireValue(props, CLUSTER_ES_HOSTS));
     ensureNotLoopbackAddresses(CLUSTER_ES_HOSTS, esHosts);
     ensureEitherPortsAreProvidedOrOnlyHosts(CLUSTER_ES_HOSTS, esHosts);
   }
 
-  private Set<AddressAndPort> parseHosts(Property property, String value) {
-    Set<AddressAndPort> res = stream(value.split(","))
+  private static Set<AddressAndPort> parseHosts(String value) {
+    return stream(value.split(","))
       .filter(Objects::nonNull)
       .map(String::trim)
       .map(ClusterSettings::parseHost)
       .collect(toSet());
+  }
+
+  private Set<AddressAndPort> parseAndCheckHosts(Property property, String value) {
+    Set<AddressAndPort> res = parseHosts( value);
     checkValidHosts(property, res);
     return res;
   }
 
   private void checkValidHosts(Property property, Set<AddressAndPort> addressAndPorts) {
-    List<String> invalidHosts = addressAndPorts.stream()
+   List<String> invalidHosts = addressAndPorts.stream()
       .map(AddressAndPort::getHost)
       .filter(t -> !network.toInetAddress(t).isPresent())
       .sorted()

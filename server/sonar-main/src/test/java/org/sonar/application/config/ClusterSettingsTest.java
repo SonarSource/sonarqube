@@ -379,7 +379,7 @@ public class ClusterSettingsTest {
   }
 
   @Test
-  public void validate_host_resolved_in_any_cluster_property_of_SEARCH_node() {
+  public void validate_host_resolved_in_node_search_host_property_of_SEARCH_node() {
     TestAppSettings settings = new TestAppSettings(ImmutableMap.<String, String>builder()
       .put(CLUSTER_ENABLED.getKey(), "true")
       .put(CLUSTER_NODE_TYPE.getKey(), "search")
@@ -387,8 +387,6 @@ public class ClusterSettingsTest {
       .put(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
       .put(CLUSTER_NODE_ES_HOST.getKey(), "search_host").build());
 
-    verifyHostIsChecked(settings, ImmutableList.of("remote_search_host_1"), "Address in property sonar.cluster.es.hosts is not a valid address: remote_search_host_1");
-    verifyHostIsChecked(settings, ImmutableList.of("remote_search_host_2"), "Address in property sonar.cluster.es.hosts is not a valid address: remote_search_host_2");
     verifyHostIsChecked(settings, ImmutableList.of("search_host"), "Address in property sonar.cluster.node.search.host is not a valid address: search_host");
   }
 

@@ -36,6 +36,7 @@ import org.sonar.process.System2;
 
 import static java.lang.String.valueOf;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_DISCOVERY_SEED_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_KEYSTORE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_TRUSTSTORE;
@@ -211,8 +212,9 @@ public class EsSettings {
       builder.put(ES_NETWORK_HOST_KEY, nodeTransportHost);
 
       String hosts = props.value(CLUSTER_ES_HOSTS.getKey(), loopbackAddress.getHostAddress());
+      String discoveryHosts = props.value(CLUSTER_ES_DISCOVERY_SEED_HOSTS.getKey(), hosts);
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
-      builder.put("discovery.seed_hosts", hosts);
+      builder.put("discovery.seed_hosts", discoveryHosts);
       builder.put("cluster.initial_master_nodes", hosts);
     }
 

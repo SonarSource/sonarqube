@@ -132,6 +132,7 @@ public class ProcessProperties {
 
     // search node only settings
     CLUSTER_ES_HOSTS("sonar.cluster.es.hosts"),
+    CLUSTER_ES_DISCOVERY_SEED_HOSTS("sonar.cluster.es.discovery.seed.hosts"),
     CLUSTER_NODE_SEARCH_HOST("sonar.cluster.node.search.host"),
     CLUSTER_NODE_SEARCH_PORT("sonar.cluster.node.search.port"),
     CLUSTER_NODE_ES_HOST("sonar.cluster.node.es.host"),
