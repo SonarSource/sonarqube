@@ -95,12 +95,15 @@ We ignore here the possibility that `bar()` could throw an exception, preventing
 
 ## Exceptions
 ### Python
-Based on observations from code on SonarCloud, `# pragma: no cover` exempts a block from coverage
+`# pragma: no cover` exempts a block from coverage.
 
 ![# pragma: no cover example](/images/executable-lines-python-exception.png)
 
 ### JavaScript
-It seems to be accepted practice in JavaScript to mark variable declarations executable, so we will too. E.G.
+We mark variable declarations executable.
+
+For example:
+
 ```
 var a;  // +1
 ```
