@@ -25,6 +25,7 @@ export const enum SettingsKey {
 }
 
 export type Setting = SettingValue & { definition: SettingDefinition };
+export type SettingWithCategory = Setting & { definition: SettingCategoryDefinition };
 
 export type SettingType =
   | 'STRING'

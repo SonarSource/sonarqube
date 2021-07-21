@@ -87,7 +87,12 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
           values={{
             housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
             link: (
-              <Link to={{ pathname: '/admin/settings', query: { category: 'housekeeping' } }}>
+              <Link
+                to={{
+                  pathname: '/admin/settings',
+                  query: { category: 'housekeeping' },
+                  hash: '#auditLogs'
+                }}>
                 {translate('audit_logs.page.description.link')}
               </Link>
             )

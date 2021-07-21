@@ -20,21 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { Setting } from '../../../../types/settings';
+import { mockSetting } from '../../../../helpers/mocks/settings';
 import { Definition } from '../Definition';
 
-const setting: Setting = {
-  key: 'foo',
-  value: '42',
-  inherited: true,
-  definition: {
-    key: 'foo',
-    name: 'Foo setting',
-    description: 'When Foo then Bar',
-    type: 'INTEGER',
-    options: []
-  }
-};
+const setting = mockSetting();
 
 beforeAll(() => {
   jest.useFakeTimers();

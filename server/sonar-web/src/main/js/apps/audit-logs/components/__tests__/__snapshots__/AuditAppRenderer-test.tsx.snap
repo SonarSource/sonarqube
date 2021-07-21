@@ -38,6 +38,7 @@ exports[`should render correctly for Monthly housekeeping policy 1`] = `
             style={Object {}}
             to={
               Object {
+                "hash": "#auditLogs",
                 "pathname": "/admin/settings",
                 "query": Object {
                   "category": "housekeeping",
@@ -162,6 +163,7 @@ exports[`should render correctly for Trimestrial housekeeping policy 1`] = `
             style={Object {}}
             to={
               Object {
+                "hash": "#auditLogs",
                 "pathname": "/admin/settings",
                 "query": Object {
                   "category": "housekeeping",
@@ -298,6 +300,7 @@ exports[`should render correctly for Weekly housekeeping policy 1`] = `
             style={Object {}}
             to={
               Object {
+                "hash": "#auditLogs",
                 "pathname": "/admin/settings",
                 "query": Object {
                   "category": "housekeeping",
@@ -410,6 +413,7 @@ exports[`should render correctly for Yearly housekeeping policy 1`] = `
             style={Object {}}
             to={
               Object {
+                "hash": "#auditLogs",
                 "pathname": "/admin/settings",
                 "query": Object {
                   "category": "housekeeping",

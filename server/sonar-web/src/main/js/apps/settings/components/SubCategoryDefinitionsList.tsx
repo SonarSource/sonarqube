@@ -19,36 +19,63 @@
  */
 import { groupBy, isEqual, sortBy } from 'lodash';
 import * as React from 'react';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
-import { Setting, SettingCategoryDefinition } from '../../../types/settings';
+import { SettingWithCategory } from '../../../types/settings';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 
-interface Props {
+export interface SubCategoryDefinitionsListProps {
   category: string;
   component?: T.Component;
   fetchValues: Function;
-  settings: Array<Setting & { definition: SettingCategoryDefinition }>;
+  location: Location;
+  settings: Array<SettingWithCategory>;
   subCategory?: string;
 }
 
-export default class SubCategoryDefinitionsList extends React.PureComponent<Props> {
+const SCROLL_OFFSET_TOP = 200;
+const SCROLL_OFFSET_BOTTOM = 500;
+
+export class SubCategoryDefinitionsList extends React.PureComponent<
+  SubCategoryDefinitionsListProps
+> {
   componentDidMount() {
     this.fetchValues();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const prevKeys = prevProps.settings.map(setting => setting.definition.key);
     const keys = this.props.settings.map(setting => setting.definition.key);
     if (prevProps.component !== this.props.component || !isEqual(prevKeys, keys)) {
       this.fetchValues();
     }
+
+    const { hash } = this.props.location;
+    if (hash && prevProps.location.hash !== hash) {
+      const element = document.querySelector<HTMLHeadingElement>(`h2[data-key=${hash.substr(1)}]`);
+      this.scrollToSubCategory(element);
+    }
   }
+
+  scrollToSubCategory = (element: HTMLHeadingElement | null) => {
+    if (element) {
+      const { hash } = this.props.location;
+      if (hash && hash.substr(1) === element.getAttribute('data-key')) {
+        scrollToElement(element, {
+          topOffset: SCROLL_OFFSET_TOP,
+          bottomOffset: SCROLL_OFFSET_BOTTOM,
+          smooth: true
+        });
+      }
+    }
+  };
 
   fetchValues() {
     const keys = this.props.settings.map(setting => setting.definition.key).join();
-    this.props.fetchValues(keys, this.props.component && this.props.component.key);
+    return this.props.fetchValues(keys, this.props.component && this.props.component.key);
   }
 
   renderEmailForm = (subCategoryKey: string) => {
@@ -76,7 +103,12 @@ export default class SubCategoryDefinitionsList extends React.PureComponent<Prop
       <ul className="settings-sub-categories-list">
         {filteredSubCategories.map(subCategory => (
           <li key={subCategory.key}>
-            <h2 className="settings-sub-category-name">{subCategory.name}</h2>
+            <h2
+              className="settings-sub-category-name"
+              data-key={subCategory.key}
+              ref={this.scrollToSubCategory}>
+              {subCategory.name}
+            </h2>
             {subCategory.description != null && (
               <div
                 className="settings-sub-category-description markdown"
@@ -97,3 +129,5 @@ export default class SubCategoryDefinitionsList extends React.PureComponent<Prop
     );
   }
 }
+
+export default withRouter(SubCategoryDefinitionsList);

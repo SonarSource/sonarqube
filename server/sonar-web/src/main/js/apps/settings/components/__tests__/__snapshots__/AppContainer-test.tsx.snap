@@ -110,7 +110,7 @@ exports[`should render default view correctly 1`] = `
         <div
           className="big-padded"
         >
-          <Connect(SubCategoryDefinitionsList)
+          <Connect(withRouter(SubCategoryDefinitionsList))
             category="general"
           />
         </div>
@@ -252,7 +252,7 @@ exports[`should render pull request decoration binding correctly 1`] = `
         <div
           className="big-padded"
         >
-          <Connect(SubCategoryDefinitionsList)
+          <Connect(withRouter(SubCategoryDefinitionsList))
             category="pull_request_decoration_binding"
           />
         </div>

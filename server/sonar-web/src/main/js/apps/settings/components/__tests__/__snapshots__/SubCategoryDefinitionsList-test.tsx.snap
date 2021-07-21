@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul
+  className="settings-sub-categories-list"
+>
+  <li
+    key="email"
+  >
+    <h2
+      className="settings-sub-category-name"
+      data-key="email"
+    >
+      email
+    </h2>
+    <DefinitionsList
+      settings={
+        Array [
+          Object {
+            "definition": Object {
+              "category": "general",
+              "description": "When Foo then Bar",
+              "fields": Array [],
+              "key": "foo",
+              "name": "Foo setting",
+              "options": Array [],
+              "subCategory": "email",
+              "type": "INTEGER",
+            },
+            "inherited": true,
+            "key": "foo",
+            "value": "42",
+          },
+        ]
+      }
+    />
+    <Connect(withCurrentUser(EmailForm)) />
+  </li>
+  <li
+    key="qg"
+  >
+    <h2
+      className="settings-sub-category-name"
+      data-key="qg"
+    >
+      qg
+    </h2>
+    <DefinitionsList
+      settings={
+        Array [
+          Object {
+            "definition": Object {
+              "category": "general",
+              "description": "awesome description",
+              "fields": Array [],
+              "key": "qg",
+              "options": Array [],
+              "subCategory": "qg",
+            },
+            "inherited": true,
+            "key": "foo",
+            "value": "42",
+          },
+        ]
+      }
+    />
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: subcategory 1`] = `
+<ul
+  className="settings-sub-categories-list"
+>
+  <li
+    key="qg"
+  >
+    <h2
+      className="settings-sub-category-name"
+      data-key="qg"
+    >
+      qg
+    </h2>
+    <DefinitionsList
+      settings={
+        Array [
+          Object {
+            "definition": Object {
+              "category": "general",
+              "description": "awesome description",
+              "fields": Array [],
+              "key": "qg",
+              "options": Array [],
+              "subCategory": "qg",
+            },
+            "inherited": true,
+            "key": "foo",
+            "value": "42",
+          },
+        ]
+      }
+    />
+  </li>
+</ul>
+`;

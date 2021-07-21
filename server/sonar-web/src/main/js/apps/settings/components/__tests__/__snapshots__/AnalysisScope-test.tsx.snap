@@ -48,7 +48,7 @@ exports[`should render correctly 1`] = `
   <div
     className="settings-sub-category"
   >
-    <Connect(SubCategoryDefinitionsList)
+    <Connect(withRouter(SubCategoryDefinitionsList))
       category="TEST"
       component={
         Object {
