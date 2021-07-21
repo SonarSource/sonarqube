@@ -87,7 +87,9 @@ public class BulkDeleteAction implements ProjectsWsAction {
         parameterRequiredMessage)
       .setSince("5.2")
       .setHandler(this)
-      .setChangelog(new Change("7.8", parameterRequiredMessage));
+      .setChangelog(new Change("7.8", parameterRequiredMessage))
+      .setChangelog(new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' "
+        + "takes into account the analysis of all branches and pull requests, not only the main branch."));
 
     action
       .createParam(PARAM_PROJECTS)

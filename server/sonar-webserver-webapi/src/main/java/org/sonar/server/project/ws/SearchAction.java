@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -83,6 +84,8 @@ public class SearchAction implements ProjectsWsAction {
         "Requires 'Administer System' permission")
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("search-example.json"))
+      .setChangelog(new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' and the field 'lastAnalysisDate' of the returned projects "
+        + "take into account the analysis of all branches and pull requests, not only the main branch."))
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)
@@ -99,7 +102,7 @@ public class SearchAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility will be used.",
+          "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
