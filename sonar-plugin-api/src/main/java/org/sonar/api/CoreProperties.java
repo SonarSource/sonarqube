@@ -65,6 +65,10 @@ public interface CoreProperties {
    * @since 8.1
    */
   String CATEGORY_HOUSEKEEPING = "housekeeping";
+  /**
+   * @since 9.1
+   */
+  String CATEGORY_AUDIT_LOGS = "auditLogs";
 
   /**
    * @since 6.6

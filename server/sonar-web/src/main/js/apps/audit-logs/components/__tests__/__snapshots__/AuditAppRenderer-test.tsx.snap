@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for monthly housekeeping policy 1`] = `
+exports[`should render correctly for Monthly housekeeping policy 1`] = `
 <div
   className="page page-limited"
   id="marketplace-page"
@@ -32,7 +32,7 @@ exports[`should render correctly for monthly housekeeping policy 1`] = `
       id="audit_logs.page.description.2"
       values={
         Object {
-          "housekeeping": "audit_logs.houskeeping_policy.monthly",
+          "housekeeping": "audit_logs.housekeeping_policy.Monthly",
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
@@ -124,7 +124,7 @@ exports[`should render correctly for monthly housekeeping policy 1`] = `
 </div>
 `;
 
-exports[`should render correctly for trimestrial housekeeping policy 1`] = `
+exports[`should render correctly for Trimestrial housekeeping policy 1`] = `
 <div
   className="page page-limited"
   id="marketplace-page"
@@ -156,7 +156,7 @@ exports[`should render correctly for trimestrial housekeeping policy 1`] = `
       id="audit_logs.page.description.2"
       values={
         Object {
-          "housekeeping": "audit_logs.houskeeping_policy.trimestrial",
+          "housekeeping": "audit_logs.housekeeping_policy.Trimestrial",
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
@@ -260,7 +260,7 @@ exports[`should render correctly for trimestrial housekeeping policy 1`] = `
 </div>
 `;
 
-exports[`should render correctly for weekly housekeeping policy 1`] = `
+exports[`should render correctly for Weekly housekeeping policy 1`] = `
 <div
   className="page page-limited"
   id="marketplace-page"
@@ -292,7 +292,7 @@ exports[`should render correctly for weekly housekeeping policy 1`] = `
       id="audit_logs.page.description.2"
       values={
         Object {
-          "housekeeping": "audit_logs.houskeeping_policy.weekly",
+          "housekeeping": "audit_logs.housekeeping_policy.Weekly",
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
@@ -372,7 +372,7 @@ exports[`should render correctly for weekly housekeeping policy 1`] = `
 </div>
 `;
 
-exports[`should render correctly for yearly housekeeping policy 1`] = `
+exports[`should render correctly for Yearly housekeeping policy 1`] = `
 <div
   className="page page-limited"
   id="marketplace-page"
@@ -404,7 +404,7 @@ exports[`should render correctly for yearly housekeeping policy 1`] = `
       id="audit_logs.page.description.2"
       values={
         Object {
-          "housekeeping": "audit_logs.houskeeping_policy.yearly",
+          "housekeeping": "audit_logs.housekeeping_policy.Yearly",
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}

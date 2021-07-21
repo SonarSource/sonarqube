@@ -29,4 +29,5 @@ public interface PurgeConstants {
   String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
   String DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS = "sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs";
   String BRANCHES_TO_KEEP_WHEN_INACTIVE = "sonar.dbcleaner.branchesToKeepWhenInactive";
+  String AUDIT_HOUSEKEEPING_FREQUENCY = "sonar.dbcleaner.auditHousekeeping";
 }

@@ -101,7 +101,7 @@ public class UserNewValue implements NewValue {
   }
 
   @CheckForNull
-  public boolean isActive() {
+  public Boolean isActive() {
     return this.isActive;
   }
 
@@ -126,17 +126,17 @@ public class UserNewValue implements NewValue {
   }
 
   @CheckForNull
-  public boolean isLocal() {
+  public Boolean isLocal() {
     return this.local;
   }
 
   @CheckForNull
-  public boolean isOnboarded() {
+  public Boolean isOnboarded() {
     return this.onboarded;
   }
 
   @CheckForNull
-  public boolean isRoot() {
+  public Boolean isRoot() {
     return this.root;
   }
 

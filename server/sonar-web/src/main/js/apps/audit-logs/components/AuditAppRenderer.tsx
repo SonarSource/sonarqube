@@ -85,7 +85,7 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
           id="audit_logs.page.description.2"
           defaultMessage={translate('audit_logs.page.description.2')}
           values={{
-            housekeeping: translate('audit_logs.houskeeping_policy', housekeepingPolicy),
+            housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
             link: (
               <Link to={{ pathname: '/admin/settings', query: { category: 'housekeeping' } }}>
                 {translate('audit_logs.page.description.link')}

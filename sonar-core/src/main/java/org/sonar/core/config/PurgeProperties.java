@@ -26,8 +26,10 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
+import static org.sonar.core.config.Frequency.MONTHLY;
 
 public final class PurgeProperties {
+  public static final String DEFAULT_FREQUENCY = MONTHLY.getDescription();
 
   private PurgeProperties() {
   }

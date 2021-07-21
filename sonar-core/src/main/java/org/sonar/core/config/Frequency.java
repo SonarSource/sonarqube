@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum HousekeepingPolicy {
-  Weekly = 'Weekly',
-  Monthly = 'Monthly',
-  Trimestrial = 'Trimestrial',
-  Yearly = 'Yearly'
-}
+package org.sonar.core.config;
 
-export enum RangeOption {
-  Today = 'today',
-  Week = '7days',
-  Month = '30days',
-  Trimester = '90days',
-  Custom = 'custom'
-}
+public enum Frequency {
+  WEEKLY("Weekly", 7),
+  MONTHLY("Monthly", 30),
+  TRIMESTRIAL("Trimestrial", 90),
+  YEARLY("Yearly", 365);
 
-export function now() {
-  return new Date();
+  final String description;
+  final int days;
+
+  public String getDescription() {
+    return this.description;
+  }
+
+  Frequency(String description, int days) {
+    this.description = description;
+    this.days = days;
+  }
 }

@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
   handleDateSelection={[Function]}
   handleOptionSelection={[Function]}
   handleStartDownload={[Function]}
-  housekeepingPolicy="monthly"
+  housekeepingPolicy="Monthly"
   selection="today"
 />
 `;
