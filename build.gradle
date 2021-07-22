@@ -233,8 +233,12 @@ subprojects {
       dependency 'commons-dbutils:commons-dbutils:1.7'
       dependency 'commons-io:commons-io:2.8.0'
       dependency 'commons-lang:commons-lang:2.6'
-      imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.10.5.20201202' }
-      dependency 'com.fasterxml.jackson.dataformat:protobuf:2.10.5'
+      imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.4' }
+      dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.11.4') {
+        entry 'jackson-dataformat-cbor'
+        entry 'jackson-dataformat-smile'
+        entry 'jackson-dataformat-yaml'
+      }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependencySet(group: 'com.github.scribejava', version: '6.9.0') {
         entry 'scribejava-apis'
