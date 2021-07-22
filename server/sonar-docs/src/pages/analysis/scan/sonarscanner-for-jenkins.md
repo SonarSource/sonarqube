@@ -31,7 +31,9 @@ Once the job is complete, the plugin will detect that a SonarQube analysis was m
 
 ## Analyzing a .NET solution
 **Global Configuration**  
+
 This step is mandatory if you want to trigger any of your analyses with the SonarScanner for .NET. You can define as many scanner instances as you wish. Then for each Jenkins job, you will be able to choose which launcher to use to run the SonarQube analysis.
+
 1. Log into Jenkins as an administrator and go to **Manage Jenkins > Global Tool Configuration**
 1. Click on **Add SonarScanner for MSBuild**
 1. Add an installation of the latest available version. Check **Install automatically** to have the SonarScanner for MSBuild automatically provisioned on your Jenkins executors
@@ -39,6 +41,7 @@ This step is mandatory if you want to trigger any of your analyses with the Sona
 If you do not see any available version under Install from GitHub, first go to Manage Jenkins > Manage Plugins > Advanced and click on Check now
 
 **Job Configuration**  
+
 1. Configure the project, and go to the **Build** section.
 1. Add the SonarQube for MSBuild - Begin Analysis to your build
 1. Configure the SonarQube Project Key, Name, and Version in the SonarScanner for MSBuild - Begin Analysis build step
@@ -47,10 +50,12 @@ If you do not see any available version under Install from GitHub, first go to M
 
 ## Analyzing a Java project with Maven or Gradle
 **Global Configuration**  
+
 1. Log into Jenkins as an administrator and go to Manage Jenkins > Configure System
 1. Scroll to the SonarQube servers section and check Enable injection of SonarQube server configuration as build environment variables
 
 **Job Configuration**  
+
 1. **Configure** the project, and go to the **Build Environment** section.
 1. Enable **Prepare SonarScanner environment** to allow the injection of SonarQube server values into this particular job. If multiple SonarQube instances are configured, you will be able to choose which one to use.
 Once the environment variables are available, use them in a standard Maven build step (Invoke top-level Maven targets) by setting the Goals to include, or a standard Gradle build step (Invoke Gradle script) by setting the Tasks to execute.
@@ -76,7 +81,8 @@ This step is mandatory if you want to trigger any of your SonarQube analyses wit
 
 If you don't see a drop-down list with all available SonarScanner versions but instead see an empty text field then this is because Jenkins still hasn't downloaded the required update center file (default period is 1 day). You may force this refresh by clicking the 'Check Now' button in Manage Plugins > Advanced tab.
 
-**Job Configuration**  
+**Job Configuration**
+  
 1. **Configure** the project, and go to the **Build** section. 
 1. Add the SonarScanner build step to your build.
 1. Configure the SonarQube analysis properties. You can either point to an existing sonar-project.properties file or set the analysis properties directly in the **Analysis properties** field
