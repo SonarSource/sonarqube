@@ -19,10 +19,9 @@
  */
 package org.sonar.db.audit;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
-
-import java.util.List;
 
 public interface AuditMapper {
 
@@ -30,8 +29,10 @@ public interface AuditMapper {
 
   void delete(@Param("uuids") List<String> uuids);
 
-  void deleteIfBeforeSelectedDate(@Param("timestamp") long timestamp);
-
   List<AuditDto> selectByPeriodPaginated(@Param("start")long start, @Param("end") long end, @Param("pagination") Pagination pagination);
+
+  List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
+
+  void deleteByUuids(@Param("uuids") List<String> uuids);
 
 }

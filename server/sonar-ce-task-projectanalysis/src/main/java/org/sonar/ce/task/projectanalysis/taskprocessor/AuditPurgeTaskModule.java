@@ -17,27 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-public enum Frequency {
-  WEEKLY("Weekly", 7),
-  MONTHLY("Monthly", 30),
-  TRIMESTRIAL("Trimestrial", 90),
-  YEARLY("Yearly", 365);
+import org.sonar.core.platform.Module;
 
-  final String description;
-  final int days;
+public class AuditPurgeTaskModule extends Module {
 
-  public String getDescription() {
-    return this.description;
-  }
-
-  public int getDays() {
-    return this.days;
-  }
-
-  Frequency(String description, int days) {
-    this.description = description;
-    this.days = days;
+  @Override
+  protected void configureModule() {
+    add(AuditPurgeTaskProcessor.class);
   }
 }

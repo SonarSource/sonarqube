@@ -63,6 +63,7 @@ import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
@@ -433,6 +434,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CeTaskCommonsModule.class,
       ProjectAnalysisTaskModule.class,
       IssueSyncTaskModule.class,
+      AuditPurgeTaskModule.class,
       CeTaskProcessorModule.class,
       OfficialDistribution.class,
 

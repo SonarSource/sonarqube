@@ -20,6 +20,8 @@
 package org.sonar.db.audit;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -63,7 +65,12 @@ public class AuditDaoTest {
   public void deleteIfBeforeSelectedDate_deleteTwoRows() {
     prepareRowsWithDeterministicCreatedAt(3);
 
-    testAuditDao.deleteIfBeforeSelectedDate(dbSession, 2);
+    Set<String> auditUuids = testAuditDao.selectOlderThan(dbSession, 3)
+      .stream()
+      .map(AuditDto::getUuid)
+      .collect(Collectors.toSet());
+
+    testAuditDao.deleteByUuids(dbSession, auditUuids);
 
     List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 4, 1);
     assertThat(auditDtos.size()).isEqualTo(1);

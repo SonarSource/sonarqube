@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-public enum Frequency {
-  WEEKLY("Weekly", 7),
-  MONTHLY("Monthly", 30),
-  TRIMESTRIAL("Trimestrial", 90),
-  YEARLY("Yearly", 365);
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-  final String description;
-  final int days;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-  public String getDescription() {
-    return this.description;
+public class AuditPurgeTaskModuleTest {
+
+  @Test
+  public void verifyCountOfAddedComponents() {
+    ComponentContainer container = new ComponentContainer();
+    new AuditPurgeTaskModule().configure(container);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 1);
   }
 
-  public int getDays() {
-    return this.days;
-  }
-
-  Frequency(String description, int days) {
-    this.description = description;
-    this.days = days;
-  }
 }

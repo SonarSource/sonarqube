@@ -47,10 +47,22 @@
     )
   </insert>
 
-  <delete id="deleteIfBeforeSelectedDate">
-    delete from audits
+  <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.audit.AuditDto">
+    select
+      <include refid="sqlColumns"/>
+    from audits a
     where
-    created_at &lt;= #{timestamp,jdbcType=BIGINT}
+      a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByUuids" parameterType="string">
+    delete
+      from audits
+    where
+      uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid,jdbcType=VARCHAR}
+      </foreach>
   </delete>
 
 </mapper>
