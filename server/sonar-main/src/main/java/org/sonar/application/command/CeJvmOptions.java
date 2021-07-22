@@ -37,6 +37,14 @@ public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
     res.put("-XX:-OmitStackTraceInFastThrow", "");
     // avoid illegal reflective access operations done by MyBatis
     res.put("--add-opens=java.base/java.util=ALL-UNNAMED", "");
+
+    // avoid illegal reflective access operations done by Hazelcast
+    res.put("--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED", "");
+    res.put("--add-opens=java.base/java.lang=ALL-UNNAMED", "");
+    res.put("--add-opens=java.base/java.nio=ALL-UNNAMED", "");
+    res.put("--add-opens=java.base/sun.nio.ch=ALL-UNNAMED", "");
+    res.put("--add-opens=java.management/sun.management=ALL-UNNAMED", "");
+    res.put("--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED", "");
     return res;
   }
 }
