@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +64,12 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private final HazelcastMember hzMember;
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final Map<ProcessId, Boolean> operationalLocalProcesses = new EnumMap<>(ProcessId.class);
+  private final AtomicBoolean esPoolingThreadRunning = new AtomicBoolean(false);
   private final ReplicatedMap<ClusterProcess, Boolean> operationalProcesses;
   private final UUID operationalProcessListenerUUID;
   private final UUID nodeDisconnectedListenerUUID;
   private final EsConnector esConnector;
+
   private HealthStateSharing healthStateSharing = null;
 
   public ClusterAppStateImpl(AppSettings settings, HazelcastMember hzMember, EsConnector esConnector, AppNodesClusterHostsConsistency appNodesClusterHostsConsistency) {
@@ -200,9 +204,52 @@ public class ClusterAppStateImpl implements ClusterAppState {
   }
 
   private boolean isElasticSearchAvailable() {
-    return esConnector.getClusterHealthStatus()
+    boolean available = esConnector.getClusterHealthStatus()
       .filter(t -> ClusterHealthStatus.GREEN.equals(t) || ClusterHealthStatus.YELLOW.equals(t))
       .isPresent();
+    if (!available) {
+      asyncWaitForEsToBecomeOperational();
+    }
+    return available;
+  }
+
+  private void asyncWaitForEsToBecomeOperational() {
+    if (esPoolingThreadRunning.compareAndSet(false, true)) {
+      Thread thread = new EsPoolingThread();
+      thread.start();
+    }
+  }
+
+  private class EsPoolingThread extends Thread {
+    private EsPoolingThread() {
+      super("es-state-pooling");
+      this.setDaemon(true);
+    }
+
+    @Override
+    public void run() {
+      if (isElasticSearchAvailable()) {
+        listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
+        esPoolingThreadRunning.set(false);
+        return;
+      }
+
+      LOGGER.info("Waiting for ElasticSearch to be up and running");
+      do {
+        try {
+          Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+          esPoolingThreadRunning.set(false);
+          Thread.currentThread().interrupt();
+          return;
+        }
+        if (isElasticSearchAvailable()) {
+          listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
+          esPoolingThreadRunning.set(false);
+          return;
+        }
+      } while (true);
+    }
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {

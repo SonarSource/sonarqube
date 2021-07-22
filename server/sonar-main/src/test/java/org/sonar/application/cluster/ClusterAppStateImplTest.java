@@ -21,6 +21,7 @@ package org.sonar.application.cluster;
 
 import java.net.InetAddress;
 import java.util.Optional;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -41,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.SONARQUBE_VERSION;
 
@@ -74,6 +76,24 @@ public class ClusterAppStateImplTest {
       assertThat(underTest.isOperational(ProcessId.APP, true)).isEqualTo(false);
       assertThat(underTest.isOperational(ProcessId.WEB_SERVER, true)).isEqualTo(false);
       assertThat(underTest.isOperational(ProcessId.COMPUTE_ENGINE, true)).isEqualTo(false);
+    }
+  }
+
+  @Test
+  public void check_if_elasticsearch_is_operational_on_cluster() {
+    AppStateListener listener = mock(AppStateListener.class);
+    EsConnector esConnectorMock = mock(EsConnector.class);
+    when(esConnectorMock.getClusterHealthStatus())
+      .thenReturn(Optional.empty())
+      .thenReturn(Optional.of(ClusterHealthStatus.RED))
+      .thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+    try (ClusterAppStateImpl underTest = createClusterAppState(esConnectorMock)) {
+      underTest.addListener(listener);
+
+      underTest.isOperational(ProcessId.ELASTICSEARCH, false);
+
+      //wait until undergoing thread marks ES as operational
+      verify(listener, timeout(20_000)).onAppStateOperational(ProcessId.ELASTICSEARCH);
     }
   }
 
@@ -164,7 +184,11 @@ public class ClusterAppStateImplTest {
   }
 
   private ClusterAppStateImpl createClusterAppState() {
-    return new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), mock(EsConnector.class), mock(AppNodesClusterHostsConsistency.class));
+    return createClusterAppState(mock(EsConnector.class));
+  }
+
+  private ClusterAppStateImpl createClusterAppState(EsConnector esConnector) {
+    return new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), esConnector, mock(AppNodesClusterHostsConsistency.class));
   }
 
   private static HazelcastMember newHzMember() {
