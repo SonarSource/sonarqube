@@ -24,36 +24,29 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
-import com.hazelcast.internal.util.AddressUtil;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import static org.sonar.process.cluster.hz.JoinConfigurationType.KUBERNETES;
+import static org.sonar.process.cluster.hz.JoinConfigurationType.TCP_IP;
 
 public class HazelcastMemberBuilder {
-
-  private static final Logger LOG = Loggers.get(HazelcastMemberBuilder.class);
   private String nodeName;
   private int port;
   private ProcessId processId;
   private String networkInterface;
-  private List<String> members = new ArrayList<>();
-  private final InetAdressResolver inetAdressResolver;
+  private final MembersResolver membersResolver;
+  private final List<String> members = new ArrayList<>();
+  private final JoinConfigurationType type;
 
-  public HazelcastMemberBuilder(InetAdressResolver inetAdressResolver) {
-    this.inetAdressResolver = inetAdressResolver;
+  public HazelcastMemberBuilder(JoinConfigurationType type) {
+    this.type = type;
+    this.membersResolver = TCP_IP.equals(type) ? new TcpIpMembersResolver() : new NopMembersResolver();
   }
 
   public HazelcastMemberBuilder setNodeName(String s) {
@@ -79,47 +72,12 @@ public class HazelcastMemberBuilder {
     return this;
   }
 
-  @CheckForNull
-  List<String> getMembers() {
-    return members;
-  }
-
   /**
-   * Adds references to cluster members. If port is missing, then default
-   * port is automatically added.
+   * Adds references to cluster members
    */
-  public HazelcastMemberBuilder setMembers(Collection<String> c) {
-    this.members.addAll(c.stream().map(this::extractMembers).flatMap(Collection::stream).collect(Collectors.toList()));
+  public HazelcastMemberBuilder setMembers(Collection<String> members) {
+    this.members.addAll(members);
     return this;
-  }
-
-  private List<String> extractMembers(String host) {
-    LOG.debug("Trying to add host: " + host);
-    String hostStripped = host.split(":")[0];
-    if (AddressUtil.isIpAddress(hostStripped)) {
-      LOG.debug("Found ip based host config for host: " + host);
-      return Collections.singletonList(host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue()));
-    } else {
-      List<String> membersToAdd = new ArrayList<>();
-      for (String memberIp : getAllByName(hostStripped)) {
-        String prefix = memberIp.split("/")[1];
-        LOG.debug("Found IP for: " + hostStripped + " : " + prefix);
-        String memberPort = host.contains(":") ? host.split(":")[1] : CLUSTER_NODE_HZ_PORT.getDefaultValue();
-        String member = prefix + ":" + memberPort;
-        membersToAdd.add(member);
-      }
-      return membersToAdd;
-    }
-  }
-
-  List<String> getAllByName(String hostname) {
-    LOG.debug("Trying to resolve Hostname: " + hostname);
-    try {
-      return inetAdressResolver.getAllByName(hostname);
-    } catch (UnknownHostException e) {
-      LOG.error("Host could not be found\n" + e.getMessage());
-    }
-    return new ArrayList<>();
   }
 
   public HazelcastMember build() {
@@ -140,12 +98,20 @@ public class HazelcastMemberBuilder {
       .setEnabled(true)
       .setInterfaces(singletonList(requireNonNull(networkInterface, "Network interface is missing")));
 
-    // Only allowing TCP/IP configuration
     JoinConfig joinConfig = netConfig.getJoin();
     joinConfig.getAwsConfig().setEnabled(false);
     joinConfig.getMulticastConfig().setEnabled(false);
-    joinConfig.getTcpIpConfig().setEnabled(true);
-    joinConfig.getTcpIpConfig().setMembers(requireNonNull(members, "Members are missing"));
+
+    List<String> resolvedNodes = membersResolver.resolveMembers(this.members);
+    if (KUBERNETES.equals(type)) {
+      joinConfig.getKubernetesConfig().setEnabled(true)
+        .setProperty("service-dns", requireNonNull(resolvedNodes.get(0), "Service DNS is missing"))
+        .setProperty("service-port", "9003");
+    } else {
+      joinConfig.getTcpIpConfig().setEnabled(true);
+      joinConfig.getTcpIpConfig().setMembers(requireNonNull(resolvedNodes, "Members are missing"));
+    }
+
     // We are not using the partition group of Hazelcast, so disabling it
     config.getPartitionGroupConfig().setEnabled(false);
 

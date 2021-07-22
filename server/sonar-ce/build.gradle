@@ -11,6 +11,7 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.hazelcast:hazelcast'
+  compile 'com.hazelcast:hazelcast-kubernetes'
   compile 'commons-io:commons-io'
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.nanohttpd:nanohttpd'

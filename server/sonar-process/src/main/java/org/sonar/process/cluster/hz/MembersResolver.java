@@ -19,16 +19,8 @@
  */
 package org.sonar.process.cluster.hz;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class InetAdressResolver {
-
-  public List<String> getAllByName(String hostname) throws UnknownHostException {
-    return Arrays.stream(InetAddress.getAllByName(hostname)).map(InetAddress::toString).collect(Collectors.toList());
-  }
-
+interface MembersResolver {
+  List<String> resolveMembers(List<String> membersToResolve);
 }

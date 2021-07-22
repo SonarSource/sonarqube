@@ -110,7 +110,7 @@ public class HazelcastMemberImplTest {
   }
 
   private static HazelcastMember newHzMember(int port, int... otherPorts) {
-    return new HazelcastMemberBuilder(new InetAdressResolver())
+    return new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("name" + port)
       .setPort(port)

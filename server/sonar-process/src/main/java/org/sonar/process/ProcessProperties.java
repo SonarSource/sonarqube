@@ -114,6 +114,7 @@ public class ProcessProperties {
     SOCKS_PROXY_PORT("socksProxyPort"),
 
     CLUSTER_ENABLED("sonar.cluster.enabled", "false"),
+    CLUSTER_KUBERNETES("sonar.cluster.kubernetes", "false"),
     CLUSTER_NODE_TYPE("sonar.cluster.node.type"),
     CLUSTER_SEARCH_HOSTS("sonar.cluster.search.hosts"),
     CLUSTER_HZ_HOSTS("sonar.cluster.hosts"),
