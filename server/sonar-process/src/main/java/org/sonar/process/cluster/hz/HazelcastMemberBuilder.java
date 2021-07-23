@@ -24,29 +24,28 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember.Attribute;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.cluster.hz.JoinConfigurationType.KUBERNETES;
-import static org.sonar.process.cluster.hz.JoinConfigurationType.TCP_IP;
 
 public class HazelcastMemberBuilder {
   private String nodeName;
   private int port;
   private ProcessId processId;
   private String networkInterface;
-  private final MembersResolver membersResolver;
-  private final List<String> members = new ArrayList<>();
+  private String members;
   private final JoinConfigurationType type;
 
   public HazelcastMemberBuilder(JoinConfigurationType type) {
     this.type = type;
-    this.membersResolver = TCP_IP.equals(type) ? new TcpIpMembersResolver() : new NopMembersResolver();
   }
 
   public HazelcastMemberBuilder setNodeName(String s) {
@@ -75,8 +74,8 @@ public class HazelcastMemberBuilder {
   /**
    * Adds references to cluster members
    */
-  public HazelcastMemberBuilder setMembers(Collection<String> members) {
-    this.members.addAll(members);
+  public HazelcastMemberBuilder setMembers(String members) {
+    this.members = members;
     return this;
   }
 
@@ -102,14 +101,18 @@ public class HazelcastMemberBuilder {
     joinConfig.getAwsConfig().setEnabled(false);
     joinConfig.getMulticastConfig().setEnabled(false);
 
-    List<String> resolvedNodes = membersResolver.resolveMembers(this.members);
     if (KUBERNETES.equals(type)) {
       joinConfig.getKubernetesConfig().setEnabled(true)
-        .setProperty("service-dns", requireNonNull(resolvedNodes.get(0), "Service DNS is missing"))
-        .setProperty("service-port", "9003");
+        .setProperty("service-dns", requireNonNull(members, "Service DNS is missing"))
+        .setProperty("service-port", CLUSTER_NODE_HZ_PORT.getDefaultValue());
     } else {
+      List<String> addressesWithDefaultPorts = Stream.of(this.members.split(","))
+          .filter(host -> !host.isBlank())
+          .map(String::trim)
+          .map(HazelcastMemberBuilder::applyDefaultPortToHost)
+          .collect(Collectors.toList());
       joinConfig.getTcpIpConfig().setEnabled(true);
-      joinConfig.getTcpIpConfig().setMembers(requireNonNull(resolvedNodes, "Members are missing"));
+      joinConfig.getTcpIpConfig().setMembers(requireNonNull(addressesWithDefaultPorts, "Members are missing"));
     }
 
     // We are not using the partition group of Hazelcast, so disabling it
@@ -131,6 +134,10 @@ public class HazelcastMemberBuilder {
     attributes.setAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
+  }
+
+  private static String applyDefaultPortToHost(String host) {
+    return host.contains(":") ? host : format("%s:%s", host, CLUSTER_NODE_HZ_PORT.getDefaultValue());
   }
 
 }

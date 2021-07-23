@@ -43,7 +43,7 @@ public class HazelcastMemberBuilderTest {
   @Test
   public void build_tcp_ip_member_hostaddress() {
     HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
-      .setMembers(Collections.singletonList(loopback.getHostAddress()))
+      .setMembers(loopback.getHostAddress())
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
       .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
@@ -65,7 +65,7 @@ public class HazelcastMemberBuilderTest {
   @Test
   public void build_tcp_ip_member_hostname() {
     HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
-        .setMembers(Collections.singletonList(loopback.getHostName()))
+        .setMembers(loopback.getHostName())
         .setProcessId(ProcessId.COMPUTE_ENGINE)
         .setNodeName("bar")
         .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
@@ -87,7 +87,7 @@ public class HazelcastMemberBuilderTest {
   @Test
   public void build_kubernetes_member() {
     HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
-      .setMembers(Collections.singletonList(loopback.getHostAddress()))
+      .setMembers(loopback.getHostAddress())
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
       .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())

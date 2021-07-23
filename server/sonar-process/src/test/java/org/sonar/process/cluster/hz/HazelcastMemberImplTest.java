@@ -115,7 +115,7 @@ public class HazelcastMemberImplTest {
       .setNodeName("name" + port)
       .setPort(port)
       .setNetworkInterface(loopback.getHostAddress())
-      .setMembers(Arrays.stream(otherPorts).mapToObj(p -> loopback.getHostAddress() + ":" + p).collect(Collectors.toList()))
+      .setMembers(Arrays.stream(otherPorts).mapToObj(p -> loopback.getHostAddress() + ":" + p).collect(Collectors.joining(",")))
       .build();
   }
 

@@ -34,7 +34,6 @@ import org.sonar.process.Props;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
-import static java.util.Arrays.asList;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_KUBERNETES;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
@@ -66,7 +65,7 @@ public class AppStateFactory {
     boolean isRunningOnKubernetes = props.valueAsBoolean(CLUSTER_KUBERNETES.getKey(), Boolean.parseBoolean(CLUSTER_KUBERNETES.getDefaultValue()));
     HazelcastMemberBuilder builder = new HazelcastMemberBuilder(isRunningOnKubernetes ? KUBERNETES : TCP_IP)
       .setNetworkInterface(props.nonNullValue(CLUSTER_NODE_HOST.getKey()))
-      .setMembers(asList(props.nonNullValue(CLUSTER_HZ_HOSTS.getKey()).split(",")))
+      .setMembers(props.nonNullValue(CLUSTER_HZ_HOSTS.getKey()))
       .setNodeName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))
       .setPort(Integer.parseInt(props.nonNullValue(CLUSTER_NODE_HZ_PORT.getKey())))
       .setProcessId(ProcessId.APP);

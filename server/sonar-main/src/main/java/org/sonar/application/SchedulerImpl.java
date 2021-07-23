@@ -152,7 +152,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (process == null) {
       return;
     }
-    if (!isEsClientStartable()) {
+    if (!isEsOperational()) {
       if (firstWaitingEsLog.getAndSet(false)) {
         LOG.info("Waiting for Elasticsearch to be up and running");
       }
@@ -174,12 +174,12 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void tryToStartCe() throws InterruptedException {
     ManagedProcessHandler process = processesById.get(ProcessId.COMPUTE_ENGINE);
-    if (process != null && appState.isOperational(ProcessId.WEB_SERVER, true) && isEsClientStartable()) {
+    if (process != null && appState.isOperational(ProcessId.WEB_SERVER, true) && isEsOperational()) {
       tryToStartProcess(process, commandFactory::createCeCommand);
     }
   }
 
-  private boolean isEsClientStartable() {
+  private boolean isEsOperational() {
     boolean requireLocalEs = ClusterSettings.isLocalElasticsearchEnabled(settings);
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }

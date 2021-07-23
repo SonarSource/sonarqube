@@ -20,13 +20,12 @@
 package org.sonar.application.cluster;
 
 import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipAdapter;
 import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.core.EntryAdapter;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.cp.IAtomicReference;
-import com.hazelcast.map.MapEvent;
 import com.hazelcast.replicatedmap.ReplicatedMap;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -35,7 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +103,11 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     if (processId.equals(ProcessId.ELASTICSEARCH)) {
-      return isElasticSearchAvailable();
+      boolean operational = isElasticSearchOperational();
+      if (!operational) {
+        asyncWaitForEsToBecomeOperational();
+      }
+      return operational;
     }
 
     for (Map.Entry<ClusterProcess, Boolean> entry : operationalProcesses.entrySet()) {
@@ -203,14 +205,10 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
   }
 
-  private boolean isElasticSearchAvailable() {
-    boolean available = esConnector.getClusterHealthStatus()
+  private boolean isElasticSearchOperational() {
+    return esConnector.getClusterHealthStatus()
       .filter(t -> ClusterHealthStatus.GREEN.equals(t) || ClusterHealthStatus.YELLOW.equals(t))
       .isPresent();
-    if (!available) {
-      asyncWaitForEsToBecomeOperational();
-    }
-    return available;
   }
 
   private void asyncWaitForEsToBecomeOperational() {
@@ -228,14 +226,13 @@ public class ClusterAppStateImpl implements ClusterAppState {
 
     @Override
     public void run() {
-      if (isElasticSearchAvailable()) {
-        listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
-        esPoolingThreadRunning.set(false);
-        return;
-      }
+      while (true) {
+        if (isElasticSearchOperational()) {
+          esPoolingThreadRunning.set(false);
+          listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
+          return;
+        }
 
-      LOGGER.info("Waiting for ElasticSearch to be up and running");
-      do {
         try {
           Thread.sleep(5_000);
         } catch (InterruptedException e) {
@@ -243,16 +240,11 @@ public class ClusterAppStateImpl implements ClusterAppState {
           Thread.currentThread().interrupt();
           return;
         }
-        if (isElasticSearchAvailable()) {
-          listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
-          esPoolingThreadRunning.set(false);
-          return;
-        }
-      } while (true);
+      }
     }
   }
 
-  private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {
+  private class OperationalProcessListener extends EntryAdapter<ClusterProcess, Boolean> {
     @Override
     public void entryAdded(EntryEvent<ClusterProcess, Boolean> event) {
       if (event.getValue()) {
@@ -261,44 +253,14 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     @Override
-    public void entryRemoved(EntryEvent<ClusterProcess, Boolean> event) {
-      // Ignore it
-    }
-
-    @Override
     public void entryUpdated(EntryEvent<ClusterProcess, Boolean> event) {
       if (event.getValue()) {
         listeners.forEach(appStateListener -> appStateListener.onAppStateOperational(event.getKey().getProcessId()));
       }
     }
-
-    @Override
-    public void entryEvicted(EntryEvent<ClusterProcess, Boolean> event) {
-      // Ignore it
-    }
-
-    @Override
-    public void mapCleared(MapEvent event) {
-      // Ignore it
-    }
-
-    @Override
-    public void mapEvicted(MapEvent event) {
-      // Ignore it
-    }
-
-    @Override
-    public void entryExpired(EntryEvent<ClusterProcess, Boolean> event) {
-      // Ignore it
-    }
   }
 
-  private class NodeDisconnectedListener implements MembershipListener {
-    @Override
-    public void memberAdded(MembershipEvent membershipEvent) {
-      // Nothing to do
-    }
-
+  private class NodeDisconnectedListener extends MembershipAdapter {
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
       removeOperationalProcess(membershipEvent.getMember().getUuid());
