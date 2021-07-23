@@ -35,6 +35,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 
@@ -50,9 +52,15 @@ public class PurgeDao implements Dao {
   private static final String SCOPE_PROJECT = "PRJ";
 
   private final System2 system2;
+  private AuditPersister auditPersister;
 
   public PurgeDao(System2 system2) {
     this.system2 = system2;
+  }
+
+  public PurgeDao(System2 system2, AuditPersister auditPersister) {
+    this.system2 = system2;
+    this.auditPersister = auditPersister;
   }
 
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
@@ -178,7 +186,7 @@ public class PurgeDao implements Dao {
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
-  public void deleteProject(DbSession session, String uuid) {
+  public void deleteProject(DbSession session, String uuid, String qualifier) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
@@ -189,6 +197,10 @@ public class PurgeDao implements Dao {
       .forEach(branch -> deleteRootComponent(branch.getUuid(), purgeMapper, purgeCommands));
 
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
+
+    if (auditPersister != null) {
+      auditPersister.deleteComponent(session, new ComponentNewValue(uuid, qualifier), qualifier);
+    }
 
     logProfiling(profiler, start);
   }

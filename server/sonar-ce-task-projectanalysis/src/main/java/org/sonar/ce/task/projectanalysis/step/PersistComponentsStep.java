@@ -51,6 +51,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
@@ -106,7 +108,7 @@ public class PersistComponentsStep implements ComputationStep {
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByUuids.values());
-      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate);
+      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate, treeRootHolder.getRoot().getType());
 
       dbSession.commit();
     }
@@ -133,8 +135,15 @@ public class PersistComponentsStep implements ComputationStep {
     disabledComponentsHolder.setUuids(uuids);
   }
 
-  private void ensureConsistentVisibility(DbSession dbSession, String projectUuid, boolean isRootPrivate) {
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate);
+  private void ensureConsistentVisibility(DbSession dbSession, String projectUuid, boolean isRootPrivate,
+    Component.Type type) {
+    String qualifier = null;
+    if (type == Component.Type.PROJECT) {
+      qualifier = PROJECT;
+    } else if (type == Component.Type.VIEW) {
+      qualifier = VIEW;
+    }
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate, qualifier);
   }
 
   private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByUuids) {
@@ -242,7 +251,7 @@ public class PersistComponentsStep implements ComputationStep {
       Optional<ComponentUpdateDto> update = compareForUpdate(existingComponent, componentDto);
       if (update.isPresent()) {
         ComponentUpdateDto updateDto = update.get();
-        dbClient.componentDao().update(dbSession, updateDto);
+        dbClient.componentDao().update(dbSession, updateDto, componentDto.qualifier());
 
         // update the fields in memory in order the PathAwareVisitor.Path
         // to be up-to-date
@@ -268,7 +277,7 @@ public class PersistComponentsStep implements ComputationStep {
       ComponentDto res = createBase(project);
 
       res.setScope(Scopes.PROJECT);
-      res.setQualifier(Qualifiers.PROJECT);
+      res.setQualifier(PROJECT);
       res.setName(project.getName());
       res.setLongName(res.name());
       res.setDescription(project.getDescription());
@@ -346,7 +355,7 @@ public class PersistComponentsStep implements ComputationStep {
       ComponentDto res = createBase(projectView);
 
       res.setScope(Scopes.FILE);
-      res.setQualifier(Qualifiers.PROJECT);
+      res.setQualifier(PROJECT);
       res.setName(projectView.getName());
       res.setLongName(res.name());
       res.setCopyComponentUuid(projectView.getProjectViewAttributes().getProjectUuid());

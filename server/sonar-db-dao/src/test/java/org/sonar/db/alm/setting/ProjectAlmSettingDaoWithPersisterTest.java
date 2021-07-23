@@ -69,7 +69,7 @@ public class ProjectAlmSettingDaoWithPersisterTest {
       .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey,
         DevOpsPlatformSettingNewValue::getProjectUuid, DevOpsPlatformSettingNewValue::getProjectName)
       .containsExactly(githubAlmSetting.getUuid(), githubAlmSetting.getKey(), project.getUuid(), project.getName());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue.toString()).doesNotContain("\"url\"");
 
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     system2.setNow(A_DATE_LATER);
@@ -87,7 +87,7 @@ public class ProjectAlmSettingDaoWithPersisterTest {
       .containsExactly(anotherGithubAlmSetting.getUuid(), anotherGithubAlmSetting.getKey(), project.getUuid(), project.getName(),
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
         newProjectAlmSettingDto.getSummaryCommentEnabled(), newProjectAlmSettingDto.getMonorepo());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue.toString()).doesNotContain("\"url\"");
   }
 
   @Test

@@ -38,6 +38,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentKeyNewValue;
 
 import static org.sonar.core.component.ComponentKeys.checkProjectKey;
 import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
@@ -49,6 +51,15 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
  * @since 3.2
  */
 public class ComponentKeyUpdaterDao implements Dao {
+
+  private AuditPersister auditPersister;
+
+  public ComponentKeyUpdaterDao() {
+  }
+
+  public ComponentKeyUpdaterDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
 
   public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
@@ -70,7 +81,7 @@ public class ComponentKeyUpdaterDao implements Dao {
 
     // and then proceed with the batch UPDATE at once
     runBatchUpdateForAllResources(resources, projectOldKey, newKey, mapper, (resource, oldKey) -> {
-    });
+    }, dbSession);
   }
 
   public void updateApplicationBranchKey(DbSession dbSession, String appBranchUuid, String appKey, String newBranchName) {
@@ -83,6 +94,10 @@ public class ComponentKeyUpdaterDao implements Dao {
     String appBranchOldKey = appBranch.getKey();
     appBranch.setKey(newAppBranchKey);
     mapper.updateComponent(appBranch);
+
+    if(auditPersister != null) {
+      auditPersister.componentKeyBranchUpdate(dbSession, new ComponentKeyNewValue(appBranchUuid, appBranchOldKey, newAppBranchKey), Qualifiers.APP);
+    }
 
     String oldAppBranchFragment = appBranchOldKey.replace(BRANCH_KEY_SEPARATOR, "");
     String newAppBranchFragment = appKey + newBranchName;
@@ -157,7 +172,7 @@ public class ComponentKeyUpdaterDao implements Dao {
           if (rekeyedResourceFilter.test(rekeyedResource)) {
             rekeyedResources.add(rekeyedResource);
           }
-        });
+        }, session);
     }
     return rekeyedResources;
   }
@@ -174,8 +189,8 @@ public class ComponentKeyUpdaterDao implements Dao {
     return key;
   }
 
-  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper,
-    @Nullable BiConsumer<ResourceDto, String> consumer) {
+  private void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper,
+    @Nullable BiConsumer<ResourceDto, String> consumer, DbSession dbSession) {
     for (ResourceDto resource : resources) {
       String oldResourceKey = resource.getKey();
       String newResourceKey = newKey + oldResourceKey.substring(oldKey.length());
@@ -187,6 +202,10 @@ public class ComponentKeyUpdaterDao implements Dao {
       }
       mapper.updateComponent(resource);
       if (resource.getScope().equals(Scopes.PROJECT) && (resource.getQualifier().equals(Qualifiers.PROJECT) || resource.getQualifier().equals(Qualifiers.APP))) {
+        if(auditPersister != null) {
+          auditPersister.componentKeyUpdate(dbSession,
+            new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
+        }
         mapper.updateProject(oldResourceKey, newResourceKey);
       }
 

@@ -26,16 +26,32 @@ import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentNewValue;
 
 public class ProjectDao implements Dao {
   private final System2 system2;
+  private AuditPersister auditPersister;
 
   public ProjectDao(System2 system2) {
     this.system2 = system2;
   }
 
-  public void insert(DbSession session, ProjectDto item) {
-    mapper(session).insert(item);
+  public ProjectDao(System2 system2, AuditPersister auditPersister) {
+    this.system2 = system2;
+    this.auditPersister = auditPersister;
+  }
+
+  public void insert(DbSession session, ProjectDto project) {
+    this.insert(session, project, false);
+  }
+
+  public void insert(DbSession session, ProjectDto project, boolean track) {
+    if (track && auditPersister != null) {
+      auditPersister.addComponent(session, new ComponentNewValue(project.getUuid(), project.getName(), project.getQualifier()),
+        project.getQualifier());
+    }
+    mapper(session).insert(project);
   }
 
   public Optional<ProjectDto> selectProjectByKey(DbSession session, String key) {
@@ -87,11 +103,10 @@ public class ProjectDao implements Dao {
     return mapper(session).selectByUuids(uuids);
   }
 
-  public void updateKey(DbSession session, String uuid, String newKey) {
-    mapper(session).updateKey(uuid, newKey, system2.now());
-  }
-
-  public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {
+  public void updateVisibility(DbSession session, String uuid, boolean isPrivate, String qualifier) {
+    if (auditPersister != null) {
+      auditPersister.updateComponentVisibility(session, new ComponentNewValue(uuid, isPrivate, qualifier), qualifier);
+    }
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 
@@ -100,6 +115,11 @@ public class ProjectDao implements Dao {
   }
 
   public void update(DbSession session, ProjectDto project) {
+    if (auditPersister != null) {
+      auditPersister.updateComponent(session, new ComponentNewValue(project.getUuid(), project.isPrivate(),
+        project.getName(), project.getDescription(), project.getQualifier()), project.getQualifier());
+    }
+
     mapper(session).update(project);
   }
 

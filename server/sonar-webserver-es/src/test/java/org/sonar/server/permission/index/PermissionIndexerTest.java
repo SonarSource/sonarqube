@@ -19,10 +19,10 @@
  */
 package org.sonar.server.permission.index;
 
-import java.util.Collection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -44,6 +44,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PERMISSION_CHANGE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
+import java.util.Collection;
 
 public class PermissionIndexerTest {
 
@@ -97,7 +98,7 @@ public class PermissionIndexerTest {
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
     // Simulate a indexation issue
-    db.getDbClient().componentDao().delete(db.getSession(), project1.uuid());
+    db.getDbClient().componentDao().delete(db.getSession(), project1.uuid(), Qualifiers.PROJECT);
     underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(1);
     Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
@@ -313,7 +314,7 @@ public class PermissionIndexerTest {
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
     verifyAuthorized(project, user);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), Qualifiers.PROJECT);
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
 
     verifyNotAuthorized(project, user);

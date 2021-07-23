@@ -23,6 +23,8 @@ import org.sonar.core.extension.PlatformLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.model.NewValue;
 
+import javax.annotation.Nullable;
+
 @PlatformLevel(1)
 public interface AuditPersister {
 
@@ -107,4 +109,19 @@ public interface AuditPersister {
   void deletePersonalAccessToken(DbSession dbSession, NewValue newValue);
 
   boolean isTrackedProperty(String propertyKey);
+
+  void addComponent(DbSession dbSession, NewValue newValue, String qualifier);
+
+  void deleteComponent(DbSession dbSession, NewValue newValue, @Nullable String qualifier);
+
+  void updateComponent(DbSession dbSession, NewValue newValue, String qualifier);
+
+  void setPrivateForComponentUuid(DbSession session, NewValue componentNewValue, @Nullable String qualifier);
+
+  void updateComponentVisibility(DbSession session, NewValue projectNewValue, String qualifier);
+
+  void componentKeyUpdate(DbSession session, NewValue componentKeyNewValue, String qualifier);
+
+  void componentKeyBranchUpdate(DbSession session, NewValue componentKeyNewValue, String qualifier);
+
 }

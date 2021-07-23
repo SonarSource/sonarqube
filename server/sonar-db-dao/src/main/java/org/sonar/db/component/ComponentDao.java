@@ -38,6 +38,8 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
@@ -51,6 +53,16 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentDao implements Dao {
+  private AuditPersister auditPersister;
+
+  public ComponentDao() {
+    //intentionally empty
+  }
+
+  public ComponentDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
+
   private static List<ComponentDto> selectByQueryImpl(DbSession session, ComponentQuery query, int offset, int limit) {
     if (query.hasEmptySetOfComponents()) {
       return emptyList();
@@ -326,6 +338,9 @@ public class ComponentDao implements Dao {
   }
 
   public void insert(DbSession session, ComponentDto item) {
+    if (auditPersister != null) {
+      auditPersister.addComponent(session, new ComponentNewValue(item.uuid(), item.name(), item.qualifier()), item.qualifier());
+    }
     mapper(session).insert(item);
   }
 
@@ -341,7 +356,11 @@ public class ComponentDao implements Dao {
     insert(session, Stream.concat(Stream.of(item), Arrays.stream(others)));
   }
 
-  public void update(DbSession session, ComponentUpdateDto component) {
+  public void update(DbSession session, ComponentUpdateDto component, String qualifier) {
+    if (auditPersister != null) {
+      auditPersister.updateComponent(session, new ComponentNewValue(component.getUuid(), component.getBName(),
+        component.getBKey(), component.isBEnabled(), component.getBPath(), qualifier), qualifier);
+    }
     mapper(session).update(component);
   }
 
@@ -357,11 +376,17 @@ public class ComponentDao implements Dao {
     mapper(session).resetBChangedForRootComponentUuid(projectUuid);
   }
 
-  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate) {
+  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate, @Nullable String qualifier) {
+    if(auditPersister != null) {
+      auditPersister.setPrivateForComponentUuid(session, new ComponentNewValue(projectUuid, isPrivate, qualifier), qualifier);
+    }
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }
 
-  public void delete(DbSession session, String componentUuid) {
+  public void delete(DbSession session, String componentUuid, String qualifier) {
+    if (auditPersister != null) {
+      auditPersister.deleteComponent(session, new ComponentNewValue(componentUuid, qualifier), qualifier);
+    }
     mapper(session).delete(componentUuid);
   }
 

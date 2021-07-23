@@ -19,10 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,6 +72,10 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.test.JsonAssert.assertJson;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SuggestionsActionTest {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
@@ -394,7 +394,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), PROJECT);
     db.commit();
 
     SuggestionsWsResponse response = ws.newRequest()

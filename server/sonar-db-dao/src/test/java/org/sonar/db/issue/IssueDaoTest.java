@@ -378,7 +378,7 @@ public class IssueDaoTest {
         }
 
         // disable component and test again => not returned anymore
-        db.getDbClient().componentDao().update(db.getSession(), ComponentUpdateDto.copyFrom(component).setBEnabled(false).setBChanged(true));
+        db.getDbClient().componentDao().update(db.getSession(), ComponentUpdateDto.copyFrom(component).setBEnabled(false).setBChanged(true), component.qualifier());
         db.getDbClient().componentDao().applyBChangesForRootComponentUuid(db.getSession(), projectUuid);
         db.commit();
         assertThat(db.getDbClient().componentDao().selectByUuid(db.getSession(), component.uuid()).get().isEnabled())

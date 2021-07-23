@@ -19,12 +19,11 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -46,6 +45,8 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COM
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class ComponentIndexerTest {
 
@@ -206,7 +207,7 @@ public class ComponentIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexHasSize(1);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), Qualifiers.PROJECT);
     indexProject(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);
@@ -245,7 +246,7 @@ public class ComponentIndexerTest {
   private void updateDb(ComponentDto component) {
     ComponentUpdateDto updateComponent = ComponentUpdateDto.copyFrom(component);
     updateComponent.setBChanged(true);
-    dbClient.componentDao().update(dbSession, updateComponent);
+    dbClient.componentDao().update(dbSession, updateComponent, component.qualifier());
     dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, component.getRootUuid());
     dbSession.commit();
   }

@@ -25,15 +25,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ProjectDaoTest {
 
@@ -42,7 +49,10 @@ public class ProjectDaoTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+
   private final ProjectDao projectDao = new ProjectDao(system2);
+  private final ProjectDao projectDaoWithAuditPersister = new ProjectDao(system2, auditPersister);
 
   @Test
   public void should_insert_and_select_by_uuid() {
@@ -138,8 +148,8 @@ public class ProjectDaoTest {
     assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
     assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
-    projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false);
-    projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true);
+    projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT);
+    projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true, Qualifiers.PROJECT);
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
@@ -175,6 +185,42 @@ public class ProjectDaoTest {
 
     List<ProjectDto> projectsByUuids = projectDao.selectByUuids(db.getSession(), Collections.emptySet());
     assertThat(projectsByUuids).isEmpty();
+  }
+
+  @Test
+  public void insert_withoutTrack_shouldNotCallAuditPersister() {
+    ProjectDto dto1 = createProject("o1", "p1");
+
+    projectDaoWithAuditPersister.insert(db.getSession(), dto1, false);
+
+    verifyNoInteractions(auditPersister);
+  }
+
+  @Test
+  public void insert_withTrack_shouldCallAuditPersister() {
+    ProjectDto dto1 = createProject("o1", "p1");
+
+    projectDaoWithAuditPersister.insert(db.getSession(), dto1, true);
+
+    verify(auditPersister, times(1)).addComponent(any(), any(), any());
+  }
+
+  @Test
+  public void updateVisibility_shouldCallAuditPersister() {
+    ProjectDto dto1 = createProject("o1", "p1");
+
+    projectDaoWithAuditPersister.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT);
+
+    verify(auditPersister, times(1)).updateComponentVisibility(any(), any(), any());
+  }
+
+  @Test
+  public void update_shouldCallAuditPersister() {
+    ProjectDto dto1 = createProject("o1", "p1");
+
+    projectDaoWithAuditPersister.update(db.getSession(), dto1);
+
+    verify(auditPersister, times(1)).updateComponent(any(), any(), any());
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

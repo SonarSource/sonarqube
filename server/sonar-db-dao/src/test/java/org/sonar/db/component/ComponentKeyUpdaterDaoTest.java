@@ -33,11 +33,18 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.component.ComponentKeyUpdaterDao.RekeyedResource;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
@@ -54,9 +61,11 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  private AuditPersister auditPersister = mock(AuditPersister.class);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
+  private ComponentKeyUpdaterDao underTestWithAuditPersister = new ComponentKeyUpdaterDao(auditPersister);
 
   @Test
   public void updateKey_changes_the_key_of_tree_of_components() {
@@ -140,6 +149,18 @@ public class ComponentKeyUpdaterDaoTest {
     thrown.expectMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getDbKey(), "newName")));
 
     underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName");
+  }
+
+  @Test
+  public void updateApplicationBranchKey_callsAuditPersister() {
+    ComponentDto app = db.components().insertPublicProject();
+    ComponentDto appBranch = db.components().insertProjectBranch(app);
+    db.components().insertProjectBranch(app, b -> b.setKey("newName"));
+
+    underTestWithAuditPersister.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName2");
+
+    verify(auditPersister, times(1))
+      .componentKeyBranchUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
   }
 
   @Test
@@ -304,7 +325,7 @@ public class ComponentKeyUpdaterDaoTest {
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:module"));
     db.components().insertComponent(newModuleDto(project).setDbKey("my_project:inactive_module").setEnabled(false));
 
-    Set<RekeyedResource> rekeyedResources = underTest.bulkUpdateKey(dbSession, "A", "my_", "your_", doNotReturnAnyRekeyedResource());
+    Set<RekeyedResource> rekeyedResources = underTestWithAuditPersister.bulkUpdateKey(dbSession, "A", "my_", "your_", doNotReturnAnyRekeyedResource());
 
     List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
     assertThat(result)
@@ -476,6 +497,30 @@ public class ComponentKeyUpdaterDaoTest {
   public void compute_new_key() {
     assertThat(computeNewKey("my_project", "my_", "your_")).isEqualTo("your_project");
     assertThat(computeNewKey("my_project", "my_", "$()_")).isEqualTo("$()_project");
+  }
+
+  @Test
+  public void updateKey_callsAuditPersister() {
+    db.components().insertComponent(newPrivateProjectDto("A").setDbKey("my_project"));
+
+    underTestWithAuditPersister.updateKey(dbSession, "A", "your_project");
+
+    verify(auditPersister, times(1))
+      .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
+  }
+
+  @Test
+  public void bulkUpdate_callsAuditPersister() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
+    db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
+    db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
+
+    thrown.expect(IllegalArgumentException.class);
+
+    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
+
+    verify(auditPersister, times(1))
+      .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
   }
 
   private Predicate<RekeyedResource> doNotReturnAnyRekeyedResource() {
