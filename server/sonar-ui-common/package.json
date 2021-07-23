@@ -88,7 +88,6 @@
     "clean": "rm -rf build/dist",
     "build": "sh scripts/build.sh",
     "package": "yarn build && cd build/dist && yarn pack",
-    "release": "sh scripts/release.sh",
     "test": "jest",
     "format": "prettier --write --list-different \"{,!(build|node_modules)/**/}*.{ts,tsx,css}\"",
     "format-check": "prettier --list-different \"{,!(build|node_modules)/**/}*.{ts,tsx,css}\"",

@@ -7,9 +7,8 @@ sonarqube {
     property "sonar.test", "components,helpers"
     property "sonar.test.inclusions", "**/__tests__/**"
     property "sonar.eslint.reportPaths", "eslint-report.json"
-    property "sonar.javascript.lcov.reportPaths", "coverage/lcov.info"
     property "sonar.coverage.exclusions", "components/icons/*,helpers/testUtils.ts,helpers/keycodes.ts"
-    property "sonar.typescript.lcov.reportPaths", "build/coverage/lcov.info"
+    property "sonar.javascript.lcov.reportPaths", "build/coverage/lcov.info"
     property "sonar.eslint.reportPaths", "build/eslint-report.json"
   }
 }
@@ -46,8 +45,8 @@ yarn_run {
   ['.eslintrc', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
     inputs.file(it)
   }
-  outputs.file("eslint-report.json")
-  outputs.dir("coverage")
+  outputs.file("build/eslint-report.json")
+  outputs.dir("build/coverage")
   outputs.cacheIf { true }
 
   dependsOn(yarn)
