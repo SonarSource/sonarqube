@@ -47,7 +47,7 @@ const CATEGORY_OVERRIDES: T.Dict<string> = {
   'vb.net': LANGUAGES_CATEGORY,
   'visual basic': LANGUAGES_CATEGORY,
   xml: LANGUAGES_CATEGORY,
-  yaml: LANGUAGES_CATEGORY,
+  yaml: LANGUAGES_CATEGORY
 };
 
 export default CATEGORY_OVERRIDES;
