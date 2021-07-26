@@ -98,7 +98,7 @@ By default users are logged out and sessions closed when server is restarted. If
 echo -n "type_what_you_want" | openssl dgst -sha256 -hmac "key" -binary | base64
 
 **`SONAR_WEB_SESSIONTIMEOUTINMINUTES=4320`**  
-The inactivity timeout duration of user sessions, in minutes. After the configured period of time, the user is logged out. The default value is set to 3 days (4320 minutes) and cannot be greater than 3 months. Value must be strictly positive.
+The inactivity timeout duration of user sessions, in minutes. After the configured period of time, the user is logged out. The default value is 3 days (4320 minutes). The value cannot be less than 6 minutes or greater than 3 months (129600 minutes). Value must be strictly positive.
 
 **`SONAR_WEB_SYSTEMPASSCODE=`**  
 A passcode can be defined to access some web services from monitoring tools without having to use the credentials of a system administrator. Check the Web API documentation to know which web services are supporting this authentication mode. The passcode should be provided in HTTP requests with the header "X-Sonar-Passcode". By default feature is disabled.
@@ -132,7 +132,7 @@ Enable the LDAP feature
 Set to true when connecting to a LDAP server using a case-insensitive setup.
 
 **`LDAP_URL=ldap://localhost:10389`**  
-URL of the LDAP server. Note that if you are using ldaps, then you should install the server certificate into the Java truststore.
+URL of the LDAP server. Note that if you are using LDAPS, then you should install the server certificate into the Java truststore.
 
 **`LDAP_BINDDN=cn=sonar,ou=users,o=mycompany`**  
 Bind DN is the username of an LDAP user to connect (or bind) with. Leave this blank for anonymous access to the LDAP directory (optional)
