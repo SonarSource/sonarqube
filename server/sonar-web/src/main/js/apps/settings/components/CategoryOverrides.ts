@@ -32,6 +32,7 @@ const CATEGORY_OVERRIDES: T.Dict<string> = {
   java: LANGUAGES_CATEGORY,
   javascript: LANGUAGES_CATEGORY,
   'javascript / typescript': LANGUAGES_CATEGORY,
+  json: LANGUAGES_CATEGORY,
   kotlin: LANGUAGES_CATEGORY,
   php: LANGUAGES_CATEGORY,
   'pl/i': LANGUAGES_CATEGORY,
@@ -45,7 +46,8 @@ const CATEGORY_OVERRIDES: T.Dict<string> = {
   typescript: LANGUAGES_CATEGORY,
   'vb.net': LANGUAGES_CATEGORY,
   'visual basic': LANGUAGES_CATEGORY,
-  xml: LANGUAGES_CATEGORY
+  xml: LANGUAGES_CATEGORY,
+  yaml: LANGUAGES_CATEGORY,
 };
 
 export default CATEGORY_OVERRIDES;
