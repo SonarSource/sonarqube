@@ -23,6 +23,7 @@ import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
 import { getOrganization, getOrganizationNavigation, getOrganizations } from '../api/organizations';
+import { getNotificationsForOrganization } from '../api/codescan';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
@@ -62,10 +63,10 @@ export function fetchOrganizations(organizations: string[]) {
 }
 
 export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
-  return Promise.all([getOrganization(key), getOrganizationNavigation(key)]).then(
-    ([organization, navigation]) => {
+  return Promise.all([getOrganization(key), getOrganizationNavigation(key), getNotificationsForOrganization(key)]).then(
+    ([organization, navigation, notifications]) => {
       if (organization) {
-        const organizationWithPermissions = { ...organization, ...navigation };
+        const organizationWithPermissions = { ...organization, ...navigation, ...notifications };
         dispatch(receiveOrganizations([organizationWithPermissions]));
       }
     }

@@ -93,9 +93,7 @@ export default function ComponentNav(props: ComponentNavProps) {
   return (
     <ContextNavBar height={contextNavHeight} id="context-navigation" notif={notifComponent}>
       <div
-        className={classNames('display-flex-center display-flex-space-between little-padded-top', {
-          'padded-bottom': warnings.length === 0
-        })}>
+        className="display-flex-center display-flex-space-between">
         <Header
           branchLikes={branchLikes}
           component={component}

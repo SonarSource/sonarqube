@@ -17,27 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.quality-gate-section {
-  max-width: 1440px;
-}
+import { getJSON } from 'sonar-ui-common/helpers/request';
+import throwGlobalError from "../app/utils/throwGlobalError";
 
-.quality-gate-section + .quality-gate-section {
-  margin-top: 10px;
-  padding-top: 20px;
-}
-
-.quality-gate-metric-select .Select-option {
-  padding-left: calc(2 * var(--gridSize));
-}
-
-.quality-gate-metric-select .Select-option.is-disabled {
-  opacity: 1;
-  font-weight: 600;
-  color: var(--baseFontColor);
-  padding-left: var(--gridSize);
-  font-style: normal;
-}
-
-.modal.in, .ReactModal__Content--after-open {
-  overflow-y: unset;
+export function getNotificationsForOrganization(key: string) {
+  return getJSON('/_codescan/notifications', { organizationId: key }).then(
+      r => r.organization,
+      throwGlobalError
+  );
 }

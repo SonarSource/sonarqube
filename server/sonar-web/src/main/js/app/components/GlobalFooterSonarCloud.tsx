@@ -19,7 +19,6 @@
  */
 import * as getYear from 'date-fns/get_year';
 import * as React from 'react';
-import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -32,8 +31,7 @@ export default function GlobalFooterSonarCloud({
   return (
     <div className="page-footer page-container" id="footer">
       <div>
-        © 2017-{getYear(new Date())}
-        <a
+        © 2017-{getYear(new Date())} <a
           href="https://www.codescan.io"
           rel="noopener noreferrer"
           target="_blank"

@@ -118,6 +118,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       .then(([nav, { component }]) => {
         const componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
+        this.props.fetchOrganization(component.organization);
+
         /*
          * There used to be a redirect from /dashboard to /portfolio which caused issues.
          * Links should be fixed to not rely on this redirect, but:

@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.quality-gate-section {
-  max-width: 1440px;
+
+.alert.top-fixed {
+  height: 34px;
+  margin: 0;
+  border: none;
 }
 
-.quality-gate-section + .quality-gate-section {
-  margin-top: 10px;
-  padding-top: 20px;
+.alert.top-fixed > div {
+  position: fixed;
+  border: 1px solid;
+  max-width: 100%;
+  width: 100%;
+  z-index: 400;
 }
 
-.quality-gate-metric-select .Select-option {
-  padding-left: calc(2 * var(--gridSize));
+.alert-error.top-fixed > div {
+  border: 1px solid rgb(244, 177, 176);
+  background-color: rgb(242, 222, 222);
+  color: rgb(134, 36, 34);
 }
 
-.quality-gate-metric-select .Select-option.is-disabled {
-  opacity: 1;
-  font-weight: 600;
-  color: var(--baseFontColor);
-  padding-left: var(--gridSize);
-  font-style: normal;
-}
-
-.modal.in, .ReactModal__Content--after-open {
-  overflow-y: unset;
+.alert-warning.top-fixed > div {
+  border: 1px solid rgb(250, 235, 204);
+  background-color: rgb(252, 248, 227);
+  color: rgb(111, 79, 23);
 }

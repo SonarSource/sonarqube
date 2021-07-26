@@ -32,6 +32,7 @@ import {
 } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../store/rootActions';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import './OrganizationPage.css';
 
 interface OwnProps {
   children?: React.ReactNode;
@@ -108,12 +109,14 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
         />
         {
           organization.notifications ? organization.notifications.map((notification, index) => (
-                  <Alert key={index} variant={notification.type} display="banner" className="top-fixed">
-                    <span
-                        dangerouslySetInnerHTML={{
-                          __html: notification.message
-                        }}
-                    />
+                  <Alert key={index} variant={notification.type} display="banner" className={'top-fixed alert-'+notification.type}>
+                    <div className="alert-inner-content">
+                      <span
+                          dangerouslySetInnerHTML={{
+                            __html: notification.message
+                          }}
+                      />
+                    </div>
                   </Alert>
               )
           ) : null

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -35,6 +36,7 @@ public interface OrganizationUpdater {
   String OWNERS_GROUP_DESCRIPTION = "Owners of organization";
   String PERM_TEMPLATE_NAME = "Default template";
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
+  String PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN = "%s's personal organization";
 
   /**
    * Create a new organization with the specified properties and of which the specified user will assign
@@ -71,6 +73,51 @@ public interface OrganizationUpdater {
    * @throws IllegalArgumentException if any field of {@code newOrganization} is invalid according to {@link OrganizationValidation}
    */
   OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization, Consumer<OrganizationDto> beforeCommit) throws KeyConflictException;
+
+  /**
+   * Create a new guarded organization which details are based on the login of the specified User.
+   * <p>
+   * This method does several operations at once:
+   * <ol>
+   *   <li>
+   *     create a guarded organization with the details computed from user's details:
+   *     <ul>
+   *       <li>key: generated from the user's login</li>
+   *       <li>name: the user's name if set, otherwise the user's login</li>
+   *       <li>description: {@link #PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN "[name]'s personal organization"} where name
+   *           is user name (when non null and non empty) or login</li>
+   *       <li>url and avatar: null</li>
+   *     </ul>
+   *   </li>
+   *   <li>create a group called {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} with browse permissions</li>
+   *   <li>make the specified user a member of this group</li>
+   *   <li>give all organization wide permissions to the user</li>
+   *   <li>create a default template for the organization
+   *       <ul>
+   *         <li>name is {@link #PERM_TEMPLATE_NAME Default template}</li>
+   *         <li>description follows pattern {@link #PERM_TEMPLATE_DESCRIPTION_PATTERN} based on the organization name</li>
+   *       </ul>
+   *   </li>
+   *   <li>this permission template defines the specified permissions (which effectively makes projects public and
+   *       automatically adds new projects to the user's favorites):
+   *     <ul>
+   *       <li>project creator : {@link UserRole#ADMIN ADMIN}</li>
+   *       <li>project creator : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
+   *       <li>project creator : {@link UserRole#SECURITYHOTSPOT_ADMIN SECURITYHOTSPOT_ADMIN}</li>
+   *       <li>project creator : {@link UserRole#SCAN SCAN}</li>
+   *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#USER USER}</li>
+   *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
+   *     </ul>
+   *   </li>
+   * </ol>
+   * </p>
+   *
+   * @return the created organization or empty if feature is disabled
+   *
+   * @throws IllegalArgumentException if any field of {@code newOrganization} is invalid according to {@link OrganizationValidation}
+   * @throws IllegalStateException if an organization with the key generated from the login already exists
+   */
+  Optional<OrganizationDto> createForUser(DbSession dbSession, UserDto newUser);
 
   /**
    * Update the personal organization key of a user.

@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { getAlmDefinitionsNoCatch, getProjectAlmBinding } from '../../api/alm-settings';
-import { AlmBindingDefinition, AlmKeys, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
@@ -46,34 +45,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchAlmBindings();
   }
-
-  fetchAlmBindings = async () => {
-    const { component } = this.props;
-
-    const [almDefinitions, projectBinding] = await Promise.all([
-      getAlmDefinitionsNoCatch().catch(() => undefined),
-      getProjectAlmBinding(component.key).catch(() => undefined)
-    ]);
-
-    if (this.mounted) {
-      // We only support Bitbucket, GitHub & Gitlab for now.
-      if (
-        projectBinding === undefined ||
-        ![AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab].includes(projectBinding.alm)
-      ) {
-        this.setState({ loading: false, forceManual: true });
-      } else {
-        let almBinding;
-        if (almDefinitions !== undefined) {
-          const specificDefinitions = almDefinitions[projectBinding.alm] as AlmBindingDefinition[];
-          almBinding = specificDefinitions.find(d => d.key === projectBinding.key);
-        }
-        this.setState({ almBinding, forceManual: false, projectBinding, loading: false });
-      }
-    }
-  };
 
   handleSelectTutorial = (selectedTutorial: TutorialModes) => {
     const {

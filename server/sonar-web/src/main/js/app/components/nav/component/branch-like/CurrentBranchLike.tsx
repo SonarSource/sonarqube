@@ -100,12 +100,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="only-one-branch-like"
             links={[
               {
-                href: '/documentation/branches/overview/',
+                href: 'https://docs.codescan.io/hc/en-us/articles/360011898452-Understanding-branches-in-CodeScan-Cloud',
                 label: translate('branch_like_navigation.only_one_branch.documentation')
-              },
-              {
-                href: '/documentation/analysis/pull-request/',
-                label: translate('branch_like_navigation.only_one_branch.pr_analysis')
               }
             ]}
             title={translate('branch_like_navigation.only_one_branch.title')}>

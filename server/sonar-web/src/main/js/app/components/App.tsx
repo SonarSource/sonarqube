@@ -26,6 +26,7 @@ import { getAppState, getCurrentUser, getGlobalSettingValue, Store } from '../..
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
+import './App.css';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 

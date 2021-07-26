@@ -44,6 +44,7 @@ import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
@@ -82,13 +83,14 @@ public class UserUpdater {
   private final UserIndexer userIndexer;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
+  private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
   private final CredentialsLocalAuthentication localAuthentication;
   private final System2 system2;
 
   public UserUpdater(System2 system2, NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder, Configuration config,
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
     CredentialsLocalAuthentication localAuthentication) {
     this.system2 = system2;
     this.newUserNotifier = newUserNotifier;
@@ -96,6 +98,7 @@ public class UserUpdater {
     this.userIndexer = userIndexer;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.organizationUpdater = organizationUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
     this.config = config;
     this.localAuthentication = localAuthentication;
@@ -435,7 +438,7 @@ public class UserUpdater {
     } else {
       addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     }
-
+    organizationUpdater.createForUser(dbSession, userDto);
     return res;
   }
 

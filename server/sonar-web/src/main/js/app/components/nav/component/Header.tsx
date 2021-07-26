@@ -22,26 +22,42 @@ import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
 import { isLoggedIn } from '../../../../helpers/users';
-import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import { getCurrentUser, getOrganizationByKey, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
+import { isSonarCloud } from "../../../../helpers/system";
+import OrganizationAvatar from "../../../../components/common/OrganizationAvatar";
+import OrganizationLink from "../../../../components/ui/OrganizationLink";
 
 export interface HeaderProps {
   branchLikes: BranchLike[];
   component: T.Component;
   currentBranchLike: BranchLike | undefined;
   currentUser: T.CurrentUser;
+  organization: T.Organization;
 }
 
 export function Header(props: HeaderProps) {
-  const { branchLikes, component, currentBranchLike, currentUser } = props;
+  const { branchLikes, component, currentBranchLike, currentUser, organization } = props;
 
   return (
     <>
       <Helmet title={component.name} />
       <header className="display-flex-center flex-shrink">
+        {organization &&
+          isSonarCloud() && (
+            <>
+              <OrganizationAvatar organization={organization} />
+              <OrganizationLink
+                  className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
+                  organization={organization}>
+                {organization.name}
+              </OrganizationLink>
+              <span className="slash-separator" />
+            </>
+        )}
         <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
         {isLoggedIn(currentUser) && (
           <Favorite
@@ -66,7 +82,8 @@ export function Header(props: HeaderProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
+const mapStateToProps = (state: Store, ownProps: HeaderProps) => ({
+  organization: getOrganizationByKey(state, ownProps.component.organization),
   currentUser: getCurrentUser(state)
 });
 

@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.quality-gate-section {
-  max-width: 1440px;
-}
-
-.quality-gate-section + .quality-gate-section {
-  margin-top: 10px;
-  padding-top: 20px;
-}
-
-.quality-gate-metric-select .Select-option {
-  padding-left: calc(2 * var(--gridSize));
-}
-
-.quality-gate-metric-select .Select-option.is-disabled {
-  opacity: 1;
-  font-weight: 600;
-  color: var(--baseFontColor);
-  padding-left: var(--gridSize);
-  font-style: normal;
-}
 
 .modal.in, .ReactModal__Content--after-open {
-  overflow-y: unset;
+  top: 15%;
+  max-height: calc(100vh - 15%);
+  overflow-y: auto;
+}
+
+.button.disabled, .button:disabled, .button:disabled:hover, .button:disabled:active, .button:disabled:focus {
+  color: #bbb !important;
+  border-color: #ddd !important;
+  background: #ebebeb !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }

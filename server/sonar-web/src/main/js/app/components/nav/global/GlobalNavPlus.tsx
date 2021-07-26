@@ -21,14 +21,12 @@ import * as React from 'react';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import PlusIcon from 'sonar-ui-common/components/icons/PlusIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getAlmSettings } from '../../../../api/alm-settings';
 import { getComponentNavigation } from '../../../../api/nav';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../../helpers/extensions';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../types/component';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
 import { isSonarCloud } from "../../../../helpers/system";
@@ -45,26 +43,12 @@ interface State {
   governanceReady: boolean;
 }
 
-/*
- * ALMs for which the import feature has been implemented
- */
-const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
-
-const almSettingsValidators = {
-  [AlmKeys.Azure]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.Bitbucket]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url
-};
-
 export class GlobalNavPlus extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { boundAlms: [], governanceReady: false };
 
   componentDidMount() {
     this.mounted = true;
-
-    this.fetchAlmBindings();
 
     if (this.props.appState.qualifiers.includes('VW')) {
       getExtensionStart('governance/console').then(
@@ -84,37 +68,6 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
 
   closeComponentCreationForm = () => {
     this.setState({ creatingComponent: undefined });
-  };
-
-  almSettingIsValid = (settings: AlmSettingsInstance) => {
-    return almSettingsValidators[settings.alm](settings);
-  };
-
-  fetchAlmBindings = async () => {
-    const {
-      appState: { branchesEnabled },
-      currentUser
-    } = this.props;
-    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
-
-    // getAlmSettings requires branchesEnabled
-    if (!canCreateProject || !branchesEnabled) {
-      return;
-    }
-
-    const almSettings = await getAlmSettings();
-
-    // Import is only available if exactly one binding is configured
-    const boundAlms = IMPORT_COMPATIBLE_ALMS.filter(key => {
-      const currentAlmSettings = almSettings.filter(s => s.alm === key);
-      return currentAlmSettings.length === 1 && this.almSettingIsValid(currentAlmSettings[0]);
-    });
-
-    if (this.mounted) {
-      this.setState({
-        boundAlms
-      });
-    }
   };
 
   handleComponentCreationClick = (qualifier: ComponentQualifier) => {
@@ -156,7 +109,6 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
     return (
       <>
         <Dropdown
-          onOpen={this.fetchAlmBindings}
           overlay={
             <GlobalNavPlusMenu
               canCreateApplication={canCreateApplication}
