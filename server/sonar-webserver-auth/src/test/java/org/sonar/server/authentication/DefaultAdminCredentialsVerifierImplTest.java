@@ -52,11 +52,6 @@ public class DefaultAdminCredentialsVerifierImplTest {
 
   private final DefaultAdminCredentialsVerifierImpl underTest = new DefaultAdminCredentialsVerifierImpl(db.getDbClient(), localAuthentication, notificationManager);
 
-  @After
-  public void after() {
-    underTest.stop();
-  }
-
   @Test
   public void correctly_detect_if_admin_account_is_used_with_default_credential() {
     UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN));
@@ -77,7 +72,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN));
     changePassword(admin, "admin");
 
-    underTest.start();
+    underTest.runAtStart();
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isTrue();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Default Administrator credentials are still being used. Make sure to change the password or deactivate the account.");
@@ -92,7 +87,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     db.getDbClient().internalPropertiesDao().save(db.getSession(), DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL, "true");
     db.commit();
 
-    underTest.start();
+    underTest.runAtStart();
 
     verifyNoMoreInteractions(notificationManager);
   }
@@ -102,7 +97,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN));
     changePassword(admin, "something_else");
 
-    underTest.start();
+    underTest.runAtStart();
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();
@@ -114,7 +109,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     UserDto otherUser = db.users().insertUser();
     changePassword(otherUser, "admin");
 
-    underTest.start();
+    underTest.runAtStart();
 
     assertThat(db.users().selectUserByLogin(otherUser.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();
@@ -126,7 +121,7 @@ public class DefaultAdminCredentialsVerifierImplTest {
     UserDto admin = db.users().insertUser(u -> u.setLogin(ADMIN_LOGIN).setActive(false));
     changePassword(admin, "admin");
 
-    underTest.start();
+    underTest.runAtStart();
 
     assertThat(db.users().selectUserByLogin(admin.getLogin()).get().isResetPassword()).isFalse();
     assertThat(logTester.logs()).isEmpty();

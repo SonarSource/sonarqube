@@ -19,9 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import static com.google.common.collect.FluentIterable.concat;
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +35,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.metric.MetricToDto;
+
+import static com.google.common.collect.FluentIterable.concat;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RegisterMetrics implements Startable {
 
@@ -72,7 +72,7 @@ public class RegisterMetrics implements Startable {
 
   void register(Iterable<Metric> metrics) {
     Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
-    try (DbSession session = dbClient.openSession(false)) {
+    try (DbSession session = dbClient.openSession(true)) {
       save(session, metrics);
       sanitizeQualityGates(session);
       session.commit();

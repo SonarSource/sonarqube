@@ -102,7 +102,7 @@ public class RegisterRulesTest {
   private static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
   private static final RuleKey HOTSPOT_RULE_KEY = RuleKey.of("fake", "hotspot");
 
-  private TestSystem2 system = new TestSystem2().setNow(DATE1.getTime());
+  private final TestSystem2 system = new TestSystem2().setNow(DATE1.getTime());
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -113,14 +113,16 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  private QProfileRules qProfileRules = mock(QProfileRules.class);
-  private WebServerRuleFinder webServerRuleFinder = mock(WebServerRuleFinder.class);
-  private DbClient dbClient = db.getDbClient();
+  private final QProfileRules qProfileRules = mock(QProfileRules.class);
+  private final WebServerRuleFinder webServerRuleFinder = mock(WebServerRuleFinder.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final MetadataIndex metadataIndex = mock(MetadataIndex.class);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
-  private MetadataIndex metadataIndex = mock(MetadataIndex.class);
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+
 
   @Before
   public void before() {
@@ -996,7 +998,7 @@ public class RegisterRulesTest {
   }
 
   @SafeVarargs
-  private final void createRule(RulesDefinition.Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
+  private void createRule(RulesDefinition.Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
     NewRepository repo = context.createRepository(repositoryKey, language);
     NewRule newRule = repo.createRule(ruleKey)
       .setName(ruleKey)

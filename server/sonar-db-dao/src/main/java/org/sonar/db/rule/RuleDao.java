@@ -203,6 +203,10 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ruleKeys, mapper(session)::selectParamsByRuleKeys);
   }
 
+  public List<RuleParamDto> selectAllRuleParams(DbSession session) {
+    return mapper(session).selectAllRuleParams();
+  }
+
   public List<RuleParamDto> selectRuleParamsByRuleUuids(DbSession dbSession, Collection<String> ruleUuids) {
     return executeLargeInputs(ruleUuids, mapper(dbSession)::selectParamsByRuleUuids);
   }

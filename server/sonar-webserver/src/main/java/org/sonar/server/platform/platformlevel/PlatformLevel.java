@@ -170,15 +170,15 @@ public abstract class PlatformLevel {
     return addIfStandalone;
   }
 
-  private WebServer getWebServer() {
+  protected WebServer getWebServer() {
     return getOptional(WebServer.class)
       .orElseThrow(() -> new IllegalStateException("WebServer not available in Pico yet"));
   }
 
-  private abstract class AddIf {
+  protected abstract class AddIf {
     private final boolean condition;
 
-    private AddIf(boolean condition) {
+    protected AddIf(boolean condition) {
       this.condition = condition;
     }
 

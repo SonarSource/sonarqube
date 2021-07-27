@@ -73,8 +73,7 @@ public class RegisterQualityGates implements Startable {
   private final UuidFactory uuidFactory;
   private final System2 system2;
 
-  public RegisterQualityGates(DbClient dbClient,
-    QualityGateConditionsUpdater qualityGateConditionsUpdater, UuidFactory uuidFactory, System2 system2) {
+  public RegisterQualityGates(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater, UuidFactory uuidFactory, System2 system2) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
     this.qualityGateDao = dbClient.qualityGateDao();
@@ -212,7 +211,7 @@ public class RegisterQualityGates implements Startable {
         .setQualityGateUuid(qualityGateUuid);
     }
 
-    // id does not belongs to equals to be able to be compared with builtin
+    // id does not belong to equals to be able to be compared with builtin
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -227,7 +226,7 @@ public class RegisterQualityGates implements Startable {
         Objects.equals(errorThreshold, that.errorThreshold);
     }
 
-    // id does not belongs to hashcode to be able to be compared with builtin
+    // id does not belong to hashcode to be able to be compared with builtin
     @Override
     public int hashCode() {
       return Objects.hash(metricKey, operator, errorThreshold);

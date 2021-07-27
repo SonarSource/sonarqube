@@ -29,6 +29,7 @@ import org.sonar.server.platform.StartupMetadataPersister;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.platform.serverid.ServerIdModule;
+import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 
@@ -42,7 +43,9 @@ public class PlatformLevel3 extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    addIfStartupLeader(StartupMetadataPersister.class);
+    addIfStartupLeader(
+      StartupMetadataPersister.class,
+      DetectPluginChange.class);
     add(
       NoopDatabaseMigrationImpl.class,
       ServerIdModule.class,

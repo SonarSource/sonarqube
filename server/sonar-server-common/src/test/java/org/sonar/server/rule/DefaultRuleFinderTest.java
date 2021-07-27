@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
@@ -41,10 +42,10 @@ public class DefaultRuleFinderTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession session = dbTester.getSession();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final DbSession session = dbTester.getSession();
 
-  private RuleDto rule1 = new RuleDto()
+  private final RuleDto rule1 = new RuleDto()
     .setName("Check Header")
     .setConfigKey("Checker/Treewalker/HeaderCheck")
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck")
@@ -53,7 +54,7 @@ public class DefaultRuleFinderTest {
     .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
-  private RuleDto rule2 = new RuleDto()
+  private final RuleDto rule2 = new RuleDto()
     .setName("Disabled checked")
     .setConfigKey("Checker/Treewalker/DisabledCheck")
     .setRuleKey("DisabledCheck")
@@ -62,7 +63,7 @@ public class DefaultRuleFinderTest {
     .setScope(Scope.MAIN)
     .setStatus(RuleStatus.REMOVED);
 
-  private RuleDto rule3 = new RuleDto()
+  private final RuleDto rule3 = new RuleDto()
     .setName("Check Annotation")
     .setConfigKey("Checker/Treewalker/AnnotationUseStyleCheck")
     .setRuleKey("com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck")
@@ -71,7 +72,7 @@ public class DefaultRuleFinderTest {
     .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
-  private RuleDto rule4 = new RuleDto()
+  private final RuleDto rule4 = new RuleDto()
     .setName("Call Super First")
     .setConfigKey("rulesets/android.xml/CallSuperFirst")
     .setRuleKey("CallSuperFirst")
@@ -80,7 +81,7 @@ public class DefaultRuleFinderTest {
     .setScope(Scope.MAIN)
     .setStatus(RuleStatus.READY);
 
-  private DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient);
+  private final DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient);
 
   @Before
   public void setup() {
@@ -108,19 +109,31 @@ public class DefaultRuleFinderTest {
 
     // find_all_enabled
     assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
-    assertThat(underTest.findAll(RuleQuery.create())).hasSize(3);
+
+    // find_all
+    assertThat(underTest.findAll()).extracting("ruleKey").containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
 
     // do_not_find_disabled_rules
     assertThat(underTest.findByKey("checkstyle", "DisabledCheck")).isNull();
 
     // do_not_find_unknown_rules
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"))).isEmpty();
+
+    assertThat(underTest.findDtoByKey(RuleKey.of("pmd", "CallSuperFirst")).get().getUuid()).isEqualTo(rule4.getUuid());
+    assertThat(underTest.findDtoByUuid(rule4.getUuid())).isPresent();
+  }
+
+  @Test
+  public void should_fail_find() {
+    assertThat(underTest.findDtoByKey(RuleKey.of("pmd", "unknown"))).isEmpty();
+    assertThat(underTest.findDtoByUuid("unknown")).isEmpty();
   }
 
   @Test
   public void find_all_not_include_removed_rule() {
     // rule 3 is REMOVED
     assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
+    assertThat(underTest.findAll()).extracting("ruleKey").containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
   }
 
   @Test

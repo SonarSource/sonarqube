@@ -95,6 +95,7 @@ public class CachingRuleFinderTest {
 
     verify(dbClient).openSession(anyBoolean());
     verify(ruleDao).selectAllDefinitions(dbSession);
+    verify(ruleDao).selectAllRuleParams(dbSession);
     verifyNoMoreInteractions(ruleDao);
   }
 
@@ -110,7 +111,7 @@ public class CachingRuleFinderTest {
 
     new CachingRuleFinder(dbClient);
 
-    verify(ruleDao).selectRuleParamsByRuleKeys(dbSession, ImmutableSet.copyOf(ruleKeys));
+    verify(ruleDao).selectAllRuleParams(dbSession);
   }
 
   @Test

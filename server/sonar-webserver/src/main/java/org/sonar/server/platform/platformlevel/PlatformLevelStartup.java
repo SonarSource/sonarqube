@@ -23,10 +23,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.ce.queue.CeQueueCleaner;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
+import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.plugins.PluginConsentVerifier;
 import org.sonar.server.qualitygate.ProjectsInWarningDaemon;
 import org.sonar.server.qualitygate.RegisterQualityGates;
@@ -47,6 +49,8 @@ import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 public class PlatformLevelStartup extends PlatformLevel {
+  private AddIfStartupLeaderAndPluginsChanged addIfPluginsChanged;
+
   public PlatformLevelStartup(PlatformLevel parent) {
     super("startup tasks", parent);
   }
@@ -54,29 +58,57 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(GeneratePluginIndex.class,
-      RegisterPlugins.class,
       ServerLifecycleNotifier.class);
 
     addIfStartupLeader(
-      IndexerStartupTask.class,
+      IndexerStartupTask.class);
+    addIfStartupLeaderAndPluginsChanged(
       RegisterMetrics.class,
       RegisterQualityGates.class,
-      RegisterRules.class);
-    add(BuiltInQProfileLoader.class);
+      RegisterRules.class,
+      BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,
+      BuiltInQProfileUpdateImpl.class);
+    addIfStartupLeaderAndPluginsChanged(
       BuiltInQProfileInsertImpl.class,
-      BuiltInQProfileUpdateImpl.class,
-      RegisterQualityProfiles.class,
+      RegisterQualityProfiles.class);
+    addIfStartupLeader(
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
       CeQueueCleaner.class,
       UpgradeSuggestionsCleaner.class,
       PluginConsentVerifier.class);
+    add(RegisterPlugins.class,
+      // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefore it
+      // must be started after all the other startup tasks
+      RegisterServletFilters.class
+      );
+  }
 
-    // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefore it
-    // must be started after all the other startup tasks
-    add(RegisterServletFilters.class);
+  /**
+   * Add a component to container only if plugins have changed since last start.
+   *
+   * @throws IllegalStateException if called from PlatformLevel3 or below, plugin info is loaded yet
+   */
+  AddIfStartupLeaderAndPluginsChanged addIfStartupLeaderAndPluginsChanged(Object... objects) {
+    if (addIfPluginsChanged == null) {
+      this.addIfPluginsChanged = new AddIfStartupLeaderAndPluginsChanged(getWebServer().isStartupLeader() && anyPluginChanged());
+    }
+    addIfPluginsChanged.ifAdd(objects);
+    return addIfPluginsChanged;
+  }
+
+  private boolean anyPluginChanged() {
+    return getOptional(DetectPluginChange.class)
+      .map(DetectPluginChange::anyPluginChanged)
+      .orElseThrow(() -> new IllegalStateException("DetectPluginChange not available in Pico yet"));
+  }
+
+  public final class AddIfStartupLeaderAndPluginsChanged extends AddIf {
+    private AddIfStartupLeaderAndPluginsChanged(boolean condition) {
+      super(condition);
+    }
   }
 
   @Override
@@ -93,6 +125,7 @@ public class PlatformLevelStartup extends PlatformLevel {
         get(WebServerRuleFinder.class).stopCaching();
         Loggers.get(PlatformLevelStartup.class)
           .info("Running {} Edition", get(PlatformEditionProvider.class).get().map(EditionProvider.Edition::getLabel).orElse(""));
+        get(DefaultAdminCredentialsVerifierImpl.class).runAtStart();
       }
     });
 

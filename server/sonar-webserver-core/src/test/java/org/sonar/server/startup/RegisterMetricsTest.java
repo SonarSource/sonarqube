@@ -45,8 +45,9 @@ public class RegisterMetricsTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private DbClient dbClient = dbTester.getDbClient();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
 
   /**
    * Insert new metrics, including custom metrics
@@ -65,7 +66,6 @@ public class RegisterMetricsTest {
       .setUserManaged(true)
       .create();
 
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(m1, custom));
 
     Map<String, MetricDto> metricsByKey = selectAllMetrics();
@@ -91,7 +91,6 @@ public class RegisterMetricsTest {
       .setDirection(1)
       .setHidden(false));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
@@ -115,7 +114,6 @@ public class RegisterMetricsTest {
     IntStream.range(0, count)
       .forEach(t -> dbTester.measures().insertMetric(m -> m.setEnabled(random.nextBoolean())));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(Collections.emptyList());
 
     assertThat(selectAllMetrics().values().stream())
@@ -128,7 +126,6 @@ public class RegisterMetricsTest {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
 
     assertThat(selectAllMetrics().values())
@@ -138,7 +135,6 @@ public class RegisterMetricsTest {
 
   @Test
   public void insert_core_metrics() {
-    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.start();
 
     assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());

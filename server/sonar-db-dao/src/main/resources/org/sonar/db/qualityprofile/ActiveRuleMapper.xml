@@ -36,7 +36,7 @@
     inner join rules r on r.uuid = a.rule_uuid
   </sql>
 
-  <insert id="insert" parameterType="ActiveRule">
+  <insert id="insert" parameterType="ActiveRule" useGeneratedKeys="false">
     insert into active_rules (
       uuid,
       profile_uuid,
@@ -56,7 +56,7 @@
     )
   </insert>
 
-  <update id="update" parameterType="ActiveRule">
+  <update id="update" parameterType="ActiveRule" useGeneratedKeys="false">
     update active_rules
     set
       failure_level = #{severity, jdbcType=INTEGER},

@@ -78,4 +78,15 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
     return delegate.findDtoByKey(key);
   }
+
+  @Override
+  public Optional<RuleDefinitionDto> findDtoByUuid(String uuid) {
+    return delegate.findDtoByUuid(uuid);
+  }
+
+  @Override
+  public Collection<RuleDefinitionDto> findAll() {
+    return delegate.findAll();
+  }
+
 }

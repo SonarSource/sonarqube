@@ -35,7 +35,7 @@ import static org.sonar.server.property.InternalProperties.DEFAULT_ADMIN_CREDENT
 /**
  * Detect usage of an active admin account with default credential in order to ask this account to reset its password during authentication.
  */
-public class DefaultAdminCredentialsVerifierImpl implements Startable, DefaultAdminCredentialsVerifier {
+public class DefaultAdminCredentialsVerifierImpl implements DefaultAdminCredentialsVerifier {
 
   private static final Logger LOGGER = Loggers.get(STARTUP_LOGGER_NAME);
 
@@ -49,8 +49,7 @@ public class DefaultAdminCredentialsVerifierImpl implements Startable, DefaultAd
     this.notificationManager = notificationManager;
   }
 
-  @Override
-  public void start() {
+  public void runAtStart() {
     try (DbSession session = dbClient.openSession(false)) {
       UserDto admin = getAdminUser(session);
       if (admin == null || !isDefaultCredentialUser(session, admin)) {
@@ -63,6 +62,7 @@ public class DefaultAdminCredentialsVerifierImpl implements Startable, DefaultAd
     }
   }
 
+  @Override
   public boolean hasDefaultCredentialUser() {
     try (DbSession session = dbClient.openSession(false)) {
       UserDto admin = getAdminUser(session);
@@ -104,10 +104,5 @@ public class DefaultAdminCredentialsVerifierImpl implements Startable, DefaultAd
     }
     notificationManager.scheduleForSending(new DefaultAdminCredentialsVerifierNotification());
     dbClient.internalPropertiesDao().save(session, DEFAULT_ADMIN_CREDENTIAL_USAGE_EMAIL, Boolean.TRUE.toString());
-  }
-
-  @Override
-  public void stop() {
-    // Nothing to do
   }
 }

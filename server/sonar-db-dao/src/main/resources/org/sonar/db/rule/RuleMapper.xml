@@ -148,7 +148,7 @@
   </select>
 
   <select id="selectIndexingRuleExtensionsByIds" parameterType="map" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto">
-    <include refid="sqlSelectIndexingRuleExtensions" />
+    <include refid="sqlSelectIndexingRuleExtensions"/>
     and
     <foreach collection="ruleExtensionIds" index="index" item="ruleExtId" open="" separator=" or " close="">
       ( r.uuid = #{ruleExtId, jdbcType=VARCHAR} )
@@ -263,7 +263,8 @@
     order by r.created_at asc
   </select>
 
-  <select id="scrollIndexingRules" resultType="org.sonar.db.rule.RuleForIndexingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollIndexingRules" resultType="org.sonar.db.rule.RuleForIndexingDto" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     <include refid="sqlSelectIndexingRules"/>
     order by r.created_at asc
   </select>
@@ -324,8 +325,10 @@
     <include refid="outerJoinRulesMetadata"/>
     where
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
-      and r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
-      and r.language in <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+      and r.rule_type in
+    <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
+      and r.language in
+    <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
   </select>
 
   <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" useGeneratedKeys="false">
@@ -506,6 +509,13 @@
       </foreach>
   </select>
 
+    <select id="selectAllRuleParams" resultType="RuleParam">
+    select
+      <include refid="paramColumns"/>
+    from
+      rules_parameters p
+  </select>
+
   <select id="selectParamsByRuleKey" resultType="RuleParam" parameterType="org.sonar.api.rule.RuleKey">
     select
       <include refid="paramColumns"/>
@@ -606,7 +616,8 @@
     </foreach>
   </delete>
 
-  <insert id="insertDeprecatedRuleKey" parameterType="org.sonar.db.rule.DeprecatedRuleKeyDto" keyColumn="uuid" useGeneratedKeys="false" keyProperty="uuid">
+  <insert id="insertDeprecatedRuleKey" parameterType="org.sonar.db.rule.DeprecatedRuleKeyDto" keyColumn="uuid" useGeneratedKeys="false"
+          keyProperty="uuid">
     INSERT INTO deprecated_rule_keys (
       uuid,
       rule_uuid,

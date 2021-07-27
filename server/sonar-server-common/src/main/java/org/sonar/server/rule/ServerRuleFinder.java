@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Collection;
 import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
@@ -26,4 +27,9 @@ import org.sonar.db.rule.RuleDefinitionDto;
 
 public interface ServerRuleFinder extends RuleFinder {
   Optional<RuleDefinitionDto> findDtoByKey(RuleKey key);
+
+  Optional<RuleDefinitionDto> findDtoByUuid(String uuid);
+
+  Collection<RuleDefinitionDto> findAll();
+
 }

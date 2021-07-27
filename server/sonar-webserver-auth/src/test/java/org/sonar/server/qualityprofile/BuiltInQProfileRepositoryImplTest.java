@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.ServerRuleFinder;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -51,16 +52,16 @@ public class BuiltInQProfileRepositoryImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
+  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient);
 
   @Test
   public void create_qprofile_with_rule() {
     RuleDefinitionDto rule1 = db.rules().insert();
     RuleDefinitionDto rule2 = db.rules().insert();
     db.rules().insert();
-    List<DummyProfileDefinition> definitions = singletonList(new DummyProfileDefinition("foo", "foo", false,
-      asList(rule1.getKey(), rule2.getKey())));
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
+    DummyProfileDefinition definition = new DummyProfileDefinition("foo", "foo", false, asList(rule1.getKey(), rule2.getKey()));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definition);
 
     underTest.initialize();
 
@@ -76,7 +77,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void make_single_profile_of_a_language_default_even_if_not_flagged_as_so() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", false));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
+      new DummyProfileDefinition("foo", "foo1", false));
 
     underTest.initialize();
 
@@ -87,7 +89,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void make_single_profile_of_a_language_default_even_if_flagged_as_so() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", true));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
+      new DummyProfileDefinition("foo", "foo1", true));
 
     underTest.initialize();
 
@@ -98,11 +101,10 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void make_first_profile_of_a_language_default_when_none_flagged_as_so() {
-    List<DummyProfileDefinition> definitions = new ArrayList<>(
-      asList(new DummyProfileDefinition("foo", "foo1", false), new DummyProfileDefinition("foo", "foo2", false)));
-    String firstName = definitions.get(0).getName();
-    String secondName = definitions.get(1).getName();
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
+    DummyProfileDefinition[] definitions = new DummyProfileDefinition[] {new DummyProfileDefinition("foo", "foo1", false), new DummyProfileDefinition("foo", "foo2", false)};
+    String firstName = definitions[0].getName();
+    String secondName = definitions[1].getName();
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definitions);
 
     underTest.initialize();
 
@@ -114,7 +116,7 @@ public class BuiltInQProfileRepositoryImplTest {
   @Test
   public void create_profile_Sonar_Way_as_default_if_none_other_is_defined_default_for_a_given_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      dbClient, new Languages(FOO_LANGUAGE),
+      dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "doh", false), new DummyProfileDefinition("foo", "boo", false),
       new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", false));
 
@@ -130,7 +132,7 @@ public class BuiltInQProfileRepositoryImplTest {
   @Test
   public void do_not_create_Sonar_Way_as_default_if_other_profile_is_defined_as_default() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      dbClient, new Languages(FOO_LANGUAGE),
+      dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", SONAR_WAY_QP_NAME, false), new DummyProfileDefinition("foo", "goo", true));
 
     underTest.initialize();
@@ -146,7 +148,7 @@ public class BuiltInQProfileRepositoryImplTest {
   public void match_Sonar_Way_default_with_case_sensitivity() {
     String sonarWayInOtherCase = SONAR_WAY_QP_NAME.toUpperCase();
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
-      dbClient, new Languages(FOO_LANGUAGE),
+      dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "goo", false), new DummyProfileDefinition("foo", sonarWayInOtherCase, false));
 
     underTest.initialize();
@@ -160,7 +162,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void create_no_BuiltInQProfile_when_all_definitions_apply_to_non_defined_languages() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages(), new DummyProfileDefinition("foo", "P1", false));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages(),
+      new DummyProfileDefinition("foo", "P1", false));
 
     underTest.initialize();
 
@@ -172,9 +175,9 @@ public class BuiltInQProfileRepositoryImplTest {
     RuleDefinitionDto rule1 = db.rules().insert();
     db.rules().insertDeprecatedKey(d -> d.setRuleUuid(rule1.getUuid()).setOldRepositoryKey("oldRepo").setOldRuleKey("oldKey"));
     RuleDefinitionDto rule2 = db.rules().insert();
-    List<DummyProfileDefinition> definitions = singletonList(new DummyProfileDefinition("foo", "foo", false,
-      asList(RuleKey.of("oldRepo", "oldKey"), rule2.getKey())));
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
+    DummyProfileDefinition definition = new DummyProfileDefinition("foo", "foo", false,
+      asList(RuleKey.of("oldRepo", "oldKey"), rule2.getKey()));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definition);
 
     underTest.initialize();
 
@@ -190,8 +193,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void fail_with_ISE_when_rule_does_not_exist() {
-    List<DummyProfileDefinition> definitions = singletonList(new DummyProfileDefinition("foo", "foo", false, singletonList(EXTERNAL_XOO)));
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
+    DummyProfileDefinition[] definitions = new DummyProfileDefinition[] {new DummyProfileDefinition("foo", "foo", false, singletonList(EXTERNAL_XOO))};
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definitions);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(String.format("Rule with key '%s' not found", EXTERNAL_XOO.toString()));
@@ -201,9 +204,8 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void fail_with_ISE_when_two_profiles_with_different_name_are_default_for_the_same_language() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE),
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo2", true));
-
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Several Quality profiles are flagged as default for the language foo: [foo1, foo2]");
 
@@ -212,7 +214,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void get_throws_ISE_if_called_before_initialize() {
-    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages());
+    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("initialize must be called first");
@@ -222,7 +224,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_throws_ISE_if_called_twice() {
-    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages());
+    BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages());
     underTest.initialize();
 
     expectedException.expect(IllegalStateException.class);
@@ -233,7 +235,7 @@ public class BuiltInQProfileRepositoryImplTest {
 
   @Test
   public void initialize_throws_ISE_if_language_has_no_builtin_qp() {
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages(FOO_LANGUAGE));
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages(FOO_LANGUAGE));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("The following languages have no built-in quality profiles: foo");

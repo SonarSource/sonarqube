@@ -46,6 +46,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.rule.ServerRuleFinder;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -54,6 +55,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final DbClient dbClient;
+  private final ServerRuleFinder ruleFinder;
   private final Languages languages;
   private final List<BuiltInQualityProfilesDefinition> definitions;
   private List<BuiltInQProfile> qProfiles;
@@ -61,12 +63,13 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   /**
    * Requires for pico container when no {@link BuiltInQualityProfilesDefinition} is defined at all
    */
-  public BuiltInQProfileRepositoryImpl(DbClient dbClient, Languages languages) {
-    this(dbClient, languages, new BuiltInQualityProfilesDefinition[0]);
+  public BuiltInQProfileRepositoryImpl(DbClient dbClient, ServerRuleFinder ruleFinder, Languages languages) {
+    this(dbClient, ruleFinder, languages, new BuiltInQualityProfilesDefinition[0]);
   }
 
-  public BuiltInQProfileRepositoryImpl(DbClient dbClient, Languages languages, BuiltInQualityProfilesDefinition... definitions) {
+  public BuiltInQProfileRepositoryImpl(DbClient dbClient, ServerRuleFinder ruleFinder, Languages languages, BuiltInQualityProfilesDefinition... definitions) {
     this.dbClient = dbClient;
+    this.ruleFinder = ruleFinder;
     this.languages = languages;
     this.definitions = ImmutableList.copyOf(definitions);
   }
@@ -141,7 +144,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
 
   private Map<RuleKey, RuleDefinitionDto> loadRuleDefinitionsByRuleKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDefinitionDto> ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(dbSession);
+      Collection<RuleDefinitionDto> ruleDefinitions = ruleFinder.findAll();
       Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
         .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
       Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();

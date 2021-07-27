@@ -19,11 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.PropertyType;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -40,10 +42,14 @@ import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.ServerRuleFinder;
+import org.sonar.server.util.StringTypeValidation;
 import org.sonar.server.util.TypeValidations;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -56,13 +62,14 @@ public class BuiltInQProfileInsertImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private TypeValidations typeValidations = new TypeValidations(emptyList());
-  private DbSession dbSession = db.getSession();
-  private DbSession batchDbSession = db.getDbClient().openSession(true);
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), system2, uuidFactory, typeValidations, activeRuleIndexer);
+  private final System2 system2 = new AlwaysIncreasingSystem2();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final TypeValidations typeValidations = new TypeValidations(singletonList(new StringTypeValidation()));
+  private final DbSession dbSession = db.getSession();
+  private final DbSession batchDbSession = db.getDbClient().openSession(true);
+  private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
+  private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer);
 
   @After
   public void tearDown() {
@@ -85,13 +92,61 @@ public class BuiltInQProfileInsertImplTest {
     call(builtIn);
 
     verifyTableSize("rules_profiles", 1);
+    verifyTableSize("org_qprofiles", 1);
     verifyTableSize("active_rules", 2);
     verifyTableSize("active_rule_parameters", 0);
     verifyTableSize("qprofile_changes", 2);
+    verifyTableSize("default_qprofiles", 0);
+
 
     QProfileDto profile = verifyProfileInDb(builtIn);
     verifyActiveRuleInDb(profile, rule1, Severity.CRITICAL);
     verifyActiveRuleInDb(profile, rule2, Severity.MAJOR);
+  }
+
+  @Test
+  public void insert_default_qp() {
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    context.createBuiltInQualityProfile("the name", "xoo")
+      .setDefault(true)
+      .done();
+
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
+    call(builtIn);
+
+    verifyTableSize("rules_profiles", 1);
+    verifyTableSize("org_qprofiles", 1);
+    verifyTableSize("active_rules", 0);
+    verifyTableSize("active_rule_parameters", 0);
+    verifyTableSize("qprofile_changes", 0);
+    verifyTableSize("default_qprofiles", 1);
+
+    verifyProfileInDb(builtIn);
+  }
+
+  @Test
+  public void insert_active_rules_with_params() {
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleParamDto param1 = db.rules().insertRuleParam(rule1, p -> p.setType(PropertyType.STRING.name()));
+    RuleParamDto param2 = db.rules().insertRuleParam(rule1, p -> p.setType(PropertyType.STRING.name()));
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo");
+
+    newQp.activateRule(rule1.getRepositoryKey(), rule1.getRuleKey()).overrideSeverity(Severity.CRITICAL);
+    newQp.done();
+
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"), rule1);
+    call(builtIn);
+
+    verifyTableSize("rules_profiles", 1);
+    verifyTableSize("org_qprofiles", 1);
+    verifyTableSize("active_rules", 1);
+    verifyTableSize("active_rule_parameters", 2);
+    verifyTableSize("qprofile_changes", 1);
+
+    QProfileDto profile = verifyProfileInDb(builtIn);
+    verifyActiveRuleInDb(profile, rule1, Severity.CRITICAL, param1, param2);
   }
 
   @Test
@@ -123,6 +178,7 @@ public class BuiltInQProfileInsertImplTest {
 
     QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(currentDefault.getKee());
+    verifyTableSize("rules_profiles", 2);
   }
 
   @Test
@@ -138,10 +194,9 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(defaultProfile).isNull();
   }
 
-  // TODO test params
   // TODO test lot of active_rules, params, orgas
 
-  private void verifyActiveRuleInDb(QProfileDto profile, RuleDefinitionDto rule, String expectedSeverity) {
+  private void verifyActiveRuleInDb(QProfileDto profile, RuleDefinitionDto rule, String expectedSeverity, RuleParamDto... paramDtos) {
     ActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profile, rule.getKey())).get();
     assertThat(activeRule.getUuid()).isNotNull();
     assertThat(activeRule.getInheritance()).isNull();
@@ -153,7 +208,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(activeRule.getUpdatedAt()).isPositive();
 
     List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid());
-    assertThat(params).isEmpty();
+    assertThat(params).extracting(ActiveRuleParamDto::getKey).containsOnly(Arrays.stream(paramDtos).map(RuleParamDto::getName).toArray(String[]::new));
 
     QProfileChangeQuery changeQuery = new QProfileChangeQuery(profile.getKee());
     QProfileChangeDto change = db.getDbClient().qProfileChangeDao().selectByQuery(dbSession, changeQuery).stream()

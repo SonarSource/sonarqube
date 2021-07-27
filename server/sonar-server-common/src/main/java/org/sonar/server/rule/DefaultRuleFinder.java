@@ -42,9 +42,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Optional.empty;
-
 /**
  * Will be removed in the future.
  */
@@ -61,12 +58,25 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   @Override
   public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDefinitionDto> rule = ruleDao.selectDefinitionByKey(dbSession, key);
-      if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
-        return rule;
-      } else {
-        return empty();
-      }
+      return ruleDao.selectDefinitionByKey(dbSession, key)
+        .filter(r -> r.getStatus() != RuleStatus.REMOVED);
+    }
+  }
+
+  @Override
+  public Optional<RuleDefinitionDto> findDtoByUuid(String uuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return ruleDao.selectDefinitionByUuid(uuid, dbSession)
+        .filter(r -> r.getStatus() != RuleStatus.REMOVED);
+    }
+  }
+
+  @Override
+  public Collection<RuleDefinitionDto> findAll() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<RuleDefinitionDto> list = new ArrayList<>();
+      ruleDao.selectEnabled(dbSession, r -> list.add(r.getResultObject()));
+      return list;
     }
   }
 
@@ -150,7 +160,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
       }
     }
 
-    List<org.sonar.api.rules.RuleParam> apiParams = newArrayList();
+    List<org.sonar.api.rules.RuleParam> apiParams = new ArrayList<>();
     for (RuleParamDto param : params) {
       apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.getName(), param.getDescription(), param.getType())
         .setDefaultValue(param.getDefaultValue()));

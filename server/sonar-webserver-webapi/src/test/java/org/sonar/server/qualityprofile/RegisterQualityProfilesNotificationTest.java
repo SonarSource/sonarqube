@@ -47,6 +47,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.ServerRuleFinder;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
@@ -62,6 +64,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RulePriority.MAJOR;
@@ -90,7 +93,9 @@ public class RegisterQualityProfilesNotificationTest {
   private DbClient dbClient = db.getDbClient();
   private TypeValidations typeValidations = mock(TypeValidations.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, system2, UuidFactoryFast.getInstance(), typeValidations, activeRuleIndexer);
+  private ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient);
+  private BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryFast.getInstance(),
+    typeValidations, activeRuleIndexer);
   private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule);
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer);
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer);
@@ -120,7 +125,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    verifyZeroInteractions(builtInQualityProfilesNotification);
+    verifyNoInteractions(builtInQualityProfilesNotification);
   }
 
   @Test

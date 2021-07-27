@@ -81,6 +81,8 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectParamsByRuleKeys(@Param("ruleKeys") List<RuleKey> ruleKeys);
 
+  List<RuleParamDto> selectAllRuleParams();
+
   void insertParameter(RuleParamDto param);
 
   void updateParameter(RuleParamDto param);
