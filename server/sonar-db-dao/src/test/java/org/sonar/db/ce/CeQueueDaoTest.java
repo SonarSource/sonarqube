@@ -708,7 +708,7 @@ public class CeQueueDaoTest {
     view.setRootUuid(view_uuid);
     view.setUuidPath("uuid_path");
     view.setProjectUuid(view_uuid);
-    db.components().insertViewAndSnapshot(view);
+    db.components().insertPortfolioAndSnapshot(view);
     db.commit();
   }
 

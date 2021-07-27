@@ -72,7 +72,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -390,7 +390,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
-    ComponentDto subView = db.components().insertComponent(newSubView(view, "SV1", "MySubView"));
+    ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "SV1", "MySubView"));
     db.components().insertComponent(newProjectCopy(project, subView));
     allowAnyoneOnProjects(project, view, subView);
     indexIssuesAndViews();
@@ -408,7 +408,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
-    ComponentDto subView = db.components().insertComponent(newSubView(view, "SV1", "MySubView"));
+    ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "SV1", "MySubView"));
     db.components().insertComponent(newProjectCopy(project, subView));
     // User has no permission on the view, no issue will be returned
     allowAnyoneOnProjects(project);

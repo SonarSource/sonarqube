@@ -50,7 +50,7 @@ public class ComponentDbTester {
     return insertSnapshot(component);
   }
 
-  public SnapshotDto insertViewAndSnapshot(ComponentDto component) {
+  public SnapshotDto insertPortfolioAndSnapshot(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component);
     return insertSnapshot(component);
   }
@@ -225,7 +225,7 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newSubView(view), view.isPrivate(), defaults(), dtoPopulator);
+    return insertComponentAndBranchAndProject(ComponentTesting.newSubPortfolio(view), view.isPrivate(), defaults(), dtoPopulator);
   }
 
   private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator,

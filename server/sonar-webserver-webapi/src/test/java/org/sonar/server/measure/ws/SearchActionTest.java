@@ -53,7 +53,7 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -225,7 +225,7 @@ public class SearchActionTest {
   @Test
   public void return_measures_on_sub_view() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subView = db.components().insertComponent(newSubView(view));
+    ComponentDto subView = db.components().insertComponent(newSubPortfolio(view));
     userSession.addProjectPermission(UserRole.USER, subView);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     db.measures().insertLiveMeasure(subView, metric, m -> m.setValue(15.5d));

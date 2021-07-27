@@ -58,7 +58,7 @@ import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.PO
 import static org.sonar.ce.task.projectanalysis.component.ViewsComponent.builder;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 
 public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
@@ -214,7 +214,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void persist_existing_empty_subview_under_existing_view() {
     ComponentDto viewDto = newViewDto();
     persistComponents(viewDto);
-    persistComponents(ComponentTesting.newSubView(viewDto, SUBVIEW_1_UUID, SUBVIEW_1_KEY).setName(SUBVIEW_1_NAME));
+    persistComponents(ComponentTesting.newSubPortfolio(viewDto, SUBVIEW_1_UUID, SUBVIEW_1_KEY).setName(SUBVIEW_1_NAME));
 
     treeRootHolder.setRoot(
       createViewBuilder(PORTFOLIO)
@@ -418,7 +418,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto());
     ComponentDto view = newViewDto().setUuid(VIEW_UUID).setDbKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
-    ComponentDto subView = newSubView(view).setUuid("BCDE").setDbKey("MODULE").setPrivate(!isRootPrivate);
+    ComponentDto subView = newSubPortfolio(view).setUuid("BCDE").setDbKey("MODULE").setPrivate(!isRootPrivate);
     dbTester.components().insertComponent(subView);
     dbTester.components().insertComponent(newProjectCopy("DEFG", project, view).setDbKey("DIR").setPrivate(isRootPrivate));
     treeRootHolder.setRoot(
@@ -485,7 +485,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private ComponentDto newSubViewDto(ComponentDto rootView) {
-    return ComponentTesting.newSubView(rootView, SUBVIEW_1_UUID, SUBVIEW_1_KEY)
+    return ComponentTesting.newSubPortfolio(rootView, SUBVIEW_1_UUID, SUBVIEW_1_KEY)
       .setName(SUBVIEW_1_NAME);
   }
 

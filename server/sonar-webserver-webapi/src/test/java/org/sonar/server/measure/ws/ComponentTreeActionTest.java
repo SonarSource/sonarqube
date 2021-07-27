@@ -73,7 +73,7 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
@@ -664,7 +664,7 @@ public class ComponentTreeActionTest {
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     ComponentDto localView = db.components().insertComponent(
-      newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(view2.uuid()));
+      ComponentTesting.newSubPortfolio(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(view2.uuid()));
     db.components().insertSnapshot(view);
     MetricDto ncloc = insertNclocMetric();
     db.measures().insertLiveMeasure(localView, ncloc, m -> m.setValue(5d));
@@ -684,7 +684,7 @@ public class ComponentTreeActionTest {
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
     ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto localView = db.components().insertComponent(
-      newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(application.uuid()));
+      ComponentTesting.newSubPortfolio(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(application.uuid()));
     db.components().insertSnapshot(view);
     MetricDto ncloc = insertNclocMetric();
     db.measures().insertLiveMeasure(localView, ncloc, m -> m.setValue(5d));

@@ -103,7 +103,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newSnapshot;
@@ -1095,10 +1095,10 @@ public class PurgeDaoTest {
   public void delete_view_and_child() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subView = db.components().insertComponent(newSubView(view));
+    ComponentDto subView = db.components().insertComponent(newSubPortfolio(view));
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(project, subView));
     ComponentDto otherView = db.components().insertPrivatePortfolio();
-    ComponentDto otherSubView = db.components().insertComponent(newSubView(otherView));
+    ComponentDto otherSubView = db.components().insertComponent(newSubPortfolio(otherView));
     ComponentDto otherProjectCopy = db.components().insertComponent(newProjectCopy(project, otherSubView));
 
     underTest.deleteProject(dbSession, view.uuid(), view.qualifier());
@@ -1466,8 +1466,8 @@ public class PurgeDaoTest {
     };
 
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview1 = db.components().insertComponent(newSubView(view));
-    ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
+    ComponentDto subview1 = db.components().insertComponent(newSubPortfolio(view));
+    ComponentDto subview2 = db.components().insertComponent(newSubPortfolio(subview1));
     List<ComponentDto> components = asList(
       view,
       subview1,
@@ -1512,8 +1512,8 @@ public class PurgeDaoTest {
     };
 
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview1 = db.components().insertComponent(newSubView(view));
-    ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
+    ComponentDto subview1 = db.components().insertComponent(newSubPortfolio(view));
+    ComponentDto subview2 = db.components().insertComponent(newSubPortfolio(subview1));
     ComponentDto pc1 = db.components().insertComponent(newProjectCopy("a", projects[0], view));
     ComponentDto pc2 = db.components().insertComponent(newProjectCopy("b", projects[1], subview1));
     ComponentDto pc3 = db.components().insertComponent(newProjectCopy("c", projects[2], subview2));
@@ -1532,7 +1532,7 @@ public class PurgeDaoTest {
   @Test
   public void deleteNonRootComponents_deletes_measures_of_any_non_root_component_of_a_view() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview = db.components().insertComponent(newSubView(view));
+    ComponentDto subview = db.components().insertComponent(newSubPortfolio(view));
     ComponentDto pc = db.components().insertComponent(newProjectCopy("a", db.components().insertPrivateProject(), view));
     insertMeasureFor(view, subview, pc);
     assertThat(getComponentUuidsOfMeasures()).containsOnly(view.uuid(), subview.uuid(), pc.uuid());
@@ -1549,9 +1549,9 @@ public class PurgeDaoTest {
   @Test
   public void deleteNonRootComponents_deletes_properties_of_subviews_of_a_view() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview1 = db.components().insertComponent(newSubView(view));
-    ComponentDto subview2 = db.components().insertComponent(newSubView(subview1));
-    ComponentDto subview3 = db.components().insertComponent(newSubView(view));
+    ComponentDto subview1 = db.components().insertComponent(newSubPortfolio(view));
+    ComponentDto subview2 = db.components().insertComponent(newSubPortfolio(subview1));
+    ComponentDto subview3 = db.components().insertComponent(newSubPortfolio(view));
     ComponentDto pc = db.components().insertComponent(newProjectCopy("a", db.components().insertPrivateProject(), view));
     insertPropertyFor(view, subview1, subview2, subview3, pc);
     assertThat(getResourceIdOfProperties()).containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid(), pc.uuid());

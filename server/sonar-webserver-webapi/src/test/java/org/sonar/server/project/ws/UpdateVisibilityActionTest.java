@@ -195,7 +195,7 @@ public class UpdateVisibilityActionTest {
     dbTester.components().insertComponents(module, dir, file);
     ComponentDto application = dbTester.components().insertPublicApplication();
     ComponentDto portfolio = dbTester.components().insertPrivatePortfolio();
-    ComponentDto subView = ComponentTesting.newSubView(portfolio);
+    ComponentDto subView = ComponentTesting.newSubPortfolio(portfolio);
     ComponentDto projectCopy = newProjectCopy("foo", project, subView);
     dbTester.components().insertComponents(subView, projectCopy);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project, portfolio, application);

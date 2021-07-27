@@ -48,7 +48,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -239,7 +239,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   @Test
   public void fail_when_component_is_a_subview() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    ComponentDto file = db.components().insertComponent(newSubView(portfolio));
+    ComponentDto file = db.components().insertComponent(newSubPortfolio(portfolio));
 
     failIfComponentIsNotAProjectOrView(file);
   }

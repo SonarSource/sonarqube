@@ -55,7 +55,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssueQueryFactoryTest {
@@ -331,7 +331,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void return_empty_results_if_not_allowed_to_search_for_subview() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subView = db.components().insertComponent(newSubView(view));
+    ComponentDto subView = db.components().insertComponent(newSubPortfolio(view));
     SearchRequest request = new SearchRequest()
       .setComponentUuids(singletonList(subView.uuid()));
 

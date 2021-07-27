@@ -77,7 +77,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
@@ -1756,9 +1756,9 @@ public class ComponentDaoTest {
   @Test
   public void select_descendants_of_a_view_and_filter_by_name() {
     ComponentDto view = ComponentTesting.newPortfolio(A_VIEW_UUID);
-    db.components().insertViewAndSnapshot(view);
+    db.components().insertPortfolioAndSnapshot(view);
     // one subview
-    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
+    ComponentDto subView = ComponentTesting.newSubPortfolio(view, "subview-uuid", "subview-key").setName("subview name");
     db.components().insertComponent(subView);
     // one project and its copy linked to the view
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID).setName("project name");
@@ -1844,7 +1844,7 @@ public class ComponentDaoTest {
     ComponentDto projectDto = db.components().insertComponent(newPrivateProjectDto());
 
     ComponentDto view = db.components().insertComponent(newPortfolio());
-    ComponentDto subview = db.components().insertComponent(newSubView(view));
+    ComponentDto subview = db.components().insertComponent(newSubPortfolio(view));
 
     ComponentDto app = db.components().insertComponent(newApplication());
 

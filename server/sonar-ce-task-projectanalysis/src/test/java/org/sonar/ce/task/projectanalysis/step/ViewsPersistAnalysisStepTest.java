@@ -47,7 +47,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 
 public class ViewsPersistAnalysisStepTest extends BaseStepTest {
@@ -93,7 +93,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_analysis() {
     ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setDbKey("KEY_VIEW"));
-    save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
+    save(ComponentTesting.newSubPortfolio(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     save(newPrivateProjectDto("proj"));
     dbTester.getSession().commit();
 
@@ -119,7 +119,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Test
   public void persist_snapshots_with_new_code_period() {
     ComponentDto viewDto = save(ComponentTesting.newPortfolio("UUID_VIEW").setDbKey("KEY_VIEW"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
+    ComponentDto subViewDto = save(ComponentTesting.newSubPortfolio(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 
     Component subView = ViewsComponent.builder(SUBVIEW, "KEY_SUBVIEW").setUuid("UUID_SUBVIEW").build();

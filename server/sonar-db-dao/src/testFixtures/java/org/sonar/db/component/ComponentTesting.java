@@ -76,8 +76,8 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.DIRECTORY);
   }
 
-  public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String key) {
-    return newModuleDto(uuid, viewOrSubView)
+  public static ComponentDto newSubPortfolio(ComponentDto portfolioOrSubPortfolio, String uuid, String key) {
+    return newModuleDto(uuid, portfolioOrSubPortfolio)
       .setDbKey(key)
       .setName(key)
       .setLongName(key)
@@ -86,9 +86,9 @@ public class ComponentTesting {
       .setPath(null);
   }
 
-  public static ComponentDto newSubView(ComponentDto viewOrSubView) {
+  public static ComponentDto newSubPortfolio(ComponentDto viewOrSubView) {
     String uuid = Uuids.createFast();
-    return newSubView(viewOrSubView, uuid, "KEY_" + uuid);
+    return newSubPortfolio(viewOrSubView, uuid, "KEY_" + uuid);
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {

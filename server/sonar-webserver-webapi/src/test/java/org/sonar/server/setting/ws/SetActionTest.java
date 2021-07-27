@@ -779,7 +779,7 @@ public class SetActionTest {
   @Test
   public void succeed_for_property_without_definition_when_set_on_subview_component() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
+    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
   }
 

@@ -284,7 +284,7 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    db.components().insertViewAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
+    db.components().insertPortfolioAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
 
     RemoveRequest request = this.request.setProject("VIEW_1");
     assertThatThrownBy(() -> call(request))

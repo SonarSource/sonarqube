@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexerTest {
@@ -76,7 +76,7 @@ public class ViewIndexerTest {
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
-    ComponentDto subView = db.components().insertComponent(newSubView(view2));
+    ComponentDto subView = db.components().insertComponent(newSubPortfolio(view2));
     db.components().insertComponent(newProjectCopy(project3, subView));
     // view without project
     ComponentDto view3 = db.components().insertPrivatePortfolio();
@@ -108,7 +108,7 @@ public class ViewIndexerTest {
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     db.components().insertSnapshot(view2, t -> t.setLast(true));
     db.components().insertComponent(newProjectCopy(project2, view2));
-    ComponentDto subView = db.components().insertComponent(newSubView(view2));
+    ComponentDto subView = db.components().insertComponent(newSubPortfolio(view2));
     db.components().insertComponent(newProjectCopy(project3, subView));
     // view without project
     ComponentDto view3 = db.components().insertPrivatePortfolio();

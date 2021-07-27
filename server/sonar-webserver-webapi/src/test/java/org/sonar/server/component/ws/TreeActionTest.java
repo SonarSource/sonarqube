@@ -68,7 +68,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubView;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
@@ -254,11 +254,11 @@ public class TreeActionTest {
   @Test
   public void project_reference_from_portfolio() {
     ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
-    db.components().insertViewAndSnapshot(view);
+    db.components().insertPortfolioAndSnapshot(view);
     ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setDbKey("project-key-1");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
-    db.components().insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
+    db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
     db.commit();
     userSession.logIn()
       .registerComponents(view, project);
@@ -316,7 +316,7 @@ public class TreeActionTest {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
     ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
-    db.components().insertViewAndSnapshot(view);
+    db.components().insertPortfolioAndSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
     userSession.logIn()
       .registerComponents(project, view);
