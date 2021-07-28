@@ -13,16 +13,50 @@
     a.created_at as "createdAt"
   </sql>
 
+  <sql id="sqlColumnsInInnerQuery">
+    uuid,
+    user_uuid,
+    user_login,
+    category,
+    operation,
+    new_value,
+    created_at
+  </sql>
+
   <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto">
+    select
+      <include refid="sqlColumns"/>
+    from audits a
+    where
+      a.created_at &gt;= #{start} and a.created_at &lt; #{end}
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="mssql">
     select <include refid="sqlColumns"/> from (
       select
-        row_number() over(order by created_at, uuid) as row_number, *
+        row_number() over(order by created_at, uuid) as row_number,
+          <include refid="sqlColumnsInInnerQuery" />
         from audits
         where created_at &gt;= #{start} and created_at &lt; #{end}
     ) as a
     where
     a.row_number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
     order by a.row_number asc
+  </select>
+
+  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="oracle">
+    select <include refid="sqlColumns"/> from (
+      select rownum as rn, t.* from (
+        select
+        <include refid="sqlColumnsInInnerQuery"/>
+        from audits
+        where created_at &gt;= #{start} and created_at &lt; #{end}
+      ) t
+    ) a
+    where
+      a.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by a.rn asc
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
