@@ -20,35 +20,43 @@
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getBaseUrl } from '../helpers/system';
+import { ComponentReportStatus } from '../types/component-report';
 
-export interface ReportStatus {
-  canDownload?: boolean;
-  canSubscribe: boolean;
-  componentFrequency?: string;
-  globalFrequency: string;
-  subscribed?: boolean;
-}
-
-export function getReportStatus(component: string): Promise<ReportStatus> {
-  return getJSON('/api/governance_reports/status', { componentKey: component }).catch(
+export function getReportStatus(
+  componentKey: string,
+  branchKey?: string
+): Promise<ComponentReportStatus> {
+  return getJSON('/api/governance_reports/status', { componentKey, branchKey }).catch(
     throwGlobalError
   );
 }
 
-export function getReportUrl(component: string): string {
-  return `${getBaseUrl()}/api/governance_reports/download?componentKey=${encodeURIComponent(
-    component
+export function getReportUrl(componentKey: string, branchKey?: string): string {
+  let url = `${getBaseUrl()}/api/governance_reports/download?componentKey=${encodeURIComponent(
+    componentKey
   )}`;
+
+  if (branchKey) {
+    url += `&branchKey=${branchKey}`;
+  }
+
+  return url;
 }
 
-export function subscribe(component: string): Promise<void | Response> {
-  return post('/api/governance_reports/subscribe', { componentKey: component }).catch(
+export function subscribeToEmailReport(
+  componentKey: string,
+  branchKey?: string
+): Promise<void | Response> {
+  return post('/api/governance_reports/subscribe', { componentKey, branchKey }).catch(
     throwGlobalError
   );
 }
 
-export function unsubscribe(component: string): Promise<void | Response> {
-  return post('/api/governance_reports/unsubscribe', { componentKey: component }).catch(
+export function unsubscribeFromEmailReport(
+  componentKey: string,
+  branchKey?: string
+): Promise<void | Response> {
+  return post('/api/governance_reports/unsubscribe', { componentKey, branchKey }).catch(
     throwGlobalError
   );
 }

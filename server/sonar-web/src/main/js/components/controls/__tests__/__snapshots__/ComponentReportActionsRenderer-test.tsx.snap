@@ -1,0 +1,136 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: can subscribe, not subscribed 1`] = `
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <a
+          download="MyProject - PDF Report.pdf"
+          href="/api/governance_reports/download?componentKey=my-project"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          download_verb
+        </a>
+      </li>
+      <li>
+        <a
+          href="#"
+          onClick={[MockFunction]}
+        >
+          component_report.subscribe_x.report.frequency.weekly
+        </a>
+      </li>
+    </ul>
+  }
+>
+  <Button
+    className="dropdown-toggle"
+  >
+    component_report.report.qualifier.VW
+    <DropdownIcon
+      className="spacer-left icon-half-transparent"
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`should render correctly: can subscribe, subscribed 1`] = `
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <a
+          download="MyProject - PDF Report.pdf"
+          href="/api/governance_reports/download?componentKey=my-project"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          download_verb
+        </a>
+      </li>
+      <li>
+        <a
+          href="#"
+          onClick={[MockFunction]}
+        >
+          component_report.unsubscribe_x.report.frequency.weekly
+        </a>
+      </li>
+    </ul>
+  }
+>
+  <Button
+    className="dropdown-toggle"
+  >
+    component_report.report.qualifier.VW
+    <DropdownIcon
+      className="spacer-left icon-half-transparent"
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`should render correctly: cannot subscribe 1`] = `
+<a
+  download="MyProject - PDF Report.pdf"
+  href="/api/governance_reports/download?componentKey=my-project"
+  rel="noopener noreferrer"
+  target="_blank"
+>
+  component_report.download.qualifier.vw
+</a>
+`;
+
+exports[`should render correctly: current user without email 1`] = `
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <a
+          download="MyProject - PDF Report.pdf"
+          href="/api/governance_reports/download?componentKey=my-project"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          download_verb
+        </a>
+      </li>
+      <li>
+        <span
+          className="text-muted-2"
+        >
+          component_report.no_email_to_subscribe
+        </span>
+      </li>
+    </ul>
+  }
+>
+  <Button
+    className="dropdown-toggle"
+  >
+    component_report.report.qualifier.VW
+    <DropdownIcon
+      className="spacer-left icon-half-transparent"
+    />
+  </Button>
+</Dropdown>
+`;
+
+exports[`should render correctly: not a portfolio 1`] = `
+<a
+  download="MyProject - PDF Report.pdf"
+  href="/api/governance_reports/download?componentKey=my-project"
+  rel="noopener noreferrer"
+  target="_blank"
+>
+  component_report.download.qualifier.trk
+</a>
+`;

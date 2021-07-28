@@ -23,6 +23,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { rawSizes } from '../../../app/theme';
+import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { findMeasure } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
@@ -95,7 +96,10 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
 
   return (
     <div className="overview-panel" data-test="overview__measures-panel">
-      <h2 className="overview-panel-title">{translate('overview.measures')}</h2>
+      <div className="display-flex-space-between display-flex-start">
+        <h2 className="overview-panel-title">{translate('overview.measures')}</h2>
+        <ComponentReportActions component={component} branch={branch} />
+      </div>
 
       {loading ? (
         <div className="overview-panel-content overview-panel-big-padded">

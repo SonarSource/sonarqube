@@ -5,11 +5,47 @@ exports[`should render correctly for applications 1`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}
@@ -691,11 +727,47 @@ exports[`should render correctly for applications 2`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "APP",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={1}
@@ -1587,11 +1659,47 @@ exports[`should render correctly for projects 1`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}
@@ -2273,11 +2381,47 @@ exports[`should render correctly for projects 2`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={1}
@@ -3169,11 +3313,47 @@ exports[`should render correctly if branch is misconfigured: hide settings 1`] =
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}
@@ -3274,11 +3454,50 @@ exports[`should render correctly if branch is misconfigured: show settings 1`] =
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "own-reference",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "configuration": Object {
+            "showSettings": true,
+          },
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}
@@ -3382,11 +3601,47 @@ exports[`should render correctly if the data is still loading 1`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <div
     className="overview-panel-content overview-panel-big-padded"
   >
@@ -3402,11 +3657,47 @@ exports[`should render correctly if there is no coverage 1`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}
@@ -3820,11 +4111,47 @@ exports[`should render correctly if there is no new code measures 1`] = `
   className="overview-panel"
   data-test="overview__measures-panel"
 >
-  <h2
-    className="overview-panel-title"
+  <div
+    className="display-flex-space-between display-flex-start"
   >
-    overview.measures
-  </h2>
+    <h2
+      className="overview-panel-title"
+    >
+      overview.measures
+    </h2>
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+      branch={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </div>
   <BoxedTabs
     onSelect={[Function]}
     selected={0}

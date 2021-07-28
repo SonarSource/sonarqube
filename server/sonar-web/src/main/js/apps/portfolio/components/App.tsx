@@ -23,6 +23,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import MeasuresLink from '../../../components/common/MeasuresLink';
+import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import Measure from '../../../components/measure/Measure';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
@@ -30,7 +31,6 @@ import '../styles.css';
 import { SubComponent } from '../types';
 import { convertMeasures, PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS } from '../utils';
 import MetricBox from './MetricBox';
-import Report from './Report';
 import WorstProjects from './WorstProjects';
 
 interface OwnProps {
@@ -159,8 +159,9 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited portfolio-overview">
         <div className="page-actions">
-          <Report component={component} />
+          <ComponentReportActions component={component} />
         </div>
+
         {component.description && (
           <div className="portfolio-description display-inline-block big-spacer-bottom">
             {component.description}

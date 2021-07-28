@@ -1,0 +1,100 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { getReportUrl } from '../../api/component-report';
+import { Branch } from '../../types/branch-like';
+import { isPortfolioLike } from '../../types/component';
+
+export interface ComponentReportActionsRendererProps {
+  component: T.Component;
+  branch?: Branch;
+  frequency: string;
+  subscribed: boolean;
+  canSubscribe: boolean;
+  currentUserHasEmail: boolean;
+  handleSubscription: () => void;
+  handleUnsubscription: () => void;
+}
+
+export default function ComponentReportActionsRenderer(props: ComponentReportActionsRendererProps) {
+  const { branch, component, frequency, subscribed, canSubscribe, currentUserHasEmail } = props;
+
+  const renderDownloadButton = (simple = false) => {
+    return (
+      <a
+        download={[component.name, branch?.name, 'PDF Report.pdf'].filter(s => !!s).join(' - ')}
+        href={getReportUrl(component.key, branch?.name)}
+        target="_blank"
+        rel="noopener noreferrer">
+        {simple
+          ? translate('download_verb')
+          : translateWithParameters(
+              'component_report.download',
+              translate('qualifier', component.qualifier).toLowerCase()
+            )}
+      </a>
+    );
+  };
+
+  const renderSubscriptionButton = () => {
+    if (!currentUserHasEmail) {
+      return (
+        <span className="text-muted-2">{translate('component_report.no_email_to_subscribe')}</span>
+      );
+    }
+
+    const translationKey = subscribed
+      ? 'component_report.unsubscribe_x'
+      : 'component_report.subscribe_x';
+    const onClickHandler = subscribed ? props.handleUnsubscription : props.handleSubscription;
+    const frequencyTranslation = translate('report.frequency', frequency).toLowerCase();
+
+    return (
+      <a href="#" onClick={onClickHandler}>
+        {translateWithParameters(translationKey, frequencyTranslation)}
+      </a>
+    );
+  };
+
+  return canSubscribe && isPortfolioLike(component.qualifier) ? (
+    <Dropdown
+      overlay={
+        <ul className="menu">
+          <li>{renderDownloadButton(true)}</li>
+          <li>{renderSubscriptionButton()}</li>
+        </ul>
+      }>
+      <Button className="dropdown-toggle">
+        {translateWithParameters(
+          'component_report.report',
+          translate('qualifier', component.qualifier)
+        )}
+        <DropdownIcon className="spacer-left icon-half-transparent" />
+      </Button>
+    </Dropdown>
+  ) : (
+    renderDownloadButton()
+  );
+}

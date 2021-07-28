@@ -7,7 +7,7 @@ exports[`renders 1`] = `
   <div
     className="page-actions"
   >
-    <Report
+    <Connect(withCurrentUser(Connect(ComponentReportActions)))
       component={
         Object {
           "description": "accurate description",
