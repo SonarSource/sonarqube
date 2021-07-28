@@ -36,7 +36,6 @@ only_default_depending_on_build_template: &ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLA
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_BRANCH != "branch-nightly-build" &&
            $CIRRUS_CRON == ""
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
