@@ -470,6 +470,23 @@ public class PurgeCommandsTest {
   }
 
   @Test
+  @UseDataProvider("projects")
+  public void deleteOutdatedProperties_deletes_properties_by_component_uuid(ComponentDto project) {
+    ComponentDto component = dbTester.components().insertComponent(project);
+    ComponentDto anotherComponent = dbTester.components().insertPublicProject();
+    int count = 4;
+    IntStream.range(0, count).forEach(i -> {
+      insertRandomProperty(component);
+      insertRandomProperty(anotherComponent);
+    });
+
+    underTest.deleteOutdatedProperties(component.uuid());
+
+    assertThat(countPropertiesOf(component)).isZero();
+    assertThat(countPropertiesOf(anotherComponent)).isEqualTo(count);
+  }
+
+  @Test
   @UseDataProvider("projectsAndViews")
   public void deleteIssues_deletes_all_issues_of_specified_root_component(ComponentDto projectOrView) {
     RuleDefinitionDto rule1 = dbTester.rules().insert();
@@ -706,6 +723,10 @@ public class PurgeCommandsTest {
     return dbTester.countSql("select count(1) from analysis_properties where analysis_uuid='" + analysis.getUuid() + "'");
   }
 
+  private int countPropertiesOf(ComponentDto componentDto) {
+    return dbTester.countSql("select count(1) from properties where component_uuid='" + componentDto.uuid() + "'");
+  }
+
   private int countEventsOf(SnapshotDto analysis) {
     return dbTester.countSql("select count(1) from events where analysis_uuid='" + analysis.getUuid() + "'");
   }
@@ -726,6 +747,18 @@ public class PurgeCommandsTest {
       "ANALYSIS_UUID", analysis1.getUuid(),
       "KEE", randomAlphabetic(10),
       "TEXT_VALUE", isEmpty ? null : randomAlphabetic(50),
+      "IS_EMPTY", isEmpty,
+      "CREATED_AT", 1L);
+  }
+
+  private void insertRandomProperty(ComponentDto component) {
+    boolean isEmpty = new Random().nextBoolean();
+    dbTester.executeInsert(
+      "PROPERTIES",
+      "UUID", newUuid(),
+      "PROP_KEY", randomAlphabetic(10),
+      "COMPONENT_UUID", component.uuid(),
+      "TEXT_VALUE", randomAlphabetic(10),
       "IS_EMPTY", isEmpty,
       "CREATED_AT", 1L);
   }

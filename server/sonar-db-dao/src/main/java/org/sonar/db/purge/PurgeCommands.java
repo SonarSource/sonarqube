@@ -248,6 +248,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteOutdatedProperties(String branchUuid) {
+    profiler.start("deleteOutdatedProperties (properties)");
+    purgeMapper.deletePropertiesByComponentUuids(List.of(branchUuid));
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(String rootUuid) {
     profiler.start("deleteComponents (projects)");
     purgeMapper.deleteComponentsByProjectUuid(rootUuid);

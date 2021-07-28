@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -217,11 +218,17 @@ public class PurgeDaoTest {
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
     db.components().insertSnapshot(branch1, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
 
-    // branch with other components and issues, updated 31 days ago
+    // branches with other components and issues, updated 31 days ago
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     db.components().insertSnapshot(branch2, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
     ComponentDto file = db.components().insertComponent(newFileDto(branch2));
     db.issues().insert(rule, branch2, file);
+
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+
+    // properties exist or active and for inactive branch
+    insertPropertyFor(branch3, branch1);
 
     // analysing branch1
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), branch1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
@@ -230,6 +237,7 @@ public class PurgeDaoTest {
     // branch1 wasn't deleted since it was being analyzed!
     assertThat(uuidsIn("components")).containsOnly(project.uuid(), nonMainBranch.uuid(), branch1.uuid());
     assertThat(uuidsIn("projects")).containsOnly(project.uuid());
+    assertThat(componentUuidsIn("properties")).containsOnly(branch1.uuid());
   }
 
   @Test
@@ -623,6 +631,9 @@ public class PurgeDaoTest {
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, appBranch.uuid()).get(), projectBranch);
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, otherAppBranch.uuid()).get(), projectBranch);
 
+    // properties exist or active and for inactive branch
+    insertPropertyFor(appBranch, otherAppBranch);
+
     underTest.deleteBranch(dbSession, appBranch.uuid());
     dbSession.commit();
 
@@ -633,6 +644,8 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("project_measures")).containsOnly(appMeasure.getUuid(), otherAppMeasure.getUuid(), otherAppBranchMeasure.getUuid());
     assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(app.uuid(), otherApp.uuid());
     assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.uuid());
+    assertThat(componentUuidsIn("properties")).containsOnly(otherAppBranch.uuid());
+
   }
 
   @Test
@@ -1053,8 +1066,18 @@ public class PurgeDaoTest {
     int projectEntryCount = db.countRowsOfTable("components");
     int issueCount = db.countRowsOfTable("issues");
     int branchCount = db.countRowsOfTable("project_branches");
+    Collection<BranchDto> anotherLivingProjectBranches = db.getDbClient().branchDao()
+      .selectByComponent(db.getSession(), anotherLivingProject);
+    insertPropertyFor(anotherLivingProjectBranches);
+
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size());
 
     ComponentDto projectToDelete = insertProjectWithBranchAndRelatedData();
+    Collection<BranchDto> projectToDeleteBranches = db.getDbClient().branchDao()
+      .selectByComponent(db.getSession(), projectToDelete);
+    insertPropertyFor(projectToDeleteBranches);
+
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size() + projectToDeleteBranches.size());
     assertThat(db.countRowsOfTable("components")).isGreaterThan(projectEntryCount);
     assertThat(db.countRowsOfTable("issues")).isGreaterThan(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
@@ -1065,6 +1088,7 @@ public class PurgeDaoTest {
     assertThat(db.countRowsOfTable("components")).isEqualTo(projectEntryCount);
     assertThat(db.countRowsOfTable("issues")).isEqualTo(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(branchCount);
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size());
   }
 
   @Test
@@ -1639,6 +1663,14 @@ public class PurgeDaoTest {
       componentDto.name(), null));
   }
 
+  private void insertPropertyFor(Collection<BranchDto> branches) {
+    branches.stream().forEach(branchDto -> db.properties().insertProperty(new PropertyDto()
+        .setKey(randomAlphabetic(3))
+        .setValue(randomAlphabetic(3))
+        .setComponentUuid(branchDto.getUuid()),
+      branchDto.getKey(), null));
+  }
+
   private Stream<String> getComponentUuidsOfMeasures() {
     return db.select("select component_uuid as \"COMPONENT_UUID\" from project_measures").stream()
       .map(row -> (String) row.get("COMPONENT_UUID"));
@@ -1734,6 +1766,10 @@ public class PurgeDaoTest {
 
   private Stream<String> uuidsIn(String tableName) {
     return uuidsIn(tableName, "uuid");
+  }
+
+  private Stream<String> componentUuidsIn(String tableName) {
+    return uuidsIn(tableName, "component_uuid");
   }
 
   private Stream<String> taskUuidsIn(String tableName) {

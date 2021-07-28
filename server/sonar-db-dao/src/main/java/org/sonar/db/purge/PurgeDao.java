@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -37,6 +38,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 
@@ -54,7 +56,7 @@ public class PurgeDao implements Dao {
   private final System2 system2;
   private AuditPersister auditPersister;
 
-  public PurgeDao(System2 system2) {
+  public PurgeDao(System2 system2)  {
     this.system2 = system2;
   }
 
@@ -192,9 +194,13 @@ public class PurgeDao implements Dao {
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
     long start = System2.INSTANCE.now();
 
-    session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
+    List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .filter(branch -> !uuid.equals(branch.getUuid()))
-      .forEach(branch -> deleteRootComponent(branch.getUuid(), purgeMapper, purgeCommands));
+      .map(BranchDto::getUuid)
+      .collect(Collectors.toList());
+
+    branchUuids.stream()
+      .forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
 
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
 
@@ -239,6 +245,7 @@ public class PurgeDao implements Dao {
     commands.deleteComponentsByMainBranchProjectUuid(rootUuid);
     commands.deleteProject(rootUuid);
     commands.deleteUserDismissedMessages(rootUuid);
+    commands.deleteOutdatedProperties(rootUuid);
   }
 
   /**
