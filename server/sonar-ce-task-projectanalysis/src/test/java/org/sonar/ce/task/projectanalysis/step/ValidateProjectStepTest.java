@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -43,7 +42,6 @@ import org.sonar.db.component.SnapshotTesting;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ValidateProjectStepTest {
@@ -62,7 +60,6 @@ public class ValidateProjectStepTest {
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
 
-  private final CeTaskMessages taskMessages = mock(CeTaskMessages.class);
   private final DbClient dbClient = db.getDbClient();
 
   private final ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
@@ -79,7 +76,6 @@ public class ValidateProjectStepTest {
       .build());
 
     underTest.execute(new TestComputationStepContext());
-    verifyNoInteractions(taskMessages);
   }
 
   @Test
