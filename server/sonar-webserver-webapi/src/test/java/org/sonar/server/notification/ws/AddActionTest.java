@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
@@ -306,7 +306,7 @@ public class AddActionTest {
   public void fail_when_component_is_not_a_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    db.components().insertViewAndSnapshot(newView().setDbKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 

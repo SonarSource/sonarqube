@@ -33,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
@@ -72,7 +73,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
@@ -369,7 +370,7 @@ public class SearchActionComponentsTest {
   public void search_by_view_uuid() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    ComponentDto view = db.components().insertComponent(newView("V1").setDbKey("MyView"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     db.components().insertComponent(newProjectCopy(project, view));
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
@@ -388,7 +389,7 @@ public class SearchActionComponentsTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
-    ComponentDto view = db.components().insertComponent(newView("V1").setDbKey("MyView"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     ComponentDto subView = db.components().insertComponent(newSubView(view, "SV1", "MySubView"));
     db.components().insertComponent(newProjectCopy(project, subView));
     allowAnyoneOnProjects(project, view, subView);
@@ -406,7 +407,7 @@ public class SearchActionComponentsTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     RuleDefinitionDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
-    ComponentDto view = db.components().insertComponent(newView("V1").setDbKey("MyView"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("V1").setDbKey("MyView"));
     ComponentDto subView = db.components().insertComponent(newSubView(view, "SV1", "MySubView"));
     db.components().insertComponent(newProjectCopy(project, subView));
     // User has no permission on the view, no issue will be returned

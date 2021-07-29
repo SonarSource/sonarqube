@@ -50,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -174,7 +173,7 @@ public class SearchMyProjectsActionTest {
   @Test
   public void does_not_return_views() {
     ComponentDto jdk7 = insertJdk7();
-    ComponentDto view = insertView();
+    ComponentDto view = insertPortfolio();
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
@@ -260,8 +259,8 @@ public class SearchMyProjectsActionTest {
       .setDescription("JDK"));
   }
 
-  private ComponentDto insertView() {
-    return db.components().insertComponent(newView("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
+  private ComponentDto insertPortfolio() {
+    return db.components().insertPublicPortfolio(p -> p.setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setDbKey("Java"));
   }

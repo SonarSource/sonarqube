@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -46,7 +47,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -115,7 +116,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() {
-    ComponentDto view = db.components().insertComponent(newView("view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setDbKey("view-key"));
     loginAsAdmin();
 
     newRequest()

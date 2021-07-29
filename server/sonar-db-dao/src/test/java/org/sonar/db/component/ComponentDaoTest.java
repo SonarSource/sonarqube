@@ -78,7 +78,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import javax.annotation.Nullable;
@@ -1009,7 +1009,7 @@ public class ComponentDaoTest {
     ComponentDto provisionedView = db.components().insertPrivatePortfolio();
     String projectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto()).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(newPrivateProjectDto().setEnabled(false)).getComponentUuid();
-    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView()).getComponentUuid();
+    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio()).getComponentUuid();
 
     assertThat(underTest.selectProjects(dbSession))
       .extracting(ComponentDto::uuid)
@@ -1035,7 +1035,7 @@ public class ComponentDaoTest {
     SnapshotDto analyzedProject = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
     SnapshotDto analyzedDisabledProject = db.components().insertProjectAndSnapshot(newPrivateProjectDto()
       .setEnabled(false));
-    SnapshotDto analyzedPortfolio = db.components().insertProjectAndSnapshot(ComponentTesting.newView());
+    SnapshotDto analyzedPortfolio = db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio());
 
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT).setOnProvisionedOnly(true);
     assertThat(underTest.selectByQuery(dbSession, query.get().build(), 0, 10))
@@ -1119,7 +1119,7 @@ public class ComponentDaoTest {
   public void count_provisioned() {
     db.components().insertPrivateProject();
     db.components().insertProjectAndSnapshot(newPrivateProjectDto());
-    db.components().insertProjectAndSnapshot(ComponentTesting.newView());
+    db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio());
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setOnProvisionedOnly(true);
 
     assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT).build())).isEqualTo(1);
@@ -1353,7 +1353,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_with_paging_query_and_qualifiers() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setName("aaaa-name"));
-    db.components().insertProjectAndSnapshot(newView());
+    db.components().insertProjectAndSnapshot(newPortfolio());
     for (int i = 9; i >= 1; i--) {
       db.components().insertProjectAndSnapshot(newPrivateProjectDto().setName("project-" + i));
     }
@@ -1755,7 +1755,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_descendants_of_a_view_and_filter_by_name() {
-    ComponentDto view = newView(A_VIEW_UUID);
+    ComponentDto view = ComponentTesting.newPortfolio(A_VIEW_UUID);
     db.components().insertViewAndSnapshot(view);
     // one subview
     ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
@@ -1843,7 +1843,7 @@ public class ComponentDaoTest {
   public void existAnyOfComponentsWithQualifiers() {
     ComponentDto projectDto = db.components().insertComponent(newPrivateProjectDto());
 
-    ComponentDto view = db.components().insertComponent(newView());
+    ComponentDto view = db.components().insertComponent(newPortfolio());
     ComponentDto subview = db.components().insertComponent(newSubView(view));
 
     ComponentDto app = db.components().insertComponent(newApplication());

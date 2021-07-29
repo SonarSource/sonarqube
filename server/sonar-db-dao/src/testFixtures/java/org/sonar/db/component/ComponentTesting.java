@@ -155,11 +155,11 @@ public class ComponentTesting {
       .setPrivate(isPrivate);
   }
 
-  public static ComponentDto newView() {
-    return newView(Uuids.createFast());
+  public static ComponentDto newPortfolio() {
+    return newPortfolio(Uuids.createFast());
   }
 
-  public static ComponentDto newView(String uuid) {
+  public static ComponentDto newPortfolio(String uuid) {
     return newPrivateProjectDto(uuid)
       .setUuid(uuid)
       .setScope(Scopes.PROJECT)
@@ -168,7 +168,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newApplication() {
-    return newView(Uuids.createFast()).setQualifier(Qualifiers.APP);
+    return newPortfolio(Uuids.createFast()).setQualifier(Qualifiers.APP);
   }
 
   public static ComponentDto newProjectCopy(ComponentDto project, ComponentDto view) {

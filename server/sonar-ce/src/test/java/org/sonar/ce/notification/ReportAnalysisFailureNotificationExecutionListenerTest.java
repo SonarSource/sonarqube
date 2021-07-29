@@ -153,7 +153,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
     ComponentDto directory = dbTester.components().insertComponent(newDirectory(module, randomAlphanumeric(12)));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newView());
+    ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newPortfolio());
     ComponentDto subView = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
     ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project, subView));
     ComponentDto application = dbTester.components().insertComponent(ComponentTesting.newApplication());

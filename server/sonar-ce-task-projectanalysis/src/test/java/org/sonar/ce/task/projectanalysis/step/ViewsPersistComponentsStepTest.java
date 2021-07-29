@@ -479,7 +479,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private ComponentDto newViewDto() {
-    return ComponentTesting.newView(VIEW_UUID)
+    return ComponentTesting.newPortfolio(VIEW_UUID)
       .setDbKey(VIEW_KEY)
       .setName(VIEW_NAME);
   }

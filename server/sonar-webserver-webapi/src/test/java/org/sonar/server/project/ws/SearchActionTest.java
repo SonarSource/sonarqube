@@ -59,7 +59,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -125,7 +125,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto().setDbKey(PROJECT_KEY_1),
-      newView());
+      newPortfolio());
 
     SearchWsResponse response = call(SearchRequest.builder().build());
 
@@ -142,7 +142,7 @@ public class SearchActionTest {
     db.components().insertComponents(
       project, module, directory, file,
       ComponentTesting.newPrivateProjectDto().setDbKey(PROJECT_KEY_2),
-      newView());
+      newPortfolio());
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("TRK")).build());
 
@@ -154,7 +154,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto().setDbKey(PROJECT_KEY_1),
-      newView().setDbKey("view1"));
+      newPortfolio().setDbKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(singletonList("VW")).build());
 
@@ -166,7 +166,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto().setDbKey(PROJECT_KEY_1),
-      newView().setDbKey("view1"));
+      newPortfolio().setDbKey("view1"));
 
     SearchWsResponse response = call(SearchRequest.builder().setQualifiers(asList("TRK", "VW")).build());
 

@@ -64,7 +64,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -150,7 +150,7 @@ public class SearchActionTest {
   public void return_only_projects_on_which_user_has_browse_permission() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto();
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto();
-    ComponentDto portfolio = ComponentTesting.newView();
+    ComponentDto portfolio = ComponentTesting.newPortfolio();
 
     db.components().insertComponents(project1, project2, portfolio);
     setBrowsePermissionOnUserAndIndex(project1);
@@ -208,11 +208,11 @@ public class SearchActionTest {
 
   @Test
   public void test_json_example() {
-    db.components().insertComponent(newView());
+    db.components().insertComponent(newPortfolio());
     ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setDbKey("project-key");
     ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setDbKey("module-key");
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
-    ComponentDto view = newView();
+    ComponentDto view = newPortfolio();
     db.components().insertComponents(project, module, directory, view);
     setBrowsePermissionOnUserAndIndex(project);
 

@@ -24,12 +24,10 @@ import com.google.gson.Gson;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +70,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
@@ -714,7 +711,7 @@ public class SetActionTest {
       .defaultValue("default")
       .onQualifiers(Qualifiers.PROJECT)
       .build());
-    ComponentDto view = db.components().insertComponent(newView("view-uuid"));
+    ComponentDto view = db.components().insertPublicPortfolio();
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");

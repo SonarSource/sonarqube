@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
@@ -284,7 +284,7 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    db.components().insertViewAndSnapshot(newView().setDbKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newPortfolio().setDbKey("VIEW_1"));
 
     RemoveRequest request = this.request.setProject("VIEW_1");
     assertThatThrownBy(() -> call(request))

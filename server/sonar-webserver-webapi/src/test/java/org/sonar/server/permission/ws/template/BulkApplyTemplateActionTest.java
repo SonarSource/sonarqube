@@ -51,7 +51,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.ComponentTesting.newApplication;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -158,7 +158,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void apply_template_by_qualifiers() {
     ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto view = db.components().insertComponent(newView());
+    ComponentDto view = db.components().insertComponent(newPortfolio());
     ComponentDto application = db.components().insertComponent(newApplication());
     loginAsAdmin();
 

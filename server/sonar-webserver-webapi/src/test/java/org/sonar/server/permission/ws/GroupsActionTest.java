@@ -27,6 +27,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -46,7 +47,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -256,7 +257,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_on_views() {
-    ComponentDto view = db.components().insertComponent(newView("view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setDbKey("view-key"));
     GroupDto group = db.users().insertGroup("project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 

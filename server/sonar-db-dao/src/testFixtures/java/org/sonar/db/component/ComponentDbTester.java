@@ -151,6 +151,10 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, branchPopulator, componentPopulator);
   }
 
+  public final ComponentDto insertPublicProjectWithCustomBranch(Consumer<BranchDto> branchPopulator, Consumer<ComponentDto> componentPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, branchPopulator, componentPopulator);
+  }
+
   public final ComponentDto insertPrivateProjectWithCustomBranch(Consumer<BranchDto> branchPopulator, Consumer<ComponentDto> componentPopulator,
     Consumer<ProjectDto> projectPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, branchPopulator, componentPopulator, projectPopulator);
@@ -161,23 +165,23 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertPublicPortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView(uuid).setPrivate(false), false, dtoPopulator);
+    return insertComponentImpl(ComponentTesting.newPortfolio(uuid).setPrivate(false), false, dtoPopulator);
   }
 
   public final ComponentDto insertPublicPortfolio(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView().setPrivate(false), false, dtoPopulator);
+    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator);
   }
 
   public final ComponentDto insertPrivatePortfolio() {
-    return insertComponentImpl(ComponentTesting.newView().setPrivate(true), true, defaults());
+    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(true), true, defaults());
   }
 
   public final ComponentDto insertPrivatePortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView(uuid).setPrivate(true), true, dtoPopulator);
+    return insertComponentImpl(ComponentTesting.newPortfolio(uuid).setPrivate(true), true, dtoPopulator);
   }
 
   public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newView().setPrivate(true), true, dtoPopulator);
+    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator);
   }
 
   public final ComponentDto insertPublicApplication() {

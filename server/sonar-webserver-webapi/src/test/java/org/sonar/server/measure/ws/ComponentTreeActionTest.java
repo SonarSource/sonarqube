@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -68,13 +69,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
@@ -661,7 +661,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void portfolio_local_reference_in_portfolio() {
-    ComponentDto view = db.components().insertComponent(newView("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
     ComponentDto view2 = db.components().insertPrivatePortfolio();
     ComponentDto localView = db.components().insertComponent(
       newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(view2.uuid()));
@@ -681,7 +681,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void application_local_reference_in_portfolio() {
-    ComponentDto view = db.components().insertComponent(newView("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
+    ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("VIEW1-UUID").setDbKey("Apache-Projects").setName("Apache Projects"));
     ComponentDto application = db.components().insertPrivateApplication();
     ComponentDto localView = db.components().insertComponent(
       newSubView(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(application.uuid()));

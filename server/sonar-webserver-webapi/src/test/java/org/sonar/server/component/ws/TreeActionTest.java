@@ -69,7 +69,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
@@ -253,7 +253,7 @@ public class TreeActionTest {
 
   @Test
   public void project_reference_from_portfolio() {
-    ComponentDto view = newView("view-uuid");
+    ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
     db.components().insertViewAndSnapshot(view);
     ComponentDto project = newPrivateProjectDto("project-uuid-1").setName("project-name").setDbKey("project-key-1");
     db.components().insertProjectAndSnapshot(project);
@@ -315,7 +315,7 @@ public class TreeActionTest {
   public void return_projects_composing_a_view() {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto view = newView("view-uuid");
+    ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
     db.components().insertViewAndSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
     userSession.logIn()

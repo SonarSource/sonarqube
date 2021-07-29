@@ -758,7 +758,7 @@ public class PurgeCommandsTest {
   @DataProvider
   public static Object[] views() {
     return new Object[] {
-      ComponentTesting.newView(), ComponentTesting.newApplication()
+      ComponentTesting.newPortfolio(), ComponentTesting.newApplication()
     };
   }
 
