@@ -92,10 +92,14 @@ public class UserIndexer implements ResilientIndexer {
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
-    postCommit(dbSession, items);
+    postCommit(dbSession, users.stream().map(UserDto::getLogin).collect(toList()), items);
   }
 
-  private void postCommit(DbSession dbSession, Collection<EsQueueDto> items) {
+  /**
+   * Entry point for Byteman tests. See directory tests/resilience.
+   * The parameter "logins" is used only by the Byteman script.
+   */
+  private void postCommit(DbSession dbSession, Collection<String> logins, Collection<EsQueueDto> items) {
     index(dbSession, items);
   }
 
