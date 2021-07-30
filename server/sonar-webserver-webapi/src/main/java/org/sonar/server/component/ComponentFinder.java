@@ -100,20 +100,34 @@ public class ComponentFinder {
     return value;
   }
 
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, ComponentDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    return getBranchOrPullRequest(dbSession, project.uuid(), project.getKey(), branchKey, pullRequestKey);
+  }
+
   public BranchDto getBranchOrPullRequest(DbSession dbSession, ProjectDto project, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    return getBranchOrPullRequest(dbSession, project.getUuid(), project.getKey(), branchKey, pullRequestKey);
+  }
+
+  public BranchDto getBranchOrPullRequest(DbSession dbSession, String projectUuid, String projectKey,
+    @Nullable String branchKey, @Nullable String pullRequestKey) {
     if (branchKey != null) {
-      return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
-        .orElseThrow(() -> new NotFoundException(String.format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
+      return dbClient.branchDao().selectByBranchKey(dbSession, projectUuid, branchKey)
+        .orElseThrow(() -> new NotFoundException(String.format("Branch '%s' in project '%s' not found", branchKey, projectKey)));
     } else if (pullRequestKey != null) {
-      return dbClient.branchDao().selectByPullRequestKey(dbSession, project.getUuid(), pullRequestKey)
-        .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' in project '%s' not found", pullRequestKey, project.getKey())));
+      return dbClient.branchDao().selectByPullRequestKey(dbSession, projectUuid, pullRequestKey)
+        .orElseThrow(() -> new NotFoundException(String.format("Pull request '%s' in project '%s' not found", pullRequestKey, projectKey)));
     }
-    return dbClient.branchDao().selectByUuid(dbSession, project.getUuid())
-      .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", project.getKey())));
+    return dbClient.branchDao().selectByUuid(dbSession, projectUuid)
+      .orElseThrow(() -> new NotFoundException(String.format("Main branch in project '%s' not found", projectKey)));
   }
 
   public BranchDto getMainBranch(DbSession dbSession, ProjectDto projectDto) {
     return dbClient.branchDao().selectByUuid(dbSession, projectDto.getUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
+  }
+
+  public BranchDto getMainBranch(DbSession dbSession, ComponentDto projectDto) {
+    return dbClient.branchDao().selectByUuid(dbSession, projectDto.uuid())
       .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
   }
 
