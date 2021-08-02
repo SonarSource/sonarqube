@@ -38,7 +38,7 @@ public class PluginDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private PluginDao underTest = db.getDbClient().pluginDao();
+  private final PluginDao underTest = db.getDbClient().pluginDao();
 
   @Test
   public void selectByKey() {
@@ -46,7 +46,7 @@ public class PluginDaoTest {
 
     assertThat(underTest.selectByKey(db.getSession(), "java2")).isEmpty();
 
-    assertPlugin("java", "a", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", BUNDLED, 1500000000000L, 1600000000000L);
+    assertPlugin("java", "a", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", BUNDLED, false, 1500000000000L, 1600000000000L);
   }
 
   @Test
@@ -68,7 +68,7 @@ public class PluginDaoTest {
       .setCreatedAt(1L)
       .setUpdatedAt(2L));
 
-    assertPlugin("javascript", "c", "java", "cccccccccccccccccccccccccccccccc", EXTERNAL, 1L, 2L);
+    assertPlugin("javascript", "c", "java", "cccccccccccccccccccccccccccccccc", EXTERNAL, false, 1L, 2L);
   }
 
   @Test
@@ -79,34 +79,37 @@ public class PluginDaoTest {
     plugin.setBasePluginKey("foo");
     plugin.setFileHash("abc");
     plugin.setUpdatedAt(3L);
+    plugin.setRemoved(true);
 
     underTest.update(db.getSession(), plugin);
-    assertPlugin("java", "a", "foo", "abc", BUNDLED, 1500000000000L, 3L);
+    assertPlugin("java", "a", "foo", "abc", BUNDLED, true, 1500000000000L, 3L);
   }
 
-  private void assertPlugin(String key, String uuid, @Nullable String basePluginKey, String fileHash, Type type, long cretedAt, long updatedAt) {
+  private void assertPlugin(String key, String uuid, @Nullable String basePluginKey, String fileHash, Type type, boolean removed, long cretedAt, long updatedAt) {
     PluginDto plugin = underTest.selectByKey(db.getSession(), key).get();
     assertThat(plugin.getUuid()).isEqualTo(uuid);
     assertThat(plugin.getKee()).isEqualTo(key);
     assertThat(plugin.getBasePluginKey()).isEqualTo(basePluginKey);
     assertThat(plugin.getFileHash()).isEqualTo(fileHash);
     assertThat(plugin.getType()).isEqualTo(type);
+    assertThat(plugin.isRemoved()).isEqualTo(removed);
     assertThat(plugin.getCreatedAt()).isEqualTo(cretedAt);
     assertThat(plugin.getUpdatedAt()).isEqualTo(updatedAt);
   }
 
   private void insertPlugins() {
-    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", BUNDLED, 1500000000000L, 1600000000000L);
-    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", EXTERNAL, 1500000000000L, 1600000000000L);
+    insertPlugin("a", "java", null, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", BUNDLED, false, 1500000000000L, 1600000000000L);
+    insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", EXTERNAL, true, 1500000000000L, 1600000000000L);
   }
 
-  private void insertPlugin(String uuid, String key, @Nullable String basePluginKey, String fileHash, Type type, long createdAt, long updatedAt) {
+  private void insertPlugin(String uuid, String key, @Nullable String basePluginKey, String fileHash, Type type, boolean removed, long createdAt, long updatedAt) {
     db.executeInsert("PLUGINS",
       "uuid", uuid,
       "kee", key,
       "base_plugin_key", basePluginKey,
       "file_hash", fileHash,
       "type", type.name(),
+      "removed", removed,
       "created_at", createdAt,
       "updated_at", updatedAt);
     db.commit();

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -52,15 +51,14 @@ public class CachingRuleFinderTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
-
-  private AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2();
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2();
   private RuleDefinitionDto[] ruleDefinitions;
   private RuleParamDto[] ruleParams;
   private CachingRuleFinder underTest;
 
   @Before()
-  public void setUp() throws Exception {
+  public void setUp() {
     Consumer<RuleDefinitionDto> setUpdatedAt = rule -> rule.setUpdatedAt(system2.now());
     this.ruleDefinitions = new RuleDefinitionDto[] {
       dbTester.rules().insert(setUpdatedAt),
@@ -115,7 +113,7 @@ public class CachingRuleFinderTest {
   }
 
   @Test
-  public void findByKey_returns_all_loaded_rules_by_id() {
+  public void findByKey_returns_all_loaded_rules() {
     for (int i = 0; i < ruleDefinitions.length; i++) {
       RuleDefinitionDto ruleDefinition = ruleDefinitions[i];
       RuleParamDto ruleParam = ruleParams[i];
@@ -375,6 +373,35 @@ public class CachingRuleFinderTest {
     assertThat(underTest.findAll(configKeyQuery))
       .extracting(CachingRuleFinderTest::toRuleKey)
       .containsExactly(rules[2].getKey(), rules[1].getKey(), rules[0].getKey());
+  }
+
+  @Test
+  public void findDtoByKey_finds_rules() {
+    for(RuleDefinitionDto dto : ruleDefinitions) {
+      assertThat(underTest.findDtoByKey(dto.getKey())).contains(dto);
+    }
+  }
+
+  @Test
+  public void findDtoByUuid_finds_rules() {
+    for(RuleDefinitionDto dto : ruleDefinitions) {
+      assertThat(underTest.findDtoByUuid(dto.getUuid())).contains(dto);
+    }
+  }
+
+  @Test
+  public void findDtoByKey_returns_empty_if_rule_not_found() {
+    assertThat(underTest.findDtoByKey(RuleKey.of("unknown", "unknown"))).isEmpty();
+  }
+
+  @Test
+  public void findDtoByUuid_returns_empty_if_rule_not_found() {
+    assertThat(underTest.findDtoByUuid("unknown")).isEmpty();
+  }
+
+  @Test
+  public void findAll_returns_all_rules() {
+    assertThat(underTest.findAll()).containsOnly(ruleDefinitions);
   }
 
   private static RuleKey toRuleKey(Rule rule) {

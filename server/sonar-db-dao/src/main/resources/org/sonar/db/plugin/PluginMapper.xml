@@ -10,6 +10,7 @@
     base_plugin_key as basePluginKey,
     file_hash as fileHash,
     type,
+    removed,
     created_at as createdAt,
     updated_at as updatedAt
   </sql>
@@ -33,6 +34,7 @@
     base_plugin_key,
     file_hash,
     type,
+    removed,
     created_at,
     updated_at
     ) values (
@@ -41,6 +43,7 @@
     #{basePluginKey,jdbcType=VARCHAR},
     #{fileHash,jdbcType=VARCHAR},
     #{type,jdbcType=VARCHAR},
+    #{removed,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
@@ -51,6 +54,7 @@
       base_plugin_key=#{basePluginKey,jdbcType=VARCHAR},
       file_hash=#{fileHash,jdbcType=VARCHAR},
       type=#{type,jdbcType=VARCHAR},
+      removed=#{removed,jdbcType=BOOLEAN},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}

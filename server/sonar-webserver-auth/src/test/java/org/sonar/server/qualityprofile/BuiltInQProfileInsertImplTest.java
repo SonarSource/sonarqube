@@ -98,7 +98,6 @@ public class BuiltInQProfileInsertImplTest {
     verifyTableSize("qprofile_changes", 2);
     verifyTableSize("default_qprofiles", 0);
 
-
     QProfileDto profile = verifyProfileInDb(builtIn);
     verifyActiveRuleInDb(profile, rule1, Severity.CRITICAL);
     verifyActiveRuleInDb(profile, rule2, Severity.MAJOR);
@@ -241,7 +240,7 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   private void call(BuiltInQProfile builtIn) {
-    underTest.create(dbSession, batchDbSession, builtIn);
+    underTest.create(dbSession, builtIn);
     dbSession.commit();
     batchDbSession.commit();
   }

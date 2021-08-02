@@ -654,6 +654,26 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void select_all_rule_params() {
+    RuleDefinitionDto rule1 = db.rules().insert();
+    RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule1);
+    RuleParamDto ruleParam12 = db.rules().insertRuleParam(rule1);
+
+    RuleDefinitionDto rule2 = db.rules().insert();
+    RuleParamDto ruleParam2 = db.rules().insertRuleParam(rule2);
+
+    RuleDefinitionDto rule3 = db.rules().insert();
+    RuleParamDto ruleParam3 = db.rules().insertRuleParam(rule3);
+
+    List<RuleParamDto> ruleDtos = underTest.selectAllRuleParams(db.getSession());
+
+    assertThat(ruleDtos.size()).isEqualTo(4);
+    assertThat(ruleDtos).extracting(RuleParamDto::getUuid)
+      .containsExactlyInAnyOrder(ruleParam1.getUuid(), ruleParam12.getUuid(),
+        ruleParam2.getUuid(), ruleParam3.getUuid());
+  }
+
+  @Test
   public void select_parameters_by_rule_key() {
     RuleDefinitionDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);

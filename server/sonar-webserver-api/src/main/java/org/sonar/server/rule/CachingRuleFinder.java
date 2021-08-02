@@ -98,7 +98,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
 
   @Override
   @CheckForNull
-  public Rule findByKey(RuleKey key) {
+  public Rule findByKey(@Nullable RuleKey key) {
     return rulesByKey.get(key);
   }
 

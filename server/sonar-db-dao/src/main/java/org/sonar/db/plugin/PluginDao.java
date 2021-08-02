@@ -37,11 +37,16 @@ public class PluginDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-
+  /**
+   * It may return plugins that are no longer installed.
+   */
   public List<PluginDto> selectAll(DbSession dbSession) {
     return mapper(dbSession).selectAll();
   }
 
+  /**
+   * It may return a plugin that is no longer installed.
+   */
   public Optional<PluginDto> selectByKey(DbSession dbSession, String key) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key));
   }

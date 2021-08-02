@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.Plugin;
@@ -67,11 +66,9 @@ public class DetectPluginChangeTest {
     assertThat(detectPluginChange.anyPluginChanged()).isTrue();
   }
 
-  @Ignore
   @Test
-  public void detect_missing_plugin() {
-    // TODO
-    addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED);
+  public void detect_removed_plugin() {
+    addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED, true);
     addPluginToFs("plugin1", "hash1", PluginType.BUNDLED);
 
     detectPluginChange.start();
@@ -79,7 +76,15 @@ public class DetectPluginChangeTest {
   }
 
   @Test
-  public void detect_no_changes_bundled() {
+  public void detect_missing_plugin() {
+    addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED);
+
+    detectPluginChange.start();
+    assertThat(detectPluginChange.anyPluginChanged()).isTrue();
+  }
+
+  @Test
+  public void detect_no_changes() {
     addPluginToDb("plugin1", "hash1", PluginDto.Type.BUNDLED);
     addPluginToFs("plugin1", "hash1", PluginType.BUNDLED);
     addPluginToDb("plugin2", "hash2", PluginDto.Type.EXTERNAL);
@@ -101,7 +106,11 @@ public class DetectPluginChangeTest {
   }
 
   private void addPluginToDb(String key, String hash, PluginDto.Type type) {
-    dbTester.pluginDbTester().insertPlugin(p -> p.setKee(key).setFileHash(hash).setType(type));
+    addPluginToDb(key, hash, type,  false);
+  }
+
+  private void addPluginToDb(String key, String hash, PluginDto.Type type, boolean removed) {
+    dbTester.pluginDbTester().insertPlugin(p -> p.setKee(key).setFileHash(hash).setType(type).setRemoved(removed));
   }
 
   private void addPluginToFs(String key, String hash, PluginType type) {

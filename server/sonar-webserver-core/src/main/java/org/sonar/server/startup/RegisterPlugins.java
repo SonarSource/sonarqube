@@ -75,6 +75,7 @@ public class RegisterPlugins implements Startable {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, PluginDto> allPreviousPluginsByKey = dbClient.pluginDao().selectAll(dbSession).stream()
         .collect(Collectors.toMap(PluginDto::getKee, identity()));
+
       for (ServerPlugin installed : serverPluginRepository.getPlugins()) {
         PluginInfo info = installed.getPluginInfo();
         PluginDto previousDto = allPreviousPluginsByKey.get(info.getKey());
@@ -98,8 +99,22 @@ public class RegisterPlugins implements Startable {
             .setUpdatedAt(now);
           dbClient.pluginDao().update(dbSession, previousDto);
         }
-        // Don't remove uninstalled plugins, because corresponding rules and active rules are also not deleted
       }
+
+      // keep uninstalled plugins with a 'removed' flag, because corresponding rules and active rules are also not deleted
+      for (PluginDto dto : allPreviousPluginsByKey.values()) {
+        if (dto.isRemoved()) {
+          continue;
+        }
+
+        if (serverPluginRepository.findPlugin(dto.getKee()).isEmpty()) {
+          dto
+            .setRemoved(true)
+            .setUpdatedAt(now);
+          dbClient.pluginDao().update(dbSession, dto);
+        }
+      }
+
       dbSession.commit();
     }
   }

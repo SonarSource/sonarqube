@@ -34,6 +34,8 @@ public class PluginDto {
   private String fileHash = null;
   // core feature or not
   private Type type = null;
+  /** whether the plugin has been removed **/
+  private boolean removed = false;
   /** Time plugin was first installed */
   private long createdAt = 0L;
   /** Time of last plugin update (=md5 change) */
@@ -103,6 +105,15 @@ public class PluginDto {
     return this;
   }
 
+  public boolean isRemoved() {
+    return removed;
+  }
+
+  public PluginDto setRemoved(boolean removed) {
+    this.removed = removed;
+    return this;
+  }
+
   public enum Type {
     BUNDLED,
     EXTERNAL
@@ -115,6 +126,7 @@ public class PluginDto {
       .append("key", kee)
       .append("basePluginKey", basePluginKey)
       .append("fileHash", fileHash)
+      .append("removed", removed)
       .append("createdAt", createdAt)
       .append("updatedAt", updatedAt)
       .toString();

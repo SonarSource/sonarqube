@@ -50,9 +50,9 @@ public class DetectPluginChange implements Startable {
     Profiler profiler = Profiler.create(LOG).startInfo("Detect plugin changes");
     changesDetected = anyChange();
     if (changesDetected) {
-      LOG.info("Plugin changes detected");
+      LOG.debug("Plugin changes detected");
     } else {
-      LOG.debug("No plugin changes detected");
+      LOG.info("No plugin change detected");
     }
     profiler.stopDebug();
   }
@@ -67,6 +67,7 @@ public class DetectPluginChange implements Startable {
   private boolean anyChange() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, PluginDto> dbPluginsByKey = dbClient.pluginDao().selectAll(dbSession).stream()
+        .filter(p -> !p.isRemoved())
         .collect(Collectors.toMap(PluginDto::getKee, identity()));
       Map<String, ServerPlugin> filePluginsByKey = serverPluginRepository.getPlugins().stream()
         .collect(Collectors.toMap(p -> p.getPluginInfo().getKey(), p -> p));
@@ -75,7 +76,6 @@ public class DetectPluginChange implements Startable {
         return true;
       }
 
-      // TODO ideally we would detect plugins that were removed and added again, because we don't delete removed plugins from the plugins table.
       for (ServerPlugin installed : filePluginsByKey.values()) {
         PluginDto dbPlugin = dbPluginsByKey.get(installed.getPluginInfo().getKey());
         if (changed(dbPlugin, installed)) {
@@ -86,7 +86,7 @@ public class DetectPluginChange implements Startable {
     return false;
   }
 
-  private boolean changed(PluginDto dbPlugin, ServerPlugin filePlugin) {
+  private static boolean changed(PluginDto dbPlugin, ServerPlugin filePlugin) {
     return !dbPlugin.getFileHash().equals(filePlugin.getJar().getMd5()) || !dbPlugin.getType().equals(toTypeDto(filePlugin.getType()));
   }
 
