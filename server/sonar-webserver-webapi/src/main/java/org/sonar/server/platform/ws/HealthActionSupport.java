@@ -32,6 +32,7 @@ import org.sonarqube.ws.System;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class HealthActionSupport {
+  static final String LOCAL_PARAM = "local";
   private static final Comparator<NodeHealth> NODE_HEALTH_COMPARATOR = Comparator.<NodeHealth>comparingInt(s -> s.getDetails().getType().ordinal())
     .thenComparing(a -> a.getDetails().getName())
     .thenComparing(a -> a.getDetails().getHost())
@@ -43,7 +44,7 @@ public class HealthActionSupport {
   }
 
   void define(WebService.NewController controller, SystemWsAction handler) {
-    controller.createAction("health")
+    WebService.NewAction action = controller.createAction("health")
       .setDescription("Provide health status of SonarQube." +
         "<p>Require 'Administer System' permission or authentication with passcode</p>" +
         "<p> " +
@@ -56,6 +57,13 @@ public class HealthActionSupport {
       .setSince("6.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-health.json"))
       .setHandler(handler);
+
+    action.createParam(LOCAL_PARAM)
+      .setDescription("True: Provide health for the node only, False: cluster-wide health (Only applies to SonarQube Datacenter Edition)")
+      .setExampleValue(false)
+      .setDefaultValue(false)
+      .setSince("9.1")
+      .setRequired(false);
   }
 
   System.HealthResponse checkNodeHealth() {

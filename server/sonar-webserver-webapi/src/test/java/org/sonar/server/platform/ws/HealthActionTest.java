@@ -54,6 +54,8 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -85,7 +87,7 @@ public class HealthActionTest {
     assertThat(definition.since()).isEqualTo("6.6");
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.responseExample()).isNotNull();
-    assertThat(definition.params()).isEmpty();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("local");
   }
 
   @Test
@@ -303,6 +305,23 @@ public class HealthActionTest {
     assertThat(response.getNodes().getNodesList())
       .extracting(System.Node::getStartedAt)
       .containsExactly(expected);
+  }
+
+  @Test
+  public void request_returns_only_node_health_when_cluster_with_local_parameter_true() {
+    authenticateWithRandomMethod();
+
+    when(webServer.isStandalone()).thenReturn(false);
+    Health.Builder builder = newHealthCheckBuilder().setStatus(Health.Status.GREEN);
+    Health health = builder.build();
+    when(healthChecker.checkNode()).thenReturn(health);
+
+    System.HealthResponse response = underTest.newRequest().setParam("local", "true")
+      .executeProtobuf(System.HealthResponse.class);
+
+    assertThat(response.getHealth().name()).isEqualTo(health.getStatus().name());
+    assertThat(response.getNodes().getNodesList()).isEmpty();
+    verify(healthChecker, never()).checkCluster();
   }
 
   private NodeHealth randomNodeHealth() {

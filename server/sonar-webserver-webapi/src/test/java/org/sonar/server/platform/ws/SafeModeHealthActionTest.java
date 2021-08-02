@@ -63,7 +63,7 @@ public class SafeModeHealthActionTest {
     assertThat(definition.since()).isEqualTo("6.6");
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.responseExample()).isNotNull();
-    assertThat(definition.params()).isEmpty();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("local");
   }
 
   @Test

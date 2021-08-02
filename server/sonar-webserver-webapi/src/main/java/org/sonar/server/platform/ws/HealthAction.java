@@ -28,6 +28,8 @@ import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
+import static org.sonar.server.platform.ws.HealthActionSupport.LOCAL_PARAM;
+
 public class HealthAction implements SystemWsAction {
   private final WebServer webServer;
   private final HealthActionSupport support;
@@ -52,7 +54,8 @@ public class HealthAction implements SystemWsAction {
       throw new ForbiddenException("Insufficient privileges");
     }
 
-    if (webServer.isStandalone()) {
+    boolean localParam = request.mandatoryParamAsBoolean(LOCAL_PARAM);
+    if (webServer.isStandalone() || localParam) {
       WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
     } else {
       WsUtils.writeProtobuf(support.checkClusterHealth(), request, response);
