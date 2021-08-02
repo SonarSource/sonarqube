@@ -62,6 +62,10 @@ public abstract class DataChange implements MigrationStep {
     return res;
   }
 
+  protected Database getDatabase() {
+    return db;
+  }
+
   public static class Context {
     private final Database db;
     private final Connection readConnection;

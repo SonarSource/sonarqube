@@ -37,6 +37,9 @@ public class DropCustomMetricsProjectMeasuresDataTest {
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropCustomMetricsProjectMeasuresDataTest.class, "schema.sql");
 
+  @Rule
+  public final CoreDbTester dbWithoutColumn = CoreDbTester.createForSchema(DropCustomMetricsProjectMeasuresDataTest.class, "no_user_managed_column.sql");
+
   private final DataChange underTest = new DropCustomMetricsProjectMeasuresData(db.database());
 
   @Test
@@ -122,6 +125,23 @@ public class DropCustomMetricsProjectMeasuresDataTest {
 
     assertThat(db.select("select uuid from project_measures").stream().map(row -> row.get("UUID")).collect(Collectors.toList()))
       .containsExactlyInAnyOrder("pm-1", "pm-2", "pm-3", "pm-4");
+  }
+
+  @Test
+  public void does_not_fail_when_no_user_managed_column() throws SQLException {
+    insertMetric("metric-1", false);
+    insertMetric("metric-2", false);
+
+    insertProjectMeasure("pm-1", "metric-1");
+    insertProjectMeasure("pm-2", "metric-1");
+    insertProjectMeasure("pm-3", "metric-2");
+    insertProjectMeasure("pm-4", "metric-2");
+
+    DataChange underTest = new DropCustomMetricsProjectMeasuresData(dbWithoutColumn.database());
+    underTest.execute();
+
+    assertThat(db.select("select uuid from project_measures").stream().map(row -> row.get("UUID")).collect(Collectors.toList()))
+        .containsExactlyInAnyOrder("pm-1", "pm-2", "pm-3", "pm-4");
   }
 
   private void insertProjectMeasure(String uuid, String metricUuid) {

@@ -42,4 +42,16 @@ public class CreateAuditTableTest {
     db.assertTableExists(TABLE_NAME);
     db.assertIndex(TABLE_NAME, "audits_created_at", "created_at");
   }
+
+  @Test
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
+
+    underTest.execute();
+    //re-entrant
+    underTest.execute();
+
+    db.assertTableExists(TABLE_NAME);
+    db.assertIndex(TABLE_NAME, "audits_created_at", "created_at");
+  }
 }

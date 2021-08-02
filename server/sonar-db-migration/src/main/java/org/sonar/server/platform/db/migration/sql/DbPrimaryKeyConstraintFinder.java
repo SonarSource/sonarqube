@@ -113,10 +113,6 @@ public class DbPrimaryKeyConstraintFinder {
       + "WHERE table_name = '%s' and constraint_type = 'PRIMARY KEY'", tableName.toUpperCase(Locale.ENGLISH));
   }
 
-  static IllegalStateException constraintNotFoundException(String tableName) {
-    return new IllegalStateException(format("Cannot find constraint for table '%s'", tableName));
-  }
-
   // FIXME:: this method should be moved somewhere else
   String getPostgresSqlSequence(String tableName, String columnName) throws SQLException {
     try (Connection connection = db.getDataSource().getConnection();

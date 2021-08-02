@@ -37,6 +37,9 @@ public class DropCustomMetricsLiveMeasuresDataTest {
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropCustomMetricsLiveMeasuresDataTest.class, "schema.sql");
 
+  @Rule
+  public final CoreDbTester dbWithoutColumn = CoreDbTester.createForSchema(DropCustomMetricsLiveMeasuresDataTest.class, "no_user_managed_column.sql");
+
   private final DataChange underTest = new DropCustomMetricsLiveMeasuresData(db.database());
 
   @Test
@@ -122,6 +125,23 @@ public class DropCustomMetricsLiveMeasuresDataTest {
 
     assertThat(db.select("select uuid from live_measures").stream().map(row -> row.get("UUID")).collect(Collectors.toList()))
       .containsExactlyInAnyOrder("lm-1", "lm-2", "lm-3", "lm-4");
+  }
+
+  @Test
+  public void does_not_fail_when_no_user_managed_column() throws SQLException {
+    insertMetric("metric-1", false);
+    insertMetric("metric-2", false);
+
+    insertLiveMeasure("lm-1", "metric-1");
+    insertLiveMeasure("lm-2", "metric-1");
+    insertLiveMeasure("lm-3", "metric-2");
+    insertLiveMeasure("lm-4", "metric-2");
+
+    DataChange underTest = new DropCustomMetricsLiveMeasuresData(dbWithoutColumn.database());
+    underTest.execute();
+
+    assertThat(db.select("select uuid from live_measures").stream().map(row -> row.get("UUID")).collect(Collectors.toList()))
+        .containsExactlyInAnyOrder("lm-1", "lm-2", "lm-3", "lm-4");
   }
 
   private void insertLiveMeasure(String uuid, String metricUuid) {

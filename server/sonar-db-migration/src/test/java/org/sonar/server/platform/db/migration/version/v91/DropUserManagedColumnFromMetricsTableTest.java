@@ -41,4 +41,13 @@ public class DropUserManagedColumnFromMetricsTableTest {
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
+
+  @Test
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.BOOLEAN, null, true);
+    underTest.execute();
+    // re-entrant
+    underTest.execute();
+    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+  }
 }

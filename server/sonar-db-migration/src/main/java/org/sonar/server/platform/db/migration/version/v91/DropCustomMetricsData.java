@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v91;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 abstract class DropCustomMetricsData extends DataChange {
@@ -31,6 +32,10 @@ abstract class DropCustomMetricsData extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    if (!checkIfUserManagedColumnExists()) {
+      return;
+    }
+
     var massUpdate = context.prepareMassUpdate();
     massUpdate.select(selectQuery()).setBoolean(1, true);
     massUpdate.update(updateQuery());
@@ -39,6 +44,15 @@ abstract class DropCustomMetricsData extends DataChange {
       update.setString(1, row.getString(1));
       return true;
     });
+  }
+
+  private boolean checkIfUserManagedColumnExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableColumnExists(connection, "metrics", "user_managed")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   abstract String selectQuery();

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
@@ -33,7 +35,6 @@ import static java.util.stream.Stream.of;
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-import java.sql.SQLException;
 
 public class CreateAuditTable extends DdlChange {
 
@@ -43,6 +44,10 @@ public class CreateAuditTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    if (auditTableExists()) {
+      return;
+    }
+
     BigIntegerColumnDef createdAtColumn = newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build();
     var tableName = "audits";
     context.execute(new CreateTableBuilder(getDialect(), tableName)
@@ -69,5 +74,11 @@ public class CreateAuditTable extends DdlChange {
 
   private static VarcharColumnDef.Builder newVarcharColumnBuilder(String column) {
     return newVarcharColumnDefBuilder().setColumnName(column);
+  }
+
+  private boolean auditTableExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.tableExists("audits", connection);
+    }
   }
 }

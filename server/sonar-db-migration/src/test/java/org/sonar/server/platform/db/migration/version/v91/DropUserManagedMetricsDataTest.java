@@ -34,6 +34,9 @@ public class DropUserManagedMetricsDataTest {
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropUserManagedMetricsDataTest.class, "schema.sql");
 
+  @Rule
+  public final CoreDbTester dbWithoutColumn = CoreDbTester.createForSchema(DropUserManagedMetricsDataTest.class, "no_user_managed_column.sql");
+
   private final DataChange underTest = new DropUserManagedMetricsData(db.database());
 
   @Test
@@ -94,6 +97,18 @@ public class DropUserManagedMetricsDataTest {
     insertMetric("2", false);
     insertMetric("3", false);
 
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable(TABLE_NAME)).isEqualTo(3);
+  }
+
+  @Test
+  public void does_not_fail_when_no_user_managed_column() throws SQLException {
+    insertMetric("1", false);
+    insertMetric("2", false);
+    insertMetric("3", false);
+
+    DataChange underTest = new DropCustomMetricsProjectMeasuresData(dbWithoutColumn.database());
     underTest.execute();
 
     assertThat(db.countRowsOfTable(TABLE_NAME)).isEqualTo(3);

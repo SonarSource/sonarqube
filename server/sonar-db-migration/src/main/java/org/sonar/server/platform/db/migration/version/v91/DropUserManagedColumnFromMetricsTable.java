@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v91;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.sql.DropMsSQLDefaultConstraintsBuilder;
@@ -31,18 +32,28 @@ public class DropUserManagedColumnFromMetricsTable extends DdlChange {
   private static final String TABLE_NAME = "metrics";
   private static final String COLUMN = "user_managed";
 
-  private final Database db;
-
   public DropUserManagedColumnFromMetricsTable(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (MsSql.ID.equals(db.getDialect().getId())) {
-      context.execute(new DropMsSQLDefaultConstraintsBuilder(db).setTable(TABLE_NAME).setColumns(COLUMN).build());
+    if (!checkIfUseManagedColumnExists()) {
+      return;
     }
-    context.execute(new DropColumnsBuilder(db.getDialect(), TABLE_NAME, COLUMN).build());
+
+    if (MsSql.ID.equals(getDatabase().getDialect().getId())) {
+      context.execute(new DropMsSQLDefaultConstraintsBuilder(getDatabase()).setTable(TABLE_NAME).setColumns(COLUMN).build());
+    }
+    context.execute(new DropColumnsBuilder(getDatabase().getDialect(), TABLE_NAME, COLUMN).build());
+  }
+
+  private boolean checkIfUseManagedColumnExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      if (DatabaseUtils.tableColumnExists(connection, TABLE_NAME, COLUMN)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

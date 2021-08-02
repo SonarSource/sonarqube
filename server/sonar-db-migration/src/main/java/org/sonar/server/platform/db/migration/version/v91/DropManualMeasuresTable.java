@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v91;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -33,6 +34,15 @@ public class DropManualMeasuresTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    if (!manualMeasuresExists()) {
+      return;
+    }
     context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+  }
+
+  private boolean manualMeasuresExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.tableExists(TABLE_NAME, connection);
+    }
   }
 }
