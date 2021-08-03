@@ -194,7 +194,7 @@ public class RegisterQualityProfilesTest {
     private final List<BuiltInQProfile> callLogs = new ArrayList<>();
 
     @Override
-    public void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
+    public void create(DbSession batchDbSession, BuiltInQProfile builtIn) {
       callLogs.add(builtIn);
     }
   }

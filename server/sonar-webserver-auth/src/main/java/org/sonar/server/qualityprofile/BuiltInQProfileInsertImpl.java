@@ -76,29 +76,26 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   }
 
   @Override
-  public void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
+  public void create(DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
     initRuleRepository(batchDbSession);
 
     Date now = new Date(system2.now());
-    RulesProfileDto ruleProfile = insertRulesProfile(dbSession, builtInQProfile, now);
+    RulesProfileDto ruleProfile = insertRulesProfile(batchDbSession, builtInQProfile, now);
 
     List<ActiveRuleChange> changes = builtInQProfile.getActiveRules().stream()
-      .map(activeRule -> insertActiveRule(dbSession, batchDbSession, ruleProfile, activeRule, now.getTime()))
+      .map(activeRule -> insertActiveRule(batchDbSession, ruleProfile, activeRule, now.getTime()))
       .collect(MoreCollectors.toList());
 
     changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
 
-    createDefaultAndOrgQProfiles(dbSession, batchDbSession, builtInQProfile, ruleProfile);
+    createDefaultAndOrgQProfiles(batchDbSession, builtInQProfile, ruleProfile);
 
-    // TODO batch statements should be executed through dbSession
-    batchDbSession.commit();
-
-    activeRuleIndexer.commitAndIndex(dbSession, changes);
+    activeRuleIndexer.commitAndIndex(batchDbSession, changes);
   }
 
 
-  private void createDefaultAndOrgQProfiles(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
-    Optional<String> qProfileUuid = dbClient.defaultQProfileDao().selectDefaultQProfileUuid(dbSession, builtIn.getLanguage());
+  private void createDefaultAndOrgQProfiles(DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
+    Optional<String> qProfileUuid = dbClient.defaultQProfileDao().selectDefaultQProfileUuid(batchDbSession, builtIn.getLanguage());
 
     OrgQProfileDto dto = new OrgQProfileDto()
       .setRulesProfileUuid(rulesProfileDto.getUuid())
@@ -108,7 +105,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       DefaultQProfileDto defaultQProfileDto = new DefaultQProfileDto()
         .setQProfileUuid(dto.getUuid())
         .setLanguage(builtIn.getLanguage());
-      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, defaultQProfileDto);
+      dbClient.defaultQProfileDao().insert(batchDbSession, defaultQProfileDto);
     }
 
     dbClient.qualityProfileDao().insert(batchDbSession, dto);
@@ -131,7 +128,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return dto;
   }
 
-  private ActiveRuleChange insertActiveRule(DbSession dbSession, DbSession batchDbSession, RulesProfileDto rulesProfileDto, BuiltInQProfile.ActiveRule activeRule, long now) {
+  private ActiveRuleChange insertActiveRule(DbSession batchDbSession, RulesProfileDto rulesProfileDto, BuiltInQProfile.ActiveRule activeRule, long now) {
     RuleKey ruleKey = activeRule.getRuleKey();
     RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
@@ -145,7 +142,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(batchDbSession, dto);
 
-    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(dbSession, activeRule, dto);
+    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(batchDbSession, activeRule, dto);
 
     ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, dto, ruleDefinitionDto);
     change.setSeverity(dto.getSeverityString());

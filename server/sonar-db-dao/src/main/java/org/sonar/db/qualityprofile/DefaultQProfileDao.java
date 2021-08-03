@@ -46,6 +46,12 @@ public class DefaultQProfileDao implements Dao {
     }
   }
 
+  public void insert(DbSession dbSession, DefaultQProfileDto dto) {
+    long now = system2.now();
+    DefaultQProfileMapper mapper = mapper(dbSession);
+    mapper.insert(dto, now);
+  }
+
   public void deleteByQProfileUuids(DbSession dbSession, Collection<String> qProfileUuids) {
     DefaultQProfileMapper mapper = mapper(dbSession);
     DatabaseUtils.executeLargeUpdates(qProfileUuids, mapper::deleteByQProfileUuids);

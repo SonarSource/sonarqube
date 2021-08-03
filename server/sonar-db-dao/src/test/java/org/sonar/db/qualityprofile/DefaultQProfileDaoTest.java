@@ -37,6 +37,7 @@ public class DefaultQProfileDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = dbTester.getSession();
+
   private DefaultQProfileDao underTest = dbTester.getDbClient().defaultQProfileDao();
 
   @Test
@@ -67,6 +68,18 @@ public class DefaultQProfileDaoTest {
 
     assertThat(countRows()).isEqualTo(1);
     assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(newQProfileUuid);
+  }
+
+  @Test
+  public void insert_row() {
+    String previousQProfileUuid = Uuids.create();
+    DefaultQProfileDto dto = new DefaultQProfileDto()
+      .setLanguage("java")
+      .setQProfileUuid(previousQProfileUuid);
+    underTest.insert(dbSession, dto);
+    dbSession.commit();
+      assertThat(countRows()).isEqualTo(1);
+      assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(dto.getQProfileUuid());
   }
 
   @Test

@@ -24,7 +24,7 @@ import org.sonar.db.DbSession;
 public interface BuiltInQProfileInsert {
   /**
    * Persist a new built-in profile
-   * Db sessions are committed and Elasticsearch indices are updated..
+   * Db sessions are committed and Elasticsearch indices are updated
    */
-  void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile);
+  void create(DbSession batchSession, BuiltInQProfile builtInQProfile);
 }

@@ -123,7 +123,7 @@ public class RegisterQualityProfiles implements Startable {
 
     renameOutdatedProfiles(dbSession, builtIn);
 
-    builtInQProfileInsert.create(dbSession, batchDbSession, builtIn);
+    builtInQProfileInsert.create(batchDbSession, builtIn);
   }
 
   private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile definition, RulesProfileDto dbProfile) {
