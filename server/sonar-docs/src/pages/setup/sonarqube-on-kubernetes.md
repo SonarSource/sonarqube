@@ -3,7 +3,9 @@ title: Deploy SonarQube on Kubernetes
 url: /setup/sonarqube-on-kubernetes/
 ---
 
-_Kubernetes Deployment is only available for Community, Developer, and Enterprise Editions._
+_This part of the Documentation is only valid for Community, Developer, and Enterprise Editions._
+
+Please follow [this](/setup/sonarqube-cluster-on-kubernetes/) documentation for deploying the DataCenter Edition on Kubernetes.
 
 # Overview 
 
@@ -107,7 +109,7 @@ To install the Helm Chart from the [GitHub](https://github.com/SonarSource/helm-
 
 ```bash 
 git clone https://github.com/SonarSource/helm-chart-sonarqube.git
-cd helm-chart-sonarqube
+cd helm-chart-sonarqube/charts/sonarqube
 helm dependency update
 kubectl create namespace sonarqube
 helm upgrade --install -f values.yaml -n sonarqube sonarqube ./
