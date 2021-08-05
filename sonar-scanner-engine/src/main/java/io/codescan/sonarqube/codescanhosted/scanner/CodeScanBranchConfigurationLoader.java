@@ -57,6 +57,11 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
             return new DefaultBranchConfiguration();
         }
 
+        String pullRequestKey = null;
+        if (branchType == BranchType.PULL_REQUEST) {
+            pullRequestKey = projectSettings.get(ScannerProperties.PULL_REQUEST_KEY);
+        }
+
         // Else we are using branch feature... always need a branch name.
         if (branchName == null) {
             throw MessageException.of("'sonar.branch.name' is required for a branch analysis");
@@ -128,29 +133,20 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
             if (branchType == BranchType.BRANCH) {
                 referenceBranchName = branchName;
             }
-        } else if (branchType == null && branchTarget == null) {
+        } else if (branchType == null) {
             branchType = BranchType.BRANCH;
             LOG.debug("sonar.branch.type set: {}", branchType);
-        } else if (branchType == null) {
-            // Figure out branch type based on defaults.
-            // TODO analyze
-//            String regex = projectSettings.get(CoreProperties.LONG_LIVED_BRANCHES_REGEX);
-//            if (regex == null) {
-//                regex = "(branch|release)-.*";
-//            }
-//            branchType = branchName.matches(regex) ? BranchType.LONG : BranchType.SHORT;
-            LOG.debug("sonar.branch.type set based on regex to: {}", branchType);
         }
-        return new CodeScanBranchConfiguration(branchType, branchName, targetScmBranch, referenceBranchName);
+        return new CodeScanBranchConfiguration(branchType, branchName, targetScmBranch, referenceBranchName, pullRequestKey);
     }
 
     private BranchType convertBranchType(String branchType) {
-        if ("short".equalsIgnoreCase(branchType) || "pull_request".equalsIgnoreCase(branchType)) {
+        if ("pull_request".equalsIgnoreCase(branchType)) {
             return BranchType.PULL_REQUEST;
-        } else if ("long".equalsIgnoreCase(branchType) || "branch".equalsIgnoreCase(branchType)) {
+        } else if ("short".equalsIgnoreCase(branchType) || "long".equalsIgnoreCase(branchType) || "branch".equalsIgnoreCase(branchType)) {
             return BranchType.BRANCH;
         } else if (branchType != null && !"".equals(branchType)) {
-            throw MessageException.of("'sonar.branch.type' is invalid. Must be short or long");
+            throw MessageException.of("'sonar.branch.type' is invalid. Must be 'short' or 'long' or 'branch'");
         }
         return null;
     }

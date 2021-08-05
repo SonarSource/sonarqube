@@ -20,6 +20,7 @@
 
 package io.codescan.sonarqube.codescanhosted.ce;
 
+import java.time.Clock;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +31,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
@@ -52,30 +55,54 @@ public class CodeScanBranchSupportDelegate implements BranchSupportDelegate {
     }
 
     public ComponentKey createComponentKey(String projectKey, Map<String, String> characteristics) {
-        String branchName = StringUtils.trimToNull(characteristics.get("branch"));
-        String branchKey = ComponentDto.generateBranchKey(projectKey, branchName);
-        return new BranchComponent(projectKey, branchKey, branchName, null);
+        String branchTypeParam = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.BRANCH_TYPE_KEY));
+
+        if (null == branchTypeParam) {
+            String pullRequest = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.PULL_REQUEST));
+            if (null == pullRequest) {
+                throw new IllegalArgumentException(String.format("One of '%s' or '%s' parameters must be specified",
+                        CeTaskCharacteristicDto.BRANCH_TYPE_KEY,
+                        CeTaskCharacteristicDto.PULL_REQUEST));
+            } else {
+                return new BranchComponent(projectKey,
+                        ComponentDto.generatePullRequestKey(projectKey, pullRequest), null,
+                        pullRequest);
+            }
+        }
+
+        String branch = StringUtils.trimToNull(characteristics.get(CeTaskCharacteristicDto.BRANCH_KEY));
+
+        try {
+            BranchType.valueOf(branchTypeParam);
+            return new BranchComponent(projectKey, ComponentDto.generateBranchKey(projectKey, branch), branch, null);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(String.format("Unsupported branch type '%s'", branchTypeParam), ex);
+        }
     }
 
     public ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey,
             OrganizationDto organization, ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {
-        if (componentKey.getMainBranchComponentKey().getKey().equals(mainComponentBranchDto.getKey())) {
-            return mainComponentDto;
-        } else {
-            String uuid = this.uuidFactory.create();
-            ComponentDto ret = mainComponentDto.copy();
-            ret
-                    .setUuidPath(".")
-                    .setUuid(uuid)
-                    .setProjectUuid(uuid)
-                    .setRootUuid(uuid)
-                    .setDbKey(componentKey.getDbKey())
-                    .setCreatedAt(new Date(this.system2.now()))
-                    .setModuleUuidPath("." + uuid + ".")
-                    .setMainBranchProjectUuid(mainComponentDto.uuid());
-            this.dbClient.componentDao().insert(dbSession, ret);
-            return ret;
+        if (!componentKey.getKey().equals(mainComponentDto.getKey())) {
+            throw new IllegalStateException("Component Key and Main Component Key do not match");
         }
+
+        Optional<String> branchOptional = componentKey.getBranchName();
+        if (branchOptional.isPresent() && branchOptional.get().equals(mainComponentBranchDto.getKey())) {
+            return mainComponentDto;
+        }
+
+        String branchUuid = uuidFactory.create();
+        ComponentDto branchDto = mainComponentDto.copy()
+                .setUuid(branchUuid)
+                .setProjectUuid(branchUuid)
+                .setRootUuid(branchUuid)
+                .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
+                .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + branchUuid + ComponentDto.UUID_PATH_SEPARATOR)
+                .setMainBranchProjectUuid(mainComponentDto.uuid())
+                .setDbKey(componentKey.getDbKey())
+                .setCreatedAt(new Date(system2.now()));
+        dbClient.componentDao().insert(dbSession, branchDto);
+        return branchDto;
     }
 
     private static final class BranchComponent extends ComponentKey {

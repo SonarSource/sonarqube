@@ -33,13 +33,15 @@ public class CodeScanBranchConfiguration implements BranchConfiguration {
     private final String branchName;
     private final String targetBranchName;
     private final String referenceBranchName;
+    private final String pullRequestKey;
 
     public CodeScanBranchConfiguration(BranchType branchType, String branchName, String targetBranchName,
-            String referenceBranchName) {
+            String referenceBranchName, String pullRequestKey) {
         this.branchType = branchType;
         this.branchName = branchName;
         this.targetBranchName = targetBranchName;
         this.referenceBranchName = referenceBranchName;
+        this.pullRequestKey = pullRequestKey;
     }
 
     @Override
@@ -66,6 +68,6 @@ public class CodeScanBranchConfiguration implements BranchConfiguration {
 
     @Override
     public String pullRequestKey() {
-        return null;
+        return pullRequestKey;
     }
 }
