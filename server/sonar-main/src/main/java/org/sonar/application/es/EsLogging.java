@@ -30,6 +30,7 @@ import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
+import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public class EsLogging {
@@ -39,21 +40,26 @@ public class EsLogging {
     RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(ProcessId.ELASTICSEARCH).build();
     String logPattern = log4JPropertiesBuilder.buildLogPattern(config);
 
-    log4JPropertiesBuilder.internalLogLevel(Level.ERROR);
-    log4JPropertiesBuilder.configureGlobalFileLog(config, logDir, logPattern);
-    if (isAllLogsToConsoleEnabled(props)) {
-      log4JPropertiesBuilder.configureGlobalStdoutLog(logPattern);
-    }
-    log4JPropertiesBuilder.apply(
-      LogLevelConfig.newBuilder(log4JPropertiesBuilder.getRootLoggerName())
-        .rootLevelFor(ProcessId.ELASTICSEARCH)
-        // turn off ES type deprecation logging to not flood logs
-        .immutableLevel("DEPRECATION", Level.ERROR)
-        .immutableLevel("org.elasticsearch.deprecation", Level.ERROR)
-        .immutableLevel("org.elasticsearch.client.RestClient", Level.ERROR)
-        .build());
+    return log4JPropertiesBuilder.internalLogLevel(Level.ERROR)
+      .rootLoggerConfig(config)
+      .logPattern(logPattern)
+      .enableAllLogsToConsole(isAllLogsToConsoleEnabled(props))
+      .jsonOutput(isJsonOutput(props))
+      .logDir(logDir)
+      .logLevelConfig(
+        LogLevelConfig.newBuilder(log4JPropertiesBuilder.getRootLoggerName())
+          .rootLevelFor(ProcessId.ELASTICSEARCH)
+          // turn off ES type deprecation logging to not flood logs
+          .immutableLevel("DEPRECATION", Level.ERROR)
+          .immutableLevel("org.elasticsearch.deprecation", Level.ERROR)
+          .immutableLevel("org.elasticsearch.client.RestClient", Level.ERROR)
+          .build())
+      .build();
+  }
 
-    return log4JPropertiesBuilder.get();
+  private static boolean isJsonOutput(Props props) {
+    return props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(),
+        Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()));
   }
 
   /**

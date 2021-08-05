@@ -503,7 +503,7 @@ public class WebServerProcessLoggingTest {
 
   @Test
   public void use_json_output() {
-    props.set("sonar.log.useJsonOutput", "true");
+    props.set("sonar.log.jsonOutput", "true");
 
     LoggerContext context = underTest.configure(props);
 

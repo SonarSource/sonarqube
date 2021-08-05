@@ -26,23 +26,34 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.util.Optional.ofNullable;
 import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL;
 import static org.sonar.process.ProcessProperties.Property.LOG_MAX_FILES;
 import static org.sonar.process.ProcessProperties.Property.LOG_ROLLING_POLICY;
 
 public class Log4JPropertiesBuilder extends AbstractLogHelper {
+  private static final String PATTERN_LAYOUT = "PatternLayout";
   private static final String ROOT_LOGGER_NAME = "rootLogger";
   private static final int UNLIMITED_MAX_FILES = 100_000;
 
   private final Properties log4j2Properties = new Properties();
   private final Props props;
+  private RootLoggerConfig config;
+  private String logPattern;
+  private boolean allLogsToConsole;
+  private File logDir;
+  private LogLevelConfig logLevelConfig;
+  private boolean jsonOutput;
 
   public Log4JPropertiesBuilder(Props props) {
     super("%logger{1.}");
@@ -55,18 +66,62 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     return ROOT_LOGGER_NAME;
   }
 
-  public Properties get() {
+  public Log4JPropertiesBuilder rootLoggerConfig(RootLoggerConfig config) {
+    this.config = config;
+    return this;
+  }
+
+  public Log4JPropertiesBuilder logPattern(String logPattern) {
+    this.logPattern = logPattern;
+    return this;
+  }
+
+  public Log4JPropertiesBuilder enableAllLogsToConsole(boolean allLogsToConsoleEnabled) {
+    allLogsToConsole = allLogsToConsoleEnabled;
+    return this;
+  }
+
+  public Log4JPropertiesBuilder jsonOutput(boolean jsonOutput) {
+    this.jsonOutput = jsonOutput;
+    return this;
+  }
+
+  public Log4JPropertiesBuilder logDir(File logDir) {
+    this.logDir = logDir;
+    return this;
+  }
+
+  public Log4JPropertiesBuilder logLevelConfig(LogLevelConfig logLevelConfig) {
+    this.logLevelConfig = logLevelConfig;
+    return this;
+  }
+
+  public Properties build() {
+    checkNotNull(logDir, config);
+    checkState(jsonOutput || (logPattern != null), "log pattern must be specified if not using json output");
+    configureGlobalFileLog();
+    if (allLogsToConsole) {
+      configureGlobalStdoutLog();
+    }
+
+    ofNullable(logLevelConfig).ifPresent(this::applyLogLevelConfiguration);
+
     Properties res = new Properties();
     res.putAll(log4j2Properties);
     return res;
   }
 
-  public void internalLogLevel(Level level) {
+  public Log4JPropertiesBuilder internalLogLevel(Level level) {
     putProperty("status", level.toString());
+    return this;
   }
 
   private void putProperty(String key, String value) {
     log4j2Properties.put(key, value);
+  }
+
+  private void putProperty(String prefix, String key, @Nullable String value) {
+    log4j2Properties.put(prefix + key, value);
   }
 
   /**
@@ -82,31 +137,17 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
    *
    * @see #buildLogPattern(RootLoggerConfig)
    */
-  public void configureGlobalFileLog(RootLoggerConfig config, File logDir, String logPattern) {
-    String appenderRef = writeFileAppender(config, logDir, logPattern);
-
-    putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderRef + ".ref", appenderRef);
-  }
-
-  private String writeFileAppender(RootLoggerConfig config, File logDir, String logPattern) {
+  private void configureGlobalFileLog() {
     String appenderName = "file_" + config.getProcessId().getLogFilenamePrefix();
     RollingPolicy rollingPolicy = createRollingPolicy(logDir, config.getProcessId().getLogFilenamePrefix());
-    FileAppender appender = new FileAppender(appenderName, rollingPolicy, logPattern);
-    appender.writeAppenderProperties();
-    return appender.getAppenderRef();
+    writeFileAppender(appenderName, rollingPolicy, logPattern, jsonOutput);
+    putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderName + ".ref", appenderName);
   }
 
-  public void configureGlobalStdoutLog(String logPattern) {
-    String appenderRef = writeStdoutAppender(logPattern);
-
-    putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderRef + ".ref", appenderRef);
-  }
-
-  private String writeStdoutAppender(String logPattern) {
+  private void configureGlobalStdoutLog() {
     String appenderName = "stdout";
-    ConsoleAppender appender = new ConsoleAppender(appenderName, logPattern);
-    appender.writeAppenderProperties();
-    return appender.getAppenderRef();
+    writeConsoleAppender(appenderName, logPattern, jsonOutput);
+    putProperty(ROOT_LOGGER_NAME + ".appenderRef." + appenderName + ".ref", appenderName);
   }
 
   private RollingPolicy createRollingPolicy(File logDir, String filenamePrefix) {
@@ -127,7 +168,7 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     }
   }
 
-  public void apply(LogLevelConfig logLevelConfig) {
+  private void applyLogLevelConfiguration(LogLevelConfig logLevelConfig) {
     if (!ROOT_LOGGER_NAME.equals(logLevelConfig.getRootLoggerName())) {
       throw new IllegalArgumentException("Value of LogLevelConfig#rootLoggerName must be \"" + ROOT_LOGGER_NAME + "\"");
     }
@@ -170,61 +211,59 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     }
   }
 
-  private class FileAppender {
-    private final String prefix;
-    private final String appenderName;
-    private final RollingPolicy rollingPolicy;
-    private final String logPattern;
+  private void writeFileAppender(String appenderName, RollingPolicy rollingPolicy, @Nullable String logPattern, boolean jsonOutput) {
+    String prefix = "appender." + appenderName + ".";
+    putProperty(prefix, "name", appenderName);
+    writeAppenderLayout(logPattern, jsonOutput, prefix);
+    rollingPolicy.writePolicy(prefix);
+  }
 
-    private FileAppender(String appenderName, RollingPolicy rollingPolicy, String logPattern) {
-      this.prefix = "appender." + appenderName + ".";
-      this.appenderName = appenderName;
-      this.rollingPolicy = rollingPolicy;
-      this.logPattern = logPattern;
-    }
+  private void writeConsoleAppender(String appenderName, @Nullable String logPattern, boolean jsonOutput) {
+    String prefix = "appender." + appenderName + ".";
+    putProperty(prefix, "type", "Console");
+    putProperty(prefix, "name", appenderName);
+    writeAppenderLayout(logPattern, jsonOutput, prefix);
+  }
 
-    void writeAppenderProperties() {
-      put("name", appenderName);
-      put("layout.type", "PatternLayout");
-      put("layout.pattern", logPattern);
-
-      rollingPolicy.writePolicy(this.prefix);
-    }
-
-    void put(String key, String value) {
-      Log4JPropertiesBuilder.this.putProperty(this.prefix + key, value);
-    }
-
-    String getAppenderRef() {
-      return appenderName;
+  private void writeAppenderLayout(@Nullable String logPattern, boolean jsonOutput, String prefix) {
+    putProperty(prefix, "layout.type", PATTERN_LAYOUT);
+    if (!jsonOutput) {
+      putProperty(prefix, "layout.pattern", logPattern);
+    } else {
+      putProperty(prefix, "layout.pattern", getJsonPattern());
     }
   }
 
-  private class ConsoleAppender {
-    private final String prefix;
-    private final String appenderName;
-    private final String logPattern;
+  /**
+   * json pattern based on https://github.com/elastic/elasticsearch/blob/7.13/server/src/main/java/org/elasticsearch/common/logging/ESJsonLayout.java
+   */
+  private String getJsonPattern() {
+    return "{"
+      + jsonKey("process")
+      + inQuotes(config.getProcessId().getKey())
+      + ","
+      + jsonKey("timestamp")
+      + inQuotes("%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}")
+      + ","
+      + jsonKey("severity")
+      + inQuotes("%p")
+      + ","
+      + jsonKey("logger")
+      + inQuotes("%c{1.}")
+      + ","
+      + jsonKey("message")
+      + inQuotes("%notEmpty{%enc{%marker}{JSON} }%enc{%.-10000m}{JSON}")
+      + "%exceptionAsJson "
+      + "}"
+      + System.lineSeparator();
+  }
 
-    private ConsoleAppender(String appenderName, String logPattern) {
-      this.prefix = "appender." + appenderName + ".";
-      this.appenderName = appenderName;
-      this.logPattern = logPattern;
-    }
+  private static CharSequence jsonKey(String s) {
+    return inQuotes(s) + ": ";
+  }
 
-    void writeAppenderProperties() {
-      put("type", "Console");
-      put("name", appenderName);
-      put("layout.type", "PatternLayout");
-      put("layout.pattern", logPattern);
-    }
-
-    void put(String key, String value) {
-      Log4JPropertiesBuilder.this.putProperty(this.prefix + key, value);
-    }
-
-    String getAppenderRef() {
-      return appenderName;
-    }
+  private static String inQuotes(String s) {
+    return "\"" + s + "\"";
   }
 
   private abstract class RollingPolicy {

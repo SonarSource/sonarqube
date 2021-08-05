@@ -259,7 +259,7 @@ public class AppLoggingTest {
 
   @Test
   public void use_json_output() {
-    settings.getProps().set("sonar.log.useJsonOutput", "true");
+    settings.getProps().set("sonar.log.jsonOutput", "true");
 
     LoggerContext ctx = underTest.configure();
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);

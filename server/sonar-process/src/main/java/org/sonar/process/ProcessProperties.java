@@ -45,6 +45,7 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
  * They are almost all the properties defined in conf/sonar.properties.
  */
 public class ProcessProperties {
+  private static final String DEFAULT_FALSE = Boolean.FALSE.toString();
 
   private final ServiceLoaderWrapper serviceLoaderWrapper;
 
@@ -75,6 +76,7 @@ public class ProcessProperties {
     LOG_ROLLING_POLICY("sonar.log.rollingPolicy"),
     LOG_MAX_FILES("sonar.log.maxFiles"),
     LOG_CONSOLE("sonar.log.console"),
+    LOG_JSON_OUTPUT("sonar.log.jsonOutput", DEFAULT_FALSE),
 
     SEARCH_HOST("sonar.search.host"),
     SEARCH_PORT("sonar.search.port"),
@@ -113,8 +115,8 @@ public class ProcessProperties {
     SOCKS_PROXY_HOST("socksProxyHost"),
     SOCKS_PROXY_PORT("socksProxyPort"),
 
-    CLUSTER_ENABLED("sonar.cluster.enabled", "false"),
-    CLUSTER_KUBERNETES("sonar.cluster.kubernetes", "false"),
+    CLUSTER_ENABLED("sonar.cluster.enabled", DEFAULT_FALSE),
+    CLUSTER_KUBERNETES("sonar.cluster.kubernetes", DEFAULT_FALSE),
     CLUSTER_NODE_TYPE("sonar.cluster.node.type"),
     CLUSTER_SEARCH_HOSTS("sonar.cluster.search.hosts"),
     CLUSTER_HZ_HOSTS("sonar.cluster.hosts"),
@@ -140,14 +142,14 @@ public class ProcessProperties {
     CLUSTER_NODE_ES_PORT("sonar.cluster.node.es.port"),
 
     AUTH_JWT_SECRET("sonar.auth.jwtBase64Hs256Secret"),
-    SONAR_WEB_SSO_ENABLE("sonar.web.sso.enable", "false"),
+    SONAR_WEB_SSO_ENABLE("sonar.web.sso.enable", DEFAULT_FALSE),
     SONAR_WEB_SSO_LOGIN_HEADER("sonar.web.sso.loginHeader", "X-Forwarded-Login"),
     SONAR_WEB_SSO_NAME_HEADER("sonar.web.sso.nameHeader", "X-Forwarded-Name"),
     SONAR_WEB_SSO_EMAIL_HEADER("sonar.web.sso.emailHeader", "X-Forwarded-Email"),
     SONAR_WEB_SSO_GROUPS_HEADER("sonar.web.sso.groupsHeader", "X-Forwarded-Groups"),
     SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES("sonar.web.sso.refreshIntervalInMinutes", "5"),
     SONAR_SECURITY_REALM("sonar.security.realm"),
-    SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
+    SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", DEFAULT_FALSE),
 
     LDAP_SERVERS("ldap.servers"),
     LDAP_URL("ldap.url"),
@@ -172,7 +174,7 @@ public class ProcessProperties {
 
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
-    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
+    SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", DEFAULT_FALSE),
     SONARCLOUD_HOMEPAGE_URL("sonar.homepage.url", ""),
     SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
     SONAR_ANALYTICS_GTM_TRACKING_ID("sonar.analytics.gtm.trackingId", ""),
@@ -184,7 +186,7 @@ public class ProcessProperties {
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 
     // whether the blue/green deployment of server is enabled
-    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", "false");
+    BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", DEFAULT_FALSE);
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property

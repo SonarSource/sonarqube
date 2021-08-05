@@ -24,17 +24,16 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import com.google.gson.Gson;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import org.assertj.core.data.Offset;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.logging.LogbackJsonLayout.DATE_FORMATTER;
 
 public class LogbackJsonLayoutTest {
 
-  private LogbackJsonLayout underTest = new LogbackJsonLayout("web");
+  private final LogbackJsonLayout underTest = new LogbackJsonLayout("web");
 
   @Test
   public void test_simple_log() {
@@ -44,11 +43,9 @@ public class LogbackJsonLayoutTest {
 
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
     assertThat(json.process).isEqualTo("web");
-    assertThat(json.instant).isCloseTo(System.currentTimeMillis(), Offset.offset(10_000L));
-    assertThat(Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(json.date)).toEpochMilli()).isEqualTo(json.instant);
+    assertThat(json.timestamp).isEqualTo(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())));
     assertThat(json.severity).isEqualTo("WARN");
     assertThat(json.logger).isEqualTo("the.logger");
-    assertThat(json.message).isEqualTo("the message");
     assertThat(json.message).isEqualTo("the message");
     assertThat(json.stacktrace).isNull();
     assertThat(json.fromMdc).isNull();
@@ -63,12 +60,11 @@ public class LogbackJsonLayoutTest {
 
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
     assertThat(json.process).isEqualTo("web");
-    assertThat(json.instant).isCloseTo(System.currentTimeMillis(), Offset.offset(10_000L));
-    assertThat(Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(json.date)).toEpochMilli()).isEqualTo(json.instant);
+    assertThat(json.timestamp).isEqualTo(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())));
     assertThat(json.severity).isEqualTo("WARN");
     assertThat(json.logger).isEqualTo("the.logger");
     assertThat(json.message).isEqualTo("the message");
-    assertThat(json.stacktrace.length).isGreaterThan(5);
+    assertThat(json.stacktrace).hasSizeGreaterThan(5);
     assertThat(json.stacktrace[0]).isEqualTo("java.lang.IllegalStateException: BOOM");
     assertThat(json.stacktrace[1]).startsWith("at ").contains("LogbackJsonLayoutTest.test_log_with_throwable");
     assertThat(json.fromMdc).isNull();
@@ -83,7 +79,7 @@ public class LogbackJsonLayoutTest {
     String log = underTest.doLayout(event);
 
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
-    assertThat(json.stacktrace.length).isGreaterThan(5);
+    assertThat(json.stacktrace).hasSizeGreaterThan(5);
     assertThat(json.stacktrace[0]).isEqualTo("java.lang.IllegalStateException: BOOM");
     assertThat(json.stacktrace[1]).startsWith("at org.sonar.process.logging.LogbackJsonLayoutTest.test_log_with_throwable_and_cause(LogbackJsonLayoutTest.java:");
     assertThat(json.stacktrace)
@@ -100,21 +96,20 @@ public class LogbackJsonLayoutTest {
     String log = underTest.doLayout(event);
 
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
-    assertThat(json.stacktrace.length).isGreaterThan(5);
+    assertThat(json.stacktrace).hasSizeGreaterThan(5);
     assertThat(json.stacktrace[0]).isEqualTo("java.lang.Exception: BOOM");
     assertThat(json.stacktrace).contains("Suppressed: java.lang.IllegalStateException: foo");
   }
 
   @Test
   public void test_log_with_message_arguments() {
-    LoggingEvent event = new LoggingEvent("org.foundation.Caller", (Logger) LoggerFactory.getLogger("the.logger"), Level.WARN, "the {}", null, new Object[]{"message"});
+    LoggingEvent event = new LoggingEvent("org.foundation.Caller", (Logger) LoggerFactory.getLogger("the.logger"), Level.WARN, "the {}", null, new Object[] {"message"});
 
     String log = underTest.doLayout(event);
 
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
     assertThat(json.process).isEqualTo("web");
-    assertThat(json.instant).isCloseTo(System.currentTimeMillis(), Offset.offset(10_000L));
-    assertThat(Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(json.date)).toEpochMilli()).isEqualTo(json.instant);
+    assertThat(json.timestamp).isEqualTo(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())));
     assertThat(json.severity).isEqualTo("WARN");
     assertThat(json.logger).isEqualTo("the.logger");
     assertThat(json.message).isEqualTo("the message");
@@ -139,8 +134,7 @@ public class LogbackJsonLayoutTest {
 
   private static class JsonLog {
     private String process;
-    private long instant;
-    private String date;
+    private String timestamp;
     private String severity;
     private String logger;
     private String message;

@@ -45,7 +45,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
 
-  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+  static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault());
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
@@ -72,8 +72,7 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
         }
       }
       json
-        .name("instant").value(event.getTimeStamp())
-        .name("date").value(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())))
+        .name("timestamp").value(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())))
         .name("severity").value(event.getLevel().toString())
         .name("logger").value(event.getLoggerName())
         .name("message").value(NEWLINE_REGEXP.matcher(event.getFormattedMessage()).replaceAll("\r"));

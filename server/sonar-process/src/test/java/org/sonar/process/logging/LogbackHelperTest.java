@@ -491,7 +491,7 @@ public class LogbackHelperTest {
 
   @Test
   public void createEncoder_uses_json_output() {
-    props.set("sonar.log.useJsonOutput", "true");
+    props.set("sonar.log.jsonOutput", "true");
     RootLoggerConfig config = newRootLoggerConfigBuilder()
       .setProcessId(ProcessId.WEB_SERVER)
       .build();
