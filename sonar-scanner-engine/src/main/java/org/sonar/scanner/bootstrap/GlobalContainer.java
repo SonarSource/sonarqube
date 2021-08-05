@@ -48,8 +48,10 @@ import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.scanner.extension.ScannerCoreExtensionsInstaller;
 import org.sonar.scanner.platform.DefaultServer;
+import org.sonar.scanner.repository.DefaultMeasuresComponentLoader;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.DefaultNewCodePeriodLoader;
+import org.sonar.scanner.repository.MeasuresComponentLoader;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.NewCodePeriodLoader;
@@ -122,6 +124,7 @@ public class GlobalContainer extends ComponentContainer {
     addIfMissing(DefaultGlobalSettingsLoader.class, GlobalSettingsLoader.class);
     addIfMissing(DefaultNewCodePeriodLoader.class, NewCodePeriodLoader.class);
     addIfMissing(DefaultMetricsRepositoryLoader.class, MetricsRepositoryLoader.class);
+    addIfMissing(DefaultMeasuresComponentLoader.class, MeasuresComponentLoader.class);
   }
 
   @Override

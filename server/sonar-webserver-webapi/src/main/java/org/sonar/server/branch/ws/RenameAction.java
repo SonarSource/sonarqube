@@ -19,6 +19,7 @@
  */
 package org.sonar.server.branch.ws;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,6 +29,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -77,11 +80,25 @@ public class RenameAction implements BranchWsAction {
       ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
 
+      Optional<BranchDto> mainBranch = dbClient.branchDao().selectByUuid(dbSession, project.getUuid());
       Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), newBranchName);
       checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
       dbClient.branchDao().updateMainBranchName(dbSession, project.getUuid(), newBranchName);
+
+      // Update main branch reference in case it's used inside new_code_period project settings.
+      if (mainBranch.isPresent()) {
+        String oldBranchName = mainBranch.get().getKey();
+        List<NewCodePeriodDto> newCodePeriods = dbClient.newCodePeriodDao().selectAllByProject(dbSession, project.getUuid());
+        for (NewCodePeriodDto newCodePeriod : newCodePeriods) {
+          if (newCodePeriod.getType() == NewCodePeriodType.REFERENCE_BRANCH && oldBranchName.equals(newCodePeriod.getValue())) {
+            newCodePeriod.setValue(newBranchName);
+            dbClient.newCodePeriodDao().upsert(dbSession, newCodePeriod);
+          }
+        }
+      }
+
       dbSession.commit();
       response.noContent();
     }

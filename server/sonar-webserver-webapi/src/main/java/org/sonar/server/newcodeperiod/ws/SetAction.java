@@ -134,9 +134,7 @@ public class SetAction implements NewCodePeriodsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String typeStr = request.mandatoryParam(PARAM_TYPE);
       String valueStr = request.getParam(PARAM_VALUE).emptyAsNull().or(() -> null);
-      boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
-
-      NewCodePeriodType type = validateType(typeStr, projectKey == null, branchKey != null || isCommunityEdition);
+      NewCodePeriodType type = validateType(typeStr, projectKey == null, branchKey != null);
 
       NewCodePeriodDto dto = new NewCodePeriodDto();
       dto.setType(type);
@@ -150,10 +148,6 @@ public class SetAction implements NewCodePeriodsWsAction {
 
         if (branchKey != null) {
           branch = getBranch(dbSession, project, branchKey);
-          dto.setBranchUuid(branch.getUuid());
-        } else if (isCommunityEdition) {
-          // in CE set main branch value instead of project value
-          branch = getMainBranch(dbSession, project);
           dto.setBranchUuid(branch.getUuid());
         }
 

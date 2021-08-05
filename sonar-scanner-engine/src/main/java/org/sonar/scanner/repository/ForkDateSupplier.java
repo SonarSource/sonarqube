@@ -21,6 +21,7 @@ package org.sonar.scanner.repository;
 
 import java.time.Instant;
 import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
@@ -30,6 +31,7 @@ import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.NewCodePeriods;
 
 public class ForkDateSupplier {
@@ -37,15 +39,17 @@ public class ForkDateSupplier {
   private static final String LOG_MSG_WS = "Load New Code definition";
 
   private final NewCodePeriodLoader newCodePeriodLoader;
+  private final MeasuresComponentLoader measuresComponentLoader;
   private final BranchConfiguration branchConfiguration;
   private final DefaultInputProject project;
   private final ScmConfiguration scmConfiguration;
   private final ProjectBranches branches;
   private final AnalysisWarnings analysisWarnings;
 
-  public ForkDateSupplier(NewCodePeriodLoader newCodePeriodLoader, BranchConfiguration branchConfiguration,
+  public ForkDateSupplier(NewCodePeriodLoader newCodePeriodLoader, MeasuresComponentLoader measuresComponentLoader, BranchConfiguration branchConfiguration,
     DefaultInputProject project, ScmConfiguration scmConfiguration, ProjectBranches branches, AnalysisWarnings analysisWarnings) {
     this.newCodePeriodLoader = newCodePeriodLoader;
+    this.measuresComponentLoader = measuresComponentLoader;
     this.branchConfiguration = branchConfiguration;
     this.project = project;
     this.scmConfiguration = scmConfiguration;
@@ -75,6 +79,21 @@ public class ForkDateSupplier {
     }
 
     LOG.info("Computing New Code since fork with '{}'", referenceBranchName);
+
+    Instant scmDate = getForkDateFromScmProvider(referenceBranchName);
+
+    if (scmDate == null) {
+      LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
+      Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
+
+      scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
+              ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
+    }
+
+    return scmDate;
+  }
+
+  private Instant getForkDateFromScmProvider(String referenceBranchName) {
     if (scmConfiguration.isDisabled() || scmConfiguration.provider() == null) {
       LOG.warn("SCM provider is disabled. No New Code will be computed.");
       analysisWarnings.addUnique("The scanner failed to compute New Code because no SCM provider was found. Please check your scanner logs.");
@@ -88,6 +107,8 @@ public class ForkDateSupplier {
       analysisWarnings.addUnique("The scanner failed to compute New Code. Please check your scanner logs.");
       LOG.warn("Failed to detect fork date. No New Code will be computed.", referenceBranchName);
     }
+
     return forkdate;
   }
+
 }
