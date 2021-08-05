@@ -38,6 +38,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.DescendantProfilesSupplier.Result;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.IntegerTypeValidation;
@@ -48,6 +49,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
@@ -169,6 +171,32 @@ public class RuleActivatorTest {
     assertThat(result.get(0).getParameters()).containsEntry("min", "10");
     assertThat(result.get(0).getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(result.get(0).getInheritance()).isNull();
+  }
+
+  @Test
+  public void fail_if_rule_language_doesnt_match_qp() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo")
+      .setRepositoryKey("repo")
+      .setRuleKey("rule")
+      .setSeverity(Severity.BLOCKER));
+    QProfileDto qp = db.qualityProfiles().insert(p -> p.setLanguage("xoo2").setKee("qp").setIsBuiltIn(true));
+
+    DbSession session = db.getSession();
+    RuleActivation resetRequest = RuleActivation.create(rule.getUuid());
+    RuleActivationContext context = new RuleActivationContext.Builder()
+      .setProfiles(singletonList(qp))
+      .setBaseProfile(RulesProfileDto.from(qp))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(emptyList())
+      .setActiveRules(emptyList())
+      .setActiveRuleParams(emptyList())
+      .build();
+
+
+    assertThrows("xoo rule repo:rule cannot be activated on xoo2 profile qp", BadRequestException.class,
+      () -> underTest.activate(session, resetRequest, context));
   }
 
 

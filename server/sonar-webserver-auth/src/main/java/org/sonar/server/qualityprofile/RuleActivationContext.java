@@ -224,8 +224,6 @@ class RuleActivationContext {
     checkRequest(this.currentRule != null, "Rule with UUID %s not found", ruleUuid);
     RuleKey ruleKey = currentRule.get().getKey();
 
-    checkRequest(ruleProfile.getLanguage().equals(currentRule.get().getLanguage()),
-      "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), ruleKey, ruleProfile.getLanguage(), ruleProfile.getName());
     this.currentRulesProfile = ruleProfile;
     this.currentProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getUuid()))
