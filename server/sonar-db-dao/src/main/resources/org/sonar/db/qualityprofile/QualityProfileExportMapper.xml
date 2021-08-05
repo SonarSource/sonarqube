@@ -24,7 +24,7 @@
     p.value as value
   </sql>
 
-  <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ExportRuleDto">
+  <select id="selectByProfileUuid" resultType="org.sonar.db.qualityprofile.ExportRuleDto">
     select
     <include refid="exportRuleColumns"/>
     from active_rules a
@@ -32,8 +32,8 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
-    left join rules_metadata rm on rm.rule_uuid = r.uuid
-    where oqp.uuid = #{id, jdbcType=VARCHAR}
+    left join rules_metadata rm on rm.rule_uuid = r.uuid and rm.organization_uuid = #{organization_uuid, jdbcType=VARCHAR}
+    where oqp.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectParamsByActiveRuleUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ExportRuleParamDto">
