@@ -30,6 +30,7 @@ import AssigneeRenderer from './AssigneeRenderer';
 interface Props {
   currentUser: T.CurrentUser;
   hotspot: Hotspot;
+  organization?: string;
 
   onAssigneeChange: () => void;
 }
@@ -86,6 +87,7 @@ export class Assignee extends React.PureComponent<Props, State> {
   render() {
     const {
       currentUser,
+      organization,
       hotspot: { assigneeUser, status }
     } = this.props;
     const { editing, loading } = this.state;
@@ -95,6 +97,7 @@ export class Assignee extends React.PureComponent<Props, State> {
     return (
       <AssigneeRenderer
         assignee={assigneeUser}
+        organization={organization}
         canEdit={canEdit}
         editing={editing}
         loading={loading}

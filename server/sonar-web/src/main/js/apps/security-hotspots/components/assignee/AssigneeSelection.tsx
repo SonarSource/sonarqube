@@ -21,12 +21,14 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
 import { searchUsers } from '../../../../api/users';
+import { searchMembers } from '../../../../api/organizations';
 import { isUserActive } from '../../../../helpers/users';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
 
 interface Props {
   allowCurrentUserSelection: boolean;
   loggedInUser: T.LoggedInUser;
+  organization?: string;
   onSelect: (user?: T.UserActive) => void;
 }
 
@@ -82,16 +84,30 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
     });
   };
 
+  searchAssignees = (
+      query: string,
+      organization: string | undefined,
+      page = 1
+  ): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
+    return organization
+        ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
+          paging,
+          results: users
+        }))
+        : searchUsers({ p: page, q: query }).then(({ paging, users }) => ({ paging, results: users }));
+  };
+
   handleActualSearch = (query: string) => {
     this.setState({ loading: true, query });
-    searchUsers({ q: query })
+
+    this.searchAssignees(query, this.props.organization)
       .then(result => {
         if (this.mounted) {
           this.setState({
             loading: false,
             query,
             open: true,
-            suggestedUsers: result.users.filter(isUserActive) as T.UserActive[]
+            suggestedUsers: result.results.filter(isUserActive) as T.UserActive[]
           });
         }
       })

@@ -114,7 +114,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               <div className="display-flex-center">
                 <span className="big-spacer-right">{translate('assignee')}</span>
                 <div>
-                  <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+                  <Assignee hotspot={hotspot} organization={component.organization} onAssigneeChange={props.onUpdateHotspot} />
                 </div>
               </div>
             </div>
