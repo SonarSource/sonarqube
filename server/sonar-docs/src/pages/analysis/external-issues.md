@@ -34,6 +34,8 @@ JavaScript|`sonar.eslint.reportPaths`|Comma-delimited list of paths to JSON [ESL
 Kotlin|`sonar.androidLint.reportPaths`|Comma-delimited list of paths to AndroidLint reports
 Kotlin|`sonar.kotlin.detekt.reportPaths`|Comma-delimited list of paths to [Detekt](https://github.com/arturbosch/detekt) reports
 Kotlin|`sonar.kotlin.ktlint.reportPaths`|Comma-delimited list of paths to [Ktlint](https://ktlint.github.io/) reports
+PHP|`sonar.php.psalm.reportPaths`|Comma-delimited list of paths to [Psalm](https://github.com/vimeo/psalm) reports. Reports should be generated in the [Generic Issue Format](/analysis/generic-issue/) (run Psalm with the option `--output-format sonarqube`).
+PHP|`sonar.php.phpstan.reportPaths`|Comma-delimited list of paths to [PHPStan](https://phpstan.org/) reports. Reports should be generated in the [PHPStan JSON Output Format](https://phpstan.org/user-guide/output-format) (use the PHPStan `analyse` command with the option `--error-format=json`).
 Python|`sonar.python.pylint.reportPaths`|Comma-delimited list of paths to [Pylint](http://www.pylint.org/) reports (use `--output-format=parseable` [Pylint option](https://docs.pylint.org/en/1.6.0/output.html))
 Python|`sonar.python.bandit.reportPaths`|Comma-delimited list of paths to [Bandit](https://github.com/PyCQA/bandit/blob/master/README.rst) reports
 Python|`sonar.python.flake8.reportPaths`|Comma-delimited list of paths to [Flake8](https://flake8.pycqa.org/en/latest/) reports
