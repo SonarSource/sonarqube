@@ -26,9 +26,11 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.encoder.Encoder;
+import javax.annotation.CheckForNull;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.process.StreamGobbler;
 import org.sonar.process.ProcessId;
+import org.sonar.process.Props;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.PatternLayoutEncoder;
@@ -36,6 +38,8 @@ import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 /**
@@ -114,15 +118,24 @@ public class AppLogging {
   private static final String CONSOLE_PLAIN_APPENDER = "CONSOLE";
   private static final String APP_CONSOLE_APPENDER = "APP_CONSOLE";
   private static final String GOBBLER_PLAIN_CONSOLE = "GOBBLER_CONSOLE";
-  private static final RootLoggerConfig APP_ROOT_LOGGER_CONFIG = newRootLoggerConfigBuilder()
-    .setProcessId(ProcessId.APP)
-    .build();
 
+  private final RootLoggerConfig rootLoggerConfig;
   private final LogbackHelper helper = new LogbackHelper();
   private final AppSettings appSettings;
 
   public AppLogging(AppSettings appSettings) {
     this.appSettings = appSettings;
+    rootLoggerConfig = newRootLoggerConfigBuilder()
+      .setNodeNameField(getNodeNameWhenCluster(appSettings.getProps()))
+      .setProcessId(ProcessId.APP)
+      .build();
+  }
+
+  @CheckForNull
+  private static String getNodeNameWhenCluster(Props props) {
+    boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(),
+      Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
+    return clusterEnabled ? props.value(CLUSTER_NODE_NAME.getKey(), CLUSTER_NODE_NAME.getDefaultValue()) : null;
   }
 
   public LoggerContext configure() {
@@ -195,7 +208,7 @@ public class AppLogging {
     // logs are written to the console because we want them to be in sonar.log and the wrapper will write any log
     // from APP's System.out and System.err to sonar.log
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), APP_ROOT_LOGGER_CONFIG, ctx);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
     rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
 
     // in regular configuration, sub processes are not copying their logs to their System.out, so, the only logs to be
@@ -209,8 +222,8 @@ public class AppLogging {
 
   private void configureRootWithLogbackWritingToFile(LoggerContext ctx) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), APP_ROOT_LOGGER_CONFIG, ctx);
-    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), APP_ROOT_LOGGER_CONFIG, encoder);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
+    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), rootLoggerConfig, encoder);
     rootLogger.addAppender(fileAppender);
     rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
   }

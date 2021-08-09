@@ -33,7 +33,7 @@ import static org.sonar.process.logging.LogbackJsonLayout.DATE_FORMATTER;
 
 public class LogbackJsonLayoutTest {
 
-  private final LogbackJsonLayout underTest = new LogbackJsonLayout("web");
+  private final LogbackJsonLayout underTest = new LogbackJsonLayout("web", "");
 
   @Test
   public void test_simple_log() {
@@ -49,6 +49,25 @@ public class LogbackJsonLayoutTest {
     assertThat(json.message).isEqualTo("the message");
     assertThat(json.stacktrace).isNull();
     assertThat(json.fromMdc).isNull();
+    assertThat(json.nodename).isNull();
+  }
+
+  @Test
+  public void test_simple_log_with_hostname() {
+    LoggingEvent event = new LoggingEvent("org.foundation.Caller", (Logger) LoggerFactory.getLogger("the.logger"), Level.WARN, "the message", null, new Object[0]);
+
+    LogbackJsonLayout underTestWithNodeName = new LogbackJsonLayout("web", "my-nodename");
+    String log = underTestWithNodeName.doLayout(event);
+
+    JsonLog json = new Gson().fromJson(log, JsonLog.class);
+    assertThat(json.process).isEqualTo("web");
+    assertThat(json.timestamp).isEqualTo(DATE_FORMATTER.format(Instant.ofEpochMilli(event.getTimeStamp())));
+    assertThat(json.severity).isEqualTo("WARN");
+    assertThat(json.logger).isEqualTo("the.logger");
+    assertThat(json.message).isEqualTo("the message");
+    assertThat(json.stacktrace).isNull();
+    assertThat(json.fromMdc).isNull();
+    assertThat(json.nodename).isEqualTo("my-nodename");
   }
 
   @Test
@@ -140,5 +159,6 @@ public class LogbackJsonLayoutTest {
     private String message;
     private String fromMdc;
     private String[] stacktrace;
+    private String nodename;
   }
 }

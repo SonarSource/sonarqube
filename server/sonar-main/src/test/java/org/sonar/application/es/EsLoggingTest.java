@@ -112,6 +112,18 @@ public class EsLoggingTest {
     assertThat(properties.getProperty("rootLogger.level")).isEqualTo("TRACE");
   }
 
+  @Test
+  public void createProperties_adds_nodename_if_cluster_property_is_set() throws IOException {
+    File logDir = temporaryFolder.newFolder();
+    Properties properties = underTest.createProperties(
+      newProps(
+        "sonar.cluster.enabled", "true",
+          "sonar.cluster.node.name", "my-node"),
+      logDir);
+
+    assertThat(properties.getProperty("appender.file_es.layout.pattern")).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level my-node es[][%logger{1.}] %msg%n");
+  }
+
   private static Props newProps(String... propertyKeysAndValues) {
     assertThat(propertyKeysAndValues.length % 2).describedAs("Number of parameters must be even").isZero();
     Properties properties = new Properties();

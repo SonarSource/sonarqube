@@ -52,10 +52,10 @@ import org.sonar.process.Props;
 import static java.lang.String.format;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
+import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL;
 import static org.sonar.process.ProcessProperties.Property.LOG_MAX_FILES;
 import static org.sonar.process.ProcessProperties.Property.LOG_ROLLING_POLICY;
-import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 /**
@@ -232,7 +232,7 @@ public class LogbackHelper extends AbstractLogHelper {
   public Encoder<ILoggingEvent> createEncoder(Props props, RootLoggerConfig config, LoggerContext context) {
     if (props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(), Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()))) {
       LayoutWrappingEncoder encoder = new LayoutWrappingEncoder<>();
-      encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey()));
+      encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField()));
       encoder.setContext(context);
       encoder.start();
       return encoder;

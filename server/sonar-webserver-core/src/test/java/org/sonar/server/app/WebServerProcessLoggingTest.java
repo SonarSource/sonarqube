@@ -133,6 +133,24 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
+  public void log_for_cluster_changes_layout_in_file_and_console() {
+    props.set("sonar.cluster.enabled", "true");
+    props.set("sonar.cluster.node.name", "my-node");
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    FileAppender fileAppender = (FileAppender) root.getAppender("file_web");
+    PatternLayoutEncoder encoder = (PatternLayoutEncoder) fileAppender.getEncoder();
+
+    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level my-node web[%X{HTTP_REQUEST_ID}][%logger{20}] %msg%n");
+
+    Logger startup = ctx.getLogger("startup");
+    ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) startup.getAppender("CONSOLE");
+    PatternLayoutEncoder patternEncoder = (PatternLayoutEncoder) consoleAppender.getEncoder();
+    assertThat(patternEncoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level my-node app[][%logger{20}] %msg%n");
+  }
+
+  @Test
   public void default_level_for_root_logger_is_INFO() {
     LoggerContext ctx = underTest.configure(props);
 

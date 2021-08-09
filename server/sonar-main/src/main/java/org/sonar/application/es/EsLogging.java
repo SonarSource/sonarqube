@@ -22,6 +22,7 @@ package org.sonar.application.es;
 import ch.qos.logback.classic.Level;
 import java.io.File;
 import java.util.Properties;
+import javax.annotation.CheckForNull;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -29,6 +30,8 @@ import org.sonar.process.logging.Log4JPropertiesBuilder;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
 import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
@@ -37,7 +40,11 @@ public class EsLogging {
 
   public Properties createProperties(Props props, File logDir) {
     Log4JPropertiesBuilder log4JPropertiesBuilder = new Log4JPropertiesBuilder(props);
-    RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(ProcessId.ELASTICSEARCH).build();
+    RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setNodeNameField(getNodeNameWhenCluster(props))
+      .setProcessId(ProcessId.ELASTICSEARCH)
+      .build();
+
     String logPattern = log4JPropertiesBuilder.buildLogPattern(config);
 
     return log4JPropertiesBuilder.internalLogLevel(Level.ERROR)
@@ -59,7 +66,14 @@ public class EsLogging {
 
   private static boolean isJsonOutput(Props props) {
     return props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(),
-        Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()));
+      Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()));
+  }
+
+  @CheckForNull
+  private static String getNodeNameWhenCluster(Props props) {
+    boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(),
+      Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
+    return clusterEnabled ? props.value(CLUSTER_NODE_NAME.getKey(), CLUSTER_NODE_NAME.getDefaultValue()) : null;
   }
 
   /**

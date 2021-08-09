@@ -238,7 +238,14 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
    * json pattern based on https://github.com/elastic/elasticsearch/blob/7.13/server/src/main/java/org/elasticsearch/common/logging/ESJsonLayout.java
    */
   private String getJsonPattern() {
-    return "{"
+    String json = "{";
+    if (!"".equals(config.getNodeNameField())) {
+      json = json
+        + jsonKey("nodename")
+        + inQuotes(config.getNodeNameField())
+        + ",";
+    }
+    return json
       + jsonKey("process")
       + inQuotes(config.getProcessId().getKey())
       + ","

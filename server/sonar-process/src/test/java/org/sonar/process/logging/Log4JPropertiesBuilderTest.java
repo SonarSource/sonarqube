@@ -354,6 +354,35 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
+  public void enable_json_output_should_include_hostname_if_set() throws IOException {
+    File logDir = temporaryFolder.newFolder();
+    RootLoggerConfig esRootLoggerConfigWithHostname = newRootLoggerConfigBuilder()
+      .setProcessId(ProcessId.ELASTICSEARCH)
+      .setNodeNameField("my-node")
+      .build();
+    String expectedPattern = "{\"nodename\": \"my-node\",\"process\": \"es\",\"timestamp\": \"%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}\","
+      + "\"severity\": \"%p\",\"logger\": \"%c{1.}\",\"message\": \"%notEmpty{%enc{%marker}{JSON} }%enc{%.-10000m}{JSON}\"%exceptionAsJson }" + System.lineSeparator();
+
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(ROLLING_POLICY_PROPERTY, "none")
+      .enableAllLogsToConsole(true)
+      .rootLoggerConfig(esRootLoggerConfigWithHostname)
+      .jsonOutput(true)
+      .logDir(logDir);
+    verifyProperties(underTest.build(),
+      "appender.stdout.type", "Console",
+      "appender.stdout.name", "stdout",
+      "appender.stdout.layout.type", "PatternLayout",
+      "appender.stdout.layout.pattern", expectedPattern,
+      "rootLogger.appenderRef.stdout.ref", "stdout",
+      "appender.file_es.layout.type", "PatternLayout",
+      "appender.file_es.layout.pattern", expectedPattern,
+      "appender.file_es.fileName", new File(logDir, "es.log").getAbsolutePath(),
+      "appender.file_es.name", "file_es",
+      "rootLogger.appenderRef.file_es.ref", "file_es",
+      "appender.file_es.type", "File");
+  }
+
+  @Test
   public void apply_fails_with_IAE_if_LogLevelConfig_does_not_have_rootLoggerName_of_Log4J() throws IOException {
     LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(randomAlphanumeric(2)).build();
     File logDir = temporaryFolder.newFolder();

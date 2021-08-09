@@ -27,12 +27,15 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.encoder.Encoder;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.RootLoggerConfig;
 
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
@@ -132,11 +135,19 @@ public abstract class ServerProcessLogging {
   private void configureRootLogger(Props props) {
     RootLoggerConfig config = newRootLoggerConfigBuilder()
       .setProcessId(processId)
+      .setNodeNameField(getNodeNameWhenCluster(props))
       .setThreadIdFieldPattern(threadIdFieldPattern)
       .build();
     Encoder<ILoggingEvent> encoder = helper.createEncoder(props, config, helper.getRootContext());
     helper.configureGlobalFileLog(props, config, encoder);
     helper.configureForSubprocessGobbler(props, encoder);
+  }
+
+  @CheckForNull
+  private static String getNodeNameWhenCluster(Props props) {
+    boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(),
+      Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
+    return clusterEnabled ? props.value(CLUSTER_NODE_NAME.getKey(), CLUSTER_NODE_NAME.getDefaultValue()) : null;
   }
 
   /**
@@ -145,6 +156,7 @@ public abstract class ServerProcessLogging {
    */
   private void configureDirectToConsoleLoggers(Props props, LoggerContext context, String... loggerNames) {
     RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setNodeNameField(getNodeNameWhenCluster(props))
       .setProcessId(ProcessId.APP)
       .setThreadIdFieldPattern("")
       .build();

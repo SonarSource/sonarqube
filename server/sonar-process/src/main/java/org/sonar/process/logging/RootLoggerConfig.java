@@ -19,7 +19,9 @@
  */
 package org.sonar.process.logging;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
@@ -27,14 +29,20 @@ import static java.util.Objects.requireNonNull;
 public final class RootLoggerConfig {
   private final ProcessId processId;
   private final String threadIdFieldPattern;
+  private final String nodeNameField;
 
   private RootLoggerConfig(Builder builder) {
     this.processId = requireNonNull(builder.processId);
     this.threadIdFieldPattern = builder.threadIdFieldPattern;
+    this.nodeNameField = Optional.ofNullable(builder.nodeNameField).orElse("");
   }
 
   public static Builder newRootLoggerConfigBuilder() {
     return new Builder();
+  }
+
+  public String getNodeNameField() {
+    return nodeNameField;
   }
 
   public ProcessId getProcessId() {
@@ -49,9 +57,15 @@ public final class RootLoggerConfig {
     @CheckForNull
     private ProcessId processId;
     private String threadIdFieldPattern = "";
+    private String nodeNameField;
 
     private Builder() {
       // prevents instantiation outside RootLoggerConfig, use static factory method
+    }
+
+    public Builder setNodeNameField(@Nullable String nodeNameField) {
+      this.nodeNameField = nodeNameField;
+      return this;
     }
 
     public Builder setProcessId(ProcessId processId) {

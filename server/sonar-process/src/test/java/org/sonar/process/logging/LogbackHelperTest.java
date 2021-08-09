@@ -100,6 +100,16 @@ public class LogbackHelperTest {
   }
 
   @Test
+  public void buildLogPattern_adds_nodename() {
+    String pattern = underTest.buildLogPattern(newRootLoggerConfigBuilder()
+      .setProcessId(ProcessId.ELASTICSEARCH)
+      .setNodeNameField("my-nodename")
+      .build());
+
+    assertThat(pattern).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level my-nodename es[][%logger{20}] %msg%n");
+  }
+
+  @Test
   public void buildLogPattern_puts_threadIdFieldPattern_from_RootLoggerConfig_non_null() {
     String threadIdFieldPattern = RandomStringUtils.randomAlphabetic(5);
     String pattern = underTest.buildLogPattern(

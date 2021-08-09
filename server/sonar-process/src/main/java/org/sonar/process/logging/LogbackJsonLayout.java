@@ -51,9 +51,11 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
 
   private final String processKey;
+  private final String nodeName;
 
-  public LogbackJsonLayout(String processKey) {
+  public LogbackJsonLayout(String processKey, String nodeName) {
     this.processKey = requireNonNull(processKey);
+    this.nodeName = nodeName;
   }
 
   String getProcessKey() {
@@ -65,6 +67,9 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
     StringWriter output = new StringWriter();
     try (JsonWriter json = new JsonWriter(output)) {
       json.beginObject();
+      if (!"".equals(nodeName)) {
+        json.name("nodename").value(nodeName);
+      }
       json.name("process").value(processKey);
       for (Map.Entry<String, String> entry : event.getMDCPropertyMap().entrySet()) {
         if (entry.getValue() != null) {

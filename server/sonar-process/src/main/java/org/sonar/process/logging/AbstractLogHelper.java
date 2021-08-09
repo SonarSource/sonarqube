@@ -29,10 +29,8 @@ import static java.lang.String.format;
 public abstract class AbstractLogHelper {
   static final Level[] ALLOWED_ROOT_LOG_LEVELS = new Level[] {Level.TRACE, Level.DEBUG, Level.INFO};
 
-  private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
-  private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
-  private static final String LOGGER_NAME_PLACEHOLDER = "YYYY";
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][YYYY] %msg%n";
+  private static final String PREFIX_LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
+  private static final String SUFFIX_LOG_FORMAT = " %msg%n";
   private final String loggerNamePattern;
 
   protected AbstractLogHelper(String loggerNamePattern) {
@@ -42,10 +40,12 @@ public abstract class AbstractLogHelper {
   public abstract String getRootLoggerName();
 
   public String buildLogPattern(RootLoggerConfig config) {
-    return LOG_FORMAT
-      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessId().getKey())
-      .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern())
-      .replace(LOGGER_NAME_PLACEHOLDER, loggerNamePattern);
+    return PREFIX_LOG_FORMAT
+      + (config.getNodeNameField().isBlank() ? "" : (config.getNodeNameField() + " "))
+      + config.getProcessId().getKey()
+      + "[" + config.getThreadIdFieldPattern() + "]"
+      + "[" + loggerNamePattern + "]"
+      + SUFFIX_LOG_FORMAT;
   }
 
   /**
