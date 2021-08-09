@@ -35,6 +35,8 @@ interface Props {
   selected?: T.ComponentMeasure;
 }
 
+const BASE_COLUMN_COUNT = 4;
+
 export class Components extends React.PureComponent<Props> {
   render() {
     const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
@@ -43,7 +45,7 @@ export class Components extends React.PureComponent<Props> {
       Object.keys(this.props.metrics)
     );
     const metrics = metricKeys.map(metric => this.props.metrics[metric]);
-    const colSpan = metrics.length + 4;
+    const colSpan = metrics.length + BASE_COLUMN_COUNT;
     const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
 
     return (
@@ -63,13 +65,18 @@ export class Components extends React.PureComponent<Props> {
                 branchLike={branchLike}
                 canBePinned={canBePinned}
                 component={baseComponent}
+                hasBaseComponent={false}
                 key={baseComponent.key}
                 metrics={metrics}
                 rootComponent={rootComponent}
               />
               <tr className="blank">
-                <td colSpan={3}>&nbsp;</td>
-                <td colSpan={colSpan}>&nbsp;</td>
+                <td colSpan={3}>
+                  <hr className="null-spacer-top" />
+                </td>
+                <td colSpan={colSpan}>
+                  <hr className="null-spacer-top" />
+                </td>
               </tr>
             </>
           )}
@@ -81,6 +88,7 @@ export class Components extends React.PureComponent<Props> {
                 canBePinned={canBePinned}
                 canBrowse={true}
                 component={component}
+                hasBaseComponent={baseComponent !== undefined}
                 key={component.key}
                 metrics={metrics}
                 previous={index > 0 ? list[index - 1] : undefined}

@@ -31,6 +31,7 @@ interface Props {
   canBePinned?: boolean;
   canBrowse?: boolean;
   component: T.ComponentMeasure;
+  hasBaseComponent: boolean;
   metrics: T.Metric[];
   previous?: T.ComponentMeasure;
   rootComponent: T.ComponentMeasure;
@@ -44,6 +45,7 @@ export class Component extends React.PureComponent<Props> {
       canBePinned = true,
       canBrowse = false,
       component,
+      hasBaseComponent,
       metrics,
       previous,
       rootComponent,
@@ -73,6 +75,7 @@ export class Component extends React.PureComponent<Props> {
           </td>
         )}
         <td className="code-name-cell">
+          {hasBaseComponent && <div className="code-child-component-icon" />}
           <ComponentName
             branchLike={branchLike}
             canBrowse={canBrowse}

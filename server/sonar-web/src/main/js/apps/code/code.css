@@ -88,3 +88,14 @@
 table > thead > tr.code-components-header > th {
   vertical-align: middle;
 }
+
+.code-child-component-icon {
+  display: inline-block;
+  border-left: 1px solid var(--secondFontColor);
+  border-bottom: 1px solid var(--secondFontColor);
+  margin-left: 8px;
+  margin-bottom: 8px;
+  margin-right: 4px;
+  height: 8px;
+  width: 4px;
+}

@@ -36,6 +36,7 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
+      hasBaseComponent={false}
       key="foo"
       metrics={
         Array [
@@ -61,12 +62,16 @@ exports[`renders correctly 1`] = `
       <td
         colSpan={3}
       >
-         
+        <hr
+          className="null-spacer-top"
+        />
       </td>
       <td
         colSpan={5}
       >
-         
+        <hr
+          className="null-spacer-top"
+        />
       </td>
     </tr>
     <withScrollTo(Component)
@@ -79,6 +84,7 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
+      hasBaseComponent={true}
       key="foo"
       metrics={
         Array [
@@ -126,6 +132,7 @@ exports[`renders correctly for a search 1`] = `
           "qualifier": "TRK",
         }
       }
+      hasBaseComponent={false}
       key="foo"
       metrics={Array []}
       rootComponent={
@@ -194,6 +201,7 @@ exports[`renders correctly for leak 1`] = `
           "qualifier": "TRK",
         }
       }
+      hasBaseComponent={false}
       key="foo"
       metrics={
         Array [
@@ -219,12 +227,16 @@ exports[`renders correctly for leak 1`] = `
       <td
         colSpan={3}
       >
-         
+        <hr
+          className="null-spacer-top"
+        />
       </td>
       <td
         colSpan={5}
       >
-         
+        <hr
+          className="null-spacer-top"
+        />
       </td>
     </tr>
     <withScrollTo(Component)
@@ -245,6 +257,7 @@ exports[`renders correctly for leak 1`] = `
           "qualifier": "TRK",
         }
       }
+      hasBaseComponent={true}
       key="foo"
       metrics={
         Array [

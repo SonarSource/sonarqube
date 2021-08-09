@@ -24,6 +24,7 @@ import { Component } from '../Component';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ hasBaseComponent: true })).toMatchSnapshot('with base component');
 });
 
 it('should render correctly for a file', () => {
@@ -41,6 +42,7 @@ function shallowRender(props: Partial<Component['props']> = {}) {
           { metric: 'vulnerabilities', value: '1' }
         ]
       })}
+      hasBaseComponent={false}
       metrics={[mockMetric({ key: 'bugs' }), mockMetric({ key: 'vulnerabilities' })]}
       rootComponent={mockComponentMeasure()}
       {...props}
