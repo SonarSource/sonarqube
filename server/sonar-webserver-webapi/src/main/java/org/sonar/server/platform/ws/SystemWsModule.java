@@ -30,6 +30,11 @@ public class SystemWsModule extends Module {
       DbMigrationStatusAction.class,
       HealthActionSupport.class,
       HealthAction.class,
+
+      LivenessCheckerImpl.class,
+      LivenessActionSupport.class,
+      LivenessAction.class,
+
       InfoAction.class,
       LogsAction.class,
       MigrateDbAction.class,

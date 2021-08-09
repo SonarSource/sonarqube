@@ -19,19 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
-
-public class SystemWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new SystemWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 15);
-  }
-
-
+public interface LivenessChecker {
+  boolean liveness();
 }

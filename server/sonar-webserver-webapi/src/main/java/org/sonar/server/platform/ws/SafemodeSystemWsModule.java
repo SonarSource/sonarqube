@@ -30,8 +30,9 @@ public class SafemodeSystemWsModule extends Module {
       DbMigrationStatusAction.class,
       HealthActionSupport.class,
       SafeModeHealthAction.class,
-      SystemWs.class
-
-    );
+      SafeModeLivenessCheckerImpl.class,
+      LivenessActionSupport.class,
+      SafeModeLivenessAction.class,
+      SystemWs.class);
   }
 }
