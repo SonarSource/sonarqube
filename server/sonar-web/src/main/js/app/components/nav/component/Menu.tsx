@@ -291,6 +291,7 @@ export class Menu extends React.PureComponent<Props> {
       this.renderBranchesLink(query, isProject),
       this.renderBaselineLink(query, isApplication, isPortfolio),
       this.renderConsoleAppLink(query, isApplication),
+      this.renderReportSettingsLink(query, isApplication),
       ...this.renderAdminExtensions(query, isApplication),
       this.renderProfilesLink(query),
       this.renderQualityGateLink(query),
@@ -380,6 +381,23 @@ export class Menu extends React.PureComponent<Props> {
       <li key="app-console">
         <Link activeClassName="active" to={{ pathname: '/application/console', query }}>
           {translate('application_console.page')}
+        </Link>
+      </li>
+    );
+  };
+
+  renderReportSettingsLink = (query: Query, isApplication: boolean) => {
+    const extensions = this.getConfiguration().extensions || [];
+    const hasGovernance = extensions.find(e => e.key === 'governance/console');
+
+    if (!isApplication || !hasGovernance) {
+      return null;
+    }
+
+    return (
+      <li key="report-settings">
+        <Link activeClassName="active" to={{ pathname: '/application/settings', query }}>
+          {translate('application_settings.report')}
         </Link>
       </li>
     );

@@ -17,7 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Setting, SettingWithCategory } from '../../types/settings';
+import { Setting, SettingCategoryDefinition, SettingWithCategory } from '../../types/settings';
+
+export function mockDefinition(
+  overrides: Partial<SettingCategoryDefinition> = {}
+): SettingCategoryDefinition {
+  return {
+    key: 'foo',
+    category: 'foo category',
+    fields: [],
+    options: [],
+    subCategory: 'foo subCat',
+    ...overrides
+  };
+}
 
 export function mockSetting(overrides: Partial<Setting> = {}): Setting {
   return {

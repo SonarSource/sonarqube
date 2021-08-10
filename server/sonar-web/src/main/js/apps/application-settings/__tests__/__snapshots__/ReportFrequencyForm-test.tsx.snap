@@ -1,0 +1,108 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: changed 1`] = `
+<div>
+  <h2>
+    application_settings.report.frequency
+  </h2>
+  <div
+    className="markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "description",
+      }
+    }
+  />
+  <Select
+    className="input-medium"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "Daily",
+          "value": "Daily",
+        },
+        Object {
+          "label": "Weekly",
+          "value": "Weekly",
+        },
+        Object {
+          "label": "Monthly",
+          "value": "Monthly",
+        },
+      ]
+    }
+    value="Weekly"
+  />
+  <div
+    className="display-flex-center big-spacer-top"
+  >
+    <Button
+      className="spacer-right"
+      onClick={[Function]}
+    >
+      reset_verb
+    </Button>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: default 1`] = `
+<div>
+  <h2>
+    application_settings.report.frequency
+  </h2>
+  <div
+    className="markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "description",
+      }
+    }
+  />
+  <Select
+    className="input-medium"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "Daily",
+          "value": "Daily",
+        },
+        Object {
+          "label": "Weekly",
+          "value": "Weekly",
+        },
+        Object {
+          "label": "Monthly",
+          "value": "Monthly",
+        },
+      ]
+    }
+    value="Monthly"
+  />
+  <div
+    className="display-flex-center big-spacer-top"
+  />
+</div>
+`;
+
+exports[`should render correctly: no description 1`] = `
+<div>
+  <h2>
+    application_settings.report.frequency
+  </h2>
+  <Select
+    className="input-medium"
+    clearable={false}
+    onChange={[Function]}
+    options={Array []}
+    value="Monthly"
+  />
+  <div
+    className="display-flex-center big-spacer-top"
+  />
+</div>
+`;

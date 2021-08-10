@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="page page-limited application-settings"
+>
+  <h1>
+    application_settings.page
+  </h1>
+  <div
+    className="boxed-group big-padded big-spacer-top"
+  >
+    <DeferredSpinner
+      loading={false}
+    >
+      <div>
+        <ReportFrequencyForm
+          definition={
+            Object {
+              "category": "foo category",
+              "defaultValue": "Monthly",
+              "description": "description",
+              "fields": Array [],
+              "key": "sonar.governance.report.project.branch.frequency",
+              "options": Array [
+                "Daily",
+                "Weekly",
+                "Monthly",
+              ],
+              "subCategory": "foo subCat",
+            }
+          }
+          frequency="Monthly"
+          onSave={[Function]}
+        />
+      </div>
+    </DeferredSpinner>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="page page-limited application-settings"
+>
+  <h1>
+    application_settings.page
+  </h1>
+  <div
+    className="boxed-group big-padded big-spacer-top"
+  >
+    <DeferredSpinner
+      loading={true}
+    >
+      <div />
+    </DeferredSpinner>
+  </div>
+</div>
+`;
