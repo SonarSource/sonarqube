@@ -119,9 +119,13 @@ exports[`should render correctly: content for bitbucket 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -234,9 +238,13 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -347,9 +355,13 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -460,9 +472,13 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -564,9 +580,13 @@ exports[`should render correctly: content for github 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -667,9 +687,13 @@ exports[`should render correctly: content for github, no binding 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -775,9 +799,13 @@ exports[`should render correctly: content for gitlab 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;

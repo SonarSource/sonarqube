@@ -20,7 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button, ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { rawSizes } from '../../../app/theme';
 import {
   AlmKeys,
   AlmSettingsInstance,
@@ -98,7 +100,10 @@ export default function WebhookStep(props: WebhookStepProps) {
             />
           </p>
           <ol className="list-styled">{renderAlmSpecificInstructions(props)}</ol>
-          <Button onClick={props.onDone}>{translate('continue')}</Button>
+          <Button className="big-spacer-top" onClick={props.onDone}>
+            {translate('continue')}
+            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
+          </Button>
         </div>
       )}
       stepNumber={2}

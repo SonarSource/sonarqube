@@ -20,7 +20,6 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/testMocks';
-import { AlmKeys } from '../../../../types/alm-settings';
 import RenderOptions from '../../components/RenderOptions';
 import Step from '../../components/Step';
 import { renderStepContent } from '../../test-utils';
@@ -72,10 +71,12 @@ function selectBuildTool(wrapper: ShallowWrapper<JenkinsfileStepProps>, tool: Bu
 function shallowRender(props: Partial<JenkinsfileStepProps> = {}) {
   return shallow<JenkinsfileStepProps>(
     <JenkinsfileStep
-      alm={AlmKeys.BitbucketCloud}
       baseUrl="nice_url"
       component={mockComponent()}
       hasCLanguageFeature={false}
+      finished={false}
+      onDone={jest.fn()}
+      onOpen={jest.fn()}
       open={true}
       {...props}
     />

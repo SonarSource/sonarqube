@@ -25,9 +25,13 @@ exports[`it should render correctly for azure: content 1`] = `
     className="list-styled"
   />
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -88,9 +92,13 @@ exports[`it should render correctly for bitbucket: content 1`] = `
     />
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -150,9 +158,13 @@ exports[`it should render correctly for bitbucketcloud: content 1`] = `
     />
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -211,9 +223,13 @@ exports[`it should render correctly for github: content 1`] = `
     />
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -258,9 +274,13 @@ exports[`it should render correctly for gitlab: content 1`] = `
     />
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;

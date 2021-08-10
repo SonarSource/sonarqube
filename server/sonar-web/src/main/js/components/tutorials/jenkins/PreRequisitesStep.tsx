@@ -22,7 +22,10 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { rawSizes } from '../../../app/theme';
 import { AlmKeys } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
@@ -47,12 +50,12 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
       open={open}
       renderForm={() => (
         <div className="boxed-group-inner">
-          <p className="big-spacer-bottom">
+          <Alert className="big-spacer-bottom" variant="warning">
             <SentenceWithHighlights
-              highlightKeys={['must_have']}
+              highlightKeys={['installed', 'configured']}
               translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
             />
-          </p>
+          </Alert>
           <ul className="list-styled big-spacer-bottom">
             {branchesEnabled && (
               <li>
@@ -98,8 +101,9 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
               onCheck={props.onChangeSkipNextTime}
             />
           </p>
-          <Button onClick={props.onDone}>
+          <Button className="big-spacer-top" onClick={props.onDone}>
             {translate('onboarding.tutorial.with.jenkins.prereqs.done')}
+            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
           </Button>
         </div>
       )}

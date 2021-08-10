@@ -91,8 +91,8 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
       </li>
       <li>
         <SentenceWithHighlights
-          highlightKeys={['create']}
-          translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+          highlightKeys={['add_webhook']}
+          translationKey="onboarding.tutorial.with.jenkins.webhook.github.step3"
         />
       </li>
     </>

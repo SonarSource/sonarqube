@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmKeys } from '../../../types/alm-settings';
+import { rawSizes } from '../../../app/theme';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
-import AllSet from '../components/AllSet';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
 import { BuildTools } from '../types';
@@ -33,10 +34,12 @@ import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
-  alm: AlmKeys;
   baseUrl: string;
   component: T.Component;
   hasCLanguageFeature: boolean;
+  finished: boolean;
+  onDone: () => void;
+  onOpen: () => void;
   open: boolean;
 }
 
@@ -56,7 +59,7 @@ const BUILDTOOL_COMPONENT_MAP: {
 };
 
 export function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { alm, component, hasCLanguageFeature, baseUrl, open } = props;
+  const { component, hasCLanguageFeature, baseUrl, finished, open } = props;
   const [buildTool, setBuildTool] = React.useState<BuildTools>();
   const buildToolOrder = Object.keys(BUILDTOOL_COMPONENT_MAP);
   if (!hasCLanguageFeature) {
@@ -64,7 +67,8 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
   }
   return (
     <Step
-      finished={false}
+      finished={finished}
+      onOpen={props.onOpen}
       open={open}
       renderForm={() => (
         <div className="boxed-group-inner">
@@ -88,10 +92,10 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
               React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], { component, baseUrl })}
           </ol>
           {buildTool !== undefined && (
-            <>
-              <hr className="huge-spacer-top huge-spacer-bottom" />
-              <AllSet alm={alm} />
-            </>
+            <Button className="big-spacer-top" onClick={props.onDone}>
+              {translate('tutorials.finish')}
+              <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
+            </Button>
           )}
         </div>
       )}

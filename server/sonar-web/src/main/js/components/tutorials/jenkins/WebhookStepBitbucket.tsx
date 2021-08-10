@@ -157,7 +157,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
         ) : (
           <SentenceWithHighlights
             highlightKeys={['create']}
-            translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step3"
           />
         )}
       </li>

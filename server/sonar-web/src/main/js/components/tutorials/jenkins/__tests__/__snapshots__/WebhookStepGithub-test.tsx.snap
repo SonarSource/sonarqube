@@ -65,10 +65,10 @@ exports[`should render correctly 1`] = `
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "create",
+          "add_webhook",
         ]
       }
-      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+      translationKey="onboarding.tutorial.with.jenkins.webhook.github.step3"
     />
   </li>
 </Fragment>
@@ -134,10 +134,10 @@ exports[`should render correctly: with branches disabled 1`] = `
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "create",
+          "add_webhook",
         ]
       }
-      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+      translationKey="onboarding.tutorial.with.jenkins.webhook.github.step3"
     />
   </li>
 </Fragment>
@@ -204,10 +204,10 @@ exports[`should render correctly: with no alm binding 1`] = `
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "create",
+          "add_webhook",
         ]
       }
-      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+      translationKey="onboarding.tutorial.with.jenkins.webhook.github.step3"
     />
   </li>
 </Fragment>

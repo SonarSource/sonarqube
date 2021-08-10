@@ -19,7 +19,9 @@
  */
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { rawSizes } from '../../../app/theme';
 import { AlmKeys } from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
@@ -114,7 +116,10 @@ export default function PipelineStep(props: PipelineStepProps) {
               />
             </li>
           </ol>
-          <Button onClick={props.onDone}>{translate('continue')}</Button>
+          <Button className="big-spacer-top" onClick={props.onDone}>
+            {translate('continue')}
+            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
+          </Button>
         </div>
       )}
       stepNumber={1}

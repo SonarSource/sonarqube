@@ -36,50 +36,56 @@ export function AllSet(props: AllSetProps) {
   } = props;
 
   return (
-    <div className="abs-width-600">
-      <p className="big-spacer-bottom">
-        <SentenceWithHighlights
-          highlightKeys={['all_set']}
-          translationKey="onboarding.tutorial.ci_outro.all_set"
-        />
-      </p>
-      <div className="display-flex-row big-spacer-bottom">
-        <div>
-          <img
-            alt="" // Should be ignored by screen readers
-            className="big-spacer-right"
-            width={30}
-            src={`${getBaseUrl()}/images/tutorials/commit.svg`}
+    <>
+      <div className="abs-width-600">
+        <p className="big-spacer-bottom">
+          <SentenceWithHighlights
+            highlightKeys={['all_set']}
+            translationKey="onboarding.tutorial.ci_outro.all_set"
           />
+        </p>
+        <div className="display-flex-row big-spacer-bottom">
+          <div>
+            <img
+              alt="" // Should be ignored by screen readers
+              className="big-spacer-right"
+              width={30}
+              src={`${getBaseUrl()}/images/tutorials/commit.svg`}
+            />
+          </div>
+          <div>
+            <p className="little-spacer-bottom">
+              <strong>{translate('onboarding.tutorial.ci_outro.commit')}</strong>
+            </p>
+            <p>
+              {branchesEnabled
+                ? translate('onboarding.tutorial.ci_outro.commit.why', alm)
+                : translate('onboarding.tutorial.ci_outro.commit.why.no_branches')}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="little-spacer-bottom">
-            <strong>{translate('onboarding.tutorial.ci_outro.commit')}</strong>
-          </p>
-          <p>
-            {branchesEnabled
-              ? translate('onboarding.tutorial.ci_outro.commit.why', alm)
-              : translate('onboarding.tutorial.ci_outro.commit.why.no_branches')}
-          </p>
+        <div className="display-flex-row">
+          <div>
+            <img
+              alt="" // Should be ignored by screen readers
+              className="big-spacer-right"
+              width={30}
+              src={`${getBaseUrl()}/images/tutorials/refresh.svg`}
+            />
+          </div>
+          <div>
+            <p className="little-spacer-bottom">
+              <strong>{translate('onboarding.tutorial.ci_outro.refresh')}</strong>
+            </p>
+            <p>{translate('onboarding.tutorial.ci_outro.refresh.why')}</p>
+          </div>
         </div>
       </div>
-      <div className="display-flex-row huge-spacer-bottom">
-        <div>
-          <img
-            alt="" // Should be ignored by screen readers
-            className="big-spacer-right"
-            width={30}
-            src={`${getBaseUrl()}/images/tutorials/refresh.svg`}
-          />
-        </div>
-        <div>
-          <p className="little-spacer-bottom">
-            <strong>{translate('onboarding.tutorial.ci_outro.refresh')}</strong>
-          </p>
-          <p>{translate('onboarding.tutorial.ci_outro.refresh.why')}</p>
-        </div>
+      <div className="huge-spacer-bottom huge-spacer-top big-padded-top text-muted display-flex-center display-flex-justify-center">
+        <i className="spinner spacer-right" />
+        {translate('onboarding.tutorial.ci_outro.waiting_for_fist_analysis')}
       </div>
-    </div>
+    </>
   );
 }
 

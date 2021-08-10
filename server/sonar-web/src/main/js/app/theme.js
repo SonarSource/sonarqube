@@ -19,6 +19,7 @@
  */
 // IMPORTANT: any change in this file requires restart of the dev server
 const grid = 8;
+const baseFontSizeRaw = 13;
 
 module.exports = {
   colors: {
@@ -143,7 +144,7 @@ module.exports = {
   sizes: {
     gridSize: `${grid}px`,
 
-    baseFontSize: '13px',
+    baseFontSize: `${baseFontSizeRaw}px`,
     verySmallFontSize: '10px',
     smallFontSize: '12px',
     mediumFontSize: '14px',
@@ -168,6 +169,7 @@ module.exports = {
 
   rawSizes: {
     grid,
+    baseFontSizeRaw,
     globalNavHeightRaw: 6 * grid,
     globalNavContentHeightRaw: 4 * grid,
     contextNavHeightRaw: 9 * grid

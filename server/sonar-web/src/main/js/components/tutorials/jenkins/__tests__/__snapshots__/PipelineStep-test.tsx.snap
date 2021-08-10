@@ -92,9 +92,13 @@ exports[`should render correctly: content 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -218,9 +222,13 @@ exports[`should render correctly: gitlab content 1`] = `
     </li>
   </ol>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     continue
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;

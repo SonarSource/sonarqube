@@ -27,6 +27,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import AllSetStep from '../components/AllSetStep';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
@@ -49,7 +50,8 @@ enum Steps {
   PreRequisites = 1,
   MultiBranchPipeline = 2,
   Webhook = 3,
-  Jenkinsfile = 4
+  Jenkinsfile = 4,
+  AllSet = 5
 }
 
 const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
@@ -135,11 +137,15 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
           />
 
           <JenkinsfileStep
-            alm={alm}
             component={component}
             baseUrl={baseUrl}
+            finished={step > Steps.Jenkinsfile}
+            onDone={() => setStep(Steps.AllSet)}
+            onOpen={() => setStep(Steps.Jenkinsfile)}
             open={step === Steps.Jenkinsfile}
           />
+
+          <AllSetStep alm={alm} open={step === Steps.AllSet} stepNumber={4} />
         </>
       )}
     </>

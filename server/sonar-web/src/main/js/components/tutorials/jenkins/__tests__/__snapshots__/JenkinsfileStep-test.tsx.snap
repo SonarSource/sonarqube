@@ -50,14 +50,15 @@ exports[`should render correctly for .NET 1`] = `
       }
     />
   </ol>
-  <React.Fragment>
-    <hr
-      className="huge-spacer-top huge-spacer-bottom"
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    tutorials.finish
+    <ChevronRightIcon
+      size={13}
     />
-    <Connect(withAppState(AllSet))
-      alm="bitbucketcloud"
-    />
-  </React.Fragment>
+  </Button>
 </div>
 `;
 
@@ -111,14 +112,15 @@ exports[`should render correctly for Gradle 1`] = `
       }
     />
   </ol>
-  <React.Fragment>
-    <hr
-      className="huge-spacer-top huge-spacer-bottom"
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    tutorials.finish
+    <ChevronRightIcon
+      size={13}
     />
-    <Connect(withAppState(AllSet))
-      alm="bitbucketcloud"
-    />
-  </React.Fragment>
+  </Button>
 </div>
 `;
 
@@ -172,14 +174,15 @@ exports[`should render correctly for Maven 1`] = `
       }
     />
   </ol>
-  <React.Fragment>
-    <hr
-      className="huge-spacer-top huge-spacer-bottom"
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    tutorials.finish
+    <ChevronRightIcon
+      size={13}
     />
-    <Connect(withAppState(AllSet))
-      alm="bitbucketcloud"
-    />
-  </React.Fragment>
+  </Button>
 </div>
 `;
 
@@ -233,20 +236,22 @@ exports[`should render correctly for Other 1`] = `
       }
     />
   </ol>
-  <React.Fragment>
-    <hr
-      className="huge-spacer-top huge-spacer-bottom"
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    tutorials.finish
+    <ChevronRightIcon
+      size={13}
     />
-    <Connect(withAppState(AllSet))
-      alm="bitbucketcloud"
-    />
-  </React.Fragment>
+  </Button>
 </div>
 `;
 
 exports[`should render correctly: Step wrapper 1`] = `
 <Step
   finished={false}
+  onOpen={[MockFunction]}
   open={true}
   renderForm={[Function]}
   stepNumber={3}
@@ -257,6 +262,7 @@ exports[`should render correctly: Step wrapper 1`] = `
 exports[`should render correctly: Step wrapper with C 1`] = `
 <Step
   finished={false}
+  onOpen={[MockFunction]}
   open={true}
   renderForm={[Function]}
   stepNumber={3}

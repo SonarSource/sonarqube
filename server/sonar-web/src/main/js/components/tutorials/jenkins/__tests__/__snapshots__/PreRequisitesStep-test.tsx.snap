@@ -14,18 +14,20 @@ exports[`should render correctly: content 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <p
+  <Alert
     className="big-spacer-bottom"
+    variant="warning"
   >
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "must_have",
+          "installed",
+          "configured",
         ]
       }
       translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
     />
-  </p>
+  </Alert>
   <ul
     className="list-styled big-spacer-bottom"
   >
@@ -80,9 +82,13 @@ exports[`should render correctly: content 1`] = `
     />
   </p>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     onboarding.tutorial.with.jenkins.prereqs.done
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -91,18 +97,20 @@ exports[`should render correctly: content for branches disabled 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <p
+  <Alert
     className="big-spacer-bottom"
+    variant="warning"
   >
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "must_have",
+          "installed",
+          "configured",
         ]
       }
       translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
     />
-  </p>
+  </Alert>
   <ul
     className="list-styled big-spacer-bottom"
   >
@@ -154,9 +162,13 @@ exports[`should render correctly: content for branches disabled 1`] = `
     />
   </p>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     onboarding.tutorial.with.jenkins.prereqs.done
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;
@@ -165,18 +177,20 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <p
+  <Alert
     className="big-spacer-bottom"
+    variant="warning"
   >
     <SentenceWithHighlights
       highlightKeys={
         Array [
-          "must_have",
+          "installed",
+          "configured",
         ]
       }
       translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
     />
-  </p>
+  </Alert>
   <ul
     className="list-styled big-spacer-bottom"
   >
@@ -231,9 +245,13 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
     />
   </p>
   <Button
+    className="big-spacer-top"
     onClick={[MockFunction]}
   >
     onboarding.tutorial.with.jenkins.prereqs.done
+    <ChevronRightIcon
+      size={13}
+    />
   </Button>
 </div>
 `;

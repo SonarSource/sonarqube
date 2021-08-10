@@ -46,7 +46,6 @@ exports[`should render correctly: branches not enabled 1`] = `
     }
   />
   <Connect(withCLanguageFeature(JenkinsfileStep))
-    alm="bitbucket"
     baseUrl=""
     component={
       Object {
@@ -70,7 +69,15 @@ exports[`should render correctly: branches not enabled 1`] = `
         "tags": Array [],
       }
     }
+    finished={false}
+    onDone={[Function]}
+    onOpen={[Function]}
     open={false}
+  />
+  <AllSetStep
+    alm="bitbucket"
+    open={false}
+    stepNumber={4}
   />
 </Fragment>
 `;
@@ -130,7 +137,6 @@ exports[`should render correctly: default 1`] = `
     }
   />
   <Connect(withCLanguageFeature(JenkinsfileStep))
-    alm="bitbucket"
     baseUrl=""
     component={
       Object {
@@ -154,7 +160,15 @@ exports[`should render correctly: default 1`] = `
         "tags": Array [],
       }
     }
+    finished={false}
+    onDone={[Function]}
+    onOpen={[Function]}
     open={false}
+  />
+  <AllSetStep
+    alm="bitbucket"
+    open={false}
+    stepNumber={4}
   />
 </Fragment>
 `;
