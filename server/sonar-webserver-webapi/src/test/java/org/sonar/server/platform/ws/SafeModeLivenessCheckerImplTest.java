@@ -34,14 +34,14 @@ public class SafeModeLivenessCheckerImplTest {
   private final SafeModeLivenessCheckerImpl underTest = new SafeModeLivenessCheckerImpl(dbConnectionNodeCheck);
 
   @Test
-  public void fail_when_db_connexion_check_fail() {
+  public void fail_when_db_connection_check_fail() {
     when(dbConnectionNodeCheck.check()).thenReturn(RED);
 
     Assertions.assertThat(underTest.liveness()).isFalse();
   }
 
   @Test
-  public void succeed_when_db_connexion_check_success() {
+  public void succeed_when_db_connection_check_success() {
     when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
 
     Assertions.assertThat(underTest.liveness()).isTrue();

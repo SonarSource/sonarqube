@@ -24,23 +24,31 @@ import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.WebServerStatusNodeCheck;
-import org.sonar.server.platform.WebServer;
 
 public class LivenessCheckerImpl implements LivenessChecker {
 
-  private final WebServer webServer;
   private final DbConnectionNodeCheck dbConnectionNodeCheck;
   private final CeStatusNodeCheck ceStatusNodeCheck;
   private final EsStatusNodeCheck esStatusNodeCheck;
   private final WebServerStatusNodeCheck webServerStatusNodeCheck;
 
-  public LivenessCheckerImpl(WebServer webServer, DbConnectionNodeCheck dbConnectionNodeCheck,
+  public LivenessCheckerImpl(DbConnectionNodeCheck dbConnectionNodeCheck,
     WebServerStatusNodeCheck webServerStatusNodeCheck, CeStatusNodeCheck ceStatusNodeCheck, EsStatusNodeCheck esStatusNodeCheck) {
-    this.webServer = webServer;
     this.dbConnectionNodeCheck = dbConnectionNodeCheck;
+    this.webServerStatusNodeCheck = webServerStatusNodeCheck;
     this.ceStatusNodeCheck = ceStatusNodeCheck;
     this.esStatusNodeCheck = esStatusNodeCheck;
+  }
+
+  /**
+   * Constructor used by Pico Container on non-standalone mode, so on a DCE App Node, where EsStatusNodeCheck is not available
+   */
+  public LivenessCheckerImpl(DbConnectionNodeCheck dbConnectionNodeCheck,
+    WebServerStatusNodeCheck webServerStatusNodeCheck, CeStatusNodeCheck ceStatusNodeCheck) {
+    this.dbConnectionNodeCheck = dbConnectionNodeCheck;
     this.webServerStatusNodeCheck = webServerStatusNodeCheck;
+    this.ceStatusNodeCheck = ceStatusNodeCheck;
+    this.esStatusNodeCheck = null;
   }
 
   public boolean liveness() {
@@ -57,7 +65,7 @@ public class LivenessCheckerImpl implements LivenessChecker {
       return false;
     }
 
-    if (webServer.isStandalone() && Health.Status.RED.equals(esStatusNodeCheck.check().getStatus())) {
+    if (esStatusNodeCheck != null && Health.Status.RED.equals(esStatusNodeCheck.check().getStatus())) {
       return false;
     }
 

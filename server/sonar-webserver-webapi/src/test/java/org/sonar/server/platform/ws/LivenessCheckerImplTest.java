@@ -26,7 +26,6 @@ import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.WebServerStatusNodeCheck;
-import org.sonar.server.platform.WebServer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,16 +34,16 @@ public class LivenessCheckerImplTest {
 
   public static final Health RED = Health.newHealthCheckBuilder().setStatus(Health.Status.RED).build();
 
-  private final WebServer webServer = mock(WebServer.class);
   private final DbConnectionNodeCheck dbConnectionNodeCheck = mock(DbConnectionNodeCheck.class);
   private final WebServerStatusNodeCheck webServerStatusNodeCheck = mock(WebServerStatusNodeCheck.class);
   private final CeStatusNodeCheck ceStatusNodeCheck = mock(CeStatusNodeCheck.class);
   private final EsStatusNodeCheck esStatusNodeCheck = mock(EsStatusNodeCheck.class);
 
-  LivenessCheckerImpl underTest = new LivenessCheckerImpl(webServer, dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck, esStatusNodeCheck);
+  LivenessCheckerImpl underTest = new LivenessCheckerImpl(dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck, esStatusNodeCheck);
+  LivenessCheckerImpl underTestDCE = new LivenessCheckerImpl(dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck);
 
   @Test
-  public void fail_when_db_connexion_check_fail() {
+  public void fail_when_db_connection_check_fail() {
     when(dbConnectionNodeCheck.check()).thenReturn(RED);
 
     Assertions.assertThat(underTest.liveness()).isFalse();
@@ -68,25 +67,31 @@ public class LivenessCheckerImplTest {
   }
 
   @Test
-  public void dont_fail_when_not_standalone_but_es_check_fail() {
+  public void fail_when_es_check_fail() {
     when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
     when(webServerStatusNodeCheck.check()).thenReturn(Health.GREEN);
     when(ceStatusNodeCheck.check()).thenReturn(Health.GREEN);
-    when(webServer.isStandalone()).thenReturn(false);
-    when(esStatusNodeCheck.check()).thenReturn(RED);
-
-    Assertions.assertThat(underTest.liveness()).isTrue();
-  }
-
-  @Test
-  public void fail_when_not_dce_and_es_check_fail() {
-    when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
-    when(webServerStatusNodeCheck.check()).thenReturn(Health.GREEN);
-    when(ceStatusNodeCheck.check()).thenReturn(Health.GREEN);
-    when(webServer.isStandalone()).thenReturn(true);
     when(esStatusNodeCheck.check()).thenReturn(RED);
 
     Assertions.assertThat(underTest.liveness()).isFalse();
   }
 
+  @Test
+  public void success_when_db_web_ce_es_succeed() {
+    when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
+    when(webServerStatusNodeCheck.check()).thenReturn(Health.GREEN);
+    when(ceStatusNodeCheck.check()).thenReturn(Health.GREEN);
+    when(esStatusNodeCheck.check()).thenReturn(Health.GREEN);
+
+    Assertions.assertThat(underTest.liveness()).isTrue();
+  }
+
+  @Test
+  public void success_when_db_web_ce_succeed() {
+    when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
+    when(webServerStatusNodeCheck.check()).thenReturn(Health.GREEN);
+    when(ceStatusNodeCheck.check()).thenReturn(Health.GREEN);
+
+    Assertions.assertThat(underTestDCE.liveness()).isTrue();
+  }
 }
