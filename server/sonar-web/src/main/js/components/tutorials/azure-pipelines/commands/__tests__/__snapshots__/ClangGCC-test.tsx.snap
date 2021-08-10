@@ -97,6 +97,7 @@ unzip build-wrapper.zip"
         <CodeSnippet
           snippet="./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
         />
+        <CompilationInfo />
       </li>
     </ul>
     <li>
@@ -213,6 +214,7 @@ unzip build-wrapper.zip"
         <CodeSnippet
           snippet="./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output xcodebuild -project myproject.xcodeproj -configuration Release clean build"
         />
+        <CompilationInfo />
       </li>
     </ul>
     <li>
@@ -329,6 +331,7 @@ Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
         <CodeSnippet
           snippet="build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output MSBuild.exe /t:Rebuild"
         />
+        <CompilationInfo />
       </li>
     </ul>
     <li>

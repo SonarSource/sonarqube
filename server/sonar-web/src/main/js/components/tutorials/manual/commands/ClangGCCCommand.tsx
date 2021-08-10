@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { CompilationInfo } from '../../components/CompilationInfo';
 import { OSs } from '../../types';
 import DownloadBuildWrapper from './DownloadBuildWrapper';
 import DownloadScanner from './DownloadScanner';
@@ -39,6 +40,7 @@ export default function ClangGCCCustom(props: ClangGCCCustomProps) {
       <DownloadBuildWrapper os={os} />
       <DownloadScanner os={os} />
       <ExecBuildWrapper os={os} />
+      <CompilationInfo />
       <ExecScanner host={host} component={component} os={os} token={token} cfamily={true} />
     </div>
   );

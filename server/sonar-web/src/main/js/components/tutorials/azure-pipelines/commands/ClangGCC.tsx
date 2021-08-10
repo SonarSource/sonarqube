@@ -22,6 +22,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import CodeSnippet from '../../../common/CodeSnippet';
+import { CompilationInfo } from '../../components/CompilationInfo';
 import RenderOptions from '../../components/RenderOptions';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools, OSs } from '../../types';
@@ -146,6 +147,7 @@ unzip build-wrapper.zip`,
                   highlightKeys={['build_wrapper']}
                 />
                 <CodeSnippet snippet={codeSnippetDownload[os].scriptBuild} />
+                <CompilationInfo />
               </li>
             </ul>
             <li>
