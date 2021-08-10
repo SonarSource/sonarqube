@@ -1,10 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render \`false\` 1`] = `<AlertErrorIcon />`;
+exports[`should render correctly: false 1`] = `
+<Fragment>
+  no
+</Fragment>
+`;
 
-exports[`should render \`true\` 1`] = `<AlertSuccessIcon />`;
-
-exports[`should render object correctly 1`] = `
+exports[`should render correctly: object 1`] = `
 <table
   className="data"
 >
@@ -61,4 +63,16 @@ exports[`should render object correctly 1`] = `
     </tr>
   </tbody>
 </table>
+`;
+
+exports[`should render correctly: string 1`] = `
+<code>
+  /some/path/as/an/example
+</code>
+`;
+
+exports[`should render correctly: true 1`] = `
+<Fragment>
+  yes
+</Fragment>
 `;

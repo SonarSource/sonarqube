@@ -19,58 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import HealthItem from '../HealthItem';
 import SysInfoItem, { Props } from '../SysInfoItem';
 
-it('should render string', () => {
-  expect(
-    shallowRender('/some/path/as/an/example')
-      .find('code')
-      .text()
-  ).toBe('/some/path/as/an/example');
-});
-
-it('should render object', () => {
-  expect(
-    shallowRender({ bar: 'baz' })
-      .find('ObjectItem')
-      .prop('value')
-  ).toEqual({ bar: 'baz' });
-});
-
-it('should render boolean', () => {
-  expect(
-    shallowRender(true)
-      .find('BooleanItem')
-      .prop('value')
-  ).toBe(true);
+it('should render correctly', () => {
+  expect(shallowRender('/some/path/as/an/example')).toMatchSnapshot('string');
+  expect(shallowRender({ foo: 'Far', bar: { a: 1, b: 'b' }, baz: true })).toMatchSnapshot('object');
+  expect(shallowRender(true)).toMatchSnapshot('true');
+  expect(shallowRender(false)).toMatchSnapshot('false');
 });
 
 it('should render health item', () => {
   expect(
     shallowRender('GREEN', 'Health')
-      .find('HealthItem')
+      .find(HealthItem)
       .prop('health')
   ).toBe('GREEN');
-});
-
-it('should render `true`', () => {
-  const wrapper = shallowRender(true);
-  expect(wrapper.find('BooleanItem').exists()).toBe(true);
-  expect(wrapper.dive()).toMatchSnapshot();
-});
-
-it('should render `false`', () => {
-  const wrapper = shallowRender(false);
-  expect(wrapper.find('BooleanItem').exists()).toBe(true);
-  expect(wrapper.dive()).toMatchSnapshot();
-});
-
-it('should render object correctly', () => {
-  expect(
-    shallowRender({ foo: 'Far', bar: { a: 1, b: 'b' }, baz: true })
-      .find('ObjectItem')
-      .dive()
-  ).toMatchSnapshot();
 });
 
 function shallowRender(value: Props['value'], name: Props['name'] = 'foo') {

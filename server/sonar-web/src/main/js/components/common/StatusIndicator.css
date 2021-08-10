@@ -46,18 +46,6 @@
   background-color: var(--red);
 }
 
-.status-indicator.red::after {
-  position: absolute;
-  z-index: 3;
-  display: block;
-  width: 6px;
-  height: 2px;
-  top: 3px;
-  left: 1px;
-  background-color: #fff;
-  content: '';
-}
-
 .status-indicator.yellow {
   background-color: var(--yellow);
 }

@@ -17,33 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import './StatusIndicator.css';
+import StatusIndicator, { StatusIndicatorProps } from '../StatusIndicator';
 
-export interface StatusIndicatorProps {
-  className?: string;
-  color?: string;
-  size?: string;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ color: 'green' })).toMatchSnapshot('green');
+  expect(shallowRender({ size: 'small' })).toMatchSnapshot('small');
+  expect(shallowRender({ size: 'big' })).toMatchSnapshot('big');
+});
 
-export default function StatusIndicator({ className, color, size }: StatusIndicatorProps) {
-  return (
-    <>
-      {color ? translate('system.current_health', color) : undefined}
-      <i
-        className={classNames(
-          'spacer-left',
-          'status-indicator',
-          color,
-          {
-            'small-status-indicator': size === 'small',
-            'big-status-indicator': size === 'big'
-          },
-          className
-        )}
-      />
-    </>
-  );
+function shallowRender(props: Partial<StatusIndicatorProps> = {}) {
+  return shallow<StatusIndicatorProps>(<StatusIndicator className="my-class" {...props} />);
 }

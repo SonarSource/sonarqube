@@ -19,8 +19,7 @@
  */
 import { map } from 'lodash';
 import * as React from 'react';
-import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { HEALTH_FIELD, STATE_FIELD } from '../../utils';
 import HealthItem from './HealthItem';
 
@@ -29,7 +28,7 @@ export interface Props {
   value: T.SysInfoValue;
 }
 
-export default function SysInfoItem({ name, value }: Props): JSX.Element {
+export default function SysInfoItem({ name, value }: Props) {
   if (name === HEALTH_FIELD || name === STATE_FIELD) {
     return <HealthItem className="no-margin" health={value as T.HealthType} />;
   }
@@ -38,35 +37,23 @@ export default function SysInfoItem({ name, value }: Props): JSX.Element {
   }
   switch (typeof value) {
     case 'boolean':
-      return <BooleanItem value={value} />;
+      return <>{translate(value ? 'yes' : 'no')}</>;
     case 'object':
-      return <ObjectItem value={value} />;
+      return (
+        <table className="data">
+          <tbody>
+            {map(value, (v, n) => (
+              <tr key={n}>
+                <td className="thin nowrap">{n}</td>
+                <td>
+                  <SysInfoItem name={n} value={v} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
     default:
       return <code>{value}</code>;
   }
-}
-
-function BooleanItem({ value }: { value: boolean }) {
-  if (value) {
-    return <AlertSuccessIcon />;
-  } else {
-    return <AlertErrorIcon />;
-  }
-}
-
-function ObjectItem({ value }: { value: T.SysInfoValueObject }) {
-  return (
-    <table className="data">
-      <tbody>
-        {map(value, (value, name) => (
-          <tr key={name}>
-            <td className="thin nowrap">{name}</td>
-            <td>
-              <SysInfoItem name={name} value={value} />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
 }
