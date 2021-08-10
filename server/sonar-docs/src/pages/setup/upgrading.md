@@ -86,6 +86,10 @@ To upgrade SonarQube using the Docker image:
 
 No specific Docker operations are needed, just use the new tag.
 
+### Upgrading from the Helm Chart
+
+Follow the instructions in the **Upgrade** section of the SonarQube Helm Chart repository [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube).
+
 ## Edition Upgrade
 If you're moving to a different edition within the same version (upgrade or downgrade) the steps are exactly the same as above, without the need to browse to `http://yourSonarQubeServerURL/setup` or reanalyze your projects.
 
