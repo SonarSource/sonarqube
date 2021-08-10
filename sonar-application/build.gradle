@@ -108,6 +108,10 @@ task zip(type: Zip, dependsOn: [configurations.compile, downloadElasticSearch, v
       fcd.relativePath = new RelativePath(true, *path)
     }
     into("${archiveDir}/elasticsearch")
+    filesMatching('**/bin/elasticsearch-env') {
+      // to avoid warning logs
+      filter { line -> line.replaceAll('echo "warning: no-jdk distributions.*', ':') }
+    }
     // elasticsearch script will be replaced by patched version below
     exclude '**/bin/elasticsearch'
     exclude '**/bin/elasticsearch-cli'

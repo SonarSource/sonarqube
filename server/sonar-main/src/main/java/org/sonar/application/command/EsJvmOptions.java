@@ -55,7 +55,6 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
 
   private static void fromJvmDotOptionsFile(File tmpDir, Map<String, String> res) {
     // GC configuration
-    res.put("-XX:+UseConcMarkSweepGC", "");
     res.put("-XX:CMSInitiatingOccupancyFraction=", "75");
     res.put("-XX:+UseCMSInitiatingOccupancyOnly", "");
 
