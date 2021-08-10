@@ -71,7 +71,7 @@ interface State {
   total: number;
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class AppCode extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
 
@@ -255,6 +255,8 @@ export class App extends React.PureComponent<Props, State> {
 
     const showSearch = searchResults !== undefined;
 
+    const hasNoFile = components.length === 0 && searchResults === undefined;
+
     const shouldShowBreadcrumbs = breadcrumbs.length > 1 && !showSearch;
     const shouldShowComponentList =
       sourceViewer === undefined && components.length > 0 && !showSearch;
@@ -278,14 +280,26 @@ export class App extends React.PureComponent<Props, State> {
         />
         <A11ySkipTarget anchor="code_main" />
 
-        <Search
-          branchLike={branchLike}
-          component={component}
-          onSearchClear={this.handleSearchClear}
-          onSearchResults={this.handleSearchResults}
-        />
+        {!hasNoFile && (
+          <Search
+            branchLike={branchLike}
+            component={component}
+            onSearchClear={this.handleSearchClear}
+            onSearchResults={this.handleSearchResults}
+          />
+        )}
 
         <div className="code-components">
+          {hasNoFile && (
+            <div className="display-flex-center display-flex-column no-file">
+              <span className="h1 text-muted">
+                {translate(
+                  'code_viewer.no_source_code_displayed_due_to_empty_analysis',
+                  component.qualifier
+                )}
+              </span>
+            </div>
+          )}
           {shouldShowBreadcrumbs && (
             <Breadcrumbs
               branchLike={branchLike}
@@ -360,4 +374,4 @@ const mapDispatchToProps: DispatchToProps = {
 export default connect<StateToProps, DispatchToProps, Props>(
   mapStateToProps,
   mapDispatchToProps
-)(App);
+)(AppCode);

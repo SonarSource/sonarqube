@@ -99,3 +99,8 @@ table > thead > tr.code-components-header > th {
   height: 8px;
   width: 4px;
 }
+
+.code-components .no-file .h1 {
+  position: fixed;
+  top: 50%;
+}

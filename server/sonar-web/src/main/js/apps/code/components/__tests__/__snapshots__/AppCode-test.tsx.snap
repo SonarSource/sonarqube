@@ -1,0 +1,765 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correclty when no sub component for APP 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="display-flex-center display-flex-column no-file"
+    >
+      <span
+        className="h1 text-muted"
+      >
+        code_viewer.no_source_code_displayed_due_to_empty_analysis.APP
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for APP: no search 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "APP",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top search-results"
+    >
+      <withKeyboardNavigation(Components)
+        components={Array []}
+        metrics={Object {}}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "APP",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for APP: with sub component 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "APP",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top"
+    >
+      <withKeyboardNavigation(Components)
+        baseComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "APP",
+          }
+        }
+        components={
+          Array [
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+          ]
+        }
+        cycle={true}
+        metrics={
+          Object {
+            "coverage": Object {
+              "domain": "Coverage",
+              "id": "2",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "new_bugs": Object {
+              "domain": "Reliability",
+              "id": "4",
+              "key": "new_bugs",
+              "name": "New Bugs",
+              "type": "INT",
+            },
+          }
+        }
+        onEndOfList={[Function]}
+        onGoToParent={[Function]}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "APP",
+          }
+        }
+      />
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for SVW 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="display-flex-center display-flex-column no-file"
+    >
+      <span
+        className="h1 text-muted"
+      >
+        code_viewer.no_source_code_displayed_due_to_empty_analysis.SVW
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for SVW: no search 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "SVW",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top search-results"
+    >
+      <withKeyboardNavigation(Components)
+        components={Array []}
+        metrics={Object {}}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "SVW",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for SVW: with sub component 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "SVW",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top"
+    >
+      <withKeyboardNavigation(Components)
+        baseComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "SVW",
+          }
+        }
+        components={
+          Array [
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+          ]
+        }
+        cycle={true}
+        metrics={
+          Object {
+            "coverage": Object {
+              "domain": "Coverage",
+              "id": "2",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "new_bugs": Object {
+              "domain": "Reliability",
+              "id": "4",
+              "key": "new_bugs",
+              "name": "New Bugs",
+              "type": "INT",
+            },
+          }
+        }
+        onEndOfList={[Function]}
+        onGoToParent={[Function]}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "SVW",
+          }
+        }
+      />
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for TRK 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="code.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="display-flex-center display-flex-column no-file"
+    >
+      <span
+        className="h1 text-muted"
+      >
+        code_viewer.no_source_code_displayed_due_to_empty_analysis.TRK
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for TRK: no search 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="code.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "TRK",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top search-results"
+    >
+      <withKeyboardNavigation(Components)
+        components={Array []}
+        metrics={Object {}}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "TRK",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for TRK: with sub component 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="code.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "TRK",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top"
+    >
+      <withKeyboardNavigation(Components)
+        baseComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "TRK",
+          }
+        }
+        components={
+          Array [
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+          ]
+        }
+        cycle={true}
+        metrics={
+          Object {
+            "coverage": Object {
+              "domain": "Coverage",
+              "id": "2",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "new_bugs": Object {
+              "domain": "Reliability",
+              "id": "4",
+              "key": "new_bugs",
+              "name": "New Bugs",
+              "type": "INT",
+            },
+          }
+        }
+        onEndOfList={[Function]}
+        onGoToParent={[Function]}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "TRK",
+          }
+        }
+      />
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for VW 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="display-flex-center display-flex-column no-file"
+    >
+      <span
+        className="h1 text-muted"
+      >
+        code_viewer.no_source_code_displayed_due_to_empty_analysis.VW
+      </span>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for VW: no search 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "VW",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top search-results"
+    >
+      <withKeyboardNavigation(Components)
+        components={Array []}
+        metrics={Object {}}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "VW",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correclty when no sub component for VW: with sub component 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <withRouter(Search)
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "foo",
+        "qualifier": "VW",
+      }
+    }
+    onSearchClear={[Function]}
+    onSearchResults={[Function]}
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="boxed-group spacer-top"
+    >
+      <withKeyboardNavigation(Components)
+        baseComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "VW",
+          }
+        }
+        components={
+          Array [
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+          ]
+        }
+        cycle={true}
+        metrics={
+          Object {
+            "coverage": Object {
+              "domain": "Coverage",
+              "id": "2",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+            "new_bugs": Object {
+              "domain": "Reliability",
+              "id": "4",
+              "key": "new_bugs",
+              "name": "New Bugs",
+              "type": "INT",
+            },
+          }
+        }
+        onEndOfList={[Function]}
+        onGoToParent={[Function]}
+        onHighlight={[Function]}
+        onSelect={[Function]}
+        rootComponent={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "foo",
+            "qualifier": "VW",
+          }
+        }
+      />
+    </div>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      total={1}
+    />
+  </div>
+</div>
+`;
