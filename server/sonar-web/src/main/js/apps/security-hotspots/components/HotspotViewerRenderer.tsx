@@ -113,7 +113,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             </div>
           </div>
 
-          <div className="huge-spacer-bottom display-flex-row">
+          <div className="huge-spacer-bottom display-flex-row display-flex-space-between">
             <div className="hotspot-information display-flex-column display-flex-space-between">
               <div className="display-flex-center">
                 <span className="big-spacer-right">{translate('category')}</span>
@@ -138,7 +138,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                 </div>
               </div>
             </div>
-            <div className="huge-spacer-left">
+            <div className="huge-spacer-left abs-width-400">
               <Status hotspot={hotspot} onStatusChange={() => props.onUpdateHotspot(true)} />
             </div>
           </div>

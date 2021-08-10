@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<Fragment>
+<div
+  className="abs-width-400"
+>
   <div
     className="big-padded"
   >
@@ -65,11 +67,13 @@ exports[`should render correctly 1`] = `
       </SubmitButton>
     </div>
   </div>
-</Fragment>
+</div>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<Fragment>
+<div
+  className="abs-width-400"
+>
   <div
     className="big-padded"
   >
@@ -136,5 +140,5 @@ exports[`should render correctly: loading 1`] = `
       />
     </div>
   </div>
-</Fragment>
+</div>
 `;

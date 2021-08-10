@@ -19,17 +19,17 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
+import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot } from '../../../../types/security-hotspots';
 import { getStatusOptionFromStatusAndResolution } from '../../utils';
-import './Status.css';
 import StatusDescription from './StatusDescription';
 import StatusSelection from './StatusSelection';
 
@@ -47,58 +47,42 @@ export function Status(props: StatusProps) {
   const statusOption = getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution);
   const readonly = !hotspot.canChangeStatus || !isLoggedIn(currentUser);
 
-  const trigger = (
-    <div
-      aria-expanded={isOpen}
-      aria-haspopup={true}
-      className={classNames('padded bordered display-flex-column display-flex-justify-center', {
-        readonly
-      })}
-      id="status-trigger"
-      onClick={() => !readonly && setIsOpen(true)}
-      role="button"
-      tabIndex={0}>
-      <div className="display-flex-center display-flex-space-between">
-        {isOpen ? (
-          <span className="h3">{translate('hotspots.status.select_status')}</span>
-        ) : (
-          <StatusDescription showTitle={true} statusOption={statusOption} />
-        )}
-        {!readonly && <ChevronDownIcon className="big-spacer-left" />}
-      </div>
-    </div>
-  );
-
-  const actionableTrigger = (
-    <Toggler
-      closeOnClickOutside={true}
-      closeOnEscape={true}
-      onRequestClose={() => setIsOpen(false)}
-      open={isOpen}
-      overlay={
-        <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
-          <StatusSelection
-            hotspot={hotspot}
-            onStatusOptionChange={async () => {
-              await props.onStatusChange();
-              setIsOpen(false);
-            }}
-          />
-        </DropdownOverlay>
-      }>
-      {trigger}
-    </Toggler>
-  );
-
   return (
-    <div className="dropdown">
-      {readonly ? (
-        <Tooltip overlay={translate('hotspots.status.cannot_change_status')} placement="bottom">
-          {trigger}
+    <div>
+      <StatusDescription showTitle={true} statusOption={statusOption} />
+      <div className="spacer-top">
+        <Tooltip
+          overlay={readonly ? translate('hotspots.status.cannot_change_status') : null}
+          placement="bottom">
+          <div className="dropdown display-inline-block">
+            <Toggler
+              closeOnClickOutside={true}
+              closeOnEscape={true}
+              onRequestClose={() => setIsOpen(false)}
+              open={isOpen}
+              overlay={
+                <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
+                  <StatusSelection
+                    hotspot={hotspot}
+                    onStatusOptionChange={async () => {
+                      await props.onStatusChange();
+                      setIsOpen(false);
+                    }}
+                  />
+                </DropdownOverlay>
+              }>
+              <Button
+                className={classNames('dropdown-toggle')}
+                id="status-trigger"
+                onClick={() => setIsOpen(true)}
+                disabled={readonly}>
+                <span>{translate('hotspots.status.select_status')}</span>
+                <DropdownIcon className="little-spacer-left" />
+              </Button>
+            </Toggler>
+          </div>
         </Tooltip>
-      ) : (
-        actionableTrigger
-      )}
+      </div>
     </div>
   );
 }

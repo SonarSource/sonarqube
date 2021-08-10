@@ -79,7 +79,7 @@ exports[`should render correctly 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom display-flex-row"
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
     >
       <div
         className="hotspot-information display-flex-column display-flex-space-between"
@@ -199,7 +199,7 @@ exports[`should render correctly 1`] = `
         </div>
       </div>
       <div
-        className="huge-spacer-left"
+        className="huge-spacer-left abs-width-400"
       >
         <Connect(withCurrentUser(Status))
           hotspot={
@@ -615,7 +615,7 @@ exports[`should render correctly: anonymous user 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom display-flex-row"
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
     >
       <div
         className="hotspot-information display-flex-column display-flex-space-between"
@@ -735,7 +735,7 @@ exports[`should render correctly: anonymous user 1`] = `
         </div>
       </div>
       <div
-        className="huge-spacer-left"
+        className="huge-spacer-left abs-width-400"
       >
         <Connect(withCurrentUser(Status))
           hotspot={
@@ -1151,7 +1151,7 @@ exports[`should render correctly: assignee without name 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom display-flex-row"
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
     >
       <div
         className="hotspot-information display-flex-column display-flex-space-between"
@@ -1271,7 +1271,7 @@ exports[`should render correctly: assignee without name 1`] = `
         </div>
       </div>
       <div
-        className="huge-spacer-left"
+        className="huge-spacer-left abs-width-400"
       >
         <Connect(withCurrentUser(Status))
           hotspot={
@@ -1687,7 +1687,7 @@ exports[`should render correctly: deleted assignee 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom display-flex-row"
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
     >
       <div
         className="hotspot-information display-flex-column display-flex-space-between"
@@ -1807,7 +1807,7 @@ exports[`should render correctly: deleted assignee 1`] = `
         </div>
       </div>
       <div
-        className="huge-spacer-left"
+        className="huge-spacer-left abs-width-400"
       >
         <Connect(withCurrentUser(Status))
           hotspot={
@@ -2230,7 +2230,7 @@ exports[`should render correctly: unassigned 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom display-flex-row"
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
     >
       <div
         className="hotspot-information display-flex-column display-flex-space-between"
@@ -2350,7 +2350,7 @@ exports[`should render correctly: unassigned 1`] = `
         </div>
       </div>
       <div
-        className="huge-spacer-left"
+        className="huge-spacer-left abs-width-400"
       >
         <Connect(withCurrentUser(Status))
           hotspot={
