@@ -30,6 +30,7 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { colors } from '../../../app/theme';
 import { getBaseUrl } from '../../../helpers/system';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
@@ -109,25 +110,39 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
               disabled={isDisabled(r)}
               value={r.key}
               onCheck={props.onSelectRepository}>
-              <div className="big overflow-hidden" title={r.name}>
-                <div className="display-flex-start text-ellipsis">
+              <div className="big overflow-hidden max-width-100" title={r.name}>
+                <div className="text-ellipsis">
                   {r.sqProjectKey ? (
-                    <Link className="display-flex-center" to={getProjectUrl(r.sqProjectKey)}>
-                      <QualifierIcon
-                        className="spacer-right"
-                        qualifier={ComponentQualifier.Project}
-                      />
-                      {r.name}
-                    </Link>
+                    <div className="display-flex-center max-width-100">
+                      <Link
+                        className="display-flex-center max-width-60"
+                        to={getProjectUrl(r.sqProjectKey)}>
+                        <QualifierIcon
+                          className="spacer-right"
+                          qualifier={ComponentQualifier.Project}
+                        />
+                        <span className="text-ellipsis">{r.name}</span>
+                      </Link>
+                      <em className="display-flex-center small big-spacer-left flex-0">
+                        <span className="text-muted-2">
+                          {translate('onboarding.create_project.repository_imported')}
+                        </span>
+                        <CheckIcon className="little-spacer-left" size={12} fill={colors.green} />
+                      </em>
+                    </div>
                   ) : (
                     r.name
                   )}
                 </div>
-                {r.sqProjectKey && (
-                  <em className="notice text-muted-2 small display-flex-center">
-                    {translate('onboarding.create_project.repository_imported')}
-                    <CheckIcon className="little-spacer-left" size={12} />
-                  </em>
+                {r.url && (
+                  <a
+                    className="notice small display-flex-center little-spacer-top"
+                    onClick={e => e.stopPropagation()}
+                    target="_blank"
+                    href={r.url}
+                    rel="noopener noreferrer">
+                    {translate('onboarding.create_project.see_on_github')}
+                  </a>
                 )}
               </div>
             </Radio>

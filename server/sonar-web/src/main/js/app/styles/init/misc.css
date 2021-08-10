@@ -306,6 +306,10 @@ th.huge-spacer-right {
   max-width: 80% !important;
 }
 
+.max-width-60 {
+  max-width: 60% !important;
+}
+
 .width-100 {
   width: 100% !important;
 }

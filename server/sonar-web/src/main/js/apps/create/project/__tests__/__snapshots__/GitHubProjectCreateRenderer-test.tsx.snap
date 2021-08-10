@@ -338,14 +338,23 @@ exports[`should render correctly: repositories 1`] = `
       value="repo1"
     >
       <div
-        className="big overflow-hidden"
+        className="big overflow-hidden max-width-100"
         title="repository 1"
       >
         <div
-          className="display-flex-start text-ellipsis"
+          className="text-ellipsis"
         >
           repository 1
         </div>
+        <a
+          className="notice small display-flex-center little-spacer-top"
+          href="https://github.com/owner/repo1"
+          onClick={[Function]}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.create_project.see_on_github
+        </a>
       </div>
     </Radio>
     <Radio
@@ -357,42 +366,64 @@ exports[`should render correctly: repositories 1`] = `
       value="repo2"
     >
       <div
-        className="big overflow-hidden"
+        className="big overflow-hidden max-width-100"
         title="repository 1"
       >
         <div
-          className="display-flex-start text-ellipsis"
+          className="text-ellipsis"
         >
-          <Link
-            className="display-flex-center"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/dashboard",
-                "query": Object {
-                  "branch": undefined,
-                  "id": "repo2",
-                },
-              }
-            }
+          <div
+            className="display-flex-center max-width-100"
           >
-            <QualifierIcon
-              className="spacer-right"
-              qualifier="TRK"
-            />
-            repository 1
-          </Link>
+            <Link
+              className="display-flex-center max-width-60"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "repo2",
+                  },
+                }
+              }
+            >
+              <QualifierIcon
+                className="spacer-right"
+                qualifier="TRK"
+              />
+              <span
+                className="text-ellipsis"
+              >
+                repository 1
+              </span>
+            </Link>
+            <em
+              className="display-flex-center small big-spacer-left flex-0"
+            >
+              <span
+                className="text-muted-2"
+              >
+                onboarding.create_project.repository_imported
+              </span>
+              <CheckIcon
+                className="little-spacer-left"
+                fill="#00aa00"
+                size={12}
+              />
+            </em>
+          </div>
         </div>
-        <em
-          className="notice text-muted-2 small display-flex-center"
+        <a
+          className="notice small display-flex-center little-spacer-top"
+          href="https://github.com/owner/repo1"
+          onClick={[Function]}
+          rel="noopener noreferrer"
+          target="_blank"
         >
-          onboarding.create_project.repository_imported
-          <CheckIcon
-            className="little-spacer-left"
-            size={12}
-          />
-        </em>
+          onboarding.create_project.see_on_github
+        </a>
       </div>
     </Radio>
     <Radio
@@ -404,14 +435,23 @@ exports[`should render correctly: repositories 1`] = `
       value="repo3"
     >
       <div
-        className="big overflow-hidden"
+        className="big overflow-hidden max-width-100"
         title="repository 1"
       >
         <div
-          className="display-flex-start text-ellipsis"
+          className="text-ellipsis"
         >
           repository 1
         </div>
+        <a
+          className="notice small display-flex-center little-spacer-top"
+          href="https://github.com/owner/repo1"
+          onClick={[Function]}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.create_project.see_on_github
+        </a>
       </div>
     </Radio>
     <div

@@ -83,7 +83,7 @@ export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}):
     key: 'key3456',
     name: 'repository 1',
     sqProjectKey: '',
-    url: 'owner/repo1',
+    url: 'https://github.com/owner/repo1',
     ...overrides
   };
 }
