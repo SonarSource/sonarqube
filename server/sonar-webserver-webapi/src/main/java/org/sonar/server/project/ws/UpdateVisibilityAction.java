@@ -133,7 +133,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.qualifier());
 
     if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
-      dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate, component.qualifier());
+      dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate, component.qualifier(), component.name());
     }
 
     ComponentMapper mapper = dbSession.getMapper(ComponentMapper.class);

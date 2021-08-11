@@ -37,6 +37,7 @@ import org.sonar.db.audit.AuditPersister;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -148,8 +149,8 @@ public class ProjectDaoTest {
     assertProject(projectsByUuids.get(0), "projectName_p1", "projectKee_o1_p1",  "uuid_o1_p1", "desc_p1", "tag1,tag2", true);
     assertProject(projectsByUuids.get(1), "projectName_p2", "projectKee_o1_p2",  "uuid_o1_p2", "desc_p2", "tag1,tag2", false);
 
-    projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT);
-    projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true, Qualifiers.PROJECT);
+    projectDao.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT, dto1.getName());
+    projectDao.updateVisibility(db.getSession(), dto2.getUuid(), true, Qualifiers.PROJECT, dto2.getName());
 
     projectsByUuids = projectDao.selectByUuids(db.getSession(), new HashSet<>(Arrays.asList("uuid_o1_p1", "uuid_o1_p2")));
     assertThat(projectsByUuids).hasSize(2);
@@ -209,9 +210,9 @@ public class ProjectDaoTest {
   public void updateVisibility_shouldCallAuditPersister() {
     ProjectDto dto1 = createProject("o1", "p1");
 
-    projectDaoWithAuditPersister.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT);
+    projectDaoWithAuditPersister.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT, dto1.getName());
 
-    verify(auditPersister, times(1)).updateComponentVisibility(any(), any(), any());
+    verify(auditPersister, times(1)).updateComponentVisibility(any(), any(), eq(Qualifiers.PROJECT));
   }
 
   @Test

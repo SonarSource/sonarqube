@@ -58,6 +58,14 @@ public class ComponentNewValue implements NewValue {
     this.generateComponentPrefix(qualifier);
   }
 
+
+  public ComponentNewValue(String componentUuid, String name, boolean isPrivate, String qualifier) {
+    this.componentUuid = componentUuid;
+    this.componentName = name;
+    this.isPrivate = isPrivate;
+    this.generateComponentPrefix(qualifier);
+  }
+
   public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, String qualifier) {
     this.componentUuid = uuid;
     this.componentName = name;
