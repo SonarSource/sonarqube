@@ -8,6 +8,7 @@ exports[`should render correctly: can subscribe, not subscribed 1`] = `
     >
       <li>
         <a
+          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -18,6 +19,7 @@ exports[`should render correctly: can subscribe, not subscribed 1`] = `
       </li>
       <li>
         <a
+          data-test="overview__subscribe-to-report-button"
           href="#"
           onClick={[MockFunction]}
         >
@@ -46,6 +48,7 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
     >
       <li>
         <a
+          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -56,6 +59,7 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
       </li>
       <li>
         <a
+          data-test="overview__subscribe-to-report-button"
           href="#"
           onClick={[MockFunction]}
         >
@@ -78,6 +82,7 @@ exports[`should render correctly: can subscribe, subscribed 1`] = `
 
 exports[`should render correctly: cannot subscribe 1`] = `
 <a
+  data-test="overview__download-pdf-report-button"
   download="MyProject - PDF Report.pdf"
   href="/api/governance_reports/download?componentKey=my-project"
   rel="noopener noreferrer"
@@ -95,6 +100,7 @@ exports[`should render correctly: current user without email 1`] = `
     >
       <li>
         <a
+          data-test="overview__download-pdf-report-button"
           download="MyProject - PDF Report.pdf"
           href="/api/governance_reports/download?componentKey=my-project"
           rel="noopener noreferrer"
@@ -125,12 +131,41 @@ exports[`should render correctly: current user without email 1`] = `
 `;
 
 exports[`should render correctly: not a portfolio 1`] = `
-<a
-  download="MyProject - PDF Report.pdf"
-  href="/api/governance_reports/download?componentKey=my-project"
-  rel="noopener noreferrer"
-  target="_blank"
+<Dropdown
+  overlay={
+    <ul
+      className="menu"
+    >
+      <li>
+        <a
+          data-test="overview__download-pdf-report-button"
+          download="MyProject - PDF Report.pdf"
+          href="/api/governance_reports/download?componentKey=my-project"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          download_verb
+        </a>
+      </li>
+      <li>
+        <a
+          data-test="overview__subscribe-to-report-button"
+          href="#"
+          onClick={[MockFunction]}
+        >
+          component_report.subscribe_x.report.frequency.weekly
+        </a>
+      </li>
+    </ul>
+  }
 >
-  component_report.download.qualifier.trk
-</a>
+  <Button
+    className="dropdown-toggle"
+  >
+    component_report.report.qualifier.TRK
+    <DropdownIcon
+      className="spacer-left icon-half-transparent"
+    />
+  </Button>
+</Dropdown>
 `;

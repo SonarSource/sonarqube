@@ -25,7 +25,6 @@ import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getReportUrl } from '../../api/component-report';
 import { Branch } from '../../types/branch-like';
-import { isPortfolioLike } from '../../types/component';
 
 export interface ComponentReportActionsRendererProps {
   component: T.Component;
@@ -47,6 +46,7 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
         download={[component.name, branch?.name, 'PDF Report.pdf'].filter(s => !!s).join(' - ')}
         href={getReportUrl(component.key, branch?.name)}
         target="_blank"
+        data-test="overview__download-pdf-report-button"
         rel="noopener noreferrer">
         {simple
           ? translate('download_verb')
@@ -72,13 +72,13 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
     const frequencyTranslation = translate('report.frequency', frequency).toLowerCase();
 
     return (
-      <a href="#" onClick={onClickHandler}>
+      <a href="#" onClick={onClickHandler} data-test="overview__subscribe-to-report-button">
         {translateWithParameters(translationKey, frequencyTranslation)}
       </a>
     );
   };
 
-  return canSubscribe && isPortfolioLike(component.qualifier) ? (
+  return canSubscribe ? (
     <Dropdown
       overlay={
         <ul className="menu">
