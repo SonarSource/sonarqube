@@ -40,6 +40,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PERMISSION_CHANGE;
@@ -87,26 +88,6 @@ public class PermissionIndexerTest {
     verifyAnyoneAuthorized(project);
     verifyAuthorized(project, user1);
     verifyAuthorized(project, user2);
-  }
-
-  @Test
-  public void deletion_resilience_will_deindex_projects() {
-    ComponentDto project1 = createUnindexedPublicProject();
-    ComponentDto project2 = createUnindexedPublicProject();
-    // UserDto user1 = db.users().insertUser();
-    indexOnStartup();
-    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
-
-    // Simulate a indexation issue
-    db.getDbClient().componentDao().delete(db.getSession(), project1.uuid(), Qualifiers.PROJECT);
-    underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
-    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(1);
-    Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
-
-    underTest.index(db.getSession(), esQueueDtos);
-
-    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isZero();
-    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(1);
   }
 
   @Test
@@ -314,7 +295,7 @@ public class PermissionIndexerTest {
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
     verifyAuthorized(project, user);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), Qualifiers.PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT);
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
 
     verifyNotAuthorized(project, user);

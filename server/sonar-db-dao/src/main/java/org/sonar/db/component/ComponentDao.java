@@ -383,13 +383,6 @@ public class ComponentDao implements Dao {
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }
 
-  public void delete(DbSession session, String componentUuid, String qualifier) {
-    if (auditPersister != null) {
-      auditPersister.deleteComponent(session, new ComponentNewValue(componentUuid, qualifier), qualifier);
-    }
-    mapper(session).delete(componentUuid);
-  }
-
   private static void checkThatNotTooManyComponents(ComponentQuery query) {
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");

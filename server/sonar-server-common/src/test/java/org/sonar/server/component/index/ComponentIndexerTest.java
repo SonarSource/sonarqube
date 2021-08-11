@@ -40,6 +40,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
@@ -207,7 +208,7 @@ public class ComponentIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexHasSize(1);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), Qualifiers.PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT);
     indexProject(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);

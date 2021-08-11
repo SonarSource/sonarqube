@@ -394,7 +394,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.uuid(), PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT);
     db.commit();
 
     SuggestionsWsResponse response = ws.newRequest()

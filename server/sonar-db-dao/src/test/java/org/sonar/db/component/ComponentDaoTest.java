@@ -1312,18 +1312,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void delete() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setDbKey("PROJECT_1"));
-    db.components().insertPrivateProject(t -> t.setDbKey("PROJECT_2"));
-
-    underTest.delete(dbSession, project1.uuid(), null);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, "PROJECT_1")).isEmpty();
-    assertThat(underTest.selectByKey(dbSession, "PROJECT_2")).isPresent();
-  }
-
-  @Test
   public void selectByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
@@ -1891,14 +1879,6 @@ public class ComponentDaoTest {
     List<KeyWithUuidDto> result = underTest.selectComponentsFromBranchesThatHaveOpenIssues(db.getSession(), singleton(branch1.uuid()));
 
     assertThat(result).isEmpty();
-  }
-
-  @Test
-  public void delete_auditPersisterIsCalled() {
-    underTestWithAuditPersister.delete(dbSession, "anyUuid", APP);
-
-    verify(auditPersister, Mockito.times(1))
-      .deleteComponent(any(DbSession.class), any(ComponentNewValue.class), anyString());
   }
 
   @Test
