@@ -55,9 +55,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
 
   private static void fromJvmDotOptionsFile(File tmpDir, Map<String, String> res) {
     // GC configuration
-    res.put("-XX:+UseConcMarkSweepGC", "");
-    res.put("-XX:CMSInitiatingOccupancyFraction=", "75");
-    res.put("-XX:+UseCMSInitiatingOccupancyOnly", "");
+    res.put("-XX:+UseG1GC", "");
 
     // (by default ES 6.6.1 uses variable ${ES_TMPDIR} which is replaced by start scripts. Since we start JAR file
     // directly on windows, we specify absolute file as URL (to support space in path) instead
