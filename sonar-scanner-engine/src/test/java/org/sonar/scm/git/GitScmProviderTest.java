@@ -42,10 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.RefDatabase;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -129,6 +126,8 @@ public class GitScmProviderTest {
     repo.create();
 
     git = new Git(repo);
+    StoredConfig config = git.getRepository().getConfig();
+    config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, "gpgsign", false);
 
     createAndCommitFile("file-in-first-commit.xoo");
   }
