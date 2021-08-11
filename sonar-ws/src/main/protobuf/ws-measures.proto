@@ -89,6 +89,7 @@ message Period {
   optional string mode = 2;
   optional string date = 3;
   optional string parameter = 4;
+  optional string buildDate = 5;
 }
 
 message Periods {

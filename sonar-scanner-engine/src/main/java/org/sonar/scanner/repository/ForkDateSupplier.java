@@ -28,6 +28,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.report.ChangedLinesPublisher;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scm.ScmConfiguration;
@@ -45,9 +46,10 @@ public class ForkDateSupplier {
   private final ScmConfiguration scmConfiguration;
   private final ProjectBranches branches;
   private final AnalysisWarnings analysisWarnings;
+  private final ScanProperties properties;
 
   public ForkDateSupplier(NewCodePeriodLoader newCodePeriodLoader, MeasuresComponentLoader measuresComponentLoader, BranchConfiguration branchConfiguration,
-    DefaultInputProject project, ScmConfiguration scmConfiguration, ProjectBranches branches, AnalysisWarnings analysisWarnings) {
+    DefaultInputProject project, ScmConfiguration scmConfiguration, ProjectBranches branches, AnalysisWarnings analysisWarnings, ScanProperties properties) {
     this.newCodePeriodLoader = newCodePeriodLoader;
     this.measuresComponentLoader = measuresComponentLoader;
     this.branchConfiguration = branchConfiguration;
@@ -55,6 +57,7 @@ public class ForkDateSupplier {
     this.scmConfiguration = scmConfiguration;
     this.branches = branches;
     this.analysisWarnings = analysisWarnings;
+    this.properties = properties;
   }
 
   @CheckForNull
@@ -83,11 +86,19 @@ public class ForkDateSupplier {
     Instant scmDate = getForkDateFromScmProvider(referenceBranchName);
 
     if (scmDate == null) {
-      LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
       Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
 
-      scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
-              ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
+      String useLastAnalysis = properties.get("sonar.newCode.referenceBranch.useLastAnalysisDate").orElse(null);
+      if (Boolean.parseBoolean(useLastAnalysis)) {
+        LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
+        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
+                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
+      } else {
+        LOG.info("Getting period start date for reference branch '{}'", referenceBranchName);
+        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
+                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
+      }
+      LOG.info("Use fork date: '{}'", scmDate);
     }
 
     return scmDate;
@@ -102,7 +113,7 @@ public class ForkDateSupplier {
 
     Instant forkdate = scmConfiguration.provider().forkDate(referenceBranchName, project.getBaseDir());
     if (forkdate != null) {
-      LOG.debug("Fork detected at '{}'", referenceBranchName, forkdate);
+      LOG.info("Fork detected at '{}'", referenceBranchName, forkdate);
     } else {
       analysisWarnings.addUnique("The scanner failed to compute New Code. Please check your scanner logs.");
       LOG.warn("Failed to detect fork date. No New Code will be computed.", referenceBranchName);

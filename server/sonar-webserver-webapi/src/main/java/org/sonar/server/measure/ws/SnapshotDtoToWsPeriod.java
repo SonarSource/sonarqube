@@ -54,6 +54,10 @@ class SnapshotDtoToWsPeriod {
     if (periodDate != null) {
       period.setDate(formatDateTime(periodDate));
     }
+    Long buildDate = snapshot.getBuildDate();
+    if (buildDate != null) {
+      period.setBuildDate(formatDateTime(buildDate));
+    }
     return period.build();
   }
 }
