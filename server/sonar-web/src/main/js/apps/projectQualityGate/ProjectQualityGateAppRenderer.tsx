@@ -19,14 +19,18 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
+import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import BuiltInQualityGateBadge from '../quality-gates/components/BuiltInQualityGateBadge';
 import { USE_SYSTEM_DEFAULT } from './constants';
 
@@ -38,6 +42,10 @@ export interface ProjectQualityGateAppRendererProps {
   onSubmit: () => void;
   selectedQualityGateId: string;
   submitting: boolean;
+}
+
+function hasConditionOnNewCode(qualityGate: T.QualityGate): boolean {
+  return !!qualityGate.conditions?.some(condition => isDiffMetric(condition.metric));
 }
 
 export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateAppRendererProps) {
@@ -63,7 +71,10 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
       defaultQualityGate.id !== currentQualityGate.id
     : selectedQualityGateId !== currentQualityGate.id;
 
+  const selectedQualityGate = allQualityGates.find(qg => qg.id === selectedQualityGateId);
+
   const options = allQualityGates.map(g => ({
+    disabled: g.conditions === undefined || g.conditions.length === 0,
     label: g.name,
     value: g.id
   }));
@@ -141,15 +152,49 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                     disabled={submitting || usesDefault}
                     onChange={({ value }: { value: string }) => props.onSelect(value)}
                     options={options}
-                    optionRenderer={option => <span>{option.label}</span>}
+                    optionRenderer={option => (
+                      <DisableableSelectOption
+                        className="abs-width-100"
+                        option={option}
+                        disabledReason={translate('project_quality_gate.no_condition.reason')}
+                        disableTooltipOverlay={() => (
+                          <FormattedMessage
+                            id="project_quality_gate.no_condition"
+                            defaultMessage={translate('project_quality_gate.no_condition')}
+                            values={{
+                              link: (
+                                <Link to={{ pathname: `/quality_gates/show/${option.value}` }}>
+                                  {translate('project_quality_gate.no_condition.link')}
+                                </Link>
+                              )
+                            }}
+                          />
+                        )}
+                      />
+                    )}
                     value={selectedQualityGateId}
                   />
                 </div>
               </div>
             </Radio>
 
+            {selectedQualityGate && !hasConditionOnNewCode(selectedQualityGate) && (
+              <Alert className="abs-width-600 spacer-top" variant="warning">
+                <FormattedMessage
+                  id="project_quality_gate.no_condition_on_new_code"
+                  defaultMessage={translate('project_quality_gate.no_condition_on_new_code')}
+                  values={{
+                    link: (
+                      <Link to={{ pathname: `/quality_gates/show/${selectedQualityGate.id}` }}>
+                        {translate('project_quality_gate.no_condition.link')}
+                      </Link>
+                    )
+                  }}
+                />
+              </Alert>
+            )}
             {needsReanalysis && (
-              <Alert className="big-spacer-top" variant="warning">
+              <Alert className="big-spacer-top abs-width-600" variant="warning">
                 {translate('project_quality_gate.requires_new_analysis')}
               </Alert>
             )}

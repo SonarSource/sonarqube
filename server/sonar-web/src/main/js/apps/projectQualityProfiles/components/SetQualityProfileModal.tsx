@@ -131,7 +131,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                             disabledReason={translate(
                               'project_quality_profile.add_language_modal.no_active_rules'
                             )}
-                            tooltipOverlay={
+                            disableTooltipOverlay={() => (
                               <>
                                 <p>
                                   {translate(
@@ -150,7 +150,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                                   </Link>
                                 )}
                               </>
-                            }
+                            )}
                           />
                         )}
                         value={!hasSelectedSysDefault ? selected : currentProfile.key}

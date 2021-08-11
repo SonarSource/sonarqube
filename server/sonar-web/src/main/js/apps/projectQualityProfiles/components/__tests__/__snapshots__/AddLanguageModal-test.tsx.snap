@@ -93,34 +93,13 @@ Array [
 
 exports[`should render select options correctly: default 1`] = `
 <DisableableSelectOption
+  disableTooltipOverlay={[Function]}
   disabledReason="project_quality_profile.add_language_modal.no_active_rules"
   option={
     Object {
       "label": "Profile 1",
       "value": "bar",
     }
-  }
-  tooltipOverlay={
-    <React.Fragment>
-      <p>
-        project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
-      </p>
-      <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/profiles/show",
-            "query": Object {
-              "language": "js",
-              "name": "Profile 1",
-            },
-          }
-        }
-      >
-        project_quality_profile.add_language_modal.go_to_profile
-      </Link>
-    </React.Fragment>
   }
 />
 `;

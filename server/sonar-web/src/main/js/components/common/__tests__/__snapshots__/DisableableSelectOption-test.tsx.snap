@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: default 1`] = `
-<span>
+<span
+  className=""
+>
   Foo
 </span>
 `;
@@ -11,7 +13,9 @@ exports[`should render correctly: disabled 1`] = `
   overlay="foo bar"
   placement="left"
 >
-  <span>
+  <span
+    className=""
+  >
     Bar
   </span>
 </Tooltip>
@@ -22,7 +26,9 @@ exports[`should render correctly: disabled, with explanation 1`] = `
   overlay="foo bar"
   placement="left"
 >
-  <span>
+  <span
+    className=""
+  >
     Bar
     <em
       className="small little-spacer-left"
@@ -36,7 +42,9 @@ exports[`should render correctly: disabled, with explanation 1`] = `
 `;
 
 exports[`should render correctly: no label 1`] = `
-<span>
+<span
+  className=""
+>
   baz
 </span>
 `;

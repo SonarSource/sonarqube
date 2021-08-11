@@ -116,12 +116,19 @@ exports[`should render correctly: always use system default 1`] = `
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
                     },
                   ]
                 }
@@ -259,12 +266,19 @@ exports[`should render correctly: default 1`] = `
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
                     },
                   ]
                 }
@@ -290,6 +304,186 @@ exports[`should render correctly: loading 1`] = `
 <i
   className="spinner"
 />
+`;
+
+exports[`should render correctly: show new code warning 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="3"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={false}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
+                    },
+                  ]
+                }
+                value="3"
+              />
+            </div>
+          </div>
+        </Radio>
+        <Alert
+          className="abs-width-600 spacer-top"
+          variant="warning"
+        >
+          <FormattedMessage
+            defaultMessage="project_quality_gate.no_condition_on_new_code"
+            id="project_quality_gate.no_condition_on_new_code"
+            values={
+              Object {
+                "link": <Link
+                  onlyActiveOnIndex={false}
+                  style={Object {}}
+                  to={
+                    Object {
+                      "pathname": "/quality_gates/show/3",
+                    }
+                  }
+                >
+                  project_quality_gate.no_condition.link
+                </Link>,
+              }
+            }
+          />
+        </Alert>
+        <Alert
+          className="big-spacer-top abs-width-600"
+          variant="warning"
+        >
+          project_quality_gate.requires_new_analysis
+        </Alert>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={false}
+        >
+          save
+        </SubmitButton>
+      </div>
+    </form>
+  </div>
+</div>
 `;
 
 exports[`should render correctly: show warning 1`] = `
@@ -408,12 +602,19 @@ exports[`should render correctly: show warning 1`] = `
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
                     },
                   ]
                 }
@@ -423,7 +624,7 @@ exports[`should render correctly: show warning 1`] = `
           </div>
         </Radio>
         <Alert
-          className="big-spacer-top"
+          className="big-spacer-top abs-width-600"
           variant="warning"
         >
           project_quality_gate.requires_new_analysis
@@ -557,12 +758,19 @@ exports[`should render correctly: show warning if not using default 1`] = `
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
                     },
                   ]
                 }
@@ -572,7 +780,7 @@ exports[`should render correctly: show warning if not using default 1`] = `
           </div>
         </Radio>
         <Alert
-          className="big-spacer-top"
+          className="big-spacer-top abs-width-600"
           variant="warning"
         >
           project_quality_gate.requires_new_analysis
@@ -706,12 +914,19 @@ exports[`should render correctly: submitting 1`] = `
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
+                      "disabled": false,
                       "label": "qualitygate",
                       "value": "2",
+                    },
+                    Object {
+                      "disabled": false,
+                      "label": "qualitygate",
+                      "value": "3",
                     },
                   ]
                 }
@@ -737,7 +952,15 @@ exports[`should render correctly: submitting 1`] = `
 `;
 
 exports[`should render select options correctly: default 1`] = `
-<span>
-  Gate 1
-</span>
+<DisableableSelectOption
+  className="abs-width-100"
+  disableTooltipOverlay={[Function]}
+  disabledReason="project_quality_gate.no_condition.reason"
+  option={
+    Object {
+      "label": "Gate 1",
+      "value": "1",
+    }
+  }
+/>
 `;

@@ -115,7 +115,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                       disabledReason={translate(
                         'project_quality_profile.add_language_modal.no_active_rules'
                       )}
-                      tooltipOverlay={
+                      disableTooltipOverlay={() => (
                         <>
                           <p>
                             {translate(
@@ -130,7 +130,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                             </Link>
                           )}
                         </>
-                      }
+                      )}
                     />
                   )}
                   value={key}

@@ -40,7 +40,7 @@ function shallowRender(props: Partial<DisableableSelectOptionProps> = {}) {
   return shallow<DisableableSelectOptionProps>(
     <DisableableSelectOption
       option={{ label: 'Foo', value: 'foo' }}
-      tooltipOverlay="foo bar"
+      disableTooltipOverlay={() => 'foo bar'}
       {...props}
     />
   );

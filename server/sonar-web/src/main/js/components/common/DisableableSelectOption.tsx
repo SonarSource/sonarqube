@@ -21,17 +21,18 @@ import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 
 export interface DisableableSelectOptionProps {
-  option: { label?: string; value?: string | number | boolean; disabled?: boolean };
-  tooltipOverlay: React.ReactNode;
+  className?: string;
   disabledReason?: string;
+  option: { label?: string; value?: string | number | boolean; disabled?: boolean };
+  disableTooltipOverlay: () => React.ReactNode;
 }
 
 export default function DisableableSelectOption(props: DisableableSelectOptionProps) {
-  const { option, tooltipOverlay, disabledReason } = props;
+  const { option, disableTooltipOverlay, disabledReason, className = '' } = props;
   const label = option.label || option.value;
   return option.disabled ? (
-    <Tooltip overlay={tooltipOverlay} placement="left">
-      <span>
+    <Tooltip overlay={disableTooltipOverlay()} placement="left">
+      <span className={className}>
         {label}
         {disabledReason !== undefined && (
           <em className="small little-spacer-left">({disabledReason})</em>
@@ -39,6 +40,6 @@ export default function DisableableSelectOption(props: DisableableSelectOptionPr
       </span>
     </Tooltip>
   ) : (
-    <span>{label}</span>
+    <span className={className}>{label}</span>
   );
 }

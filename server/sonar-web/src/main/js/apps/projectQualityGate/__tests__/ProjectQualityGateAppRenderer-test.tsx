@@ -23,6 +23,8 @@ import Radio from 'sonar-ui-common/components/controls/Radio';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { submit } from 'sonar-ui-common/helpers/testUtils';
 import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
+import { mockCondition } from '../../../helpers/testMocks';
+import { MetricKey } from '../../../types/metrics';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 import ProjectQualityGateAppRenderer, {
   ProjectQualityGateAppRendererProps
@@ -38,6 +40,7 @@ it('should render correctly', () => {
       selectedQualityGateId: USE_SYSTEM_DEFAULT
     })
   ).toMatchSnapshot('always use system default');
+  expect(shallowRender({ selectedQualityGateId: '3' })).toMatchSnapshot('show new code warning');
   expect(
     shallowRender({
       selectedQualityGateId: '5'
@@ -96,9 +99,15 @@ it('should correctly handle form submission', () => {
 });
 
 function shallowRender(props: Partial<ProjectQualityGateAppRendererProps> = {}) {
+  const conditions = [mockCondition(), mockCondition({ metric: MetricKey.new_bugs })];
+  const conditionsEmptyOnNew = [mockCondition({ metric: MetricKey.bugs })];
   return shallow<ProjectQualityGateAppRendererProps>(
     <ProjectQualityGateAppRenderer
-      allQualityGates={[mockQualityGate(), mockQualityGate({ id: '2', isDefault: true })]}
+      allQualityGates={[
+        mockQualityGate({ conditions }),
+        mockQualityGate({ id: '2', isDefault: true, conditions }),
+        mockQualityGate({ id: '3', isDefault: true, conditions: conditionsEmptyOnNew })
+      ]}
       currentQualityGate={mockQualityGate({ id: '1' })}
       loading={false}
       onSelect={jest.fn()}

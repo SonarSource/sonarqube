@@ -22,6 +22,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
+  fetchQualityGate,
   fetchQualityGates,
   getGateForProject,
   searchProjects
@@ -93,12 +94,22 @@ export default class ProjectQualityGateApp extends React.PureComponent<Props, St
     return !selected;
   };
 
+  fetchDetailedQualityGates = async () => {
+    const { qualitygates } = await fetchQualityGates();
+    return Promise.all(
+      qualitygates.map(async qg => {
+        const detailedQp = await fetchQualityGate({ id: qg.id }).catch(() => qg);
+        return { ...detailedQp, ...qg };
+      })
+    );
+  };
+
   fetchQualityGates = async () => {
     const { component } = this.props;
     this.setState({ loading: true });
 
     const [allQualityGates, currentQualityGate] = await Promise.all([
-      fetchQualityGates().then(({ qualitygates }) => qualitygates),
+      this.fetchDetailedQualityGates(),
       getGateForProject({ project: component.key })
     ]).catch(() => []);
 
