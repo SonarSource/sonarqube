@@ -434,10 +434,8 @@ package_docker_task:
     memory: 8G
   env:
     CIRRUS_CLONE_DEPTH: '1'
-  install_tooling_script: |
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update
-    apt-get install -yq openjdk-11-jdk-headless
+  install_tooling_script:
+    - ./private/cirrus/cirrus-tooling-for-package-docker.sh
   package_script:
     - ./private/cirrus/cirrus-package-docker.sh
 
