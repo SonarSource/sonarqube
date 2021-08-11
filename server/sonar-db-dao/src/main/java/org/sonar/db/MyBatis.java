@@ -96,6 +96,10 @@ import org.sonar.db.permission.template.PermissionTemplateMapper;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginMapper;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.portfolio.PortfolioMapper;
+import org.sonar.db.portfolio.PortfolioProjectDto;
+import org.sonar.db.portfolio.PortfolioReferenceDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectMapper;
 import org.sonar.db.property.InternalComponentPropertiesMapper;
@@ -193,6 +197,10 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("Plugin", PluginDto.class);
+    confBuilder.loadAlias("Portfolio", PortfolioDto.class);
+    confBuilder.loadAlias("PortfolioProject", PortfolioProjectDto.class);
+    confBuilder.loadAlias("PortfolioReference", PortfolioReferenceDto.class);
+
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
@@ -257,6 +265,7 @@ public class MyBatis implements Startable {
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,
+      PortfolioMapper.class,
       ProjectAlmSettingMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,

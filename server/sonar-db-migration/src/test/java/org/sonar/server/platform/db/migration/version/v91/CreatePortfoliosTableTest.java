@@ -19,29 +19,37 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class CreatePortfoliosTableTest {
+  private static final String TABLE_NAME = "portfolios";
 
-public class DbVersion91Test {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createEmpty();
 
-  private final DbVersion91 underTest = new DbVersion91();
+  private final CreatePortfoliosTable underTest = new CreatePortfoliosTable(db.database());
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void migration_should_create_a_table() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
+
+    underTest.execute();
+
+    db.assertTableExists(TABLE_NAME);
+    db.assertPrimaryKey(TABLE_NAME, "pk_portfolios", "uuid");
   }
 
   @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
-  }
+    underTest.execute();
+    //re-entrant
+    underTest.execute();
 
+    db.assertTableExists(TABLE_NAME);
+  }
 }

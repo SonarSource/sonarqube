@@ -17,31 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v91;
+package org.sonar.db.portfolio;
 
-import org.junit.Test;
+public class ReferenceDto {
+  private String sourceUuid;
+  private String sourceRootUuid;
+  private String targetUuid;
+  private String targetRootUuid;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion91Test {
-
-  private final DbVersion91 underTest = new DbVersion91();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public String getSourceUuid() {
+    return sourceUuid;
   }
 
-  @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
+  public void setSourceUuid(String sourceUuid) {
+    this.sourceUuid = sourceUuid;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  public String getSourceRootUuid() {
+    return sourceRootUuid;
+  }
+
+  public void setSourceRootUuid(String sourceRootUuid) {
+    this.sourceRootUuid = sourceRootUuid;
+  }
+
+  public String getTargetUuid() {
+    return targetUuid;
+  }
+
+  public void setTargetUuid(String targetUuid) {
+    this.targetUuid = targetUuid;
+  }
+
+  public String getTargetRootUuid() {
+    return targetRootUuid;
+  }
+
+  public void setTargetRootUuid(String targetRootUuid) {
+    this.targetRootUuid = targetRootUuid;
   }
 
 }

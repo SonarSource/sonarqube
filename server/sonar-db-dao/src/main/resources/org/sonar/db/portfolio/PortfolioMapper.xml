@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.portfolio.PortfolioMapper">
+
+    <sql id="portfolioColumns">
+      p.uuid as uuid,
+      p.kee as kee,
+      p.name as name,
+      p.description as description,
+      p.private as isPrivate,
+      p.root_uuid as rootUuid,
+      p.parent_uuid as parentUuid,
+      p.selection_mode as selectionMode,
+      p.selection_expression as selectionExpression,
+      p.created_at as createdAt,
+      p.updated_at as updatedAt
+    </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="Portfolio">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    where
+      p.uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectByKey" parameterType="String" resultType="Portfolio">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    where
+      p.kee=#{kee,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllRoots" resultType="Portfolio">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    where
+      p.parent_uuid is null
+  </select>
+
+   <select id="selectProjects" resultType="String">
+    SELECT
+      p.project_uuid
+    FROM portfolio_projects p
+    where
+      p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllProjectsInHierarchy" resultType="String">
+    SELECT
+      pp.project_uuid
+    FROM portfolio_projects pp
+       INNER JOIN portfolios p
+       ON pp.portfolio_uuid = p.uuid
+    where
+       p.root_uuid = #{rootUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectReferences" resultType="String">
+    SELECT
+      p.reference_uuid
+    FROM portfolio_references p
+    where
+      p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+ <select id="selectTree" parameterType="String" resultType="Portfolio">
+    SELECT <include refid="portfolioColumns"/>
+    FROM portfolios p
+    INNER JOIN portfolios p2 ON p.root_uuid = p2.root_uuid
+    WHERE p2.uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectReferencersByKey" resultType="Portfolio">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
+    INNER JOIN portfolios p2 ON pr.reference_uuid = p2.uuid
+    WHERE p2.kee=#{referenceKey,jdbcType=VARCHAR}
+
+    UNION
+
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
+    INNER JOIN projects pj ON pr.reference_uuid = pj.uuid AND pj.qualifier = 'APP'
+    WHERE pj.kee=#{referenceKey,jdbcType=VARCHAR}
+  </select>
+
+   <insert id="insert" parameterType="Portfolio">
+    INSERT INTO portfolios (
+      kee,
+      uuid,
+      name,
+      description,
+      private,
+      root_uuid,
+      parent_uuid,
+      selection_mode,
+      selection_expression,
+      created_at,
+      updated_at
+    )
+    VALUES (
+    #{kee,jdbcType=VARCHAR},
+    #{uuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{isPrivate,jdbcType=BOOLEAN},
+    #{rootUuid,jdbcType=VARCHAR},
+    #{parentUuid,jdbcType=VARCHAR},
+    #{selectionMode,jdbcType=VARCHAR},
+    #{selectionExpression,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="String">
+    DELETE FROM portfolios WHERE uuid = #{portfolioUuid,jdbcType=VARCHAR};
+    DELETE FROM portfolio_references WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR};
+    DELETE FROM portfolio_projects WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR};
+  </delete>
+
+  <select id="selectAllReferencesToPortfolios" resultType="org.sonar.db.portfolio.ReferenceDto">
+    SELECT
+      source.uuid as sourceUuid,
+      source.rootUuid as sourceRootUuid,
+      target.uuid as sourceUuid,
+      target.rootUuid as sourceRootUuid
+    FROM portfolio_references pr
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
+  </select>
+
+  <delete id="deletePortfoliosByUuids" parameterType="String">
+    DELETE FROM portfolios WHERE uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteReferencesByPortfolioOrReferenceUuids" parameterType="String">
+    DELETE FROM portfolio_references WHERE portfolio_uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+    OR reference_uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteProjectsByPortfolioUuids" parameterType="String">
+    DELETE FROM portfolio_projects WHERE portfolio_uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <insert id="insertReference" parameterType="PortfolioReference">
+    INSERT INTO portfolio_references (
+      uuid,
+      portfolio_uuid,
+      reference_uuid,
+      created_at
+    )
+    VALUES (
+    #{uuid,jdbcType=VARCHAR},
+    #{portfolioUuid,jdbcType=VARCHAR},
+    #{referenceUuid,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+
+  <delete id="deleteReferencesTo" parameterType="String">
+    delete from portfolio_references
+    where reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteProjects" parameterType="String">
+    delete from portfolio_projects
+    where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+  </delete>
+
+    <insert id="insertProject" parameterType="PortfolioProject">
+    INSERT INTO portfolio_projects (
+      uuid,
+      portfolio_uuid,
+      project_uuid,
+      created_at
+    )
+    VALUES (
+    #{uuid,jdbcType=VARCHAR},
+    #{portfolioUuid,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="Portfolio">
+    update portfolios set
+    name = #{name,jdbcType=VARCHAR},
+    description = #{description,jdbcType=VARCHAR},
+    selection_mode = #{selectionMode,jdbcType=VARCHAR},
+    selection_expression = #{selectionExpression,jdbcType=VARCHAR},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+</mapper>

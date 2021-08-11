@@ -17,31 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v91;
+package org.sonar.server.platform.db.migration.step;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public abstract class CreateTableChange extends DdlChange {
+  protected final String tableName;
 
-public class DbVersion91Test {
-
-  private final DbVersion91 underTest = new DbVersion91();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public CreateTableChange(Database db, String tableName) {
+    super(db);
+    this.tableName = tableName;
   }
 
-  @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
+  @Override
+  public final void execute(Context context) throws SQLException {
+    if (!tableExists()) {
+      execute(context, tableName);
+    }
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
-  }
+  public abstract void execute(Context context, String tableName) throws SQLException;
 
+  private boolean tableExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.tableExists(tableName, connection);
+    }
+  }
 }
