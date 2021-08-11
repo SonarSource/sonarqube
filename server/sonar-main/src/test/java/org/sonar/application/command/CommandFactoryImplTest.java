@@ -134,6 +134,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getHttpPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
+      .contains("-XX:+UseG1GC")
       .contains("-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
@@ -169,6 +170,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getHttpPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
+      .contains("-XX:+UseG1GC")
       .contains("-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
@@ -209,6 +211,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getHttpPort()).isEqualTo(1234);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
+      .contains("-XX:+UseG1GC")
       .contains("-Dfile.encoding=UTF-8")
       .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath())
       // user settings
