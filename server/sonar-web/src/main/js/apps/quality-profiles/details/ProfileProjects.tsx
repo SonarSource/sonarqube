@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfileProjects } from '../../../api/quality-profiles';
@@ -131,6 +132,11 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     }
 
     const { projects } = this.state;
+    const { profile } = this.props;
+
+    if (profile.activeRuleCount === 0 && projects.length === 0) {
+      return <div>{translate('quality_profiles.cannot_associate_projects_no_rules')}</div>;
+    }
 
     if (projects.length === 0) {
       return <div>{translate('quality_profiles.no_projects_associated_to_profile')}</div>;
@@ -159,13 +165,24 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   render() {
     const { profile } = this.props;
+    const hasNoActiveRules = profile.activeRuleCount === 0;
     return (
       <div className="boxed-group quality-profile-projects">
         {profile.actions && profile.actions.associateProjects && (
           <div className="boxed-group-actions">
-            <Button className="js-change-projects" onClick={this.handleChangeClick}>
-              {translate('quality_profiles.change_projects')}
-            </Button>
+            <Tooltip
+              overlay={
+                hasNoActiveRules
+                  ? translate('quality_profiles.cannot_associate_projects_no_rules')
+                  : null
+              }>
+              <Button
+                className="js-change-projects"
+                onClick={this.handleChangeClick}
+                disabled={hasNoActiveRules}>
+                {translate('quality_profiles.change_projects')}
+              </Button>
+            </Tooltip>
           </div>
         )}
 

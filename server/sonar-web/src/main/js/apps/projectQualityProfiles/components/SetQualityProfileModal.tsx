@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import { ButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import Select from 'sonar-ui-common/components/controls/Select';
@@ -25,6 +26,8 @@ import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
+import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 
@@ -54,7 +57,11 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
     'project_quality_profile.change_lang_X_profile',
     currentProfile.languageName
   );
-  const profileOptions = availableProfiles.map(p => ({ value: p.key, label: p.name }));
+  const profileOptions = availableProfiles.map(p => ({
+    value: p.key,
+    label: p.name,
+    disabled: p.activeRuleCount === 0
+  }));
   const hasSelectedSysDefault = selected === USE_SYSTEM_DEFAULT;
   const hasChanged = usesDefault ? !hasSelectedSysDefault : selected !== currentProfile.key;
   const needsReanalysis = !component.qualityProfiles?.some(p =>
@@ -118,7 +125,34 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                         disabled={submitting || hasSelectedSysDefault}
                         onChange={({ value }: { value: string }) => setSelected(value)}
                         options={profileOptions}
-                        optionRenderer={option => <span>{option.label}</span>}
+                        optionRenderer={option => (
+                          <DisableableSelectOption
+                            option={option}
+                            disabledReason={translate(
+                              'project_quality_profile.add_language_modal.no_active_rules'
+                            )}
+                            tooltipOverlay={
+                              <>
+                                <p>
+                                  {translate(
+                                    'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
+                                  )}
+                                </p>
+                                {option.label && (
+                                  <Link
+                                    to={getQualityProfileUrl(
+                                      option.label,
+                                      currentProfile.language
+                                    )}>
+                                    {translate(
+                                      'project_quality_profile.add_language_modal.go_to_profile'
+                                    )}
+                                  </Link>
+                                )}
+                              </>
+                            }
+                          />
+                        )}
                         value={!hasSelectedSysDefault ? selected : currentProfile.key}
                       />
                     </div>

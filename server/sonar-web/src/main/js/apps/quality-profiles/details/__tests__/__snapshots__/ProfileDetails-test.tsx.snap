@@ -1,6 +1,98 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders with edit permission 1`] = `
+exports[`should render correctly: default 1`] = `
+<div>
+  <div
+    className="quality-profile-grid"
+  >
+    <div
+      className="quality-profile-grid-left"
+    >
+      <ProfileRules
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
+          }
+        }
+      />
+      <ProfileExporters
+        exporters={Array []}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
+          }
+        }
+      />
+    </div>
+    <div
+      className="quality-profile-grid-right"
+    >
+      <ProfileInheritance
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[MockFunction]}
+      />
+      <ProfileProjects
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: edit permissions 1`] = `
 <div>
   <div
     className="quality-profile-grid"
@@ -14,6 +106,18 @@ exports[`renders with edit permission 1`] = `
             "actions": Object {
               "edit": true,
             },
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
           }
         }
       />
@@ -24,6 +128,18 @@ exports[`renders with edit permission 1`] = `
             "actions": Object {
               "edit": true,
             },
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
           }
         }
       />
@@ -33,6 +149,18 @@ exports[`renders with edit permission 1`] = `
             "actions": Object {
               "edit": true,
             },
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
           }
         }
       />
@@ -46,6 +174,18 @@ exports[`renders with edit permission 1`] = `
             "actions": Object {
               "edit": true,
             },
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
           }
         }
         profiles={Array []}
@@ -57,6 +197,18 @@ exports[`renders with edit permission 1`] = `
             "actions": Object {
               "edit": true,
             },
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 3,
           }
         }
       />
@@ -65,7 +217,7 @@ exports[`renders with edit permission 1`] = `
 </div>
 `;
 
-exports[`renders without permissions 1`] = `
+exports[`should render correctly: is default profile, no active rules 1`] = `
 <div>
   <div
     className="quality-profile-grid"
@@ -74,23 +226,279 @@ exports[`renders without permissions 1`] = `
       className="quality-profile-grid-left"
     >
       <ProfileRules
-        profile={Object {}}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": true,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
       />
       <ProfileExporters
         exporters={Array []}
-        profile={Object {}}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": true,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
+      />
+    </div>
+    <div
+      className="quality-profile-grid-right"
+    >
+      <Alert
+        className="big-spacer-bottom"
+        variant="warning"
+      >
+        quality_profiles.warning.is_default_no_rules
+      </Alert>
+      <ProfileInheritance
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": true,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[MockFunction]}
+      />
+      <ProfileProjects
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": true,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no active rules (same as default) 1`] = `
+<div>
+  <div
+    className="quality-profile-grid"
+  >
+    <div
+      className="quality-profile-grid-left"
+    >
+      <ProfileRules
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
+      />
+      <ProfileExporters
+        exporters={Array []}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
       />
     </div>
     <div
       className="quality-profile-grid-right"
     >
       <ProfileInheritance
-        profile={Object {}}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
         profiles={Array []}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
-        profile={Object {}}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 0,
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: projects associated, no active rules 1`] = `
+<div>
+  <div
+    className="quality-profile-grid"
+  >
+    <div
+      className="quality-profile-grid-left"
+    >
+      <ProfileRules
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 10,
+          }
+        }
+      />
+      <ProfileExporters
+        exporters={Array []}
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 10,
+          }
+        }
+      />
+    </div>
+    <div
+      className="quality-profile-grid-right"
+    >
+      <Alert
+        className="big-spacer-bottom"
+        variant="warning"
+      >
+        quality_profiles.warning.used_by_projects_no_rules
+      </Alert>
+      <ProfileInheritance
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 10,
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[MockFunction]}
+      />
+      <ProfileProjects
+        profile={
+          Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 0,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "projectCount": 10,
+          }
+        }
       />
     </div>
   </div>

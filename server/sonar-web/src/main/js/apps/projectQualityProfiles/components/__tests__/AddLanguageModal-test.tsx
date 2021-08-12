@@ -28,6 +28,27 @@ it('should render correctly', () => {
   expect(diveIntoSimpleModal(shallowRender())).toMatchSnapshot('default');
 });
 
+it('should render select options correctly', () => {
+  return new Promise<void>((resolve, reject) => {
+    const wrapper = shallowRender();
+
+    const langOnChange = getLanguageSelect(wrapper).props().onChange;
+    if (!langOnChange) {
+      reject();
+      return;
+    }
+    langOnChange({ value: 'js' });
+
+    const render = getProfileSelect(wrapper).props().optionRenderer;
+    if (!render) {
+      reject();
+      return;
+    }
+    expect(render({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
+    resolve();
+  });
+});
+
 it('should correctly handle changes', () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit });
@@ -50,6 +71,9 @@ it('should correctly handle changes', () => {
   // Should now show 2 available profiles.
   profileSelect = getProfileSelect(wrapper);
   expect(profileSelect.props().options).toHaveLength(2);
+  expect(profileSelect.props().options).toEqual(
+    expect.arrayContaining([expect.objectContaining({ disabled: true })])
+  );
 
   // Choose 1 profile.
   const profileChange = profileSelect.props().onChange;
@@ -100,7 +124,7 @@ function shallowRender(props: Partial<AddLanguageModalProps> = {}) {
       onSubmit={jest.fn()}
       profilesByLanguage={{
         css: [
-          mockQualityProfile({ key: 'css', name: 'CSS' }),
+          mockQualityProfile({ key: 'css', name: 'CSS', activeRuleCount: 0 }),
           mockQualityProfile({ key: 'css2', name: 'CSS 2' })
         ],
         ts: [mockQualityProfile({ key: 'ts', name: 'TS' })],

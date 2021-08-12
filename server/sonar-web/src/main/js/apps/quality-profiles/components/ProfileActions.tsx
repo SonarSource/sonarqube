@@ -22,6 +22,7 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   changeProfileParent,
@@ -145,7 +146,12 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleSetDefaultClick = () => {
-    setDefaultProfile(this.props.profile).then(this.props.updateProfiles, () => {});
+    const { profile } = this.props;
+    if (profile.activeRuleCount > 0) {
+      setDefaultProfile(profile).then(this.props.updateProfiles, () => {
+        /* noop */
+      });
+    }
   };
 
   profileActionPerformed = (name: string) => {
@@ -180,6 +186,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       qprofile: profile.key,
       activation: 'false'
     });
+
+    const hasNoActiveRules = profile.activeRuleCount === 0;
 
     return (
       <>
@@ -231,13 +239,24 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             </ActionsDropdownItem>
           )}
 
-          {actions.setAsDefault && (
-            <ActionsDropdownItem
-              className="it__quality-profiles__set-as-default"
-              onClick={this.handleSetDefaultClick}>
-              {translate('set_as_default')}
-            </ActionsDropdownItem>
-          )}
+          {actions.setAsDefault &&
+            (hasNoActiveRules ? (
+              <li>
+                <Tooltip
+                  placement="left"
+                  overlay={translate('quality_profiles.cannot_set_default_no_rules')}>
+                  <span className="it__quality-profiles__set-as-default text-muted-2">
+                    {translate('set_as_default')}
+                  </span>
+                </Tooltip>
+              </li>
+            ) : (
+              <ActionsDropdownItem
+                className="it__quality-profiles__set-as-default"
+                onClick={this.handleSetDefaultClick}>
+                {translate('set_as_default')}
+              </ActionsDropdownItem>
+            ))}
 
           {actions.delete && <ActionsDropdownDivider />}
 

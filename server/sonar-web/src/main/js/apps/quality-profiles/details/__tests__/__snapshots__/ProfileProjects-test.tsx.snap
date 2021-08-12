@@ -1,18 +1,92 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <div
   className="boxed-group quality-profile-projects"
 >
   <div
     className="boxed-group-actions"
   >
-    <Button
-      className="js-change-projects"
-      onClick={[Function]}
+    <Tooltip
+      overlay={null}
     >
-      quality_profiles.change_projects
-    </Button>
+      <Button
+        className="js-change-projects"
+        disabled={false}
+        onClick={[Function]}
+      >
+        quality_profiles.change_projects
+      </Button>
+    </Tooltip>
+  </div>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      projects
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <ul>
+      <li
+        className="spacer-top js-profile-project"
+        data-key="org.sonarsource.xml:xml"
+        key="org.sonarsource.xml:xml"
+      >
+        <Link
+          className="link-with-icon"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "branch": undefined,
+                "id": "org.sonarsource.xml:xml",
+              },
+            }
+          }
+        >
+          <QualifierIcon
+            qualifier="TRK"
+          />
+           
+          <span>
+            SonarXML
+          </span>
+        </Link>
+      </li>
+    </ul>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      ready={true}
+      total={10}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="boxed-group quality-profile-projects"
+>
+  <div
+    className="boxed-group-actions"
+  >
+    <Tooltip
+      overlay={null}
+    >
+      <Button
+        className="js-change-projects"
+        disabled={false}
+        onClick={[Function]}
+      >
+        quality_profiles.change_projects
+      </Button>
+    </Tooltip>
   </div>
   <header
     className="boxed-group-header"
@@ -31,20 +105,115 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: no active rules, but associated projects 1`] = `
 <div
   className="boxed-group quality-profile-projects"
 >
   <div
     className="boxed-group-actions"
   >
-    <Button
-      className="js-change-projects"
-      onClick={[Function]}
+    <Tooltip
+      overlay="quality_profiles.cannot_associate_projects_no_rules"
     >
-      quality_profiles.change_projects
-    </Button>
+      <Button
+        className="js-change-projects"
+        disabled={true}
+        onClick={[Function]}
+      >
+        quality_profiles.change_projects
+      </Button>
+    </Tooltip>
   </div>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      projects
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <ul>
+      <li
+        className="spacer-top js-profile-project"
+        data-key="org.sonarsource.xml:xml"
+        key="org.sonarsource.xml:xml"
+      >
+        <Link
+          className="link-with-icon"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "branch": undefined,
+                "id": "org.sonarsource.xml:xml",
+              },
+            }
+          }
+        >
+          <QualifierIcon
+            qualifier="TRK"
+          />
+           
+          <span>
+            SonarXML
+          </span>
+        </Link>
+      </li>
+    </ul>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      ready={true}
+      total={10}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no active rules, no associated projects 1`] = `
+<div
+  className="boxed-group quality-profile-projects"
+>
+  <div
+    className="boxed-group-actions"
+  >
+    <Tooltip
+      overlay="quality_profiles.cannot_associate_projects_no_rules"
+    >
+      <Button
+        className="js-change-projects"
+        disabled={true}
+        onClick={[Function]}
+      >
+        quality_profiles.change_projects
+      </Button>
+    </Tooltip>
+  </div>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      projects
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <div>
+      quality_profiles.cannot_associate_projects_no_rules
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no rights 1`] = `
+<div
+  className="boxed-group quality-profile-projects"
+>
   <header
     className="boxed-group-header"
   >

@@ -32,12 +32,16 @@ it('should render correctly', () => {
 });
 
 it('should render select options correctly', () => {
-  const wrapper = shallowRender();
-  const render = wrapper.find(Select).props().optionRenderer;
-
-  expect(render).toBeDefined();
-
-  expect(render!({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
+  return new Promise<void>((resolve, reject) => {
+    const wrapper = shallowRender();
+    const render = wrapper.find(Select).props().optionRenderer;
+    if (!render) {
+      reject();
+      return;
+    }
+    expect(render({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
+    resolve();
+  });
 });
 
 it('should correctly handle changes', () => {
@@ -90,7 +94,7 @@ function shallowRender(props: Partial<SetQualityProfileModalProps> = {}, dive = 
     <SetQualityProfileModal
       availableProfiles={[
         mockQualityProfile({ key: 'foo', isDefault: true, language: 'js' }),
-        mockQualityProfile({ key: 'bar', language: 'js' })
+        mockQualityProfile({ key: 'bar', language: 'js', activeRuleCount: 0 })
       ]}
       component={mockComponent({ qualityProfiles: [{ key: 'foo', name: 'Foo', language: 'js' }] })}
       currentProfile={mockQualityProfile({ key: 'foo', language: 'js' })}

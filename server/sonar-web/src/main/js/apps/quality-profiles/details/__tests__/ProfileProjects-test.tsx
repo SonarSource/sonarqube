@@ -41,9 +41,26 @@ jest.mock('../../../../api/quality-profiles', () => ({
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loading');
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('default');
+  wrapper.setProps({
+    profile: mockQualityProfile({ actions: { associateProjects: false } })
+  });
+  expect(wrapper).toMatchSnapshot('no rights');
+  wrapper.setProps({
+    profile: mockQualityProfile({
+      projectCount: 0,
+      activeRuleCount: 0,
+      actions: { associateProjects: true }
+    })
+  });
+  expect(wrapper).toMatchSnapshot('no active rules, but associated projects');
+  wrapper.setProps({
+    profile: mockQualityProfile({ activeRuleCount: 0, actions: { associateProjects: true } })
+  });
+  wrapper.setState({ projects: [] });
+  expect(wrapper).toMatchSnapshot('no active rules, no associated projects');
 });
 
 it('should open and close the form', async () => {

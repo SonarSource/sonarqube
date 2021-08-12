@@ -20,11 +20,14 @@
 import { difference } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { ButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Select from 'sonar-ui-common/components/controls/Select';
 import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
+import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 import { Store } from '../../../store/rootReducer';
 
 export interface AddLanguageModalProps {
@@ -52,7 +55,11 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
 
   const profileOptions =
     language !== undefined
-      ? profilesByLanguage[language].map(p => ({ value: p.key, label: p.name }))
+      ? profilesByLanguage[language].map(p => ({
+          value: p.key,
+          label: p.name,
+          disabled: p.activeRuleCount === 0
+        }))
       : [];
 
   return (
@@ -102,6 +109,30 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   id="profiles"
                   onChange={({ value }: { value: string }) => setSelected({ language, key: value })}
                   options={profileOptions}
+                  optionRenderer={option => (
+                    <DisableableSelectOption
+                      option={option}
+                      disabledReason={translate(
+                        'project_quality_profile.add_language_modal.no_active_rules'
+                      )}
+                      tooltipOverlay={
+                        <>
+                          <p>
+                            {translate(
+                              'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
+                            )}
+                          </p>
+                          {option.label && language && (
+                            <Link to={getQualityProfileUrl(option.label, language)}>
+                              {translate(
+                                'project_quality_profile.add_language_modal.go_to_profile'
+                              )}
+                            </Link>
+                          )}
+                        </>
+                      }
+                    />
+                  )}
                   value={key}
                 />
               </div>

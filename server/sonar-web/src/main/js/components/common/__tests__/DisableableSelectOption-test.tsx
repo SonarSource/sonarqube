@@ -17,38 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
-import ProfileDetails, { ProfileDetailsProps } from '../ProfileDetails';
+import DisableableSelectOption, { DisableableSelectOptionProps } from '../DisableableSelectOption';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(
-    shallowRender({ profile: mockQualityProfile({ actions: { edit: true } }) })
-  ).toMatchSnapshot('edit permissions');
-  expect(
-    shallowRender({
-      profile: mockQualityProfile({ activeRuleCount: 0, projectCount: 0 })
-    })
-  ).toMatchSnapshot('no active rules (same as default)');
+  expect(shallowRender({ option: { value: 'baz' } })).toMatchSnapshot('no label');
+  expect(shallowRender({ option: { label: 'Bar', value: 'bar', disabled: true } })).toMatchSnapshot(
+    'disabled'
+  );
   expect(
     shallowRender({
-      profile: mockQualityProfile({ projectCount: 0, isDefault: true, activeRuleCount: 0 })
+      option: { label: 'Bar', value: 'bar', disabled: true },
+      disabledReason: 'bar baz'
     })
-  ).toMatchSnapshot('is default profile, no active rules');
-  expect(
-    shallowRender({ profile: mockQualityProfile({ projectCount: 10, activeRuleCount: 0 }) })
-  ).toMatchSnapshot('projects associated, no active rules');
+  ).toMatchSnapshot('disabled, with explanation');
 });
 
-function shallowRender(props: Partial<ProfileDetailsProps> = {}) {
-  return shallow<ProfileDetailsProps>(
-    <ProfileDetails
-      exporters={[]}
-      profile={mockQualityProfile()}
-      profiles={[]}
-      updateProfiles={jest.fn()}
+function shallowRender(props: Partial<DisableableSelectOptionProps> = {}) {
+  return shallow<DisableableSelectOptionProps>(
+    <DisableableSelectOption
+      option={{ label: 'Foo', value: 'foo' }}
+      tooltipOverlay="foo bar"
       {...props}
     />
   );

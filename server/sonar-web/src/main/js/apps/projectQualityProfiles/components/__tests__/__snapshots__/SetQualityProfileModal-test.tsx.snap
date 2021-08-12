@@ -77,10 +77,12 @@ Array [
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "name",
                       "value": "foo",
                     },
                     Object {
+                      "disabled": true,
                       "label": "name",
                       "value": "bar",
                     },
@@ -189,10 +191,12 @@ Array [
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "name",
                       "value": "foo",
                     },
                     Object {
+                      "disabled": true,
                       "label": "name",
                       "value": "bar",
                     },
@@ -301,10 +305,12 @@ Array [
                 options={
                   Array [
                     Object {
+                      "disabled": false,
                       "label": "name",
                       "value": "foo",
                     },
                     Object {
+                      "disabled": true,
                       "label": "name",
                       "value": "bar",
                     },
@@ -342,7 +348,35 @@ Array [
 `;
 
 exports[`should render select options correctly: default 1`] = `
-<span>
-  Profile 1
-</span>
+<DisableableSelectOption
+  disabledReason="project_quality_profile.add_language_modal.no_active_rules"
+  option={
+    Object {
+      "label": "Profile 1",
+      "value": "bar",
+    }
+  }
+  tooltipOverlay={
+    <React.Fragment>
+      <p>
+        project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
+      </p>
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/profiles/show",
+            "query": Object {
+              "language": "js",
+              "name": "Profile 1",
+            },
+          }
+        }
+      >
+        project_quality_profile.add_language_modal.go_to_profile
+      </Link>
+    </React.Fragment>
+  }
+/>
 `;

@@ -323,6 +323,22 @@ it('should correctly set a profile as the default', async () => {
   expect(updateProfiles).toHaveBeenCalled();
 });
 
+it('should not allow to set a profile as the default if the profile has no active rules', async () => {
+  const profile = mockQualityProfile({
+    activeRuleCount: 0,
+    actions: {
+      setAsDefault: true
+    }
+  });
+
+  const wrapper = shallowRender({ profile });
+  wrapper.instance().handleSetDefaultClick();
+  await waitAndUpdate(wrapper);
+
+  expect(setDefaultProfile).not.toHaveBeenCalled();
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<ProfileActions['props']> = {}) {
   const router = mockRouter();
   return shallow<ProfileActions>(

@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Exporter, Profile } from '../types';
 import ProfileExporters from './ProfileExporters';
 import ProfileInheritance from './ProfileInheritance';
@@ -25,14 +27,14 @@ import ProfilePermissions from './ProfilePermissions';
 import ProfileProjects from './ProfileProjects';
 import ProfileRules from './ProfileRules';
 
-interface Props {
+export interface ProfileDetailsProps {
   exporters: Exporter[];
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 
-export default function ProfileDetails(props: Props) {
+export default function ProfileDetails(props: ProfileDetailsProps) {
   const { profile } = props;
   return (
     <div>
@@ -45,6 +47,17 @@ export default function ProfileDetails(props: Props) {
           )}
         </div>
         <div className="quality-profile-grid-right">
+          {profile.activeRuleCount === 0 && (profile.projectCount || profile.isDefault) && (
+            <Alert className="big-spacer-bottom" variant="warning">
+              {profile.projectCount !== undefined &&
+                profile.projectCount > 0 &&
+                translate('quality_profiles.warning.used_by_projects_no_rules')}
+              {!profile.projectCount &&
+                profile.isDefault &&
+                translate('quality_profiles.warning.is_default_no_rules')}
+            </Alert>
+          )}
+
           <ProfileInheritance
             profile={profile}
             profiles={props.profiles}
