@@ -48,7 +48,7 @@ public class ProjectDao implements Dao {
 
   public void insert(DbSession session, ProjectDto project, boolean track) {
     if (track && auditPersister != null) {
-      auditPersister.addComponent(session, new ComponentNewValue(project.getUuid(), project.getName(), project.getQualifier()),
+      auditPersister.addComponent(session, new ComponentNewValue(project.getUuid(), project.getName(), project.getKey(), project.getQualifier()),
         project.getQualifier());
     }
     mapper(session).insert(project);
@@ -117,7 +117,7 @@ public class ProjectDao implements Dao {
   public void update(DbSession session, ProjectDto project) {
     if (auditPersister != null) {
       auditPersister.updateComponent(session, new ComponentNewValue(project.getUuid(), project.isPrivate(),
-        project.getName(), project.getDescription(), project.getQualifier()), project.getQualifier());
+        project.getName(), project.getKey(), project.getDescription(), project.getQualifier()), project.getQualifier());
     }
 
     mapper(session).update(project);

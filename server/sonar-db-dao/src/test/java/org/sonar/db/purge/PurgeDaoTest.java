@@ -49,8 +49,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
@@ -92,7 +90,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -124,9 +121,7 @@ public class PurgeDaoTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final PurgeDao underTest = db.getDbClient().purgeDao();
-  private final PurgeDao underTestWithPersister = new PurgeDao(system2, auditPersister);
 
   @Test
   public void purge_failed_ce_tasks() {
@@ -545,7 +540,7 @@ public class PurgeDaoTest {
     IssueDto otherIssue2 = db.issues().insert(rule, otherProject, otherFile);
     FileSourceDto otherFileSource = db.fileSources().insertFileSource(otherFile);
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("components")).containsOnly(otherProject.uuid(), otherModule.uuid(), otherDirectory.uuid(), otherFile.uuid());
@@ -554,15 +549,6 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("issues", "kee")).containsOnly(otherIssue1.getKey(), otherIssue2.getKey());
     assertThat(uuidsIn("issue_changes", "kee")).containsOnly(otherIssueChange1.getKey());
     assertThat(uuidsIn("file_sources", "file_uuid")).containsOnly(otherFileSource.getFileUuid());
-  }
-
-  @Test
-  public void delete_project_and_persist() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    underTestWithPersister.deleteProject(dbSession, project.uuid(), project.qualifier());
-
-    verify(auditPersister).deleteComponent(any(DbSession.class), any(ComponentNewValue.class), anyString());
   }
 
   @Test
@@ -592,7 +578,7 @@ public class PurgeDaoTest {
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, appBranch.uuid()).get(), projectBranch);
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, otherAppBranch.uuid()).get(), projectBranch);
 
-    underTest.deleteProject(dbSession, app.uuid(), app.qualifier());
+    underTest.deleteProject(dbSession, app.uuid(), app.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("components")).containsOnly(project.uuid(), otherApp.uuid(), otherAppBranch.uuid());
@@ -657,7 +643,7 @@ public class PurgeDaoTest {
     WebhookDto webhookNotDeleted = db.webhooks().insertWebhook(projectNotToBeDeleted);
     WebhookDeliveryLiteDto webhookDeliveryNotDeleted = db.webhookDelivery().insert(webhookNotDeleted);
 
-    underTest.deleteProject(dbSession, project1.getUuid(), project1.getQualifier());
+    underTest.deleteProject(dbSession, project1.getUuid(), project1.getQualifier(), project1.getName(), project1.getKey());
 
     assertThat(uuidsIn("webhooks")).containsOnly(webhookNotDeleted.getUuid());
     assertThat(uuidsIn("webhook_deliveries")).containsOnly(webhookDeliveryNotDeleted.getUuid());
@@ -680,7 +666,7 @@ public class PurgeDaoTest {
     CeActivityDto notDeletedActivity = insertCeActivity(anotherLivingProject);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
     dbSession.commit();
 
     assertThat(uuidsOfTable("ce_activity"))
@@ -707,13 +693,13 @@ public class PurgeDaoTest {
     insertCeTaskInput("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_input")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -739,13 +725,13 @@ public class PurgeDaoTest {
     insertCeScannerContext("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -771,13 +757,13 @@ public class PurgeDaoTest {
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_characteristics")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -803,13 +789,13 @@ public class PurgeDaoTest {
     insertCeTaskMessages("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_message")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
@@ -829,7 +815,7 @@ public class PurgeDaoTest {
 
     assertThat(uuidsIn("user_dismissed_messages")).containsOnly(msg1.getUuid(), msg2.getUuid(), msg3.getUuid());
 
-    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier());
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("user_dismissed_messages")).containsOnly(msg3.getUuid());
@@ -847,7 +833,7 @@ public class PurgeDaoTest {
     dbClient.ceQueueDao().insert(dbSession, createCeQueue(anotherLivingProject, Status.PENDING));
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier());
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(1);
@@ -873,13 +859,13 @@ public class PurgeDaoTest {
     insertCeTaskInput("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_input")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
@@ -905,14 +891,14 @@ public class PurgeDaoTest {
     insertCeScannerContext("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_scanner_context"))
       .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
@@ -938,14 +924,14 @@ public class PurgeDaoTest {
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_characteristics"))
       .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
@@ -971,14 +957,14 @@ public class PurgeDaoTest {
     insertCeTaskMessages("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_message"))
       .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
@@ -1019,14 +1005,14 @@ public class PurgeDaoTest {
     db.events().insertEventComponentChanges(anotherProjectEvent, anotherProjectAnalysis, randomChangeCategory(), referencedProjectB, null);
 
     // deleting referenced project does not delete any data
-    underTest.deleteProject(dbSession, referencedProjectA.uuid(), referencedProjectA.qualifier());
+    underTest.deleteProject(dbSession, referencedProjectA.uuid(), referencedProjectA.qualifier(), project.name(), project.getKey());
 
     assertThat(db.countRowsOfTable("event_component_changes"))
       .isEqualTo(7);
     assertThat(db.countRowsOfTable("events"))
       .isEqualTo(7);
 
-    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier());
+    underTest.deleteProject(dbSession, branch.uuid(), branch.qualifier(), project.name(), project.getKey());
     assertThat(uuidsIn("event_component_changes", "event_component_uuid"))
       .containsOnly(project.uuid(), anotherBranch.uuid(), anotherProject.uuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
@@ -1034,7 +1020,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent1.getUuid(), projectEvent2.getUuid(), projectEvent3.getUuid(), anotherBranchEvent.getUuid(), anotherProjectEvent.getUuid());
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     assertThat(uuidsIn("event_component_changes", "event_component_uuid"))
       .containsOnly(anotherBranch.uuid(), anotherProject.uuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
@@ -1082,7 +1068,7 @@ public class PurgeDaoTest {
     assertThat(db.countRowsOfTable("issues")).isGreaterThan(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
 
-    underTest.deleteProject(dbSession, projectToDelete.uuid(), projectToDelete.qualifier());
+    underTest.deleteProject(dbSession, projectToDelete.uuid(), projectToDelete.qualifier(), projectToDelete.name(), projectToDelete.getKey());
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("components")).isEqualTo(projectEntryCount);
@@ -1101,7 +1087,7 @@ public class PurgeDaoTest {
     ComponentDto otherSubView = db.components().insertComponent(newSubPortfolio(otherView));
     ComponentDto otherProjectCopy = db.components().insertComponent(newProjectCopy(project, otherSubView));
 
-    underTest.deleteProject(dbSession, view.uuid(), view.qualifier());
+    underTest.deleteProject(dbSession, view.uuid(), view.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
     assertThat(uuidsIn("components"))
@@ -1353,7 +1339,7 @@ public class PurgeDaoTest {
     dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid(project.uuid()).setUuid("D1").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
     dbClient.webhookDeliveryDao().insert(dbSession, newDto().setComponentUuid("P2").setUuid("D2").setDurationMs(1000).setWebhookUuid("webhook-uuid"));
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 
     assertThat(selectAllDeliveryUuids(db, dbSession)).containsOnly("D2");
   }
@@ -1364,7 +1350,7 @@ public class PurgeDaoTest {
     dbClient.projectMappingsDao().put(dbSession, "a.key.type", "a.key", project.uuid());
     dbClient.projectMappingsDao().put(dbSession, "a.key.type", "another.key", "D2");
 
-    underTest.deleteProject(dbSession, project.uuid(), project.qualifier());
+    underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 
     assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "a.key")).isEmpty();
     assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "another.key")).isNotEmpty();
@@ -1378,7 +1364,7 @@ public class PurgeDaoTest {
     db.almSettings().insertGitlabProjectAlmSetting(almSettingDto, project);
     db.almSettings().insertGitlabProjectAlmSetting(almSettingDto, otherProject);
 
-    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier());
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
 
     assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, project)).isEmpty();
     assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, otherProject)).isNotEmpty();
@@ -1417,7 +1403,7 @@ public class PurgeDaoTest {
     db.measures().insertLiveMeasure(project2, metric);
     db.measures().insertLiveMeasure(module2, metric);
 
-    underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier());
+    underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
 
     assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getUuid()))).isEmpty();
     assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getUuid()))).hasSize(2);

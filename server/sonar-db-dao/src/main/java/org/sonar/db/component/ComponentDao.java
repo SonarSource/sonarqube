@@ -339,7 +339,7 @@ public class ComponentDao implements Dao {
 
   public void insert(DbSession session, ComponentDto item) {
     if (auditPersister != null) {
-      auditPersister.addComponent(session, new ComponentNewValue(item.uuid(), item.name(), item.qualifier()), item.qualifier());
+      auditPersister.addComponent(session, new ComponentNewValue(item.uuid(), item.name(), item.getKey(), item.qualifier()), item.qualifier());
     }
     mapper(session).insert(item);
   }

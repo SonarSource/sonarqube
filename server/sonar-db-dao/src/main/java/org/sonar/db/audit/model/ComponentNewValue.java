@@ -40,15 +40,10 @@ public class ComponentNewValue implements NewValue {
   private Boolean isEnabled;
   private String prefix;
 
-
-  public ComponentNewValue(String componentUuid, String qualifier) {
-    this.componentUuid = componentUuid;
-    this.generateComponentPrefix(qualifier);
-  }
-
-  public ComponentNewValue(String componentUuid, String name, String qualifier) {
+  public ComponentNewValue(String componentUuid, String name, String key, @Nullable String qualifier) {
     this.componentUuid = componentUuid;
     this.componentName = name;
+    this.key = key;
     this.generateComponentPrefix(qualifier);
   }
 
@@ -58,7 +53,6 @@ public class ComponentNewValue implements NewValue {
     this.generateComponentPrefix(qualifier);
   }
 
-
   public ComponentNewValue(String componentUuid, String name, boolean isPrivate, String qualifier) {
     this.componentUuid = componentUuid;
     this.componentName = name;
@@ -66,7 +60,7 @@ public class ComponentNewValue implements NewValue {
     this.generateComponentPrefix(qualifier);
   }
 
-  public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, String qualifier) {
+  public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, @Nullable String qualifier) {
     this.componentUuid = uuid;
     this.componentName = name;
     this.isEnabled = enabled;
@@ -75,10 +69,11 @@ public class ComponentNewValue implements NewValue {
     this.generateComponentPrefix(qualifier);
   }
 
-  public ComponentNewValue(String uuid, boolean isPrivate, String name, @Nullable String description, String qualifier) {
+  public ComponentNewValue(String uuid, boolean isPrivate, String name, String key, @Nullable String description, @Nullable String qualifier) {
     this.componentUuid = uuid;
     this.isPrivate = isPrivate;
     this.componentName = name;
+    this.key = key;
     this.description = description;
     this.generateComponentPrefix(qualifier);
   }
@@ -132,7 +127,7 @@ public class ComponentNewValue implements NewValue {
     addField(sb, "\"rootComponentUuid\": ", this.rootComponentUuid, true);
     addField(sb, "\"" + this.prefix + "Name\": ", this.componentName, true);
     addField(sb, "\"description\": ", this.description, true);
-    addField(sb, "\"oldKey\": ", this.key, true);
+    addField(sb, "\"key\": ", this.key, true);
     addField(sb, "\"path\": ", this.path, true);
     addField(sb, "\"isPrivate\": ", ObjectUtils.toString(this.isPrivate), false);
     addField(sb, "\"isEnabled\": ", ObjectUtils.toString(this.isEnabled), false);

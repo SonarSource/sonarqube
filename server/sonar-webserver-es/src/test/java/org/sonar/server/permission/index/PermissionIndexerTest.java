@@ -19,10 +19,10 @@
  */
 package org.sonar.server.permission.index;
 
+import java.util.Collection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -45,7 +45,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PERMISSION_CHANGE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
-import java.util.Collection;
 
 public class PermissionIndexerTest {
 
@@ -88,6 +87,26 @@ public class PermissionIndexerTest {
     verifyAnyoneAuthorized(project);
     verifyAuthorized(project, user1);
     verifyAuthorized(project, user2);
+  }
+
+  @Test
+  public void deletion_resilience_will_deindex_projects() {
+    ComponentDto project1 = createUnindexedPublicProject();
+    ComponentDto project2 = createUnindexedPublicProject();
+    // UserDto user1 = db.users().insertUser();
+    indexOnStartup();
+    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
+
+    // Simulate a indexation issue
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.uuid(), PROJECT, project1.name(), project1.getKey());
+    underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
+    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(1);
+    Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
+
+    underTest.index(db.getSession(), esQueueDtos);
+
+    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isZero();
+    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(1);
   }
 
   @Test
@@ -295,7 +314,7 @@ public class PermissionIndexerTest {
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
     verifyAuthorized(project, user);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT, project.name(), project.getKey());
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
 
     verifyNotAuthorized(project, user);

@@ -235,7 +235,7 @@ public class ProjectMeasuresIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexContainsOnly(project);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT, project.name(), project.getKey());
     IndexingResult result = indexProject(project, PROJECT_DELETION);
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();

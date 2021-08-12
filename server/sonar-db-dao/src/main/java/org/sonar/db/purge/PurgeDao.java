@@ -188,7 +188,7 @@ public class PurgeDao implements Dao {
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
   }
 
-  public void deleteProject(DbSession session, String uuid, String qualifier) {
+  public void deleteProject(DbSession session, String uuid, String qualifier, String name, String key) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
@@ -205,7 +205,7 @@ public class PurgeDao implements Dao {
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
 
     if (auditPersister != null) {
-      auditPersister.deleteComponent(session, new ComponentNewValue(uuid, qualifier), qualifier);
+      auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier), qualifier);
     }
 
     logProfiling(profiler, start);

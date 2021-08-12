@@ -23,7 +23,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -208,7 +207,7 @@ public class ComponentIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexHasSize(1);
 
-    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT);
+    db.getDbClient().purgeDao().deleteProject(db.getSession(), project.uuid(), PROJECT, project.name(), project.getKey());
     indexProject(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);

@@ -54,6 +54,26 @@ public class ComponentNewValueTest {
   }
 
   @Test
+  public void toString_project_uuid_and_name_and_key() {
+    ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", "TRK");
+
+    assertThat(newValue.toString()).contains("\"projectUuid\": \"uuid\"");
+    assertThat(newValue.toString()).contains("\"projectName\": \"name\"");
+    assertThat(newValue.toString()).contains("\"key\": \"key\"");
+  }
+
+  @Test
+  public void toString_project_uuid_and_name_and_key_and_isPrivate_and_description() {
+    ComponentNewValue newValue = new ComponentNewValue("uuid", true, "name", "key", "description", "TRK");
+
+    assertThat(newValue.toString()).contains("\"projectUuid\": \"uuid\"");
+    assertThat(newValue.toString()).contains("\"projectName\": \"name\"");
+    assertThat(newValue.toString()).contains("\"isPrivate\": true");
+    assertThat(newValue.toString()).contains("\"key\": \"key\"");
+    assertThat(newValue.toString()).contains("\"description\": \"description\"");
+  }
+
+  @Test
   public void toString_addsProjectPrefix() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "TRK");
 

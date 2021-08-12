@@ -66,20 +66,20 @@ public class ComponentCleanerService {
   }
 
   public void delete(DbSession dbSession, ProjectDto project) {
-    dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier());
+    dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
   public void deleteApplication(DbSession dbSession, ProjectDto application) {
-    dbClient.purgeDao().deleteProject(dbSession, application.getUuid(), application.getQualifier());
+    dbClient.purgeDao().deleteProject(dbSession, application.getUuid(), application.getQualifier(), application.getName(), application.getKey());
     dbClient.userDao().cleanHomepage(dbSession, application);
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(application), PROJECT_DELETION);
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {
     checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
-    dbClient.purgeDao().deleteProject(dbSession, project.uuid(), project.qualifier());
+    dbClient.purgeDao().deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(project), PROJECT_DELETION);
   }
