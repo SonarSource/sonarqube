@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <SelectList
   elements={
     Array [
@@ -28,7 +28,7 @@ exports[`should render correctly 1`] = `
 />
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: known project 1`] = `
 <div
   className="select-list-list-item"
 >
@@ -44,7 +44,13 @@ exports[`should render correctly 2`] = `
 </div>
 `;
 
-exports[`should render correctly 3`] = `
+exports[`should render correctly: quality gate without conditions 1`] = `
+<div>
+  quality_gates.projects.cannot_associate_projects_no_conditions
+</div>
+`;
+
+exports[`should render correctly: unknown project 1`] = `
 <div
   className="select-list-list-item"
 >

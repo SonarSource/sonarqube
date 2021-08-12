@@ -22,6 +22,7 @@ import * as React from 'react';
 import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { setQualityGateAsDefault } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition } from '../../../../helpers/testMocks';
 import DetailsHeader from '../DetailsHeader';
 
 jest.mock('../../../../api/quality-gates', () => ({
@@ -32,12 +33,15 @@ beforeEach(jest.clearAllMocks);
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ qualityGate: mockQualityGate({ isBuiltIn: true }) })).toMatchSnapshot(
-    'built-in'
-  );
+  expect(
+    shallowRender({
+      qualityGate: mockQualityGate({ isBuiltIn: true, conditions: [mockCondition()] })
+    })
+  ).toMatchSnapshot('built-in');
   expect(
     shallowRender({
       qualityGate: mockQualityGate({
+        conditions: [mockCondition()],
         actions: {
           copy: true,
           delete: true,
@@ -47,6 +51,11 @@ it('should render correctly', () => {
       })
     })
   ).toMatchSnapshot('admin actions');
+  expect(
+    shallowRender({
+      qualityGate: mockQualityGate({ actions: { setAsDefault: true }, conditions: [] })
+    })
+  ).toMatchSnapshot('no conditions, cannot set as default');
 });
 
 it('should allow the QG to be set as the default', async () => {
@@ -79,7 +88,7 @@ function shallowRender(props: Partial<DetailsHeader['props']> = {}) {
   return shallow<DetailsHeader>(
     <DetailsHeader
       onSetDefault={jest.fn()}
-      qualityGate={mockQualityGate()}
+      qualityGate={mockQualityGate({ conditions: [mockCondition()] })}
       refreshItem={jest.fn().mockResolvedValue(null)}
       refreshList={jest.fn().mockResolvedValue(null)}
       {...props}

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
@@ -58,6 +59,8 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   render() {
     const { qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
+    const hasNoConditions =
+      qualityGate.conditions === undefined || qualityGate.conditions.length === 0;
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
@@ -101,12 +104,20 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                 </ModalButton>
               )}
               {actions.setAsDefault && (
-                <Button
-                  className="little-spacer-left"
-                  id="quality-gate-toggle-default"
-                  onClick={this.handleSetAsDefaultClick}>
-                  {translate('set_as_default')}
-                </Button>
+                <Tooltip
+                  overlay={
+                    hasNoConditions
+                      ? translate('quality_gates.cannot_set_default_no_conditions')
+                      : null
+                  }>
+                  <Button
+                    className="little-spacer-left"
+                    disabled={hasNoConditions}
+                    id="quality-gate-toggle-default"
+                    onClick={this.handleSetAsDefaultClick}>
+                    {translate('set_as_default')}
+                  </Button>
+                </Tooltip>
               )}
               {actions.delete && (
                 <DeleteQualityGateForm

@@ -20,11 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition } from '../../../../helpers/testMocks';
 import { DetailsContent, DetailsContentProps } from '../DetailsContent';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('is not default');
   expect(shallowRender({ isDefault: true })).toMatchSnapshot('is default');
+  expect(
+    shallowRender({ isDefault: true, qualityGate: mockQualityGate({ conditions: [] }) })
+  ).toMatchSnapshot('is default, no conditions');
 });
 
 function shallowRender(props: Partial<DetailsContentProps> = {}) {
@@ -34,7 +38,7 @@ function shallowRender(props: Partial<DetailsContentProps> = {}) {
       onAddCondition={jest.fn()}
       onRemoveCondition={jest.fn()}
       onSaveCondition={jest.fn()}
-      qualityGate={mockQualityGate()}
+      qualityGate={mockQualityGate({ conditions: [mockCondition()] })}
       {...props}
     />
   );

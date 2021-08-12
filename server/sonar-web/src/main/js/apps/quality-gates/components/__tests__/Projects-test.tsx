@@ -27,9 +27,8 @@ import {
   searchProjects
 } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockCondition } from '../../../../helpers/testMocks';
 import Projects from '../Projects';
-
-const qualityGate = mockQualityGate();
 
 jest.mock('../../../../api/quality-gates', () => ({
   searchProjects: jest.fn().mockResolvedValue({
@@ -62,13 +61,16 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.instance().mounted).toBe(true);
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
-  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('default');
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot('known project');
+  expect(wrapper.instance().renderElement('test_foo')).toMatchSnapshot('unknown project');
+  expect(shallowRender({ qualityGate: mockQualityGate({ conditions: [] }) })).toMatchSnapshot(
+    'quality gate without conditions'
+  );
 
   expect(searchProjects).toHaveBeenCalledWith(
     expect.objectContaining({
-      gateName: qualityGate.name,
+      gateName: 'Foo',
       page: 1,
       pageSize: 100,
       query: undefined,
@@ -108,5 +110,10 @@ it('should handle deselection properly', async () => {
 });
 
 function shallowRender(props: Partial<Projects['props']> = {}) {
-  return shallow<Projects>(<Projects qualityGate={qualityGate} {...props} />);
+  return shallow<Projects>(
+    <Projects
+      qualityGate={mockQualityGate({ name: 'Foo', conditions: [mockCondition()] })}
+      {...props}
+    />
+  );
 }

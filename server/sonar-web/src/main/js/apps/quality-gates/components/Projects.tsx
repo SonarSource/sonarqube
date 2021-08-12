@@ -139,6 +139,14 @@ export default class Projects extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { qualityGate } = this.props;
+
+    if (qualityGate.conditions === undefined || qualityGate.conditions.length === 0) {
+      return (
+        <div>{translate('quality_gates.projects.cannot_associate_projects_no_conditions')}</div>
+      );
+    }
+
     return (
       <SelectList
         elements={this.state.projects.map(project => project.key)}
