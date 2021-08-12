@@ -58,7 +58,10 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
 
   loadUserGroups = () => {
     this.setState({ loading: true });
-    getUserGroups(this.props.member.login, this.props.organization.key).then(
+    getUserGroups({
+      login: this.props.member.login,
+      organization: this.props.organization.key,
+    }).then(
       response => {
         if (this.mounted) {
           this.setState({ loading: false, userGroups: keyBy(response.groups, 'name') });
