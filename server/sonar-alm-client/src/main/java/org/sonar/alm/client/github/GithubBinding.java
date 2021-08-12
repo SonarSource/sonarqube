@@ -138,8 +138,8 @@ public class GithubBinding {
     String fullName;
     @SerializedName("private")
     boolean isPrivate;
-    @SerializedName("url")
-    String url;
+    @SerializedName("html_url")
+    String htmlUrl;
     @SerializedName("default_branch")
     String defaultBranch;
 
@@ -151,7 +151,7 @@ public class GithubBinding {
 
     public Repository toRepository() {
       return new Repository(this.id, this.name, this.isPrivate, this.fullName,
-        this.url, this.defaultBranch);
+        this.htmlUrl, this.defaultBranch);
     }
   }
 }

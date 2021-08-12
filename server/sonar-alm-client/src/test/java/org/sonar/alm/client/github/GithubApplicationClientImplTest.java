@@ -794,7 +794,7 @@ public class GithubApplicationClientImplTest {
       .get()
       .extracting(GithubApplicationClient.Repository::getId, GithubApplicationClient.Repository::getName, GithubApplicationClient.Repository::getFullName,
         GithubApplicationClient.Repository::getUrl, GithubApplicationClient.Repository::isPrivate, GithubApplicationClient.Repository::getDefaultBranch)
-      .containsOnly(1296269L, "Hello-World", "octocat/Hello-World", "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", false, "master");
+      .containsOnly(1296269L, "Hello-World", "octocat/Hello-World", "https://github.com/octocat/Hello-World", false, "master");
   }
 
   private AppToken mockAppToken() {
