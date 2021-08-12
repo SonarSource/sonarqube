@@ -74,6 +74,11 @@ public class PortfolioDto {
     return this;
   }
 
+  public PortfolioDto setSelectionMode(SelectionMode selectionMode) {
+    this.selectionMode = selectionMode.name();
+    return this;
+  }
+
   @CheckForNull
   public String getSelectionExpression() {
     return selectionExpression;

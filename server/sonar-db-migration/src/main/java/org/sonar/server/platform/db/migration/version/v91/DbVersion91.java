@@ -39,6 +39,7 @@ public class DbVersion91 implements DbVersion {
       .add(6011, "Create 'portfolios' table", CreatePortfoliosTable.class)
       .add(6012, "Create 'portfolio_references' table", CreatePortfolioReferencesTable.class)
       .add(6013, "Create 'portfolio_projects' table", CreatePortfolioProjectsTable.class)
+      .add(6014, "Migrate portfolios to new tables", MigratePortfoliosToNewTables.class)
     ;
   }
 }

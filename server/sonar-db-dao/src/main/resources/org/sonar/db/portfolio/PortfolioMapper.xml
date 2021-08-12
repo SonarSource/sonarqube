@@ -16,12 +16,35 @@
       p.updated_at as updatedAt
     </sql>
 
+  <sql id="projectColumns">
+    p.uuid as uuid,
+    p.kee as kee,
+    p.qualifier as qualifier,
+    p.name as name,
+    p.description as description,
+    p.tags as tagsString,
+    p.private as isPrivate,
+    p.created_at as createdAt,
+    p.updated_at as updatedAt
+  </sql>
+
   <select id="selectByUuid" parameterType="String" resultType="Portfolio">
     SELECT
       <include refid="portfolioColumns"/>
     FROM portfolios p
     where
       p.uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUuids" parameterType="String" resultType="Portfolio">
+    SELECT
+    <include refid="portfolioColumns"/>
+    FROM portfolios p
+    where
+    p.uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
   </select>
 
     <select id="selectByKey" parameterType="String" resultType="Portfolio">
@@ -40,17 +63,22 @@
       p.parent_uuid is null
   </select>
 
-   <select id="selectProjects" resultType="String">
-    SELECT
-      p.project_uuid
-    FROM portfolio_projects p
-    where
-      p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+   <select id="selectProjects" resultType="Project">
+     SELECT
+     <include refid="projectColumns"/>
+     FROM portfolio_projects pp
+     INNER JOIN projects p on p.uuid = pp.project_uuid
+     WHERE
+      pp.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllProjectsInHierarchy" resultType="String">
+  <select id="selectAllProjectsInHierarchy" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
     SELECT
-      pp.project_uuid
+      pp.uuid,
+      pp.project_uuid as projectUuid,
+      pp.portfolio_uuid as portfolioUuid,
+      pp.project_uuid as projectUuid,
+      pp.created_at as createdAt
     FROM portfolio_projects pp
        INNER JOIN portfolios p
        ON pp.portfolio_uuid = p.uuid

@@ -19,15 +19,23 @@
  */
 package org.sonar.db.portfolio;
 
-import static java.util.Collections.singleton;
-
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.project.ProjectDto;
+
+import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PortfolioDao implements Dao {
   private final System2 system2;
@@ -54,6 +62,9 @@ public class PortfolioDao implements Dao {
   }
 
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
+    if (portfolio.getUuid() == null) {
+      portfolio.setUuid(uuidFactory.create());
+    }
     mapper(dbSession).insert(portfolio);
   }
 
@@ -62,7 +73,6 @@ public class PortfolioDao implements Dao {
     mapper(dbSession).deleteReferencesByPortfolioOrReferenceUuids(singleton(portfolioUuid));
     mapper(dbSession).deleteProjectsByPortfolioUuids(singleton(portfolioUuid));
   }
-
 
   public void deleteByUuids(DbSession dbSession, Set<String> portfolioUuids) {
     if (portfolioUuids.isEmpty()) {
@@ -95,12 +105,16 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectReferencersByKey(referenceKey);
   }
 
-  public Set<String> getProjects(DbSession dbSession, String portfolioUuid) {
+  public List<ProjectDto> getProjects(DbSession dbSession, String portfolioUuid) {
     return mapper(dbSession).selectProjects(portfolioUuid);
   }
 
-  Set<String> getAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
-    return mapper(dbSession).selectAllProjectsInHierarchy(rootUuid);
+  public Map<String, Set<String>> getAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
+    return mapper(dbSession).selectAllProjectsInHierarchy(rootUuid)
+      .stream()
+      .collect(groupingBy(
+        PortfolioProjectDto::getProjectUuid,
+        mapping(PortfolioProjectDto::getPortfolioUuid, toSet())));
   }
 
   public void addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
@@ -122,5 +136,10 @@ public class PortfolioDao implements Dao {
 
   public void deleteProjects(DbSession dbSession, String portfolioUuid) {
     mapper(dbSession).deleteProjects(portfolioUuid);
+  }
+
+  public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {
+    return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
+      .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
   }
 }

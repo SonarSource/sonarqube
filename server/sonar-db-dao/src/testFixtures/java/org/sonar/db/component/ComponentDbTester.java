@@ -27,12 +27,14 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 
 public class ComponentDbTester {
   private final DbTester db;
@@ -161,27 +163,67 @@ public class ComponentDbTester {
   }
 
   public final ComponentDto insertPublicPortfolio() {
-    return insertPublicPortfolio(defaults());
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, defaults(), defaults());
   }
 
   public final ComponentDto insertPublicPortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newPortfolio(uuid).setPrivate(false), false, dtoPopulator);
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio(uuid).setPrivate(false), false, dtoPopulator, defaults());
   }
 
   public final ComponentDto insertPublicPortfolio(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator);
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator, defaults());
+  }
+
+  public final ComponentDto insertPublicPortfolio(Consumer<ComponentDto> dtoPopulator, Consumer<PortfolioDto> portfolioPopulator) {
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator, portfolioPopulator);
+  }
+
+  public ComponentDto insertComponentAndPortfolio(ComponentDto componentDto, boolean isPrivate, Consumer<ComponentDto> componentPopulator,
+    Consumer<PortfolioDto> portfolioPopulator) {
+    insertComponentImpl(componentDto, isPrivate, componentPopulator);
+
+    PortfolioDto portfolioDto = toPortfolioDto(componentDto, System2.INSTANCE.now());
+    portfolioPopulator.accept(portfolioDto);
+    dbClient.portfolioDao().insert(dbSession, portfolioDto);
+    db.commit();
+    return componentDto;
   }
 
   public final ComponentDto insertPrivatePortfolio() {
-    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(true), true, defaults());
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, defaults(), defaults());
   }
 
   public final ComponentDto insertPrivatePortfolio(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newPortfolio(uuid).setPrivate(true), true, dtoPopulator);
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio(uuid).setPrivate(true), true, dtoPopulator, defaults());
   }
 
   public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator);
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, defaults());
+  }
+
+  public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto> dtoPopulator, Consumer<PortfolioDto> portfolioPopulator) {
+    return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, portfolioPopulator);
+  }
+
+  public void addPortfolioProject(ComponentDto portfolio, String... projectUuids) {
+    for (String uuid : projectUuids) {
+      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), uuid);
+    }
+    db.commit();
+  }
+
+  public void addPortfolioProject(ComponentDto portfolio, ComponentDto... projects) {
+    for (ComponentDto project : projects) {
+      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), project.uuid());
+    }
+    db.commit();
+  }
+
+  public void addPortfolioProject(PortfolioDto portfolioDto, ProjectDto... projects) {
+    for (ProjectDto project : projects) {
+      dbClient.portfolioDao().addProject(dbSession, portfolioDto.getUuid(), project.getUuid());
+    }
+    db.commit();
   }
 
   public final ComponentDto insertPublicApplication() {
@@ -379,6 +421,19 @@ public class ComponentDbTester {
       .setUuid(componentDto.uuid())
       .setKey(componentDto.getDbKey())
       .setQualifier(componentDto.qualifier() != null ? componentDto.qualifier() : Qualifiers.PROJECT)
+      .setCreatedAt(createTime)
+      .setUpdatedAt(createTime)
+      .setPrivate(componentDto.isPrivate())
+      .setDescription(componentDto.description())
+      .setName(componentDto.name());
+  }
+
+  public static PortfolioDto toPortfolioDto(ComponentDto componentDto, long createTime) {
+    return new PortfolioDto()
+      .setUuid(componentDto.uuid())
+      .setKey(componentDto.getDbKey())
+      .setRootUuid(componentDto.projectUuid())
+      .setSelectionMode(NONE.name())
       .setCreatedAt(createTime)
       .setUpdatedAt(createTime)
       .setPrivate(componentDto.isPrivate())

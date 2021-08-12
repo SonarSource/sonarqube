@@ -36,6 +36,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.es.ProjectIndexers;
@@ -90,7 +92,7 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin,  Consumer<ComponentDto> componentModifier) {
+    @Nullable String userUuid, @Nullable String userLogin, Consumer<ComponentDto> componentModifier) {
     return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null, componentModifier);
   }
 
@@ -144,6 +146,12 @@ public class ComponentUpdater {
       ProjectDto projectDto = toProjectDto(component, now);
       dbClient.projectDao().insert(session, projectDto);
     }
+
+    if (isRootView(component)) {
+      PortfolioDto portfolioDto = toPortfolioDto(component, now);
+      dbClient.portfolioDao().insert(session, portfolioDto);
+    }
+
     return component;
   }
 
@@ -159,9 +167,27 @@ public class ComponentUpdater {
       .setCreatedAt(now);
   }
 
+  private static PortfolioDto toPortfolioDto(ComponentDto component, long now) {
+    return new PortfolioDto()
+      .setUuid(component.uuid())
+      .setRootUuid(component.projectUuid())
+      .setKey(component.getKey())
+      .setName(component.name())
+      .setPrivate(component.isPrivate())
+      .setDescription(component.description())
+      .setSelectionMode(SelectionMode.NONE.name())
+      .setUpdatedAt(now)
+      .setCreatedAt(now);
+  }
+
   private static boolean isRootProject(ComponentDto componentDto) {
     return Scopes.PROJECT.equals(componentDto.scope())
       && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
+  }
+
+  private static boolean isRootView(ComponentDto componentDto) {
+    return Scopes.PROJECT.equals(componentDto.scope())
+      && Qualifiers.VIEW.contains(componentDto.qualifier());
   }
 
   private void createMainBranch(DbSession session, String componentUuid, @Nullable String mainBranch) {

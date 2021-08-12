@@ -40,7 +40,7 @@ public class CreatePortfoliosTable extends CreateTableChange {
   public void execute(Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setIsNullable(false).setLimit(400).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setIsNullable(false).setLimit(2000).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("description").setIsNullable(true).setLimit(2000).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())

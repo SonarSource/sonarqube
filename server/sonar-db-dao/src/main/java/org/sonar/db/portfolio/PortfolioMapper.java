@@ -19,10 +19,12 @@
  */
 package org.sonar.db.portfolio;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.project.ProjectDto;
 
 public interface PortfolioMapper {
   @CheckForNull
@@ -53,11 +55,13 @@ public interface PortfolioMapper {
 
   List<PortfolioDto> selectReferencersByKey(String referenceKey);
 
-  Set<String> selectProjects(String portfolioUuid);
+  List<ProjectDto> selectProjects(String portfolioUuid);
 
   List<ReferenceDto> selectAllReferencesToPortfolios();
 
-  Set<String> selectAllProjectsInHierarchy(String rootUuid);
+  Set<PortfolioProjectDto> selectAllProjectsInHierarchy(String rootUuid);
+
+  List<PortfolioDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
   void update(PortfolioDto portfolio);
 

@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -131,6 +132,10 @@ public final class CeTaskSubmit {
     }
 
     public static Component fromDto(ProjectDto dto) {
+      return new Component(dto.getUuid(), dto.getUuid());
+    }
+
+    public static Component fromDto(PortfolioDto dto) {
       return new Component(dto.getUuid(), dto.getUuid());
     }
 

@@ -56,6 +56,7 @@ import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
+import org.sonar.db.portfolio.PortfolioDao;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
@@ -156,6 +157,7 @@ public class DbClient {
   private final ProjectMappingsDao projectMappingsDao;
   private final NewCodePeriodDao newCodePeriodDao;
   private final ProjectDao projectDao;
+  private final PortfolioDao portfolioDao;
   private final SessionTokensDao sessionTokensDao;
   private final SamlMessageIdDao samlMessageIdDao;
   private final UserDismissedMessagesDao userDismissedMessagesDao;
@@ -232,6 +234,7 @@ public class DbClient {
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
     projectDao = getDao(map, ProjectDao.class);
+    portfolioDao = getDao(map, PortfolioDao.class);
     sessionTokensDao = getDao(map, SessionTokensDao.class);
     samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
     userDismissedMessagesDao = getDao(map, UserDismissedMessagesDao.class);
@@ -312,6 +315,10 @@ public class DbClient {
 
   public ProjectDao projectDao() {
     return projectDao;
+  }
+
+  public PortfolioDao portfolioDao() {
+    return portfolioDao;
   }
 
   public ComponentKeyUpdaterDao componentKeyUpdaterDao() {

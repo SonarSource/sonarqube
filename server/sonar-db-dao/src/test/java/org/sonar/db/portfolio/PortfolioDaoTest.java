@@ -108,10 +108,9 @@ public class PortfolioDaoTest {
   @Test
   public void deleteByUuids() {
     createPortfolio("p1");
-    createPortfolio("p2" );
+    createPortfolio("p2");
     createPortfolio("p3");
     createPortfolio("p4");
-
 
     portfolioDao.addProject(db.getSession(), "p1", "proj1");
     portfolioDao.addProject(db.getSession(), "p2", "proj1");
@@ -166,23 +165,29 @@ public class PortfolioDaoTest {
 
   @Test
   public void insert_and_select_projects() {
+    db.components().insertPrivateProject("project1");
+    db.components().insertPrivateProject("project2");
+
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).isEmpty();
     portfolioDao.addProject(db.getSession(), "portfolio1", "project1");
     portfolioDao.addProject(db.getSession(), "portfolio1", "project2");
     portfolioDao.addProject(db.getSession(), "portfolio2", "project2");
     db.commit();
-    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).containsExactlyInAnyOrder("project1", "project2");
-    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio2")).containsExactlyInAnyOrder("project2");
+    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).extracting(ProjectDto::getUuid).containsExactlyInAnyOrder("project1", "project2");
+    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio2")).extracting(ProjectDto::getUuid).containsExactlyInAnyOrder("project2");
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio3")).isEmpty();
 
     assertThat(db.countRowsOfTable("portfolio_projects")).isEqualTo(3);
     assertThat(db.select(db.getSession(), "select created_at from portfolio_projects"))
       .extracting(m -> m.values().iterator().next())
-      .containsExactlyInAnyOrder(1L, 2L, 3L);
+      .containsExactlyInAnyOrder(3L, 4L, 5L);
   }
 
   @Test
   public void delete_projects() {
+    db.components().insertPrivateProject("project1");
+    db.components().insertPrivateProject("project2");
+
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).isEmpty();
     portfolioDao.addProject(db.getSession(), "portfolio1", "project1");
     portfolioDao.addProject(db.getSession(), "portfolio1", "project2");
@@ -190,12 +195,17 @@ public class PortfolioDaoTest {
 
     portfolioDao.deleteProjects(db.getSession(), "portfolio1");
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).isEmpty();
-    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio2")).containsExactlyInAnyOrder("project2");
-
+    assertThat(portfolioDao.getProjects(db.getSession(), "portfolio2")).extracting(ProjectDto::getUuid)
+        .containsExactlyInAnyOrder("project2");
   }
 
   @Test
   public void getAllProjectsInHierarchy() {
+    db.components().insertPrivateProject("p1");
+    db.components().insertPrivateProject("p2");
+    db.components().insertPrivateProject("p3");
+    db.components().insertPrivateProject("p4");
+
     createPortfolio("root", null, "root");
     createPortfolio("child1", null, "root");
     createPortfolio("child11", "child1", "root");
@@ -207,7 +217,7 @@ public class PortfolioDaoTest {
     portfolioDao.addProject(db.getSession(), "child11", "p3");
     portfolioDao.addProject(db.getSession(), "root2", "p4");
 
-    assertThat(portfolioDao.getAllProjectsInHierarchy(db.getSession(), "root")).containsOnly("p1", "p2", "p3");
+    assertThat(portfolioDao.getAllProjectsInHierarchy(db.getSession(), "root").keySet()).containsExactly("p1", "p2", "p3");
     assertThat(portfolioDao.getAllProjectsInHierarchy(db.getSession(), "nonexisting")).isEmpty();
   }
 
