@@ -53,3 +53,8 @@ it('should not expand', () => {
   );
   expect(wrapper.find('.project-activity-event-inner-more-link').exists()).toBe(false);
 });
+
+it('should not expand when readonly', () => {
+  const wrapper = shallow(<RichQualityGateEventInner event={event} readonly={true} />);
+  expect(wrapper.find('.project-activity-event-inner-more-link').exists()).toBe(false);
+});

@@ -21,6 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { mockEvent } from '../../../helpers/testMocks';
 import GraphsTooltips from '../GraphsTooltips';
 import { DEFAULT_GRAPH } from '../utils';
 
@@ -86,6 +87,9 @@ const DEFAULT_PROPS: GraphsTooltips['props'] = {
 
 it('should render correctly for issues graphs', () => {
   expect(shallow(<GraphsTooltips {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallow(<GraphsTooltips {...DEFAULT_PROPS} events={[mockEvent()]} />)).toMatchSnapshot(
+    'with events'
+  );
 });
 
 it('should render correctly for random graphs', () => {

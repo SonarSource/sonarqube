@@ -26,26 +26,30 @@ import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQuality
 
 export interface EventInnerProps {
   event: T.AnalysisEvent;
+  readonly?: boolean;
 }
 
-export default function EventInner({ event }: EventInnerProps) {
+export default function EventInner({ event, readonly }: EventInnerProps) {
   if (isRichQualityGateEvent(event)) {
-    return <RichQualityGateEventInner event={event} />;
+    return <RichQualityGateEventInner event={event} readonly={readonly} />;
   } else if (isDefinitionChangeEvent(event)) {
     return (
       <ComponentContext.Consumer>
-        {({ branchLike }) => <DefinitionChangeEventInner branchLike={branchLike} event={event} />}
+        {({ branchLike }) => (
+          <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />
+        )}
       </ComponentContext.Consumer>
     );
-  } else {
-    const content = (
+  }
+
+  return (
+    <Tooltip overlay={event.description || null}>
       <span className="text-middle">
         <span className="note little-spacer-right">
           {translate('event.category', event.category)}:
         </span>
         <strong className="spacer-right">{event.name}</strong>
       </span>
-    );
-    return event.description ? <Tooltip overlay={event.description}>{content}</Tooltip> : content;
-  }
+    </Tooltip>
+  );
 }

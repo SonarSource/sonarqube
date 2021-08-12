@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
-import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
@@ -49,13 +47,6 @@ export function Event(props: EventProps) {
 
   return (
     <div className="project-activity-event">
-      <ProjectEventIcon
-        className={classNames(
-          'project-activity-event-icon little-spacer-right text-middle',
-          event.category
-        )}
-      />
-
       <EventInner event={event} />
 
       {showActions && (

@@ -8,12 +8,5 @@ exports[`should render correctly 1`] = `
   role="link"
   tabIndex={0}
   title="Foo"
->
-  <ProjectEventIcon
-    className="project-activity-event-icon foo"
-  />
-  <span
-    className="little-spacer-left"
-  />
-</div>
+/>
 `;

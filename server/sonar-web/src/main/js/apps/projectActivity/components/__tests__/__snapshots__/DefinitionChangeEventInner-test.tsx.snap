@@ -9,7 +9,7 @@ exports[`should render 1`] = `
     :
   </span>
   <div>
-    <ResetButtonLink
+    <ButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
       stopPropagation={true}
@@ -19,7 +19,7 @@ exports[`should render 1`] = `
         className="little-spacer-left"
         turned={false}
       />
-    </ResetButtonLink>
+    </ButtonLink>
   </div>
 </Fragment>
 `;
@@ -33,7 +33,7 @@ exports[`should render 2`] = `
     :
   </span>
   <div>
-    <ResetButtonLink
+    <ButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
       stopPropagation={true}
@@ -43,7 +43,7 @@ exports[`should render 2`] = `
         className="little-spacer-left"
         turned={true}
       />
-    </ResetButtonLink>
+    </ButtonLink>
   </div>
   <ul
     className="spacer-left spacer-top"
@@ -147,7 +147,7 @@ exports[`should render for a branch 1`] = `
     :
   </span>
   <div>
-    <ResetButtonLink
+    <ButtonLink
       className="project-activity-event-inner-more-link"
       onClick={[Function]}
       stopPropagation={true}
@@ -157,7 +157,7 @@ exports[`should render for a branch 1`] = `
         className="little-spacer-left"
         turned={true}
       />
-    </ResetButtonLink>
+    </ButtonLink>
   </div>
   <ul
     className="spacer-left spacer-top"
@@ -254,5 +254,15 @@ exports[`should render for a branch 1`] = `
       />
     </li>
   </ul>
+</Fragment>
+`;
+
+exports[`should render when readonly 1`] = `
+<Fragment>
+  <span
+    className="note"
+  >
+    event.category.DEFINITION_CHANGE
+  </span>
 </Fragment>
 `;

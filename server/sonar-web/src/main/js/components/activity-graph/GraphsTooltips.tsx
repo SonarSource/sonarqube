@@ -99,6 +99,9 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
             <DateTimeFormatter date={this.props.selectedDate} />
           </div>
           <table className="width-100">
+            {events && events.length > 0 && (
+              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+            )}
             <tbody>{tooltipContent}</tbody>
             {this.props.graph === 'coverage' && (
               <GraphsTooltipsContentCoverage
@@ -113,9 +116,6 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
               />
-            )}
-            {events && events.length > 0 && (
-              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
             )}
           </table>
         </div>

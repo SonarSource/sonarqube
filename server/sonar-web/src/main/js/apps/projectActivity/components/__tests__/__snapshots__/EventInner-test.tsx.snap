@@ -54,21 +54,25 @@ exports[`should render correctly: definition change 1`] = `
 `;
 
 exports[`should render correctly: no description 1`] = `
-<span
-  className="text-middle"
+<Tooltip
+  overlay={null}
 >
   <span
-    className="note little-spacer-right"
+    className="text-middle"
   >
-    event.category.VERSION
-    :
+    <span
+      className="note little-spacer-right"
+    >
+      event.category.VERSION
+      :
+    </span>
+    <strong
+      className="spacer-right"
+    >
+      Lorem ipsum
+    </strong>
   </span>
-  <strong
-    className="spacer-right"
-  >
-    Lorem ipsum
-  </strong>
-</span>
+</Tooltip>
 `;
 
 exports[`should render correctly: rich quality gate 1`] = `

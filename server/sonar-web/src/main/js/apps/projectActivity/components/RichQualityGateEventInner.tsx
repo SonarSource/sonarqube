@@ -34,6 +34,7 @@ export function isRichQualityGateEvent(event: T.AnalysisEvent): event is RichQua
 
 interface Props {
   event: RichQualityGateEvent;
+  readonly?: boolean;
 }
 
 interface State {
@@ -52,7 +53,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
   };
 
   render() {
-    const { event } = this.props;
+    const { event, readonly } = this.props;
     const { expanded } = this.state;
     return (
       <>
@@ -68,7 +69,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
         )}
 
         <div>
-          {event.qualityGate.failing.length > 0 && (
+          {!readonly && event.qualityGate.failing.length > 0 && (
             <ResetButtonLink
               className="project-activity-event-inner-more-link"
               onClick={this.toggleProjectsList}

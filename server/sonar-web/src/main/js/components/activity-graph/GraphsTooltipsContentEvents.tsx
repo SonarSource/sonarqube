@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
-import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import EventInner from '../../apps/projectActivity/components/EventInner';
 
 interface Props {
   addSeparator: boolean;
@@ -39,16 +37,20 @@ export default function GraphsTooltipsContentEvents({ addSeparator, events }: Pr
       )}
       <tr className="activity-graph-tooltip-line">
         <td colSpan={3}>
-          <span>{translate('events')}:</span>
           {events.map(event => (
-            <span className="spacer-left" key={event.key}>
-              <ProjectEventIcon
-                className={classNames('project-activity-event-icon', event.category)}
-              />
-            </span>
+            <div className="little-spacer-bottom" key={event.key}>
+              <EventInner event={event} readonly={true} />
+            </div>
           ))}
         </td>
       </tr>
+      {addSeparator && (
+        <tr>
+          <td className="activity-graph-tooltip-separator" colSpan={3}>
+            <hr />
+          </td>
+        </tr>
+      )}
     </tbody>
   );
 }

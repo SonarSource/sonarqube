@@ -32,7 +32,6 @@ exports[`should render correctly the list of series 1`] = `
     placeholder="project_activity.filter_events..."
     searchable={false}
     value=""
-    valueComponent={[Function]}
   />
   <ProjectActivityDateInput
     from={2016-10-27T10:21:15.000Z}

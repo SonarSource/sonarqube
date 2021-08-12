@@ -24,7 +24,6 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
-import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 
 interface Props {
   category?: string;
@@ -61,8 +60,6 @@ export default class ProjectActivityPageHeader extends React.PureComponent<Props
             placeholder={translate('project_activity.filter_events') + '...'}
             searchable={false}
             value={this.props.category}
-            // @ts-ignore react-select typings are incorrect, they expect `props` of `valueComponent` to be exactly `Option`
-            valueComponent={ProjectActivityEventSelectValue}
           />
         )}
         <ProjectActivityDateInput

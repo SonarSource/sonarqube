@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -39,6 +39,7 @@ export function isDefinitionChangeEvent(event: T.AnalysisEvent): event is Defini
 interface Props {
   branchLike: BranchLike | undefined;
   event: DefinitionChangeEvent;
+  readonly?: boolean;
 }
 
 interface State {
@@ -131,21 +132,26 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
   }
 
   render() {
-    const { event } = this.props;
+    const { event, readonly } = this.props;
     const { expanded } = this.state;
     return (
       <>
-        <span className="note">{translate('event.category', event.category)}:</span>
+        <span className="note">
+          {translate('event.category', event.category)}
+          {!readonly && ':'}
+        </span>
 
-        <div>
-          <ResetButtonLink
-            className="project-activity-event-inner-more-link"
-            onClick={this.toggleProjectsList}
-            stopPropagation={true}>
-            {expanded ? translate('hide') : translate('more')}
-            <DropdownIcon className="little-spacer-left" turned={expanded} />
-          </ResetButtonLink>
-        </div>
+        {!readonly && (
+          <div>
+            <ButtonLink
+              className="project-activity-event-inner-more-link"
+              onClick={this.toggleProjectsList}
+              stopPropagation={true}>
+              {expanded ? translate('hide') : translate('more')}
+              <DropdownIcon className="little-spacer-left" turned={expanded} />
+            </ButtonLink>
+          </div>
+        )}
 
         {expanded && (
           <ul className="spacer-left spacer-top">

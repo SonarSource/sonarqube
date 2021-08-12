@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProjectEventIcon from 'sonar-ui-common/components/icons/ProjectEventIcon';
 
 export interface Option {
   label: string;
@@ -63,8 +62,7 @@ export default class ProjectActivityEventSelectOption extends React.PureComponen
         role="link"
         tabIndex={0}
         title={option.label}>
-        <ProjectEventIcon className={'project-activity-event-icon ' + option.value} />
-        <span className="little-spacer-left">{this.props.children}</span>
+        {this.props.children}
       </div>
     );
   }

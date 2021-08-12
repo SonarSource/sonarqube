@@ -67,3 +67,22 @@ it('should render for a branch', () => {
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should render when readonly', () => {
+  const event: DefinitionChangeEvent = {
+    category: 'DEFINITION_CHANGE',
+    key: 'foo1234',
+    name: '',
+    definitionChange: {
+      projects: [
+        { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'master' },
+        { changeType: 'REMOVED', key: 'bar', name: 'Bar', branch: 'master' }
+      ]
+    }
+  };
+  const wrapper = shallow(
+    <DefinitionChangeEventInner branchLike={undefined} event={event} readonly={true} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('.project-activity-event-inner-more-link').exists()).toBe(false);
+});

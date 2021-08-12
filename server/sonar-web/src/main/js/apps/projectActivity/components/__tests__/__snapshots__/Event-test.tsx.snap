@@ -4,9 +4,6 @@ exports[`should render correctly: default 1`] = `
 <div
   className="project-activity-event"
 >
-  <ProjectEventIcon
-    className="project-activity-event-icon little-spacer-right text-middle OTHER"
-  />
   <EventInner
     event={
       Object {
@@ -40,9 +37,6 @@ exports[`should render correctly: with admin options 1`] = `
 <div
   className="project-activity-event"
 >
-  <ProjectEventIcon
-    className="project-activity-event-icon little-spacer-right text-middle OTHER"
-  />
   <EventInner
     event={
       Object {
