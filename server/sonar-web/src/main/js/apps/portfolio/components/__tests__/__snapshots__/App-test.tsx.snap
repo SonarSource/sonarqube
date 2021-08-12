@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`should render correctly: default 1`] = `
 <div
   className="page page-limited portfolio-overview"
 >
@@ -10,10 +10,25 @@ exports[`renders 1`] = `
     <Connect(withCurrentUser(Connect(ComponentReportActions)))
       component={
         Object {
+          "breadcrumbs": Array [],
           "description": "accurate description",
           "key": "foo",
           "name": "Foo",
           "qualifier": "VW",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
     />
@@ -152,7 +167,21 @@ exports[`renders 1`] = `
 </div>
 `;
 
-exports[`renders when portfolio is empty 1`] = `
+exports[`should render correctly: loading 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="text-center"
+  >
+    <i
+      className="spinner spacer"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: portfolio is empty 1`] = `
 <div
   className="page page-limited"
 >
@@ -166,7 +195,7 @@ exports[`renders when portfolio is empty 1`] = `
 </div>
 `;
 
-exports[`renders when portfolio is not computed 1`] = `
+exports[`should render correctly: portfolio is not computed 1`] = `
 <div
   className="page page-limited"
 >

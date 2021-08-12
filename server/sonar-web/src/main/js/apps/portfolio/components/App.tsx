@@ -17,24 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { InjectedRouter } from 'react-router';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import MeasuresLink from '../../../components/common/MeasuresLink';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
+import { isLoggedIn } from '../../../helpers/users';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';
 import { SubComponent } from '../types';
 import { convertMeasures, PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS } from '../utils';
 import MetricBox from './MetricBox';
+import UnsubscribeEmailModal from './UnsubscribeEmailModal';
 import WorstProjects from './WorstProjects';
 
 interface OwnProps {
   component: T.Component;
+  currentUser: T.CurrentUser;
+  location: Location;
+  router: InjectedRouter;
 }
 
 interface StateToProps {
@@ -52,14 +61,29 @@ interface State {
   measures?: T.Dict<string | undefined>;
   subComponents?: SubComponent[];
   totalSubComponents?: number;
+  showUnsubscribeModal: boolean;
 }
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      loading: true,
+      showUnsubscribeModal:
+        Boolean(props.location.query.unsubscribe) && isLoggedIn(props.currentUser)
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
+
+    if (Boolean(this.props.location.query.unsubscribe) && !isLoggedIn(this.props.currentUser)) {
+      handleRequiredAuthentication();
+    }
+
     this.props.fetchMetrics();
     this.fetchData();
   }
@@ -106,6 +130,12 @@ export class App extends React.PureComponent<Props, State> {
   isNotComputed = () =>
     this.state.measures && this.state.measures['reliability_rating'] === undefined;
 
+  handleCloseUnsubscribeEmailModal = () => {
+    const { location, router } = this.props;
+    this.setState({ showUnsubscribeModal: false });
+    router.replace({ ...location, query: { ...location.query, unsubscribe: undefined } });
+  };
+
   renderSpinner() {
     return (
       <div className="page page-limited">
@@ -142,7 +172,13 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
-    const { loading, measures, subComponents, totalSubComponents } = this.state;
+    const {
+      loading,
+      measures,
+      subComponents,
+      totalSubComponents,
+      showUnsubscribeModal
+    } = this.state;
 
     if (loading) {
       return this.renderSpinner();
@@ -221,6 +257,13 @@ export class App extends React.PureComponent<Props, State> {
             total={totalSubComponents}
           />
         )}
+
+        {showUnsubscribeModal && (
+          <UnsubscribeEmailModal
+            component={component}
+            onClose={this.handleCloseUnsubscribeEmailModal}
+          />
+        )}
       </div>
     );
   }
@@ -232,4 +275,4 @@ const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(withCurrentUser(App));

@@ -17,67 +17,103 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getChildren } from '../../../../api/components';
+import { getMeasures } from '../../../../api/measures';
+import {
+  mockComponent,
+  mockCurrentUser,
+  mockLocation,
+  mockLoggedInUser,
+  mockRouter
+} from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
+import { App } from '../App';
+import UnsubscribeEmailModal from '../UnsubscribeEmailModal';
+
+jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
+  default: jest.fn()
+}));
+
 jest.mock('../../../../api/measures', () => ({
-  getMeasures: jest.fn(() => Promise.resolve([]))
+  getMeasures: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('../../../../api/components', () => ({
-  getChildren: jest.fn(() => Promise.resolve({ components: [], paging: { total: 0 } }))
+  getChildren: jest.fn().mockResolvedValue({ components: [], paging: { total: 0 } })
 }));
 
-import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import { ComponentQualifier } from '../../../../types/component';
-import { App } from '../App';
+beforeEach(jest.clearAllMocks);
 
-const getMeasures = require('../../../../api/measures').getMeasures as jest.Mock<any>;
-const getChildren = require('../../../../api/components').getChildren as jest.Mock<any>;
+it('should render correctly', () => {
+  const wrapper = shallowRender({
+    component: mockComponent({
+      key: 'foo',
+      name: 'Foo',
+      qualifier: ComponentQualifier.Portfolio,
+      description: 'accurate description'
+    })
+  });
+  expect(wrapper).toMatchSnapshot('loading');
 
-const component = {
-  key: 'foo',
-  name: 'Foo',
-  qualifier: ComponentQualifier.Portfolio
-} as T.Component;
+  wrapper.setState({ loading: false, measures: { reliability_rating: '1' } });
+  expect(wrapper).toMatchSnapshot('portfolio is empty');
 
-it('renders', () => {
-  const wrapper = shallow(
-    <App
-      component={{ ...component, description: 'accurate description' }}
-      fetchMetrics={jest.fn()}
-      metrics={{}}
-    />
-  );
+  wrapper.setState({ measures: { ncloc: '173' } });
+  expect(wrapper).toMatchSnapshot('portfolio is not computed');
+
   wrapper.setState({
-    loading: false,
     measures: { ncloc: '173', reliability_rating: '1' },
     subComponents: [],
     totalSubComponents: 0
   });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('default');
 });
 
-it('renders when portfolio is empty', () => {
-  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
-  wrapper.setState({ loading: false, measures: { reliability_rating: '1' } });
-  expect(wrapper).toMatchSnapshot();
+it('should require authentication if this is an unsubscription request and user is anonymous', () => {
+  shallowRender({ location: mockLocation({ query: { unsubscribe: '1' } }) });
+  expect(handleRequiredAuthentication).toBeCalled();
 });
 
-it('renders when portfolio is not computed', () => {
-  const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
-  wrapper.setState({ loading: false, measures: { ncloc: '173' } });
-  expect(wrapper).toMatchSnapshot();
+it('should show the unsubscribe modal if this is an unsubscription request and user is logged in', async () => {
+  (getMeasures as jest.Mock).mockResolvedValueOnce([
+    { metric: 'ncloc', value: '173' },
+    { metric: 'reliability_rating', value: '1' }
+  ]);
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { unsubscribe: '1' } }),
+    currentUser: mockLoggedInUser()
+  });
+
+  await waitAndUpdate(wrapper);
+
+  expect(handleRequiredAuthentication).not.toBeCalled();
+  expect(wrapper.find(UnsubscribeEmailModal).exists()).toBe(true);
+});
+
+it('should update the location when unsubscribe modal is closed', () => {
+  const replace = jest.fn();
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { unsubscribe: '1' } }),
+    currentUser: mockLoggedInUser(),
+    router: mockRouter({ replace })
+  });
+  wrapper.instance().handleCloseUnsubscribeEmailModal();
+  expect(replace).toBeCalledWith(expect.objectContaining({ query: { unsubscribe: undefined } }));
 });
 
 it('fetches measures and children components', () => {
-  getMeasures.mockClear();
-  getChildren.mockClear();
-  mount(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);
+  shallowRender();
+
   expect(getMeasures).toBeCalledWith({
     component: 'foo',
     metricKeys:
       'projects,ncloc,ncloc_language_distribution,releasability_rating,releasability_effort,sqale_rating,maintainability_rating_effort,reliability_rating,reliability_rating_effort,security_rating,security_rating_effort,security_review_rating,security_review_rating_effort,last_change_on_releasability_rating,last_change_on_maintainability_rating,last_change_on_security_rating,last_change_on_security_review_rating,last_change_on_reliability_rating'
   });
+
   expect(getChildren).toBeCalledWith(
     'foo',
     [
@@ -92,3 +128,21 @@ it('fetches measures and children components', () => {
     { ps: 20, s: 'qualifier' }
   );
 });
+
+function shallowRender(props: Partial<App['props']> = {}) {
+  return shallow<App>(
+    <App
+      component={mockComponent({
+        key: 'foo',
+        name: 'Foo',
+        qualifier: ComponentQualifier.Portfolio
+      })}
+      currentUser={mockCurrentUser()}
+      fetchMetrics={jest.fn()}
+      location={mockLocation()}
+      metrics={{}}
+      router={mockRouter()}
+      {...props}
+    />
+  );
+}
