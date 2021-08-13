@@ -28,5 +28,7 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<LanguageProps> = {}) {
-  return shallow<LanguageProps>(<Gradle component={mockComponent()} baseUrl="" {...props} />);
+  return shallow<LanguageProps>(
+    <Gradle onDone={jest.fn()} component={mockComponent()} baseUrl="" {...props} />
+  );
 }

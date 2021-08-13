@@ -21,14 +21,11 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
+import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
+import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
-
-export interface CFamillyProps {
-  component: T.Component;
-  baseUrl: string;
-}
 
 const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
   [OSs.Linux]: baseUrl => `node {
@@ -104,7 +101,8 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
 }`
 };
 
-export default function CFamilly({ baseUrl, component }: CFamillyProps) {
+export default function CFamilly(props: LanguageProps) {
+  const { baseUrl, component } = props;
   const [os, setOs] = React.useState<OSs>();
   return (
     <>
@@ -120,11 +118,14 @@ export default function CFamilly({ baseUrl, component }: CFamillyProps) {
         />
       </li>
       {os && (
-        <CreateJenkinsfileBulletPoint
-          alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-          snippet={YAML_MAP[os](baseUrl)}>
-          <CompilationInfo />
-        </CreateJenkinsfileBulletPoint>
+        <>
+          <CreateJenkinsfileBulletPoint
+            alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
+            snippet={YAML_MAP[os](baseUrl)}>
+            <CompilationInfo />
+          </CreateJenkinsfileBulletPoint>
+          <FinishButton onClick={props.onDone} />
+        </>
       )}
     </>
   );

@@ -29,5 +29,8 @@ exports[`should render correctly 1`] = `
   }
 }"
   />
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;

@@ -48,17 +48,9 @@ exports[`should render correctly for .NET 1`] = `
           "tags": Array [],
         }
       }
+      onDone={[MockFunction]}
     />
   </ol>
-  <Button
-    className="big-spacer-top"
-    onClick={[MockFunction]}
-  >
-    tutorials.finish
-    <ChevronRightIcon
-      size={13}
-    />
-  </Button>
 </div>
 `;
 
@@ -110,17 +102,9 @@ exports[`should render correctly for Gradle 1`] = `
           "tags": Array [],
         }
       }
+      onDone={[MockFunction]}
     />
   </ol>
-  <Button
-    className="big-spacer-top"
-    onClick={[MockFunction]}
-  >
-    tutorials.finish
-    <ChevronRightIcon
-      size={13}
-    />
-  </Button>
 </div>
 `;
 
@@ -172,17 +156,9 @@ exports[`should render correctly for Maven 1`] = `
           "tags": Array [],
         }
       }
+      onDone={[MockFunction]}
     />
   </ol>
-  <Button
-    className="big-spacer-top"
-    onClick={[MockFunction]}
-  >
-    tutorials.finish
-    <ChevronRightIcon
-      size={13}
-    />
-  </Button>
 </div>
 `;
 
@@ -234,17 +210,9 @@ exports[`should render correctly for Other 1`] = `
           "tags": Array [],
         }
       }
+      onDone={[MockFunction]}
     />
   </ol>
-  <Button
-    className="big-spacer-top"
-    onClick={[MockFunction]}
-  >
-    tutorials.finish
-    <ChevronRightIcon
-      size={13}
-    />
-  </Button>
 </div>
 `;
 

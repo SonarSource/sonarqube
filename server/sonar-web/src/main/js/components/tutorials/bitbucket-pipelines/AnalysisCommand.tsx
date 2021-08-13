@@ -32,7 +32,7 @@ import { PreambuleYaml } from './PreambuleYaml';
 
 export interface AnalysisCommandProps {
   appState: T.AppState;
-  buildTool?: BuildTools;
+  buildTool: BuildTools;
   component: T.Component;
 }
 

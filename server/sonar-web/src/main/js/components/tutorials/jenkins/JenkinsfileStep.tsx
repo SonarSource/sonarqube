@@ -18,11 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { rawSizes } from '../../../app/theme';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
@@ -44,6 +41,7 @@ export interface JenkinsfileStepProps {
 }
 
 export interface LanguageProps {
+  onDone: () => void;
   component: T.Component;
   baseUrl: string;
 }
@@ -89,14 +87,12 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
               )}
             </li>
             {buildTool !== undefined &&
-              React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], { component, baseUrl })}
+              React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], {
+                component,
+                baseUrl,
+                onDone: props.onDone
+              })}
           </ol>
-          {buildTool !== undefined && (
-            <Button className="big-spacer-top" onClick={props.onDone}>
-              {translate('tutorials.finish')}
-              <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
-            </Button>
-          )}
         </div>
       )}
       stepNumber={3}

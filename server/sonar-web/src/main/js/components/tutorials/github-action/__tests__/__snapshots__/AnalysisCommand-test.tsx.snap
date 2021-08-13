@@ -24,6 +24,7 @@ exports[`should render correctly for "cfamily" 1`] = `
       "tags": Array [],
     }
   }
+  onDone={[MockFunction]}
 />
 `;
 
@@ -51,6 +52,7 @@ exports[`should render correctly for "dotnet" 1`] = `
       "tags": Array [],
     }
   }
+  onDone={[MockFunction]}
 />
 `;
 
@@ -78,6 +80,7 @@ exports[`should render correctly for "gradle" 1`] = `
       "tags": Array [],
     }
   }
+  onDone={[MockFunction]}
 />
 `;
 
@@ -105,6 +108,7 @@ exports[`should render correctly for "maven" 1`] = `
       "tags": Array [],
     }
   }
+  onDone={[MockFunction]}
 />
 `;
 
@@ -132,6 +136,7 @@ exports[`should render correctly for "other" 1`] = `
       "tags": Array [],
     }
   }
+  onDone={[MockFunction]}
 />
 `;
 

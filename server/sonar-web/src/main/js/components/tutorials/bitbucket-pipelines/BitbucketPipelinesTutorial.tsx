@@ -24,6 +24,8 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import AllSetStep from '../components/AllSetStep';
+import FinishButton from '../components/FinishButton';
 import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
 import AnalysisCommand from './AnalysisCommand';
@@ -31,7 +33,8 @@ import RepositoryVariables from './RepositoryVariables';
 
 export enum Steps {
   REPOSITORY_VARIABLES = 1,
-  YAML = 2
+  YAML = 2,
+  ALL_SET = 3
 }
 
 export interface BitbucketPipelinesTutorialProps {
@@ -66,15 +69,26 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
         stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.create_secret.title')}
       />
       <Step
+        finished={step > Steps.YAML}
         onOpen={() => setStep(Steps.YAML)}
         open={step === Steps.YAML}
         renderForm={() => (
-          <YamlFileStep alm={AlmKeys.BitbucketCloud}>
-            {buildTool => <AnalysisCommand buildTool={buildTool} component={component} />}
+          <YamlFileStep>
+            {buildTool => (
+              <>
+                <AnalysisCommand buildTool={buildTool} component={component} />
+                <FinishButton onClick={() => setStep(Steps.ALL_SET)} />
+              </>
+            )}
           </YamlFileStep>
         )}
         stepNumber={Steps.YAML}
         stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}
+      />
+      <AllSetStep
+        alm={almBinding?.alm || AlmKeys.BitbucketCloud}
+        open={step === Steps.ALL_SET}
+        stepNumber={Steps.ALL_SET}
       />
     </>
   );

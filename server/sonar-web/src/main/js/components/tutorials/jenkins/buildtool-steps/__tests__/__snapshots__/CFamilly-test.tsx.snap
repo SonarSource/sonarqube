@@ -110,6 +110,9 @@ exports[`should render correctly for linux: linux 1`] = `
   >
     <CompilationInfo />
   </CreateJenkinsfileBulletPoint>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -183,6 +186,9 @@ exports[`should render correctly for mac: mac 1`] = `
   >
     <CompilationInfo />
   </CreateJenkinsfileBulletPoint>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -262,5 +268,8 @@ exports[`should render correctly for win: win 1`] = `
   >
     <CompilationInfo />
   </CreateJenkinsfileBulletPoint>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;

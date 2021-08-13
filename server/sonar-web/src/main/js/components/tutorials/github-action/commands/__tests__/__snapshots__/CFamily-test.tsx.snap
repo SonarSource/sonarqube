@@ -129,6 +129,9 @@ jobs:
   <CompilationInfo
     className="abs-width-800"
   />
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -220,6 +223,9 @@ jobs:
   />
   <CompilationInfo
     className="abs-width-800"
+  />
+  <FinishButton
+    onClick={[MockFunction]}
   />
 </Fragment>
 `;
@@ -321,6 +327,9 @@ jobs:
   />
   <CompilationInfo
     className="abs-width-800"
+  />
+  <FinishButton
+    onClick={[MockFunction]}
   />
 </Fragment>
 `;

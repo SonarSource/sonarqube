@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<CreateYmlFile
-  yamlFileName=".github/workflows/build.yml"
-  yamlTemplate="name: Build
+<Fragment>
+  <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
+    yamlTemplate="name: Build
 on:
   push:
     branches:
@@ -49,13 +50,18 @@ jobs:
           .\\\\.sonar\\\\scanner\\\\dotnet-sonarscanner begin /k:\\"my-project\\" /d:sonar.login=\\"\${{ secrets.SONAR_TOKEN }}\\" /d:sonar.host.url=\\"\${{ secrets.SONAR_HOST_URL }}\\"
           dotnet build
           .\\\\.sonar\\\\scanner\\\\dotnet-sonarscanner end /d:sonar.login=\\"\${{ secrets.SONAR_TOKEN }}\\""
-/>
+  />
+  <FinishButton
+    onClick={[MockFunction]}
+  />
+</Fragment>
 `;
 
 exports[`should render correctly: without branch enabled 1`] = `
-<CreateYmlFile
-  yamlFileName=".github/workflows/build.yml"
-  yamlTemplate="name: Build
+<Fragment>
+  <CreateYmlFile
+    yamlFileName=".github/workflows/build.yml"
+    yamlTemplate="name: Build
 on:
   push:
     branches:
@@ -100,5 +106,9 @@ jobs:
           .\\\\.sonar\\\\scanner\\\\dotnet-sonarscanner begin /k:\\"my-project\\" /d:sonar.login=\\"\${{ secrets.SONAR_TOKEN }}\\" /d:sonar.host.url=\\"\${{ secrets.SONAR_HOST_URL }}\\"
           dotnet build
           .\\\\.sonar\\\\scanner\\\\dotnet-sonarscanner end /d:sonar.login=\\"\${{ secrets.SONAR_TOKEN }}\\""
-/>
+  />
+  <FinishButton
+    onClick={[MockFunction]}
+  />
+</Fragment>
 `;

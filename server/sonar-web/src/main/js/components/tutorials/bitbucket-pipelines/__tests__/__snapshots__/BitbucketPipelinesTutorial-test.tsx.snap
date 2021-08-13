@@ -11,11 +11,43 @@ exports[`should render correctly: default 1`] = `
     stepTitle="onboarding.tutorial.with.bitbucket_pipelines.create_secret.title"
   />
   <Step
+    finished={false}
     onOpen={[Function]}
     open={false}
     renderForm={[Function]}
     stepNumber={2}
     stepTitle="onboarding.tutorial.with.bitbucket_pipelines.yaml.title"
+  />
+  <AllSetStep
+    alm="github"
+    open={false}
+    stepNumber={3}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: no binding 1`] = `
+<Fragment>
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={true}
+    renderForm={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.tutorial.with.bitbucket_pipelines.create_secret.title"
+  />
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={false}
+    renderForm={[Function]}
+    stepNumber={2}
+    stepTitle="onboarding.tutorial.with.bitbucket_pipelines.yaml.title"
+  />
+  <AllSetStep
+    alm="bitbucketcloud"
+    open={false}
+    stepNumber={3}
   />
 </Fragment>
 `;
@@ -73,9 +105,7 @@ exports[`should render correctly: repo variable step content 1`] = `
 `;
 
 exports[`should render correctly: yaml file step content 1`] = `
-<Connect(withCLanguageFeature(YamlFileStep))
-  alm="bitbucketcloud"
->
+<Connect(withCLanguageFeature(YamlFileStep))>
   [Function]
 </Connect(withCLanguageFeature(YamlFileStep))>
 `;

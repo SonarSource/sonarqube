@@ -28,8 +28,9 @@ import Others from './commands/Others';
 
 export interface AnalysisCommandProps {
   appState: T.AppState;
-  buildTool?: BuildTools;
+  buildTool: BuildTools;
   component: T.Component;
+  onDone: () => void;
 }
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
@@ -45,15 +46,25 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
 
   switch (buildTool) {
     case BuildTools.Maven:
-      return <JavaMaven branchesEnabled={branchesEnabled} component={component} />;
+      return (
+        <JavaMaven branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+      );
     case BuildTools.Gradle:
-      return <Gradle branchesEnabled={branchesEnabled} component={component} />;
+      return (
+        <Gradle branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+      );
     case BuildTools.DotNet:
-      return <DotNet branchesEnabled={branchesEnabled} component={component} />;
+      return (
+        <DotNet branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+      );
     case BuildTools.CFamily:
-      return <CFamily branchesEnabled={branchesEnabled} component={component} />;
+      return (
+        <CFamily branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+      );
     case BuildTools.Other:
-      return <Others branchesEnabled={branchesEnabled} component={component} />;
+      return (
+        <Others branchesEnabled={branchesEnabled} component={component} onDone={props.onDone} />
+      );
   }
   return null;
 }

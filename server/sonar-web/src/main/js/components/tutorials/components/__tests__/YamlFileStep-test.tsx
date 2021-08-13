@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../types/alm-settings';
+import { BuildTools } from '../../types';
+import RenderOptions from '../RenderOptions';
 import { YamlFileStep, YamlFileStepProps } from '../YamlFileStep';
 
 it('should render correctly', () => {
@@ -27,8 +28,14 @@ it('should render correctly', () => {
   expect(shallowRender({ hasCLanguageFeature: true })).toMatchSnapshot('C available');
 });
 
+it('should render child correctly', () => {
+  const children = jest.fn();
+  const wrapper = shallowRender({ children });
+  expect(wrapper).toMatchSnapshot('C unavailable');
+  wrapper.find(RenderOptions).simulate('check', BuildTools.DotNet);
+  expect(children).toBeCalledWith(BuildTools.DotNet);
+});
+
 function shallowRender(props: Partial<YamlFileStepProps> = {}) {
-  return shallow<YamlFileStepProps>(
-    <YamlFileStep alm={AlmKeys.GitHub} hasCLanguageFeature={false} {...props} />
-  );
+  return shallow<YamlFileStepProps>(<YamlFileStep hasCLanguageFeature={false} {...props} />);
 }

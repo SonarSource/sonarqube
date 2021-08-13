@@ -23,11 +23,13 @@ import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboa
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
+import FinishButton from '../../components/FinishButton';
 import { buildGradleSnippet } from '../../utils';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
   component: T.Component;
+  onDone: () => void;
 }
 const gradleYamlTemplate = (branchesEnabled: boolean) => `name: Build
 on:
@@ -91,6 +93,7 @@ export default function Gradle(props: GradleProps) {
         yamlFileName=".github/workflows/build.yml"
         yamlTemplate={gradleYamlTemplate(!!branchesEnabled)}
       />
+      <FinishButton onClick={props.onDone} />
     </>
   );
 }

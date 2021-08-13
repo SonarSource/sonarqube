@@ -23,11 +23,13 @@ import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboa
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
+import FinishButton from '../../components/FinishButton';
 import { mavenPomSnippet } from '../../utils';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
   component: T.Component;
+  onDone: () => void;
 }
 
 const mavenYamlTemplte = (branchesEnabled: boolean) => `name: Build
@@ -90,6 +92,7 @@ export default function JavaMaven(props: JavaMavenProps) {
         yamlFileName=".github/workflows/build.yml"
         yamlTemplate={mavenYamlTemplte(!!branchesEnabled)}
       />
+      <FinishButton onClick={props.onDone} />
     </>
   );
 }

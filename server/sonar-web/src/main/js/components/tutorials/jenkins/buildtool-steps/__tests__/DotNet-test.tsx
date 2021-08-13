@@ -28,5 +28,7 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<LanguageProps> = {}) {
-  return shallow<LanguageProps>(<DotNet component={mockComponent()} baseUrl="" {...props} />);
+  return shallow<LanguageProps>(
+    <DotNet onDone={jest.fn()} component={mockComponent()} baseUrl="" {...props} />
+  );
 }

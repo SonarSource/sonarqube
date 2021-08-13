@@ -24,6 +24,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import AllSetStep from '../components/AllSetStep';
 import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
 import AnalysisCommand from './AnalysisCommand';
@@ -31,7 +32,8 @@ import SecretStep from './SecretStep';
 
 export enum Steps {
   CREATE_SECRET = 1,
-  YAML = 2
+  YAML = 2,
+  ALL_SET = 3
 }
 
 export interface GitHubActionTutorialProps {
@@ -66,15 +68,27 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
         stepTitle={translate('onboarding.tutorial.with.github_action.create_secret.title')}
       />
       <Step
+        finished={step > Steps.YAML}
         onOpen={() => setStep(Steps.YAML)}
         open={step === Steps.YAML}
         renderForm={() => (
-          <YamlFileStep alm={AlmKeys.GitHub}>
-            {buildTool => <AnalysisCommand buildTool={buildTool} component={component} />}
+          <YamlFileStep>
+            {buildTool => (
+              <AnalysisCommand
+                buildTool={buildTool}
+                component={component}
+                onDone={() => setStep(Steps.ALL_SET)}
+              />
+            )}
           </YamlFileStep>
         )}
         stepNumber={Steps.YAML}
         stepTitle={translate('onboarding.tutorial.with.github_action.yaml.title')}
+      />
+      <AllSetStep
+        alm={almBinding?.alm || AlmKeys.GitHub}
+        open={step === Steps.ALL_SET}
+        stepNumber={Steps.ALL_SET}
       />
     </>
   );

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
+import FinishButton from '../../components/FinishButton';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import { buildGradleSnippet } from '../../utils';
 import { LanguageProps } from '../JenkinsfileStep';
@@ -35,7 +36,8 @@ const JENKINSFILE_SNIPPET = `node {
   }
 }`;
 
-export default function Gradle({ component }: LanguageProps) {
+export default function Gradle(props: LanguageProps) {
+  const { component } = props;
   return (
     <>
       <li className="abs-width-600">
@@ -46,6 +48,7 @@ export default function Gradle({ component }: LanguageProps) {
         <CodeSnippet snippet={buildGradleSnippet(component.key)} />
       </li>
       <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
+      <FinishButton onClick={props.onDone} />
     </>
   );
 }

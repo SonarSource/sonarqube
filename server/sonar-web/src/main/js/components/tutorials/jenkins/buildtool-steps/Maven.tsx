@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../common/CodeSnippet';
+import FinishButton from '../../components/FinishButton';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import { mavenPomSnippet } from '../../utils';
 import { LanguageProps } from '../JenkinsfileStep';
@@ -36,7 +37,8 @@ const JENKINSFILE_SNIPPET = `node {
   }
 }`;
 
-export default function Maven({ component }: LanguageProps) {
+export default function Maven(props: LanguageProps) {
+  const { component } = props;
   return (
     <>
       <li className="abs-width-600">
@@ -50,6 +52,7 @@ export default function Maven({ component }: LanguageProps) {
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
         snippet={JENKINSFILE_SNIPPET}
       />
+      <FinishButton onClick={props.onDone} />
     </>
   );
 }

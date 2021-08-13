@@ -43,6 +43,6 @@ it.each([
 
 function shallowRender(props: Partial<CFamilyProps> = {}) {
   return shallow<CFamilyProps>(
-    <CFamily branchesEnabled={true} component={mockComponent()} {...props} />
+    <CFamily branchesEnabled={true} component={mockComponent()} {...props} onDone={jest.fn()} />
   );
 }

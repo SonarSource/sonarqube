@@ -11,11 +11,43 @@ exports[`should render correctly: default 1`] = `
     stepTitle="onboarding.tutorial.with.github_action.create_secret.title"
   />
   <Step
+    finished={false}
     onOpen={[Function]}
     open={false}
     renderForm={[Function]}
     stepNumber={2}
     stepTitle="onboarding.tutorial.with.github_action.yaml.title"
+  />
+  <AllSetStep
+    alm="github"
+    open={false}
+    stepNumber={3}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: no binding 1`] = `
+<Fragment>
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={true}
+    renderForm={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.tutorial.with.github_action.create_secret.title"
+  />
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={false}
+    renderForm={[Function]}
+    stepNumber={2}
+    stepTitle="onboarding.tutorial.with.github_action.yaml.title"
+  />
+  <AllSetStep
+    alm="github"
+    open={false}
+    stepNumber={3}
   />
 </Fragment>
 `;
@@ -73,9 +105,7 @@ exports[`should render correctly: secrets step content 1`] = `
 `;
 
 exports[`should render correctly: yaml file step content 1`] = `
-<Connect(withCLanguageFeature(YamlFileStep))
-  alm="github"
->
+<Connect(withCLanguageFeature(YamlFileStep))>
   [Function]
 </Connect(withCLanguageFeature(YamlFileStep))>
 `;

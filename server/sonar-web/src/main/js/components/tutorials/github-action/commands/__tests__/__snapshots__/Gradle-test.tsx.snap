@@ -80,6 +80,9 @@ jobs:
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonarqube --info"
   />
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -161,6 +164,9 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonarqube --info"
+  />
+  <FinishButton
+    onClick={[MockFunction]}
   />
 </Fragment>
 `;

@@ -36,6 +36,12 @@ it.each([
 
 function shallowRender(props: Partial<AnalysisCommandProps> = {}) {
   return shallow<AnalysisCommandProps>(
-    <AnalysisCommand appState={mockAppState()} component={mockComponent()} {...props} />
+    <AnalysisCommand
+      appState={mockAppState()}
+      component={mockComponent()}
+      buildTool={BuildTools.DotNet}
+      onDone={jest.fn()}
+      {...props}
+    />
   );
 }

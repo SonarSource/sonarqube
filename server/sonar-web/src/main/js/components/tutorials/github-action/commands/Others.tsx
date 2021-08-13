@@ -20,10 +20,12 @@
 import * as React from 'react';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
+import FinishButton from '../../components/FinishButton';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
   component: T.Component;
+  onDone: () => void;
 }
 
 const yamlTemplate = (branchesEnabled: boolean) => {
@@ -79,6 +81,7 @@ export default function Others(props: OthersProps) {
         yamlFileName=".github/workflows/build.yml"
         yamlTemplate={yamlTemplate(!!branchesEnabled)}
       />
+      <FinishButton onClick={props.onDone} />
     </>
   );
 }

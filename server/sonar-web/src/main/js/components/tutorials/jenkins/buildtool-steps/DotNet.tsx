@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
 import { LanguageProps } from '../JenkinsfileStep';
@@ -39,7 +40,8 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
   linux_core: OSs.Linux
 };
 
-export default function DotNet({ component }: LanguageProps) {
+export default function DotNet(props: LanguageProps) {
+  const { component } = props;
   const [flavorComponent, setFlavorComponet] = React.useState<keyof typeof DotNetFlavor>();
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
   return (
@@ -55,7 +57,10 @@ export default function DotNet({ component }: LanguageProps) {
         />
       </li>
       {DotNetTutorial && flavorComponent && (
-        <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
+        <>
+          <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
+          <FinishButton onClick={props.onDone} />
+        </>
       )}
     </>
   );

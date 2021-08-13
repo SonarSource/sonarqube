@@ -22,7 +22,8 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/testMocks';
 import RenderOptions from '../../../components/RenderOptions';
 import { OSs } from '../../../types';
-import CFamilly, { CFamillyProps } from '../CFamilly';
+import { LanguageProps } from '../../JenkinsfileStep';
+import CFamilly from '../CFamilly';
 
 it('should render correctly for', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -34,8 +35,8 @@ it.each([[OSs.Linux], [OSs.MacOS], [OSs.Windows]])('should render correctly for 
   expect(wrapper).toMatchSnapshot(os);
 });
 
-function shallowRender(props: Partial<CFamillyProps> = {}) {
-  return shallow<CFamillyProps>(
-    <CFamilly component={mockComponent()} baseUrl="nice_url_sample" {...props} />
+function shallowRender(props: Partial<LanguageProps> = {}) {
+  return shallow<LanguageProps>(
+    <CFamilly onDone={jest.fn()} component={mockComponent()} baseUrl="nice_url_sample" {...props} />
   );
 }

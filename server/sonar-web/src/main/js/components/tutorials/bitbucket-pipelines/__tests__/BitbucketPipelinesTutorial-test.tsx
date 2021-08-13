@@ -32,6 +32,7 @@ import BitbucketPipelinesTutorial, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ almBinding: undefined })).toMatchSnapshot('no binding');
   expect(renderStepContent(shallowRender())).toMatchSnapshot('repo variable step content');
   expect(renderStepContent(shallowRender(), 1)).toMatchSnapshot('yaml file step content');
 });

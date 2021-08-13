@@ -22,12 +22,14 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
+import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
   component: T.Component;
+  onDone: () => void;
 }
 
 const STEPS = {
@@ -155,6 +157,7 @@ export default function CFamily(props: CFamilyProps) {
             yamlTemplate={cfamilyYamlTemplate(!!branchesEnabled, os)}
           />
           <CompilationInfo className="abs-width-800" />
+          <FinishButton onClick={props.onDone} />
         </>
       )}
     </>

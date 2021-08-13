@@ -19,10 +19,12 @@
  */
 import * as React from 'react';
 import CreateYmlFile from '../../components/CreateYmlFile';
+import FinishButton from '../../components/FinishButton';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
   component: T.Component;
+  onDone: () => void;
 }
 
 const dotnetYamlTemplate = (projectKey: string, branchesEnabled: boolean) => `name: Build
@@ -74,9 +76,12 @@ jobs:
 export default function DotNet(props: DotNetProps) {
   const { component, branchesEnabled } = props;
   return (
-    <CreateYmlFile
-      yamlFileName=".github/workflows/build.yml"
-      yamlTemplate={dotnetYamlTemplate(component.key, !!branchesEnabled)}
-    />
+    <>
+      <CreateYmlFile
+        yamlFileName=".github/workflows/build.yml"
+        yamlTemplate={dotnetYamlTemplate(component.key, !!branchesEnabled)}
+      />
+      <FinishButton onClick={props.onDone} />
+    </>
   );
 }

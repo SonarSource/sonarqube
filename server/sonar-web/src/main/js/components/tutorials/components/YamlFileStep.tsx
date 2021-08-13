@@ -19,15 +19,12 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmKeys } from '../../../types/alm-settings';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
-import AllSet from './AllSet';
 
 export interface YamlFileStepProps {
-  alm: AlmKeys;
-  children?: (buildTool?: BuildTools) => React.ReactElement<{}>;
+  children?: (buildTool: BuildTools) => React.ReactElement<{}>;
   hasCLanguageFeature: boolean;
 }
 
@@ -38,7 +35,7 @@ export interface AnalysisCommandProps {
 }
 
 export function YamlFileStep(props: YamlFileStepProps) {
-  const { alm, children, hasCLanguageFeature } = props;
+  const { children, hasCLanguageFeature } = props;
 
   const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
   if (hasCLanguageFeature) {
@@ -62,14 +59,8 @@ export function YamlFileStep(props: YamlFileStepProps) {
             optionLabelKey="onboarding.build"
           />
         </li>
-        {children && children(buildToolSelected)}
+        {children && buildToolSelected && children(buildToolSelected)}
       </ol>
-      {buildToolSelected !== undefined && (
-        <>
-          <hr className="huge-spacer-top huge-spacer-bottom" />
-          <AllSet alm={alm} />
-        </>
-      )}
     </>
   );
 }

@@ -19,16 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { LanguageProps } from '../../JenkinsfileStep';
-import Other from '../Other';
+import FinishButton, { FinishButtonProps } from '../FinishButton';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<LanguageProps> = {}) {
-  return shallow<LanguageProps>(
-    <Other onDone={jest.fn()} component={mockComponent()} baseUrl="" {...props} />
-  );
+function shallowRender(props: Partial<FinishButtonProps> = {}) {
+  return shallow<FinishButtonProps>(<FinishButton onClick={jest.fn()} {...props} />);
 }

@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+
 import * as React from 'react';
-import { mockComponent } from '../../../../../helpers/testMocks';
-import { LanguageProps } from '../../JenkinsfileStep';
-import Other from '../Other';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
+import { rawSizes } from '../../../app/theme';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+export interface FinishButtonProps {
+  onClick: () => void;
+}
 
-function shallowRender(props: Partial<LanguageProps> = {}) {
-  return shallow<LanguageProps>(
-    <Other onDone={jest.fn()} component={mockComponent()} baseUrl="" {...props} />
+export default function FinishButton(props: FinishButtonProps) {
+  return (
+    <Button className="big-spacer-top big-spacer-bottom" onClick={props.onClick}>
+      {translate('tutorials.finish')}
+      <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
+    </Button>
   );
 }
