@@ -169,9 +169,11 @@ public class PermissionIndexerDaoTest {
       GroupPermissionDto dto = new GroupPermissionDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(group.getUuid())
+        .setGroupName(group.getName())
         .setRole(USER)
-        .setComponentUuid(project.uuid());
-      dbClient.groupPermissionDao().insert(dbSession, dto, project);
+        .setComponentUuid(project.uuid())
+        .setComponentName(project.name());
+      dbClient.groupPermissionDao().insert(dbSession, dto);
     }
     dbSession.commit();
 

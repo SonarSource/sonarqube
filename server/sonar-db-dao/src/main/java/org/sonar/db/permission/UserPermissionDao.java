@@ -129,7 +129,7 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteGlobalPermission(userUuid, permission);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null,
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, null,
         null, userUuid));
     }
   }
@@ -141,7 +141,7 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteProjectPermission(userUuid, permission, projectUuid);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, projectUuid, projectName, userUuid));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, projectUuid, projectName, userUuid));
     }
   }
 
@@ -152,7 +152,7 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteProjectPermissions(projectUuid);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, projectUuid, projectName, null));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, projectUuid, projectName, null));
     }
   }
 
@@ -163,7 +163,7 @@ public class UserPermissionDao implements Dao {
     int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, projectUuid, projectName, null));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, projectUuid, projectName, null));
     }
 
     return deletedRows;
@@ -173,7 +173,7 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteByUserUuid(userUuid);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, null, userUuid));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, null, null, userUuid));
     }
   }
 

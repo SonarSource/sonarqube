@@ -146,12 +146,16 @@ public class PermissionTemplateService {
       .filter(gp -> groupNameValidForProject(project, gp.getGroupName()))
       .filter(gp -> permissionValidForProject(project, gp.getPermission()))
       .forEach(gp -> {
+        String groupUuid = isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid();
+        String groupName = groupUuid == null ? null : dbClient.groupDao().selectByUuid(dbSession, groupUuid).getName();
         GroupPermissionDto dto = new GroupPermissionDto()
           .setUuid(uuidFactory.create())
-          .setGroupUuid(isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid())
+          .setGroupUuid(groupUuid)
+          .setGroupName(groupName)
           .setRole(gp.getPermission())
-          .setComponentUuid(project.uuid());
-        dbClient.groupPermissionDao().insert(dbSession, dto, project);
+          .setComponentUuid(project.uuid())
+          .setComponentName(project.name());
+        dbClient.groupPermissionDao().insert(dbSession, dto);
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));

@@ -23,9 +23,11 @@ import javax.annotation.Nullable;
 
 public class GroupPermissionDto {
   private String uuid;
-  private String groupUuid;
-  private String componentUuid;
   private String role;
+  private String groupUuid;
+  private String groupName;
+  private String componentUuid;
+  private String componentName;
 
   public String getUuid() {
     return uuid;
@@ -64,6 +66,26 @@ public class GroupPermissionDto {
 
   public GroupPermissionDto setRole(String role) {
     this.role = role;
+    return this;
+  }
+
+  @Nullable
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public GroupPermissionDto setGroupName(@Nullable String groupName) {
+    this.groupName = groupName;
+    return this;
+  }
+
+  @Nullable
+  public String getComponentName() {
+    return componentName;
+  }
+
+  public GroupPermissionDto setComponentName(@Nullable String componentName) {
+    this.componentName = componentName;
     return this;
   }
 }

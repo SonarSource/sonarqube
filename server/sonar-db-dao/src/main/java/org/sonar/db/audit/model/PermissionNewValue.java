@@ -32,6 +32,9 @@ public class PermissionNewValue implements NewValue {
   private String groupUuid;
 
   @Nullable
+  private String groupName;
+
+  @Nullable
   private String userUuid;
 
   @Nullable
@@ -43,12 +46,13 @@ public class PermissionNewValue implements NewValue {
   @Nullable
   private String role;
 
-  public PermissionNewValue(GroupPermissionDto groupPermissionDto, String projectName) {
+  public PermissionNewValue(GroupPermissionDto groupPermissionDto) {
     this.permissionUuid = groupPermissionDto.getUuid();
-    this.groupUuid = groupPermissionDto.getGroupUuid();
-    this.projectUuid = groupPermissionDto.getComponentUuid();
     this.role = groupPermissionDto.getRole();
-    this.projectName = projectName;
+    this.groupUuid = groupPermissionDto.getGroupUuid();
+    this.groupName = groupPermissionDto.getGroupName();
+    this.projectUuid = groupPermissionDto.getComponentUuid();
+    this.projectName = groupPermissionDto.getComponentName();
   }
 
   public PermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName) {
@@ -59,10 +63,11 @@ public class PermissionNewValue implements NewValue {
     this.projectName = projectName;
   }
 
-  public  PermissionNewValue(@Nullable String role, @Nullable String groupUuid, @Nullable String rootComponentUuid,
+  public  PermissionNewValue(@Nullable String role, @Nullable String groupUuid, @Nullable String groupName, @Nullable String rootComponentUuid,
     @Nullable String projectName, @Nullable String userUuid) {
     this.role = role;
     this.groupUuid = groupUuid;
+    this.groupName = groupName;
     this.projectUuid = rootComponentUuid;
     this.projectName = projectName;
     this.userUuid = userUuid;
@@ -76,6 +81,11 @@ public class PermissionNewValue implements NewValue {
   @CheckForNull
   public String getGroupUuid() {
     return this.groupUuid;
+  }
+
+  @CheckForNull
+  public String getGroupName() {
+    return this.groupName;
   }
 
   @CheckForNull
@@ -102,9 +112,10 @@ public class PermissionNewValue implements NewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"permissionUuid\": ", this.permissionUuid, true);
-    addField(sb, "\"groupUuid\": ", this.groupUuid, true);
-    addField(sb, "\"projectUuid\": ", this.projectUuid, true);
     addField(sb, "\"role\": ", this.role, true);
+    addField(sb, "\"groupUuid\": ", this.groupUuid, true);
+    addField(sb, "\"groupName\": ", this.groupName, true);
+    addField(sb, "\"projectUuid\": ", this.projectUuid, true);
     addField(sb, "\"projectName\": ", this.projectName, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     endString(sb);

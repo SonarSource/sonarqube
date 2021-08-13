@@ -1398,8 +1398,8 @@ public class SearchActionTest {
         .setUuid(Uuids.createFast())
         .setGroupUuid(null)
         .setComponentUuid(project.uuid())
-        .setRole(permission),
-      project);
+        .setComponentName(project.name())
+        .setRole(permission));
     session.commit();
     userSession.logIn().addProjectPermission(permission, project);
   }

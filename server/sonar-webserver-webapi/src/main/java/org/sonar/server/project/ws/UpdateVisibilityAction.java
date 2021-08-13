@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -43,6 +44,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -149,7 +151,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void updatePermissionsToPrivate(DbSession dbSession, ComponentDto component) {
     // delete project permissions for group AnyOne
-    dbClient.groupPermissionDao().deleteByRootComponentUuidAndGroupUuid(dbSession, component.uuid(), null, component.name());
+    dbClient.groupPermissionDao().deleteByRootComponentUuidForAnyOne(dbSession, component.uuid(), component.name());
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
@@ -165,12 +167,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {
+    String groupName = ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid)).map(GroupDto::getName).orElse(null);
     dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
-        .setUuid(uuidFactory.create())
-        .setComponentUuid(component.uuid())
-        .setGroupUuid(groupUuid)
-        .setRole(permission),
-      component);
+      .setUuid(uuidFactory.create())
+      .setComponentUuid(component.uuid())
+      .setGroupUuid(groupUuid)
+      .setGroupName(groupName)
+      .setRole(permission)
+      .setComponentName(component.name()));
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {

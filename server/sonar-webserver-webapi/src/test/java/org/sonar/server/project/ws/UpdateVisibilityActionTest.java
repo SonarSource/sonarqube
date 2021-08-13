@@ -610,8 +610,9 @@ public class UpdateVisibilityActionTest {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(permission)
-      .setComponentUuid(component.uuid());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
+      .setComponentUuid(component.uuid())
+      .setComponentName(component.name());
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
   }
 
@@ -619,9 +620,11 @@ public class UpdateVisibilityActionTest {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
+      .setGroupName(group.getName())
       .setRole(permission)
-      .setComponentUuid(component.uuid());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
+      .setComponentUuid(component.uuid())
+      .setComponentName(component.name());
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
   }
 

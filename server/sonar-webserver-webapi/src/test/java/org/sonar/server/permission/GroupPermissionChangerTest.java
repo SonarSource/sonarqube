@@ -432,8 +432,9 @@ public class GroupPermissionChangerTest {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(perm)
-      .setComponentUuid(privateProject.uuid());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, privateProject);
+      .setComponentUuid(privateProject.uuid())
+      .setComponentName(privateProject.name());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
     db.commit();
   }
 }

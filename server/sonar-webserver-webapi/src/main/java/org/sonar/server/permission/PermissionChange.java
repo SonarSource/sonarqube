@@ -68,6 +68,11 @@ public abstract class PermissionChange {
   }
 
   @CheckForNull
+  public String getProjectName() {
+    return project == null ? null : project.name();
+  }
+
+  @CheckForNull
   public String getProjectUuid() {
     return project == null ? null : project.uuid();
   }

@@ -20,12 +20,14 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.user.GroupDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
@@ -115,12 +117,21 @@ public class GroupPermissionChanger {
     }
 
     validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupUuidOrAnyone());
+
+    String groupUuid = change.getGroupUuidOrAnyone().getUuid();
     GroupPermissionDto addedDto = new GroupPermissionDto()
       .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
-      .setGroupUuid(change.getGroupUuidOrAnyone().getUuid())
+      .setGroupUuid(groupUuid)
+      .setComponentName(change.getProjectName())
       .setComponentUuid(change.getProjectUuid());
-    dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getProject());
+
+    Optional.ofNullable(groupUuid)
+      .map(uuid -> dbClient.groupDao().selectByUuid(dbSession, groupUuid))
+      .map(GroupDto::getName)
+      .ifPresent(addedDto::setGroupName);
+
+    dbClient.groupPermissionDao().insert(dbSession, addedDto);
     return true;
   }
 
@@ -134,9 +145,16 @@ public class GroupPermissionChanger {
       return false;
     }
     checkIfRemainingGlobalAdministrators(dbSession, change);
+    String groupUuid = change.getGroupUuidOrAnyone().getUuid();
+    String groupName = Optional.ofNullable(groupUuid)
+      .map(uuid -> dbClient.groupDao().selectByUuid(dbSession, uuid))
+      .map(GroupDto::getName)
+      .orElse(null);
+
     dbClient.groupPermissionDao().delete(dbSession,
       change.getPermission(),
-      change.getGroupUuidOrAnyone().getUuid(),
+      groupUuid,
+      groupName,
       change.getProjectUuid(),
       change.getProject());
     return true;
