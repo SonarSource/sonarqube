@@ -55,7 +55,7 @@ unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
       scriptBuild:
-        './build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make clean all'
+        './build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>'
     },
     [OSs.Windows]: {
       script: `Invoke-WebRequest -Uri '${host}/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
@@ -63,7 +63,7 @@ Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.win',
       scriptBuild:
-        'build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output MSBuild.exe /t:Rebuild'
+        'build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>'
     },
     [OSs.MacOS]: {
       script: `curl '${host}/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
@@ -71,8 +71,7 @@ unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
       scriptBuild:
-        './build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output xcodebuild' +
-        ' -project myproject.xcodeproj -configuration Release clean build'
+        './build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>'
     }
   };
 
