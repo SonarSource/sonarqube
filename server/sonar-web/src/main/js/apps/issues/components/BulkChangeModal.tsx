@@ -27,6 +27,7 @@ import Modal from 'sonar-ui-common/components/controls/Modal';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
 import Select from 'sonar-ui-common/components/controls/Select';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -254,6 +255,19 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       count: transitions[transition]
     }));
   }
+
+  canSubmit = () => {
+    const { addTags, assignee, removeTags, severity, transition, type } = this.state;
+
+    return Boolean(
+      (addTags && addTags.length > 0) ||
+        (removeTags && removeTags.length > 0) ||
+        assignee ||
+        severity ||
+        transition ||
+        type
+    );
+  };
 
   renderLoading = () => (
     <div>
@@ -487,6 +501,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const { issues, paging, submitting } = this.state;
 
     const limitReached = paging && paging.total > MAX_PAGE_SIZE;
+    const canSubmit = this.canSubmit();
 
     return (
       <form id="bulk-change-form" onSubmit={this.handleSubmit}>
@@ -520,9 +535,13 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
         <div className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitting || issues.length === 0} id="bulk-change-submit">
-            {translate('apply')}
-          </SubmitButton>
+          <Tooltip overlay={!canSubmit ? translate('issue_bulk_change.no_change_selected') : null}>
+            <SubmitButton
+              disabled={!canSubmit || submitting || issues.length === 0}
+              id="bulk-change-submit">
+              {translate('apply')}
+            </SubmitButton>
+          </Tooltip>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </form>

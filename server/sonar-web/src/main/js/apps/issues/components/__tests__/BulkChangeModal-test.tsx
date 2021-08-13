@@ -19,7 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { searchIssueTags } from '../../../../api/issues';
 import { mockIssue } from '../../../../helpers/testMocks';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
@@ -97,6 +99,32 @@ it('should properly handle the search for tags', async () => {
   const wrapper = getWrapper([]);
   await wrapper.instance().handleTagsSearch('query');
   expect(searchIssueTags).toBeCalled();
+});
+
+it('should disable the submit button unless some change is configured', async () => {
+  const wrapper = getWrapper([mockIssue(false, { actions: ['set_severity', 'comment'] })]);
+  await waitAndUpdate(wrapper);
+
+  return new Promise<void>((resolve, reject) => {
+    expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
+
+    // Setting a comment is not sufficient; some other change must occur.
+    change(wrapper.find('#comment'), 'Some comment');
+    expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
+
+    const { onChange } = wrapper
+      .find(Select)
+      .at(0)
+      .props();
+    if (!onChange) {
+      reject();
+      return;
+    }
+
+    onChange({ value: 'foo' });
+    expect(wrapper.find(SubmitButton).props().disabled).toBe(false);
+    resolve();
+  });
 });
 
 const getWrapper = (issues: T.Issue[]) => {
