@@ -48,8 +48,7 @@ public class ProjectAlmSettingDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto,
-    String key, String projectName) {
+  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
@@ -64,11 +63,11 @@ public class ProjectAlmSettingDao implements Dao {
     projectAlmSettingDto.setUpdatedAt(now);
 
     if (auditPersister != null) {
+      DevOpsPlatformSettingNewValue value = new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key, projectName);
       if (isUpdate) {
-        auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key, projectName));
+        auditPersister.updateDevOpsPlatformSetting(dbSession, value);
       } else {
-        auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(projectAlmSettingDto.getAlmSettingUuid(),
-          projectAlmSettingDto.getProjectUuid(), key, projectName));
+        auditPersister.addDevOpsPlatformSetting(dbSession, value);
       }
     }
   }
@@ -82,16 +81,7 @@ public class ProjectAlmSettingDao implements Dao {
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
-    deleteByAlmSetting(dbSession, almSetting, false);
-  }
-
-  public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting, boolean track) {
     getMapper(dbSession).deleteByAlmSettingUuid(almSetting.getUuid());
-
-    if (track && auditPersister != null) {
-      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSetting.getUuid(),
-        almSetting.getKey()));
-    }
   }
 
   public int countByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {

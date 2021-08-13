@@ -41,20 +41,19 @@ public class WebhookNewValue implements NewValue {
   private String projectName;
 
   public WebhookNewValue(WebhookDto dto, @Nullable String projectName) {
-    this.webhookUuid = dto.getUuid();
-    this.name = dto.getName();
-    this.url = dto.getUrl();
-    this.projectUuid = dto.getProjectUuid();
-    this.projectName = projectName;
+    this(dto.getUuid(), dto.getName(), dto.getProjectUuid(), projectName, dto.getUrl());
   }
 
   public WebhookNewValue(String webhookUuid, String webhookName) {
+
     this.webhookUuid = webhookUuid;
     this.name = webhookName;
   }
 
-  public WebhookNewValue(String webhookUuid, String webhookName, @Nullable String projectUuid, @Nullable String projectName) {
-    this(webhookUuid, webhookName);
+  public WebhookNewValue(String webhookUuid, String webhookName, @Nullable String projectUuid, @Nullable String projectName, @Nullable String url) {
+    this.webhookUuid = webhookUuid;
+    this.name = webhookName;
+    this.url = url;
     this.projectUuid = projectUuid;
     this.projectName = projectName;
   }

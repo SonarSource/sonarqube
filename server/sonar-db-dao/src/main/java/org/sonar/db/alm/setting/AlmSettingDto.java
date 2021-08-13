@@ -89,8 +89,9 @@ public class AlmSettingDto {
     return uuid;
   }
 
-  void setUuid(String uuid) {
+  AlmSettingDto setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
   }
 
   public String getKey() {

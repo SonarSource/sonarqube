@@ -60,8 +60,7 @@ public class WebhookDao implements Dao {
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()).setUpdatedAt(system2.now()));
 
     if (auditPersister != null) {
-      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto.getUuid(), dto.getName(),
-        dto.getProjectUuid(), projectName));
+      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto, projectName));
     }
   }
 

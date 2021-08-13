@@ -88,13 +88,6 @@ public class DevOpsPlatformSettingNewValue implements NewValue {
     this.isMonorepo = dto.getMonorepo();
   }
 
-  public DevOpsPlatformSettingNewValue(String devOpsPlatformSettingUuid, String projectUuid, String key, String projectName) {
-    this.devOpsPlatformSettingUuid = devOpsPlatformSettingUuid;
-    this.key = key;
-    this.projectUuid = projectUuid;
-    this.projectName = projectName;
-  }
-
   public DevOpsPlatformSettingNewValue(ProjectDto projectDto) {
     this.projectUuid = projectDto.getUuid();
     this.projectName = projectDto.getName();

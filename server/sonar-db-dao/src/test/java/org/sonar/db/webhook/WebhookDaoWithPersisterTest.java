@@ -37,7 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class WebhookDaoWithPersisterTest {
-  private AuditPersister auditPersister = mock(AuditPersister.class);
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
@@ -65,7 +65,7 @@ public class WebhookDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName)
       .containsExactly(dto.getUuid(), dto.getName());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"UUID_1\", \"name\": \"NAME_1\", \"url\": \"URL_1\" }");
   }
 
   @Test
@@ -82,14 +82,13 @@ public class WebhookDaoWithPersisterTest {
     verify(auditPersister).addWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getProjectUuid,
-        WebhookNewValue::getProjectName)
+      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getProjectUuid, WebhookNewValue::getProjectName)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getProjectUuid(), "project_name");
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"UUID_1\", \"name\": \"NAME_1\", \"url\": \"URL_1\", \"projectUuid\": \"UUID_2\", \"projectName\": \"project_name\" }");
   }
 
   @Test
-  public void updateWebhookIsPersisted() {
+  public void updateGlobalWebhookIsPersisted() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     dto = dto
       .setName("a-fancy-webhook")
@@ -103,12 +102,30 @@ public class WebhookDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
-    assertThat(newValue.toString()).doesNotContain("projectUuid");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\" }");
+  }
+
+  @Test
+  public void updateProjectWebhookIsPersisted() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
+    dto = dto
+      .setName("a-fancy-webhook")
+      .setUrl("http://www.fancy-webhook.io")
+      .setSecret(null);
+
+    underTest.update(dbSession, dto, "project");
+
+    verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
+    WebhookNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
+      .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() +"\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\", \"projectName\": \"project\" }");
   }
 
   @Test
   public void deleteProjectWebhooksIsPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p -> p.setUuid("puuid").setName("pname"));
     webhookDbTester.insertWebhook(projectDto);
 
     underTest.deleteByProject(dbSession, projectDto);
@@ -118,7 +135,7 @@ public class WebhookDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(WebhookNewValue::getProjectUuid, WebhookNewValue::getProjectName)
       .containsExactly(projectDto.getUuid(), projectDto.getName());
-    assertThat(newValue.toString()).doesNotContain("webhookUuid");
+    assertThat(newValue).hasToString("{\"projectUuid\": \"puuid\", \"projectName\": \"pname\" }");
   }
 
   @Test
@@ -132,6 +149,6 @@ public class WebhookDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName)
       .containsExactly(dto.getUuid(), dto.getName());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"" + dto.getName() + "\" }");
   }
 }

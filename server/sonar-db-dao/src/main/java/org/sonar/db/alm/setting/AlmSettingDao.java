@@ -58,8 +58,7 @@ public class AlmSettingDao implements Dao {
     getMapper(dbSession).insert(almSettingDto);
 
     if (auditPersister != null) {
-      auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(),
-        almSettingDto.getKey()));
+      auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
     }
   }
 
@@ -83,8 +82,7 @@ public class AlmSettingDao implements Dao {
     getMapper(dbSession).deleteByKey(almSettingDto.getKey());
 
     if (auditPersister != null) {
-      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(),
-        almSettingDto.getKey()));
+      auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(), almSettingDto.getKey()));
     }
   }
 

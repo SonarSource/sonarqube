@@ -109,24 +109,10 @@ public class ProjectAlmSettingDaoWithPersisterTest {
   }
 
   @Test
-  public void deleteByAlmSettingWhenNotTracked() {
+  public void deleteByAlmSettingNotTracked() {
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     underTest.deleteByAlmSetting(dbSession, githubAlmSetting);
 
     verifyNoInteractions(auditPersister);
   }
-
-  @Test
-  public void deleteByAlmSettingWhenTracked() {
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    underTest.deleteByAlmSetting(dbSession, githubAlmSetting, true);
-
-    verify(auditPersister).deleteDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
-    DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
-    assertThat(newValue)
-      .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey)
-      .containsExactly(githubAlmSetting.getUuid(), githubAlmSetting.getKey());
-    assertThat(newValue.toString()).doesNotContain("url");
-  }
-
 }

@@ -55,34 +55,36 @@ public class AlmSettingDaoWithPersisterTest {
   @Test
   public void insertAndUpdateArePersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    AlmSettingDto almSettingDto = newGithubAlmSettingDto();
+    AlmSettingDto almSettingDto = newGithubAlmSettingDto()
+      .setKey("key")
+      .setAppId("id1")
+      .setClientId("cid1")
+      .setUrl("url");
 
     underTest.insert(dbSession, almSettingDto);
 
     verify(auditPersister).addDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey)
+      .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"key\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
 
     almSettingDto.setPrivateKey("updated private key");
     almSettingDto.setAppId("updated app id");
     almSettingDto.setUrl("updated url");
     almSettingDto.setPersonalAccessToken("updated pat");
     almSettingDto.setKey("updated key");
-    system2.setNow(NOW + 1);
 
     underTest.update(dbSession, almSettingDto);
 
     verify(auditPersister).updateDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey,
-        DevOpsPlatformSettingNewValue::getAppId, DevOpsPlatformSettingNewValue::getDevOpsPlatformName,
-        DevOpsPlatformSettingNewValue::getUrl, DevOpsPlatformSettingNewValue::getClientId)
-      .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(),
-        almSettingDto.getUrl(), almSettingDto.getClientId());
+      .extracting("devOpsPlatformSettingUuid", "key","appId", "devOpsPlatformName", "url", "clientId")
+      .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(), almSettingDto.getUrl(), almSettingDto.getClientId());
+    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"updated key\", \"devOpsPlatformName\": \"updated app id\", "
+        + "\"url\": \"updated url\", \"appId\": \"updated app id\", \"clientId\": \"cid1\" }");
   }
 
   @Test
@@ -96,7 +98,7 @@ public class AlmSettingDaoWithPersisterTest {
     verify(auditPersister).deleteDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey)
+      .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
     assertThat(newValue.toString()).doesNotContain("url");
   }
