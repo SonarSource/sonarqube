@@ -30,6 +30,10 @@ import Form from './Form';
 import Header from './Header';
 import List from './List';
 
+interface Props {
+  organization?: Pick<T.Organization, 'key'>;
+}
+
 interface State {
   groups?: T.Group[];
   editedGroup?: T.Group;
@@ -39,7 +43,7 @@ interface State {
   query: string;
 }
 
-export default class App extends React.PureComponent<{}, State> {
+export default class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true, query: '' };
 
@@ -52,9 +56,14 @@ export default class App extends React.PureComponent<{}, State> {
     this.mounted = false;
   }
 
+  get organization() {
+    return this.props.organization && this.props.organization.key;
+  }
+
   makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
     this.setState({ loading: true });
     return searchUsersGroups({
+      organization: this.organization,
       q: this.state.query,
       ...data
     });
@@ -132,7 +141,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   handleCreate = async (data: { description: string; name: string }) => {
-    await createGroup({ ...data });
+    await createGroup({ ...data, organization: this.organization });
 
     await this.refresh();
   };
@@ -144,7 +153,7 @@ export default class App extends React.PureComponent<{}, State> {
       return;
     }
 
-    await deleteGroup({ name: groupToBeDeleted.name });
+    await deleteGroup({ name: groupToBeDeleted.name, organization: this.organization });
 
     await this.refresh();
 
