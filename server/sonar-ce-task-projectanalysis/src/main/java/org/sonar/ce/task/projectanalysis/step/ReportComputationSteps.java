@@ -53,6 +53,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // load project related stuffs
     LoadQualityGateStep.class,
+    // We must persist components prior loading New Code Period, because we may create a new Referenced Branch settings
+    // for current analysis in case there is a target branch defined.
+    PersistComponentsStep.class,
     LoadPeriodsStep.class,
     FileMoveDetectionStep.class,
 
@@ -90,7 +93,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     HandleUnanalyzedLanguagesStep.class,
 
     // Persist data
-    PersistComponentsStep.class,
     PersistAnalysisStep.class,
     PersistAnalysisPropertiesStep.class,
     PersistMeasuresStep.class,
