@@ -69,13 +69,20 @@ public class ForkDateSupplier {
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG_WS);
     String branchName = branchConfiguration.branchName() != null ? branchConfiguration.branchName() : branches.defaultBranchName();
-    NewCodePeriods.ShowWSResponse newCode = newCodePeriodLoader.load(project.key(), branchName);
-    profiler.stopInfo();
-    if (newCode.getType() != NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH) {
-      return null;
+
+    // If there is a target branch - use it as a referenced branch, otherwise - use one returned by NewCodePeriodLoader.
+    String referenceBranchName;
+    if (StringUtils.isNotEmpty(branchConfiguration.targetBranchName())) {
+      referenceBranchName = branchConfiguration.targetBranchName();
+    } else {
+      NewCodePeriods.ShowWSResponse newCode = newCodePeriodLoader.load(project.key(), branchName);
+      profiler.stopInfo();
+      if (newCode.getType() != NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH) {
+        return null;
+      }
+      referenceBranchName = newCode.getValue();
     }
 
-    String referenceBranchName = newCode.getValue();
     if (branchName.equals(referenceBranchName)) {
       LOG.warn("New Code reference branch is set to the branch being analyzed. Skipping the computation of New Code");
       return null;
@@ -85,18 +92,18 @@ public class ForkDateSupplier {
 
     Instant scmDate = getForkDateFromScmProvider(referenceBranchName);
 
-    if (scmDate == null) {
+    if (scmDate == null && StringUtils.isNotEmpty(referenceBranchName)) {
       Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
 
-      String useLastAnalysis = properties.get("sonar.newCode.referenceBranch.useLastAnalysisDate").orElse(null);
-      if (Boolean.parseBoolean(useLastAnalysis)) {
-        LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
-        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
-                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
-      } else {
+      String useNewCodePeriodStartDate = properties.get("sonar.newCode.referenceBranch.useNewCodePeriodStartDate").orElse(null);
+      if (Boolean.parseBoolean(useNewCodePeriodStartDate)) {
         LOG.info("Getting period start date for reference branch '{}'", referenceBranchName);
         scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
                 ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
+      } else {
+        LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
+        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
+                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
       }
       LOG.info("Use fork date: '{}'", scmDate);
     }
@@ -106,7 +113,7 @@ public class ForkDateSupplier {
 
   private Instant getForkDateFromScmProvider(String referenceBranchName) {
     if (scmConfiguration.isDisabled() || scmConfiguration.provider() == null) {
-      LOG.warn("SCM provider is disabled. No New Code will be computed.");
+      LOG.warn("SCM provider is disabled. The New Code will be computed based on the New Code settings.");
       analysisWarnings.addUnique("The scanner failed to compute New Code because no SCM provider was found. Please check your scanner logs.");
       return null;
     }

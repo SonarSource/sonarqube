@@ -38,15 +38,17 @@ class CodeScanBranch implements Branch {
 
     private final String branchName;
     private final String referenceBranchUuid;
+    private final String targetBranchName;
     private final BranchType branchType;
     private final boolean isMain;
 
     CodeScanBranch(final String branchName, @Nullable final String referenceBranchUuid, final BranchType branchType,
-            final boolean isMain) {
+            final boolean isMain, final String targetBranchName) {
         this.branchName = branchName;
         this.referenceBranchUuid = referenceBranchUuid;
         this.branchType = branchType;
         this.isMain = isMain;
+        this.targetBranchName = targetBranchName;
 
         //kee is 255 long...
         if (branchName.length() > 255) {
@@ -72,15 +74,11 @@ class CodeScanBranch implements Branch {
 
     @Override
     public String getTargetBranchName() {
-        return null;
+        return targetBranchName;
     }
 
     public boolean isMain() {
         return this.isMain;
-    }
-
-    public boolean isLegacyFeature() {
-        return false;
     }
 
     public String getName() {
