@@ -26,7 +26,7 @@ import org.sonar.db.user.UserDto;
 
 public class UserNewValue extends NewValue {
   private String userUuid;
-  private String login;
+  private String userLogin;
 
   @Nullable
   private String name;
@@ -63,12 +63,12 @@ public class UserNewValue extends NewValue {
 
   public UserNewValue(String userUuid, String userLogin) {
     this.userUuid = userUuid;
-    this.login = userLogin;
+    this.userLogin = userLogin;
   }
 
   public UserNewValue(UserDto userDto) {
     this.userUuid = userDto.getUuid();
-    this.login = userDto.getLogin();
+    this.userLogin = userDto.getLogin();
     this.name = userDto.getName();
     this.email = userDto.getEmail();
     this.isActive = userDto.isActive();
@@ -86,8 +86,8 @@ public class UserNewValue extends NewValue {
     return this.userUuid;
   }
 
-  public String getLogin() {
-    return this.login;
+  public String getUserLogin() {
+    return this.userLogin;
   }
 
   @CheckForNull
@@ -149,7 +149,7 @@ public class UserNewValue extends NewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"userUuid\": ", this.userUuid, true);
-    addField(sb, "\"userLogin\": ", this.login, true);
+    addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"email\": ", this.email, true);
     addField(sb, "\"isActive\": ", ObjectUtils.toString(this.isActive), false);

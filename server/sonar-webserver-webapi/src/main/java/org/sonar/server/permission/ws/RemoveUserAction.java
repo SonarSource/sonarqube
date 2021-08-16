@@ -26,11 +26,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserId;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.db.user.UserIdDto;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
@@ -84,7 +84,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserIdDto user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
+      UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       if (ADMINISTER.getKey().equals(permission) && user.getLogin().equals(userSession.getLogin())) {
         throw BadRequestException.create("As an admin, you can't remove your own admin right");

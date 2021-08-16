@@ -61,7 +61,7 @@ public class GroupPermissionNewValue extends PermissionNewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"permissionUuid\": ", this.permissionUuid, true);
-    addField(sb, "\"role\": ", this.role, true);
+    addField(sb, "\"permission\": ", this.permission, true);
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);
     addField(sb, "\"groupName\": ", this.groupName, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);

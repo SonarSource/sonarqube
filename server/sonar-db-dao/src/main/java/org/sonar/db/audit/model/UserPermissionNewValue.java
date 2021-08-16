@@ -60,7 +60,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"permissionUuid\": ", this.permissionUuid, true);
-    addField(sb, "\"role\": ", this.role, true);
+    addField(sb, "\"permission\": ", this.permission, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);

@@ -51,7 +51,7 @@ public class GroupPermissionDaoWithPersisterTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
-  public final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
+  private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
   private final ArgumentCaptor<GroupPermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupPermissionNewValue.class);
   private final DbSession dbSession = db.getSession();
   private final GroupPermissionDao underTest = db.getDbClient().groupPermissionDao();
@@ -172,7 +172,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
   private void assertNewValue(GroupPermissionNewValue newValue, String uuid, String groupUuid, String groupName, String cUuid, String permission, String cName, String qualifier) {
     assertThat(newValue)
-      .extracting("permissionUuid", "groupUuid", "groupName", "componentUuid", "role", "componentName", "qualifier")
+      .extracting("permissionUuid", "groupUuid", "groupName", "componentUuid", "permission", "componentName", "qualifier")
       .containsExactly(uuid, groupUuid, groupName, cUuid, permission, cName, qualifier);
   }
 

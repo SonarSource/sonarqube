@@ -21,20 +21,20 @@ package org.sonar.server.permission;
 
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.user.UserIdDto;
+import org.sonar.db.user.UserId;
 
 import static java.util.Objects.requireNonNull;
 
 public class UserPermissionChange extends PermissionChange {
 
-  private final UserIdDto userId;
+  private final UserId userId;
 
-  public UserPermissionChange(Operation operation, String permission, @Nullable ComponentDto project, UserIdDto userId, PermissionService permissionService) {
+  public UserPermissionChange(Operation operation, String permission, @Nullable ComponentDto project, UserId userId, PermissionService permissionService) {
     super(operation, permission, project, permissionService);
     this.userId = requireNonNull(userId);
   }
 
-  public UserIdDto getUserId() {
+  public UserId getUserId() {
     return userId;
   }
 }

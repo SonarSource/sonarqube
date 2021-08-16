@@ -69,7 +69,7 @@ public class UserDaoWithPersisterTest {
     verify(auditPersister).addUser(eq(db.getSession()), newValueCaptor.capture());
     UserNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(UserNewValue::getUserUuid, UserNewValue::getLogin)
+      .extracting(UserNewValue::getUserUuid, UserNewValue::getUserLogin)
       .containsExactly(user.getUuid(), user.getLogin());
     assertThat(newValue.toString()).doesNotContain("name");
   }
@@ -108,7 +108,7 @@ public class UserDaoWithPersisterTest {
     verify(auditPersister).updateUser(eq(db.getSession()), newValueCaptor.capture());
     UserNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(UserNewValue::getUserUuid, UserNewValue::getLogin, UserNewValue::getName, UserNewValue::getEmail, UserNewValue::isActive,
+      .extracting(UserNewValue::getUserUuid, UserNewValue::getUserLogin, UserNewValue::getName, UserNewValue::getEmail, UserNewValue::isActive,
         UserNewValue::getScmAccounts, UserNewValue::getExternalId, UserNewValue::getExternalLogin, UserNewValue::getExternalIdentityProvider,
         UserNewValue::isLocal, UserNewValue::isOnboarded, UserNewValue::isRoot, UserNewValue::getLastConnectionDate)
       .containsExactly(updatedUser.getUuid(), updatedUser.getLogin(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.isActive(),
@@ -148,7 +148,7 @@ public class UserDaoWithPersisterTest {
 
     verify(auditPersister).deactivateUser(eq(db.getSession()), newValueCaptor.capture());
     assertThat(newValueCaptor.getValue())
-      .extracting(UserNewValue::getUserUuid, UserNewValue::getLogin)
+      .extracting(UserNewValue::getUserUuid, UserNewValue::getUserLogin)
       .containsExactly(user.getUuid(), user.getLogin());
   }
 
