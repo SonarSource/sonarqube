@@ -26,6 +26,7 @@ import EditMembersModal from './EditMembersModal';
 interface Props {
   group: T.Group;
   onEdit: () => void;
+  organization: string | undefined;
 }
 
 interface State {
@@ -67,7 +68,11 @@ export default class EditMembers extends React.PureComponent<Props, State> {
           <BulletListIcon />
         </ButtonIcon>
         {this.state.modal && (
-          <EditMembersModal group={this.props.group} onClose={this.handleModalClose} />
+          <EditMembersModal 
+            group={this.props.group} 
+            onClose={this.handleModalClose} 
+            organization={this.props.organization}
+          />
         )}
       </>
     );
