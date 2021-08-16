@@ -368,19 +368,20 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm4", user2, project2);
 
     // user2 does not have global permissions -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user2.getUuid(), user2.getLogin(), "perm1");
+    underTest.deleteGlobalPermission(dbSession, user2, "perm1");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission is not granted -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "notGranted");
+    underTest.deleteGlobalPermission(dbSession, user1, "notGranted");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // permission is on project -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm3");
+    underTest.deleteGlobalPermission(dbSession, user1, "perm3");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission exists -> delete it, but not the project permission with the same name !
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm1");
+    underTest.deleteGlobalPermission(dbSession, user1, "perm1");
+
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
@@ -397,10 +398,10 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm", user2, project1);
 
     // no such provision -> ignore
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), user1.getLogin(), "anotherPerm", project1);
+    underTest.deleteProjectPermission(dbSession, user1, "anotherPerm", project1);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
 
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm", project1);
+    underTest.deleteProjectPermission(dbSession, user1, "perm", project1);
     assertThatProjectPermissionDoesNotExist(user1, "perm", project1);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(3);
   }
@@ -463,7 +464,7 @@ public class UserPermissionDaoTest {
     UserDto user = insertUser();
     db.users().insertProjectPermissionOnUser(user, "foo", project);
 
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, "1234", UserRole.USER))
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, "1234", UserRole.USER))
       .isEmpty();
   }
 
@@ -475,12 +476,15 @@ public class UserPermissionDaoTest {
     db.users().insertProjectPermissionOnUser(user1, "p1", project);
     db.users().insertProjectPermissionOnUser(user2, "p2", project);
 
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p2"))
-      .containsOnly(user1.getUuid());
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p1"))
-      .containsOnly(user2.getUuid());
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p3"))
-      .containsOnly(user1.getUuid(), user2.getUuid());
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.uuid(), "p2"))
+      .extracting("uuid", "login")
+      .containsOnly(tuple(user1.getUuid(), user1.getLogin()));
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.uuid(), "p1"))
+      .extracting("uuid", "login")
+      .containsOnly(tuple(user2.getUuid(), user2.getLogin()));
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.uuid(), "p3"))
+      .extracting("uuid", "login")
+      .containsOnly(tuple(user1.getUuid(), user1.getLogin()), tuple(user2.getUuid(), user2.getLogin()));
   }
 
   @Test
@@ -491,10 +495,12 @@ public class UserPermissionDaoTest {
     db.users().insertProjectPermissionOnUser(user1, "p1", project);
     db.users().insertProjectPermissionOnUser(user2, "p2", project);
 
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p2"))
-      .containsOnly(user1.getUuid());
-    assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, project.uuid(), "p1"))
-      .containsOnly(user2.getUuid());
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.uuid(), "p2"))
+      .extracting("uuid", "login")
+      .containsOnly(tuple(user1.getUuid(), user1.getLogin()));
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.uuid(), "p1"))
+      .extracting("uuid", "login")
+      .containsOnly(tuple(user2.getUuid(), user2.getLogin()));
   }
 
   @Test
@@ -508,7 +514,7 @@ public class UserPermissionDaoTest {
     db.users().insertPermissionOnUser(user2, SCAN);
     db.users().insertProjectPermissionOnUser(user2, ADMINISTER_QUALITY_GATES.getKey(), project);
 
-    underTest.deleteByUserUuid(dbSession, user1.getUuid());
+    underTest.deleteByUserUuid(dbSession, user1);
     dbSession.commit();
 
     assertThat(db.select("select user_uuid as \"userUuid\", component_uuid as \"projectUuid\", role as \"permission\" from user_roles"))
@@ -594,13 +600,11 @@ public class UserPermissionDaoTest {
   }
 
   private UserDto insertUser(Consumer<UserDto> populateUserDto) {
-    UserDto user = db.users().insertUser(populateUserDto);
-    return user;
+    return db.users().insertUser(populateUserDto);
   }
 
   private UserDto insertUser() {
-    UserDto user = db.users().insertUser();
-    return user;
+    return db.users().insertUser();
   }
 
   private void expectCount(List<String> projectUuids, CountPerProjectPermission... expected) {
@@ -633,14 +637,14 @@ public class UserPermissionDaoTest {
 
   private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto, user.getLogin(), null);
+    underTest.insert(dbSession, dto, null, user);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, user.getLogin(), project);
+    underTest.insert(dbSession, dto, project, user);
     db.commit();
     return dto;
   }
@@ -653,15 +657,5 @@ public class UserPermissionDaoTest {
 
   private void assertThatProjectHasNoPermissions(ComponentDto project) {
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isZero();
-  }
-
-  private void assertGlobalPermissionsOfUser(UserDto user, GlobalPermission... permissions) {
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid()).stream()
-      .map(GlobalPermission::fromKey))
-      .containsOnly(permissions);
-  }
-
-  private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {
-    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).containsOnly(permissions);
   }
 }

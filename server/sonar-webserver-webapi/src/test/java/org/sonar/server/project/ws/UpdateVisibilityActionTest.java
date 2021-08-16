@@ -652,7 +652,7 @@ public class UpdateVisibilityActionTest {
 
   private void unsafeInsertProjectPermissionOnUser(ComponentDto component, UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), component.uuid());
-    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, user.getLogin(), component);
+    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, component, user);
     dbTester.commit();
   }
 

@@ -110,11 +110,11 @@
     group by ur.component_uuid, ur.role
   </select>
 
-  <select id="selectUserUuidsWithPermissionOnProjectBut" resultType="String">
+  <select id="selectUserIdsWithPermissionOnProjectBut" resultType="org.sonar.db.user.UserIdDto">
     select
-      distinct ur1.user_uuid
+      distinct ur1.user_uuid, u.login
     from
-      user_roles ur1
+      user_roles ur1 inner join users u on ur1.user_uuid = u.uuid
     where
       ur1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
       and role &lt;&gt; #{permission,jdbcType=VARCHAR}

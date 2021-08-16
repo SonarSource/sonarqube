@@ -30,7 +30,7 @@ import org.sonar.core.user.DefaultUser;
 /**
  * @since 3.2
  */
-public class UserDto {
+public class UserDto implements UserId {
   public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
   /** Technical unique identifier, can't be null */

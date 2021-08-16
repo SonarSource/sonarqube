@@ -71,5 +71,4 @@ public abstract class PermissionNewValue extends NewValue {
   public String getQualifier() {
     return this.qualifier;
   }
-
 }

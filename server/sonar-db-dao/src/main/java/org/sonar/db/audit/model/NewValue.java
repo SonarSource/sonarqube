@@ -40,19 +40,19 @@ public abstract class NewValue {
 
   protected void endString(StringBuilder sb) {
     int length = sb.length();
-    if(sb.length() > 1) {
+    if (sb.length() > 1) {
       sb.delete(length - 2, length - 1);
     }
     sb.append("}");
   }
 
   private static void addQuote(StringBuilder sb, boolean isString) {
-    if(isString) {
+    if (isString) {
       sb.append("\"");
     }
   }
 
-  protected String getQualifier(@Nullable String qualifier) {
+  protected static String getQualifier(@Nullable String qualifier) {
     if (qualifier == null) {
       return null;
     }

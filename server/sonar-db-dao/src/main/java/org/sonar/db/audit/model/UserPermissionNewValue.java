@@ -21,29 +21,29 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.Nullable;
 import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.user.UserId;
 
 public class UserPermissionNewValue extends PermissionNewValue {
 
   @Nullable
-  private String userUuid;
-
+  private final String userUuid;
   @Nullable
-  private String userLogin;
+  private final String userLogin;
 
-  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName, @Nullable String userLogin, String qualifier) {
+  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName, @Nullable UserId userId, String qualifier) {
     super(permissionDto.getUuid(), permissionDto.getComponentUuid(), projectName, permissionDto.getPermission(), qualifier);
-    this.userUuid = permissionDto.getUserUuid();
-    this.userLogin = userLogin;
+    this.userUuid = userId != null ? userId.getUuid() : null;
+    this.userLogin = userId != null ? userId.getLogin() : null;
   }
 
-  public UserPermissionNewValue(String userUuid, String qualifier) {
-    this(null, null, null, userUuid, null, qualifier);
+  public UserPermissionNewValue(UserId userId, String qualifier) {
+    this(null, null, null, userId, qualifier);
   }
 
-  public UserPermissionNewValue(String role, String projectUuid, String projectName, String userUuid, String userLogin, String qualifier) {
+  public UserPermissionNewValue(String role, String projectUuid, String projectName, UserId userId, String qualifier) {
     super(null, projectUuid, projectName, role, qualifier);
-    this.userUuid = userUuid;
-    this.userLogin = userLogin;
+    this.userUuid = userId != null ? userId.getUuid() : null;
+    this.userLogin = userId != null ? userId.getLogin() : null;
   }
 
   @Nullable

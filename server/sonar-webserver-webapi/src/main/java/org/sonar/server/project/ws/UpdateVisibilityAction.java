@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserId;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -159,19 +159,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
         .forEach(group -> insertProjectPermissionOnGroup(dbSession, component, permission, group));
-      dbClient.userPermissionDao().selectUserUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
+      dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
         .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, component, permission, userUuid));
     });
   }
 
-  private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, String userUuid) {
-    UserDto userDto = dbClient.userDao().selectByUuid(dbSession, userUuid);
-    String userLogin = userDto != null ? userDto.getLogin() : null;
-    if(userLogin == null) {
-      LOG.warn("Updating project permissions for user uuid " + userUuid + " which does not exist");
-    }
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userUuid, component.uuid()),
-      userLogin, component);
+
+  private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, UserId userId) {
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()), component, userId);
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {

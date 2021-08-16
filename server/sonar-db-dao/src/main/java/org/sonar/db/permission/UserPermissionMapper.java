@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.user.UserIdDto;
 
 public interface UserPermissionMapper {
 
@@ -50,7 +51,7 @@ public interface UserPermissionMapper {
   /**
    * select id of users with at least one permission on the specified project but which do not have the specified permission.
    */
-  Set<String> selectUserUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  Set<UserIdDto> selectUserIdsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
   void insert(@Param("dto")UserPermissionDto dto);
 

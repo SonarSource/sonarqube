@@ -94,12 +94,6 @@ public class UserDbTester {
     return dbClient.userDao().selectByLogin(db.getSession(), userDto.getLogin());
   }
 
-  public UserDto makeNotRoot(UserDto userDto) {
-    dbClient.userDao().setRoot(db.getSession(), userDto.getLogin(), false);
-    db.commit();
-    return dbClient.userDao().selectByLogin(db.getSession(), userDto.getLogin());
-  }
-
   public UserDto insertAdminByUserPermission() {
     UserDto user = insertUser();
     insertPermissionOnUser(user, ADMINISTER);
@@ -146,8 +140,10 @@ public class UserDbTester {
     return insertGroup(group);
   }
 
-  public GroupDto insertGroup() {
+  @SafeVarargs
+  public final GroupDto insertGroup(Consumer<GroupDto>... populators) {
     GroupDto group = newGroupDto();
+    stream(populators).forEach(p -> p.accept(group));
     return insertGroup(group);
   }
 
@@ -295,18 +291,18 @@ public class UserDbTester {
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, user.getLogin(),null);
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, null, user);
     db.commit();
     return dto;
   }
 
   public void deletePermissionFromUser(UserDto user, GlobalPermission permission) {
-    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user.getUuid(), user.getLogin(), permission.getKey());
+    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user, permission.getKey());
     db.commit();
   }
 
   public void deletePermissionFromUser(ComponentDto project, UserDto user, String permission) {
-    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getUuid(), user.getLogin(), permission, project);
+    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user, permission, project);
     db.commit();
   }
 
@@ -318,7 +314,7 @@ public class UserDbTester {
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, user.getLogin(), project);
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, project, user);
     db.commit();
     return dto;
   }

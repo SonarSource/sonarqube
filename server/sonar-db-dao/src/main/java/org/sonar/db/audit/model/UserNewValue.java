@@ -149,7 +149,7 @@ public class UserNewValue extends NewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"userUuid\": ", this.userUuid, true);
-    addField(sb, "\"login\": ", this.login, true);
+    addField(sb, "\"userLogin\": ", this.login, true);
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"email\": ", this.email, true);
     addField(sb, "\"isActive\": ", ObjectUtils.toString(this.isActive), false);

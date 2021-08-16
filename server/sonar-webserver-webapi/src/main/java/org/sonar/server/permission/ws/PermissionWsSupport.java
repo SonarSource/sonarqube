@@ -31,7 +31,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
-import org.sonar.server.permission.UserId;
+import org.sonar.db.user.UserIdDto;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupWsRef;
@@ -85,10 +85,10 @@ public class PermissionWsSupport {
     return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
   }
 
-  public UserId findUser(DbSession dbSession, String login) {
+  public UserIdDto findUser(DbSession dbSession, String login) {
     UserDto dto = ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, login))
       .orElseThrow(() -> new NotFoundException(format("User with login '%s' is not found'", login)));
-    return new UserId(dto.getUuid(), dto.getLogin());
+    return new UserIdDto(dto.getUuid(), dto.getLogin());
   }
 
   public PermissionTemplateDto findTemplate(DbSession dbSession, WsTemplateRef ref) {

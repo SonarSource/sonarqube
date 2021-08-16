@@ -17,24 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
-
-import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.user.UserIdDto;
+package org.sonar.db.user;
 
 import static java.util.Objects.requireNonNull;
 
-public class UserPermissionChange extends PermissionChange {
+public class UserIdDto implements UserId {
+  private String uuid;
+  private String login;
 
-  private final UserIdDto userId;
-
-  public UserPermissionChange(Operation operation, String permission, @Nullable ComponentDto project, UserIdDto userId, PermissionService permissionService) {
-    super(operation, permission, project, permissionService);
-    this.userId = requireNonNull(userId);
+  public UserIdDto(String uuid, String login) {
+    this.uuid = uuid;
+    this.login = requireNonNull(login);
   }
 
-  public UserIdDto getUserId() {
-    return userId;
+  public UserIdDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public UserIdDto setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public String getLogin() {
+    return login;
+  }
+
+  public static UserIdDto from(UserDto dto) {
+    return new UserIdDto(dto.getUuid(), dto.getLogin());
   }
 }

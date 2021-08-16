@@ -17,38 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.db.user;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.user.UserDto;
-
-import static java.util.Objects.requireNonNull;
-
-/**
- * Reference a user by his technical (db) id or functional login.
- * This is temporary class as long as services and DAOs do not
- * use only technical id.
- */
-@Immutable
-public class UserId {
-
-  private final String uuid;
-  private final String login;
-
-  public UserId(String uuid, String login) {
-    this.uuid = uuid;
-    this.login = requireNonNull(login);
-  }
-
-  public String getUuid() {
-    return uuid;
-  }
-
-  public String getLogin() {
-    return login;
-  }
-
-  public static UserId from(UserDto dto) {
-    return new UserId(dto.getUuid(), dto.getLogin());
-  }
+public interface UserId {
+  String getUuid();
+  String getLogin();
 }

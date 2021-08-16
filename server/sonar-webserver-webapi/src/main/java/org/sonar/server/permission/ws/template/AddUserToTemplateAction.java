@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.UserId;
+import org.sonar.db.user.UserIdDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -95,7 +95,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getTemplateName()));
       checkGlobalAdmin(userSession);
-      UserId user = wsSupport.findUser(dbSession, userLogin);
+      UserIdDto user = wsSupport.findUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getUuid(), userLogin, permission)) {
         dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getUuid(), user.getUuid(), permission,
