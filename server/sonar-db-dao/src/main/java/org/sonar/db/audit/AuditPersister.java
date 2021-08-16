@@ -116,9 +116,7 @@ public interface AuditPersister {
 
   void updateComponent(DbSession dbSession, NewValue newValue, String qualifier);
 
-  void setPrivateForComponentUuid(DbSession session, NewValue componentNewValue, @Nullable String qualifier);
-
-  void updateComponentVisibility(DbSession session, NewValue projectNewValue, String qualifier);
+  void updateComponentVisibility(DbSession session, NewValue componentNewValue, @Nullable String qualifier);
 
   void componentKeyUpdate(DbSession session, NewValue componentKeyNewValue, String qualifier);
 

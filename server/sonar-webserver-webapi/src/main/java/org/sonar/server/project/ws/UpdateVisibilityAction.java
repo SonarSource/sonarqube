@@ -20,7 +20,6 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
@@ -54,6 +53,7 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
+import java.util.Set;
 
 public class UpdateVisibilityAction implements ProjectsWsAction {
   private static final Set<String> AUTHORIZED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
@@ -132,7 +132,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
     String uuid = component.uuid();
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.qualifier());
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.qualifier(), component.name());
 
     if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
       dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate, component.qualifier(), component.name());

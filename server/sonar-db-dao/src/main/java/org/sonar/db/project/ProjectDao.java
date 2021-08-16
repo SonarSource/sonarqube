@@ -104,9 +104,6 @@ public class ProjectDao implements Dao {
   }
 
   public void updateVisibility(DbSession session, String uuid, boolean isPrivate, String qualifier, String name) {
-    if (auditPersister != null) {
-      auditPersister.updateComponentVisibility(session, new ComponentNewValue(uuid, name, isPrivate, qualifier), qualifier);
-    }
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 

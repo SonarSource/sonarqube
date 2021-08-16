@@ -40,7 +40,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -376,9 +375,11 @@ public class ComponentDao implements Dao {
     mapper(session).resetBChangedForRootComponentUuid(projectUuid);
   }
 
-  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate, @Nullable String qualifier) {
+  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate,
+    @Nullable String qualifier, String componentName) {
     if(auditPersister != null) {
-      auditPersister.setPrivateForComponentUuid(session, new ComponentNewValue(projectUuid, isPrivate, qualifier), qualifier);
+      ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, isPrivate, qualifier);
+      auditPersister.updateComponentVisibility(session, componentNewValue, qualifier);
     }
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }

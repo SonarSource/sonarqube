@@ -19,13 +19,6 @@
  */
 package org.sonar.db.project;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -42,6 +35,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 public class ProjectDaoTest {
 
@@ -204,15 +203,6 @@ public class ProjectDaoTest {
     projectDaoWithAuditPersister.insert(db.getSession(), dto1, true);
 
     verify(auditPersister, times(1)).addComponent(any(), any(), any());
-  }
-
-  @Test
-  public void updateVisibility_shouldCallAuditPersister() {
-    ProjectDto dto1 = createProject("o1", "p1");
-
-    projectDaoWithAuditPersister.updateVisibility(db.getSession(), dto1.getUuid(), false, Qualifiers.PROJECT, dto1.getName());
-
-    verify(auditPersister, times(1)).updateComponentVisibility(any(), any(), eq(Qualifiers.PROJECT));
   }
 
   @Test

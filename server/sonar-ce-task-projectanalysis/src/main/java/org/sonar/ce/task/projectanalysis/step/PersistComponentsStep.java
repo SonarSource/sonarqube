@@ -108,7 +108,7 @@ public class PersistComponentsStep implements ComputationStep {
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByUuids.values());
-      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate, treeRootHolder.getRoot().getType());
+      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate, treeRootHolder.getRoot().getType(), treeRootHolder.getRoot().getName());
 
       dbSession.commit();
     }
@@ -136,14 +136,14 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private void ensureConsistentVisibility(DbSession dbSession, String projectUuid, boolean isRootPrivate,
-    Component.Type type) {
+    Component.Type type, String componentName) {
     String qualifier = null;
     if (type == Component.Type.PROJECT) {
       qualifier = PROJECT;
     } else if (type == Component.Type.VIEW) {
       qualifier = VIEW;
     }
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate, qualifier);
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate, qualifier, componentName);
   }
 
   private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByUuids) {
