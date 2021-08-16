@@ -216,6 +216,7 @@ export default class App extends React.PureComponent<Props, State> {
               onEdit={this.openEditForm}
               onEditMembers={this.refresh}
               showAnyone={showAnyone}
+              organization={this.organization}
             />
           )}
 

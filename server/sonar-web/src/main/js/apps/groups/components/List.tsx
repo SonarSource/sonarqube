@@ -28,6 +28,7 @@ interface Props {
   onEdit: (group: T.Group) => void;
   onEditMembers: () => void;
   showAnyone: boolean;
+  organization: string | undefined;
 }
 
 export default function List(props: Props) {
@@ -66,6 +67,7 @@ export default function List(props: Props) {
               onDelete={props.onDelete}
               onEdit={props.onEdit}
               onEditMembers={props.onEditMembers}
+              organization={props.organization}
             />
           ))}
         </tbody>
