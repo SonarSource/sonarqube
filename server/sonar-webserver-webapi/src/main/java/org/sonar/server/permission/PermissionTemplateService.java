@@ -99,17 +99,18 @@ public class PermissionTemplateService {
     }
 
     for (ComponentDto project : projects) {
+      dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project);
+      dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project);
       copyPermissions(dbSession, template, project, null);
     }
     projectIndexers.commitAndIndexComponents(dbSession, projects, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   /**
-   * Apply the default permission template to project. The project can already exist (so it has permissions) or
-   * can be provisioned (so has no permissions yet).
-   * @param projectCreatorUserId id of the user who creates the project, only if project is provisioned. He will
+   * Apply the default permission template to a new project (has no permissions yet).
+   * @param projectCreatorUserId id of the user creating the project.
    */
-  public void applyDefault(DbSession dbSession, ComponentDto component, @Nullable String projectCreatorUserId) {
+  public void applyDefaultToNewComponent(DbSession dbSession, ComponentDto component, @Nullable String projectCreatorUserId) {
     PermissionTemplateDto template = findTemplate(dbSession, component);
     checkArgument(template != null, "Cannot retrieve default permission template");
     copyPermissions(dbSession, template, component, projectCreatorUserId);
@@ -126,9 +127,6 @@ public class PermissionTemplateService {
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable String projectCreatorUserUuid) {
-    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project);
-    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project);
-
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
     Map<String, String> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
       .stream().collect(Collectors.toMap(UserDto::getUuid, UserDto::getUuid));

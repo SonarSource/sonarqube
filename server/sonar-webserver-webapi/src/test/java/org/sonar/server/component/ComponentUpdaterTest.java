@@ -180,7 +180,7 @@ public class ComponentUpdaterTest {
       .build();
     ComponentDto dto = underTest.create(db.getSession(), project, userUuid, "user-login");
 
-    verify(permissionTemplateService).applyDefault(db.getSession(), dto, userUuid);
+    verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, userUuid);
   }
 
   @Test

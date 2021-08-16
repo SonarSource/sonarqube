@@ -176,7 +176,7 @@ public class ComponentUpdater {
   }
 
   private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable String userUuid, @Nullable String userLogin) {
-    permissionTemplateService.applyDefault(dbSession, componentDto, userUuid);
+    permissionTemplateService.applyDefaultToNewComponent(dbSession, componentDto, userUuid);
     if (componentDto.qualifier().equals(PROJECT)
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
       favoriteUpdater.add(dbSession, componentDto, userUuid, userLogin, false);
