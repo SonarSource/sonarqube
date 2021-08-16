@@ -53,7 +53,7 @@ public class ComponentNewValue extends NewValue {
     this.componentUuid = componentUuid;
     this.componentName = name;
     this.isPrivate = isPrivate;
-    this.qualifier = this.getQualifier(qualifier);
+    this.qualifier = getQualifier(qualifier);
   }
 
   public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, @Nullable String qualifier) {

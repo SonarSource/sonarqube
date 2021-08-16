@@ -33,18 +33,18 @@ public abstract class PermissionNewValue extends NewValue {
   protected String componentName;
 
   @Nullable
-  protected String role;
+  protected String permission;
 
   @Nullable
   protected String qualifier;
 
   protected PermissionNewValue(@Nullable String permissionUuid, @Nullable String componentUuid, @Nullable String componentName,
-    @Nullable String role, @Nullable String qualifier) {
+    @Nullable String permission, @Nullable String qualifier) {
     this.permissionUuid = permissionUuid;
     this.componentUuid = componentUuid;
     this.componentName = componentName;
     this.qualifier = getQualifier(qualifier);
-    this.role = role;
+    this.permission = permission;
   }
 
   @CheckForNull
@@ -58,8 +58,8 @@ public abstract class PermissionNewValue extends NewValue {
   }
 
   @CheckForNull
-  public String getRole() {
-    return this.role;
+  public String getPermission() {
+    return this.permission;
   }
 
   @CheckForNull

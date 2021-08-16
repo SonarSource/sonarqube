@@ -67,14 +67,14 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), null, dto.getRole(), null, null);
-    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"role\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
+    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
 
     underTest.delete(dbSession, ADMIN, group.getUuid(), group.getName(), null, null);
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertNewValue(newValue, null, group.getUuid(), group.getName(), null, ADMIN, null, null);
-    assertThat(newValue).hasToString("{\"role\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
+    assertThat(newValue).hasToString("{\"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\" }");
   }
 
   @Test
@@ -91,7 +91,7 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.name(), "project");
-    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"role\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\", \"componentUuid\": \"cuuid\", "
+    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\", \"componentUuid\": \"cuuid\", "
       + "\"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
     underTest.deleteByRootComponentUuid(dbSession, project);
@@ -119,7 +119,8 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertNewValue(newValue, dto.getUuid(), null, null, project.uuid(), dto.getRole(), project.name(), "project");
-    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"role\": \"admin\", \"componentUuid\": \"cuuid\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
+    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"componentUuid\": \"cuuid\", "
+      + "\"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
     underTest.deleteByRootComponentUuidForAnyOne(dbSession, project);
 
@@ -146,7 +147,7 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.name(), "project");
-    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"role\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\", "
+    assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\", "
       + "\"componentUuid\": \"cuuid\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
     underTest.deleteByRootComponentUuidAndPermission(dbSession, dto.getRole(), project);
@@ -154,7 +155,7 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertNewValue(newValue, null, null, null, project.uuid(), ADMIN, project.name(), "project");
-    assertThat(newValue).hasToString("{\"role\": \"admin\", \"componentUuid\": \"cuuid\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
+    assertThat(newValue).hasToString("{\"permission\": \"admin\", \"componentUuid\": \"cuuid\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
   }
 
   @Test

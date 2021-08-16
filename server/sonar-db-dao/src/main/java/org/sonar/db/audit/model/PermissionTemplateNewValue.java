@@ -35,7 +35,7 @@ public class PermissionTemplateNewValue extends NewValue {
   private String description;
 
   @Nullable
-  private String role;
+  private String permission;
 
   @Nullable
   private String userUuid;
@@ -64,21 +64,21 @@ public class PermissionTemplateNewValue extends NewValue {
     this.description = permissionTemplateDto.getDescription();
   }
 
-  public PermissionTemplateNewValue(@Nullable String templateUuid, @Nullable String name, @Nullable String role,
+  public PermissionTemplateNewValue(@Nullable String templateUuid, @Nullable String name, @Nullable String permission,
     @Nullable String userUuid, @Nullable String userLogin, @Nullable String groupUuid, @Nullable String groupName) {
     this.templateUuid = templateUuid;
     this.name = name;
-    this.role = role;
+    this.permission = permission;
     this.userUuid = userUuid;
     this.userLogin = userLogin;
     this.groupUuid = groupUuid;
     this.groupName = groupName;
   }
 
-  public PermissionTemplateNewValue(String templateUuid, String role, String name, boolean withProjectCreator) {
+  public PermissionTemplateNewValue(String templateUuid, String permission, String name, boolean withProjectCreator) {
     this.templateUuid = templateUuid;
     this.name = name;
-    this.role = role;
+    this.permission = permission;
     this.withProjectCreator = withProjectCreator;
   }
 
@@ -101,8 +101,8 @@ public class PermissionTemplateNewValue extends NewValue {
   }
 
   @CheckForNull
-  public String getRole() {
-    return this.role;
+  public String getPermission() {
+    return this.permission;
   }
 
   @CheckForNull
@@ -137,7 +137,7 @@ public class PermissionTemplateNewValue extends NewValue {
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"keyPattern\": ", this.keyPattern, true);
     addField(sb, "\"description\": ", this.description, true);
-    addField(sb, "\"role\": ", this.role, true);
+    addField(sb, "\"permission\": ", this.permission, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);

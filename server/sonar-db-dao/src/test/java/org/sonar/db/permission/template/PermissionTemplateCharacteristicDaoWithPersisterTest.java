@@ -52,7 +52,7 @@ public class PermissionTemplateCharacteristicDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::isWithProjectCreator)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::isWithProjectCreator)
       .containsExactly(dto.getTemplateUuid(), "template", dto.getPermission(), dto.getWithProjectCreator());
     assertThat(newValue.toString()).contains("withProjectCreator");
   }
@@ -68,7 +68,7 @@ public class PermissionTemplateCharacteristicDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::isWithProjectCreator)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::isWithProjectCreator)
       .containsExactly(updated.getTemplateUuid(), "template", updated.getPermission(), updated.getWithProjectCreator());
     assertThat(newValue.toString()).contains("withProjectCreator");
   }

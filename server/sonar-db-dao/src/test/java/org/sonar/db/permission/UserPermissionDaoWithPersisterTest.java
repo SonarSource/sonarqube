@@ -61,7 +61,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin,
-        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), user.getLogin(), null, dto.getPermission(), null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
@@ -71,7 +71,7 @@ public class UserPermissionDaoWithPersisterTest {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName)
       .containsExactly(null, user.getUuid(), user.getLogin(), null, dto.getPermission(), null);
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
@@ -97,7 +97,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), user.getLogin(), project.uuid(), dto.getPermission(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
@@ -107,7 +107,7 @@ public class UserPermissionDaoWithPersisterTest {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin,
-        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName)
+        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName)
       .containsExactly(null, user.getUuid(), user.getLogin(), project.uuid(), dto.getPermission(), project.name());
     assertThat(newValue.toString())
       .doesNotContain("permissionUuid");
@@ -136,7 +136,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), portfolio.uuid(), dto.getPermission(), portfolio.name(), "portfolio");
     assertThat(newValue.toString())
       .contains("componentUuid");
@@ -153,7 +153,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), application.uuid(), dto.getPermission(), application.name(), "application");
     assertThat(newValue.toString())
       .contains("componentUuid");
@@ -171,7 +171,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(null, null, null, project.uuid(), SCAN_EXECUTION, project.name(), "project");
     assertThat(newValue.toString()).doesNotContain("userUuid");
   }
@@ -198,7 +198,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
-        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+        UserPermissionNewValue::getPermission, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(null, user.getUuid(), user.getLogin(), null, null, null, null);
     assertThat(newValue.toString()).contains("userUuid");
   }

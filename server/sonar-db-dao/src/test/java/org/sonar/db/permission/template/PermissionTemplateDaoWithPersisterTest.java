@@ -109,7 +109,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
       .containsExactly(dto.getUuid(), dto.getName(), ADMIN, user.getUuid(), user.getLogin());
     assertThat(newValue.toString()).doesNotContain("groupUuid");
 
@@ -119,7 +119,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
       .containsExactly(dto.getUuid(), dto.getName(), ADMIN, user.getUuid(), user.getLogin());
     assertThat(newValue.toString()).doesNotContain("groupUuid");
   }
@@ -143,7 +143,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getUserUuid, PermissionTemplateNewValue::getUserLogin)
       .containsExactly(null, null, null, user.getUuid(), user.getLogin());
     assertThat(newValue.toString()).doesNotContain("groupUuid");
   }
@@ -165,7 +165,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
       .containsExactly(dto.getUuid(), dto.getName(), ADMIN, group.getUuid(), group.getName());
     assertThat(newValue.toString()).contains("groupUuid");
 
@@ -175,7 +175,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
       .containsExactly(dto.getUuid(), dto.getName(), ADMIN, group.getUuid(), group.getName());
     assertThat(newValue.toString()).contains("groupUuid");
   }
@@ -205,7 +205,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     PermissionTemplateNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
       .containsExactly(templateDto.getUuid(), templateDto.getName(), ADMIN, templateGroupDto.getGroupUuid(), templateGroupDto.getGroupName());
     assertThat(newValue.toString()).doesNotContain("userUuid");
 
@@ -215,7 +215,7 @@ public class PermissionTemplateDaoWithPersisterTest {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
-        PermissionTemplateNewValue::getRole, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
+        PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
       .containsExactly(null, null, null, templateGroupDto.getGroupUuid(), templateGroupDto.getGroupName());
     assertThat(newValue.toString()).doesNotContain("userUuid");
   }
