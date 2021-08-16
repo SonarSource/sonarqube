@@ -109,9 +109,9 @@ public class PropertiesDao implements Dao {
     }
 
     try (DbSession session = mybatis.openSession(false);
-         Connection connection = session.getConnection();
-         PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
-         ResultSet rs = pstmt.executeQuery()) {
+      Connection connection = session.getConnection();
+      PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
+      ResultSet rs = pstmt.executeQuery()) {
       return rs.next() && rs.getInt(1) > 0;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute SQL for hasProjectNotificationSubscribersForDispatchers", e);
@@ -211,19 +211,23 @@ public class PropertiesDao implements Dao {
    * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
    */
   public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectName,
-    @Nullable String qualifier) {
-    save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
+                           @Nullable String qualifier) {
+    int affectedRows = save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
 
     if (auditPersister != null && auditPersister.isTrackedProperty(property.getKey())) {
-      auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectName, qualifier), false);
+      if (affectedRows > 0) {
+        auditPersister.updateProperty(session, new PropertyNewValue(property, userLogin, projectName, qualifier), false);
+      } else {
+        auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectName, qualifier), false);
+      }
     }
   }
 
-  private void save(PropertiesMapper mapper, String key, @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
+  private int save(PropertiesMapper mapper, String key, @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();
-    mapper.delete(key, userUuid, componentUuid);
+    int affectedRows = mapper.delete(key, userUuid, componentUuid);
     String uuid = uuidFactory.create();
     if (isEmpty(value)) {
       mapper.insertAsEmpty(uuid, key, userUuid, componentUuid, now);
@@ -232,6 +236,7 @@ public class PropertiesDao implements Dao {
     } else {
       mapper.insertAsText(uuid, key, userUuid, componentUuid, value, now);
     }
+    return affectedRows;
   }
 
   private static boolean mustBeStoredInClob(String value) {
@@ -354,11 +359,14 @@ public class PropertiesDao implements Dao {
     try (DbSession session = mybatis.openSession(false)) {
       PropertiesMapper mapper = getMapper(session);
       properties.forEach((key, value) -> {
-        mapper.deleteGlobalProperty(key);
-        save(mapper, key, null, null, value);
+        int affectedRows = save(mapper, key, null, null, value);
 
         if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
-          auditPersister.addProperty(session, new PropertyNewValue(key, value), false);
+          if (affectedRows > 0) {
+            auditPersister.updateProperty(session, new PropertyNewValue(key, value), false);
+          } else {
+            auditPersister.addProperty(session, new PropertyNewValue(key, value), false);
+          }
         }
       });
       session.commit();

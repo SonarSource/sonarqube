@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,6 +43,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.EmailSubscriberDto;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
@@ -53,6 +55,13 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newPropertyDto;
@@ -65,15 +74,21 @@ public class PropertiesDaoTest {
   private static final long INITIAL_DATE = 1_444_000L;
 
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
   private final PropertiesDao underTest = db.getDbClient().propertiesDao();
+
+  @Before
+  public void setup() {
+    when(auditPersister.isTrackedProperty(anyString())).thenReturn(true);
+  }
 
   @Test
   public void shouldFindUsersForNotification() {
@@ -506,7 +521,7 @@ public class PropertiesDaoTest {
 
   @DataProvider
   public static Object[][] allValuesForSelect() {
-    return new Object[][]{
+    return new Object[][] {
       {null, ""},
       {"", ""},
       {"some value", "some value"},
@@ -605,9 +620,9 @@ public class PropertiesDaoTest {
       .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
     assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet(project.uuid(), project2.uuid())))
       .extracting("key", "componentUuid").containsOnly(
-      tuple(key, project.uuid()),
-      tuple(key, project2.uuid()),
-      tuple(anotherKey, project2.uuid()));
+        tuple(key, project.uuid()),
+        tuple(key, project2.uuid()),
+        tuple(anotherKey, project2.uuid()));
 
     assertThat(underTest.selectPropertiesByComponentUuids(session, newHashSet("uuid123456789"))).isEmpty();
   }
@@ -625,18 +640,18 @@ public class PropertiesDaoTest {
     insertProperties(null, project2.name(), newComponentPropertyDto(project2).setKey(key),
       newComponentPropertyDto(project2).setKey(anotherKey));
     insertProperties(user.getLogin(), null, newUserPropertyDto(user).setKey(key));
-    
+
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.uuid())))
       .extracting("key", "componentUuid").containsOnly(tuple(key, project.uuid()));
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key), newHashSet(project.uuid(), project2.uuid())))
       .extracting("key", "componentUuid").containsOnly(
-      tuple(key, project.uuid()),
-      tuple(key, project2.uuid()));
+        tuple(key, project.uuid()),
+        tuple(key, project2.uuid()));
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet(key, anotherKey), newHashSet(project.uuid(), project2.uuid())))
       .extracting("key", "componentUuid").containsOnly(
-      tuple(key, project.uuid()),
-      tuple(key, project2.uuid()),
-      tuple(anotherKey, project2.uuid()));
+        tuple(key, project.uuid()),
+        tuple(key, project2.uuid()),
+        tuple(anotherKey, project2.uuid()));
 
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("unknown"), newHashSet(project.uuid()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentUuids(session, newHashSet("key"), newHashSet("uuid123456789"))).isEmpty();
@@ -860,7 +875,7 @@ public class PropertiesDaoTest {
 
   @DataProvider
   public static Object[][] valueUpdatesDataProvider() {
-    return new Object[][]{
+    return new Object[][] {
       {null, null},
       {null, ""},
       {null, "some value"},
@@ -1232,11 +1247,18 @@ public class PropertiesDaoTest {
 
   private String insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable String userUuid,
     @Nullable String userLogin, @Nullable String projectName) {
+    clearInvocations(auditPersister);
     PropertyDto dto = new PropertyDto().setKey(key)
       .setComponentUuid(componentUuid)
       .setUserUuid(userUuid)
       .setValue(value);
+    boolean isNew = session.getMapper(PropertiesMapper.class).selectByKey(dto) == null;
     db.properties().insertProperty(dto, projectName, Qualifiers.PROJECT, userLogin);
+    if (isNew) {
+      verify(auditPersister).addProperty(any(), any(), anyBoolean());
+    } else {
+      verify(auditPersister).updateProperty(any(), any(), anyBoolean());
+    }
 
     return (String) db.selectFirst(session, "select uuid as \"uuid\" from properties" +
       " where prop_key='" + key + "'" +
