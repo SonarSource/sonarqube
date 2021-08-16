@@ -25,7 +25,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
-public class UserTokenNewValue implements NewValue {
+public class UserTokenNewValue extends NewValue {
   @Nullable
   private String tokenUuid;
 

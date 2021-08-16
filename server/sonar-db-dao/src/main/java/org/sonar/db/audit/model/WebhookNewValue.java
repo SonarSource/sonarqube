@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDto;
 
-public class WebhookNewValue implements NewValue {
+public class WebhookNewValue extends NewValue {
   @Nullable
   private String webhookUuid;
 

@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -121,7 +122,7 @@ public class PropertiesDaoWithPersisterTest {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_NAME);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(KEY);
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
@@ -129,10 +130,50 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_NAME);
-    assertThat(newValue.toString()).contains("projectUuid");
+        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_NAME, "project");
+    assertThat(newValue.toString()).contains("componentUuid");
+  }
+
+  @Test
+  public void saveApplicationTrackedPropertyIsPersisted() {
+    when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
+
+    PropertyDto propertyDto = getPropertyDto(KEY);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, "app-name", Qualifiers.APP);
+
+    verify(auditPersister).isTrackedProperty(KEY);
+    verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
+    PropertyNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
+        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
+      .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
+        USER_LOGIN, propertyDto.getComponentUuid(), "app-name", "application");
+    assertThat(newValue.toString())
+      .contains("componentUuid");
+  }
+
+  @Test
+  public void savePortfolioTrackedPropertyIsPersisted() {
+    when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
+
+    PropertyDto propertyDto = getPropertyDto(KEY);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, "portfolio-name", Qualifiers.VIEW);
+
+    verify(auditPersister).isTrackedProperty(KEY);
+    verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
+    PropertyNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
+        PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
+      .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
+        USER_LOGIN, propertyDto.getComponentUuid(), "portfolio-name", "portfolio");
+    assertThat(newValue.toString())
+      .contains("componentUuid");
   }
 
   @Test
@@ -140,7 +181,7 @@ public class PropertiesDaoWithPersisterTest {
     when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(SECURED_KEY);
-    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_NAME);
+    underTest.saveProperty(session, propertyDto, USER_LOGIN, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(SECURED_KEY);
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
@@ -148,10 +189,10 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName, PropertyNewValue::getQualifier)
       .containsExactly(propertyDto.getKey(), null, propertyDto.getUserUuid(),
-        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_NAME);
-    assertThat(newValue.toString()).contains("projectUuid");
+        USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_NAME, "project");
+    assertThat(newValue.toString()).contains("componentUuid");
   }
 
   @Test
@@ -167,7 +208,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(query.key(), null, query.userUuid(),
         null, query.componentUuid(), null);
     assertThat(newValue.toString()).doesNotContain("userLogin");
@@ -189,7 +230,7 @@ public class PropertiesDaoWithPersisterTest {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY);
-    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME);
+    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(KEY);
     verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
@@ -197,7 +238,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(propertyDto.getKey(), propertyDto.getValue(), propertyDto.getUserUuid(),
         USER_LOGIN, propertyDto.getComponentUuid(), PROJECT_NAME);
     assertThat(newValue.toString()).contains("userLogin");
@@ -208,7 +249,7 @@ public class PropertiesDaoWithPersisterTest {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(false);
 
     PropertyDto propertyDto = getPropertyDto(KEY);
-    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME);
+    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(KEY);
     verifyNoMoreInteractions(auditPersister);
@@ -217,7 +258,7 @@ public class PropertiesDaoWithPersisterTest {
   @Test
   public void deleteTrackedProjectPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
-    underTest.deleteProjectProperty(KEY, PROJECT_UUID, PROJECT_NAME);
+    underTest.deleteProjectProperty(KEY, PROJECT_UUID, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(KEY);
     verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
@@ -225,7 +266,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, null, null,
         null, PROJECT_UUID, PROJECT_NAME);
     assertThat(newValue.toString()).doesNotContain("userLogin");
@@ -236,7 +277,7 @@ public class PropertiesDaoWithPersisterTest {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(false);
 
     PropertyDto propertyDto = getPropertyDto(KEY);
-    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME);
+    underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_NAME, Qualifiers.PROJECT);
 
     verify(auditPersister).isTrackedProperty(KEY);
     verifyNoMoreInteractions(auditPersister);
@@ -254,7 +295,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, VALUE, null,
         null, null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
@@ -282,7 +323,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, null, null,
         null, null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
@@ -311,14 +352,14 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValues.get(0))
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, null, user.getUuid(),
         user.getLogin(), null, null);
     assertThat(newValues.get(0).toString()).contains("userUuid");
     assertThat(newValues.get(1))
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(SECURED_KEY, null, user.getUuid(),
         user.getLogin(), null, null);
     assertThat(newValues.get(1).toString()).doesNotContain("value");
@@ -337,14 +378,14 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValues.get(0))
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, null, null,
         user.getLogin(), null, null);
     assertThat(newValues.get(0).toString()).contains("userLogin");
     assertThat(newValues.get(1))
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(SECURED_KEY, null, null,
         user.getLogin(), null, null);
     assertThat(newValues.get(1).toString()).doesNotContain("value");
@@ -362,7 +403,7 @@ public class PropertiesDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue,
         PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin,
-        PropertyNewValue::getProjectUuid, PropertyNewValue::getProjectName)
+        PropertyNewValue::getComponentUuid, PropertyNewValue::getComponentName)
       .containsExactly(KEY, VALUE, null,
         null, null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
@@ -418,12 +459,9 @@ public class PropertiesDaoWithPersisterTest {
       .setComponentUuid(project.uuid())
       .setUserUuid(user.getUuid())
       .setValue(value);
-    db.properties().insertProperty(dto1, project.name(), user.getLogin());
-    db.properties().insertProperty(dto2, project.name(), user.getLogin());
-    db.properties().insertProperty(dto3, project.name(), user.getLogin());
-    List<PropertyDto> list = db.getDbClient().propertiesDao().selectByKeyAndMatchingValue(session, KEY, VALUE);
-    list = db.getDbClient().propertiesDao().selectByKeyAndMatchingValue(session, ANOTHER_KEY, VALUE);
-    list = db.getDbClient().propertiesDao().selectByKeyAndMatchingValue(session, SECURED_KEY, VALUE);
+    db.properties().insertProperty(dto1, project.name(), project.qualifier(), user.getLogin());
+    db.properties().insertProperty(dto2, project.name(), project.qualifier(), user.getLogin());
+    db.properties().insertProperty(dto3, project.name(), project.qualifier(), user.getLogin());
     return user;
   }
 }

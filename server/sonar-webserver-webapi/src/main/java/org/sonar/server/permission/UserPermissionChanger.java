@@ -107,11 +107,10 @@ public class UserPermissionChanger {
       return false;
     }
     checkOtherAdminsExist(dbSession, change);
-    String projectUuid = change.getProjectUuid();
-    String projectName = change.getProject() == null ? null : change.getProject().name();
-    if (projectUuid != null) {
+    ComponentDto project = change.getProject();
+    if (project != null) {
       dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getUuid(), change.getPermission(),
-        projectUuid, projectName);
+        project);
     } else {
       dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getUuid(), change.getPermission());
     }

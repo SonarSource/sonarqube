@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 
-public class PermissionNewValue implements NewValue {
+public class PermissionNewValue extends NewValue {
   @Nullable
   private String permissionUuid;
 
@@ -38,39 +38,46 @@ public class PermissionNewValue implements NewValue {
   private String userUuid;
 
   @Nullable
-  private String projectUuid;
+  private String componentUuid;
 
   @Nullable
-  private String projectName;
+  private String componentName;
 
   @Nullable
   private String role;
 
-  public PermissionNewValue(GroupPermissionDto groupPermissionDto) {
+  @Nullable
+  private String qualifier;
+
+  public PermissionNewValue(GroupPermissionDto groupPermissionDto, @Nullable String componentName, @Nullable String qualifier) {
     this.permissionUuid = groupPermissionDto.getUuid();
     this.role = groupPermissionDto.getRole();
     this.groupUuid = groupPermissionDto.getGroupUuid();
     this.groupName = groupPermissionDto.getGroupName();
-    this.projectUuid = groupPermissionDto.getComponentUuid();
-    this.projectName = groupPermissionDto.getComponentName();
+    this.componentUuid = groupPermissionDto.getComponentUuid();
+    this.role = groupPermissionDto.getRole();
+    this.componentName = componentName;
+    this.qualifier = getQualifier(qualifier);
   }
 
-  public PermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName) {
+  public PermissionNewValue(UserPermissionDto permissionDto, @Nullable String componentName, @Nullable String qualifier) {
     this.permissionUuid = permissionDto.getUuid();
     this.userUuid = permissionDto.getUserUuid();
-    this.projectUuid = permissionDto.getComponentUuid();
+    this.componentUuid = permissionDto.getComponentUuid();
     this.role = permissionDto.getPermission();
-    this.projectName = projectName;
+    this.componentName = componentName;
+    this.qualifier = getQualifier(qualifier);
   }
 
   public  PermissionNewValue(@Nullable String role, @Nullable String groupUuid, @Nullable String groupName, @Nullable String rootComponentUuid,
-    @Nullable String projectName, @Nullable String userUuid) {
+    @Nullable String componentName, @Nullable String qualifier, @Nullable String userUuid) {
     this.role = role;
     this.groupUuid = groupUuid;
     this.groupName = groupName;
-    this.projectUuid = rootComponentUuid;
-    this.projectName = projectName;
+    this.componentUuid = rootComponentUuid;
+    this.componentName = componentName;
     this.userUuid = userUuid;
+    this.qualifier = getQualifier(qualifier);
   }
 
   @CheckForNull
@@ -89,8 +96,8 @@ public class PermissionNewValue implements NewValue {
   }
 
   @CheckForNull
-  public String getProjectUuid() {
-    return this.projectUuid;
+  public String getComponentUuid() {
+    return this.componentUuid;
   }
 
   @CheckForNull
@@ -99,8 +106,13 @@ public class PermissionNewValue implements NewValue {
   }
 
   @CheckForNull
-  public String getProjectName() {
-    return this.projectName;
+  public String getComponentName() {
+    return this.componentName;
+  }
+
+  @CheckForNull
+  public String getQualifier() {
+    return this.qualifier;
   }
 
   @CheckForNull
@@ -115,8 +127,9 @@ public class PermissionNewValue implements NewValue {
     addField(sb, "\"role\": ", this.role, true);
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);
     addField(sb, "\"groupName\": ", this.groupName, true);
-    addField(sb, "\"projectUuid\": ", this.projectUuid, true);
-    addField(sb, "\"projectName\": ", this.projectName, true);
+    addField(sb, "\"componentUuid\": ", this.componentUuid, true);
+    addField(sb, "\"componentName\": ", this.componentName, true);
+    addField(sb, "\"qualifier\": ", this.qualifier, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     endString(sb);
     return sb.toString();

@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserPropertyDto;
 
-public class PropertyNewValue implements NewValue {
+public class PropertyNewValue extends NewValue {
   @Nullable
   private String propertyKey;
 
@@ -38,10 +38,13 @@ public class PropertyNewValue implements NewValue {
   private String userLogin;
 
   @Nullable
-  private String projectUuid;
+  private String componentUuid;
 
   @Nullable
-  private String projectName;
+  private String componentName;
+
+  @Nullable
+  private String qualifier;
 
   public PropertyNewValue(UserPropertyDto userPropertyDto, String login) {
     this.propertyKey = userPropertyDto.getKey();
@@ -51,12 +54,13 @@ public class PropertyNewValue implements NewValue {
     setValue(propertyKey, userPropertyDto.getValue());
   }
 
-  public PropertyNewValue(PropertyDto propertyDto, @Nullable String userLogin, @Nullable String projectName) {
+  public PropertyNewValue(PropertyDto propertyDto, @Nullable String userLogin, @Nullable String componentName, @Nullable String qualifier) {
     this.propertyKey = propertyDto.getKey();
     this.userUuid = propertyDto.getUserUuid();
     this.userLogin = userLogin;
-    this.projectUuid = propertyDto.getComponentUuid();
-    this.projectName = projectName;
+    this.componentUuid = propertyDto.getComponentUuid();
+    this.componentName = componentName;
+    this.qualifier = getQualifier(qualifier);
 
     setValue(propertyKey, propertyDto.getValue());
   }
@@ -78,11 +82,12 @@ public class PropertyNewValue implements NewValue {
   }
 
   public PropertyNewValue(@Nullable String propertyKey, @Nullable String projectUuid,
-    @Nullable String projectName, @Nullable String userUuid) {
+    @Nullable String componentName, @Nullable String qualifier, @Nullable String userUuid) {
     this.propertyKey = propertyKey;
-    this.projectUuid = projectUuid;
-    this.projectName = projectName;
+    this.componentUuid = projectUuid;
+    this.componentName = componentName;
     this.userUuid = userUuid;
+    this.qualifier = getQualifier(qualifier);
   }
 
   @CheckForNull
@@ -106,13 +111,18 @@ public class PropertyNewValue implements NewValue {
   }
 
   @CheckForNull
-  public String getProjectUuid() {
-    return this.projectUuid;
+  public String getComponentUuid() {
+    return this.componentUuid;
   }
 
   @CheckForNull
-  public String getProjectName() {
-    return this.projectName;
+  public String getComponentName() {
+    return this.componentName;
+  }
+
+  @CheckForNull
+  public String getQualifier() {
+    return this.qualifier;
   }
 
   @Override
@@ -122,8 +132,9 @@ public class PropertyNewValue implements NewValue {
     addField(sb, "\"propertyValue\": ", this.propertyValue, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
-    addField(sb, "\"projectUuid\": ", this.projectUuid, true);
-    addField(sb, "\"projectName\": ", this.projectName, true);
+    addField(sb, "\"componentUuid\": ", this.componentUuid, true);
+    addField(sb, "\"componentName\": ", this.componentName, true);
+    addField(sb, "\"qualifier\": ", this.qualifier, true);
     endString(sb);
     return sb.toString();
   }

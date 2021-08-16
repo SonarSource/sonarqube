@@ -26,7 +26,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
-public class DevOpsPlatformSettingNewValue implements NewValue {
+public class DevOpsPlatformSettingNewValue extends NewValue {
   @Nullable
   private String devOpsPlatformSettingUuid;
 

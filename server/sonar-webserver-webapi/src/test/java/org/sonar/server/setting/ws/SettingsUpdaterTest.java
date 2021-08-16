@@ -72,9 +72,9 @@ public class SettingsUpdaterTest {
   @Test
   public void delete_global_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(null, project.name(), newComponentPropertyDto(project).setKey("foo").setValue("value"));
-    propertyDb.insertProperties(null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
-    propertyDb.insertProperties(null, null, newGlobalPropertyDto().setKey("bar").setValue("two"));
+    propertyDb.insertProperties(null, project.name(), project.qualifier(), newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("bar").setValue("two"));
 
     underTest.deleteGlobalSettings(dbSession, "foo", "bar");
 
@@ -86,9 +86,9 @@ public class SettingsUpdaterTest {
   @Test
   public void delete_component_settings() {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(null, null, newGlobalPropertyDto().setKey("foo").setValue("value"));
-    propertyDb.insertProperties(null, project.name(), newComponentPropertyDto(project).setKey("foo").setValue("one"));
-    propertyDb.insertProperties(null, project.name(), newComponentPropertyDto(project).setKey("bar").setValue("two"));
+    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, project.name(), project.qualifier(), newComponentPropertyDto(project).setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, project.name(), project.qualifier(), newComponentPropertyDto(project).setKey("bar").setValue("two"));
 
     underTest.deleteComponentSettings(dbSession, project, "foo", "bar");
 
@@ -99,7 +99,7 @@ public class SettingsUpdaterTest {
 
   @Test
   public void does_not_fail_when_deleting_unknown_setting() {
-    propertyDb.insertProperties(null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     underTest.deleteGlobalSettings(dbSession, "unknown");
 
@@ -109,8 +109,8 @@ public class SettingsUpdaterTest {
   @Test
   public void does_not_delete_user_settings() {
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
-    propertyDb.insertProperties(user.getLogin(), null, newUserPropertyDto("foo", "one", user));
-    propertyDb.insertProperties(null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(user.getLogin(), null, null, newUserPropertyDto("foo", "one", user));
+    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     underTest.deleteGlobalSettings(dbSession, "foo");
 
@@ -126,7 +126,7 @@ public class SettingsUpdaterTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertProperties(null, null,
+    propertyDb.insertProperties(null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("1,2"),
       newGlobalPropertyDto().setKey("foo.1.key").setValue("key1"),
       newGlobalPropertyDto().setKey("foo.1.size").setValue("size1"),
@@ -149,7 +149,7 @@ public class SettingsUpdaterTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertProperties(null, project.name(),
+    propertyDb.insertProperties(null, project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("foo").setValue("1,2"),
       newComponentPropertyDto(project).setKey("foo.1.key").setValue("key1"),
       newComponentPropertyDto(project).setKey("foo.1.size").setValue("size1"),
@@ -172,7 +172,7 @@ public class SettingsUpdaterTest {
         PropertyFieldDefinition.build("key").name("Key").build(),
         PropertyFieldDefinition.build("size").name("Size").build()))
       .build());
-    propertyDb.insertProperties(null, project.name(),
+    propertyDb.insertProperties(null, project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("other").setValue("1,2"),
       newComponentPropertyDto(project).setKey("other.1.key").setValue("key1"));
 

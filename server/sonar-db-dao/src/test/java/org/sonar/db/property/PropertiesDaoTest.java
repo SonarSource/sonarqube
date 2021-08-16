@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -646,10 +647,10 @@ public class PropertiesDaoTest {
   public void select_by_key_and_matching_value() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
-    db.properties().insertProperties(null, project1.name(), newComponentPropertyDto("key", "value", project1));
-    db.properties().insertProperties(null, project2.name(), newComponentPropertyDto("key", "value", project2));
-    db.properties().insertProperties(null, null, newGlobalPropertyDto("key", "value"));
-    db.properties().insertProperties(null, project1.name(), newComponentPropertyDto("another key", "value", project1));
+    db.properties().insertProperties(null, project1.name(), project1.qualifier(), newComponentPropertyDto("key", "value", project1));
+    db.properties().insertProperties(null, project2.name(), project2.qualifier(), newComponentPropertyDto("key", "value", project2));
+    db.properties().insertProperties(null, null, null, newGlobalPropertyDto("key", "value"));
+    db.properties().insertProperties(null, project1.name(), project1.qualifier(), newComponentPropertyDto("another key", "value", project1));
 
     assertThat(underTest.selectByKeyAndMatchingValue(db.getSession(), "key", "value"))
       .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid)
@@ -666,12 +667,12 @@ public class PropertiesDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
     ComponentDto project2 = db.components().insertPrivateProject();
-    db.properties().insertProperties(user1.getLogin(), project1.name(), newPropertyDto("key", "1", project1, user1));
-    db.properties().insertProperties(user1.getLogin(), project2.name(), newPropertyDto("key", "2", project2, user1));
-    db.properties().insertProperties(user1.getLogin(), file1.name(), newPropertyDto("key", "3", file1, user1));
-    db.properties().insertProperties(user1.getLogin(), project1.name(), newPropertyDto("another key", "4", project1, user1));
-    db.properties().insertProperties(user2.getLogin(), project1.name(), newPropertyDto("key", "5", project1, user2));
-    db.properties().insertProperties(null, null, newGlobalPropertyDto("key", "global"));
+    db.properties().insertProperties(user1.getLogin(), project1.name(), project1.qualifier(), newPropertyDto("key", "1", project1, user1));
+    db.properties().insertProperties(user1.getLogin(), project2.name(), project2.qualifier(), newPropertyDto("key", "2", project2, user1));
+    db.properties().insertProperties(user1.getLogin(), file1.name(), null, newPropertyDto("key", "3", file1, user1));
+    db.properties().insertProperties(user1.getLogin(), project1.name(), project1.qualifier(), newPropertyDto("another key", "4", project1, user1));
+    db.properties().insertProperties(user2.getLogin(), project1.name(), project1.qualifier(), newPropertyDto("key", "5", project1, user2));
+    db.properties().insertProperties(null, null, null, newGlobalPropertyDto("key", "global"));
 
     assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user1.getUuid(), "TRK"))
       .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("1", "2");
@@ -904,7 +905,7 @@ public class PropertiesDaoTest {
     String uuid6 = insertProperty("user.two", "two", null, "100", "login", null);
     String uuid7 = insertProperty("other.one", "one", "project3", null, null, "project3");
 
-    underTest.deleteProjectProperty("struts.one", "project1", "project1");
+    underTest.deleteProjectProperty("struts.one", "project1", "project1", Qualifiers.PROJECT);
 
     assertThatPropertiesRowByUuid(uuid1)
       .hasKey("global.one")
@@ -1224,7 +1225,7 @@ public class PropertiesDaoTest {
 
   private void insertProperties(@Nullable String userLogin, @Nullable String projectName, PropertyDto... properties) {
     for (PropertyDto propertyDto : properties) {
-      underTest.saveProperty(session, propertyDto, userLogin, projectName);
+      underTest.saveProperty(session, propertyDto, userLogin, projectName, Qualifiers.PROJECT);
     }
     session.commit();
   }
@@ -1235,7 +1236,7 @@ public class PropertiesDaoTest {
       .setComponentUuid(componentUuid)
       .setUserUuid(userUuid)
       .setValue(value);
-    db.properties().insertProperty(dto, projectName, userLogin);
+    db.properties().insertProperty(dto, projectName, Qualifiers.PROJECT, userLogin);
 
     return (String) db.selectFirst(session, "select uuid as \"uuid\" from properties" +
       " where prop_key='" + key + "'" +

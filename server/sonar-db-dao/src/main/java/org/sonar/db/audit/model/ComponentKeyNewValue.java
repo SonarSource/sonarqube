@@ -19,7 +19,7 @@
  */
 package org.sonar.db.audit.model;
 
-public class ComponentKeyNewValue implements NewValue{
+public class ComponentKeyNewValue extends NewValue{
 
   private final String componentUuid;
   private final String oldKey;

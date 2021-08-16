@@ -23,11 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
-
-public class ComponentNewValue implements NewValue {
+public class ComponentNewValue extends NewValue {
 
   private String componentUuid;
   private String componentName;
@@ -38,26 +34,26 @@ public class ComponentNewValue implements NewValue {
   private String key;
   private Boolean isPrivate;
   private Boolean isEnabled;
-  private String prefix;
+  private String qualifier;
 
   public ComponentNewValue(String componentUuid, String name, String key, @Nullable String qualifier) {
     this.componentUuid = componentUuid;
     this.componentName = name;
     this.key = key;
-    this.generateComponentPrefix(qualifier);
+    this.qualifier = getQualifier(qualifier);
   }
 
   public ComponentNewValue(String rootComponentUuid, boolean isPrivate, @Nullable String qualifier) {
     this.rootComponentUuid = rootComponentUuid;
     this.isPrivate = isPrivate;
-    this.generateComponentPrefix(qualifier);
+    this.qualifier = getQualifier(qualifier);
   }
 
   public ComponentNewValue(String componentUuid, String name, boolean isPrivate, String qualifier) {
     this.componentUuid = componentUuid;
     this.componentName = name;
     this.isPrivate = isPrivate;
-    this.generateComponentPrefix(qualifier);
+    this.qualifier = this.getQualifier(qualifier);
   }
 
   public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, @Nullable String qualifier) {
@@ -66,7 +62,7 @@ public class ComponentNewValue implements NewValue {
     this.isEnabled = enabled;
     this.path = path;
     this.key = key;
-    this.generateComponentPrefix(qualifier);
+    this.qualifier = getQualifier(qualifier);
   }
 
   public ComponentNewValue(String uuid, boolean isPrivate, String name, String key, @Nullable String description, @Nullable String qualifier) {
@@ -75,7 +71,7 @@ public class ComponentNewValue implements NewValue {
     this.componentName = name;
     this.key = key;
     this.description = description;
-    this.generateComponentPrefix(qualifier);
+    this.qualifier = getQualifier(qualifier);
   }
 
   public String getComponentUuid() {
@@ -99,33 +95,17 @@ public class ComponentNewValue implements NewValue {
     return isPrivate;
   }
 
-  private void generateComponentPrefix(String qualifier) {
-    if (qualifier == null) {
-      this.prefix = "component";
-      return ;
-    }
-    switch (qualifier) {
-      case VIEW:
-        this.prefix = "portfolio";
-        break;
-      case APP:
-        this.prefix = "application";
-        break;
-      case PROJECT:
-        this.prefix = "project";
-        break;
-      default:
-        this.prefix = "component";
-        break;
-    }
+  public String getQualifier() {
+    return qualifier;
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
-    addField(sb, "\"" + this.prefix + "Uuid\": ", this.componentUuid, true);
+    addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"rootComponentUuid\": ", this.rootComponentUuid, true);
-    addField(sb, "\"" + this.prefix + "Name\": ", this.componentName, true);
+    addField(sb, "\"componentName\": ", this.componentName, true);
+    addField(sb, "\"qualifier\": ", this.qualifier, true);
     addField(sb, "\"description\": ", this.description, true);
     addField(sb, "\"key\": ", this.key, true);
     addField(sb, "\"path\": ", this.path, true);

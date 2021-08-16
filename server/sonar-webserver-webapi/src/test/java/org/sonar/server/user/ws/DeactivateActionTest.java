@@ -143,9 +143,9 @@ public class DeactivateActionTest {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
-    db.properties().insertProperty(newUserPropertyDto(user), null, user.getLogin());
-    db.properties().insertProperty(newUserPropertyDto(user), null, user.getLogin());
-    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()), project.name(), user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user), null, null, user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user), null, null,  user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()), project.name(), project.qualifier(), user.getLogin());
 
     deactivate(user.getLogin());
 
@@ -209,11 +209,11 @@ public class DeactivateActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
-      .setComponentUuid(project.uuid()), project.name(), user.getLogin());
+      .setComponentUuid(project.uuid()), project.name(), project.qualifier(), user.getLogin());
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
-      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), user.getLogin());
+      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
     db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin())
-      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), user.getLogin());
+      .setComponentUuid(anotherProject.uuid()), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
 
     deactivate(user.getLogin());
 

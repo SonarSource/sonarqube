@@ -21,22 +21,12 @@ package org.sonar.db.audit.model;
 
 import org.apache.commons.lang.ObjectUtils;
 
-public class ProjectNewValue implements NewValue{
+public class ProjectNewValue extends NewValue{
 
   private final String uuid;
   private String name;
   private String description;
   private Boolean isPrivate;
-
-  public ProjectNewValue(String uuid, String name) {
-    this.uuid = uuid;
-    this.name = name;
-  }
-
-  public ProjectNewValue(String uuid, boolean isPrivate) {
-    this.uuid = uuid;
-    this.isPrivate = isPrivate;
-  }
 
   public ProjectNewValue(String uuid, boolean isPrivate, String name, String description) {
     this.uuid = uuid;

@@ -58,9 +58,9 @@ public class UserPermissionDaoWithPersisterTest {
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
     PermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
-      .containsExactly(dto.getUuid(), user.getUuid(), null, dto.getPermission(), null);
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), null, dto.getPermission(), null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
     underTest.deleteGlobalPermission(dbSession, user.getUuid(), SYSTEM_ADMIN);
@@ -68,8 +68,8 @@ public class UserPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
       .containsExactly(null, user.getUuid(), null, dto.getPermission(), null);
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
@@ -84,20 +84,55 @@ public class UserPermissionDaoWithPersisterTest {
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
     PermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
-      .containsExactly(dto.getUuid(), user.getUuid(), project.uuid(), dto.getPermission(), project.name());
-    assertThat(newValue.toString()).contains("projectUuid");
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), project.uuid(), dto.getPermission(), project.name(), "project");
+    assertThat(newValue.toString()).contains("componentUuid");
 
-    underTest.deleteProjectPermission(dbSession, user.getUuid(), SYSTEM_ADMIN, project.projectUuid(), project.name());
+    underTest.deleteProjectPermission(dbSession, user.getUuid(), SYSTEM_ADMIN, project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
       .containsExactly(null, user.getUuid(), project.uuid(), dto.getPermission(), project.name());
-    assertThat(newValue.toString()).doesNotContain("permissionUuid");
+    assertThat(newValue.toString())
+      .doesNotContain("permissionUuid");
+  }
+
+  @Test
+  public void userPortfolioPermissionIsPersisted() {
+    UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), portfolio.uuid());
+    underTest.insert(dbSession, dto, portfolio);
+
+    verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
+    PermissionNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), portfolio.uuid(), dto.getPermission(), portfolio.name(), "portfolio");
+    assertThat(newValue.toString())
+      .contains("componentUuid");
+  }
+
+  @Test
+  public void userApplicationPermissionIsPersisted() {
+    UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    ComponentDto application = db.components().insertPublicApplication();
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), application.uuid());
+    underTest.insert(dbSession, dto, application);
+
+    verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
+    PermissionNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), application.uuid(), dto.getPermission(), application.name(), "application");
+    assertThat(newValue.toString())
+      .contains("componentUuid");
   }
 
   @Test
@@ -106,14 +141,14 @@ public class UserPermissionDaoWithPersisterTest {
     ComponentDto project = db.components().insertPrivateProject();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN_EXECUTION, user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project);
-    underTest.deleteProjectPermissionOfAnyUser(dbSession, project.projectUuid(), SCAN_EXECUTION, project.name());
+    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     PermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
-      .containsExactly(null, null, project.uuid(), SCAN_EXECUTION, project.name());
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(null, null, project.uuid(), SCAN_EXECUTION, project.name(), "project");
     assertThat(newValue.toString()).doesNotContain("userUuid");
   }
 
@@ -128,9 +163,9 @@ public class UserPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     PermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getProjectUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getProjectName)
-      .containsExactly(null, user.getUuid(), null, null, null);
+      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
+        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .containsExactly(null, user.getUuid(), null, null, null, null);
     assertThat(newValue.toString()).contains("userUuid");
   }
 

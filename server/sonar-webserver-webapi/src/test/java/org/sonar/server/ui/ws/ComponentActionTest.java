@@ -156,7 +156,7 @@ public class ComponentActionTest {
     ComponentDto project = insertProject();
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(user.getUuid()),
-      project.name(), user.getLogin());
+      project.name(), project.qualifier(), user.getLogin());
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     init();
 
@@ -169,7 +169,7 @@ public class ComponentActionTest {
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(user.getUuid()),
-      project.name(), user.getLogin());
+      project.name(), project.qualifier(), user.getLogin());
     userSession.logIn(user).addProjectPermission(UserRole.USER, project);
     init();
 
@@ -625,7 +625,7 @@ public class ComponentActionTest {
     when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
     UserDto user = db.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(user.getUuid()),
-      project.name(), user.getLogin());
+      project.name(), project.qualifier(), user.getLogin());
     addQualityProfiles(project,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));

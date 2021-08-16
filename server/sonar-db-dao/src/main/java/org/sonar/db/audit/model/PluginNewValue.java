@@ -21,7 +21,7 @@ package org.sonar.db.audit.model;
 
 import org.sonar.db.plugin.PluginDto;
 
-public class PluginNewValue implements NewValue {
+public class PluginNewValue extends NewValue {
   private String pluginUuid;
   private String kee;
   private String basePluginKey;

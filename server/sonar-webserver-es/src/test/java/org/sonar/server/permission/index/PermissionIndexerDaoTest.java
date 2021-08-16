@@ -173,7 +173,7 @@ public class PermissionIndexerDaoTest {
         .setRole(USER)
         .setComponentUuid(project.uuid())
         .setComponentName(project.name());
-      dbClient.groupPermissionDao().insert(dbSession, dto);
+      dbClient.groupPermissionDao().insert(dbSession, dto, project);
     }
     dbSession.commit();
 

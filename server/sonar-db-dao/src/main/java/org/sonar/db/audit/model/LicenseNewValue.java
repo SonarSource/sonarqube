@@ -22,7 +22,7 @@ package org.sonar.db.audit.model;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class LicenseNewValue implements NewValue {
+public class LicenseNewValue extends NewValue {
   @Nullable
   private String edition;
 

@@ -25,7 +25,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 
-public class UserGroupNewValue implements NewValue {
+public class UserGroupNewValue extends NewValue {
 
   @Nullable
   private String groupUuid;

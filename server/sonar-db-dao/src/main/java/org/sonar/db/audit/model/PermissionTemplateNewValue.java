@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 
-public class PermissionTemplateNewValue implements NewValue {
+public class PermissionTemplateNewValue extends NewValue {
   private String templateUuid;
   private String name;
 

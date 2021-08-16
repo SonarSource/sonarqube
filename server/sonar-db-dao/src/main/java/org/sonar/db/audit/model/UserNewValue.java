@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.user.UserDto;
 
-public class UserNewValue implements NewValue {
+public class UserNewValue extends NewValue {
   private String userUuid;
   private String login;
 

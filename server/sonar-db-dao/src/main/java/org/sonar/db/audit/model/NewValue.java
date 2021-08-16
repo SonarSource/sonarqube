@@ -19,11 +19,16 @@
  */
 package org.sonar.db.audit.model;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 
-public interface NewValue {
+public abstract class NewValue {
 
-  default void addField(StringBuilder sb, String field, String value, boolean isString) {
+  protected void addField(StringBuilder sb, String field, String value, boolean isString) {
     if (!isNullOrEmpty(value)) {
       sb.append(field);
       addQuote(sb, isString);
@@ -33,7 +38,7 @@ public interface NewValue {
     }
   }
 
-  default void endString(StringBuilder sb) {
+  protected void endString(StringBuilder sb) {
     int length = sb.length();
     if(sb.length() > 1) {
       sb.delete(length - 2, length - 1);
@@ -46,4 +51,23 @@ public interface NewValue {
       sb.append("\"");
     }
   }
+
+  protected String getQualifier(@Nullable String qualifier) {
+    if (qualifier == null) {
+      return null;
+    }
+    switch (qualifier) {
+      case VIEW:
+        return "portfolio";
+      case APP:
+        return "application";
+      case PROJECT:
+        return "project";
+      default:
+        return null;
+    }
+  }
+
+  @Override
+  public abstract String toString();
 }

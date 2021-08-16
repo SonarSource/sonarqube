@@ -151,7 +151,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void updatePermissionsToPrivate(DbSession dbSession, ComponentDto component) {
     // delete project permissions for group AnyOne
-    dbClient.groupPermissionDao().deleteByRootComponentUuidForAnyOne(dbSession, component.uuid(), component.name());
+    dbClient.groupPermissionDao().deleteByRootComponentUuidForAnyOne(dbSession, component);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
@@ -174,15 +174,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       .setGroupUuid(groupUuid)
       .setGroupName(groupName)
       .setRole(permission)
-      .setComponentName(component.name()));
+      .setComponentName(component.name()), component);
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {
     PUBLIC_PERMISSIONS.forEach(permission -> {
       // delete project group permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.groupPermissionDao().deleteByRootComponentUuidAndPermission(dbSession, component.uuid(), permission, component.name());
+      dbClient.groupPermissionDao().deleteByRootComponentUuidAndPermission(dbSession, permission, component);
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER
-      dbClient.userPermissionDao().deleteProjectPermissionOfAnyUser(dbSession, component.uuid(), permission, component.name());
+      dbClient.userPermissionDao().deleteProjectPermissionOfAnyUser(dbSession, permission, component);
     });
   }
 

@@ -52,6 +52,7 @@ public class GroupPermissionDao implements Dao {
   /**
    * Returns the names of the groups that match the given query.
    * The virtual group "Anyone" may be returned as the value {@link DefaultGroups#ANYONE}.
+   *
    * @return group names, sorted in alphabetical order
    */
   public List<String> selectGroupNamesByQuery(DbSession dbSession, PermissionQuery query) {
@@ -122,22 +123,25 @@ public class GroupPermissionDao implements Dao {
     return mapper(session).selectGroupUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto) {
+  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto) {
     mapper(dbSession).insert(groupPermissionDto);
 
     if (auditPersister != null) {
-      auditPersister.addGroupPermission(dbSession, new PermissionNewValue(groupPermissionDto));
+      String componentName = (componentDto != null) ? componentDto.name() : null;
+      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+      auditPersister.addGroupPermission(dbSession, new PermissionNewValue(groupPermissionDto, componentName, qualifier));
     }
   }
 
   /**
    * Delete all the permissions associated to a root component (project)
    */
-  public void deleteByRootComponentUuid(DbSession dbSession, String rootComponentUuid, String projectName) {
-    mapper(dbSession).deleteByRootComponentUuid(rootComponentUuid);
+  public void deleteByRootComponentUuid(DbSession dbSession, ComponentDto component) {
+    mapper(dbSession).deleteByRootComponentUuid(component.uuid());
 
     if (auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, rootComponentUuid, projectName, null));
+      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, component.uuid(), component.name(),
+        component.qualifier(), null));
     }
   }
 
@@ -145,15 +149,22 @@ public class GroupPermissionDao implements Dao {
    * Delete all permissions of the specified group (group "AnyOne" if {@code groupUuid} is {@code null}) for the specified
    * component.
    */
-  public int deleteByRootComponentUuidAndGroupUuid(DbSession dbSession, String rootComponentUuid, @Nullable String groupUuid) {
-    return mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(rootComponentUuid, groupUuid);
-  }
-
-  public int deleteByRootComponentUuidForAnyOne(DbSession dbSession, String rootComponentUuid, String projectName) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(rootComponentUuid, null);
+  public int deleteByRootComponentUuidAndGroupUuid(DbSession dbSession, @Nullable String groupUuid, ComponentDto component) {
+    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), groupUuid);
 
     if (auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, rootComponentUuid, projectName, null));
+      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, groupUuid, "", component.uuid(), component.name(),
+        component.qualifier(), null));
+    }
+    return deletedRecords;
+  }
+
+  public int deleteByRootComponentUuidForAnyOne(DbSession dbSession, ComponentDto component) {
+    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), null);
+
+    if (auditPersister != null) {
+      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, component.uuid(),
+        component.name(), component.qualifier(), null));
     }
 
     return deletedRecords;
@@ -162,11 +173,12 @@ public class GroupPermissionDao implements Dao {
   /**
    * Delete the specified permission for the specified component for any group (including group AnyOne).
    */
-  public int deleteByRootComponentUuidAndPermission(DbSession dbSession, String rootComponentUuid, String permission, String projectName) {
-    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndPermission(rootComponentUuid, permission);
+  public int deleteByRootComponentUuidAndPermission(DbSession dbSession, String permission, ComponentDto component) {
+    int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndPermission(component.uuid(), permission);
 
     if (auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, null, null, rootComponentUuid, projectName, null));
+      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, null, null, component.uuid(),
+        component.name(), component.qualifier(), null));
     }
 
     return deletedRecords;
@@ -180,9 +192,10 @@ public class GroupPermissionDao implements Dao {
    *   <li>a permission granted to a group for a project</li>
    *   <li>a permission granted to anyone for a project</li>
    * </ul>
+   *
    * @param dbSession
-   * @param permission the kind of permission
-   * @param groupUuid if null, then anyone, else uuid of group
+   * @param permission        the kind of permission
+   * @param groupUuid         if null, then anyone, else uuid of group
    * @param rootComponentUuid if null, then global permission, otherwise the uuid of root component (project)
    */
   public void delete(DbSession dbSession, String permission,
@@ -192,7 +205,9 @@ public class GroupPermissionDao implements Dao {
 
     if (auditPersister != null) {
       String projectName = (componentDto != null) ? componentDto.name() : null;
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, groupUuid, groupName, rootComponentUuid, projectName, null));
+      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, groupUuid, groupName, rootComponentUuid,
+        projectName, qualifier, null));
     }
   }
 

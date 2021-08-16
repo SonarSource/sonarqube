@@ -38,53 +38,65 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_addsPortfolioPrefix() {
+  public void toString_addsPortfolioQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "VW");
 
-    assertThat(newValue.toString()).contains("portfolioUuid");
+    assertThat(newValue.toString())
+      .contains("componentUuid")
+      .contains("\"qualifier\": \"portfolio\"");
   }
 
   @Test
   public void toString_project_uuid_and_name_and_isPrivate() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", true,"TRK");
 
-    assertThat(newValue.toString()).contains("\"projectUuid\": \"uuid\"");
-    assertThat(newValue.toString()).contains("\"projectName\": \"name\"");
-    assertThat(newValue.toString()).contains("\"isPrivate\": true");
+    assertThat(newValue.toString())
+      .contains("\"componentUuid\": \"uuid\"")
+      .contains("\"componentName\": \"name\"")
+      .contains("\"qualifier\": \"project\"")
+      .contains("\"isPrivate\": true");
   }
 
   @Test
   public void toString_project_uuid_and_name_and_key() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", "TRK");
 
-    assertThat(newValue.toString()).contains("\"projectUuid\": \"uuid\"");
-    assertThat(newValue.toString()).contains("\"projectName\": \"name\"");
-    assertThat(newValue.toString()).contains("\"key\": \"key\"");
+    assertThat(newValue.toString())
+      .contains("\"componentUuid\": \"uuid\"")
+      .contains("\"componentName\": \"name\"")
+      .contains("\"qualifier\": \"project\"")
+      .contains("\"key\": \"key\"");
   }
 
   @Test
   public void toString_project_uuid_and_name_and_key_and_isPrivate_and_description() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", true, "name", "key", "description", "TRK");
 
-    assertThat(newValue.toString()).contains("\"projectUuid\": \"uuid\"");
-    assertThat(newValue.toString()).contains("\"projectName\": \"name\"");
-    assertThat(newValue.toString()).contains("\"isPrivate\": true");
-    assertThat(newValue.toString()).contains("\"key\": \"key\"");
-    assertThat(newValue.toString()).contains("\"description\": \"description\"");
+    assertThat(newValue.toString())
+      .contains("\"componentUuid\": \"uuid\"")
+      .contains("\"componentName\": \"name\"")
+      .contains("\"qualifier\": \"project\"")
+      .contains("\"isPrivate\": true")
+      .contains("\"key\": \"key\"")
+      .contains("\"description\": \"description\"");
   }
 
   @Test
-  public void toString_addsProjectPrefix() {
+  public void toString_addsProjectQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "TRK");
 
-    assertThat(newValue.toString()).contains("projectUuid");
+    assertThat(newValue.toString())
+      .contains("componentUuid")
+      .contains("\"qualifier\": \"project\"");
   }
 
   @Test
-  public void toString_addsApplicationPrefix() {
+  public void toString_addsApplicationQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "APP");
 
-    assertThat(newValue.toString()).contains("applicationUuid");
+    assertThat(newValue.toString())
+      .contains("componentUuid")
+      .contains("\"qualifier\": \"application\"");
   }
 
 }

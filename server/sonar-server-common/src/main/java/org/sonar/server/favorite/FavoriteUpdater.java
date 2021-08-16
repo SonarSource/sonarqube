@@ -63,7 +63,7 @@ public class FavoriteUpdater {
         .setComponentUuid(componentDto.uuid())
         .setUserUuid(userUuid),
       userLogin,
-      componentDto.name());
+      componentDto.name(), componentDto.qualifier());
   }
 
   /**
@@ -80,7 +80,7 @@ public class FavoriteUpdater {
         .setKey(PROP_FAVORITE_KEY)
         .setComponentUuid(component.uuid())
         .setUserUuid(userUuid),
-      userLogin, component.name());
+      userLogin, component.name(), component.qualifier());
     checkArgument(result == 1, "Component '%s' is not a favorite", component.getDbKey());
   }
 }

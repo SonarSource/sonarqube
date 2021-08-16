@@ -25,7 +25,7 @@ import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 
-public class PersonalAccessTokenNewValue implements NewValue {
+public class PersonalAccessTokenNewValue extends NewValue {
   @Nullable
   private String patUuid;
 

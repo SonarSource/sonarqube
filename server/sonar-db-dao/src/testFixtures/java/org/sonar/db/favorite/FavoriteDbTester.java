@@ -43,7 +43,7 @@ public class FavoriteDbTester {
         .setKey(PROP_FAVORITE_KEY)
         .setUserUuid(userUuid)
         .setComponentUuid(componentDto.uuid()),
-      userLogin, componentDto.name());
+      userLogin, componentDto.name(), componentDto.qualifier());
     dbSession.commit();
   }
 

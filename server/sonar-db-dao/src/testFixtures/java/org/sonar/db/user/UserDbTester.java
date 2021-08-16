@@ -200,7 +200,7 @@ public class UserDbTester {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null);
     db.commit();
     return dto;
   }
@@ -214,7 +214,7 @@ public class UserDbTester {
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
       .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null);
     db.commit();
     return dto;
   }
@@ -239,7 +239,7 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project);
     db.commit();
     return dto;
   }
@@ -260,7 +260,7 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project);
     db.commit();
     return dto;
   }
@@ -306,7 +306,7 @@ public class UserDbTester {
   }
 
   public void deletePermissionFromUser(ComponentDto project, UserDto user, String permission) {
-    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getUuid(), permission, project.uuid(), project.name());
+    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getUuid(), permission, project);
     db.commit();
   }
 

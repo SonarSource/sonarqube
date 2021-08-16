@@ -126,8 +126,8 @@ public class PermissionTemplateService {
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable String projectCreatorUserUuid) {
-    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project.uuid(), project.name());
-    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.uuid(), project.name());
+    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project);
+    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project);
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
     Map<String, String> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
@@ -155,7 +155,7 @@ public class PermissionTemplateService {
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid())
           .setComponentName(project.name());
-        dbClient.groupPermissionDao().insert(dbSession, dto);
+        dbClient.groupPermissionDao().insert(dbSession, dto, null);
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));

@@ -117,8 +117,9 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).insert(dto);
 
     if (auditPersister != null) {
-      String projectName = (componentDto != null) ? componentDto.name() : null;
-      auditPersister.addUserPermission(dbSession, new PermissionNewValue(dto, projectName));
+      String componentName = (componentDto != null) ? componentDto.name() : null;
+      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+      auditPersister.addUserPermission(dbSession, new PermissionNewValue(dto, componentName, qualifier));
     }
   }
 
@@ -129,41 +130,44 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteGlobalPermission(userUuid, permission);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, null,
-        null, userUuid));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null,
+        null, null, null, userUuid));
     }
   }
 
   /**
    * Removes a single project permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, String userUuid, String permission, String projectUuid, @Nullable String projectName) {
-    mapper(dbSession).deleteProjectPermission(userUuid, permission, projectUuid);
+  public void deleteProjectPermission(DbSession dbSession, String userUuid, String permission, ComponentDto component) {
+    mapper(dbSession).deleteProjectPermission(userUuid, permission, component.uuid());
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, projectUuid, projectName, userUuid));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, component.uuid(),
+        component.name(), component.qualifier(), userUuid));
     }
   }
 
   /**
    * Deletes all the permissions defined on a project
    */
-  public void deleteProjectPermissions(DbSession dbSession, String projectUuid, String projectName) {
-    mapper(dbSession).deleteProjectPermissions(projectUuid);
+  public void deleteProjectPermissions(DbSession dbSession, ComponentDto component) {
+    mapper(dbSession).deleteProjectPermissions(component.uuid());
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, projectUuid, projectName, null));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, component.uuid(), component.name(),
+        component.qualifier(), null));
     }
   }
 
   /**
    * Deletes the specified permission on the specified project for any user.
    */
-  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String projectUuid, String permission, String projectName) {
-    int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
+  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String permission, ComponentDto project) {
+    int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(project.uuid(), permission);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, projectUuid, projectName, null));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(permission, null, null, project.uuid(), project.name(),
+        project.qualifier(), null));
     }
 
     return deletedRows;
@@ -173,7 +177,8 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteByUserUuid(userUuid);
 
     if (auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, null, null, userUuid));
+      auditPersister.deleteUserPermission(dbSession, new PermissionNewValue(null, null, null, null,
+        null, null, userUuid));
     }
   }
 

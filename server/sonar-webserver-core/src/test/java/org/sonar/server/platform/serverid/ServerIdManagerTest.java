@@ -345,7 +345,7 @@ public class ServerIdManagerTest {
 
   private void insertServerId(String serverId) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(CoreProperties.SERVER_ID).setValue(serverId),
-      null, null);
+      null, null, null);
     dbSession.commit();
   }
 

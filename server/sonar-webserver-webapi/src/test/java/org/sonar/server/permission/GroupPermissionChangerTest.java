@@ -434,7 +434,7 @@ public class GroupPermissionChangerTest {
       .setRole(perm)
       .setComponentUuid(privateProject.uuid())
       .setComponentName(privateProject.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, privateProject);
     db.commit();
   }
 }

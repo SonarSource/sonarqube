@@ -612,7 +612,7 @@ public class UpdateVisibilityActionTest {
       .setRole(permission)
       .setComponentUuid(component.uuid())
       .setComponentName(component.name());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
     dbTester.commit();
   }
 
@@ -624,7 +624,7 @@ public class UpdateVisibilityActionTest {
       .setRole(permission)
       .setComponentUuid(component.uuid())
       .setComponentName(component.name());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
     dbTester.commit();
   }
 
