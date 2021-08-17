@@ -85,6 +85,7 @@ export default class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
+            organization: component.organization,
             p: userPage
           })
         : Promise.resolve({ paging: undefined, users: [] });
@@ -95,6 +96,7 @@ export default class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
+            organization: component.organization,
             p: groupsPage
           })
         : Promise.resolve({ paging: undefined, groups: [] });
@@ -201,6 +203,7 @@ export default class App extends React.PureComponent<Props, State> {
       return api
         .grantPermissionToGroup({
           projectKey: this.props.component.key,
+          organization: this.props.component.organization,
           groupName: group,
           permission
         })
@@ -225,6 +228,7 @@ export default class App extends React.PureComponent<Props, State> {
       return api
         .grantPermissionToUser({
           projectKey: this.props.component.key,
+          organization: this.props.component.organization,
           login: user,
           permission
         })
@@ -249,6 +253,7 @@ export default class App extends React.PureComponent<Props, State> {
       return api
         .revokePermissionFromGroup({
           projectKey: this.props.component.key,
+          organization: this.props.component.organization,
           groupName: group,
           permission
         })
@@ -273,6 +278,7 @@ export default class App extends React.PureComponent<Props, State> {
       return api
         .revokePermissionFromUser({
           projectKey: this.props.component.key,
+          organization: this.props.component.organization,
           login: user,
           permission
         })
