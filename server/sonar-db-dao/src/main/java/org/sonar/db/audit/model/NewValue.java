@@ -19,6 +19,7 @@
  */
 package org.sonar.db.audit.model;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -28,7 +29,7 @@ import static org.sonar.api.resources.Qualifiers.VIEW;
 
 public abstract class NewValue {
 
-  protected void addField(StringBuilder sb, String field, String value, boolean isString) {
+  protected void addField(StringBuilder sb, String field, @Nullable String value, boolean isString) {
     if (!isNullOrEmpty(value)) {
       sb.append(field);
       addQuote(sb, isString);
@@ -52,6 +53,7 @@ public abstract class NewValue {
     }
   }
 
+  @CheckForNull
   protected static String getQualifier(@Nullable String qualifier) {
     if (qualifier == null) {
       return null;

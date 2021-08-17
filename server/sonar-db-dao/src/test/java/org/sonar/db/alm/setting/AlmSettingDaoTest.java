@@ -27,6 +27,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.almsettings.AlmSettingsTesting;
+import org.sonar.db.audit.NoOpAuditPersister;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ public class AlmSettingDaoTest {
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
 
-  private AlmSettingDao underTest = new AlmSettingDao(system2, uuidFactory);
+  private AlmSettingDao underTest = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
 
   @Test
   public void selectByUuid() {

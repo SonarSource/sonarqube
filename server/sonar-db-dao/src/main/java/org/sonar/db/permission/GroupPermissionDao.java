@@ -41,10 +41,7 @@ public class GroupPermissionDao implements Dao {
 
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
-  private AuditPersister auditPersister;
-
-  public GroupPermissionDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public GroupPermissionDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -124,15 +121,12 @@ public class GroupPermissionDao implements Dao {
     return mapper(session).selectGroupUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto,
-    @Nullable PermissionTemplateDto permissionTemplateDto) {
+  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto, @Nullable PermissionTemplateDto permissionTemplateDto) {
     mapper(dbSession).insert(groupPermissionDto);
 
-    if (auditPersister != null) {
-      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
-      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, componentKey, qualifier, permissionTemplateDto));
-    }
+    String componentKey = (componentDto != null) ? componentDto.getKey() : null;
+    String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+    auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, componentKey, qualifier, permissionTemplateDto));
   }
 
   /**
@@ -141,7 +135,7 @@ public class GroupPermissionDao implements Dao {
   public void deleteByRootComponentUuid(DbSession dbSession, ComponentDto component) {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuid(component.uuid());
 
-    if (deletedRecords > 0 && auditPersister != null) {
+    if (deletedRecords > 0) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
         component.getKey(), component.name(), null, null, null, component.qualifier()));
     }
@@ -154,7 +148,7 @@ public class GroupPermissionDao implements Dao {
   public int deleteByRootComponentUuidAndGroupUuid(DbSession dbSession, @Nullable String groupUuid, ComponentDto component) {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), groupUuid);
 
-    if (deletedRecords > 0 && auditPersister != null) {
+    if (deletedRecords > 0) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
         component.getKey(), component.name(), null, groupUuid, "", component.qualifier()));
     }
@@ -164,7 +158,7 @@ public class GroupPermissionDao implements Dao {
   public int deleteByRootComponentUuidForAnyOne(DbSession dbSession, ComponentDto component) {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), null);
 
-    if (deletedRecords > 0 && auditPersister != null) {
+    if (deletedRecords > 0) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
         component.getKey(), component.name(), null, null, null, component.qualifier()));
     }
@@ -178,7 +172,7 @@ public class GroupPermissionDao implements Dao {
   public int deleteByRootComponentUuidAndPermission(DbSession dbSession, String permission, ComponentDto component) {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndPermission(component.uuid(), permission);
 
-    if (deletedRecords > 0 && auditPersister != null) {
+    if (deletedRecords > 0) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
         component.getKey(), component.name(), permission, null, null, component.qualifier()));
     }
@@ -205,7 +199,7 @@ public class GroupPermissionDao implements Dao {
 
     int deletedRecords = mapper(dbSession).delete(permission, groupUuid, rootComponentUuid);
 
-    if (deletedRecords > 0 && auditPersister != null) {
+    if (deletedRecords > 0) {
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
       String componentKey = (componentDto != null) ? componentDto.getKey() : null;
       String componentName = (componentDto != null) ? componentDto.name() : null;

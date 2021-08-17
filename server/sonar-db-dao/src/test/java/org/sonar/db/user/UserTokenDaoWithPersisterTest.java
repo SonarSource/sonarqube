@@ -78,7 +78,7 @@ public class UserTokenDaoWithPersisterTest {
 
     assertThat(underTest.selectByTokenHash(dbSession, userToken1.getTokenHash()).getLastConnectionDate()).isNull();
 
-    underTest.update(dbSession, userToken1.setLastConnectionDate(10_000_000_000L), false, null);
+    underTest.updateWithoutAudit(dbSession, userToken1.setLastConnectionDate(10_000_000_000L));
     underTest.update(dbSession, userToken1.setName("new_name"), user1.getLogin());
 
     verify(auditPersister).updateUserToken(eq(db.getSession()), newValueCaptor.capture());

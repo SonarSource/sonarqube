@@ -34,12 +34,7 @@ public class AlmPatDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-  private AuditPersister auditPersister;
-
-  public AlmPatDao(System2 system2, UuidFactory uuidFactory) {
-    this.system2 = system2;
-    this.uuidFactory = uuidFactory;
-  }
+  private final AuditPersister auditPersister;
 
   public AlmPatDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -67,37 +62,33 @@ public class AlmPatDao implements Dao {
     almPatDto.setUpdatedAt(now);
     getMapper(dbSession).insert(almPatDto);
 
-    if (auditPersister != null) {
-      auditPersister.addPersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
-    }
+    auditPersister.addPersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
   }
 
   public void update(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     long now = system2.now();
     almPatDto.setUpdatedAt(now);
     getMapper(dbSession).update(almPatDto);
-    if (auditPersister != null) {
-      auditPersister.updatePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
-    }
+    auditPersister.updatePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
   }
 
   public void delete(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     int deletedRows = getMapper(dbSession).deleteByUuid(almPatDto.getUuid());
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
     }
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
     int deletedRows = getMapper(dbSession).deleteByUser(user.getUuid());
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(user));
     }
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
     int deletedRows = getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almSetting));
     }
   }

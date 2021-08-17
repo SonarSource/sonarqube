@@ -19,13 +19,16 @@
  */
 package org.sonar.db.audit.model;
 
-public class ComponentKeyNewValue extends NewValue{
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class ComponentKeyNewValue extends NewValue {
 
   private final String componentUuid;
   private final String oldKey;
   private final String newKey;
 
   public ComponentKeyNewValue(String componentUuid, String oldKey, String newKey) {
+    checkNotNull(componentUuid, oldKey, newKey);
     this.componentUuid = componentUuid;
     this.oldKey = oldKey;
     this.newKey = newKey;

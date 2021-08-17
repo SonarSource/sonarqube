@@ -53,11 +53,7 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
 public class ComponentDao implements Dao {
-  private AuditPersister auditPersister;
-
-  public ComponentDao() {
-    //intentionally empty
-  }
+  private final AuditPersister auditPersister;
 
   public ComponentDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -338,10 +334,8 @@ public class ComponentDao implements Dao {
   }
 
   public void insert(DbSession session, ComponentDto item) {
-    if (auditPersister != null) {
-      auditPersister.addComponent(session, new ComponentNewValue(item.uuid(), item.name(), item.getKey(), item.qualifier()), item.qualifier());
-    }
     mapper(session).insert(item);
+    auditPersister.addComponent(session, new ComponentNewValue(item));
   }
 
   public void insert(DbSession session, Collection<ComponentDto> items) {
@@ -357,10 +351,8 @@ public class ComponentDao implements Dao {
   }
 
   public void update(DbSession session, ComponentUpdateDto component, String qualifier) {
-    if (auditPersister != null) {
-      auditPersister.updateComponent(session, new ComponentNewValue(component.getUuid(), component.getBName(),
-        component.getBKey(), component.isBEnabled(), component.getBPath(), qualifier), qualifier);
-    }
+    auditPersister.updateComponent(session, new ComponentNewValue(component.getUuid(), component.getBName(),
+      component.getBKey(), component.isBEnabled(), component.getBPath(), qualifier));
     mapper(session).update(component);
   }
 
@@ -376,12 +368,14 @@ public class ComponentDao implements Dao {
     mapper(session).resetBChangedForRootComponentUuid(projectUuid);
   }
 
+  public void setPrivateForRootComponentUuidWithoutAudit(DbSession session, String projectUuid, boolean isPrivate) {
+    mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
+  }
+
   public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate,
-    String key, @Nullable String qualifier, String componentName, boolean track) {
-    if (track && auditPersister != null) {
-      ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, key, isPrivate, qualifier);
-      auditPersister.updateComponentVisibility(session, componentNewValue, qualifier);
-    }
+    @Nullable String qualifier, String componentKey, String componentName) {
+    ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, componentKey, isPrivate, qualifier);
+    auditPersister.updateComponentVisibility(session, componentNewValue);
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }
 

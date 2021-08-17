@@ -29,6 +29,8 @@ import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.DockerSupportImpl;
 import org.sonar.server.util.GlobalLockManagerImpl;
@@ -162,6 +164,9 @@ public class PlatformLevel1 extends PlatformLevel {
       .load();
     get(WebCoreExtensionsInstaller.class)
       .install(getContainer(), hasPlatformLevel(1), noAdditionalSideFilter());
+    if (getOptional(AuditPersister.class).isEmpty()) {
+      add(NoOpAuditPersister.class);
+    }
 
     return super.start();
   }

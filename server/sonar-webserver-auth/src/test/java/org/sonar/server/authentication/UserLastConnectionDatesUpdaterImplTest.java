@@ -21,8 +21,8 @@ package org.sonar.server.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
@@ -79,7 +79,7 @@ public class UserLastConnectionDatesUpdaterImplTest {
   public void update_last_connection_date_from_user_token_when_last_connection_was_more_than_one_hour() {
     UserDto user = db.users().insertUser();
     UserTokenDto userToken = db.users().insertToken(user);
-    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - TWO_HOUR), false, null);
+    db.getDbClient().userTokenDao().updateWithoutAudit(db.getSession(), userToken.setLastConnectionDate(NOW - TWO_HOUR));
     db.commit();
 
     underTest.updateLastConnectionDateIfNeeded(userToken);
@@ -103,7 +103,7 @@ public class UserLastConnectionDatesUpdaterImplTest {
   public void do_not_update_when_last_connection_from_user_token_was_less_than_one_hour() {
     UserDto user = db.users().insertUser();
     UserTokenDto userToken = db.users().insertToken(user);
-    db.getDbClient().userTokenDao().update(db.getSession(), userToken.setLastConnectionDate(NOW - ONE_MINUTE), false, null);
+    db.getDbClient().userTokenDao().updateWithoutAudit(db.getSession(), userToken.setLastConnectionDate(NOW - ONE_MINUTE));
     db.commit();
 
     underTest.updateLastConnectionDateIfNeeded(userToken);

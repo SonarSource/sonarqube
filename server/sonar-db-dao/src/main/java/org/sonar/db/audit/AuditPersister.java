@@ -21,111 +21,123 @@ package org.sonar.db.audit;
 
 import org.sonar.core.extension.PlatformLevel;
 import org.sonar.db.DbSession;
-import org.sonar.db.audit.model.NewValue;
-
-import javax.annotation.Nullable;
+import org.sonar.db.audit.model.ComponentKeyNewValue;
+import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.GroupPermissionNewValue;
+import org.sonar.db.audit.model.LicenseNewValue;
+import org.sonar.db.audit.model.PermissionTemplateNewValue;
+import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
+import org.sonar.db.audit.model.PluginNewValue;
+import org.sonar.db.audit.model.PropertyNewValue;
+import org.sonar.db.audit.model.SecretNewValue;
+import org.sonar.db.audit.model.UserGroupNewValue;
+import org.sonar.db.audit.model.UserNewValue;
+import org.sonar.db.audit.model.UserPermissionNewValue;
+import org.sonar.db.audit.model.UserTokenNewValue;
+import org.sonar.db.audit.model.WebhookNewValue;
 
 @PlatformLevel(1)
 public interface AuditPersister {
 
-  void addUserGroup(DbSession dbSession, NewValue newValue);
+  void addUserGroup(DbSession dbSession, UserGroupNewValue newValue);
 
-  void updateUserGroup(DbSession dbSession, NewValue newValue);
+  void updateUserGroup(DbSession dbSession, UserGroupNewValue newValue);
 
-  void deleteUserGroup(DbSession dbSession, NewValue newValue);
+  void deleteUserGroup(DbSession dbSession, UserGroupNewValue newValue);
 
-  void addUser(DbSession dbSession, NewValue newValue);
+  void addUser(DbSession dbSession, UserNewValue newValue);
 
-  void updateUser(DbSession dbSession, NewValue newValue);
+  void updateUser(DbSession dbSession, UserNewValue newValue);
 
-  void updateUserPassword(DbSession dbSession, NewValue newValue);
+  void updateUserPassword(DbSession dbSession, SecretNewValue newValue);
 
-  void updateWebhookSecret(DbSession dbSession, NewValue newValue);
+  void updateWebhookSecret(DbSession dbSession, SecretNewValue newValue);
 
-  void updateDevOpsPlatformSecret(DbSession dbSession, NewValue newValue);
+  void updateDevOpsPlatformSecret(DbSession dbSession, SecretNewValue newValue);
 
-  void deactivateUser(DbSession dbSession, NewValue newValue);
+  void deactivateUser(DbSession dbSession, UserNewValue newValue);
 
-  void addUserToGroup(DbSession dbSession, NewValue newValue);
+  void addUserToGroup(DbSession dbSession, UserGroupNewValue newValue);
 
-  void deleteUserFromGroup(DbSession dbSession, NewValue newValue);
+  void deleteUserFromGroup(DbSession dbSession, UserGroupNewValue newValue);
 
-  void addProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
+  void addProperty(DbSession dbSession, PropertyNewValue newValue, boolean isUserProperty);
 
-  void updateProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
+  void updateProperty(DbSession dbSession, PropertyNewValue newValue, boolean isUserProperty);
 
-  void deleteProperty(DbSession dbSession, NewValue newValue, boolean isUserProperty);
+  void deleteProperty(DbSession dbSession, PropertyNewValue newValue, boolean isUserProperty);
 
-  void addUserToken(DbSession dbSession, NewValue newValue);
+  void addUserToken(DbSession dbSession, UserTokenNewValue newValue);
 
-  void updateUserToken(DbSession dbSession, NewValue newValue);
+  void updateUserToken(DbSession dbSession, UserTokenNewValue newValue);
 
-  void deleteUserToken(DbSession dbSession, NewValue newValue);
+  void deleteUserToken(DbSession dbSession, UserTokenNewValue newValue);
 
-  void addGroupPermission(DbSession dbSession, NewValue newValue);
+  void addGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue);
 
-  void deleteGroupPermission(DbSession dbSession, NewValue newValue);
+  void deleteGroupPermission(DbSession dbSession, GroupPermissionNewValue newValue);
 
-  void addUserPermission(DbSession dbSession, NewValue newValue);
+  void addUserPermission(DbSession dbSession, UserPermissionNewValue newValue);
 
-  void deleteUserPermission(DbSession dbSession, NewValue newValue);
+  void deleteUserPermission(DbSession dbSession, UserPermissionNewValue newValue);
 
-  void addPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void addPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void updatePermissionTemplate(DbSession dbSession, NewValue newValue);
+  void updatePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void deletePermissionTemplate(DbSession dbSession, NewValue newValue);
+  void deletePermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void addUserToPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void addUserToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void deleteUserFromPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void deleteUserFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void addGroupToPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void addGroupToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void deleteGroupFromPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void addCharacteristicToPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void addCharacteristicToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void updateCharacteristicInPermissionTemplate(DbSession dbSession, NewValue newValue);
+  void updateCharacteristicInPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
-  void addPlugin(DbSession dbSession, NewValue newValue);
+  void addPlugin(DbSession dbSession, PluginNewValue newValue);
 
-  void updatePlugin(DbSession dbSession, NewValue newValue);
+  void updatePlugin(DbSession dbSession, PluginNewValue newValue);
 
   void generateSecretKey(DbSession dbSession);
 
-  void setLicense(DbSession dbSession, boolean isSet, NewValue newValue);
+  void setLicense(DbSession dbSession, boolean isSet, LicenseNewValue newValue);
 
-  void addWebhook(DbSession dbSession, NewValue newValue);
+  void addWebhook(DbSession dbSession, WebhookNewValue newValue);
 
-  void updateWebhook(DbSession dbSession, NewValue newValue);
+  void updateWebhook(DbSession dbSession, WebhookNewValue newValue);
 
-  void deleteWebhook(DbSession dbSession, NewValue newValue);
+  void deleteWebhook(DbSession dbSession, WebhookNewValue newValue);
 
-  void addDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+  void addDevOpsPlatformSetting(DbSession dbSession, DevOpsPlatformSettingNewValue newValue);
 
-  void updateDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+  void updateDevOpsPlatformSetting(DbSession dbSession, DevOpsPlatformSettingNewValue newValue);
 
-  void deleteDevOpsPlatformSetting(DbSession dbSession, NewValue newValue);
+  void deleteDevOpsPlatformSetting(DbSession dbSession, DevOpsPlatformSettingNewValue newValue);
 
-  void addPersonalAccessToken(DbSession dbSession, NewValue newValue);
+  void addPersonalAccessToken(DbSession dbSession, PersonalAccessTokenNewValue newValue);
 
-  void updatePersonalAccessToken(DbSession dbSession, NewValue newValue);
+  void updatePersonalAccessToken(DbSession dbSession, PersonalAccessTokenNewValue newValue);
 
-  void deletePersonalAccessToken(DbSession dbSession, NewValue newValue);
+  void deletePersonalAccessToken(DbSession dbSession, PersonalAccessTokenNewValue newValue);
 
   boolean isTrackedProperty(String propertyKey);
 
-  void addComponent(DbSession dbSession, NewValue newValue, String qualifier);
+  void addComponent(DbSession dbSession, ComponentNewValue newValue);
 
-  void deleteComponent(DbSession dbSession, NewValue newValue, @Nullable String qualifier);
+  void deleteComponent(DbSession dbSession, ComponentNewValue newValue);
 
-  void updateComponent(DbSession dbSession, NewValue newValue, String qualifier);
+  void updateComponent(DbSession dbSession, ComponentNewValue newValue);
 
-  void updateComponentVisibility(DbSession session, NewValue componentNewValue, @Nullable String qualifier);
+  void updateComponentVisibility(DbSession session, ComponentNewValue componentNewValue);
 
-  void componentKeyUpdate(DbSession session, NewValue componentKeyNewValue, String qualifier);
+  void componentKeyUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier);
 
-  void componentKeyBranchUpdate(DbSession session, NewValue componentKeyNewValue, String qualifier);
+  void componentKeyBranchUpdate(DbSession session, ComponentKeyNewValue componentKeyNewValue, String qualifier);
 
 }

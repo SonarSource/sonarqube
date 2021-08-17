@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDao;
@@ -62,7 +63,7 @@ public class LinesActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final ComponentDao componentDao = new ComponentDao();
+  private final ComponentDao componentDao = new ComponentDao(new NoOpAuditPersister());
   private final SnapshotDao snapshotDao = new SnapshotDao();
   private final HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
   private final SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);

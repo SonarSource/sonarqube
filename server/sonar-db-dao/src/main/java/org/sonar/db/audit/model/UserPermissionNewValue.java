@@ -34,8 +34,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
 
   public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String componentKey, @Nullable String componentName,
     @Nullable UserId userId, String qualifier, @Nullable PermissionTemplateDto templateDto) {
-    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), componentKey, componentName, permissionDto.getPermission(),
-      qualifier, templateDto);
+    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), componentKey, componentName, permissionDto.getPermission(), qualifier, templateDto);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
@@ -73,7 +72,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
     addField(sb, "\"permissionTemplateName\": ", this.permissionTemplateName, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
-    addField(sb, "\"qualifier\": ", this.qualifier, true);
+    addField(sb, "\"qualifier\": ", getQualifier(this.qualifier), true);
     endString(sb);
     return sb.toString();
   }

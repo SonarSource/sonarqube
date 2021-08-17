@@ -34,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 
@@ -62,7 +63,7 @@ public class UserPermissionDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = db.getSession();
-  private UserPermissionDao underTest = new UserPermissionDao();
+  private UserPermissionDao underTest = new UserPermissionDao(new NoOpAuditPersister());
 
   @Test
   public void select_global_permissions() {

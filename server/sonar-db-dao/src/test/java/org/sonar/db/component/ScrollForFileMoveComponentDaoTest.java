@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.source.FileSourceDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -50,7 +51,7 @@ public class ScrollForFileMoveComponentDaoTest {
 
   private Random random = new Random();
   private DbSession dbSession = db.getSession();
-  private ComponentDao underTest = new ComponentDao();
+  private ComponentDao underTest = new ComponentDao(new NoOpAuditPersister());
 
   @Test
   public void scrollAllFilesForFileMove_has_no_effect_if_project_does_not_exist() {

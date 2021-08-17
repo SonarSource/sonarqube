@@ -34,6 +34,7 @@ import org.sonar.db.user.UserDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -45,16 +46,17 @@ public class AlmPatDaoWithPersisterTest {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
+
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<PersonalAccessTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(PersonalAccessTokenNewValue.class);
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public DbTester db = DbTester.create(system2, auditPersister);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
 
-  private AlmPatDao underTest = db.getDbClient().almPatDao();
+  private final AlmPatDao underTest = db.getDbClient().almPatDao();
 
   @Test
   public void insertAndUpdateArePersisted() {
@@ -164,7 +166,7 @@ public class AlmPatDaoWithPersisterTest {
   @Test
   public void deleteByAlmSettingWithoutAffectedRowsIsNotPersisted() {
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
-
+    clearInvocations(auditPersister);
     underTest.deleteByAlmSetting(dbSession, almSettingDto);
 
     verifyNoInteractions(auditPersister);

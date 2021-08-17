@@ -35,38 +35,27 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
-
-  private UuidFactory uuidFactory;
-  private AuditPersister auditPersister;
-
-  public UserTokenDao(UuidFactory uuidFactory) {
-    this.uuidFactory = uuidFactory;
-  }
+  private final UuidFactory uuidFactory;
+  private final AuditPersister auditPersister;
 
   public UserTokenDao(UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(uuidFactory);
+    this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
   }
 
   public void insert(DbSession dbSession, UserTokenDto userTokenDto, String userLogin) {
     userTokenDto.setUuid(uuidFactory.create());
     mapper(dbSession).insert(userTokenDto);
-
-    if (auditPersister != null) {
-      auditPersister.addUserToken(dbSession, new UserTokenNewValue(userTokenDto, userLogin));
-    }
+    auditPersister.addUserToken(dbSession, new UserTokenNewValue(userTokenDto, userLogin));
   }
 
-  public void update(DbSession session, UserTokenDto userTokenDto, @Nullable String userLogin) {
-    update(session, userTokenDto, true, userLogin);
-  }
-
-  public void update(DbSession dbSession, UserTokenDto userTokenDto, boolean track, @Nullable String userLogin) {
+  public void update(DbSession dbSession, UserTokenDto userTokenDto, @Nullable String userLogin) {
     mapper(dbSession).update(userTokenDto);
+    auditPersister.updateUserToken(dbSession, new UserTokenNewValue(userTokenDto, userLogin));
+  }
 
-    if (track && auditPersister != null) {
-      auditPersister.updateUserToken(dbSession, new UserTokenNewValue(userTokenDto, userLogin));
-    }
+  public void updateWithoutAudit(DbSession dbSession, UserTokenDto userTokenDto) {
+    mapper(dbSession).update(userTokenDto);
   }
 
   @CheckForNull
@@ -101,7 +90,7 @@ public class UserTokenDao implements Dao {
   public void deleteByUser(DbSession dbSession, UserDto user) {
     int deletedRows = mapper(dbSession).deleteByUserUuid(user.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(user));
     }
   }
@@ -109,7 +98,7 @@ public class UserTokenDao implements Dao {
   public void deleteByUserAndName(DbSession dbSession, UserDto user, String name) {
     int deletedRows = mapper(dbSession).deleteByUserUuidAndName(user.getUuid(), name);
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(user, name));
     }
   }

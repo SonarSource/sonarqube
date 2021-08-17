@@ -25,7 +25,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserPropertyDto;
 
 public class PropertyNewValue extends NewValue {
-  @Nullable
   private String propertyKey;
 
   @Nullable
@@ -57,15 +56,14 @@ public class PropertyNewValue extends NewValue {
     setValue(propertyKey, userPropertyDto.getValue());
   }
 
-  public PropertyNewValue(PropertyDto propertyDto, @Nullable String userLogin, @Nullable String componentKey,
-    @Nullable String componentName, @Nullable String qualifier) {
+  public PropertyNewValue(PropertyDto propertyDto, @Nullable String userLogin, @Nullable String componentKey, @Nullable String componentName, @Nullable String qualifier) {
     this.propertyKey = propertyDto.getKey();
     this.userUuid = propertyDto.getUserUuid();
     this.userLogin = userLogin;
     this.componentUuid = propertyDto.getComponentUuid();
     this.componentKey = componentKey;
     this.componentName = componentName;
-    this.qualifier = getQualifier(qualifier);
+    this.qualifier = qualifier;
 
     setValue(propertyKey, propertyDto.getValue());
   }
@@ -86,17 +84,16 @@ public class PropertyNewValue extends NewValue {
     setValue(propertyKey, propertyValue);
   }
 
-  public PropertyNewValue(@Nullable String propertyKey, @Nullable String projectUuid, @Nullable String componentKey,
+  public PropertyNewValue(String propertyKey, @Nullable String projectUuid, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier, @Nullable String userUuid) {
     this.propertyKey = propertyKey;
     this.componentUuid = projectUuid;
     this.componentKey = componentKey;
     this.componentName = componentName;
     this.userUuid = userUuid;
-    this.qualifier = getQualifier(qualifier);
+    this.qualifier = qualifier;
   }
 
-  @CheckForNull
   public String getPropertyKey() {
     return this.propertyKey;
   }
@@ -146,7 +143,7 @@ public class PropertyNewValue extends NewValue {
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"componentKey\": ", this.componentKey, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
-    addField(sb, "\"qualifier\": ", this.qualifier, true);
+    addField(sb, "\"qualifier\": ", getQualifier(this.qualifier), true);
     endString(sb);
     return sb.toString();
   }

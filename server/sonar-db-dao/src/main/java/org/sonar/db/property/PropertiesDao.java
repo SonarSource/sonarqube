@@ -55,16 +55,12 @@ public class PropertiesDao implements Dao {
   private final MyBatis mybatis;
   private final System2 system2;
   private final UuidFactory uuidFactory;
-  private AuditPersister auditPersister;
+  private final AuditPersister auditPersister;
 
-  public PropertiesDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory) {
+  public PropertiesDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
     this.mybatis = mybatis;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
-  }
-
-  public PropertiesDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(mybatis, system2, uuidFactory);
     this.auditPersister = auditPersister;
   }
 
@@ -109,9 +105,9 @@ public class PropertiesDao implements Dao {
     }
 
     try (DbSession session = mybatis.openSession(false);
-         Connection connection = session.getConnection();
-         PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
-         ResultSet rs = pstmt.executeQuery()) {
+      Connection connection = session.getConnection();
+      PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
+      ResultSet rs = pstmt.executeQuery()) {
       return rs.next() && rs.getInt(1) > 0;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute SQL for hasProjectNotificationSubscribersForDispatchers", e);
@@ -214,16 +210,14 @@ public class PropertiesDao implements Dao {
     saveProperty(session, property, null, null, null, null);
   }
 
-  public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectKey,
-    @Nullable String projectName, @Nullable String qualifier) {
+  public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectKey, @Nullable String projectName,
+    @Nullable String qualifier) {
     int affectedRows = save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
 
-    if (auditPersister != null && auditPersister.isTrackedProperty(property.getKey())) {
-      if (affectedRows > 0) {
-        auditPersister.updateProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
-      } else {
-        auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
-      }
+    if (affectedRows > 0) {
+      auditPersister.updateProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
+    } else {
+      auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
     }
   }
 
@@ -272,7 +266,7 @@ public class PropertiesDao implements Dao {
   public int deleteByQuery(DbSession dbSession, PropertyQuery query) {
     int deletedRows = getMapper(dbSession).deleteByQuery(query);
 
-    if (deletedRows > 0 && auditPersister != null && query.key() != null && auditPersister.isTrackedProperty(query.key())) {
+    if (deletedRows > 0 && query.key() != null) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(query.key(), query.componentUuid(),
         null, null, null, query.userUuid()), false);
     }
@@ -284,7 +278,7 @@ public class PropertiesDao implements Dao {
     @Nullable String projectName, @Nullable String qualifier) {
     int deletedRows = getMapper(dbSession).delete(dto.getKey(), dto.getUserUuid(), dto.getComponentUuid());
 
-    if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(dto.getKey())) {
+    if (deletedRows > 0) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(dto, userLogin, projectKey, projectName, qualifier),
         false);
     }
@@ -302,7 +296,7 @@ public class PropertiesDao implements Dao {
     String projectName, String qualifier) {
     int deletedRows = getMapper(session).deleteProjectProperty(key, projectUuid);
 
-    if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (deletedRows > 0) {
       auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectKey, projectName, qualifier,
         null), false);
     }
@@ -311,7 +305,7 @@ public class PropertiesDao implements Dao {
   public void deleteProjectProperties(String key, String value, DbSession session) {
     int deletedRows = getMapper(session).deleteProjectProperties(key, value);
 
-    if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (deletedRows > 0) {
       auditPersister.deleteProperty(session, new PropertyNewValue(key, value), false);
     }
   }
@@ -326,7 +320,7 @@ public class PropertiesDao implements Dao {
   public void deleteGlobalProperty(String key, DbSession session) {
     int deletedRows = getMapper(session).deleteGlobalProperty(key);
 
-    if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (deletedRows > 0) {
       auditPersister.deleteProperty(session, new PropertyNewValue(key), false);
     }
   }
@@ -357,7 +351,7 @@ public class PropertiesDao implements Dao {
   public void deleteByKeyAndValue(DbSession dbSession, String key, String value) {
     int deletedRows = getMapper(dbSession).deleteByKeyAndValue(key, value);
 
-    if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (deletedRows > 0) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(key, value), false);
     }
   }
@@ -368,7 +362,7 @@ public class PropertiesDao implements Dao {
       properties.forEach((key, value) -> {
         int affectedRows = save(mapper, key, null, null, value);
 
-        if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
+        if (auditPersister.isTrackedProperty(key)) {
           if (affectedRows > 0) {
             auditPersister.updateProperty(session, new PropertyNewValue(key, value), false);
           } else {
@@ -397,7 +391,7 @@ public class PropertiesDao implements Dao {
   }
 
   private void persistDeletedProperties(DbSession dbSession, @Nullable String userUuid, String userLogin, List<String> uuids) {
-    if (!uuids.isEmpty() && auditPersister != null) {
+    if (!uuids.isEmpty()) {
       List<PropertyDto> properties = executeLargeInputs(uuids, subList -> getMapper(dbSession).selectByUuids(subList));
 
       properties

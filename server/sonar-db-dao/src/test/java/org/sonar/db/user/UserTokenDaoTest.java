@@ -63,7 +63,7 @@ public class UserTokenDaoTest {
     UserTokenDto userToken2 = db.users().insertToken(user1);
     assertThat(underTest.selectByTokenHash(dbSession, userToken1.getTokenHash()).getLastConnectionDate()).isNull();
 
-    underTest.update(dbSession, userToken1.setLastConnectionDate(10_000_000_000L), false, null);
+    underTest.updateWithoutAudit(dbSession, userToken1.setLastConnectionDate(10_000_000_000L));
 
     UserTokenDto userTokenReloaded = underTest.selectByTokenHash(dbSession, userToken1.getTokenHash());
     assertThat(userTokenReloaded.getLastConnectionDate()).isEqualTo(10_000_000_000L);

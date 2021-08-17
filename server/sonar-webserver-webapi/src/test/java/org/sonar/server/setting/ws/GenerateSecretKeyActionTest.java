@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -53,7 +54,7 @@ public class GenerateSecretKeyActionTest {
   private DbClient dbClient = db.getDbClient();
   private MapSettings settings = new MapSettings();
   private Encryption encryption = settings.getEncryption();
-  private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(dbClient, settings, userSession);
+  private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(dbClient, settings, userSession, new NoOpAuditPersister());
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

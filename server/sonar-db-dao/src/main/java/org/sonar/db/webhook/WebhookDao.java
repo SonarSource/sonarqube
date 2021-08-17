@@ -33,11 +33,7 @@ import org.sonar.db.project.ProjectDto;
 public class WebhookDao implements Dao {
 
   private final System2 system2;
-  private AuditPersister auditPersister;
-
-  public WebhookDao(System2 system2) {
-    this.system2 = system2;
-  }
+  private final AuditPersister auditPersister;
 
   public WebhookDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -58,27 +54,21 @@ public class WebhookDao implements Dao {
 
   public void insert(DbSession dbSession, WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()).setUpdatedAt(system2.now()));
-
-    if (auditPersister != null) {
-      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
-    }
+    auditPersister.addWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
   }
 
   public void update(DbSession dbSession, WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
-
-    if (auditPersister != null) {
-      if (dto.getSecret() != null) {
-        auditPersister.updateWebhookSecret(dbSession, new SecretNewValue("webhook_name", dto.getName()));
-      }
-      auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
+    if (dto.getSecret() != null) {
+      auditPersister.updateWebhookSecret(dbSession, new SecretNewValue("webhook_name", dto.getName()));
     }
+    auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
   }
 
   public void delete(DbSession dbSession, String uuid, String webhookName) {
     int deletedRows = mapper(dbSession).delete(uuid);
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteWebhook(dbSession, new WebhookNewValue(uuid, webhookName));
     }
   }
@@ -86,7 +76,7 @@ public class WebhookDao implements Dao {
   public void deleteByProject(DbSession dbSession, ProjectDto projectDto) {
     int deletedRows = mapper(dbSession).deleteForProjectUuid(projectDto.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteWebhook(dbSession, new WebhookNewValue(projectDto));
     }
   }

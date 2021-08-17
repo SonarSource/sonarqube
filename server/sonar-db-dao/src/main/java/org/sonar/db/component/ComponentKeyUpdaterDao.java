@@ -42,11 +42,7 @@ import static org.sonar.db.component.ComponentDto.generateBranchKey;
  * @since 3.2
  */
 public class ComponentKeyUpdaterDao implements Dao {
-
-  private AuditPersister auditPersister;
-
-  public ComponentKeyUpdaterDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public ComponentKeyUpdaterDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -86,9 +82,7 @@ public class ComponentKeyUpdaterDao implements Dao {
     appBranch.setKey(newAppBranchKey);
     mapper.updateComponent(appBranch);
 
-    if(auditPersister != null) {
-      auditPersister.componentKeyBranchUpdate(dbSession, new ComponentKeyNewValue(appBranchUuid, appBranchOldKey, newAppBranchKey), Qualifiers.APP);
-    }
+    auditPersister.componentKeyBranchUpdate(dbSession, new ComponentKeyNewValue(appBranchUuid, appBranchOldKey, newAppBranchKey), Qualifiers.APP);
 
     String oldAppBranchFragment = appBranchOldKey.replace(BRANCH_KEY_SEPARATOR, "");
     String newAppBranchFragment = appKey + newBranchName;
@@ -117,10 +111,7 @@ public class ComponentKeyUpdaterDao implements Dao {
       }
       mapper.updateComponent(resource);
       if (resource.getScope().equals(Scopes.PROJECT) && (resource.getQualifier().equals(Qualifiers.PROJECT) || resource.getQualifier().equals(Qualifiers.APP))) {
-        if(auditPersister != null) {
-          auditPersister.componentKeyUpdate(dbSession,
-            new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
-        }
+        auditPersister.componentKeyUpdate(dbSession, new ComponentKeyNewValue(resource.getUuid(), oldResourceKey, newResourceKey), resource.getQualifier());
         mapper.updateProject(oldResourceKey, newResourceKey);
       }
 

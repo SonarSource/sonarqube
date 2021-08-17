@@ -83,6 +83,8 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
@@ -203,6 +205,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level1.getComponentByType(CECoreExtensionsInstaller.class)
       .install(level1, hasPlatformLevel(1), noAdditionalSideFilter());
 
+    if (level1.getComponentByType(AuditPersister.class) == null) {
+      level1.add(NoOpAuditPersister.class);
+    }
     level1.startComponents();
   }
 

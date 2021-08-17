@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
 
 public class ProjectAlmSettingDaoWithPersisterTest {
@@ -53,13 +55,12 @@ public class ProjectAlmSettingDaoWithPersisterTest {
   public final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbSession dbSession = db.getSession();
-  private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final ProjectAlmSettingDao underTest = db.getDbClient().projectAlmSettingDao();
 
   @Test
   public void insertAndUpdateExistingBindingArePersisted() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
@@ -95,8 +96,7 @@ public class ProjectAlmSettingDaoWithPersisterTest {
 
   @Test
   public void deleteByProjectIsPersisted() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
@@ -118,15 +118,7 @@ public class ProjectAlmSettingDaoWithPersisterTest {
 
     underTest.deleteByProject(dbSession, project);
 
-    verify(auditPersister).addComponent(any(), any(), any());
+    verify(auditPersister).addComponent(any(), any());
     verifyNoMoreInteractions(auditPersister);
-  }
-
-  @Test
-  public void deleteByAlmSettingNotTrackedIsNotPersisted() {
-    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
-    underTest.deleteByAlmSetting(dbSession, githubAlmSetting);
-
-    verifyNoInteractions(auditPersister);
   }
 }

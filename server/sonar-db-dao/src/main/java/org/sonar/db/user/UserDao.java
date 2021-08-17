@@ -49,16 +49,11 @@ public class UserDao implements Dao {
   private static final long WEEK_IN_MS = DAYS.toMillis(7L);
   private final System2 system2;
   private final UuidFactory uuidFactory;
-
-  private AuditPersister auditPersister;
-
-  public UserDao(System2 system2, UuidFactory uuidFactory) {
-    this.system2 = system2;
-    this.uuidFactory = uuidFactory;
-  }
+  private final AuditPersister auditPersister;
 
   public UserDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(system2, uuidFactory);
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
   }
 
@@ -114,11 +109,7 @@ public class UserDao implements Dao {
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
     mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));
-
-    if (auditPersister != null) {
-      auditPersister.addUser(session, new UserNewValue(dto.getUuid(), dto.getLogin()));
-    }
-
+    auditPersister.addUser(session, new UserNewValue(dto.getUuid(), dto.getLogin()));
     return dto;
   }
 
@@ -128,7 +119,7 @@ public class UserDao implements Dao {
 
   public UserDto update(DbSession session, UserDto dto, boolean track) {
     mapper(session).update(dto.setUpdatedAt(system2.now()));
-    if (track && auditPersister != null) {
+    if (track) {
       auditPersister.updateUser(session, new UserNewValue(dto));
     }
     return dto;
@@ -144,10 +135,7 @@ public class UserDao implements Dao {
 
   public void deactivateUser(DbSession dbSession, UserDto user) {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
-
-    if (auditPersister != null) {
-      auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));
-    }
+    auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));
   }
 
   public void cleanHomepage(DbSession dbSession, ProjectDto project) {

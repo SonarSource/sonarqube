@@ -92,7 +92,8 @@ public class UserGroupDaoWithPersisterTest {
     underTest.deleteByGroupUuid(db.getSession(), group1.getUuid(), group1.getName());
     db.getSession().commit();
 
-    verifyNoInteractions(auditPersister);
+    verify(auditPersister).addUserGroup(any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 
   @Test
@@ -145,13 +146,14 @@ public class UserGroupDaoWithPersisterTest {
   }
 
   @Test
-  public void deletByUserAndGroupWithoutAffectedRowsIsNotPersisted() {
+  public void deleteByUserAndGroupWithoutAffectedRowsIsNotPersisted() {
     UserDto user1 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
     underTest.delete(db.getSession(), group1, user1);
     db.getSession().commit();
 
     verify(auditPersister).addUser(any(), any());
+    verify(auditPersister).addUserGroup(any(), any());
     verifyNoMoreInteractions(auditPersister);
   }
 }

@@ -32,6 +32,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -50,7 +51,7 @@ public class ProjectDaoTest {
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  private final ProjectDao projectDao = new ProjectDao(system2);
+  private final ProjectDao projectDao = new ProjectDao(system2, new NoOpAuditPersister());
   private final ProjectDao projectDaoWithAuditPersister = new ProjectDao(system2, auditPersister);
 
   @Test
@@ -201,7 +202,7 @@ public class ProjectDaoTest {
 
     projectDaoWithAuditPersister.insert(db.getSession(), dto1, true);
 
-    verify(auditPersister, times(1)).addComponent(any(), any(), any());
+    verify(auditPersister, times(1)).addComponent(any(), any());
   }
 
   @Test
@@ -210,7 +211,7 @@ public class ProjectDaoTest {
 
     projectDaoWithAuditPersister.update(db.getSession(), dto1);
 
-    verify(auditPersister, times(1)).updateComponent(any(), any(), any());
+    verify(auditPersister, times(1)).updateComponent(any(), any());
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

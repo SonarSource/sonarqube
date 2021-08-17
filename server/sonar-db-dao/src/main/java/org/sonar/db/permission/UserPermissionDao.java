@@ -39,10 +39,7 @@ import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserPermissionDao implements Dao {
-  private AuditPersister auditPersister;
-
-  public UserPermissionDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public UserPermissionDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -120,13 +117,11 @@ public class UserPermissionDao implements Dao {
     @Nullable UserId userId, @Nullable PermissionTemplateDto templateDto) {
     mapper(dbSession).insert(dto);
 
-    if (auditPersister != null) {
-      String componentName = (componentDto != null) ? componentDto.name() : null;
-      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
-      String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
-        templateDto));
-    }
+    String componentName = (componentDto != null) ? componentDto.name() : null;
+    String componentKey = (componentDto != null) ? componentDto.getKey() : null;
+    String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+    auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
+      templateDto));
   }
 
   /**
@@ -135,7 +130,7 @@ public class UserPermissionDao implements Dao {
   public void deleteGlobalPermission(DbSession dbSession, UserId user, String permission) {
     int deletedRows = mapper(dbSession).deleteGlobalPermission(user.getUuid(), permission);
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, null, null, null, user, null));
     }
   }
@@ -146,9 +141,8 @@ public class UserPermissionDao implements Dao {
   public void deleteProjectPermission(DbSession dbSession, UserId user, String permission, ComponentDto component) {
     int deletedRows = mapper(dbSession).deleteProjectPermission(user.getUuid(), permission, component.uuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.getKey(),
-        component.name(), user, component.qualifier()));
+    if (deletedRows > 0) {
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.getKey(), component.name(), user, component.qualifier()));
     }
   }
 
@@ -158,7 +152,7 @@ public class UserPermissionDao implements Dao {
   public void deleteProjectPermissions(DbSession dbSession, ComponentDto component) {
     int deletedRows = mapper(dbSession).deleteProjectPermissions(component.uuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(null, component.uuid(), component.getKey(),
         component.name(), null, component.qualifier()));
     }
@@ -170,9 +164,8 @@ public class UserPermissionDao implements Dao {
   public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String permission, ComponentDto project) {
     int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(project.uuid(), permission);
 
-    if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, project.uuid(), project.getKey(),
-        project.name(), null, project.qualifier()));
+    if (deletedRows > 0) {
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, project.uuid(), project.getKey(), project.name(), null, project.qualifier()));
     }
 
     return deletedRows;
@@ -181,7 +174,7 @@ public class UserPermissionDao implements Dao {
   public void deleteByUserUuid(DbSession dbSession, UserId userId) {
     int deletedRows = mapper(dbSession).deleteByUserUuid(userId.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(userId, null));
     }
   }

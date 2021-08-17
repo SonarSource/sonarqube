@@ -53,8 +53,6 @@ public class UserPropertiesDaoWithPersisterTest {
 
   @Test
   public void insertTrackedUserPropertyIsPersisted() {
-    when(auditPersister.isTrackedProperty(PROPERTY_KEY)).thenReturn(true);
-
     UserDto user = db.users().insertUser();
 
     verify(auditPersister).addUser(eq(db.getSession()), any());
@@ -66,7 +64,6 @@ public class UserPropertiesDaoWithPersisterTest {
       user.getLogin());
 
     verify(auditPersister).addProperty(eq(db.getSession()), newValueCaptor.capture(), eq(true));
-    verify(auditPersister).isTrackedProperty(PROPERTY_KEY);
     assertThat(newValueCaptor.getValue())
       .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue, PropertyNewValue::getUserUuid,
         PropertyNewValue::getUserLogin)
@@ -76,8 +73,6 @@ public class UserPropertiesDaoWithPersisterTest {
 
   @Test
   public void insertTrackedAndSecuredUserPropertyIsPersisted() {
-    when(auditPersister.isTrackedProperty(SECURED_PROPERTY_KEY)).thenReturn(true);
-
     UserDto user = db.users().insertUser();
 
     verify(auditPersister).addUser(eq(db.getSession()), any());
@@ -88,7 +83,6 @@ public class UserPropertiesDaoWithPersisterTest {
         .setValue("a_value"),
       user.getLogin());
 
-    verify(auditPersister).isTrackedProperty(SECURED_PROPERTY_KEY);
     verify(auditPersister).addProperty(eq(db.getSession()), newValueCaptor.capture(), eq(true));
     PropertyNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
@@ -99,25 +93,7 @@ public class UserPropertiesDaoWithPersisterTest {
   }
 
   @Test
-  public void insertNotTrackedUserPropertyIsNotPersisted() {
-    when(auditPersister.isTrackedProperty(PROPERTY_KEY)).thenReturn(false);
-
-    UserDto user = db.users().insertUser();
-    underTest.insertOrUpdate(db.getSession(), new UserPropertyDto()
-        .setUserUuid(user.getUuid())
-        .setKey(PROPERTY_KEY)
-        .setValue("a_value"),
-      user.getLogin());
-
-    verify(auditPersister).addUser(eq(db.getSession()), any());
-    verify(auditPersister).isTrackedProperty(PROPERTY_KEY);
-    verifyNoMoreInteractions(auditPersister);
-  }
-
-  @Test
   public void updateTrackedUserPropertyIsPersisted() {
-    when(auditPersister.isTrackedProperty(PROPERTY_KEY)).thenReturn(true);
-
     UserDto user = db.users().insertUser();
     underTest.insertOrUpdate(db.getSession(), new UserPropertyDto()
         .setUserUuid(user.getUuid())
@@ -159,10 +135,9 @@ public class UserPropertiesDaoWithPersisterTest {
     underTest.deleteByUser(db.getSession(), user);
 
     verify(auditPersister).addUser(eq(db.getSession()), any());
-    verify(auditPersister).addProperty(eq(db.getSession()), any(), eq(true));
-    verify(auditPersister).addProperty(eq(db.getSession()), any(), eq(true));
-    verify(auditPersister, times(2)).isTrackedProperty(PROPERTY_KEY);
-    verify(auditPersister, times(2)).isTrackedProperty(SECURED_PROPERTY_KEY);
+    verify(auditPersister, times(2)).addProperty(eq(db.getSession()), any(), eq(true));
+    verify(auditPersister).isTrackedProperty(PROPERTY_KEY);
+    verify(auditPersister).isTrackedProperty(SECURED_PROPERTY_KEY);
     verify(auditPersister).deleteProperty(eq(db.getSession()), newValueCaptor.capture(), eq(true));
     verifyNoMoreInteractions(auditPersister);
     assertThat(newValueCaptor.getValue())

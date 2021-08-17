@@ -194,6 +194,7 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(formatUuidPathFromParent(parent))
+      .setDbKey(uuid)
       .setProjectUuid(moduleOrProject.projectUuid())
       .setRootUuid(moduleOrProject.uuid())
       .setModuleUuid(moduleOrProject.uuid())

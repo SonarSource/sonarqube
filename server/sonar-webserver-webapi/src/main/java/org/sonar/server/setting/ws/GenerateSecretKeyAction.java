@@ -35,13 +35,7 @@ public class GenerateSecretKeyAction implements SettingsWsAction {
   private final DbClient dbClient;
   private final Settings settings;
   private final UserSession userSession;
-  private AuditPersister auditPersister;
-
-  public GenerateSecretKeyAction(DbClient dbClient, Settings settings, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.settings = settings;
-    this.userSession = userSession;
-  }
+  private final AuditPersister auditPersister;
 
   public GenerateSecretKeyAction(DbClient dbClient, Settings settings, UserSession userSession, AuditPersister auditPersister) {
     this.dbClient = dbClient;
@@ -67,11 +61,9 @@ public class GenerateSecretKeyAction implements SettingsWsAction {
 
     writeProtobuf(GenerateSecretKeyWsResponse.newBuilder().setSecretKey(settings.getEncryption().generateRandomSecretKey()).build(), request, response);
 
-    if (auditPersister != null) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        auditPersister.generateSecretKey(dbSession);
-        dbSession.commit();
-      }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      auditPersister.generateSecretKey(dbSession);
+      dbSession.commit();
     }
   }
 }

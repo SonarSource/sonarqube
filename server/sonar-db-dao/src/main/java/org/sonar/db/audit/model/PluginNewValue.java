@@ -22,10 +22,10 @@ package org.sonar.db.audit.model;
 import org.sonar.db.plugin.PluginDto;
 
 public class PluginNewValue extends NewValue {
-  private String pluginUuid;
-  private String kee;
-  private String basePluginKey;
-  private String type;
+  private final String pluginUuid;
+  private final String kee;
+  private final String basePluginKey;
+  private final String type;
 
   public PluginNewValue(PluginDto pluginDto) {
     this.pluginUuid = pluginDto.getUuid();

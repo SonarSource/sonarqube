@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -46,9 +47,9 @@ public class AlmPatDaoTest {
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private AlmSettingDao almSettingDao = new AlmSettingDao(system2, uuidFactory);
+  private AlmSettingDao almSettingDao = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
 
-  private AlmPatDao underTest = new AlmPatDao(system2, uuidFactory);
+  private AlmPatDao underTest = new AlmPatDao(system2, uuidFactory, new NoOpAuditPersister());
 
   @Test
   public void selectByUuid() {

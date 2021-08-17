@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
@@ -59,7 +60,7 @@ public class GroupPermissionDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
-  private final GroupPermissionDao underTest = new GroupPermissionDao();
+  private final GroupPermissionDao underTest = new GroupPermissionDao(new NoOpAuditPersister());
 
   @Test
   public void group_count_by_permission_and_component_id_on_private_projects() {

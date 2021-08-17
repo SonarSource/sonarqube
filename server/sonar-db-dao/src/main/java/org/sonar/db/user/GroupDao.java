@@ -41,14 +41,10 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class GroupDao implements Dao {
 
   private final System2 system;
-  private AuditPersister auditPersister;
-
-  public GroupDao(System2 system) {
-    this.system = system;
-  }
+  private final AuditPersister auditPersister;
 
   public GroupDao(System2 system, AuditPersister auditPersister) {
-    this(system);
+    this.system = system;
     this.auditPersister = auditPersister;
   }
 
@@ -77,7 +73,7 @@ public class GroupDao implements Dao {
   public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
     int deletedRows = mapper(dbSession).deleteByUuid(groupUuid);
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserGroup(dbSession, new UserGroupNewValue(groupUuid, groupName));
     }
   }
@@ -95,22 +91,14 @@ public class GroupDao implements Dao {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
-
-    if (auditPersister != null) {
-      auditPersister.addUserGroup(session, new UserGroupNewValue(item.getUuid(), item.getName()));
-    }
-
+    auditPersister.addUserGroup(session, new UserGroupNewValue(item.getUuid(), item.getName()));
     return item;
   }
 
   public GroupDto update(DbSession session, GroupDto item) {
     item.setUpdatedAt(new Date(system.now()));
     mapper(session).update(item);
-
-    if (auditPersister != null) {
-      auditPersister.updateUserGroup(session, new UserGroupNewValue(item));
-    }
-
+    auditPersister.updateUserGroup(session, new UserGroupNewValue(item));
     return item;
   }
 

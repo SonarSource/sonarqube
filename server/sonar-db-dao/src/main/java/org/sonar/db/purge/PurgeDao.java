@@ -54,11 +54,7 @@ public class PurgeDao implements Dao {
   private static final String SCOPE_PROJECT = "PRJ";
 
   private final System2 system2;
-  private AuditPersister auditPersister;
-
-  public PurgeDao(System2 system2)  {
-    this.system2 = system2;
-  }
+  private final AuditPersister auditPersister;
 
   public PurgeDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -195,19 +191,14 @@ public class PurgeDao implements Dao {
     long start = System2.INSTANCE.now();
 
     List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
-      .filter(branch -> !uuid.equals(branch.getUuid()))
       .map(BranchDto::getUuid)
+      .filter(branchUuid -> !uuid.equals(branchUuid))
       .collect(Collectors.toList());
 
-    branchUuids.stream()
-      .forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
+    branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
 
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
-
-    if (auditPersister != null) {
-      auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier), qualifier);
-    }
-
+    auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
 

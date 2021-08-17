@@ -54,7 +54,7 @@ public abstract class PermissionNewValue extends NewValue {
     this.componentUuid = componentUuid;
     this.componentKey = componentKey;
     this.componentName = componentName;
-    this.qualifier = getQualifier(qualifier);
+    this.qualifier = qualifier;
     this.permission = permission;
     this.permissionTemplateId = permissionTemplateDto == null ? null : permissionTemplateDto.getUuid();
     this.permissionTemplateName = permissionTemplateDto == null ? null : permissionTemplateDto.getName();

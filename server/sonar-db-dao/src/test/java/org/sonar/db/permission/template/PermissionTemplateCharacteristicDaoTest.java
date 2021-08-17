@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -39,7 +40,7 @@ public class PermissionTemplateCharacteristicDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private final DbSession dbSession = db.getSession();
-  private final PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao();
+  private final PermissionTemplateCharacteristicDao underTest = new PermissionTemplateCharacteristicDao(new NoOpAuditPersister());
 
   @Test
   public void selectByTemplateId_filter_by_template_uuid() {

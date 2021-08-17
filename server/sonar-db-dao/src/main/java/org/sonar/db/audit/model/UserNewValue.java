@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Objects.requireNonNull;
+
 public class UserNewValue extends NewValue {
   private String userUuid;
   private String userLogin;
@@ -62,8 +64,8 @@ public class UserNewValue extends NewValue {
   private Long lastConnectionDate;
 
   public UserNewValue(String userUuid, String userLogin) {
-    this.userUuid = userUuid;
-    this.userLogin = userLogin;
+    this.userUuid = requireNonNull(userUuid);
+    this.userLogin = requireNonNull(userLogin);
   }
 
   public UserNewValue(UserDto userDto) {

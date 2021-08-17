@@ -25,6 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 
@@ -39,7 +40,7 @@ import org.sonar.db.property.PropertyDto;
  */
 public class ReadOnlyPropertiesDao extends PropertiesDao {
   public ReadOnlyPropertiesDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory) {
-    super(mybatis, system2, uuidFactory);
+    super(mybatis, system2, uuidFactory, new NoOpAuditPersister());
   }
 
   @Override

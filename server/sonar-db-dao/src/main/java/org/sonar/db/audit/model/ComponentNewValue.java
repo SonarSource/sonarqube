@@ -22,51 +22,54 @@ package org.sonar.db.audit.model;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.ProjectDto;
+
+import static java.util.Objects.requireNonNull;
 
 public class ComponentNewValue extends NewValue {
-
-  private String componentUuid;
-  private String componentName;
-  @Nullable
-  private String description;
-  private String rootComponentUuid;
-  private String path;
-  private String componentKey;
-  private Boolean isPrivate;
+  private final String componentUuid;
+  private final String componentKey;
+  private final String componentName;
+  private final String description;
+  private final Boolean isPrivate;
+  private final String qualifier;
   private Boolean isEnabled;
-  private String qualifier;
+  private String path;
 
-  public ComponentNewValue(String componentUuid, String name, String componentKey, @Nullable String qualifier) {
-    this.componentUuid = componentUuid;
-    this.componentName = name;
-    this.componentKey = componentKey;
-    this.qualifier = getQualifier(qualifier);
+  public ComponentNewValue(ProjectDto project) {
+    this(project.getUuid(), project.getName(), project.getKey(), project.isPrivate(), project.getDescription(), project.getQualifier());
   }
 
-  public ComponentNewValue(String componentUuid, String name, String componentKey, boolean isPrivate, String qualifier) {
-    this.componentUuid = componentUuid;
-    this.componentName = name;
-    this.componentKey = componentKey;
-    this.isPrivate = isPrivate;
-    this.qualifier = getQualifier(qualifier);
+  public ComponentNewValue(ComponentDto component) {
+    this(component.uuid(), component.name(), component.getKey(), component.isPrivate(), component.description(), component.qualifier());
   }
 
-  public ComponentNewValue(String uuid, String name, String componentKey, boolean enabled, String path, @Nullable String qualifier) {
-    this.componentUuid = uuid;
-    this.componentName = name;
+  public ComponentNewValue(String componentUuid, String componentName, String componentKey, String qualifier) {
+    this(componentUuid, componentName, componentKey, null, null, qualifier);
+  }
+
+  public ComponentNewValue(String componentUuid, String componentName, String componentKey, boolean isPrivate, String qualifier) {
+    this(componentUuid, isPrivate, componentName, componentKey, null, qualifier);
+  }
+
+  public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, String qualifier) {
+    this(uuid, name, key, null, null, qualifier);
     this.isEnabled = enabled;
     this.path = path;
-    this.componentKey = componentKey;
-    this.qualifier = getQualifier(qualifier);
   }
 
-  public ComponentNewValue(String uuid, boolean isPrivate, String name, String componentKey, @Nullable String description, @Nullable String qualifier) {
-    this.componentUuid = uuid;
-    this.isPrivate = isPrivate;
+  public ComponentNewValue(String uuid, @Nullable Boolean isPrivate, String name, String key, @Nullable String description, String qualifier) {
+    this(uuid, name, key, isPrivate, description, qualifier);
+  }
+
+  private ComponentNewValue(String uuid, String name, String key, @Nullable Boolean isPrivate, @Nullable String description, String qualifier) {
+    this.componentUuid = requireNonNull(uuid);
     this.componentName = name;
-    this.componentKey = componentKey;
+    this.componentKey = key;
+    this.isPrivate = isPrivate;
     this.description = description;
-    this.qualifier = getQualifier(qualifier);
+    this.qualifier = qualifier;
   }
 
   public String getComponentUuid() {
@@ -86,6 +89,7 @@ public class ComponentNewValue extends NewValue {
     return componentKey;
   }
 
+  @CheckForNull
   public boolean isPrivate() {
     return isPrivate;
   }
@@ -98,10 +102,9 @@ public class ComponentNewValue extends NewValue {
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
-    addField(sb, "\"rootComponentUuid\": ", this.rootComponentUuid, true);
     addField(sb, "\"componentKey\": ", this.componentKey, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
-    addField(sb, "\"qualifier\": ", this.qualifier, true);
+    addField(sb, "\"qualifier\": ", getQualifier(qualifier), true);
     addField(sb, "\"description\": ", this.description, true);
     addField(sb, "\"path\": ", this.path, true);
     addField(sb, "\"isPrivate\": ", ObjectUtils.toString(this.isPrivate), false);

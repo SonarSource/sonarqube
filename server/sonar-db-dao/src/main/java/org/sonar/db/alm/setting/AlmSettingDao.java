@@ -33,16 +33,11 @@ public class AlmSettingDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-
-  private AuditPersister auditPersister;
-
-  public AlmSettingDao(System2 system2, UuidFactory uuidFactory) {
-    this.system2 = system2;
-    this.uuidFactory = uuidFactory;
-  }
+  private final AuditPersister auditPersister;
 
   public AlmSettingDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(system2, uuidFactory);
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
   }
 
@@ -58,9 +53,7 @@ public class AlmSettingDao implements Dao {
     almSettingDto.setUpdatedAt(now);
     getMapper(dbSession).insert(almSettingDto);
 
-    if (auditPersister != null) {
-      auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
-    }
+    auditPersister.addDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
   }
 
   public Optional<AlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -82,7 +75,7 @@ public class AlmSettingDao implements Dao {
   public void delete(DbSession dbSession, AlmSettingDto almSettingDto) {
     int deletedRows = getMapper(dbSession).deleteByKey(almSettingDto.getKey());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(), almSettingDto.getKey()));
     }
   }
@@ -91,12 +84,9 @@ public class AlmSettingDao implements Dao {
     long now = system2.now();
     almSettingDto.setUpdatedAt(now);
     getMapper(dbSession).update(almSettingDto);
-
-    if (auditPersister != null) {
-      if (updateSecret) {
-        auditPersister.updateDevOpsPlatformSecret(dbSession, new SecretNewValue("DevOpsPlatform", almSettingDto.getRawAlm()));
-      }
-      auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
+    if (updateSecret) {
+      auditPersister.updateDevOpsPlatformSecret(dbSession, new SecretNewValue("DevOpsPlatform", almSettingDto.getRawAlm()));
     }
+    auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
   }
 }

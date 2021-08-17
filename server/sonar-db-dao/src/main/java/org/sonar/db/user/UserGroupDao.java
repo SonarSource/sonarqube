@@ -26,11 +26,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserGroupNewValue;
 
 public class UserGroupDao implements Dao {
-
-  private AuditPersister auditPersister;
-
-  public UserGroupDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public UserGroupDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -38,11 +34,7 @@ public class UserGroupDao implements Dao {
 
   public UserGroupDto insert(DbSession session, UserGroupDto dto, String groupName, String login) {
     mapper(session).insert(dto);
-
-    if (auditPersister != null) {
-      auditPersister.addUserToGroup(session, new UserGroupNewValue(dto, groupName, login));
-    }
-
+    auditPersister.addUserToGroup(session, new UserGroupNewValue(dto, groupName, login));
     return dto;
   }
 
@@ -53,7 +45,7 @@ public class UserGroupDao implements Dao {
   public void delete(DbSession session, GroupDto group, UserDto user) {
     int deletedRows = mapper(session).delete(group.getUuid(), user.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(group, user));
     }
   }
@@ -61,7 +53,7 @@ public class UserGroupDao implements Dao {
   public void deleteByGroupUuid(DbSession session, String groupUuid, String groupName) {
     int deletedRows = mapper(session).deleteByGroupUuid(groupUuid);
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(groupUuid, groupName));
     }
   }
@@ -69,7 +61,7 @@ public class UserGroupDao implements Dao {
   public void deleteByUserUuid(DbSession dbSession, UserDto userDto) {
     int deletedRows = mapper(dbSession).deleteByUserUuid(userDto.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteUserFromGroup(dbSession, new UserGroupNewValue(userDto));
     }
   }

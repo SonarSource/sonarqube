@@ -26,8 +26,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -135,8 +133,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
     String uuid = component.uuid();
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.getKey(),
-      component.qualifier(), component.name(), true);
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.getKey(), component.qualifier(), component.name());
 
     if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
       dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate);
@@ -164,7 +161,6 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, component, permission, userUuid));
     });
   }
-
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, UserId userId) {
     dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()),

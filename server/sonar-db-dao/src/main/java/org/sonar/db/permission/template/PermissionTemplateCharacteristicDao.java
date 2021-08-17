@@ -31,10 +31,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PermissionTemplateCharacteristicDao implements Dao {
-  private AuditPersister auditPersister;
-
-  public PermissionTemplateCharacteristicDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public PermissionTemplateCharacteristicDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -53,10 +50,8 @@ public class PermissionTemplateCharacteristicDao implements Dao {
     checkArgument(dto.getCreatedAt() != 0L && dto.getUpdatedAt() != 0L);
     mapper(dbSession).insert(dto);
 
-    if (auditPersister != null) {
-      auditPersister.addCharacteristicToPermissionTemplate(dbSession, new PermissionTemplateNewValue(dto.getTemplateUuid(),
-        dto.getPermission(), templateName, dto.getWithProjectCreator()));
-    }
+    auditPersister.addCharacteristicToPermissionTemplate(dbSession, new PermissionTemplateNewValue(dto.getTemplateUuid(),
+      dto.getPermission(), templateName, dto.getWithProjectCreator()));
 
     return dto;
   }
@@ -66,10 +61,8 @@ public class PermissionTemplateCharacteristicDao implements Dao {
     requireNonNull(templatePermissionDto.getUuid());
     mapper(dbSession).update(templatePermissionDto);
 
-    if (auditPersister != null) {
-      auditPersister.updateCharacteristicInPermissionTemplate(dbSession, new PermissionTemplateNewValue(templatePermissionDto.getTemplateUuid(),
-        templatePermissionDto.getPermission(), templateName, templatePermissionDto.getWithProjectCreator()));
-    }
+    auditPersister.updateCharacteristicInPermissionTemplate(dbSession, new PermissionTemplateNewValue(templatePermissionDto.getTemplateUuid(),
+      templatePermissionDto.getPermission(), templateName, templatePermissionDto.getWithProjectCreator()));
 
     return templatePermissionDto;
   }

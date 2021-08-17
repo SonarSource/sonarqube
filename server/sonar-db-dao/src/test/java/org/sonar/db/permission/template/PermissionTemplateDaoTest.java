@@ -32,6 +32,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -63,7 +64,7 @@ public class PermissionTemplateDaoTest {
   private PermissionTemplateDbTester templateDb = db.permissionTemplates();
   private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  private PermissionTemplateDao underTest = new PermissionTemplateDao(uuidFactory, system2);
+  private PermissionTemplateDao underTest = new PermissionTemplateDao(uuidFactory, system2, new NoOpAuditPersister());
 
   @Before
   public void setUp() {

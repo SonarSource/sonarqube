@@ -32,16 +32,11 @@ public class UserPropertiesDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-
-  private AuditPersister auditPersister;
-
-  public UserPropertiesDao(System2 system2, UuidFactory uuidFactory) {
-    this.system2 = system2;
-    this.uuidFactory = uuidFactory;
-  }
+  private final AuditPersister auditPersister;
 
   public UserPropertiesDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(system2, uuidFactory);
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
   }
 
@@ -57,12 +52,10 @@ public class UserPropertiesDao implements Dao {
       isUpdate = false;
     }
 
-    if (auditPersister != null && auditPersister.isTrackedProperty(dto.getKey())) {
-      if (isUpdate) {
-        auditPersister.updateProperty(session, new PropertyNewValue(dto, login), true);
-      } else {
-        auditPersister.addProperty(session, new PropertyNewValue(dto, login), true);
-      }
+    if (isUpdate) {
+      auditPersister.updateProperty(session, new PropertyNewValue(dto, login), true);
+    } else {
+      auditPersister.addProperty(session, new PropertyNewValue(dto, login), true);
     }
 
     return dto;
@@ -72,7 +65,7 @@ public class UserPropertiesDao implements Dao {
     List<UserPropertyDto> userProperties = selectByUser(session, user);
     int deletedRows = mapper(session).deleteByUserUuid(user.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       userProperties.stream()
         .filter(p -> auditPersister.isTrackedProperty(p.getKey()))
         .forEach(p -> auditPersister.deleteProperty(session, new PropertyNewValue(p, user.getLogin()), true));

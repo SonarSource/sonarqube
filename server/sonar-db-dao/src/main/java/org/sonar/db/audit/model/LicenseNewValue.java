@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class LicenseNewValue extends NewValue {
   @Nullable
-  private String edition;
+  private final String edition;
 
   public LicenseNewValue(@Nullable String edition) {
     this.edition = edition;

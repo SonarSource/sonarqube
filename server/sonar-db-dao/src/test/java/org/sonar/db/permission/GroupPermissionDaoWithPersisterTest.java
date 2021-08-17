@@ -33,24 +33,22 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 public class GroupPermissionDaoWithPersisterTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
   private final ArgumentCaptor<GroupPermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupPermissionNewValue.class);
   private final DbSession dbSession = db.getSession();
-  private final GroupPermissionDao underTest = db.getDbClient().groupPermissionDao();
+  private final GroupPermissionDao underTest = new GroupPermissionDao(auditPersister);
 
   private GroupDto group;
   private ComponentDto project;
@@ -87,7 +85,7 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.getKey(),
-      project.name(), "project");
+      project.name(), "TRK");
     assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\"," +
       " \"componentUuid\": \"cuuid\", \"componentKey\": \"cKey\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
@@ -95,7 +93,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
-    assertNewValue(newValue, null, null, null, project.uuid(), null, project.getKey(), project.name(), "project");
+    assertNewValue(newValue, null, null, null, project.uuid(), null, project.getKey(), project.name(), "TRK");
     assertThat(newValue).hasToString("{\"componentUuid\": \"cuuid\", \"componentKey\": \"cKey\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
   }
 
@@ -105,8 +103,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     underTest.deleteByRootComponentUuid(dbSession, project);
 
-    verify(auditPersister).addComponent(any(), any(), any());
-    verifyNoMoreInteractions(auditPersister);
+    verifyNoInteractions(auditPersister);
   }
 
   @Test
@@ -115,7 +112,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
-     assertNewValue(newValue, dto.getUuid(), null, null, project.uuid(), dto.getRole(), project.getKey(), project.name(), "project");
+     assertNewValue(newValue, dto.getUuid(), null, null, project.uuid(), dto.getRole(), project.getKey(), project.name(), "TRK");
     assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"componentUuid\": \"cuuid\", "
       + "\"componentKey\": \"cKey\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
@@ -123,7 +120,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
-    assertNewValue(newValue, null, null, null, project.uuid(), null, project.getKey(), project.name(), "project");
+    assertNewValue(newValue, null, null, null, project.uuid(), null, project.getKey(), project.name(), "TRK");
     assertThat(newValue).hasToString("{\"componentUuid\": \"cuuid\", \"componentKey\": \"cKey\", " +
       "\"componentName\": \"cname\", \"qualifier\": \"project\" }");
   }
@@ -134,8 +131,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     underTest.deleteByRootComponentUuidForAnyOne(dbSession, project);
 
-    verify(auditPersister).addComponent(any(), any(), any());
-    verifyNoMoreInteractions(auditPersister);
+    verifyNoInteractions(auditPersister);
   }
 
   @Test
@@ -144,7 +140,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
     GroupPermissionNewValue newValue = newValueCaptor.getValue();
-    assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.getKey(), project.name(), "project");
+    assertNewValue(newValue, dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.getKey(), project.name(), "TRK");
     assertThat(newValue).hasToString("{\"permissionUuid\": \"1\", \"permission\": \"admin\", \"groupUuid\": \"guuid\", \"groupName\": \"gname\", "
       + "\"componentUuid\": \"cuuid\", \"componentKey\": \"cKey\", \"componentName\": \"cname\", \"qualifier\": \"project\" }");
 
@@ -152,7 +148,7 @@ public class GroupPermissionDaoWithPersisterTest {
 
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
-    assertNewValue(newValue, null, null, null, project.uuid(), ADMIN, project.getKey(), project.name(), "project");
+    assertNewValue(newValue, null, null, null, project.uuid(), ADMIN, project.getKey(), project.name(), "TRK");
     assertThat(newValue).hasToString("{\"permission\": \"admin\", \"componentUuid\": \"cuuid\", \"componentKey\": \"cKey\"," +
       " \"componentName\": \"cname\", \"qualifier\": \"project\" }");
   }
@@ -165,17 +161,14 @@ public class GroupPermissionDaoWithPersisterTest {
 
     underTest.deleteByRootComponentUuidAndPermission(dbSession, dto.getRole(), project);
 
-    verify(auditPersister).addComponent(any(), any(), any());
-    verifyNoMoreInteractions(auditPersister);
+    verifyNoInteractions(auditPersister);
   }
 
   private void assertNewValue(GroupPermissionNewValue newValue, String uuid, String groupUuid, String groupName, String cUuid, String permission,
     String componentKey, String cName, String qualifier) {
     assertThat(newValue)
-      .extracting("permissionUuid", "groupUuid", "groupName", "componentUuid", "permission",
-        "componentKey", "componentName", "qualifier")
-      .containsExactly(uuid, groupUuid, groupName, cUuid, permission, componentKey,
-        cName, qualifier);
+      .extracting("permissionUuid", "groupUuid", "groupName", "componentUuid", "permission", "componentKey", "componentName", "qualifier")
+      .containsExactly(uuid, groupUuid, groupName, cUuid, permission, componentKey, cName, qualifier);
   }
 
   private void addGroupPermission() {

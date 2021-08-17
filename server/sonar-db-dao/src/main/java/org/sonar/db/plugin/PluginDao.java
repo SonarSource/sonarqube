@@ -27,11 +27,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PluginNewValue;
 
 public class PluginDao implements Dao {
-
-  private AuditPersister auditPersister;
-
-  public PluginDao() {
-  }
+  private final AuditPersister auditPersister;
 
   public PluginDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -53,18 +49,12 @@ public class PluginDao implements Dao {
 
   public void insert(DbSession dbSession, PluginDto dto) {
     mapper(dbSession).insert(dto);
-
-    if (auditPersister != null) {
-      auditPersister.addPlugin(dbSession, new PluginNewValue(dto));
-    }
+    auditPersister.addPlugin(dbSession, new PluginNewValue(dto));
   }
 
   public void update(DbSession dbSession, PluginDto dto) {
     mapper(dbSession).update(dto);
-
-    if (auditPersister != null) {
-      auditPersister.updatePlugin(dbSession, new PluginNewValue(dto));
-    }
+    auditPersister.updatePlugin(dbSession, new PluginNewValue(dto));
   }
 
   private static PluginMapper mapper(DbSession dbSession) {

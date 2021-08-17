@@ -36,20 +36,15 @@ public class ProjectAlmSettingDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-  private AuditPersister auditPersister;
-
-  public ProjectAlmSettingDao(System2 system2, UuidFactory uuidFactory) {
-    this.system2 = system2;
-    this.uuidFactory = uuidFactory;
-  }
+  private final AuditPersister auditPersister;
 
   public ProjectAlmSettingDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
-    this(system2, uuidFactory);
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key,
-    String projectName, String projectKey) {
+  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName, String projectKey) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
@@ -63,21 +58,18 @@ public class ProjectAlmSettingDao implements Dao {
     }
     projectAlmSettingDto.setUpdatedAt(now);
 
-    if (auditPersister != null) {
-      DevOpsPlatformSettingNewValue value = new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key,
-        projectName, projectKey);
-      if (isUpdate) {
-        auditPersister.updateDevOpsPlatformSetting(dbSession, value);
-      } else {
-        auditPersister.addDevOpsPlatformSetting(dbSession, value);
-      }
+    DevOpsPlatformSettingNewValue value = new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key, projectName, projectKey);
+    if (isUpdate) {
+      auditPersister.updateDevOpsPlatformSetting(dbSession, value);
+    } else {
+      auditPersister.addDevOpsPlatformSetting(dbSession, value);
     }
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto project) {
     int deletedRows = getMapper(dbSession).deleteByProjectUuid(project.getUuid());
 
-    if (deletedRows > 0 && auditPersister != null) {
+    if (deletedRows > 0) {
       auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(project));
     }
   }

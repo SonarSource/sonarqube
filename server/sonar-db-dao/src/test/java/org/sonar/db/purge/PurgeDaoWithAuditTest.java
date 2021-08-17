@@ -59,12 +59,11 @@ public class PurgeDaoWithAuditTest {
 
     underTestWithPersister.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 
-    verify(auditPersister).deleteComponent(any(DbSession.class), newValueCaptor.capture(), eq(project.qualifier()));
+    verify(auditPersister).deleteComponent(any(DbSession.class), newValueCaptor.capture());
     ComponentNewValue componentNewValue = newValueCaptor.getValue();
     assertThat(componentNewValue)
-      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getComponentKey,
-        ComponentNewValue::getQualifier)
-      .containsExactly(project.uuid(), project.name(), project.getKey(), "project");
+      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getComponentKey, ComponentNewValue::getQualifier)
+      .containsExactly(project.uuid(), project.name(), project.getKey(), "TRK");
   }
 
 }

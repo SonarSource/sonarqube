@@ -36,6 +36,7 @@ import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
 import org.sonar.db.audit.AuditDbTester;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
 import org.sonar.db.event.EventDbTester;
@@ -65,6 +66,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final System2 system2;
+  private final AuditPersister auditPersister;
   private DbClient client;
   private DbSession session = null;
   private final UserDbTester userTester;
@@ -94,8 +96,9 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
     this.system2 = system2;
+    this.auditPersister = auditPersister;
 
-    initDbClient(auditPersister);
+    initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
     this.componentLinkTester = new ProjectLinkDbTester(this);
@@ -122,7 +125,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null, null);
+    return new DbTester(System2.INSTANCE, null, new NoOpAuditPersister());
   }
 
   public static DbTester create(AuditPersister auditPersister) {
@@ -134,18 +137,16 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public static DbTester create(System2 system2) {
-    return new DbTester(system2, null, null);
+    return new DbTester(system2, null, new NoOpAuditPersister());
   }
 
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(system2, null, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+    return new DbTester(system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
-  private void initDbClient(AuditPersister auditPersister) {
+  private void initDbClient() {
     TransientPicoContainer ioc = new TransientPicoContainer();
-    if (auditPersister != null) {
-      ioc.addComponent(auditPersister);
-    }
+    ioc.addComponent(auditPersister);
     ioc.addComponent(db.getMyBatis());
     ioc.addComponent(system2);
     ioc.addComponent(uuidFactory);
@@ -160,7 +161,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   protected void before() {
     db.start();
     db.truncateTables();
-    initDbClient(null);
+    initDbClient();
   }
 
   public UserDbTester users() {

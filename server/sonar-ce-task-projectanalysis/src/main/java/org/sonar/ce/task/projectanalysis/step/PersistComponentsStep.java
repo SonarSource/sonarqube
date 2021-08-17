@@ -52,7 +52,6 @@ import org.sonar.db.component.ComponentUpdateDto;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
@@ -108,8 +107,7 @@ public class PersistComponentsStep implements ComputationStep {
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByUuids.values());
-      ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate, treeRootHolder.getRoot().getType(), treeRootHolder.getRoot().getName());
-
+      dbClient.componentDao().setPrivateForRootComponentUuidWithoutAudit(dbSession, projectUuid, isRootPrivate);
       dbSession.commit();
     }
   }
@@ -133,18 +131,6 @@ public class PersistComponentsStep implements ComputationStep {
       .collect(MoreCollectors.toSet(dtos.size()));
     dbClient.componentDao().updateBEnabledToFalse(dbSession, uuids);
     disabledComponentsHolder.setUuids(uuids);
-  }
-
-  private void ensureConsistentVisibility(DbSession dbSession, String projectUuid, boolean isRootPrivate,
-    Component.Type type, String componentName) {
-    String qualifier = null;
-    if (type == Component.Type.PROJECT) {
-      qualifier = PROJECT;
-    } else if (type == Component.Type.VIEW) {
-      qualifier = VIEW;
-    }
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate,
-      "", qualifier, componentName, false);
   }
 
   private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByUuids) {

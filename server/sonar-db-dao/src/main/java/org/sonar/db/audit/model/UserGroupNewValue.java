@@ -25,51 +25,42 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class UserGroupNewValue extends NewValue {
-
-  @Nullable
-  private String groupUuid;
-
-  @Nullable
-  private String name;
-
-  @Nullable
-  private String description;
-
-  @Nullable
-  private String userUuid;
-
-  @Nullable
-  private String userLogin;
+  private final String groupUuid;
+  private final String name;
+  private final String userUuid;
+  private final String userLogin;
+  private final String description;
 
   public UserGroupNewValue(String groupUuid, String name) {
-    this.groupUuid = groupUuid;
-    this.name = name;
+    this(groupUuid, name, null, null, null);
   }
 
   public UserGroupNewValue(GroupDto groupDto) {
-    this.groupUuid = groupDto.getUuid();
-    this.name = groupDto.getName();
-    this.description = groupDto.getDescription();
+    this(groupDto.getUuid(), groupDto.getName(), null, null, groupDto.getDescription());
   }
 
   public UserGroupNewValue(GroupDto groupDto, UserDto userDto) {
-    this.groupUuid = groupDto.getUuid();
-    this.name = groupDto.getName();
-    this.userUuid = userDto.getUuid();
-    this.userLogin = userDto.getLogin();
+    this(groupDto.getUuid(), groupDto.getName(), userDto.getUuid(), userDto.getLogin(), null);
   }
 
   public UserGroupNewValue(UserDto userDto) {
-    this.userUuid = userDto.getUuid();
-    this.userLogin = userDto.getLogin();
+    this(null, null, userDto.getUuid(), userDto.getLogin(), null);
   }
 
   public UserGroupNewValue(UserGroupDto userGroupDto, String groupName, String userLogin) {
-    this.groupUuid = userGroupDto.getGroupUuid();
-    this.userUuid = userGroupDto.getUserUuid();
-    this.name = groupName;
+    this(userGroupDto.getGroupUuid(), groupName, userGroupDto.getUserUuid(), userLogin, null);
+  }
+
+  private UserGroupNewValue(@Nullable String groupUuid, @Nullable String name, @Nullable String userUuid, @Nullable String userLogin, @Nullable String description) {
+    checkState((groupUuid != null && name != null) || (userUuid != null && userLogin != null));
+    this.groupUuid = groupUuid;
+    this.name = name;
+    this.userUuid = userUuid;
     this.userLogin = userLogin;
+    this.description = description;
   }
 
   @CheckForNull
