@@ -657,10 +657,6 @@ subprojects {
 // their concurrent execution even in case when one or more of these tasks not
 // scheduled.
 def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
-
-// Drop :server:sonar-ui-common:yarn from the list because it will be creating a circular dependency
-yarnInstallTasks.eachWithIndex { t, i -> if (t.path == ':server:sonar-ui-common:yarn') yarnInstallTasks.remove(i) }
-
 yarnInstallTasks.drop(1).eachWithIndex { it, i -> it.mustRunAfter(yarnInstallTasks[0..i]) }
 
 // by default, Yarn will update lock file if it is not up to date with "package.json"

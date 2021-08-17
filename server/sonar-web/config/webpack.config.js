@@ -41,12 +41,6 @@ module.exports = ({ production = true, release = false }) => {
       // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
       alias: {
         Docs: path.resolve(__dirname, '../../sonar-docs/src'),
-        // This avoid having multi instance of @emotion when developing with yarn link on sonar-ui-common
-        '@emotion': path.resolve(__dirname, '../node_modules/@emotion'),
-        // This avoid having multi instance of react when developing with yarn link on sonar-ui-common
-        // See https://reactjs.org/warnings/invalid-hook-call-warning.html
-        react: path.resolve(__dirname, '../node_modules/react'),
-        'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
         // d3-selection exports an event object, which requires live-binding.
         // In order to support this, we need to tell Webpack to NOT look into
         // the dist/ folder of this module, but in the src/ folder instead.

@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ThemeContext from 'sonar-ui-common/components/theme';
-import SonarUiCommonInitializer, { DEFAULT_LOCALE } from 'sonar-ui-common/helpers/init';
 import * as theme from '../../src/main/js/app/theme';
+import ThemeContext from '../../src/main/js/sonar-ui-common/components/theme';
+import SonarUiCommonInitializer, {
+  DEFAULT_LOCALE
+} from '../../src/main/js/sonar-ui-common/helpers/init';
 
 const content = document.createElement('div');
 content.id = 'content';
