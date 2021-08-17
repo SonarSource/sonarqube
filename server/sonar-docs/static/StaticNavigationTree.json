@@ -29,7 +29,13 @@
 		  "/setup/sonarqube-cluster-on-kubernetes/"
         ]
       },
-      "/setup/upgrading/",
+      {
+        "title": "Upgrade the Server",
+        "children": [
+		  "/setup/before-you-upgrade/",
+		  "/setup/upgrading/"
+        ]
+      },
       "/setup/upgrade-notes/",
       "/setup/troubleshooting/"
     ]
