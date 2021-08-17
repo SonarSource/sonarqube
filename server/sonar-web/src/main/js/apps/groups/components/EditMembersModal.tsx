@@ -19,6 +19,7 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import SelectList, {
@@ -140,11 +141,19 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   };
 
   render() {
-    const modalHeader = translate('users.update');
+    const modalHeader = translate('users.group.update');
     return (
       <Modal contentLabel={modalHeader} onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>{modalHeader}</h2>
+          <h2>
+            <FormattedMessage
+              defaultMessage={modalHeader}
+              id="users.group.update"
+              values={{
+                group: this.props.group.name
+              }}
+            />
+          </h2>
         </header>
 
         <div className="modal-body modal-container">
