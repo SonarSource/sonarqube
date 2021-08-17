@@ -35,6 +35,37 @@ exports[`should render correctly 1`] = `
     propKey="workspace"
     value="workspace"
   />
+  <Alert
+    className="big-spacer-top big-spacer-right"
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="settings.almintegration.bitbucketcloud.info"
+      id="settings.almintegration.bitbucketcloud.info"
+      values={
+        Object {
+          "doc_link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/bitbucket-cloud-integration/"
+          >
+            learn_more
+          </Link>,
+          "oauth": <a
+            href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            settings.almintegration.bitbucketcloud.oauth
+          </a>,
+          "permission": <strong>
+            Pull Requests: Read
+          </strong>,
+        }
+      }
+    />
+  </Alert>
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
     id="client_id.bitbucketcloud"

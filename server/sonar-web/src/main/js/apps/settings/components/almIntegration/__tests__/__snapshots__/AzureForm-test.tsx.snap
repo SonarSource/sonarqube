@@ -1,145 +1,145 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: create 1`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.azure.help"
-      id="name.azure"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.azure.help1
-          <br />
-          <em>
-            https://ado.your-company.com/your_collection
-          </em>
-          <br />
-          <br />
-          settings.almintegration.form.url.azure.help2
-          <br />
-          <em>
-            https://dev.azure.com/your_organization
-          </em>
-        </React.Fragment>
-      }
-      id="url.azure"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.personal_access_token.azure.help"
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="personalAccessToken"
-      value=""
-    />
-  </div>
-  <Alert
-    className="huge-spacer-left flex-1"
-    variant="info"
-  >
-    <FormattedMessage
-      defaultMessage="settings.almintegration.azure.info"
-      id="settings.almintegration.azure.info"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/azuredevops-integration/"
-          >
-            learn_more
-          </Link>,
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.azure.help"
+    id="name.azure"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.azure.help1
+        <br />
+        <em>
+          https://ado.your-company.com/your_collection
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.azure.help2
+        <br />
+        <em>
+          https://dev.azure.com/your_organization
+        </em>
+      </React.Fragment>
+    }
+    id="url.azure"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.personal_access_token.azure.help"
+        id="settings.almintegration.form.personal_access_token.azure.help"
+        values={
+          Object {
+            "doc_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/azuredevops-integration/"
+            >
+              learn_more
+            </Link>,
+            "pat": <a
+              href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              settings.almintegration.form.personal_access_token.azure.help.url
+            </a>,
+            "permission": <strong>
+              Code &gt; Read & Write
+            </strong>,
+          }
         }
-      }
-    />
-  </Alert>
-</div>
+      />
+    }
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={false}
+    propKey="personalAccessToken"
+    value=""
+  />
+</Fragment>
 `;
 
 exports[`should render correctly: edit 1`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.azure.help"
-      id="name.azure"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value="key"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.azure.help1
-          <br />
-          <em>
-            https://ado.your-company.com/your_collection
-          </em>
-          <br />
-          <br />
-          settings.almintegration.form.url.azure.help2
-          <br />
-          <em>
-            https://dev.azure.com/your_organization
-          </em>
-        </React.Fragment>
-      }
-      id="url.azure"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.personal_access_token.azure.help"
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="personalAccessToken"
-      value="asdf1234"
-    />
-  </div>
-  <Alert
-    className="huge-spacer-left flex-1"
-    variant="info"
-  >
-    <FormattedMessage
-      defaultMessage="settings.almintegration.azure.info"
-      id="settings.almintegration.azure.info"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/azuredevops-integration/"
-          >
-            learn_more
-          </Link>,
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.azure.help"
+    id="name.azure"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.azure.help1
+        <br />
+        <em>
+          https://ado.your-company.com/your_collection
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.azure.help2
+        <br />
+        <em>
+          https://dev.azure.com/your_organization
+        </em>
+      </React.Fragment>
+    }
+    id="url.azure"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.personal_access_token.azure.help"
+        id="settings.almintegration.form.personal_access_token.azure.help"
+        values={
+          Object {
+            "doc_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/azuredevops-integration/"
+            >
+              learn_more
+            </Link>,
+            "pat": <a
+              href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              settings.almintegration.form.personal_access_token.azure.help.url
+            </a>,
+            "permission": <strong>
+              Code &gt; Read & Write
+            </strong>,
+          }
         }
-      }
-    />
-  </Alert>
-</div>
+      />
+    }
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="personalAccessToken"
+    value="asdf1234"
+  />
+</Fragment>
 `;

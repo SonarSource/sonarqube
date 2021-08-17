@@ -53,12 +53,11 @@ function getPatUrl(alm: AlmKeys, url = '') {
     return `${url.replace(/\/$/, '')}/plugins/servlet/access-tokens/add`;
   } else if (alm === AlmKeys.BitbucketCloud) {
     return 'https://bitbucket.org/account/settings/app-passwords/new';
-  } else {
-    // GitLab
-    return url.endsWith('/api/v4')
-      ? `${url.replace('/api/v4', '').replace(/\/$/, '')}/profile/personal_access_tokens`
-      : 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token';
+  } else if (alm === AlmKeys.GitLab) {
+    return 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html';
   }
+
+  return '';
 }
 
 export default class PersonalAccessTokenForm extends React.PureComponent<Props, State> {

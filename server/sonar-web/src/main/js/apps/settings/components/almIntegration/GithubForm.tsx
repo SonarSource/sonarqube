@@ -35,71 +35,35 @@ export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
 
   return (
-    <div className="display-flex-start">
-      <div className="flex-1">
-        <AlmBindingDefinitionFormField
-          autoFocus={true}
-          help={translate('settings.almintegration.form.name.github.help')}
-          id="name.github"
-          onFieldChange={onFieldChange}
-          propKey="key"
-          value={formData.key}
-        />
-        <AlmBindingDefinitionFormField
-          help={
-            <>
-              {translate('settings.almintegration.form.url.github.help1')}
-              <br />
-              <em>https://github.company.com/api/v3</em>
-              <br />
-              <br />
-              {translate('settings.almintegration.form.url.github.help2')}
-              <br />
-              <em>https://api.github.com/</em>
-            </>
-          }
-          id="url.github"
-          maxLength={2000}
-          onFieldChange={onFieldChange}
-          propKey="url"
-          value={formData.url}
-        />
-        <AlmBindingDefinitionFormField
-          id="app_id"
-          help={translate('settings.almintegration.form.app_id.github.help')}
-          maxLength={80}
-          onFieldChange={onFieldChange}
-          propKey="appId"
-          value={formData.appId}
-        />
-        <AlmBindingDefinitionFormField
-          id="client_id.github"
-          help={translate('settings.almintegration.form.client_id.github.help')}
-          maxLength={80}
-          onFieldChange={onFieldChange}
-          propKey="clientId"
-          value={formData.clientId}
-        />
-        <AlmBindingDefinitionFormField
-          id="client_secret.github"
-          help={translate('settings.almintegration.form.client_secret.github.help')}
-          maxLength={80}
-          onFieldChange={onFieldChange}
-          overwriteOnly={Boolean(formData.key)}
-          propKey="clientSecret"
-          value={formData.clientSecret}
-        />
-        <AlmBindingDefinitionFormField
-          id="private_key"
-          help={translate('settings.almintegration.form.private_key.github.help')}
-          isTextArea={true}
-          onFieldChange={onFieldChange}
-          overwriteOnly={Boolean(formData.key)}
-          propKey="privateKey"
-          value={formData.privateKey}
-        />
-      </div>
-      <Alert className="huge-spacer-left flex-1" variant="info">
+    <>
+      <AlmBindingDefinitionFormField
+        autoFocus={true}
+        help={translate('settings.almintegration.form.name.github.help')}
+        id="name.github"
+        onFieldChange={onFieldChange}
+        propKey="key"
+        value={formData.key}
+      />
+      <AlmBindingDefinitionFormField
+        help={
+          <>
+            {translate('settings.almintegration.form.url.github.help1')}
+            <br />
+            <em>https://github.company.com/api/v3</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.github.help2')}
+            <br />
+            <em>https://api.github.com/</em>
+          </>
+        }
+        id="url.github"
+        maxLength={2000}
+        onFieldChange={onFieldChange}
+        propKey="url"
+        value={formData.url}
+      />
+      <Alert className="big-spacer-top big-spacer-right" variant="info">
         <FormattedMessage
           defaultMessage={translate(`settings.almintegration.github.info`)}
           id="settings.almintegration.github.info"
@@ -112,6 +76,40 @@ export default function GithubForm(props: GithubFormProps) {
           }}
         />
       </Alert>
-    </div>
+      <AlmBindingDefinitionFormField
+        id="app_id"
+        help={translate('settings.almintegration.form.app_id.github.help')}
+        maxLength={80}
+        onFieldChange={onFieldChange}
+        propKey="appId"
+        value={formData.appId}
+      />
+      <AlmBindingDefinitionFormField
+        id="client_id.github"
+        help={translate('settings.almintegration.form.client_id.github.help')}
+        maxLength={80}
+        onFieldChange={onFieldChange}
+        propKey="clientId"
+        value={formData.clientId}
+      />
+      <AlmBindingDefinitionFormField
+        id="client_secret.github"
+        help={translate('settings.almintegration.form.client_secret.github.help')}
+        maxLength={80}
+        onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
+        propKey="clientSecret"
+        value={formData.clientSecret}
+      />
+      <AlmBindingDefinitionFormField
+        id="private_key"
+        help={translate('settings.almintegration.form.private_key.github.help')}
+        isTextArea={true}
+        onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
+        propKey="privateKey"
+        value={formData.privateKey}
+      />
+    </>
   );
 }

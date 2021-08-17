@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, GitlabBindingDefinition } from '../../../../types/alm-settings';
@@ -35,53 +34,62 @@ export default function GitlabForm(props: GitlabFormProps) {
   const { formData, onFieldChange } = props;
 
   return (
-    <div className="display-flex-start">
-      <div className="flex-1">
-        <AlmBindingDefinitionFormField
-          autoFocus={true}
-          help={translate('settings.almintegration.form.name.gitlab.help')}
-          id="name.gitlab"
-          onFieldChange={onFieldChange}
-          propKey="key"
-          value={formData.key}
-        />
-        <AlmBindingDefinitionFormField
-          help={
-            <>
-              {translate('settings.almintegration.form.url.gitlab.help')}
-              <br />
-              <em>https://gitlab.com/api/v4</em>
-            </>
-          }
-          id="url.gitlab"
-          maxLength={2000}
-          onFieldChange={onFieldChange}
-          propKey="url"
-          value={formData.url || ''}
-        />
-        <AlmBindingDefinitionFormField
-          help={translate('settings.almintegration.form.personal_access_token.gitlab.help')}
-          id="personal_access_token"
-          isTextArea={true}
-          onFieldChange={onFieldChange}
-          overwriteOnly={Boolean(formData.key)}
-          propKey="personalAccessToken"
-          value={formData.personalAccessToken}
-        />
-      </div>
-      <Alert className="huge-spacer-left flex-1" variant="info">
-        <FormattedMessage
-          defaultMessage={translate(`settings.almintegration.gitlab.info`)}
-          id="settings.almintegration.gitlab.info"
-          values={{
-            link: (
-              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
-                {translate('learn_more')}
-              </Link>
-            )
-          }}
-        />
-      </Alert>
-    </div>
+    <>
+      <AlmBindingDefinitionFormField
+        autoFocus={true}
+        help={translate('settings.almintegration.form.name.gitlab.help')}
+        id="name.gitlab"
+        onFieldChange={onFieldChange}
+        propKey="key"
+        value={formData.key}
+      />
+      <AlmBindingDefinitionFormField
+        help={
+          <>
+            {translate('settings.almintegration.form.url.gitlab.help')}
+            <br />
+            <em>https://gitlab.com/api/v4</em>
+          </>
+        }
+        id="url.gitlab"
+        maxLength={2000}
+        onFieldChange={onFieldChange}
+        propKey="url"
+        value={formData.url || ''}
+      />
+      <AlmBindingDefinitionFormField
+        help={
+          <FormattedMessage
+            defaultMessage={translate(
+              `settings.almintegration.form.personal_access_token.gitlab.help`
+            )}
+            id="settings.almintegration.form.personal_access_token.gitlab.help"
+            values={{
+              pat: (
+                <a
+                  href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  {translate('settings.almintegration.form.personal_access_token.gitlab.help.url')}
+                </a>
+              ),
+              permission: <strong>Reporter</strong>,
+              scope: <strong>api</strong>,
+              doc_link: (
+                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
+                  {translate('learn_more')}
+                </Link>
+              )
+            }}
+          />
+        }
+        id="personal_access_token"
+        isTextArea={true}
+        onFieldChange={onFieldChange}
+        overwriteOnly={Boolean(formData.key)}
+        propKey="personalAccessToken"
+        value={formData.personalAccessToken}
+      />
+    </>
   );
 }

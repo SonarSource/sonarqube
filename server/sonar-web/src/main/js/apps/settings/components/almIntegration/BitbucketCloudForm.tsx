@@ -20,8 +20,11 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { Alert } from '../../../../components/ui/Alert';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
-import { BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
+import { AlmKeys, BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface BitbucketCloudFormProps {
@@ -65,6 +68,28 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         propKey="workspace"
         value={formData.workspace || ''}
       />
+      <Alert className="big-spacer-top big-spacer-right" variant="info">
+        <FormattedMessage
+          defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
+          id="settings.almintegration.bitbucketcloud.info"
+          values={{
+            oauth: (
+              <a
+                href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
+                rel="noopener noreferrer"
+                target="_blank">
+                {translate('settings.almintegration.bitbucketcloud.oauth')}
+              </a>
+            ),
+            permission: <strong>Pull Requests: Read</strong>,
+            doc_link: (
+              <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
+                {translate('learn_more')}
+              </Link>
+            )
+          }}
+        />
+      </Alert>
       <AlmBindingDefinitionFormField
         id="client_id.bitbucketcloud"
         help={translate('settings.almintegration.form.oauth_key.bitbucketcloud.help')}

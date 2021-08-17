@@ -1,131 +1,137 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.gitlab.help"
-      id="name.gitlab"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.gitlab.help
-          <br />
-          <em>
-            https://gitlab.com/api/v4
-          </em>
-        </React.Fragment>
-      }
-      id="url.gitlab"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.personal_access_token.gitlab.help"
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="personalAccessToken"
-      value=""
-    />
-  </div>
-  <Alert
-    className="huge-spacer-left flex-1"
-    variant="info"
-  >
-    <FormattedMessage
-      defaultMessage="settings.almintegration.gitlab.info"
-      id="settings.almintegration.gitlab.info"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/gitlab-integration/"
-          >
-            learn_more
-          </Link>,
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.gitlab.help"
+    id="name.gitlab"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.gitlab.help
+        <br />
+        <em>
+          https://gitlab.com/api/v4
+        </em>
+      </React.Fragment>
+    }
+    id="url.gitlab"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.personal_access_token.gitlab.help"
+        id="settings.almintegration.form.personal_access_token.gitlab.help"
+        values={
+          Object {
+            "doc_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/gitlab-integration/"
+            >
+              learn_more
+            </Link>,
+            "pat": <a
+              href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              settings.almintegration.form.personal_access_token.gitlab.help.url
+            </a>,
+            "permission": <strong>
+              Reporter
+            </strong>,
+            "scope": <strong>
+              api
+            </strong>,
+          }
         }
-      }
-    />
-  </Alert>
-</div>
+      />
+    }
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={false}
+    propKey="personalAccessToken"
+    value=""
+  />
+</Fragment>
 `;
 
 exports[`should render correctly 2`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.gitlab.help"
-      id="name.gitlab"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value="foo"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.gitlab.help
-          <br />
-          <em>
-            https://gitlab.com/api/v4
-          </em>
-        </React.Fragment>
-      }
-      id="url.gitlab"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.personal_access_token.gitlab.help"
-      id="personal_access_token"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="personalAccessToken"
-      value="foobar"
-    />
-  </div>
-  <Alert
-    className="huge-spacer-left flex-1"
-    variant="info"
-  >
-    <FormattedMessage
-      defaultMessage="settings.almintegration.gitlab.info"
-      id="settings.almintegration.gitlab.info"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/gitlab-integration/"
-          >
-            learn_more
-          </Link>,
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.gitlab.help"
+    id="name.gitlab"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="foo"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.gitlab.help
+        <br />
+        <em>
+          https://gitlab.com/api/v4
+        </em>
+      </React.Fragment>
+    }
+    id="url.gitlab"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.personal_access_token.gitlab.help"
+        id="settings.almintegration.form.personal_access_token.gitlab.help"
+        values={
+          Object {
+            "doc_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/gitlab-integration/"
+            >
+              learn_more
+            </Link>,
+            "pat": <a
+              href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              settings.almintegration.form.personal_access_token.gitlab.help.url
+            </a>,
+            "permission": <strong>
+              Reporter
+            </strong>,
+            "scope": <strong>
+              api
+            </strong>,
+          }
         }
-      }
-    />
-  </Alert>
-</div>
+      />
+    }
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="personalAccessToken"
+    value="foobar"
+  />
+</Fragment>
 `;

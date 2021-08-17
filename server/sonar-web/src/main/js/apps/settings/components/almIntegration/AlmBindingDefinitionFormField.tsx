@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { translate } from '../../../../helpers/l10n';
 import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
+import '../../styles.css';
 
 export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefinitionBase> {
   autoFocus?: boolean;
@@ -54,51 +54,54 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
   const [showField, setShowField] = React.useState(!overwriteOnly);
 
   return (
-    <div className="modal-field">
-      <label className="display-flex-center" htmlFor={id}>
-        {translate('settings.almintegration.form', id)}
+    <div className="settings-definition">
+      <div className="settings-definition-left">
+        <label className="h3" htmlFor={id}>
+          {translate('settings.almintegration.form', id)}
+        </label>
         {!optional && <MandatoryFieldMarker />}
-        {help && <HelpTooltip className="spacer-left" overlay={help} placement="right" />}
-      </label>
+        {help && <div className="markdown small spacer-top">{help}</div>}
+      </div>
+      <div className="settings-definition-right big-padded-top">
+        {!showField && overwriteOnly && (
+          <div>
+            <p>{translate('settings.almintegration.form.secret_field')}</p>
+            <ButtonLink
+              onClick={() => {
+                props.onFieldChange(propKey, '');
+                setShowField(true);
+              }}>
+              {translate('settings.almintegration.form.update_secret_field')}
+            </ButtonLink>
+          </div>
+        )}
 
-      {!showField && overwriteOnly && (
-        <div>
-          <p>{translate('settings.almintegration.form.secret_field')}</p>
-          <ButtonLink
-            onClick={() => {
-              props.onFieldChange(propKey, '');
-              setShowField(true);
-            }}>
-            {translate('settings.almintegration.form.update_secret_field')}
-          </ButtonLink>
-        </div>
-      )}
+        {showField && isTextArea && (
+          <textarea
+            className="settings-large-input"
+            id={id}
+            maxLength={maxLength || 2000}
+            onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
+            required={!optional}
+            rows={5}
+            value={value}
+          />
+        )}
 
-      {showField && isTextArea && (
-        <textarea
-          className="settings-large-input"
-          id={id}
-          maxLength={maxLength || 2000}
-          onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
-          required={!optional}
-          rows={5}
-          value={value}
-        />
-      )}
-
-      {showField && !isTextArea && (
-        <input
-          autoFocus={autoFocus}
-          className="input-super-large"
-          id={id}
-          maxLength={maxLength || 100}
-          name={id}
-          onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
-          size={50}
-          type="text"
-          value={value}
-        />
-      )}
+        {showField && !isTextArea && (
+          <input
+            autoFocus={autoFocus}
+            className="settings-large-input"
+            id={id}
+            maxLength={maxLength || 100}
+            name={id}
+            onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
+            size={50}
+            type="text"
+            value={value}
+          />
+        )}
+      </div>
     </div>
   );
 }

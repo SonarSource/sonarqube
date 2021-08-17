@@ -20,8 +20,10 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
+import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
-import { BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
+import { AlmKeys, BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface BitbucketServerFormProps {
@@ -34,7 +36,6 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
 
   return (
     <>
-      {' '}
       <AlmBindingDefinitionFormField
         autoFocus={true}
         help={translate('settings.almintegration.form.name.bitbucket.help')}
@@ -76,6 +77,12 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
                     'settings.almintegration.form.personal_access_token.bitbucket.help.url'
                   )}
                 </a>
+              ),
+              permission: <strong>Read</strong>,
+              doc_link: (
+                <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer]}>
+                  {translate('learn_more')}
+                </Link>
               )
             }}
           />

@@ -18,11 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import RadioToggle from '../../../../components/controls/RadioToggle';
-import { Alert } from '../../../../components/ui/Alert';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmKeys,
@@ -70,58 +66,17 @@ export default function BitbucketForm(props: BitbucketFormProps) {
       {variant !== undefined && (
         <>
           {variant === AlmKeys.BitbucketServer && (
-            <div className="display-flex-start">
-              <div className="flex-1">
-                <BitbucketServerForm
-                  onFieldChange={props.onFieldChange}
-                  formData={formData as BitbucketServerBindingDefinition}
-                />
-              </div>
-              <Alert className="huge-spacer-left flex-1" variant="info">
-                <>
-                  <h3>{translate('onboarding.create_project.pat_help.title')}</h3>
-
-                  <p className="big-spacer-top">
-                    {translate('settings.almintegration.bitbucket.help_1')}
-                  </p>
-
-                  <ul className="big-spacer-top list-styled">
-                    <li>{translate('settings.almintegration.bitbucket.help_2')}</li>
-                    <li>{translate('settings.almintegration.bitbucket.help_3')}</li>
-                  </ul>
-
-                  <p className="big-spacer-top big-spacer-bottom">
-                    <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketServer]}>
-                      {translate('learn_more')}
-                    </Link>
-                  </p>
-                </>
-              </Alert>
-            </div>
+            <BitbucketServerForm
+              onFieldChange={props.onFieldChange}
+              formData={formData as BitbucketServerBindingDefinition}
+            />
           )}
 
           {variant === AlmKeys.BitbucketCloud && (
-            <div className="display-flex-start">
-              <div className="flex-1">
-                <BitbucketCloudForm
-                  onFieldChange={props.onFieldChange}
-                  formData={formData as BitbucketCloudBindingDefinition}
-                />
-              </div>
-              <Alert className="huge-spacer-left flex-1" variant="info">
-                <FormattedMessage
-                  defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
-                  id="settings.almintegration.bitbucketcloud.info"
-                  values={{
-                    link: (
-                      <Link target="_blank" to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
-                        {translate('learn_more')}
-                      </Link>
-                    )
-                  }}
-                />
-              </Alert>
-            </div>
+            <BitbucketCloudForm
+              onFieldChange={props.onFieldChange}
+              formData={formData as BitbucketCloudBindingDefinition}
+            />
           )}
         </>
       )}

@@ -1,80 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.github.help"
-      id="name.github"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.github.help1
-          <br />
-          <em>
-            https://github.company.com/api/v3
-          </em>
-          <br />
-          <br />
-          settings.almintegration.form.url.github.help2
-          <br />
-          <em>
-            https://api.github.com/
-          </em>
-        </React.Fragment>
-      }
-      id="url.github"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.app_id.github.help"
-      id="app_id"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      propKey="appId"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.client_id.github.help"
-      id="client_id.github"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      propKey="clientId"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.client_secret.github.help"
-      id="client_secret.github"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="clientSecret"
-      value=""
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.private_key.github.help"
-      id="private_key"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={false}
-      propKey="privateKey"
-      value=""
-    />
-  </div>
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.github.help"
+    id="name.github"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.github"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
   <Alert
-    className="huge-spacer-left flex-1"
+    className="big-spacer-top big-spacer-right"
     variant="info"
   >
     <FormattedMessage
@@ -94,84 +54,78 @@ exports[`should render correctly 1`] = `
       }
     />
   </Alert>
-</div>
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.app_id.github.help"
+    id="app_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_id.github.help"
+    id="client_id.github"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientId"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_secret.github.help"
+    id="client_secret.github"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={false}
+    propKey="clientSecret"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.private_key.github.help"
+    id="private_key"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={false}
+    propKey="privateKey"
+    value=""
+  />
+</Fragment>
 `;
 
 exports[`should render correctly 2`] = `
-<div
-  className="display-flex-start"
->
-  <div
-    className="flex-1"
-  >
-    <AlmBindingDefinitionFormField
-      autoFocus={true}
-      help="settings.almintegration.form.name.github.help"
-      id="name.github"
-      onFieldChange={[MockFunction]}
-      propKey="key"
-      value="key"
-    />
-    <AlmBindingDefinitionFormField
-      help={
-        <React.Fragment>
-          settings.almintegration.form.url.github.help1
-          <br />
-          <em>
-            https://github.company.com/api/v3
-          </em>
-          <br />
-          <br />
-          settings.almintegration.form.url.github.help2
-          <br />
-          <em>
-            https://api.github.com/
-          </em>
-        </React.Fragment>
-      }
-      id="url.github"
-      maxLength={2000}
-      onFieldChange={[MockFunction]}
-      propKey="url"
-      value="http://github.enterprise.com"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.app_id.github.help"
-      id="app_id"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      propKey="appId"
-      value="123456"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.client_id.github.help"
-      id="client_id.github"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      propKey="clientId"
-      value="client1"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.client_secret.github.help"
-      id="client_secret.github"
-      maxLength={80}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="clientSecret"
-      value="**clientsecret**"
-    />
-    <AlmBindingDefinitionFormField
-      help="settings.almintegration.form.private_key.github.help"
-      id="private_key"
-      isTextArea={true}
-      onFieldChange={[MockFunction]}
-      overwriteOnly={true}
-      propKey="privateKey"
-      value="asdf1234"
-    />
-  </div>
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.github.help"
+    id="name.github"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.github"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value="http://github.enterprise.com"
+  />
   <Alert
-    className="huge-spacer-left flex-1"
+    className="big-spacer-top big-spacer-right"
     variant="info"
   >
     <FormattedMessage
@@ -191,5 +145,39 @@ exports[`should render correctly 2`] = `
       }
     />
   </Alert>
-</div>
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.app_id.github.help"
+    id="app_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+    value="123456"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_id.github.help"
+    id="client_id.github"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientId"
+    value="client1"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.client_secret.github.help"
+    id="client_secret.github"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="clientSecret"
+    value="**clientsecret**"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.private_key.github.help"
+    id="private_key"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    overwriteOnly={true}
+    propKey="privateKey"
+    value="asdf1234"
+  />
+</Fragment>
 `;

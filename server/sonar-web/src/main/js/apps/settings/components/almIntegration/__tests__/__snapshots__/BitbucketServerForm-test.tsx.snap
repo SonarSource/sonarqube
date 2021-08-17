@@ -2,7 +2,6 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-   
   <AlmBindingDefinitionFormField
     autoFocus={true}
     help="settings.almintegration.form.name.bitbucket.help"
@@ -37,6 +36,14 @@ exports[`should render correctly 1`] = `
         id="settings.almintegration.form.personal_access_token.bitbucket.help"
         values={
           Object {
+            "doc_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to="/documentation/analysis/bitbucket-integration/"
+            >
+              learn_more
+            </Link>,
             "pat": <a
               href="https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html"
               rel="noopener noreferrer"
@@ -44,6 +51,9 @@ exports[`should render correctly 1`] = `
             >
               settings.almintegration.form.personal_access_token.bitbucket.help.url
             </a>,
+            "permission": <strong>
+              Read
+            </strong>,
           }
         }
       />

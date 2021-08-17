@@ -28,46 +28,17 @@ exports[`should render correctly: bbc 1`] = `
       value="bitbucketcloud"
     />
   </div>
-  <div
-    className="display-flex-start"
-  >
-    <div
-      className="flex-1"
-    >
-      <BitbucketCloudForm
-        formData={
-          Object {
-            "clientId": "client1",
-            "clientSecret": "**clientsecret**",
-            "key": "key",
-            "workspace": "workspace",
-          }
-        }
-        onFieldChange={[MockFunction]}
-      />
-    </div>
-    <Alert
-      className="huge-spacer-left flex-1"
-      variant="info"
-    >
-      <FormattedMessage
-        defaultMessage="settings.almintegration.bitbucketcloud.info"
-        id="settings.almintegration.bitbucketcloud.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to="/documentation/analysis/bitbucket-cloud-integration/"
-            >
-              learn_more
-            </Link>,
-          }
-        }
-      />
-    </Alert>
-  </div>
+  <BitbucketCloudForm
+    formData={
+      Object {
+        "clientId": "client1",
+        "clientSecret": "**clientsecret**",
+        "key": "key",
+        "workspace": "workspace",
+      }
+    }
+    onFieldChange={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -99,161 +70,46 @@ exports[`should render correctly: bbs 1`] = `
       value="bitbucket"
     />
   </div>
-  <div
-    className="display-flex-start"
-  >
-    <div
-      className="flex-1"
-    >
-      <BitbucketServerForm
-        formData={
-          Object {
-            "key": "key",
-            "personalAccessToken": "asdf1234",
-            "url": "http://bbs.enterprise.com",
-          }
-        }
-        onFieldChange={[MockFunction]}
-      />
-    </div>
-    <Alert
-      className="huge-spacer-left flex-1"
-      variant="info"
-    >
-      <h3>
-        onboarding.create_project.pat_help.title
-      </h3>
-      <p
-        className="big-spacer-top"
-      >
-        settings.almintegration.bitbucket.help_1
-      </p>
-      <ul
-        className="big-spacer-top list-styled"
-      >
-        <li>
-          settings.almintegration.bitbucket.help_2
-        </li>
-        <li>
-          settings.almintegration.bitbucket.help_3
-        </li>
-      </ul>
-      <p
-        className="big-spacer-top big-spacer-bottom"
-      >
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          target="_blank"
-          to="/documentation/analysis/bitbucket-integration/"
-        >
-          learn_more
-        </Link>
-      </p>
-    </Alert>
-  </div>
+  <BitbucketServerForm
+    formData={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+        "url": "http://bbs.enterprise.com",
+      }
+    }
+    onFieldChange={[MockFunction]}
+  />
 </Fragment>
 `;
 
 exports[`should render correctly: update bbc 1`] = `
 <Fragment>
-  <div
-    className="display-flex-start"
-  >
-    <div
-      className="flex-1"
-    >
-      <BitbucketCloudForm
-        formData={
-          Object {
-            "clientId": "client1",
-            "clientSecret": "**clientsecret**",
-            "key": "key",
-            "workspace": "workspace",
-          }
-        }
-        onFieldChange={[MockFunction]}
-      />
-    </div>
-    <Alert
-      className="huge-spacer-left flex-1"
-      variant="info"
-    >
-      <FormattedMessage
-        defaultMessage="settings.almintegration.bitbucketcloud.info"
-        id="settings.almintegration.bitbucketcloud.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to="/documentation/analysis/bitbucket-cloud-integration/"
-            >
-              learn_more
-            </Link>,
-          }
-        }
-      />
-    </Alert>
-  </div>
+  <BitbucketCloudForm
+    formData={
+      Object {
+        "clientId": "client1",
+        "clientSecret": "**clientsecret**",
+        "key": "key",
+        "workspace": "workspace",
+      }
+    }
+    onFieldChange={[MockFunction]}
+  />
 </Fragment>
 `;
 
 exports[`should render correctly: update bbs 1`] = `
 <Fragment>
-  <div
-    className="display-flex-start"
-  >
-    <div
-      className="flex-1"
-    >
-      <BitbucketServerForm
-        formData={
-          Object {
-            "key": "key",
-            "personalAccessToken": "asdf1234",
-            "url": "http://bbs.enterprise.com",
-          }
-        }
-        onFieldChange={[MockFunction]}
-      />
-    </div>
-    <Alert
-      className="huge-spacer-left flex-1"
-      variant="info"
-    >
-      <h3>
-        onboarding.create_project.pat_help.title
-      </h3>
-      <p
-        className="big-spacer-top"
-      >
-        settings.almintegration.bitbucket.help_1
-      </p>
-      <ul
-        className="big-spacer-top list-styled"
-      >
-        <li>
-          settings.almintegration.bitbucket.help_2
-        </li>
-        <li>
-          settings.almintegration.bitbucket.help_3
-        </li>
-      </ul>
-      <p
-        className="big-spacer-top big-spacer-bottom"
-      >
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          target="_blank"
-          to="/documentation/analysis/bitbucket-integration/"
-        >
-          learn_more
-        </Link>
-      </p>
-    </Alert>
-  </div>
+  <BitbucketServerForm
+    formData={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+        "url": "http://bbs.enterprise.com",
+      }
+    }
+    onFieldChange={[MockFunction]}
+  />
 </Fragment>
 `;

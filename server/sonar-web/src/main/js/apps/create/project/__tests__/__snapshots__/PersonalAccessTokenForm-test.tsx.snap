@@ -372,7 +372,7 @@ exports[`should render correctly: gitlab 1`] = `
         src="/images/alm/gitlab.svg"
       />
       <a
-        href="https://gitlab.com/profile/personal_access_tokens"
+        href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -482,7 +482,7 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
         src="/images/alm/gitlab.svg"
       />
       <a
-        href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token"
+        href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
         rel="noopener noreferrer"
         target="_blank"
       >
