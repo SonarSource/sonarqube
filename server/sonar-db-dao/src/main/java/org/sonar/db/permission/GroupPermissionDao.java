@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
@@ -123,12 +124,13 @@ public class GroupPermissionDao implements Dao {
     return mapper(session).selectGroupUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto) {
+  public void insert(DbSession dbSession, GroupPermissionDto groupPermissionDto, @Nullable ComponentDto componentDto,
+    @Nullable PermissionTemplateDto permissionTemplateDto) {
     mapper(dbSession).insert(groupPermissionDto);
 
     if (auditPersister != null) {
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, qualifier));
+      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, qualifier, permissionTemplateDto));
     }
   }
 

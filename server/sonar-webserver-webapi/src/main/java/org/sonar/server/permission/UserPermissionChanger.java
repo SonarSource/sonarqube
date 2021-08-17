@@ -98,7 +98,7 @@ public class UserPermissionChanger {
     }
     UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
       change.getProjectUuid());
-    dbClient.userPermissionDao().insert(dbSession, dto, change.getProject(), change.getUserId());
+    dbClient.userPermissionDao().insert(dbSession, dto, change.getProject(), change.getUserId(), null);
     return true;
   }
 

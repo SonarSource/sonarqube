@@ -21,17 +21,21 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.Nullable;
 import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserId;
 
 public class UserPermissionNewValue extends PermissionNewValue {
 
   @Nullable
   private final String userUuid;
+
   @Nullable
   private final String userLogin;
 
-  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName, @Nullable UserId userId, String qualifier) {
-    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), projectName, permissionDto.getPermission(), qualifier);
+  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName, @Nullable UserId userId,
+    String qualifier, @Nullable PermissionTemplateDto templateDto) {
+    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), projectName, permissionDto.getPermission(),
+      qualifier, templateDto);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
@@ -41,7 +45,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
   }
 
   public UserPermissionNewValue(String role, String projectUuid, String projectName, UserId userId, String qualifier) {
-    super(null, projectUuid, projectName, role, qualifier);
+    super(null, projectUuid, projectName, role, qualifier, null);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
@@ -63,6 +67,8 @@ public class UserPermissionNewValue extends PermissionNewValue {
     addField(sb, "\"permission\": ", this.permission, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
+    addField(sb, "\"permissionTemplateUuid\": ", this.permissionTemplateId, true);
+    addField(sb, "\"permissionTemplateName\": ", this.permissionTemplateName, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"qualifier\": ", this.qualifier, true);

@@ -166,7 +166,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, UserId userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()), component, userId);
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userId.getUuid(), component.uuid()),
+      component, userId, null);
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {
@@ -177,7 +178,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       .setGroupUuid(groupUuid)
       .setGroupName(groupName)
       .setRole(permission)
-      .setComponentName(component.name()), component);
+      .setComponentName(component.name()), component, null);
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {

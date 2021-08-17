@@ -1399,7 +1399,7 @@ public class SearchActionTest {
         .setGroupUuid(null)
         .setComponentUuid(project.uuid())
         .setComponentName(project.name())
-        .setRole(permission), project);
+        .setRole(permission), project, null);
     session.commit();
     userSession.logIn().addProjectPermission(permission, project);
   }

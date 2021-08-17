@@ -196,7 +196,7 @@ public class UserDbTester {
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
       .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null, null);
     db.commit();
     return dto;
   }
@@ -210,7 +210,7 @@ public class UserDbTester {
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
       .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null, null);
     db.commit();
     return dto;
   }
@@ -235,7 +235,7 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
     db.commit();
     return dto;
   }
@@ -256,7 +256,7 @@ public class UserDbTester {
       .setRole(permission)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
     db.commit();
     return dto;
   }
@@ -291,7 +291,7 @@ public class UserDbTester {
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, null, user);
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, null, user, null);
     db.commit();
     return dto;
   }
@@ -314,7 +314,7 @@ public class UserDbTester {
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, project, user);
+    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, project, user, null);
     db.commit();
     return dto;
   }

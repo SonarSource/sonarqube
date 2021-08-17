@@ -612,7 +612,7 @@ public class UpdateVisibilityActionTest {
       .setRole(permission)
       .setComponentUuid(component.uuid())
       .setComponentName(component.name());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component, null);
     dbTester.commit();
   }
 
@@ -624,13 +624,13 @@ public class UpdateVisibilityActionTest {
       .setRole(permission)
       .setComponentUuid(component.uuid())
       .setComponentName(component.name());
-    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component);
+    dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, component, null);
     dbTester.commit();
   }
 
   private void unsafeInsertProjectPermissionOnUser(ComponentDto component, UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), component.uuid());
-    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, component, user);
+    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, component, user, null);
     dbTester.commit();
   }
 

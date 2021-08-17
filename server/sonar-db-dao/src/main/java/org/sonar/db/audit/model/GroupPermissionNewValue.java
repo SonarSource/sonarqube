@@ -21,6 +21,7 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.Nullable;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 
 public class GroupPermissionNewValue extends PermissionNewValue {
 
@@ -31,20 +32,20 @@ public class GroupPermissionNewValue extends PermissionNewValue {
   private String groupName;
 
   public GroupPermissionNewValue(String uuid, String rootComponentUuid, String componentName, String role, String groupUuid,
-    String groupName, String qualifier) {
-    super(uuid, rootComponentUuid, componentName, role, qualifier);
+    String groupName, String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
+    super(uuid, rootComponentUuid, componentName, role, qualifier, permissionTemplateDto);
     this.groupUuid = groupUuid;
     this.groupName = groupName;
   }
 
   public GroupPermissionNewValue(String rootComponentUuid, String componentName, String role, String groupUuid,
     String groupName, String qualifier) {
-    this(null, rootComponentUuid, componentName, role, groupUuid, groupName, qualifier);
+    this(null, rootComponentUuid, componentName, role, groupUuid, groupName, qualifier, null);
   }
 
-  public GroupPermissionNewValue(GroupPermissionDto dto, String qualifier) {
+  public GroupPermissionNewValue(GroupPermissionDto dto, String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
     this(dto.getUuid(), dto.getComponentUuid(), dto.getComponentName(), dto.getRole(), dto.getGroupUuid(),
-      dto.getGroupName(), qualifier);
+      dto.getGroupName(), qualifier, permissionTemplateDto);
   }
 
   @Nullable
@@ -66,6 +67,8 @@ public class GroupPermissionNewValue extends PermissionNewValue {
     addField(sb, "\"groupName\": ", this.groupName, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
+    addField(sb, "\"permissionTemplateUuid\": ", this.permissionTemplateId, true);
+    addField(sb, "\"permissionTemplateName\": ", this.permissionTemplateName, true);
     addField(sb, "\"qualifier\": ", this.qualifier, true);
     endString(sb);
     return sb.toString();

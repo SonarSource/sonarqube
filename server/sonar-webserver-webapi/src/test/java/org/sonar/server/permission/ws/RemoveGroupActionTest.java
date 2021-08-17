@@ -476,7 +476,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setRole(perm)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
     db.commit();
   }
 }

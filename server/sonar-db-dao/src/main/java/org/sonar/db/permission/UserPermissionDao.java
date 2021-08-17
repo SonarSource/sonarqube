@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserId;
 import org.sonar.db.user.UserIdDto;
 
@@ -115,13 +116,15 @@ public class UserPermissionDao implements Dao {
     return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable ComponentDto componentDto, @Nullable UserId userId) {
+  public void insert(DbSession dbSession, UserPermissionDto dto, @Nullable ComponentDto componentDto,
+    @Nullable UserId userId, @Nullable PermissionTemplateDto templateDto) {
     mapper(dbSession).insert(dto);
 
     if (auditPersister != null) {
       String componentName = (componentDto != null) ? componentDto.name() : null;
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentName, userId, qualifier));
+      auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentName, userId, qualifier,
+        templateDto));
     }
   }
 

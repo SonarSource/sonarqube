@@ -131,7 +131,7 @@ public class GroupPermissionChanger {
       .map(GroupDto::getName)
       .ifPresent(addedDto::setGroupName);
 
-    dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getProject());
+    dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getProject(), null);
     return true;
   }
 

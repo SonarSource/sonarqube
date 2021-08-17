@@ -637,14 +637,14 @@ public class UserPermissionDaoTest {
 
   private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto, null, user);
+    underTest.insert(dbSession, dto, null, user, null);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, project, user);
+    underTest.insert(dbSession, dto, project, user, null);
     db.commit();
     return dto;
   }

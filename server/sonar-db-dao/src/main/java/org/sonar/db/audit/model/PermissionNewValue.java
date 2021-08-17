@@ -21,6 +21,7 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 
 public abstract class PermissionNewValue extends NewValue {
   @Nullable
@@ -38,13 +39,21 @@ public abstract class PermissionNewValue extends NewValue {
   @Nullable
   protected String qualifier;
 
+  @Nullable
+  protected String permissionTemplateId;
+
+  @Nullable
+  protected String permissionTemplateName;
+
   protected PermissionNewValue(@Nullable String permissionUuid, @Nullable String componentUuid, @Nullable String componentName,
-    @Nullable String permission, @Nullable String qualifier) {
+    @Nullable String permission, @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
     this.permissionUuid = permissionUuid;
     this.componentUuid = componentUuid;
     this.componentName = componentName;
     this.qualifier = getQualifier(qualifier);
     this.permission = permission;
+    this.permissionTemplateId = permissionTemplateDto == null ? null : permissionTemplateDto.getUuid();
+    this.permissionTemplateName = permissionTemplateDto == null ? null : permissionTemplateDto.getName();
   }
 
   @CheckForNull
@@ -71,4 +80,15 @@ public abstract class PermissionNewValue extends NewValue {
   public String getQualifier() {
     return this.qualifier;
   }
+
+  @CheckForNull
+  public String getPermissionTemplateId() {
+    return this.permissionTemplateId;
+  }
+
+  @CheckForNull
+  public String getPermissionTemplateName() {
+    return this.permissionTemplateName;
+  }
+
 }
