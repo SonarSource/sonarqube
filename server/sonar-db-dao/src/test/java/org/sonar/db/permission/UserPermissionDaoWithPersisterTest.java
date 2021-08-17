@@ -28,7 +28,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.PermissionNewValue;
+import org.sonar.db.audit.model.UserPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 
@@ -47,7 +47,7 @@ public class UserPermissionDaoWithPersisterTest {
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
-  private final ArgumentCaptor<PermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionNewValue.class);
+  private final ArgumentCaptor<UserPermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(UserPermissionNewValue.class);
   private final DbSession dbSession = db.getSession();
   private final UserPermissionDao underTest = db.getDbClient().userPermissionDao();
 
@@ -55,24 +55,24 @@ public class UserPermissionDaoWithPersisterTest {
   public void userGlobalPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), null);
-    underTest.insert(dbSession, dto, null);
+    underTest.insert(dbSession, dto, user.getLogin(), null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
-      .containsExactly(dto.getUuid(), user.getUuid(), null, dto.getPermission(), null, null);
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin,
+        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), user.getLogin(), null, dto.getPermission(), null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
-    underTest.deleteGlobalPermission(dbSession, user.getUuid(), SYSTEM_ADMIN);
+    underTest.deleteGlobalPermission(dbSession, user.getUuid(), user.getLogin(), SYSTEM_ADMIN);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
-      .containsExactly(null, user.getUuid(), null, dto.getPermission(), null);
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName)
+      .containsExactly(null, user.getUuid(), user.getLogin(), null, dto.getPermission(), null);
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
 
@@ -80,7 +80,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userGlobalPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
 
-    underTest.deleteGlobalPermission(dbSession, user.getUuid(), SYSTEM_ADMIN);
+    underTest.deleteGlobalPermission(dbSession, user.getUuid(), user.getLogin(), SYSTEM_ADMIN);
 
     verify(auditPersister).addUser(any(), any());
     verifyNoMoreInteractions(auditPersister);
@@ -91,24 +91,24 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, project);
+    underTest.insert(dbSession, dto, user.getLogin(), project);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
-      .containsExactly(dto.getUuid(), user.getUuid(), project.uuid(), dto.getPermission(), project.name(), "project");
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+      .containsExactly(dto.getUuid(), user.getUuid(), user.getLogin(), project.uuid(), dto.getPermission(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
-    underTest.deleteProjectPermission(dbSession, user.getUuid(), SYSTEM_ADMIN, project);
+    underTest.deleteProjectPermission(dbSession, user.getUuid(), user.getLogin(), SYSTEM_ADMIN, project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
-      .containsExactly(null, user.getUuid(), project.uuid(), dto.getPermission(), project.name());
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin,
+        UserPermissionNewValue::getComponentUuid, UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName)
+      .containsExactly(null, user.getUuid(), user.getLogin(), project.uuid(), dto.getPermission(), project.name());
     assertThat(newValue.toString())
       .doesNotContain("permissionUuid");
   }
@@ -118,7 +118,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.deleteProjectPermission(dbSession, user.getUuid(), SYSTEM_ADMIN, project);
+    underTest.deleteProjectPermission(dbSession, user.getUuid(), user.getLogin(), SYSTEM_ADMIN, project);
 
     verify(auditPersister).addUser(any(), any());
     verify(auditPersister).addComponent(any(), any(), any());
@@ -130,13 +130,13 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto portfolio = db.components().insertPublicPortfolio();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), portfolio.uuid());
-    underTest.insert(dbSession, dto, portfolio);
+    underTest.insert(dbSession, dto, user.getLogin(), portfolio);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), portfolio.uuid(), dto.getPermission(), portfolio.name(), "portfolio");
     assertThat(newValue.toString())
       .contains("componentUuid");
@@ -147,13 +147,13 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto application = db.components().insertPublicApplication();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), application.uuid());
-    underTest.insert(dbSession, dto, application);
+    underTest.insert(dbSession, dto, user.getLogin(), application);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), user.getUuid(), application.uuid(), dto.getPermission(), application.name(), "application");
     assertThat(newValue.toString())
       .contains("componentUuid");
@@ -164,15 +164,15 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN_EXECUTION, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, project);
+    underTest.insert(dbSession, dto, user.getLogin(), project);
     underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
-      .containsExactly(null, null, project.uuid(), SCAN_EXECUTION, project.name(), "project");
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+      .containsExactly(null, null, null, project.uuid(), SCAN_EXECUTION, project.name(), "project");
     assertThat(newValue.toString()).doesNotContain("userUuid");
   }
 
@@ -191,15 +191,15 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, project);
+    underTest.insert(dbSession, dto, user.getLogin(), project);
     underTest.deleteByUserUuid(dbSession, user.getUuid());
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    UserPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getUserUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
-      .containsExactly(null, user.getUuid(), null, null, null, null);
+      .extracting(UserPermissionNewValue::getPermissionUuid, UserPermissionNewValue::getUserUuid, UserPermissionNewValue::getUserLogin, UserPermissionNewValue::getComponentUuid,
+        UserPermissionNewValue::getRole, UserPermissionNewValue::getComponentName, UserPermissionNewValue::getQualifier)
+      .containsExactly(null, user.getUuid(), null, null, null, null, null);
     assertThat(newValue.toString()).contains("userUuid");
   }
 

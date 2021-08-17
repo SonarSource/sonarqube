@@ -30,7 +30,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.PermissionNewValue;
+import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -127,9 +127,8 @@ public class GroupPermissionDao implements Dao {
     mapper(dbSession).insert(groupPermissionDto);
 
     if (auditPersister != null) {
-      String componentName = (componentDto != null) ? componentDto.name() : null;
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addGroupPermission(dbSession, new PermissionNewValue(groupPermissionDto, componentName, qualifier));
+      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, qualifier));
     }
   }
 
@@ -140,8 +139,8 @@ public class GroupPermissionDao implements Dao {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuid(component.uuid());
 
     if (deletedRecords > 0 && auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, component.uuid(), component.name(),
-        component.qualifier(), null));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
+        component.name(), null, null, null, component.qualifier()));
     }
   }
 
@@ -153,8 +152,8 @@ public class GroupPermissionDao implements Dao {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), groupUuid);
 
     if (deletedRecords > 0 && auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, groupUuid, "", component.uuid(), component.name(),
-        component.qualifier(), null));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
+        component.name(), null, groupUuid, "", component.qualifier()));
     }
     return deletedRecords;
   }
@@ -163,8 +162,8 @@ public class GroupPermissionDao implements Dao {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(component.uuid(), null);
 
     if (deletedRecords > 0 && auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(null, null, null, component.uuid(),
-        component.name(), component.qualifier(), null));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
+        component.name(), null, null, null, component.qualifier()));
     }
 
     return deletedRecords;
@@ -177,8 +176,8 @@ public class GroupPermissionDao implements Dao {
     int deletedRecords = mapper(dbSession).deleteByRootComponentUuidAndPermission(component.uuid(), permission);
 
     if (deletedRecords > 0 && auditPersister != null) {
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, null, null, component.uuid(),
-        component.name(), component.qualifier(), null));
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
+        component.name(), permission, null, null, component.qualifier()));
     }
 
     return deletedRecords;
@@ -198,16 +197,16 @@ public class GroupPermissionDao implements Dao {
    * @param groupUuid         if null, then anyone, else uuid of group
    * @param rootComponentUuid if null, then global permission, otherwise the uuid of root component (project)
    */
-  public void delete(DbSession dbSession, String permission,
-    @Nullable String groupUuid, @Nullable String groupName, @Nullable String rootComponentUuid, @Nullable ComponentDto componentDto) {
+  public void delete(DbSession dbSession, String permission, @Nullable String groupUuid,
+    @Nullable String groupName, @Nullable String rootComponentUuid, @Nullable ComponentDto componentDto) {
 
     int deletedRecords = mapper(dbSession).delete(permission, groupUuid, rootComponentUuid);
 
     if (deletedRecords > 0 && auditPersister != null) {
-      String projectName = (componentDto != null) ? componentDto.name() : null;
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.deleteGroupPermission(dbSession, new PermissionNewValue(permission, groupUuid, groupName, rootComponentUuid,
-        projectName, qualifier, null));
+      String componentName = (componentDto != null) ? componentDto.name() : null;
+      auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(rootComponentUuid,
+        componentName, permission, groupUuid, groupName, qualifier));
     }
   }
 

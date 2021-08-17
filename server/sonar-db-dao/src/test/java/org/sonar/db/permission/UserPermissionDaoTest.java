@@ -368,19 +368,19 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm4", user2, project2);
 
     // user2 does not have global permissions -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user2.getUuid(), "perm1");
+    underTest.deleteGlobalPermission(dbSession, user2.getUuid(), user2.getLogin(), "perm1");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission is not granted -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "notGranted");
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "notGranted");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // permission is on project -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm3");
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm3");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission exists -> delete it, but not the project permission with the same name !
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm1");
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm1");
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
@@ -397,10 +397,10 @@ public class UserPermissionDaoTest {
     addProjectPermission("perm", user2, project1);
 
     // no such provision -> ignore
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "anotherPerm", project1);
+    underTest.deleteProjectPermission(dbSession, user1.getUuid(), user1.getLogin(), "anotherPerm", project1);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
 
-    underTest.deleteProjectPermission(dbSession, user1.getUuid(), "perm", project1);
+    underTest.deleteProjectPermission(dbSession, user1.getUuid(), user1.getLogin(), "perm", project1);
     assertThatProjectPermissionDoesNotExist(user1, "perm", project1);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(3);
   }
@@ -633,14 +633,14 @@ public class UserPermissionDaoTest {
 
   private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto, null);
+    underTest.insert(dbSession, dto, user.getLogin(), null);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, project);
+    underTest.insert(dbSession, dto, user.getLogin(), project);
     db.commit();
     return dto;
   }

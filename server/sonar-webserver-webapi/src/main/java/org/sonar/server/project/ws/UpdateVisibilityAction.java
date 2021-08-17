@@ -26,6 +26,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -36,6 +38,7 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -162,8 +165,13 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, String userUuid) {
+    UserDto userDto = dbClient.userDao().selectByUuid(dbSession, userUuid);
+    String userLogin = userDto != null ? userDto.getLogin() : null;
+    if(userLogin == null) {
+      LOG.warn("Updating project permissions for user uuid " + userUuid + " which does not exist");
+    }
     dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userUuid, component.uuid()),
-      component);
+      userLogin, component);
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {

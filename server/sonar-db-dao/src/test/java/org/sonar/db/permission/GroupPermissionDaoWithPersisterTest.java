@@ -27,7 +27,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.model.PermissionNewValue;
+import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
@@ -46,7 +46,7 @@ public class GroupPermissionDaoWithPersisterTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
-  private final ArgumentCaptor<PermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionNewValue.class);
+  private final ArgumentCaptor<GroupPermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupPermissionNewValue.class);
   private final DbSession dbSession = db.getSession();
   private final GroupPermissionDao underTest = db.getDbClient().groupPermissionDao();
 
@@ -61,11 +61,11 @@ public class GroupPermissionDaoWithPersisterTest {
     underTest.insert(dbSession, dto, null);
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName, GroupPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), group.getUuid(), group.getName(), null, dto.getRole(), null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
@@ -74,9 +74,9 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName)
       .containsExactly(null, group.getUuid(), group.getName(), null, ADMIN, null);
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
@@ -96,11 +96,11 @@ public class GroupPermissionDaoWithPersisterTest {
     underTest.insert(dbSession, dto, project);
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName, GroupPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
@@ -109,9 +109,9 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName)
       .containsExactly(null, null, null, project.uuid(), null, project.name());
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
@@ -134,11 +134,11 @@ public class GroupPermissionDaoWithPersisterTest {
     underTest.insert(dbSession, dto, project);
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName, GroupPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), null, null, project.uuid(), dto.getRole(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
@@ -147,9 +147,9 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName)
       .containsExactly(null, null, null, project.uuid(), null, project.name());
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
@@ -172,11 +172,11 @@ public class GroupPermissionDaoWithPersisterTest {
     underTest.insert(dbSession, dto, project);
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
-    PermissionNewValue newValue = newValueCaptor.getValue();
+    GroupPermissionNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
-        PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid,
+        GroupPermissionNewValue::getGroupName, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName, GroupPermissionNewValue::getQualifier)
       .containsExactly(dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
@@ -185,8 +185,8 @@ public class GroupPermissionDaoWithPersisterTest {
     verify(auditPersister).deleteGroupPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid, PermissionNewValue::getComponentUuid,
-        PermissionNewValue::getRole, PermissionNewValue::getComponentName)
+      .extracting(GroupPermissionNewValue::getPermissionUuid, GroupPermissionNewValue::getGroupUuid, GroupPermissionNewValue::getComponentUuid,
+        GroupPermissionNewValue::getRole, GroupPermissionNewValue::getComponentName)
       .containsExactly(null, null, project.uuid(), ADMIN, project.name());
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }

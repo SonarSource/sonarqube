@@ -19,11 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -73,6 +68,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class UpdateVisibilityActionTest {
   private static final String PARAM_VISIBILITY = "visibility";
@@ -490,6 +490,28 @@ public class UpdateVisibilityActionTest {
   }
 
   @Test
+  public void update_a_portfolio_to_private_givenWeCanFindUserByUUID_stillUpdatePermissions() {
+    ComponentDto portfolio = dbTester.components().insertPublicPortfolio();
+    GroupDto group = dbTester.users().insertGroup();
+    dbTester.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, portfolio);
+    UserDto userDto = mock(UserDto.class);
+    when(userDto.getUuid()).thenReturn("uuid");
+    when(userDto.getLogin()).thenReturn("login");
+    dbTester.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, portfolio);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, portfolio);
+
+    request.setParam(PARAM_PROJECT, portfolio.getDbKey())
+      .setParam(PARAM_VISIBILITY, PRIVATE)
+      .execute();
+
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, portfolio.uuid()).get().isPrivate()).isTrue();
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, group.getUuid(), portfolio.uuid()))
+      .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN);
+    assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, "uuid", portfolio.uuid()))
+      .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN);
+  }
+
+  @Test
   public void update_a_portfolio_to_private() {
     ComponentDto portfolio = dbTester.components().insertPublicPortfolio();
     GroupDto group = dbTester.users().insertGroup();
@@ -630,7 +652,7 @@ public class UpdateVisibilityActionTest {
 
   private void unsafeInsertProjectPermissionOnUser(ComponentDto component, UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), component.uuid());
-    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, component);
+    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, user.getLogin(), component);
     dbTester.commit();
   }
 

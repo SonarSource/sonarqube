@@ -19,16 +19,6 @@
  */
 package org.sonar.server.permission;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
@@ -54,6 +44,16 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ServerSide
 public class PermissionTemplateService {
@@ -137,7 +137,7 @@ public class PermissionTemplateService {
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
-        dbClient.userPermissionDao().insert(dbSession, dto, project);
+        dbClient.userPermissionDao().insert(dbSession, dto, up.getUserLogin(), project);
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
@@ -172,7 +172,7 @@ public class PermissionTemplateService {
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
           UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), c.getPermission(), userDto.getUuid(), project.uuid());
-          dbClient.userPermissionDao().insert(dbSession, dto, project);
+          dbClient.userPermissionDao().insert(dbSession, dto, userDto.getLogin(), project);
         });
     }
   }

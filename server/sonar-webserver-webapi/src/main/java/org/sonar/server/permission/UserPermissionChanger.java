@@ -98,7 +98,7 @@ public class UserPermissionChanger {
     }
     UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
       change.getProjectUuid());
-    dbClient.userPermissionDao().insert(dbSession, dto, change.getProject());
+    dbClient.userPermissionDao().insert(dbSession, dto, change.getUserId().getLogin(), change.getProject());
     return true;
   }
 
@@ -108,11 +108,12 @@ public class UserPermissionChanger {
     }
     checkOtherAdminsExist(dbSession, change);
     ComponentDto project = change.getProject();
+    UserId user = change.getUserId();
     if (project != null) {
-      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getUuid(), change.getPermission(),
+      dbClient.userPermissionDao().deleteProjectPermission(dbSession, user.getUuid(), user.getLogin(), change.getPermission(),
         project);
     } else {
-      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getUuid(), change.getPermission());
+      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, user.getUuid(), user.getLogin(), change.getPermission());
     }
     return true;
   }
