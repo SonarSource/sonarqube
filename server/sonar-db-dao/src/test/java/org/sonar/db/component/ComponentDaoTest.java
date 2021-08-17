@@ -23,6 +23,21 @@ import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +75,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -75,27 +91,12 @@ import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @RunWith(DataProviderRunner.class)
 public class ComponentDaoTest {
@@ -1771,7 +1772,7 @@ public class ComponentDaoTest {
       db.components().insertComponent(newPrivateProjectDto().setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
     };
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true, null, "name");
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true, null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isTrue();
     assertThat(privateFlagOfUuid(uuids[1])).isTrue();
@@ -1779,7 +1780,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, false, null, "name");
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, false, null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1787,7 +1788,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, false, null, "name");
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, false, null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1795,7 +1796,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, true, null, "name");
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, true, null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1883,10 +1884,17 @@ public class ComponentDaoTest {
 
   @Test
   public void setPrivateForRootComponentUuid_auditPersisterIsCalled() {
-    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, APP, "appName");
+    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, APP, "appName", true);
 
     verify(auditPersister, Mockito.times(1))
       .updateComponentVisibility(any(DbSession.class), any(ComponentNewValue.class), anyString());
+  }
+
+  @Test
+  public void setPrivateForRootComponentUuid_withoutTrack_auditPersisterIsNotCalled() {
+    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, APP, "appName", false);
+
+    verifyNoInteractions(auditPersister);
   }
 
   @Test
