@@ -73,9 +73,9 @@ public class ProjectAlmSettingDao implements Dao {
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto project) {
-    getMapper(dbSession).deleteByProjectUuid(project.getUuid());
+    int deletedRows = getMapper(dbSession).deleteByProjectUuid(project.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(project));
     }
   }

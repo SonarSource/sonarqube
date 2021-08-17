@@ -75,9 +75,9 @@ public class GroupDao implements Dao {
   }
 
   public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
-    mapper(dbSession).deleteByUuid(groupUuid);
+    int deletedRows = mapper(dbSession).deleteByUuid(groupUuid);
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserGroup(dbSession, new UserGroupNewValue(groupUuid, groupName));
     }
   }

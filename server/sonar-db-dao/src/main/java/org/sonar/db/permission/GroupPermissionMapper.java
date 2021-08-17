@@ -39,7 +39,7 @@ public interface GroupPermissionMapper {
 
   void insert(GroupPermissionDto dto);
 
-  void delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
+  int delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
 
   List<String> selectGlobalPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid);
 
@@ -54,7 +54,7 @@ public interface GroupPermissionMapper {
    */
   Set<String> selectGroupUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
 
-  void deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
+  int deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
   int deleteByRootComponentUuidAndGroupUuid(@Param("rootComponentUuid") String rootComponentUuid, @Nullable @Param("groupUuid") String groupUuid);
 

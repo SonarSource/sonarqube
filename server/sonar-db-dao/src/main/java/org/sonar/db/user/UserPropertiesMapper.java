@@ -30,6 +30,6 @@ public interface UserPropertiesMapper {
 
   int update(@Param("userProperty") UserPropertyDto userPropertyDto, @Param("now") long now);
 
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
+  int deleteByUserUuid(@Param("userUuid") String userUuid);
 
 }

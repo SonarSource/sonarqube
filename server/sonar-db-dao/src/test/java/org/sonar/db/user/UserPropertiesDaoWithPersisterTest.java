@@ -170,4 +170,14 @@ public class UserPropertiesDaoWithPersisterTest {
         PropertyNewValue::getUserLogin)
       .containsExactly(userSetting.getKey(), userSetting.getValue(), user.getUuid(), user.getLogin());
   }
+
+  @Test
+  public void deleteTrackedUserPropertyWithoutAffectedRowsIsNotPersisted() {
+    UserDto user = db.users().insertUser();
+
+    underTest.deleteByUser(db.getSession(), user);
+
+    verify(auditPersister).addUser(eq(db.getSession()), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
 }

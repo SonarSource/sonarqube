@@ -34,9 +34,9 @@ public interface AlmPatMapper {
 
   void update(@Param("dto") AlmPatDto almPatDto);
 
-  void deleteByUuid(@Param("uuid") String uuid);
+  int deleteByUuid(@Param("uuid") String uuid);
 
-  void deleteByUser(@Param("userUuid") String userUuid);
+  int deleteByUser(@Param("userUuid") String userUuid);
 
-  void deleteByAlmSetting(@Param("almSettingUuid") String almSettingUuid);
+  int deleteByAlmSetting(@Param("almSettingUuid") String almSettingUuid);
 }

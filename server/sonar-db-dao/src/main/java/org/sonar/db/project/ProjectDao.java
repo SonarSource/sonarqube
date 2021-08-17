@@ -103,7 +103,7 @@ public class ProjectDao implements Dao {
     return mapper(session).selectByUuids(uuids);
   }
 
-  public void updateVisibility(DbSession session, String uuid, boolean isPrivate, String qualifier, String name) {
+  public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {
     mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 

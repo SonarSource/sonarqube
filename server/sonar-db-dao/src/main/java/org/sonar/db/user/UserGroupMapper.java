@@ -28,9 +28,9 @@ public interface UserGroupMapper {
 
   Set<String> selectUserUuidsInGroup(@Param("groupUuid") String groupUuid);
 
-  void delete(@Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
+  int delete(@Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
 
-  void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
+  int deleteByGroupUuid(@Param("groupUuid") String groupUuid);
 
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
+  int deleteByUserUuid(@Param("userUuid") String userUuid);
 }

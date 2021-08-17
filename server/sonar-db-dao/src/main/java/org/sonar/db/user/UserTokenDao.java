@@ -99,17 +99,17 @@ public class UserTokenDao implements Dao {
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
-    mapper(dbSession).deleteByUserUuid(user.getUuid());
+    int deletedRows = mapper(dbSession).deleteByUserUuid(user.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(user));
     }
   }
 
   public void deleteByUserAndName(DbSession dbSession, UserDto user, String name) {
-    mapper(dbSession).deleteByUserUuidAndName(user.getUuid(), name);
+    int deletedRows = mapper(dbSession).deleteByUserUuidAndName(user.getUuid(), name);
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(user, name));
     }
   }

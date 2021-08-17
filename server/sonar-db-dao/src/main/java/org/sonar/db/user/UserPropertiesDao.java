@@ -70,9 +70,9 @@ public class UserPropertiesDao implements Dao {
 
   public void deleteByUser(DbSession session, UserDto user) {
     List<UserPropertyDto> userProperties = selectByUser(session, user);
-    mapper(session).deleteByUserUuid(user.getUuid());
+    int deletedRows = mapper(session).deleteByUserUuid(user.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       userProperties.stream()
         .filter(p -> auditPersister.isTrackedProperty(p.getKey()))
         .forEach(p -> auditPersister.deleteProperty(session, new PropertyNewValue(p, user.getLogin()), true));

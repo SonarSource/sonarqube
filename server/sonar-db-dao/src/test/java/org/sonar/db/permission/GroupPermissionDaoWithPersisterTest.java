@@ -32,9 +32,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 public class GroupPermissionDaoWithPersisterTest {
@@ -79,6 +82,13 @@ public class GroupPermissionDaoWithPersisterTest {
   }
 
   @Test
+  public void groupGlobalPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
+    underTest.delete(dbSession, ADMIN, "group-uuid", "group-name", null, null);
+
+    verifyNoInteractions(auditPersister);
+  }
+
+  @Test
   public void groupProjectPermissionDeleteByComponentIsPersisted() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPrivateProject();
@@ -107,10 +117,20 @@ public class GroupPermissionDaoWithPersisterTest {
   }
 
   @Test
+  public void groupProjectPermissionDeleteByComponentWithoutAffectedRowsIsNotPersisted() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.deleteByRootComponentUuid(dbSession, project);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void groupProjectPermissionDeleteByComponentAndGroupIsPersisted() {
     GroupDto group = db.users().insertGroup();
     ComponentDto project = db.components().insertPrivateProject();
-    GroupPermissionDto dto = getGroupPermission(group, project);
+    GroupPermissionDto dto = getGroupPermission(project);
     underTest.insert(dbSession, dto, project);
 
     verify(auditPersister).addGroupPermission(eq(dbSession), newValueCaptor.capture());
@@ -119,7 +139,7 @@ public class GroupPermissionDaoWithPersisterTest {
       .extracting(PermissionNewValue::getPermissionUuid, PermissionNewValue::getGroupUuid,
         PermissionNewValue::getGroupName, PermissionNewValue::getComponentUuid,
         PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
-      .containsExactly(dto.getUuid(), group.getUuid(), group.getName(), project.uuid(), dto.getRole(), project.name(), "project");
+      .containsExactly(dto.getUuid(), null, null, project.uuid(), dto.getRole(), project.name(), "project");
     assertThat(newValue.toString()).contains("componentUuid");
 
     underTest.deleteByRootComponentUuidForAnyOne(dbSession, project);
@@ -132,6 +152,16 @@ public class GroupPermissionDaoWithPersisterTest {
         PermissionNewValue::getRole, PermissionNewValue::getComponentName)
       .containsExactly(null, null, null, project.uuid(), null, project.name());
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
+  }
+
+  @Test
+  public void groupProjectPermissionDeleteByComponentAndGroupWithoutAffectedRowsIsNotPersisted() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.deleteByRootComponentUuidForAnyOne(dbSession, project);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 
   @Test
@@ -161,11 +191,31 @@ public class GroupPermissionDaoWithPersisterTest {
     assertThat(newValue.toString()).doesNotContain("permissionUuid");
   }
 
+  @Test
+  public void groupProjectPermissionDeleteByComponentAndPermissionWithoutAffectedRowsIsNotPersisted() {
+    GroupDto group = db.users().insertGroup();
+    ComponentDto project = db.components().insertPrivateProject();
+    GroupPermissionDto dto = getGroupPermission(group, project);
+
+    underTest.deleteByRootComponentUuidAndPermission(dbSession, dto.getRole(), project);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
   private GroupPermissionDto getGroupPermission(GroupDto group, ComponentDto project) {
     return new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
       .setGroupName(group.getName())
+      .setRole(ADMIN)
+      .setComponentUuid(project.uuid())
+      .setComponentName(project.name());
+  }
+
+  private GroupPermissionDto getGroupPermission(ComponentDto project) {
+    return new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setRole(ADMIN)
       .setComponentUuid(project.uuid())
       .setComponentName(project.name());

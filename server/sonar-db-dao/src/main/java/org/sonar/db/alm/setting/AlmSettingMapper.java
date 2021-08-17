@@ -39,5 +39,5 @@ public interface AlmSettingMapper {
 
   void update(@Param("dto") AlmSettingDto almSettingDto);
 
-  void deleteByKey(@Param("key") String key);
+  int deleteByKey(@Param("key") String key);
 }

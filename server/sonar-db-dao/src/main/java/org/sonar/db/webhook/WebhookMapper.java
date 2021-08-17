@@ -36,7 +36,7 @@ public interface WebhookMapper {
 
   void update(WebhookDto dto);
 
-  void delete(@Param("uuid") String uuid);
+  int delete(@Param("uuid") String uuid);
 
-  void deleteForProjectUuid(@Param("projectUuid") String projectUuid);
+  int deleteForProjectUuid(@Param("projectUuid") String projectUuid);
 }

@@ -32,9 +32,11 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class WebhookDaoWithPersisterTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
@@ -139,6 +141,16 @@ public class WebhookDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteProjectWebhooksWithoutAffectedRowsIsNotPersisted() {
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p -> p.setUuid("puuid").setName("pname"));
+
+    underTest.deleteByProject(dbSession, projectDto);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void deleteWebhookIsPersisted() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
@@ -150,5 +162,12 @@ public class WebhookDaoWithPersisterTest {
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName)
       .containsExactly(dto.getUuid(), dto.getName());
     assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"" + dto.getName() + "\" }");
+  }
+
+  @Test
+  public void deleteWebhookWithoutAffectedRowsIsNotPersisted() {
+    underTest.delete(dbSession, "webhook-uuid", "webhook-name");
+
+    verifyNoMoreInteractions(auditPersister);
   }
 }

@@ -31,10 +31,12 @@ import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
 
@@ -91,7 +93,7 @@ public class ProjectAlmSettingDaoWithPersisterTest {
   }
 
   @Test
-  public void deleteByProject() {
+  public void deleteByProjectIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
@@ -109,7 +111,17 @@ public class ProjectAlmSettingDaoWithPersisterTest {
   }
 
   @Test
-  public void deleteByAlmSettingNotTracked() {
+  public void deleteByWithoutAffectedRowsProjectIsNotPersisted() {
+    ProjectDto project = db.components().insertPrivateProjectDto();
+
+    underTest.deleteByProject(dbSession, project);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
+  public void deleteByAlmSettingNotTrackedIsNotPersisted() {
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     underTest.deleteByAlmSetting(dbSession, githubAlmSetting);
 

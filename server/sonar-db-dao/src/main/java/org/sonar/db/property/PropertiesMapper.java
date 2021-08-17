@@ -75,7 +75,7 @@ public interface PropertiesMapper {
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
 
-  void deleteByKeyAndValue(@Param("key") String key, @Param("value") String value);
+  int deleteByKeyAndValue(@Param("key") String key, @Param("value") String value);
 
   List<PropertyDto> selectByUuids(@Param("uuids") List<String> uuids);
 

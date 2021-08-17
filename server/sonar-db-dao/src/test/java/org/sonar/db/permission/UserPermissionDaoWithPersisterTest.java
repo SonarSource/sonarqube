@@ -33,9 +33,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
@@ -75,6 +77,16 @@ public class UserPermissionDaoWithPersisterTest {
   }
 
   @Test
+  public void userGlobalPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
+    UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+
+    underTest.deleteGlobalPermission(dbSession, user.getUuid(), SYSTEM_ADMIN);
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void userProjectPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
@@ -99,6 +111,18 @@ public class UserPermissionDaoWithPersisterTest {
       .containsExactly(null, user.getUuid(), project.uuid(), dto.getPermission(), project.name());
     assertThat(newValue.toString())
       .doesNotContain("permissionUuid");
+  }
+
+  @Test
+  public void userProjectPermissionDeleteWithoutAffectedRowsIsNotPersisted() {
+    UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.deleteProjectPermission(dbSession, user.getUuid(), SYSTEM_ADMIN, project);
+
+    verify(auditPersister).addUser(any(), any());
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 
   @Test
@@ -153,6 +177,16 @@ public class UserPermissionDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteUserPermissionOfAnyUserWithoutAffectedRowsIsNotPersisted() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
+
+    verify(auditPersister).addComponent(any(), any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void deleteUserPermissionByUserUuidIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
@@ -167,6 +201,16 @@ public class UserPermissionDaoWithPersisterTest {
         PermissionNewValue::getRole, PermissionNewValue::getComponentName, PermissionNewValue::getQualifier)
       .containsExactly(null, user.getUuid(), null, null, null, null);
     assertThat(newValue.toString()).contains("userUuid");
+  }
+
+  @Test
+  public void deleteUserPermissionByUserUuidWithoutAffectedRowsIsNotPersisted() {
+    UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+
+    underTest.deleteByUserUuid(dbSession, user.getUuid());
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 
   private UserDto insertUser(Consumer<UserDto> populateUserDto) {

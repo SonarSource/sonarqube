@@ -54,12 +54,12 @@ public interface UserPermissionMapper {
 
   void insert(@Param("dto")UserPermissionDto dto);
 
-  void deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission);
+  int deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission);
 
-  void deleteProjectPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
+  int deleteProjectPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
     @Param("projectUuid") String projectUuid);
 
-  void deleteProjectPermissions(@Param("projectUuid") String projectUuid);
+  int deleteProjectPermissions(@Param("projectUuid") String projectUuid);
 
   int deleteProjectPermissionOfAnyUser(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
@@ -67,5 +67,5 @@ public interface UserPermissionMapper {
 
   List<String> selectProjectPermissionsOfUser(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid);
 
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
+  int deleteByUserUuid(@Param("userUuid") String userUuid);
 }

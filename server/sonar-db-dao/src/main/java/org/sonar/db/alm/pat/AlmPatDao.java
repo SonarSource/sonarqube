@@ -82,22 +82,22 @@ public class AlmPatDao implements Dao {
   }
 
   public void delete(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
-    getMapper(dbSession).deleteByUuid(almPatDto.getUuid());
-    if (auditPersister != null) {
+    int deletedRows = getMapper(dbSession).deleteByUuid(almPatDto.getUuid());
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
     }
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
-    getMapper(dbSession).deleteByUser(user.getUuid());
-    if (auditPersister != null) {
+    int deletedRows = getMapper(dbSession).deleteByUser(user.getUuid());
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(user));
     }
   }
 
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
-    getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
-    if (auditPersister != null) {
+    int deletedRows = getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almSetting));
     }
   }

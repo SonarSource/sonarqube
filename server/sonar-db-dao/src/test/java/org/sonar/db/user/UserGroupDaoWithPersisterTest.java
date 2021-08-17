@@ -33,6 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class UserGroupDaoWithPersisterTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
@@ -85,6 +87,15 @@ public class UserGroupDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteUserGroupByGroupWithoutAffectedRowsIsNotPersisted() {
+    GroupDto group1 = db.users().insertGroup();
+    underTest.deleteByGroupUuid(db.getSession(), group1.getUuid(), group1.getName());
+    db.getSession().commit();
+
+    verifyNoInteractions(auditPersister);
+  }
+
+  @Test
   public void deleteUserGroupByUserIsPersisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -106,6 +117,16 @@ public class UserGroupDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteUserGroupByUserWithoutAffectedRowsIsNotPersisted() {
+    UserDto user1 = db.users().insertUser();
+    underTest.deleteByUserUuid(db.getSession(), user1);
+    db.getSession().commit();
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void delete_by_user_and_group() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -121,5 +142,16 @@ public class UserGroupDaoWithPersisterTest {
     assertThat(newValueCaptor.getValue())
       .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getUserUuid, UserGroupNewValue::getUserLogin)
       .containsExactly(group1.getUuid(), group1.getName(), user1.getUuid(), user1.getLogin());
+  }
+
+  @Test
+  public void deletByUserAndGroupWithoutAffectedRowsIsNotPersisted() {
+    UserDto user1 = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup();
+    underTest.delete(db.getSession(), group1, user1);
+    db.getSession().commit();
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 }

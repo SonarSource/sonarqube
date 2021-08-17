@@ -42,7 +42,7 @@ public interface GroupMapper {
 
   int countByQuery(@Nullable @Param("query") String query);
 
-  void deleteByUuid(String groupUuid);
+  int deleteByUuid(String groupUuid);
 
   @CheckForNull
   GroupDto selectByName(@Param("name") String name);

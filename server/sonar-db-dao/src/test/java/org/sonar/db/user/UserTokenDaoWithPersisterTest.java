@@ -31,9 +31,11 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserTokenNewValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserTokenDaoWithPersisterTest {
@@ -50,7 +52,7 @@ public class UserTokenDaoWithPersisterTest {
   private final UserTokenDao underTest = dbClient.userTokenDao();
 
   @Test
-  public void insert_token() {
+  public void insert_token_is_persisted() {
     UserTokenDto userToken = newUserToken();
     underTest.insert(db.getSession(), userToken, "login");
 
@@ -70,7 +72,7 @@ public class UserTokenDaoWithPersisterTest {
   }
 
   @Test
-  public void update_token() {
+  public void update_token_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserTokenDto userToken1 = db.users().insertToken(user1);
 
@@ -86,7 +88,7 @@ public class UserTokenDaoWithPersisterTest {
   }
 
   @Test
-  public void delete_tokens_by_user() {
+  public void delete_tokens_by_user_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1);
@@ -104,7 +106,17 @@ public class UserTokenDaoWithPersisterTest {
   }
 
   @Test
-  public void delete_token_by_user_and_name() {
+  public void delete_tokens_by_user_without_affected_rows_is_not_persisted() {
+    UserDto user1 = db.users().insertUser();
+
+    underTest.deleteByUser(dbSession, user1);
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
+  public void delete_token_by_user_and_name_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1, t -> t.setName("name"));
@@ -119,5 +131,15 @@ public class UserTokenDaoWithPersisterTest {
     assertThat(newValueCaptor.getValue())
       .extracting(UserTokenNewValue::getUserUuid, UserTokenNewValue::getUserLogin, UserTokenNewValue::getTokenName)
       .containsExactly(user1.getUuid(), user1.getLogin(), "name");
+  }
+
+  @Test
+  public void delete_token_by_user_and_name_without_affected_rows_is_persisted() {
+    UserDto user1 = db.users().insertUser();
+
+    underTest.deleteByUserAndName(dbSession, user1, "name");
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
   }
 }

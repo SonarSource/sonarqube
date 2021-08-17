@@ -34,9 +34,9 @@ public interface UserTokenMapper {
 
   List<UserTokenDto> selectByUserUuid(String userUuid);
 
-  void deleteByUserUuid(String userUuid);
+  int deleteByUserUuid(String userUuid);
 
-  void deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
+  int deleteByUserUuidAndName(@Param("userUuid") String userUuid, @Param("name") String name);
 
   List<UserTokenCount> countTokensByUserUuids(@Param("userUuids") List<String> userUuids);
 }

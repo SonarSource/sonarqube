@@ -73,17 +73,17 @@ public class WebhookDao implements Dao {
   }
 
   public void delete(DbSession dbSession, String uuid, String webhookName) {
-    mapper(dbSession).delete(uuid);
+    int deletedRows = mapper(dbSession).delete(uuid);
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteWebhook(dbSession, new WebhookNewValue(uuid, webhookName));
     }
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto projectDto) {
-    mapper(dbSession).deleteForProjectUuid(projectDto.getUuid());
+    int deletedRows = mapper(dbSession).deleteForProjectUuid(projectDto.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteWebhook(dbSession, new WebhookNewValue(projectDto));
     }
   }

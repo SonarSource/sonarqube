@@ -51,25 +51,25 @@ public class UserGroupDao implements Dao {
   }
 
   public void delete(DbSession session, GroupDto group, UserDto user) {
-    mapper(session).delete(group.getUuid(), user.getUuid());
+    int deletedRows = mapper(session).delete(group.getUuid(), user.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(group, user));
     }
   }
 
   public void deleteByGroupUuid(DbSession session, String groupUuid, String groupName) {
-    mapper(session).deleteByGroupUuid(groupUuid);
+    int deletedRows = mapper(session).deleteByGroupUuid(groupUuid);
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(groupUuid, groupName));
     }
   }
 
   public void deleteByUserUuid(DbSession dbSession, UserDto userDto) {
-    mapper(dbSession).deleteByUserUuid(userDto.getUuid());
+    int deletedRows = mapper(dbSession).deleteByUserUuid(userDto.getUuid());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteUserFromGroup(dbSession, new UserGroupNewValue(userDto));
     }
   }

@@ -34,7 +34,7 @@ public interface ProjectAlmSettingMapper {
 
   int update(@Param("dto") ProjectAlmSettingDto projectAlmSettingDto, @Param("now") long now);
 
-  void deleteByProjectUuid(@Param("projectUuid") String projectUuid);
+  int deleteByProjectUuid(@Param("projectUuid") String projectUuid);
   void deleteByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
 
   List<ProjectAlmSettingDto> selectByAlmSettingAndSlugs(@Param("almSettingUuid") String almSettingUuid, @Param("slugs") List<String> slugs);

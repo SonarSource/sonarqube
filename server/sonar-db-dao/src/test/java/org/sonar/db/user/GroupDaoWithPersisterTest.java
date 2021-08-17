@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class GroupDaoWithPersisterTest {
@@ -103,5 +104,12 @@ public class GroupDaoWithPersisterTest {
     assertThat(newValueCaptor.getValue())
       .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName)
       .containsExactly(aGroup.getUuid(), aGroup.getName());
+  }
+
+  @Test
+  public void deleteGroupWithoutAffectedRowsIsNotPersisted() {
+    underTest.deleteByUuid(db.getSession(), aGroup.getUuid(), aGroup.getName());
+
+    verifyNoInteractions(auditPersister);
   }
 }

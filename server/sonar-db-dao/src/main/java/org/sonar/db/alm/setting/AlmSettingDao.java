@@ -79,9 +79,9 @@ public class AlmSettingDao implements Dao {
   }
 
   public void delete(DbSession dbSession, AlmSettingDto almSettingDto) {
-    getMapper(dbSession).deleteByKey(almSettingDto.getKey());
+    int deletedRows = getMapper(dbSession).deleteByKey(almSettingDto.getKey());
 
-    if (auditPersister != null) {
+    if (deletedRows > 0 && auditPersister != null) {
       auditPersister.deleteDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto.getUuid(), almSettingDto.getKey()));
     }
   }

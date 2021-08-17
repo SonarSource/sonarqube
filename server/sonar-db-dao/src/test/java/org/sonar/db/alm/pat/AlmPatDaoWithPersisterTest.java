@@ -32,9 +32,12 @@ import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 
@@ -100,6 +103,15 @@ public class AlmPatDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteWithoutAffectedRowsIsNotPersisted() {
+    AlmPatDto almPat = newAlmPatDto();
+
+    underTest.delete(dbSession, almPat, null, null);
+
+    verifyNoInteractions(auditPersister);
+  }
+
+  @Test
   public void deleteByUserIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     UserDto userDto = db.users().insertUser();
@@ -120,6 +132,16 @@ public class AlmPatDaoWithPersisterTest {
   }
 
   @Test
+  public void deleteByUserWithoutAffectedRowsIsNotPersisted() {
+    UserDto userDto = db.users().insertUser();
+
+    underTest.deleteByUser(dbSession, userDto);
+
+    verify(auditPersister).addUser(any(), any());
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
   public void deleteByAlmSettingIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
@@ -137,6 +159,15 @@ public class AlmPatDaoWithPersisterTest {
         PersonalAccessTokenNewValue::getAlmSettingKey)
       .containsExactly(null, almPat.getAlmSettingUuid(), almSettingDto.getKey());
     assertThat(newValue.toString()).doesNotContain("userUuid");
+  }
+
+  @Test
+  public void deleteByAlmSettingWithoutAffectedRowsIsNotPersisted() {
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+
+    underTest.deleteByAlmSetting(dbSession, almSettingDto);
+
+    verifyNoInteractions(auditPersister);
   }
 
 }
