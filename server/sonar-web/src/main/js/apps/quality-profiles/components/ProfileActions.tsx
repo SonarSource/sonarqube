@@ -18,12 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   changeProfileParent,
   copyProfile,
@@ -36,6 +30,12 @@ import {
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
+import ActionsDropdown, {
+  ActionsDropdownDivider,
+  ActionsDropdownItem
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile, ProfileActionModals } from '../types';
 import { getProfileComparePath, getProfilePath, PROFILE_PATH } from '../utils';
 import DeleteProfileForm from './DeleteProfileForm';

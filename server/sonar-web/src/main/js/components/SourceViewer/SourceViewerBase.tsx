@@ -19,8 +19,6 @@
  */
 import { intersection, uniqBy } from 'lodash';
 import * as React from 'react';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getComponentData,
   getComponentForSourceViewer,
@@ -28,6 +26,8 @@ import {
   getSources
 } from '../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
+import { Alert } from '../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { WorkspaceContext } from '../workspace/context';
 import DuplicationPopup from './components/DuplicationPopup';

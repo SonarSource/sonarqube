@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { addGroup, addUser, searchGroups, searchUsers } from '../../../../api/quality-profiles';
 import { mockGroup, mockUser } from '../../../../helpers/testMocks';
+import { submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import ProfilePermissionsForm from '../ProfilePermissionsForm';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 

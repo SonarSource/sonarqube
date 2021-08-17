@@ -19,8 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
 import { getValues } from '../../../api/settings';
 import {
@@ -33,11 +31,13 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { getHostUrl } from '../../../sonar-ui-common/helpers/urls';
 import { SettingsKey } from '../../../types/settings';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
-jest.mock('sonar-ui-common/helpers/urls', () => ({
+jest.mock('../../../sonar-ui-common/helpers/urls', () => ({
   getHostUrl: jest.fn().mockReturnValue('http://host.url')
 }));
 

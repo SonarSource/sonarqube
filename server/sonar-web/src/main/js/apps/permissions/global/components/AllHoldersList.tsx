@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import ListFooter from '../../../../sonar-ui-common/components/controls/ListFooter';
 import { getAppState, Store } from '../../../../store/rootReducer';
 import { ComponentQualifier } from '../../../../types/component';
 import HoldersList from '../../shared/components/HoldersList';

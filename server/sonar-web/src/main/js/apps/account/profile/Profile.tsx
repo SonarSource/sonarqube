@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import UserExternalIdentity from './UserExternalIdentity';
 
 export interface ProfileProps {

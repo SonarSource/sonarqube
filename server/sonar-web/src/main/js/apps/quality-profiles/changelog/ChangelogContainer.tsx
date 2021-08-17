@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { withRouter } from '../../../components/hoc/withRouter';
+import { parseDate, toShortNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile, ProfileChangelogEvent } from '../types';
 import { getProfileChangelogPath } from '../utils';
 import Changelog from './Changelog';

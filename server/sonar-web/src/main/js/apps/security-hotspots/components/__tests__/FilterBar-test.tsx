@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
-import Select from 'sonar-ui-common/components/controls/Select';
 import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import RadioToggle from '../../../../sonar-ui-common/components/controls/RadioToggle';
+import Select from '../../../../sonar-ui-common/components/controls/Select';
 import { ComponentQualifier } from '../../../../types/component';
 import { HotspotStatusFilter } from '../../../../types/security-hotspots';
 import { AssigneeFilterOption, FilterBar, FilterBarProps } from '../FilterBar';

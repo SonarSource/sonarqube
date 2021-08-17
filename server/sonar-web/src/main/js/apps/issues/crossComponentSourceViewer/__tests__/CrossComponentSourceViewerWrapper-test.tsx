@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getDuplications } from '../../../../api/components';
 import { getIssueFlowSnippets } from '../../../../api/issues';
 import {
@@ -29,6 +28,7 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 
 jest.mock('../../../../api/issues', () => {

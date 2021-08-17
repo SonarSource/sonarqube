@@ -19,14 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   addProjectToApplication,
   getApplicationProjects,
   removeProjectFromApplication
 } from '../../../api/application';
 import { mockApplication } from '../../../helpers/mocks/application';
+import SelectList, {
+  SelectListFilter
+} from '../../../sonar-ui-common/components/controls/SelectList';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import ApplicationProjects from '../ApplicationProjects';
 
 jest.mock('../../../api/application', () => ({

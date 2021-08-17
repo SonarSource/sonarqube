@@ -19,12 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { mockProjectAzureBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../../sonar-ui-common/helpers/handleRequiredAuthentication';
 import { TutorialsApp, TutorialsAppProps } from '../TutorialsApp';
 
-jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({ default: jest.fn() }));
+jest.mock('../../../../sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
+  default: jest.fn()
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changePassword } from '../../api/users';
+import { SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
+import { Alert } from '../../sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   className?: string;

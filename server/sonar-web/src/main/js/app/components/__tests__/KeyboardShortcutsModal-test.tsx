@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Modal from 'sonar-ui-common/components/controls/Modal';
 import { mockEvent } from '../../../helpers/testMocks';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';
 
 let handle: void | (() => void);

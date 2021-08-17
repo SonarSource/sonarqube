@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import Level from 'sonar-ui-common/components/ui/Level';
-import Rating from 'sonar-ui-common/components/ui/Rating';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import Tooltip from '../../sonar-ui-common/components/controls/Tooltip';
+import Level from '../../sonar-ui-common/components/ui/Level';
+import Rating from '../../sonar-ui-common/components/ui/Rating';
+import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
 import { getRatingTooltip } from './utils';
 
 interface Props {

@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import DateFormatter from '../../../sonar-ui-common/components/intl/DateFormatter';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 export interface SCMPopupProps {
   line: T.SourceLine;

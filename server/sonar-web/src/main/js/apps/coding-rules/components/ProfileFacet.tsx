@@ -20,13 +20,13 @@
 import * as classNames from 'classnames';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { FacetKey, Query } from '../query';
 
 interface Props {

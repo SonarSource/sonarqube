@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponents } from '../../../api/components';
 import { changeProjectDefaultVisibility } from '../../../api/permissions';
 import { getValues } from '../../../api/settings';
 import { mockAppState, mockLoggedInUser } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { App, Props } from '../App';
 import Search from '../Search';
 

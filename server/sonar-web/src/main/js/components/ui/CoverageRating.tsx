@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { colors } from '../../app/theme';
+import { lazyLoadComponent } from '../../sonar-ui-common/components/lazyLoadComponent';
 
 const DonutChart = lazyLoadComponent(
-  () => import('sonar-ui-common/components/charts/DonutChart'),
+  () => import('../../sonar-ui-common/components/charts/DonutChart'),
   'DonutChart'
 );
 

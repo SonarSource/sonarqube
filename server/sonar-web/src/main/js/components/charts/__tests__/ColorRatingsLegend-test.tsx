@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
 import ColorRatingsLegend, { ColorRatingsLegendProps } from '../ColorRatingsLegend';
 
 it('should render correctly', () => {

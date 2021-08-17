@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import TokensForm from './TokensForm';
 
 interface Props {

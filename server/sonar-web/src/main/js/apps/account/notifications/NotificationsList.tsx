@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import { hasMessage, translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onAdd: (n: T.Notification) => void;

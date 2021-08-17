@@ -19,14 +19,14 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import Modal from 'sonar-ui-common/components/controls/Modal';
+import { getUserGroups, UserGroup } from '../../../api/users';
+import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from 'sonar-ui-common/components/controls/SelectList';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getUserGroups, UserGroup } from '../../../api/users';
-import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+} from '../../../sonar-ui-common/components/controls/SelectList';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onClose: () => void;

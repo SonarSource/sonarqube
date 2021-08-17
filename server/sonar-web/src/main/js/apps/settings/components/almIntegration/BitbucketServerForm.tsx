@@ -20,7 +20,7 @@
 
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { BitbucketServerBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 

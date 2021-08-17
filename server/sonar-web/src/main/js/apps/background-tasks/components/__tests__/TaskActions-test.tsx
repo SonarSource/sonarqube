@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockTask } from '../../../../helpers/mocks/tasks';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import { Task, TaskStatuses } from '../../../../types/tasks';
 import TaskActions from '../TaskActions';
 

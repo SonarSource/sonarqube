@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getTask } from '../../../api/ce';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Task } from '../../../types/tasks';
 
 interface Props {

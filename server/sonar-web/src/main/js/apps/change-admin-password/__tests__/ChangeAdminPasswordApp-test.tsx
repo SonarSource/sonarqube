@@ -20,9 +20,9 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changePassword } from '../../../api/users';
 import { mockLocation } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { getAppState, Store } from '../../../store/rootReducer';
 import { ChangeAdminPasswordApp, mapStateToProps } from '../ChangeAdminPasswordApp';
 import { DEFAULT_ADMIN_LOGIN, DEFAULT_ADMIN_PASSWORD } from '../constants';

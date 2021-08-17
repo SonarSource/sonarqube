@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getReturnUrl } from 'sonar-ui-common/helpers/urls';
 import GlobalMessagesContainer from '../../app/components/GlobalMessagesContainer';
 import { Location } from '../../components/hoc/withRouter';
+import { SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
+import { Alert } from '../../sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { getReturnUrl } from '../../sonar-ui-common/helpers/urls';
 import Unauthorized from '../sessions/components/Unauthorized';
 import { DEFAULT_ADMIN_PASSWORD } from './constants';
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
+import { getHostUrl } from '../sonar-ui-common/helpers/urls';
 import { Ide } from '../types/sonarlint';
 
 const SONARLINT_PORT_START = 64120;

@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import RadioCard from 'sonar-ui-common/components/controls/RadioCard';
-import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
+import RadioCard from '../../../../sonar-ui-common/components/controls/RadioCard';
+import SearchSelect from '../../../../sonar-ui-common/components/controls/SearchSelect';
 import BaselineSettingReferenceBranch, {
   BaselineSettingReferenceBranchProps,
   BranchOption

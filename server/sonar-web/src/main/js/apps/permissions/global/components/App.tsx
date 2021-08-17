@@ -20,9 +20,9 @@
 import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../../../api/permissions';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import '../../styles.css';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';

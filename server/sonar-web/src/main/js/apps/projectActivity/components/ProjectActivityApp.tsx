@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { MeasureHistory } from '../../../types/project-activity';
 import { Query } from '../utils';
 import './projectActivity.css';

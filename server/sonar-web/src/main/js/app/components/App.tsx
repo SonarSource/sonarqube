@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
+import { lazyLoadComponent } from '../../sonar-ui-common/components/lazyLoadComponent';
 import { fetchLanguages } from '../../store/rootActions';
 import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';

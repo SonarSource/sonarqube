@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   getAvailablePlugins,
   getInstalledPlugins,
@@ -28,6 +27,7 @@ import {
 } from '../../../api/plugins';
 import { getValues, setSimpleSettingValue } from '../../../api/settings';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
 import { RiskConsent } from '../../../types/plugins';
 import { SettingsKey } from '../../../types/settings';

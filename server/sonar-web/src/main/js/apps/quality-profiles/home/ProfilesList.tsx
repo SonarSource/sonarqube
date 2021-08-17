@@ -20,9 +20,9 @@
 import { Location } from 'history';
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 import ProfilesListHeader from './ProfilesListHeader';
 import ProfilesListRow from './ProfilesListRow';

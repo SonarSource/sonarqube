@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import Level from 'sonar-ui-common/components/ui/Level';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
+import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
+import Level from '../../../sonar-ui-common/components/ui/Level';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 export type RichQualityGateEvent = T.AnalysisEvent & Required<Pick<T.AnalysisEvent, 'qualityGate'>>;
 

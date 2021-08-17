@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { rawSizes } from '../../../app/theme';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { findMeasure } from '../../../helpers/measures';
+import BoxedTabs from '../../../sonar-ui-common/components/controls/BoxedTabs';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

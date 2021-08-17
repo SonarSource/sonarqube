@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   countBindedProjects,
   deleteConfiguration,
@@ -27,6 +26,7 @@ import {
   validateAlmSettings
 } from '../../../../../api/alm-settings';
 import { mockLocation } from '../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
 import AlmIntegrationRenderer from '../AlmIntegrationRenderer';

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BackButton from 'sonar-ui-common/components/controls/BackButton';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
+import BackButton from '../../../sonar-ui-common/components/controls/BackButton';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 export interface ConciseIssuesListHeaderProps {
   displayBackButton: boolean;

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSystemInfo } from '../../../api/system';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import '../styles.css';
 import {
   getClusterVersion,

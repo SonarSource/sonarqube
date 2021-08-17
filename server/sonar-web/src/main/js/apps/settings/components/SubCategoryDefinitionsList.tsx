@@ -19,9 +19,9 @@
  */
 import { groupBy, isEqual, sortBy } from 'lodash';
 import * as React from 'react';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import { SettingWithCategory } from '../../../types/settings';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';

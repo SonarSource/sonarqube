@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as reactIntl from 'react-intl';
-import SonarUiCommonInitializer from 'sonar-ui-common/helpers/init';
-import { get } from 'sonar-ui-common/helpers/storage';
 import { fetchL10nBundle } from '../../api/l10n';
+import SonarUiCommonInitializer from '../../sonar-ui-common/helpers/init';
+import { get } from '../../sonar-ui-common/helpers/storage';
 import { loadL10nBundle } from '../l10n';
 
 beforeEach(() => {
@@ -34,7 +34,7 @@ jest.mock('../../api/l10n', () => ({
     .mockResolvedValue({ effectiveLocale: 'de', messages: { test_message: 'test' } })
 }));
 
-jest.mock('sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../sonar-ui-common/helpers/storage', () => ({
   get: jest.fn(),
   save: jest.fn()
 }));

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { searchRules } from '../../../../../../api/rules';
 import { getQualityProfileUrl } from '../../../../../../helpers/urls';
+import Tooltip from '../../../../../../sonar-ui-common/components/controls/Tooltip';
+import { translate, translateWithParameters } from '../../../../../../sonar-ui-common/helpers/l10n';
 import { getLanguages, Store } from '../../../../../../store/rootReducer';
 
 interface StateProps {

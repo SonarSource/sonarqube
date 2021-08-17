@@ -20,10 +20,10 @@
 import * as classNames from 'classnames';
 import { uniq } from 'lodash';
 import * as React from 'react';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import IssueIcon from 'sonar-ui-common/components/icons/IssueIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { sortByType } from '../../../helpers/issues';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import IssueIcon from '../../../sonar-ui-common/components/icons/IssueIcon';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 export interface LineIssuesIndicatorProps {
   issues: T.Issue[];

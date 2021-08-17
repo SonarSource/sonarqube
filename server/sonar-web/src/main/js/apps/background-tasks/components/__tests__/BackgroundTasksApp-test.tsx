@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import BackgroundTasksApp from '../BackgroundTasksApp';
 
 jest.mock('../../../../api/ce', () => ({

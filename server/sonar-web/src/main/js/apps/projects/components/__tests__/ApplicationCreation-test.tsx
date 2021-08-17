@@ -19,10 +19,10 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { getComponentNavigation } from '../../../../api/nav';
 import CreateApplicationForm from '../../../../app/components/extensions/CreateApplicationForm';
 import { mockAppState, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
 import { ComponentQualifier } from '../../../../types/component';
 import { ApplicationCreation, ApplicationCreationProps } from '../ApplicationCreation';
 

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Store } from '../../../store/rootReducer';
 import './Login.css';
 import LoginForm from './LoginForm';

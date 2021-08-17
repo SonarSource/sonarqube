@@ -21,13 +21,13 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getProjectUrl } from '../../../helpers/urls';
+import BoxedGroupAccordion from '../../../sonar-ui-common/components/controls/BoxedGroupAccordion';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
+import CheckIcon from '../../../sonar-ui-common/components/icons/CheckIcon';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 

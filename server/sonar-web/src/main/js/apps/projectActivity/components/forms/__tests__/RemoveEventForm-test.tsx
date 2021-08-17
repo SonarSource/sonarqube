@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
 import { mockAnalysisEvent } from '../../../../../helpers/testMocks';
+import ConfirmModal from '../../../../../sonar-ui-common/components/controls/ConfirmModal';
 import RemoveEventForm, { RemoveEventFormProps } from '../RemoveEventForm';
 
 it('should render correctly', () => {

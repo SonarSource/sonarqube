@@ -20,7 +20,7 @@
 import { forEach } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
+import DetachIcon from '../../sonar-ui-common/components/icons/DetachIcon';
 
 interface OwnProps {
   customProps?: T.Dict<string>;

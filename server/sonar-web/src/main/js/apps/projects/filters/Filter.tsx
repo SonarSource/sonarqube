@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 import { Facet } from '../types';
 
 export type Option = string | number;

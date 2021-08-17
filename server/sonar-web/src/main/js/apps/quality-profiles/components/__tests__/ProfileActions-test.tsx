@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   changeProfileParent,
   copyProfile,
@@ -29,6 +28,7 @@ import {
   setDefaultProfile
 } from '../../../../api/quality-profiles';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
+import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { ProfileActionModals } from '../../types';
 import { PROFILE_PATH } from '../../utils';
 import DeleteProfileForm from '../DeleteProfileForm';

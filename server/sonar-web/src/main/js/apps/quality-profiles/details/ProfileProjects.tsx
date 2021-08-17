@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { getProjectUrl } from '../../../helpers/urls';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 import ChangeProjectsForm from './ChangeProjectsForm';
 

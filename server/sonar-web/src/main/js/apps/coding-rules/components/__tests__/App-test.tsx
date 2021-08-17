@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getRulesApp } from '../../../../api/rules';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import { mockCurrentUser, mockLocation, mockRouter, mockRule } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { App } from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');

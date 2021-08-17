@@ -20,15 +20,15 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
-import { save } from 'sonar-ui-common/helpers/storage';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { ButtonIcon } from '../../../sonar-ui-common/components/controls/buttons';
+import { save } from '../../../sonar-ui-common/helpers/storage';
+import { click } from '../../../sonar-ui-common/helpers/testUtils';
 import DismissableAlert, {
   DismissableAlertProps,
   DISMISSED_ALERT_STORAGE_KEY
 } from '../DismissableAlert';
 
-jest.mock('sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../../sonar-ui-common/helpers/storage', () => ({
   get: jest.fn((_: string, suffix: string) => (suffix === 'bar' ? 'true' : undefined)),
   save: jest.fn()
 }));

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { renameQualityGate } from '../../../api/quality-gates';
+import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
+import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onClose: () => void;

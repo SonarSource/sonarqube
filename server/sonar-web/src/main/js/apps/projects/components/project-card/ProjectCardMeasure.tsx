@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
+import IssueTypeIcon from '../../../../sonar-ui-common/components/icons/IssueTypeIcon';
 
 export interface ProjectCardMeasureProps {
   iconKey?: string;

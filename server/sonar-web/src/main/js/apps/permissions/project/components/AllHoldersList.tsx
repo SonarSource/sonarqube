@@ -19,7 +19,7 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import ListFooter from '../../../../sonar-ui-common/components/controls/ListFooter';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
 import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';

@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { assignSecurityHotspot } from '../../../../../api/security-hotspots';
 import addGlobalSuccessMessage from '../../../../../app/utils/addGlobalSuccessMessage';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { HotspotStatus } from '../../../../../types/security-hotspots';
 import { Assignee } from '../Assignee';
 import AssigneeRenderer from '../AssigneeRenderer';

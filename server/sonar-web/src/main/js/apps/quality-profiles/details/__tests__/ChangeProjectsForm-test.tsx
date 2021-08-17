@@ -19,13 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   associateProject,
   dissociateProject,
   getProfileProjects
 } from '../../../../api/quality-profiles';
+import SelectList, {
+  SelectListFilter
+} from '../../../../sonar-ui-common/components/controls/SelectList';
+import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import ChangeProjectsForm from '../ChangeProjectsForm';
 
 const profile: any = { key: 'profFile_key' };

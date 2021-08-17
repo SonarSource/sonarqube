@@ -19,8 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getChildren } from '../../../../api/components';
 import { getMeasures } from '../../../../api/measures';
 import {
@@ -30,11 +28,13 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../../sonar-ui-common/helpers/handleRequiredAuthentication';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
 import UnsubscribeEmailModal from '../UnsubscribeEmailModal';
 
-jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
 }));
 

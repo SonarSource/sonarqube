@@ -19,8 +19,8 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../../components/ui/Avatar';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 

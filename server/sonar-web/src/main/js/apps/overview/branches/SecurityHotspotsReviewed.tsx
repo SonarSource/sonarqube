@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { findMeasure } from '../../../helpers/measures';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 
 export interface SecurityHotspotsReviewedProps {

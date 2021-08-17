@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Button, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
-import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
+import { Button, DeleteButton } from '../../../sonar-ui-common/components/controls/buttons';
+import { ClipboardIconButton } from '../../../sonar-ui-common/components/controls/clipboard';
+import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { getUniqueTokenName } from '../utils';
 
 interface State {

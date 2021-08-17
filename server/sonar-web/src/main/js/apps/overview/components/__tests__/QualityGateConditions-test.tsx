@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import { QualityGateConditions, QualityGateConditionsProps } from '../QualityGateConditions';
 

@@ -19,11 +19,11 @@
  */
 import { keyBy } from 'lodash';
 import * as React from 'react';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { getRuleDetails, getRulesApp } from '../../api/rules';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
 
 interface Props {
   onLoad: (details: { name: string }) => void;

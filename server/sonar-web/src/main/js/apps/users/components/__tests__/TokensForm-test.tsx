@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { generateToken, getTokens } from '../../../../api/user-tokens';
+import { change, submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import TokensForm from '../TokensForm';
 
 jest.mock('../../../../api/user-tokens', () => ({

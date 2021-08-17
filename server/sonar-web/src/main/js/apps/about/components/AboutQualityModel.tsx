@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
-import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import BugIcon from '../../../sonar-ui-common/components/icons/BugIcon';
+import CodeSmellIcon from '../../../sonar-ui-common/components/icons/CodeSmellIcon';
+import SecurityHotspotIcon from '../../../sonar-ui-common/components/icons/SecurityHotspotIcon';
+import VulnerabilityIcon from '../../../sonar-ui-common/components/icons/VulnerabilityIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 export default function AboutQualityModel() {
   return (

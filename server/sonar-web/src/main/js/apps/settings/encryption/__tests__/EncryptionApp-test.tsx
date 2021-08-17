@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { checkSecretKey, generateSecretKey } from '../../../../api/settings';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import EncryptionApp from '../EncryptionApp';
 
 jest.mock('../../../../api/settings', () => ({

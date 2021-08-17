@@ -19,13 +19,13 @@
  */
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   searchGroups,
   searchUsers,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 import ProfilePermissionsForm from './ProfilePermissionsForm';
 import ProfilePermissionsGroup from './ProfilePermissionsGroup';

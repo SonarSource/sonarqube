@@ -19,14 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { isValidLicense } from '../../../../../api/marketplace';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { TaskStatuses } from '../../../../../types/tasks';
 import { ComponentNavLicenseNotif } from '../ComponentNavLicenseNotif';
 
-jest.mock('sonar-ui-common/helpers/l10n', () => ({
-  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
+jest.mock('../../../../../sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('../../../../../sonar-ui-common/helpers/l10n'),
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 

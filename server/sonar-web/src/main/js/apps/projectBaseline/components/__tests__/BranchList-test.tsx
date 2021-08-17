@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 import BranchList from '../BranchList';
 

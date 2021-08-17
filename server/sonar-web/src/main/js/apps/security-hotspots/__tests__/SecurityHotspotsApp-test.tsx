@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
@@ -32,6 +31,7 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,

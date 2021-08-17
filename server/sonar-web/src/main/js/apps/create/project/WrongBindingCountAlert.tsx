@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../helpers/urls';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 

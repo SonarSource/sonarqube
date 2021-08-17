@@ -19,7 +19,8 @@
  */
 import * as startOfDay from 'date-fns/start_of_day';
 import { isEqual } from 'lodash';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
+import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
+import { parseDate } from '../../sonar-ui-common/helpers/dates';
 import {
   cleanQuery,
   parseAsArray,
@@ -28,8 +29,7 @@ import {
   serializeDate,
   serializeString,
   serializeStringArray
-} from 'sonar-ui-common/helpers/query';
-import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
+} from '../../sonar-ui-common/helpers/query';
 import { GraphType } from '../../types/project-activity';
 
 export interface Query {

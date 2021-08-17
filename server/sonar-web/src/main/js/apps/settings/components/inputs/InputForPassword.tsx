@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../../app/theme';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
+import LockIcon from '../../../../sonar-ui-common/components/icons/LockIcon';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 interface State {

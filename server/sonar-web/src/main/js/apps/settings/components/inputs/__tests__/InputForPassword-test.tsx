@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, click, submit } from 'sonar-ui-common/helpers/testUtils';
+import { change, click, submit } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForPassword from '../InputForPassword';
 

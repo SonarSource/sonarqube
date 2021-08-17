@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import Tab from 'sonar-ui-common/components/controls/Tabs';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import BoxedTabs from '../../../sonar-ui-common/components/controls/BoxedTabs';
+import Tab from '../../../sonar-ui-common/components/controls/Tabs';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 
 interface Props {

@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
+import { ButtonLink } from '../../sonar-ui-common/components/controls/buttons';
+import Modal from '../../sonar-ui-common/components/controls/Modal';
+import WarningIcon from '../../sonar-ui-common/components/icons/WarningIcon';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { TaskWarning } from '../../types/tasks';
 import { withCurrentUser } from '../hoc/withCurrentUser';
 

@@ -19,8 +19,6 @@
  */
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -34,6 +32,8 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { highlightTerm } from '../../../sonar-ui-common/helpers/search';
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards, StandardType } from '../../../types/security';
 import { formatFacetStat, Query, STANDARDS } from '../utils';

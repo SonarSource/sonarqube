@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../../sonar-ui-common/helpers/urls';
 import { OSs } from '../../types';
 
 export interface DownloadBuildWrapperProps {

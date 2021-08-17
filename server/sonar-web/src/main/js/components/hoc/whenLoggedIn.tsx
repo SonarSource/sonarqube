@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { isLoggedIn } from '../../helpers/users';
+import handleRequiredAuthentication from '../../sonar-ui-common/helpers/handleRequiredAuthentication';
 import { getWrappedDisplayName } from './utils';
 import { withCurrentUser } from './withCurrentUser';
 

@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getAlmSettings } from '../../../../api/alm-settings';
 import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AlmBindingDefinitionForm from '../../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import CreateProjectModeSelection from '../CreateProjectModeSelection';

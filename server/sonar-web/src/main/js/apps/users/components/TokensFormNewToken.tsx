@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ClipboardButton } from '../../../sonar-ui-common/components/controls/clipboard';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   token: { name: string; token: string };

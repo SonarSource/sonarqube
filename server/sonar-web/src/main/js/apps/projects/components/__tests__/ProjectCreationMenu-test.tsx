@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getAlmSettings } from '../../../../api/alm-settings';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ProjectCreationMenu } from '../ProjectCreationMenu';
 

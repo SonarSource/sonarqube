@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { ButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import Select from 'sonar-ui-common/components/controls/Select';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { ButtonLink, SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
+import Select from '../../../sonar-ui-common/components/controls/Select';
+import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 

@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockSetting } from '../../../../helpers/mocks/settings';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { Definition } from '../Definition';
 
 const setting = mockSetting();

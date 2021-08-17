@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockApplication } from '../../../helpers/mocks/application';
+import { click } from '../../../sonar-ui-common/helpers/testUtils';
 import ApplicationConsoleAppRenderer, {
   ApplicationConsoleAppRendererProps
 } from '../ApplicationConsoleAppRenderer';

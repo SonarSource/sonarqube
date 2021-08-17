@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { A11yContextShape } from '../A11yContext';
 import A11yProvider from '../A11yProvider';
 

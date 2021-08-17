@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import CheckIcon from '../../../sonar-ui-common/components/icons/CheckIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { isAvailablePlugin, isInstalledPlugin, Plugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
 

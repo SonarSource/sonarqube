@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { fetchQualityGate } from '../../../api/quality-gates';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import { addCondition, checkIfDefault, deleteCondition, replaceCondition } from '../utils';

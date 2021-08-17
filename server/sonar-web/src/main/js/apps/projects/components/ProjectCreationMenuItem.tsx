@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import ChevronsIcon from '../../../sonar-ui-common/components/icons/ChevronsIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 
 export interface ProjectCreationMenuItemProps {

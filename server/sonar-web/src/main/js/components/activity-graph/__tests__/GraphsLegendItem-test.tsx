@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { ClearButton } from '../../../sonar-ui-common/components/controls/buttons';
+import { click } from '../../../sonar-ui-common/helpers/testUtils';
 import GraphsLegendItem from '../GraphsLegendItem';
 
 it('should render correctly a legend', () => {

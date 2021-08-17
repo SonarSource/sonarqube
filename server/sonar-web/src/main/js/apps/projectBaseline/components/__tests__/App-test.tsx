@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   getNewCodePeriod,
   resetNewCodePeriod,
@@ -27,6 +26,7 @@ import {
 } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockEvent } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import App from '../App';
 
 jest.mock('../../../../api/newCodePeriod', () => ({

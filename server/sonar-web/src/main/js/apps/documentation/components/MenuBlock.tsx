@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import { DocNavigationItem, DocsNavigationBlock } from 'Docs/@types/types';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import OpenCloseIcon from 'sonar-ui-common/components/icons/OpenCloseIcon';
+import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import OpenCloseIcon from '../../../sonar-ui-common/components/icons/OpenCloseIcon';
 import { isDocsNavigationBlock } from '../navTreeUtils';
 import { DocumentationEntry, getNodeFromUrl } from '../utils';
 import { MenuItem } from './MenuItem';

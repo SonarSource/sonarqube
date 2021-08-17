@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import { change, click } from 'sonar-ui-common/helpers/testUtils';
+import { SubmitButton } from '../../../../../sonar-ui-common/components/controls/buttons';
+import Radio from '../../../../../sonar-ui-common/components/controls/Radio';
+import { change, click } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { HotspotStatusOption } from '../../../../../types/security-hotspots';
 import StatusSelectionRenderer, { StatusSelectionRendererProps } from '../StatusSelectionRenderer';
 

@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import '../account.css';
 import Nav from './Nav';
 import UserCard from './UserCard';

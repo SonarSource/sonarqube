@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { flatten, sortBy } from 'lodash';
-import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
-import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
+import BugIcon from '../sonar-ui-common/components/icons/BugIcon';
+import CodeSmellIcon from '../sonar-ui-common/components/icons/CodeSmellIcon';
+import SecurityHotspotIcon from '../sonar-ui-common/components/icons/SecurityHotspotIcon';
+import VulnerabilityIcon from '../sonar-ui-common/components/icons/VulnerabilityIcon';
 import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
 import { ISSUE_TYPES } from './constants';

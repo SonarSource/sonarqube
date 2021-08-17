@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createUser, updateUser } from '../../../../api/users';
 import { mockUser } from '../../../../helpers/testMocks';
+import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
+import { submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import UserForm from '../UserForm';
 
 jest.mock('../../../../api/users', () => ({

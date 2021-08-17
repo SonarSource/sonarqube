@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   deleteProjectAlmBinding,
   getAlmSettings,
@@ -37,6 +36,7 @@ import {
   mockProjectAlmBindingResponse
 } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
 import { PRDecorationBinding } from '../PRDecorationBinding';
 import PRDecorationBindingRenderer from '../PRDecorationBindingRenderer';

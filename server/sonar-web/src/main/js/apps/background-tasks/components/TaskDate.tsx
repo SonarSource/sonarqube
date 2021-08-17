@@ -19,8 +19,8 @@
  */
 import * as differenceInDays from 'date-fns/difference_in_days';
 import * as React from 'react';
-import TimeFormatter from 'sonar-ui-common/components/intl/TimeFormatter';
-import { isValidDate, parseDate } from 'sonar-ui-common/helpers/dates';
+import TimeFormatter from '../../../sonar-ui-common/components/intl/TimeFormatter';
+import { isValidDate, parseDate } from '../../../sonar-ui-common/helpers/dates';
 
 interface Props {
   date?: string;

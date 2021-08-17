@@ -22,9 +22,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getAvailablePlugins,
   getInstalledPlugins,
@@ -34,6 +31,9 @@ import {
 import { getValues, setSimpleSettingValue } from '../../api/settings';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import { Alert } from '../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';

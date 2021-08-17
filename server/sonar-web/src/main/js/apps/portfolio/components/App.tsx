@@ -21,8 +21,6 @@ import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getChildren } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import MeasuresLink from '../../../components/common/MeasuresLink';
@@ -30,6 +28,8 @@ import ComponentReportActions from '../../../components/controls/ComponentReport
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
 import { isLoggedIn } from '../../../helpers/users';
+import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import '../styles.css';

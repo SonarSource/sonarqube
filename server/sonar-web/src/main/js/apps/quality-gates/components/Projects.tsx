@@ -19,16 +19,16 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import SelectList, {
-  SelectListFilter,
-  SelectListSearchParams
-} from 'sonar-ui-common/components/controls/SelectList';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
   searchProjects
 } from '../../../api/quality-gates';
+import SelectList, {
+  SelectListFilter,
+  SelectListSearchParams
+} from '../../../sonar-ui-common/components/controls/SelectList';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   canEdit?: boolean;

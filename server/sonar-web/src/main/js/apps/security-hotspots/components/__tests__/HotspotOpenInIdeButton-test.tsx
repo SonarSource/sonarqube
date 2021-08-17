@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
 import * as sonarlint from '../../../../helpers/sonarlint';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
 import HotspotOpenInIdeButton from '../HotspotOpenInIdeButton';
 
 jest.mock('../../../../helpers/sonarlint');

@@ -19,7 +19,7 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import GroupIcon from 'sonar-ui-common/components/icons/GroupIcon';
+import GroupIcon from '../../../../sonar-ui-common/components/icons/GroupIcon';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 

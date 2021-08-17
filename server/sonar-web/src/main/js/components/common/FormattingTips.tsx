@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getFormattingHelpUrl } from '../../helpers/urls';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   className?: string;

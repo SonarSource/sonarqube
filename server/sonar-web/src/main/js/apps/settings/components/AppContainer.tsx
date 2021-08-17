@@ -22,15 +22,15 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+} from '../../../sonar-ui-common/helpers/pages';
 import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
 import { fetchSettings } from '../store/actions';
 import '../styles.css';

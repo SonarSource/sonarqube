@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../helpers/branch-like';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';

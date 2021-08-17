@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   getGithubClientId,
   getGithubOrganizations,
@@ -29,6 +28,7 @@ import {
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import GitHubProjectCreate from '../GitHubProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({

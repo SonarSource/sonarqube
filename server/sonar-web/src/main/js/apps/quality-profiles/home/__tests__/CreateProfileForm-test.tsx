@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changeProfileParent, createQualityProfile } from '../../../../api/quality-profiles';
 import { mockLocation, mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockEvent, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import CreateProfileForm from '../CreateProfileForm';
 
 beforeEach(() => jest.clearAllMocks());

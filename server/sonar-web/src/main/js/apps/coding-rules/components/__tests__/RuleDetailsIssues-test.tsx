@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getFacet } from '../../../../api/issues';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { RuleDetailsIssues } from '../RuleDetailsIssues';
 
 jest.mock('../../../../api/issues', () => ({

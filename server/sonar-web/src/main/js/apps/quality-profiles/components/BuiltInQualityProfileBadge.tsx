@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   className?: string;

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
+import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
 import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';

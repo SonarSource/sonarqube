@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getTextColor } from 'sonar-ui-common/helpers/colors';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { colors } from '../../../app/theme';
+import { getTextColor } from '../../../sonar-ui-common/helpers/colors';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 
 export interface Props {
   identityProvider?: T.IdentityProvider;

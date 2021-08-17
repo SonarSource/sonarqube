@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
+import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
 import { getAppState, getCurrentUser, Store } from '../../../store/rootReducer';
 import { ComponentQualifier } from '../../../types/component';
 

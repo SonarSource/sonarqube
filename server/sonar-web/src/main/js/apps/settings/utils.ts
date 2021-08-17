@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import { hasMessage, translate } from '../../sonar-ui-common/helpers/l10n';
 import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../types/settings';
 
 export const DEFAULT_CATEGORY = 'general';

@@ -19,9 +19,6 @@
  */
 import { findLastIndex } from 'lodash';
 import * as React from 'react';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getDuplications } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
@@ -38,6 +35,9 @@ import {
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import ComponentSourceSnippetGroupViewer from './ComponentSourceSnippetGroupViewer';
 import { groupLocationsByComponent } from './utils';

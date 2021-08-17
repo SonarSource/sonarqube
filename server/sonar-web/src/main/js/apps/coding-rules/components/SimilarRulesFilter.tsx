@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import FilterIcon from 'sonar-ui-common/components/icons/FilterIcon';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
+import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
+import FilterIcon from '../../../sonar-ui-common/components/icons/FilterIcon';
+import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
+import TagsIcon from '../../../sonar-ui-common/components/icons/TagsIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Query } from '../query';
 
 interface Props {

@@ -19,15 +19,15 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import Select from 'sonar-ui-common/components/controls/Select';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Project } from '../../api/components';
 import DateInput from '../../components/controls/DateInput';
+import { Button } from '../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../sonar-ui-common/components/controls/Checkbox';
+import HelpTooltip from '../../sonar-ui-common/components/controls/HelpTooltip';
+import SearchBox from '../../sonar-ui-common/components/controls/SearchBox';
+import Select from '../../sonar-ui-common/components/controls/Select';
+import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 

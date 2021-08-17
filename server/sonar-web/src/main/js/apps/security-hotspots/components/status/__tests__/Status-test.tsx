@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../../helpers/testMocks';
+import { DropdownOverlay } from '../../../../../sonar-ui-common/components/controls/Dropdown';
+import Toggler from '../../../../../sonar-ui-common/components/controls/Toggler';
+import { click } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { HotspotStatusOption } from '../../../../../types/security-hotspots';
 import { Status, StatusProps } from '../Status';
 import StatusSelection from '../StatusSelection';

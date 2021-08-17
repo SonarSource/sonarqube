@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { RULE_STATUSES } from '../../../helpers/constants';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {

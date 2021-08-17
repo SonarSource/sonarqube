@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import HelpTooltip from '../../../../sonar-ui-common/components/controls/HelpTooltip';
+import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
 import CodeSnippet from '../../../common/CodeSnippet';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';

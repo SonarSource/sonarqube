@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
+import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Ide } from '../../../types/sonarlint';
 import { HotspotOpenInIdeOverlay } from './HotspotOpenInIdeOverlay';
 

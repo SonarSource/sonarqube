@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { rawSizes } from '../../../app/theme';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import ChevronRightIcon from '../../../sonar-ui-common/components/icons/ChevronRightIcon';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';

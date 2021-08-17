@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import { mockTaskWarning } from '../../../helpers/mocks/tasks';
 import { mockCurrentUser, mockEvent } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({

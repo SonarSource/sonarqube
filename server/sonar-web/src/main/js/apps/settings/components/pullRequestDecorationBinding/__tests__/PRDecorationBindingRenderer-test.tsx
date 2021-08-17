@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Select from 'sonar-ui-common/components/controls/Select';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import Select from '../../../../../sonar-ui-common/components/controls/Select';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import {
   AlmKeys,
   AlmSettingsInstance,

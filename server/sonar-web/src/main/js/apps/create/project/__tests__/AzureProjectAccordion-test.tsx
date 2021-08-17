@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
-import Radio from 'sonar-ui-common/components/controls/Radio';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockEvent } from '../../../../helpers/testMocks';
+import BoxedGroupAccordion from '../../../../sonar-ui-common/components/controls/BoxedGroupAccordion';
+import Radio from '../../../../sonar-ui-common/components/controls/Radio';
 import AzureProjectAccordion, { AzureProjectAccordionProps } from '../AzureProjectAccordion';
 
 it('should render correctly', () => {

@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import Step from '../../components/Step';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
 

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
-import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';

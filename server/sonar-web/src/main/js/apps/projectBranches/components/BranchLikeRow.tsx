@@ -18,11 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import {
@@ -31,6 +26,11 @@ import {
   isMainBranch,
   isPullRequest
 } from '../../../helpers/branch-like';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import BranchPurgeSetting from './BranchPurgeSetting';
 

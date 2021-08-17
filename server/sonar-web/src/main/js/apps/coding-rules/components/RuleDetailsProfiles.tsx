@@ -20,14 +20,14 @@
 import { filter } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { activateRule, deactivateRule, Profile } from '../../../api/quality-profiles';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import ActivationButton from './ActivationButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';

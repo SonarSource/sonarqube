@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getApplicationDetails } from '../../../api/application';
 import { mockApplication, mockApplicationProject } from '../../../helpers/mocks/application';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { Application } from '../../../types/application';
 import CreateBranchForm from '../CreateBranchForm';
 

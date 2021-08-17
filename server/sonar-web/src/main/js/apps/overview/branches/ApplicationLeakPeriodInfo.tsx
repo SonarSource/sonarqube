@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
+import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { ApplicationPeriod } from '../../../types/application';
 
 export interface ApplicationLeakPeriodInfoProps {

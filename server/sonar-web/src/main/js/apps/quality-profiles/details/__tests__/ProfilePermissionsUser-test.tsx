@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { removeUser } from '../../../../api/quality-profiles';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import ProfilePermissionsUser from '../ProfilePermissionsUser';
 
 jest.mock('../../../../api/quality-profiles', () => ({

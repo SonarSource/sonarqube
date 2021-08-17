@@ -19,8 +19,8 @@
  */
 import { uniq, without } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,

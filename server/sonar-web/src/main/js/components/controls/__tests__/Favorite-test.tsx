@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import FavoriteButton from 'sonar-ui-common/components/controls/FavoriteButton';
+import FavoriteButton from '../../../sonar-ui-common/components/controls/FavoriteButton';
 import Favorite from '../Favorite';
 
 jest.mock('../../../api/favorites', () => ({

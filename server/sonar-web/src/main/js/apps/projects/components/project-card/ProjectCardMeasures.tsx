@@ -20,13 +20,13 @@
 import * as classNames from 'classnames';
 import * as difference from 'date-fns/difference_in_milliseconds';
 import * as React from 'react';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
-import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
-import Rating from 'sonar-ui-common/components/ui/Rating';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { isDefined } from 'sonar-ui-common/helpers/types';
 import Measure from '../../../../components/measure/Measure';
 import CoverageRating from '../../../../components/ui/CoverageRating';
+import DateTimeFormatter from '../../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import DuplicationsRating from '../../../../sonar-ui-common/components/ui/DuplicationsRating';
+import Rating from '../../../../sonar-ui-common/components/ui/Rating';
+import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import { isDefined } from '../../../../sonar-ui-common/helpers/types';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { formatDuration } from '../../utils';

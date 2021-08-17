@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { isBranch } from '../../helpers/branch-like';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { scrollToElement } from '../../sonar-ui-common/helpers/scrolling';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';

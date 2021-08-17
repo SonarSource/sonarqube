@@ -19,7 +19,7 @@
  */
 
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools } from '../../types';
 import JavaToolInstallation from '../JavaToolInstallation';

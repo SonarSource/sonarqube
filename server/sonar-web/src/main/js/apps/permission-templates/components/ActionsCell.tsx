@@ -19,17 +19,17 @@
  */
 import { difference } from 'lodash';
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   deletePermissionTemplate,
   setDefaultPermissionTemplate,
   updatePermissionTemplate
 } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
 import Form from './Form';

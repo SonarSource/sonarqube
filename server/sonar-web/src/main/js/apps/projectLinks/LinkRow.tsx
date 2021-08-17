@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import ProjectLinkIcon from 'sonar-ui-common/components/icons/ProjectLinkIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import isValidUri from '../../app/utils/isValidUri';
 import { getLinkName, isProvided } from '../../helpers/projectLinks';
+import { Button } from '../../sonar-ui-common/components/controls/buttons';
+import ConfirmButton from '../../sonar-ui-common/components/controls/ConfirmButton';
+import ProjectLinkIcon from '../../sonar-ui-common/components/icons/ProjectLinkIcon';
+import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   link: T.ProjectLink;

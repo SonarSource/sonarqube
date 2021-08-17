@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   importBitbucketCloudRepository,
   searchForBitbucketCloudRepositories
@@ -27,6 +26,7 @@ import {
 import { mockBitbucketCloudRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockBitbucketCloudAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import BitbucketCloudProjectCreate, {
   BITBUCKET_CLOUD_PROJECTS_PAGESIZE
 } from '../BitbucketCloudProjectCreate';

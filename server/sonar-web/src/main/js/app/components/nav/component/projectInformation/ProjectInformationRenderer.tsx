@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
+import { translate } from '../../../../../sonar-ui-common/helpers/l10n';
 import { ComponentQualifier } from '../../../../../types/component';
 import DrawerLink from './DrawerLink';
 import MetaKey from './meta/MetaKey';

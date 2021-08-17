@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 

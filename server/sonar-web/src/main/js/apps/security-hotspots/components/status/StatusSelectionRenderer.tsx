@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import FormattingTips from '../../../../components/common/FormattingTips';
+import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
+import Radio from '../../../../sonar-ui-common/components/controls/Radio';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import StatusDescription from './StatusDescription';
 

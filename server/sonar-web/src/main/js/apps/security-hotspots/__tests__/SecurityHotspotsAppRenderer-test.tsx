@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { mockComponent } from '../../../helpers/testMocks';
+import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';
@@ -30,7 +30,7 @@ import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps
 } from '../SecurityHotspotsAppRenderer';
 
-jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../sonar-ui-common/helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change } from 'sonar-ui-common/helpers/testUtils';
+import { change } from '../../../../../sonar-ui-common/helpers/testUtils';
 import SimpleInput from '../SimpleInput';
 
 it('should render input', () => {

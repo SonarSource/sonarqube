@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockPermissionGroup } from '../../../../../helpers/mocks/permissions';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import GroupHolder from '../GroupHolder';
 
 it('should render correctly', () => {

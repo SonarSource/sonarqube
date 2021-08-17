@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import ConfirmModal from '../../../../sonar-ui-common/components/controls/ConfirmModal';
+import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
 
 export interface DeleteModalProps {
   id: string;

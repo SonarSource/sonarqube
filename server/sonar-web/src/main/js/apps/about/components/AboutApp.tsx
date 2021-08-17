@@ -22,8 +22,6 @@ import { keyBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -31,6 +29,8 @@ import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from '../../../sonar-ui-common/helpers/pages';
 import {
   getAppState,
   getCurrentUser,

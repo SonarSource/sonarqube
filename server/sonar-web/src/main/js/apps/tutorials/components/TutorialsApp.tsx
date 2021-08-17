@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { isLoggedIn } from '../../../helpers/users';
+import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 
 export interface TutorialsAppProps {

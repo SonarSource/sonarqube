@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponentTree } from '../../../../api/components';
 import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks';
+import { scrollToElement } from '../../../../sonar-ui-common/helpers/scrolling';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import MeasureContent from '../MeasureContent';
 
-jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

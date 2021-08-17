@@ -19,10 +19,10 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
 import { mockComponent, mockEvent } from '../../../helpers/testMocks';
+import { Button, SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
+import { click } from '../../../sonar-ui-common/helpers/testUtils';
 import UpdateForm, { UpdateFormProps } from '../UpdateForm';
 
 it('should render', () => {

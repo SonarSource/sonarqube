@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import LinkIcon from '../../../sonar-ui-common/components/icons/LinkIcon';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
 import LocationIndex from '../../common/LocationIndex';

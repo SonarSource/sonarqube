@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockIssue } from '../../../../helpers/testMocks';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import { LineIssuesIndicator, LineIssuesIndicatorProps } from '../LineIssuesIndicator';
 
 it('should render correctly', () => {

@@ -20,12 +20,12 @@
 import { max } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { colors } from '../../../app/theme';
 import Measure from '../../../components/measure/Measure';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 import { ComponentQualifier } from '../../../types/component';
 import { SubComponent } from '../types';
 

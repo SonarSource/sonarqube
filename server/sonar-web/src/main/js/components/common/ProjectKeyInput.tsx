@@ -19,9 +19,9 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { PROJECT_KEY_MAX_LEN } from '../../helpers/constants';
+import ValidationInput from '../../sonar-ui-common/components/controls/ValidationInput';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 
 export interface ProjectKeyInputProps {
   error?: string;

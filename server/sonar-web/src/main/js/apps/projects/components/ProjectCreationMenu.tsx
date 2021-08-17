@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import EllipsisIcon from 'sonar-ui-common/components/icons/EllipsisIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAlmSettings } from '../../../api/alm-settings';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { IMPORT_COMPATIBLE_ALMS, IMPORT_COMPATIBLE_ALM_COUNT } from '../../../helpers/constants';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
+import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
+import EllipsisIcon from '../../../sonar-ui-common/components/icons/EllipsisIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changeKey } from '../../api/components';
 import RecentHistory from '../../app/components/RecentHistory';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import UpdateForm from './UpdateForm';
 
 interface Props {

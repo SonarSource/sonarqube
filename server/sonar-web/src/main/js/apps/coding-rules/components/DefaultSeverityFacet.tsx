@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
 export default class DefaultSeverityFacet extends React.PureComponent<BasicProps> {

@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { setSimpleSettingValue } from '../../../api/settings';
 import { mockComponent } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { SettingsKey } from '../../../types/settings';
 import ApplicationSettingsApp from '../ApplicationSettingsApp';
 

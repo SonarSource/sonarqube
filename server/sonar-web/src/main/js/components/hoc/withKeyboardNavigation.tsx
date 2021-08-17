@@ -19,7 +19,7 @@
  */
 import * as key from 'keymaster';
 import * as React from 'react';
-import PageActions from 'sonar-ui-common/components/ui/PageActions';
+import PageActions from '../../sonar-ui-common/components/ui/PageActions';
 import { getWrappedDisplayName } from './utils';
 
 export interface WithKeyboardNavigationProps {

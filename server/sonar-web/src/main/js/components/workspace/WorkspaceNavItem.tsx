@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import { ClearButton } from '../../sonar-ui-common/components/controls/buttons';
 
 export interface Props {
   children: React.ReactNode;

@@ -20,7 +20,6 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
@@ -32,6 +31,7 @@ import {
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzureProjectCreate from '../AzureProjectCreate';
 

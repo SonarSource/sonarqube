@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   grantPermissionToGroup,
   grantPermissionToUser,
   revokePermissionFromGroup,
   revokePermissionFromUser
 } from '../../../../../api/permissions';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import App from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({

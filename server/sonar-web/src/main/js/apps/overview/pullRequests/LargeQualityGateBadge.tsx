@@ -21,11 +21,11 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import HelpIcon from '../../../sonar-ui-common/components/icons/HelpIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   component: T.Component;

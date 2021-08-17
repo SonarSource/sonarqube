@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { addNotification, getNotifications, removeNotification } from '../../../api/notifications';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { withNotifications, WithNotificationsProps } from '../withNotifications';
 
 jest.mock('../../../api/notifications', () => ({

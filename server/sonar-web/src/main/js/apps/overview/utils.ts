@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import CoverageRating from '../../components/ui/CoverageRating';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
+import DuplicationsRating from '../../sonar-ui-common/components/ui/DuplicationsRating';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 

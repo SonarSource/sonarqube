@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { isLoggedIn } from '../../../helpers/users';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';

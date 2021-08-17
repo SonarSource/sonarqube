@@ -19,7 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, click, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import {
+  change,
+  click,
+  submit,
+  waitAndUpdate
+} from '../../../../sonar-ui-common/helpers/testUtils';
 import LoginForm from '../LoginForm';
 
 it('logs in with simple credentials', () => {

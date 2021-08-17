@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { searchUsers } from '../../../../../api/users';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
+import { KeyCodes } from '../../../../../sonar-ui-common/helpers/keycodes';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import AssigneeSelection from '../AssigneeSelection';
 
 jest.mock('../../../../../api/users', () => ({

@@ -19,13 +19,13 @@
  */
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { withAppState } from '../../../components/hoc/withAppState';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ModalButton from '../../../sonar-ui-common/components/controls/ModalButton';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
+import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';

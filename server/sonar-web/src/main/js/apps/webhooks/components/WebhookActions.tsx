@@ -21,8 +21,8 @@ import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
 import DeliveriesForm from './DeliveriesForm';

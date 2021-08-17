@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import InputValidationField from 'sonar-ui-common/components/controls/InputValidationField';
-import ValidationModal from 'sonar-ui-common/components/controls/ValidationModal';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isWebUri } from 'valid-url';
+import InputValidationField from '../../../sonar-ui-common/components/controls/InputValidationField';
+import ValidationModal from '../../../sonar-ui-common/components/controls/ValidationModal';
+import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onClose: () => void;

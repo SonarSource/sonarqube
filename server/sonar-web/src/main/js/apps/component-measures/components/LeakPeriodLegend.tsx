@@ -21,14 +21,16 @@ import * as classNames from 'classnames';
 import * as differenceInDays from 'date-fns/difference_in_days';
 import * as React from 'react';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import DateFormatter, { longFormatterOption } from 'sonar-ui-common/components/intl/DateFormatter';
-import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import DateFormatter, {
+  longFormatterOption
+} from '../../../sonar-ui-common/components/intl/DateFormatter';
+import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
 import DateTimeFormatter, {
   formatterOption
-} from 'sonar-ui-common/components/intl/DateTimeFormatter';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+} from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   className?: string;

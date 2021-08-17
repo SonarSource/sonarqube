@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { get, save } from 'sonar-ui-common/helpers/storage';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { get, save } from '../../../sonar-ui-common/helpers/storage';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { ComponentQualifier } from '../../../types/component';
 import Workspace, {
   INITIAL_HEIGHT,
@@ -31,7 +31,7 @@ import Workspace, {
   WorkspaceTypes
 } from '../Workspace';
 
-jest.mock('sonar-ui-common/helpers/storage', () => {
+jest.mock('../../../sonar-ui-common/helpers/storage', () => {
   return {
     get: jest.fn(),
     save: jest.fn()

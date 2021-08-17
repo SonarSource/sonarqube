@@ -19,7 +19,7 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { click, keydown } from 'sonar-ui-common/helpers/testUtils';
+import { click, keydown } from '../../../sonar-ui-common/helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
 

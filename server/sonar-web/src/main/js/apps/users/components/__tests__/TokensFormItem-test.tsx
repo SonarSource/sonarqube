@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { revokeToken } from '../../../../api/user-tokens';
+import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import TokensFormItem from '../TokensFormItem';
 
-jest.mock('sonar-ui-common/components/intl/DateFormatter');
-jest.mock('sonar-ui-common/components/intl/DateFromNow');
-jest.mock('sonar-ui-common/components/intl/DateTimeFormatter');
+jest.mock('../../../../sonar-ui-common/components/intl/DateFormatter');
+jest.mock('../../../../sonar-ui-common/components/intl/DateFromNow');
+jest.mock('../../../../sonar-ui-common/components/intl/DateTimeFormatter');
 
 jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: jest.fn().mockResolvedValue(undefined)

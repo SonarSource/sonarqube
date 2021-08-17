@@ -20,15 +20,6 @@
 import { shallow } from 'enzyme';
 import * as key from 'keymaster';
 import * as React from 'react';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
-import { KEYCODE_MAP, keydown, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import {
   mockComponent,
@@ -39,6 +30,15 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../../sonar-ui-common/helpers/handleRequiredAuthentication';
+import { KeyCodes } from '../../../../sonar-ui-common/helpers/keycodes';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../../sonar-ui-common/helpers/pages';
+import { KEYCODE_MAP, keydown, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import {
   disableLocationsNavigator,
   enableLocationsNavigator,
@@ -50,14 +50,14 @@ import {
 import App from '../App';
 import BulkChangeModal from '../BulkChangeModal';
 
-jest.mock('sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),
   removeWhitePageClass: jest.fn()
 }));
 
-jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
 }));
 

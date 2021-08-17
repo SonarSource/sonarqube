@@ -19,7 +19,7 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import ListStyleFacet, { Props } from '../ListStyleFacet';
 
 it('should render', () => {

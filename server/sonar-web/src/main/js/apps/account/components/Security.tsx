@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import Tokens from './Tokens';
 

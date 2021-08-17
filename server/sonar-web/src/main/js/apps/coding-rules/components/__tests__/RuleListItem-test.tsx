@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { deactivateRule } from '../../../../api/quality-profiles';
 import { mockEvent, mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import RuleListItem from '../RuleListItem';
 
 jest.mock('../../../../api/quality-profiles', () => ({

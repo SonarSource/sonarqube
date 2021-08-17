@@ -19,10 +19,10 @@
  */
 
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { rawSizes } from '../../../app/theme';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ChevronRightIcon from '../../../sonar-ui-common/components/icons/ChevronRightIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 export interface FinishButtonProps {
   onClick: () => void;

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
-import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ButtonIcon } from '../../../sonar-ui-common/components/controls/buttons';
+import BulletListIcon from '../../../sonar-ui-common/components/icons/BulletListIcon';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import GroupsForm from './GroupsForm';
 
 interface Props {

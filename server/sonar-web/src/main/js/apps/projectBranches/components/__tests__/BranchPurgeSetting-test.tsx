@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Toggle from 'sonar-ui-common/components/controls/Toggle';
 import { excludeBranchFromPurge } from '../../../../api/branches';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
+import Toggle from '../../../../sonar-ui-common/components/controls/Toggle';
 import BranchPurgeSetting from '../BranchPurgeSetting';
 
 jest.mock('../../../../api/branches', () => ({

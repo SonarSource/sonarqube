@@ -19,7 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, click, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import {
+  change,
+  click,
+  submit,
+  waitAndUpdate
+} from '../../../../sonar-ui-common/helpers/testUtils';
 import TokenStep from '../TokenStep';
 
 jest.mock('../../../../api/user-tokens', () => ({

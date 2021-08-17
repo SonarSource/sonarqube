@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import RecentHistory from '../../../app/components/RecentHistory';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 import { doLogout } from '../../../store/rootActions';
 
 interface Props {

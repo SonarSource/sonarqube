@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponentData, getComponentForSourceViewer, getSources } from '../../../api/components';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import defaultLoadIssues from '../helpers/loadIssues';
 import SourceViewerBase from '../SourceViewerBase';
 

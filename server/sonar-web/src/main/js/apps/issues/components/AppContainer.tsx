@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { searchIssues } from '../../../api/issues';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { parseIssueFromResponse } from '../../../helpers/issues';
+import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';

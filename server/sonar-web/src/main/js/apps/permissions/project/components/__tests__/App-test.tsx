@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   grantPermissionToGroup,
   grantPermissionToUser,
@@ -27,6 +26,7 @@ import {
   revokePermissionFromUser
 } from '../../../../../api/permissions';
 import { mockComponent } from '../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import App from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({

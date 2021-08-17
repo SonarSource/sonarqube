@@ -20,12 +20,12 @@
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { getRulesUrl } from '../../../helpers/urls';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
 import ProfileRulesRowOfType from './ProfileRulesRowOfType';

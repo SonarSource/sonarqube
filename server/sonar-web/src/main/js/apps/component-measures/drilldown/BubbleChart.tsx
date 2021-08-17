@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import OriginalBubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
+import { RATING_COLORS } from '../../../helpers/constants';
+import { isDiffMetric } from '../../../helpers/measures';
+import OriginalBubbleChart from '../../../sonar-ui-common/components/charts/BubbleChart';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
   translate,
   translateWithParameters
-} from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import { isDefined } from 'sonar-ui-common/helpers/types';
-import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
-import { RATING_COLORS } from '../../../helpers/constants';
-import { isDiffMetric } from '../../../helpers/measures';
+} from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { isDefined } from '../../../sonar-ui-common/helpers/types';
 import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
 import EmptyResult from './EmptyResult';
 

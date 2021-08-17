@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { HttpStatus } from 'sonar-ui-common/helpers/request';
 import {
   deleteProjectAlmBinding,
   getAlmSettings,
@@ -34,6 +33,7 @@ import {
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { hasGlobalPermission } from '../../../../helpers/users';
+import { HttpStatus } from '../../../../sonar-ui-common/helpers/request';
 import { getAppState, Store } from '../../../../store/rootReducer';
 import {
   AlmKeys,

@@ -20,8 +20,8 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change } from 'sonar-ui-common/helpers/testUtils';
 import { mockEvent, mockQualityProfile } from '../../../../helpers/testMocks';
+import { change } from '../../../../sonar-ui-common/helpers/testUtils';
 import ProfileModalForm, { ProfileModalFormProps } from '../ProfileModalForm';
 
 it('should render correctly', () => {

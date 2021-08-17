@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 const ActivationFormModal = lazyLoadComponent(
   () => import('../../coding-rules/components/ActivationFormModal'),

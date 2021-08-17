@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import {
   mockComponent,
@@ -27,6 +26,7 @@ import {
   mockIssue,
   mockRouter
 } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { loadMoreChildren, retrieveComponent } from '../../utils';
 import { AppCode } from '../AppCode';

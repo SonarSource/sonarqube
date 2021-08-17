@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getComponentNavigation } from '../../../api/nav';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
 import { withAppState } from '../../../components/hoc/withAppState';
@@ -27,6 +25,8 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
 

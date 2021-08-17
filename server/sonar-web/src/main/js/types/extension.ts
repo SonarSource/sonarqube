@@ -19,8 +19,8 @@
  */
 import { InjectedIntl } from 'react-intl';
 import { Store as ReduxStore } from 'redux';
-import { Theme } from 'sonar-ui-common/components/theme';
 import { Location, Router } from '../components/hoc/withRouter';
+import { Theme } from '../sonar-ui-common/components/theme';
 import { Store } from '../store/rootReducer';
 import { L10nBundle } from './l10n';
 

@@ -20,10 +20,10 @@
 import { shallow } from 'enzyme';
 import { clone } from 'lodash';
 import * as React from 'react';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSecurityHotspotDetails } from '../../../../api/security-hotspots';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { scrollToElement } from '../../../../sonar-ui-common/helpers/scrolling';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import HotspotViewer from '../HotspotViewer';
 import HotspotViewerRenderer from '../HotspotViewerRenderer';
 
@@ -33,7 +33,9 @@ jest.mock('../../../../api/security-hotspots', () => ({
   getSecurityHotspotDetails: jest.fn().mockResolvedValue({ id: `I am a detailled hotspot` })
 }));
 
-jest.mock('sonar-ui-common/helpers/scrolling', () => ({ scrollToElement: jest.fn() }));
+jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
+}));
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();

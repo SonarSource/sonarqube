@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import { click, waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 it('should render correctly', () => {

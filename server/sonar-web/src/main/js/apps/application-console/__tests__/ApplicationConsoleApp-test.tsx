@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   editApplication,
   getApplicationDetails,
@@ -28,6 +27,7 @@ import {
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import { mockApplication, mockApplicationProject } from '../../../helpers/mocks/application';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { Application } from '../../../types/application';
 import ApplicationConsoleApp from '../ApplicationConsoleApp';
 

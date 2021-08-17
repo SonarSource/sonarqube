@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { findLastIndex } from 'lodash';
-import { getJSON, post } from 'sonar-ui-common/helpers/request';
-import { isDefined } from 'sonar-ui-common/helpers/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { getJSON, post } from '../sonar-ui-common/helpers/request';
+import { isDefined } from '../sonar-ui-common/helpers/types';
 import {
   AvailablePlugin,
   InstalledPlugin,

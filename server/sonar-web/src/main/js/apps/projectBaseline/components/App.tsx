@@ -20,12 +20,12 @@
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import '../styles.css';
 import { getSettingValue } from '../utils';

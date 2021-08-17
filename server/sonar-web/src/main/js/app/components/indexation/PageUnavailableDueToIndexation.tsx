@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props extends WithIndexationContextProps {
   pageContext?: PageContext;

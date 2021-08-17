@@ -19,11 +19,14 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import {
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { Branch } from '../../../types/branch-like';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';

@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockComponent,
@@ -27,6 +26,7 @@ import {
   mockMetric,
   mockPeriod
 } from '../../../../helpers/testMocks';
+import BoxedTabs from '../../../../sonar-ui-common/components/controls/BoxedTabs';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';

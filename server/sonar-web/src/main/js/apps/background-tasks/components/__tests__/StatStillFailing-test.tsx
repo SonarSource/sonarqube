@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import StatStillFailing, { Props } from '../StatStillFailing';
 
 it('should render correctly', () => {

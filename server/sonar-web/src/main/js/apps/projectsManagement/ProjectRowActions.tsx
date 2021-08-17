@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Project } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from '../../sonar-ui-common/components/controls/ActionsDropdown';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';
 

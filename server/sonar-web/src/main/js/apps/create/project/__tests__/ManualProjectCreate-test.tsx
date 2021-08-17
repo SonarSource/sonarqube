@@ -20,13 +20,13 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput';
-import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createProject, doesComponentExists } from '../../../../api/components';
 import ProjectKeyInput from '../../../../components/common/ProjectKeyInput';
 import { validateProjectKey } from '../../../../helpers/projects';
 import { mockEvent } from '../../../../helpers/testMocks';
+import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
+import ValidationInput from '../../../../sonar-ui-common/components/controls/ValidationInput';
+import { change, submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { ProjectKeyValidationResult } from '../../../../types/component';
 import { PROJECT_NAME_MAX_LEN } from '../constants';
 import ManualProjectCreate from '../ManualProjectCreate';

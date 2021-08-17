@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockQualityProfile, mockQualityProfileInheritance } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import ProfileInheritance from '../ProfileInheritance';
 
 beforeEach(() => jest.clearAllMocks());

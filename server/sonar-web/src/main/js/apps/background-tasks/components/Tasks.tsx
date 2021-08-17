@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Task as ITask } from '../../../types/tasks';
 import Task from './Task';
 

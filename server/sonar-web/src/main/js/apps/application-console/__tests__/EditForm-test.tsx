@@ -20,9 +20,9 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import { change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockApplication } from '../../../helpers/mocks/application';
+import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
+import { change, waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import EditForm from '../EditForm';
 
 it('should render correctly', () => {

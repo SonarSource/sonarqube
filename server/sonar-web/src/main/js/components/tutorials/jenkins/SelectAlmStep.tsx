@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
+import RadioToggle from '../../../sonar-ui-common/components/controls/RadioToggle';
+import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
+import { hasMessage, translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import Step from '../components/Step';
 

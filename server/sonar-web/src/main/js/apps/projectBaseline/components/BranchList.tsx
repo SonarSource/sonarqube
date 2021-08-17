@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';

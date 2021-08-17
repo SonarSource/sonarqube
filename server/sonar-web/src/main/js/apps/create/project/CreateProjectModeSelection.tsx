@@ -19,11 +19,11 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import ChevronsIcon from 'sonar-ui-common/components/icons/ChevronsIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { withAppState } from '../../../components/hoc/withAppState';
+import ChevronsIcon from '../../../sonar-ui-common/components/icons/ChevronsIcon';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 import { CreateProjectModes } from './types';
 

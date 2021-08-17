@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Radio from 'sonar-ui-common/components/controls/Radio';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
 import VisibilitySelector from '../VisibilitySelector';
 
 it('changes visibility', () => {

@@ -18,9 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
 import {
@@ -30,6 +27,9 @@ import {
   splitSeriesInGraphs
 } from '../../../components/activity-graph/utils';
 import ActivityLink from '../../../components/common/ActivityLink';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import Analysis from './Analysis';

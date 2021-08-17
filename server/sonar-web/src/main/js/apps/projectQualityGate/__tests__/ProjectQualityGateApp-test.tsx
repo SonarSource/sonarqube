@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -30,6 +29,7 @@ import {
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 import ProjectQualityGateApp from '../ProjectQualityGateApp';
 

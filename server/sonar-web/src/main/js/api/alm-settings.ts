@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import throwGlobalError from '../app/utils/throwGlobalError';
 import {
   get,
   getJSON,
@@ -24,8 +25,7 @@ import {
   parseError,
   parseJSON,
   post
-} from 'sonar-ui-common/helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+} from '../sonar-ui-common/helpers/request';
 import {
   AlmSettingsBindingDefinitions,
   AlmSettingsInstance,

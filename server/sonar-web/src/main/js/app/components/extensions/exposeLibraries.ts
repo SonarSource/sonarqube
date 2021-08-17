@@ -18,63 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FormattedMessage } from 'react-intl';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import {
-  Button,
-  EditButton,
-  ResetButtonLink,
-  SubmitButton
-} from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
-import ReloadButton from 'sonar-ui-common/components/controls/ReloadButton';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
-import Select from 'sonar-ui-common/components/controls/Select';
-import SelectList from 'sonar-ui-common/components/controls/SelectList';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import AlertWarnIcon from 'sonar-ui-common/components/icons/AlertWarnIcon';
-import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
-import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
-import ClearIcon from 'sonar-ui-common/components/icons/ClearIcon';
-import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
-import LockIcon from 'sonar-ui-common/components/icons/LockIcon';
-import PlusCircleIcon from 'sonar-ui-common/components/icons/PlusCircleIcon';
-import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
-import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
-import Level from 'sonar-ui-common/components/ui/Level';
-import Rating from 'sonar-ui-common/components/ui/Rating';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
-import {
-  get,
-  getJSON,
-  getText,
-  post,
-  postJSON,
-  postJSONBody,
-  request
-} from 'sonar-ui-common/helpers/request';
 import NotFound from '../../../app/components/NotFound';
 import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
@@ -99,6 +42,63 @@ import {
   getComponentSecurityHotspotsUrl,
   getRulesUrl
 } from '../../../helpers/urls';
+import ActionsDropdown, {
+  ActionsDropdownItem
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import {
+  Button,
+  EditButton,
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
+import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import RadioToggle from '../../../sonar-ui-common/components/controls/RadioToggle';
+import ReloadButton from '../../../sonar-ui-common/components/controls/ReloadButton';
+import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
+import SearchSelect from '../../../sonar-ui-common/components/controls/SearchSelect';
+import Select from '../../../sonar-ui-common/components/controls/Select';
+import SelectList from '../../../sonar-ui-common/components/controls/SelectList';
+import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
+import AlertWarnIcon from '../../../sonar-ui-common/components/icons/AlertWarnIcon';
+import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
+import CheckIcon from '../../../sonar-ui-common/components/icons/CheckIcon';
+import ClearIcon from '../../../sonar-ui-common/components/icons/ClearIcon';
+import DetachIcon from '../../../sonar-ui-common/components/icons/DetachIcon';
+import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
+import HelpIcon from '../../../sonar-ui-common/components/icons/HelpIcon';
+import LockIcon from '../../../sonar-ui-common/components/icons/LockIcon';
+import PlusCircleIcon from '../../../sonar-ui-common/components/icons/PlusCircleIcon';
+import PullRequestIcon from '../../../sonar-ui-common/components/icons/PullRequestIcon';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import SecurityHotspotIcon from '../../../sonar-ui-common/components/icons/SecurityHotspotIcon';
+import VulnerabilityIcon from '../../../sonar-ui-common/components/icons/VulnerabilityIcon';
+import DateFormatter from '../../../sonar-ui-common/components/intl/DateFormatter';
+import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
+import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import DuplicationsRating from '../../../sonar-ui-common/components/ui/DuplicationsRating';
+import Level from '../../../sonar-ui-common/components/ui/Level';
+import Rating from '../../../sonar-ui-common/components/ui/Rating';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import {
+  get,
+  getJSON,
+  getText,
+  post,
+  postJSON,
+  postJSONBody,
+  request
+} from '../../../sonar-ui-common/helpers/request';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../utils/throwGlobalError';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';

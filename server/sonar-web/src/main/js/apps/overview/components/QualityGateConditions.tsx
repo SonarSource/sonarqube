@@ -19,9 +19,9 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import ChevronDownIcon from 'sonar-ui-common/components/icons/ChevronDownIcon';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import ChevronDownIcon from '../../../sonar-ui-common/components/icons/ChevronDownIcon';
+import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import QualityGateCondition from './QualityGateCondition';

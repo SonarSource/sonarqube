@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { collapsePath } from 'sonar-ui-common/helpers/path';
+import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
+import { collapsePath } from '../../sonar-ui-common/helpers/path';
 import { ComponentDescriptor } from './context';
 
 interface Props {

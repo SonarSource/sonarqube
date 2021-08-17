@@ -19,15 +19,17 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { removeUser } from '../../../api/quality-profiles';
+import Avatar from '../../../components/ui/Avatar';
 import {
   DeleteButton,
   ResetButtonLink,
   SubmitButton
-} from 'sonar-ui-common/components/controls/buttons';
-import SimpleModal, { ChildrenProps } from 'sonar-ui-common/components/controls/SimpleModal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { removeUser } from '../../../api/quality-profiles';
-import Avatar from '../../../components/ui/Avatar';
+} from '../../../sonar-ui-common/components/controls/buttons';
+import SimpleModal, {
+  ChildrenProps
+} from '../../../sonar-ui-common/components/controls/SimpleModal';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onDelete: (user: T.UserSelected) => void;

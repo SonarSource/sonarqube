@@ -20,23 +20,26 @@
 import { pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import SearchSelect from 'sonar-ui-common/components/controls/SearchSelect';
-import Select from 'sonar-ui-common/components/controls/Select';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import FormattingTips from '../../../components/common/FormattingTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
+import {
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
+import SearchSelect from '../../../sonar-ui-common/components/controls/SearchSelect';
+import Select from '../../../sonar-ui-common/components/controls/Select';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { searchAssignees } from '../utils';
 
 interface AssigneeOption {

@@ -19,8 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectList, { SelectListFilter } from 'sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -28,6 +26,10 @@ import {
 } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../../helpers/testMocks';
+import SelectList, {
+  SelectListFilter
+} from '../../../../sonar-ui-common/components/controls/SelectList';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import Projects from '../Projects';
 
 jest.mock('../../../../api/quality-gates', () => ({

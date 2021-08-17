@@ -20,9 +20,9 @@
 import { subDays } from 'date-fns';
 import { throttle } from 'lodash';
 import * as React from 'react';
-import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getProjectActivity } from '../../../api/projectActivity';
+import { parseDate, toShortNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
+import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
 
 interface Props {

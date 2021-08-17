@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import Toggler from '../../../../sonar-ui-common/components/controls/Toggler';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import { LineDuplicationBlock, LineDuplicationBlockProps } from '../LineDuplicationBlock';
 
 it('should render correctly', () => {

@@ -19,16 +19,16 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockSettingWithCategory } from '../../../../helpers/mocks/settings';
 import { mockLocation } from '../../../../helpers/testMocks';
+import { scrollToElement } from '../../../../sonar-ui-common/helpers/scrolling';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import {
   SubCategoryDefinitionsList,
   SubCategoryDefinitionsListProps
 } from '../SubCategoryDefinitionsList';
 
-jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import PageHeader, { Props } from '../PageHeader';
 
-jest.mock('sonar-ui-common/helpers/dates', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/dates', () => ({
   toShortNotSoISOString: () => '2019-01-01'
 }));
 

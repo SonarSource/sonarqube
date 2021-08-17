@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Permissions } from '../../../types/permissions';
 
 export interface EmptyInstanceProps {

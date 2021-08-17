@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
+import { getJSON, post, postJSON, RequestData } from '../sonar-ui-common/helpers/request';
 import { IssueResponse, RawIssuesResponse } from '../types/issues';
 
 type FacetName =

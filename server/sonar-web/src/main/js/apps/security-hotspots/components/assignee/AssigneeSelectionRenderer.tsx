@@ -19,12 +19,12 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../../components/ui/Avatar';
+import { DropdownOverlay } from '../../../../sonar-ui-common/components/controls/Dropdown';
+import SearchBox from '../../../../sonar-ui-common/components/controls/SearchBox';
+import DeferredSpinner from '../../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { PopupPlacement } from '../../../../sonar-ui-common/components/ui/popups';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import './AssigneeSelection.css';
 
 export interface HotspotAssigneeSelectRendererProps {

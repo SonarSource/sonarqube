@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import SonarUiCommonInitializer, { DEFAULT_LOCALE } from 'sonar-ui-common/helpers/init';
+import { fetchL10nBundle } from '../api/l10n';
+import { toNotSoISOString } from '../sonar-ui-common/helpers/dates';
+import SonarUiCommonInitializer, { DEFAULT_LOCALE } from '../sonar-ui-common/helpers/init';
 import {
   get as loadFromLocalStorage,
   save as saveInLocalStorage
-} from 'sonar-ui-common/helpers/storage';
-import { fetchL10nBundle } from '../api/l10n';
+} from '../sonar-ui-common/helpers/storage';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10n';
 
 const L10N_BUNDLE_LS_KEY = 'l10n.bundle';

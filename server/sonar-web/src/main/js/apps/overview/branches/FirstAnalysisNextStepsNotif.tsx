@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { isLoggedIn } from '../../../helpers/users';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';

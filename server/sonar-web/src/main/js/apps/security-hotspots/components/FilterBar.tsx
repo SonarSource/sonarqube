@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
-import Select from 'sonar-ui-common/components/controls/Select';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { isLoggedIn } from '../../../helpers/users';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import RadioToggle from '../../../sonar-ui-common/components/controls/RadioToggle';
+import Select from '../../../sonar-ui-common/components/controls/Select';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
 

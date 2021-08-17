@@ -19,16 +19,16 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import SelectList, {
-  SelectListFilter,
-  SelectListSearchParams
-} from 'sonar-ui-common/components/controls/SelectList';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import {
   addProjectToApplication,
   getApplicationProjects,
   removeProjectFromApplication
 } from '../../api/application';
+import SelectList, {
+  SelectListFilter,
+  SelectListSearchParams
+} from '../../sonar-ui-common/components/controls/SelectList';
+import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
 import { Application, ApplicationProject } from '../../types/application';
 
 interface Props {

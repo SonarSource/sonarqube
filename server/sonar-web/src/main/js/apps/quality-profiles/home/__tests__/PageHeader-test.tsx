@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockLanguage,
   mockLocation,
   mockQualityProfile,
   mockRouter
 } from '../../../../helpers/testMocks';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import { PageHeader } from '../PageHeader';
 
 it('should render correctly', () => {

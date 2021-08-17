@@ -20,7 +20,6 @@
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { HttpStatus } from 'sonar-ui-common/helpers/request';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
@@ -35,6 +34,7 @@ import {
   isPullRequest
 } from '../../helpers/branch-like';
 import { getPortfolioUrl } from '../../helpers/urls';
+import { HttpStatus } from '../../sonar-ui-common/helpers/request';
 import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
 import {
   ProjectAlmBindingConfigurationErrors,

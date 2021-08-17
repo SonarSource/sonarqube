@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
-import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import HistoryIcon from '../../../sonar-ui-common/components/icons/HistoryIcon';
+import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
+import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';

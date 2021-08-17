@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ModalButton from '../../../sonar-ui-common/components/controls/ModalButton';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';

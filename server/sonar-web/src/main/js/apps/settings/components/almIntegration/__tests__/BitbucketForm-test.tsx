@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import {
   mockBitbucketCloudBindingDefinition,
   mockBitbucketServerBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
+import RadioToggle from '../../../../../sonar-ui-common/components/controls/RadioToggle';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 

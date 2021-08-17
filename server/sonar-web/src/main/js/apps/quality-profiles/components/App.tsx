@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';

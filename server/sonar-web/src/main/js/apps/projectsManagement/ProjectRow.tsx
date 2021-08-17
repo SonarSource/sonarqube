@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import { getComponentOverviewUrl } from '../../helpers/urls';
+import Checkbox from '../../sonar-ui-common/components/controls/Checkbox';
+import Tooltip from '../../sonar-ui-common/components/controls/Tooltip';
+import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
+import DateFormatter from '../../sonar-ui-common/components/intl/DateFormatter';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 

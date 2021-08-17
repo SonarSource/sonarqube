@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import EditTokenModal from '../../components/EditTokenModal';
 import ServiceEndpointStepContent from '../ServiceEndpointStepContent';
 

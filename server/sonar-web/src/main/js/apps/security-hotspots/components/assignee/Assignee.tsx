@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { assignSecurityHotspot } from '../../../../api/security-hotspots';
 import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../../helpers/users';
+import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
 import { Hotspot, HotspotStatus } from '../../../../types/security-hotspots';
 import AssigneeRenderer from './AssigneeRenderer';
 

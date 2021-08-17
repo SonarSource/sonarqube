@@ -24,7 +24,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import Step from '../../components/Step';
 import SelectAlmStep, { SelectAlmStepProps } from '../SelectAlmStep';
 
-jest.mock('sonar-ui-common/helpers/l10n', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/l10n', () => ({
   hasMessage: (_a: string, k: string, _b: string) => k === AlmKeys.BitbucketCloud,
   translate: (...k: string[]) => k.join('.')
 }));

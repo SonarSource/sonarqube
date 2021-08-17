@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
+import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 
 export function getTooltip(component: T.ComponentMeasure) {

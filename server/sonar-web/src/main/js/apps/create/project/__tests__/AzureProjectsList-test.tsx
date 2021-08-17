@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
+import ListFooter from '../../../../sonar-ui-common/components/controls/ListFooter';
 import AzureProjectAccordion from '../AzureProjectAccordion';
 import AzureProjectsList, { AzureProjectsListProps } from '../AzureProjectsList';
 

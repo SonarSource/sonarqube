@@ -19,10 +19,6 @@
  */
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
-import PageActions from 'sonar-ui-common/components/ui/PageActions';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { RequestData } from 'sonar-ui-common/helpers/request';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -30,6 +26,10 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
+import PageActions from '../../../sonar-ui-common/components/ui/PageActions';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { RequestData } from '../../../sonar-ui-common/helpers/request';
+import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { complementary } from '../config/complementary';

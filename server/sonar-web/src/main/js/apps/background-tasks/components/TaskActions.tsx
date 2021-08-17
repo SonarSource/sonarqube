@@ -20,10 +20,10 @@
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
+import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { Task, TaskStatuses } from '../../../types/tasks';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';

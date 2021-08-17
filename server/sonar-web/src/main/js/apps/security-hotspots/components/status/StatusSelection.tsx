@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setSecurityHotspotStatus } from '../../../../api/security-hotspots';
 import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
+import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import {
   getStatusAndResolutionFromStatusOption,

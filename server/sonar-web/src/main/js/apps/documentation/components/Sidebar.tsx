@@ -19,7 +19,7 @@
  */
 import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
+import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
 import { DocumentationEntry } from '../utils';
 import Menu from './Menu';
 import SearchResults from './SearchResults';

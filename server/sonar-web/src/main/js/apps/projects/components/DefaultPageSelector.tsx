@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { get } from 'sonar-ui-common/helpers/storage';
 import { searchProjects } from '../../../api/components';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { get } from '../../../sonar-ui-common/helpers/storage';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
 

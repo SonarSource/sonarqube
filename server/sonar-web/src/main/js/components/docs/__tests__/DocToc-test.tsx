@@ -19,7 +19,7 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
-import { click, scrollTo } from 'sonar-ui-common/helpers/testUtils';
+import { click, scrollTo } from '../../../sonar-ui-common/helpers/testUtils';
 import DocToc from '../DocToc';
 
 const OFFSET = 300;

@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
+import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
 import ProjectActivityApp from '../ProjectActivityApp';
 
 const ANALYSES = [

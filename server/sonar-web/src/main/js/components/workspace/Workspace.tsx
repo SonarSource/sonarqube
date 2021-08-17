@@ -19,9 +19,9 @@
  */
 import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import { get, save } from 'sonar-ui-common/helpers/storage';
 import { getRulesApp } from '../../api/rules';
+import { lazyLoadComponent } from '../../sonar-ui-common/components/lazyLoadComponent';
+import { get, save } from '../../sonar-ui-common/helpers/storage';
 import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
 import WorkspacePortal from './WorkspacePortal';

@@ -20,13 +20,13 @@
 import * as differenceInDays from 'date-fns/difference_in_days';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { hasMessage } from 'sonar-ui-common/helpers/l10n';
-import { get, save } from 'sonar-ui-common/helpers/storage';
 import { showLicense } from '../../api/marketplace';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { isLoggedIn } from '../../helpers/users';
+import { lazyLoadComponent } from '../../sonar-ui-common/components/lazyLoadComponent';
+import { parseDate, toShortNotSoISOString } from '../../sonar-ui-common/helpers/dates';
+import { hasMessage } from '../../sonar-ui-common/helpers/l10n';
+import { get, save } from '../../sonar-ui-common/helpers/storage';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../types/editions';
 

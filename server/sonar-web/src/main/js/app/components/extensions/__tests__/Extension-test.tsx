@@ -19,9 +19,9 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getExtensionStart } from '../../../../helpers/extensions';
 import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { Extension } from '../Extension';
 
 jest.mock('../../../../helpers/extensions', () => ({

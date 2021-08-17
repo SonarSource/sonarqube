@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import NavBar from 'sonar-ui-common/components/ui/NavBar';
+import NavBar from '../../../../sonar-ui-common/components/ui/NavBar';
 import { getAppState, getCurrentUser, Store } from '../../../../store/rootReducer';
 import { rawSizes } from '../../../theme';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';

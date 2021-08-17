@@ -20,11 +20,11 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import { change, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { createQualityGate } from '../../../../api/quality-gates';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { getQualityGateUrl } from '../../../../helpers/urls';
+import ConfirmModal from '../../../../sonar-ui-common/components/controls/ConfirmModal';
+import { change, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { CreateQualityGateForm } from '../CreateQualityGateForm';
 
 jest.mock('../../../../api/quality-gates', () => ({

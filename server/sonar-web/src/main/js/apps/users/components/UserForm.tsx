@@ -19,15 +19,19 @@
  */
 import { uniq } from 'lodash';
 import * as React from 'react';
-import { Button, ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { parseError } from 'sonar-ui-common/helpers/request';
 import { createUser, updateUser } from '../../../api/users';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import {
+  Button,
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { parseError } from '../../../sonar-ui-common/helpers/request';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {

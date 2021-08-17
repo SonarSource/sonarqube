@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
+import { getHostUrl } from '../../../../sonar-ui-common/helpers/urls';
 import { BuildTools, ManualTutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';

@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { omitNil } from 'sonar-ui-common/helpers/request';
 import { createGroup, deleteGroup, searchUsersGroups, updateGroup } from '../../../api/user_groups';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { omitNil } from '../../../sonar-ui-common/helpers/request';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import Header from './Header';

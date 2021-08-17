@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as dates from 'sonar-ui-common/helpers/dates';
 import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
+import * as dates from '../../../sonar-ui-common/helpers/dates';
 import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 

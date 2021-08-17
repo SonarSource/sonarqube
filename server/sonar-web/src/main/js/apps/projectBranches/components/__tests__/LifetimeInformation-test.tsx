@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getValues } from '../../../../api/settings';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { SettingsKey } from '../../../../types/settings';
 import { LifetimeInformation } from '../LifetimeInformation';
 

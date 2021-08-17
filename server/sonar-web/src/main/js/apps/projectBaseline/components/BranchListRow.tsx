@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import ActionsDropdown, {
   ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
+} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import WarningIcon from '../../../sonar-ui-common/components/icons/WarningIcon';
+import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
 
 export interface BranchListRowProps {

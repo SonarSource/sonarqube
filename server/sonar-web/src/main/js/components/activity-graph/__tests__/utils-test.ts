@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as dates from 'sonar-ui-common/helpers/dates';
+import * as dates from '../../../sonar-ui-common/helpers/dates';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, Serie } from '../../../types/project-activity';
 import * as utils from '../utils';

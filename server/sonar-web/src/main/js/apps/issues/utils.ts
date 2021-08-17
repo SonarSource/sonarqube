@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
+import { searchUsers } from '../../api/users';
+import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
 import {
   cleanQuery,
   parseAsArray,
@@ -28,10 +29,9 @@ import {
   serializeDateShort,
   serializeString,
   serializeStringArray
-} from 'sonar-ui-common/helpers/query';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
-import { get, save } from 'sonar-ui-common/helpers/storage';
-import { searchUsers } from '../../api/users';
+} from '../../sonar-ui-common/helpers/query';
+import { scrollToElement } from '../../sonar-ui-common/helpers/scrolling';
+import { get, save } from '../../sonar-ui-common/helpers/storage';
 import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard, StandardType } from '../../types/security';
 

@@ -22,20 +22,6 @@ import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
-import { serializeDate } from 'sonar-ui-common/helpers/query';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import EmptySearch from '../../../components/common/EmptySearch';
@@ -50,6 +36,20 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../sonar-ui-common/helpers/pages';
+import { serializeDate } from '../../../sonar-ui-common/helpers/query';
 import { BranchLike } from '../../../types/branch-like';
 import {
   Facet,

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
@@ -29,6 +28,7 @@ import {
 } from '../../api/quality-gates';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { USE_SYSTEM_DEFAULT } from './constants';
 import ProjectQualityGateAppRenderer from './ProjectQualityGateAppRenderer';
 

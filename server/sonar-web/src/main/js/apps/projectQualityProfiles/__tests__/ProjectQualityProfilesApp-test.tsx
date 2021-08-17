@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   associateProject,
   dissociateProject,
@@ -29,6 +28,7 @@ import {
 } from '../../../api/quality-profiles';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import ProjectQualityProfilesApp from '../ProjectQualityProfilesApp';
 
 jest.mock('../../../api/quality-profiles', () => {

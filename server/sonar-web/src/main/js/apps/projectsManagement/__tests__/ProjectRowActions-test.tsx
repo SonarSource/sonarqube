@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getComponentNavigation } from '../../../api/nav';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { click, waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
 
 jest.mock('../../../api/nav', () => ({

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ActionsDropdownItem } from 'sonar-ui-common/components/controls/ActionsDropdown';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { getCodeUrl } from '../../../helpers/urls';
+import { ActionsDropdownItem } from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { getPathUrlAsString } from '../../../sonar-ui-common/helpers/urls';
 import { SourceViewerContext } from '../SourceViewerContext';
 
 export interface LineOptionsPopupProps {

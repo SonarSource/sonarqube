@@ -19,15 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+} from '../../../../sonar-ui-common/helpers/pages';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import {
   ALM_INTEGRATION,
   ANALYSIS_SCOPE_CATEGORY,
@@ -37,7 +37,7 @@ import {
 } from '../AdditionalCategoryKeys';
 import { App } from '../AppContainer';
 
-jest.mock('sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),

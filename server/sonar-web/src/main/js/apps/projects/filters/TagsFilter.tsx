@@ -19,8 +19,8 @@
  */
 import { debounce, difference, size, sortBy } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchProjectTags } from '../../../api/components';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';

@@ -19,8 +19,6 @@
  */
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
-import { parseDate, toNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { isDefined } from 'sonar-ui-common/helpers/types';
 import { getApplicationDetails, getApplicationLeak } from '../../../api/application';
 import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
@@ -42,6 +40,8 @@ import {
   extractStatusConditionsFromApplicationStatusChildProject,
   extractStatusConditionsFromProjectStatus
 } from '../../../helpers/qualityGates';
+import { parseDate, toNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
+import { isDefined } from '../../../sonar-ui-common/helpers/types';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';

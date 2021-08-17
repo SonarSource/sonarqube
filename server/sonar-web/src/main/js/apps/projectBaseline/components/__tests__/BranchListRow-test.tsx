@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ActionsDropdownItem } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { ActionsDropdownItem } from '../../../../sonar-ui-common/components/controls/ActionsDropdown';
 import BranchListRow, { BranchListRowProps } from '../BranchListRow';
 
 it('should render correctly', () => {

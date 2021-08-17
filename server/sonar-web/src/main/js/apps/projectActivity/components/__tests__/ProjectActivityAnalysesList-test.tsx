@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
 import { mockParsedAnalysis } from '../../../../helpers/testMocks';
+import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
 import { ComponentQualifier } from '../../../../types/component';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
@@ -31,8 +31,8 @@ jest.mock('date-fns/start_of_day', () => (date: Date) => {
   return startDay;
 });
 
-jest.mock('sonar-ui-common/helpers/dates', () => {
-  const actual = jest.requireActual('sonar-ui-common/helpers/dates');
+jest.mock('../../../../sonar-ui-common/helpers/dates', () => {
+  const actual = jest.requireActual('../../../../sonar-ui-common/helpers/dates');
   return { ...actual, toShortNotSoISOString: (date: string) => 'ISO.' + date };
 });
 

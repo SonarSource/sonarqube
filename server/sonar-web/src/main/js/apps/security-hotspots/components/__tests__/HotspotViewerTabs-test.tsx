@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
+import BoxedTabs from '../../../../sonar-ui-common/components/controls/BoxedTabs';
 import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {

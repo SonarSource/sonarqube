@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { ClipboardIconButton } from '../../../sonar-ui-common/components/controls/clipboard';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';

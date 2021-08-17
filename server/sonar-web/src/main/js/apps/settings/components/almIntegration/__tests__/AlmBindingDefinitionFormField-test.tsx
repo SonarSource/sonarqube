@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { ButtonLink } from '../../../../../sonar-ui-common/components/controls/buttons';
+import { click } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { AlmBindingDefinitionBase } from '../../../../../types/alm-settings';
 import {
   AlmBindingDefinitionFormField,

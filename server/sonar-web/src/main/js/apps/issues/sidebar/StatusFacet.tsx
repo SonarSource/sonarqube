@@ -19,13 +19,13 @@
  */
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import StatusHelper from '../../../components/shared/StatusHelper';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {

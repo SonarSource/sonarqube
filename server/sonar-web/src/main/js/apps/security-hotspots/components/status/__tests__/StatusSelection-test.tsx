@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { setSecurityHotspotStatus } from '../../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
+import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import { HotspotStatus, HotspotStatusOption } from '../../../../../types/security-hotspots';
 import StatusSelection from '../StatusSelection';
 import StatusSelectionRenderer from '../StatusSelectionRenderer';

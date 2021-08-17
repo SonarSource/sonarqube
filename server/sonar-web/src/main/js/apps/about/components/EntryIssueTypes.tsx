@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
-import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
+import BugIcon from '../../../sonar-ui-common/components/icons/BugIcon';
+import CodeSmellIcon from '../../../sonar-ui-common/components/icons/CodeSmellIcon';
+import VulnerabilityIcon from '../../../sonar-ui-common/components/icons/VulnerabilityIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 
 export interface EntryIssueTypesProps {
   bugs?: number;

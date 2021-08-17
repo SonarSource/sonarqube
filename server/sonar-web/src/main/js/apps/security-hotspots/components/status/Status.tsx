@@ -19,15 +19,15 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../../helpers/users';
+import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
+import { DropdownOverlay } from '../../../../sonar-ui-common/components/controls/Dropdown';
+import Toggler from '../../../../sonar-ui-common/components/controls/Toggler';
+import Tooltip from '../../../../sonar-ui-common/components/controls/Tooltip';
+import DropdownIcon from '../../../../sonar-ui-common/components/icons/DropdownIcon';
+import { PopupPlacement } from '../../../../sonar-ui-common/components/ui/popups';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../../types/security-hotspots';
 import { getStatusOptionFromStatusAndResolution } from '../../utils';
 import StatusDescription from './StatusDescription';

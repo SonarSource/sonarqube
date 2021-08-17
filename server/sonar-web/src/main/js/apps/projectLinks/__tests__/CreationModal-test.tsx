@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, submit } from 'sonar-ui-common/helpers/testUtils';
+import { change, submit } from '../../../sonar-ui-common/helpers/testUtils';
 import CreationModal from '../CreationModal';
 
 it('should create link', () => {

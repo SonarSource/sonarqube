@@ -20,15 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { mockComponent, mockLocation } from '../../../../../helpers/testMocks';
+import { Alert } from '../../../../../sonar-ui-common/components/ui/Alert';
+import { hasMessage } from '../../../../../sonar-ui-common/helpers/l10n';
 import { Task, TaskStatuses, TaskTypes } from '../../../../../types/tasks';
 import { ComponentNavBgTaskNotif } from '../ComponentNavBgTaskNotif';
 
-jest.mock('sonar-ui-common/helpers/l10n', () => ({
-  ...jest.requireActual('sonar-ui-common/helpers/l10n'),
+jest.mock('../../../../../sonar-ui-common/helpers/l10n', () => ({
+  ...jest.requireActual('../../../../../sonar-ui-common/helpers/l10n'),
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 

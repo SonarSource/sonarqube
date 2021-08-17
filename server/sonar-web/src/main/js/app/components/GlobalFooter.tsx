@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import { getEdition } from '../../helpers/editions';
+import { Alert } from '../../sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 

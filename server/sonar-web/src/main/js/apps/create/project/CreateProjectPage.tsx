@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getAlmSettings } from '../../../api/alm-settings';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';

@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSystemUpgrades } from '../../../../../api/system';
+import { click, waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 
 jest.mock('../../../../../api/system', () => ({

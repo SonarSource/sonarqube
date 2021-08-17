@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure, localizeMetric } from 'sonar-ui-common/helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure, localizeMetric } from '../../../sonar-ui-common/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { getIssueIconClass, getIssueMetricKey } from '../utils';

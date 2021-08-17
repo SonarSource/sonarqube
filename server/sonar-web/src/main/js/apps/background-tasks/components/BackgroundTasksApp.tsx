@@ -20,9 +20,6 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { parseAsDate } from 'sonar-ui-common/helpers/query';
 import {
   cancelAllTasks,
   cancelTask as cancelTaskAPI,
@@ -32,6 +29,9 @@ import {
 } from '../../../api/ce';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router } from '../../../components/hoc/withRouter';
+import { toShortNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { parseAsDate } from '../../../sonar-ui-common/helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
 import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';

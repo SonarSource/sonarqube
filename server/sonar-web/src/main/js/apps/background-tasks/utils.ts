@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { toShortNotSoISOString } from '../../sonar-ui-common/helpers/dates';
 import { Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import EllipsisIcon from 'sonar-ui-common/components/icons/EllipsisIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import EllipsisIcon from '../../sonar-ui-common/components/icons/EllipsisIcon';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../sonar-ui-common/helpers/urls';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';

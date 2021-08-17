@@ -19,8 +19,6 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   commentSecurityHotspot,
   deleteSecurityHotspotComment,
@@ -28,6 +26,8 @@ import {
 } from '../../../api/security-hotspots';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { isLoggedIn } from '../../../helpers/users';
+import { Button, ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import HotspotReviewHistory from './HotspotReviewHistory';
 

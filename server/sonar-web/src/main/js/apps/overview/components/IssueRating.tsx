@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import Rating from 'sonar-ui-common/components/ui/Rating';
 import { getLeakValue, getRatingTooltip } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import Rating from '../../../sonar-ui-common/components/ui/Rating';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { getIssueRatingMetricKey, getIssueRatingName } from '../utils';

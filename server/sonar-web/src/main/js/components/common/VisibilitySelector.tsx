@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import Radio from '../../sonar-ui-common/components/controls/Radio';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   canTurnToPrivate?: boolean;

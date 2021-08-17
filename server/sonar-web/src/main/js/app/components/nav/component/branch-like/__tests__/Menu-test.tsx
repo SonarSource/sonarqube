@@ -20,14 +20,14 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Link } from 'react-router';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
-import { click, mockEvent } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockPullRequest,
   mockSetOfBranchAndPullRequest
 } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent, mockRouter } from '../../../../../../helpers/testMocks';
+import SearchBox from '../../../../../../sonar-ui-common/components/controls/SearchBox';
+import { KeyCodes } from '../../../../../../sonar-ui-common/helpers/keycodes';
+import { click, mockEvent } from '../../../../../../sonar-ui-common/helpers/testUtils';
 import { Menu } from '../Menu';
 import { MenuItemList } from '../MenuItemList';
 

@@ -19,18 +19,18 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import SelectList, {
-  SelectListFilter,
-  SelectListSearchParams
-} from 'sonar-ui-common/components/controls/SelectList';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateProject,
   dissociateProject,
   getProfileProjects,
   ProfileProject
 } from '../../../api/quality-profiles';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import SelectList, {
+  SelectListFilter,
+  SelectListSearchParams
+} from '../../../sonar-ui-common/components/controls/SelectList';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Profile } from '../types';
 
 interface Props {

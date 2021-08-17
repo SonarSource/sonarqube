@@ -20,13 +20,13 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
-import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import {
   getGithubClientId,
   getGithubOrganizations,
   getGithubRepositories,
   importGithubRepository
 } from '../../../api/alm-integrations';
+import { getHostUrl } from '../../../sonar-ui-common/helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';

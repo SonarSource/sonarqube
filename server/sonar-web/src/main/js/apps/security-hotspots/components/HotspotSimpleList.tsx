@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
-import { fileFromPath } from 'sonar-ui-common/helpers/path';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import SecurityHotspotIcon from '../../../sonar-ui-common/components/icons/SecurityHotspotIcon';
+import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { addSideBarClass, removeSideBarClass } from '../../../sonar-ui-common/helpers/pages';
+import { fileFromPath } from '../../../sonar-ui-common/helpers/path';
 import { ComponentQualifier } from '../../../types/component';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { RawHotspot } from '../../../types/security-hotspots';

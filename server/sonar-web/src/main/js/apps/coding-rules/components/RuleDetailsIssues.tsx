@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getFacet } from '../../../api/issues';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { getIssuesUrl } from '../../../helpers/urls';
+import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;

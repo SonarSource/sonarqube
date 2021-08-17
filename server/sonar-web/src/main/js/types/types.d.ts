@@ -19,6 +19,8 @@
  */
 declare namespace T {
   // Type ordered alphabetically to prevent merge conflicts
+  export type Dict<T> = { [key: string]: T };
+  export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
   export interface A11ySkipLink {
     key: string;
@@ -106,6 +108,20 @@ declare namespace T {
     key: string;
     name: string;
     qualifier: string;
+  }
+
+  export namespace Chart {
+    export interface Point {
+      x: Date;
+      y: number | string | undefined;
+    }
+
+    export interface Serie {
+      data: Point[];
+      name: string;
+      translatedName: string;
+      type: string;
+    }
   }
 
   export interface Component extends LightComponent {
@@ -382,6 +398,9 @@ declare namespace T {
   export interface IssuesByLine {
     [key: number]: Issue[];
   }
+
+  export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';
+
   export interface Language {
     key: string;
     name: string;
@@ -612,6 +631,8 @@ declare namespace T {
     isDefault?: boolean;
     name: string;
   }
+
+  export type RawQuery = T.Dict<any>;
 
   export interface Rule {
     isTemplate?: boolean;

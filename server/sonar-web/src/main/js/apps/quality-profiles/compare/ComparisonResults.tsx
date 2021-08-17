@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import ChevronLeftIcon from 'sonar-ui-common/components/icons/ChevronLeftIcon';
-import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
-import SeverityIcon from 'sonar-ui-common/components/icons/SeverityIcon';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { CompareResponse, Profile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
+import ChevronLeftIcon from '../../../sonar-ui-common/components/icons/ChevronLeftIcon';
+import ChevronRightIcon from '../../../sonar-ui-common/components/icons/ChevronRightIcon';
+import SeverityIcon from '../../../sonar-ui-common/components/icons/SeverityIcon';
+import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import ComparisonEmpty from './ComparisonEmpty';
 import ComparisonResultActivation from './ComparisonResultActivation';
 

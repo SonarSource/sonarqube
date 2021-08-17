@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpers/urls';
+import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
+import MandatoryFieldMarker from '../../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,

@@ -23,17 +23,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import {
-  getLocalizedMetricDomain,
-  translate,
-  translateWithParameters
-} from 'sonar-ui-common/helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
@@ -41,6 +30,17 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
+import {
+  getLocalizedMetricDomain,
+  translate,
+  translateWithParameters
+} from '../../../sonar-ui-common/helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../sonar-ui-common/helpers/pages';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

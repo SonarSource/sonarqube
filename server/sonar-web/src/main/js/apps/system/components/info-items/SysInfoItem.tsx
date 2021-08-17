@@ -19,7 +19,7 @@
  */
 import { map } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { HEALTH_FIELD, STATE_FIELD } from '../../utils';
 import HealthItem from './HealthItem';
 

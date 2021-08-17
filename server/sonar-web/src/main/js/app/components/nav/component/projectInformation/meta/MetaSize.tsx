@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { formatMeasure, localizeMetric } from 'sonar-ui-common/helpers/measures';
 import DrilldownLink from '../../../../../../components/shared/DrilldownLink';
+import SizeRating from '../../../../../../sonar-ui-common/components/ui/SizeRating';
+import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
+import { formatMeasure, localizeMetric } from '../../../../../../sonar-ui-common/helpers/measures';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { MetricKey } from '../../../../../../types/metrics';
 

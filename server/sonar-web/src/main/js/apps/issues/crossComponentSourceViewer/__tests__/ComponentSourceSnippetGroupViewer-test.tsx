@@ -20,7 +20,6 @@
 import { mount, ReactWrapper, shallow } from 'enzyme';
 import { range, times } from 'lodash';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
 import Issue from '../../../../components/issue/Issue';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
@@ -31,6 +30,7 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 import SnippetViewer from '../SnippetViewer';
 

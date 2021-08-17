@@ -23,7 +23,7 @@ import { mockComponent } from '../../../../../helpers/testMocks';
 import { BuildTools, OSs } from '../../../types';
 import AnalysisCommand, { AnalysisCommandProps } from '../AnalysisCommand';
 
-jest.mock('sonar-ui-common/helpers/urls', () => ({
+jest.mock('../../../../../sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'HOST'
 }));
 

@@ -20,15 +20,15 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Select from 'sonar-ui-common/components/controls/Select';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
+import { Button, SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
+import Select from '../../../../sonar-ui-common/components/controls/Select';
+import AlertSuccessIcon from '../../../../sonar-ui-common/components/icons/AlertSuccessIcon';
+import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from '../../../../sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from '../../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import {
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,

@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { save } from 'sonar-ui-common/helpers/storage';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { save } from '../../../../sonar-ui-common/helpers/storage';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import FavoriteFilter from '../FavoriteFilter';
 
-jest.mock('sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../../../sonar-ui-common/helpers/storage', () => ({
   save: jest.fn()
 }));
 

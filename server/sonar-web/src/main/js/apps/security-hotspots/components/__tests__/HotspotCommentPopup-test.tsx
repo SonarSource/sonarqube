@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { Button, ResetButtonLink } from '../../../../sonar-ui-common/components/controls/buttons';
 import HotspotCommentPopup, { HotspotCommentPopupProps } from '../HotspotCommentPopup';
 
 it('should render correclty', () => {

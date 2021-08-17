@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import HistoryIcon from 'sonar-ui-common/components/icons/HistoryIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getActivityUrl, getMeasureHistoryUrl } from '../../helpers/urls';
+import HistoryIcon from '../../sonar-ui-common/components/icons/HistoryIcon';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { GraphType } from '../../types/project-activity';
 import { isCustomGraph } from '../activity-graph/utils';

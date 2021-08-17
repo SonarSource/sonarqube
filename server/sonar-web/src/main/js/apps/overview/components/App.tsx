@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { isPullRequest } from '../../../helpers/branch-like';
+import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';

@@ -1,6 +1,6 @@
 module.exports = {
   coverageDirectory: '<rootDir>/coverage',
-  collectCoverageFrom: ['src/main/js/**/*.{ts,tsx,js}'],
+  collectCoverageFrom: ['src/main/js/**/*.{ts,tsx,js}', '!helpers/{keycodes,testUtils}.{ts,tsx}'],
   coverageReporters: ['lcovonly', 'text'],
   globals: {
     'ts-jest': {
@@ -20,7 +20,7 @@ module.exports = {
     '<rootDir>/config/jest/SetupEnzyme.js',
     '<rootDir>/config/jest/SetupTestEnvironment.ts'
   ],
-  snapshotSerializers: ['enzyme-to-json/serializer'],
+  snapshotSerializers: ['enzyme-to-json/serializer', 'jest-emotion'],
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import { DeleteButton } from '../../../../sonar-ui-common/components/controls/buttons';
 import { DefaultInputProps, getEmptyValue } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 

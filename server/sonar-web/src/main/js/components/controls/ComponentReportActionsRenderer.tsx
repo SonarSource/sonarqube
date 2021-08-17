@@ -19,11 +19,11 @@
  */
 
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getReportUrl } from '../../api/component-report';
+import { Button } from '../../sonar-ui-common/components/controls/buttons';
+import Dropdown from '../../sonar-ui-common/components/controls/Dropdown';
+import DropdownIcon from '../../sonar-ui-common/components/icons/DropdownIcon';
+import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 import { Branch } from '../../types/branch-like';
 
 export interface ComponentReportActionsRendererProps {

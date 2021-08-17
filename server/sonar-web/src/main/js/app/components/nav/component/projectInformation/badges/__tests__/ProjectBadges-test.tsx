@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Location } from 'sonar-ui-common/helpers/urls';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
 import { mockMetric } from '../../../../../../../helpers/testMocks';
+import { Location } from '../../../../../../../sonar-ui-common/helpers/urls';
 import { MetricKey } from '../../../../../../../types/metrics';
 import ProjectBadges from '../ProjectBadges';
 
-jest.mock('sonar-ui-common/helpers/urls', () => ({
+jest.mock('../../../../../../../sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'host',
   getPathUrlAsString: (l: Location) => l.pathname
 }));

@@ -20,11 +20,11 @@
 import { shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockHotspot, mockHotspotComponent } from '../../../../helpers/mocks/security-hotspots';
 import { mockComponent, mockSourceLine } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import HotspotSnippetContainer from '../HotspotSnippetContainer';
 import HotspotSnippetContainerRenderer from '../HotspotSnippetContainerRenderer';

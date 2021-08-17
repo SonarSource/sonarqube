@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
 import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
+import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { Activation, Query } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';

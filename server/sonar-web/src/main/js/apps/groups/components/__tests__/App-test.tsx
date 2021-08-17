@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   createGroup,
   deleteGroup,
@@ -27,6 +26,7 @@ import {
   updateGroup
 } from '../../../../api/user_groups';
 import { mockGroup } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import App from '../App';
 
 jest.mock('../../../../api/user_groups', () => ({

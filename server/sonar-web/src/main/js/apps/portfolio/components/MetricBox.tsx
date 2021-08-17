@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import Level from 'sonar-ui-common/components/ui/Level';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import ActivityLink from '../../../components/common/ActivityLink';
 import MeasuresLink from '../../../components/common/MeasuresLink';
 import Measure from '../../../components/measure/Measure';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
+import Level from '../../../sonar-ui-common/components/ui/Level';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { GraphType } from '../../../types/project-activity';
 import { METRICS_PER_TYPE } from '../utils';
 import Effort from './Effort';

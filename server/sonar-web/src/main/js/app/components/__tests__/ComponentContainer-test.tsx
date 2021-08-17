@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
@@ -29,6 +28,7 @@ import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockTask } from '../../../helpers/mocks/tasks';
 import { mockAppState, mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses } from '../../../types/tasks';

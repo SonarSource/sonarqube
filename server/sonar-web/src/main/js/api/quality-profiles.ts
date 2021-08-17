@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { map } from 'lodash';
-import { csvEscape } from 'sonar-ui-common/helpers/csv';
-import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
+import { csvEscape } from '../sonar-ui-common/helpers/csv';
+import { getJSON, post, postJSON, RequestData } from '../sonar-ui-common/helpers/request';
 
 export interface ProfileActions {
   associateProjects?: boolean;

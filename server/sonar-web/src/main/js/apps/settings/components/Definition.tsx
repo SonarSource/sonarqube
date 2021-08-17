@@ -20,10 +20,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
+import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
+import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import {
   getSettingsAppChangedValue,
   getSettingsAppValidationMessage,

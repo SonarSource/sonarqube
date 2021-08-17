@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockComponent,
   mockCurrentUser,
   mockLoggedInUser,
   mockMetric
 } from '../../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../../sonar-ui-common/helpers/testUtils';
 import { ProjectInformation } from '../ProjectInformation';
 import { ProjectInformationPages } from '../ProjectInformationPages';
 

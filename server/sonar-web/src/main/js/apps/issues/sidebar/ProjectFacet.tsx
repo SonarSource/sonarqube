@@ -19,11 +19,11 @@
  */
 import { omit } from 'lodash';
 import * as React from 'react';
-import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { highlightTerm } from 'sonar-ui-common/helpers/search';
 import { getTree, searchProjects } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { highlightTerm } from '../../../sonar-ui-common/helpers/search';
 import { ComponentQualifier } from '../../../types/component';
 import { Facet, ReferencedComponent } from '../../../types/issues';
 import { Query } from '../utils';

@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   commentSecurityHotspot,
   deleteSecurityHotspotComment,
@@ -28,6 +27,7 @@ import {
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { isLoggedIn } from '../../../../helpers/users';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import HotspotReviewHistory from '../HotspotReviewHistory';
 import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments';
 

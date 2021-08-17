@@ -19,17 +19,17 @@
  */
 import { some, without } from 'lodash';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import SimpleModal from 'sonar-ui-common/components/controls/SimpleModal';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   addApplicationBranch,
   getApplicationDetails,
   updateApplicationBranch
 } from '../../api/application';
+import { ResetButtonLink, SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
+import SimpleModal from '../../sonar-ui-common/components/controls/SimpleModal';
+import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { Application, ApplicationProject } from '../../types/application';
 import ProjectBranchRow from './ProjectBranchRow';
 import { ApplicationBranch, SelectBranchOption } from './utils';

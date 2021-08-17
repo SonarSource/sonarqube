@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import { isWebUri } from 'valid-url';
+import HelpTooltip from '../../sonar-ui-common/components/controls/HelpTooltip';
+import DetachIcon from '../../sonar-ui-common/components/icons/DetachIcon';
 
 export interface DocumentationTooltipProps {
   children?: React.ReactNode;

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { Logout } from '../Logout';
 
 const originalLocation = window.location;

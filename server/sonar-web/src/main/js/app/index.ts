@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import SonarUiCommonInitializer from 'sonar-ui-common/helpers/init';
-import { parseJSON, request } from 'sonar-ui-common/helpers/request';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
 import { loadL10nBundle } from '../helpers/l10n';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
+import SonarUiCommonInitializer from '../sonar-ui-common/helpers/init';
+import { parseJSON, request } from '../sonar-ui-common/helpers/request';
 import './styles/sonar.css';
 
 SonarUiCommonInitializer.setUrlContext(getBaseUrl());

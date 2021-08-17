@@ -19,10 +19,16 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { change, click, doAsync, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { renameBranch } from '../../../../api/branches';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
+import {
+  change,
+  click,
+  doAsync,
+  submit,
+  waitAndUpdate
+} from '../../../../sonar-ui-common/helpers/testUtils';
 import RenameBranchModal from '../RenameBranchModal';
 
 jest.mock('../../../../api/branches', () => ({ renameBranch: jest.fn() }));

@@ -18,9 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   addGroup,
   addUser,
@@ -28,6 +25,12 @@ import {
   searchUsers,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
+import {
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Group } from './ProfilePermissions';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
 

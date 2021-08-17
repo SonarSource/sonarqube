@@ -21,10 +21,10 @@ import * as isSameMinute from 'date-fns/is_same_minute';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
-import { parseDate } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { ProfileChangelogEvent } from '../types';
 import ChangesList from './ChangesList';
 

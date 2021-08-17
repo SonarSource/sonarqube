@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {

@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import {
   getReportStatus,
   subscribeToEmailReport,
@@ -27,6 +26,7 @@ import {
 } from '../../api/component-report';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { isLoggedIn } from '../../helpers/users';
+import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 import { Store } from '../../store/rootReducer';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';

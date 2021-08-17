@@ -19,19 +19,22 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import Modal from 'sonar-ui-common/components/controls/Modal';
-import Select from 'sonar-ui-common/components/controls/Select';
-import MandatoryFieldMarker from 'sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from 'sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { parseAsOptionalString } from 'sonar-ui-common/helpers/query';
 import {
   changeProfileParent,
   createQualityProfile,
   getImporters
 } from '../../../api/quality-profiles';
 import { Location } from '../../../components/hoc/withRouter';
+import {
+  ResetButtonLink,
+  SubmitButton
+} from '../../../sonar-ui-common/components/controls/buttons';
+import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import Select from '../../../sonar-ui-common/components/controls/Select';
+import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { parseAsOptionalString } from '../../../sonar-ui-common/helpers/query';
 import { Profile } from '../types';
 
 interface Props {

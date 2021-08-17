@@ -24,7 +24,7 @@ jest.mock('../../../../api/ce', () => ({
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { submit } from 'sonar-ui-common/helpers/testUtils';
+import { submit } from '../../../../sonar-ui-common/helpers/testUtils';
 import WorkersForm from '../WorkersForm';
 
 it('changes select', () => {

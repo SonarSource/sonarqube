@@ -18,10 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
-import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   isBranch,
   isMainBranch,
@@ -29,6 +25,10 @@ import {
   sortBranches,
   sortPullRequests
 } from '../../../helpers/branch-like';
+import BoxedTabs from '../../../sonar-ui-common/components/controls/BoxedTabs';
+import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
+import PullRequestIcon from '../../../sonar-ui-common/components/icons/PullRequestIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';

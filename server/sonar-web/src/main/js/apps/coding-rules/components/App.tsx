@@ -23,17 +23,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import BackIcon from 'sonar-ui-common/components/icons/BackIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass
-} from 'sonar-ui-common/helpers/pages';
-import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesApp, searchRules } from '../../../api/rules';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -42,6 +31,17 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
 import { isLoggedIn } from '../../../helpers/users';
+import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
+import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
+import BackIcon from '../../../sonar-ui-common/components/icons/BackIcon';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../sonar-ui-common/helpers/pages';
+import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import { getCurrentUser, getLanguages, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
 import {

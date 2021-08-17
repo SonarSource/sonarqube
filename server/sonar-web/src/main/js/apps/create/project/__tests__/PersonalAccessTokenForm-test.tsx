@@ -19,8 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   checkPersonalAccessTokenIsValid,
   setAlmPersonalAccessToken
@@ -29,6 +27,8 @@ import {
   mockAlmSettingsInstance,
   mockBitbucketCloudAlmSettingsInstance
 } from '../../../../helpers/mocks/alm-settings';
+import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
+import { change, submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import PersonalAccessTokenForm from '../PersonalAccessTokenForm';
 

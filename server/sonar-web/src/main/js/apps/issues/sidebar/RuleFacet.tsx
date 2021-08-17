@@ -19,9 +19,9 @@
  */
 import { omit } from 'lodash';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchRules } from '../../../api/rules';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Facet, ReferencedRule } from '../../../types/issues';
 import { Query } from '../utils';
 

@@ -19,9 +19,9 @@
  */
 import { map } from 'lodash';
 import * as React from 'react';
-import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import BoxedGroupAccordion from '../../../../sonar-ui-common/components/controls/BoxedGroupAccordion';
+import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { getLogsLevel, groupSections, LOGS_LEVELS } from '../../utils';
 import HealthItem from './HealthItem';
 import Section from './Section';

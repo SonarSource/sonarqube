@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockIssue } from '../../../../helpers/testMocks';
+import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import ConciseIssueBox from '../ConciseIssueBox';
 
 it('should render correctly', async () => {

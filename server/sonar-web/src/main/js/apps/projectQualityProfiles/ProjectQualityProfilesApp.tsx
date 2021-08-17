@@ -19,8 +19,6 @@
  */
 import { differenceBy } from 'lodash';
 import * as React from 'react';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { isDefined } from 'sonar-ui-common/helpers/types';
 import {
   associateProject,
   dissociateProject,
@@ -30,6 +28,8 @@ import {
 } from '../../api/quality-profiles';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
+import { translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
+import { isDefined } from '../../sonar-ui-common/helpers/types';
 import ProjectQualityProfilesAppRenderer from './ProjectQualityProfilesAppRenderer';
 import { ProjectProfile } from './types';
 

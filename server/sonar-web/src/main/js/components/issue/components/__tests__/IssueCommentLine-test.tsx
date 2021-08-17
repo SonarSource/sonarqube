@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../sonar-ui-common/helpers/testUtils';
 import IssueCommentLine from '../IssueCommentLine';
 
 const comment: T.IssueComment = {

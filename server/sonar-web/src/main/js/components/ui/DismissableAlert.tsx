@@ -19,11 +19,11 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
-import ClearIcon from 'sonar-ui-common/components/icons/ClearIcon';
-import { Alert, AlertProps } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { get, save } from 'sonar-ui-common/helpers/storage';
+import { ButtonIcon } from '../../sonar-ui-common/components/controls/buttons';
+import ClearIcon from '../../sonar-ui-common/components/icons/ClearIcon';
+import { Alert, AlertProps } from '../../sonar-ui-common/components/ui/Alert';
+import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { get, save } from '../../sonar-ui-common/helpers/storage';
 import './DismissableAlert.css';
 
 export interface DismissableAlertProps extends AlertProps {

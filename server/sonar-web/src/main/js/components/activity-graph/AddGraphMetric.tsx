@@ -19,11 +19,11 @@
  */
 import { find, sortBy } from 'lodash';
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { Button } from '../../sonar-ui-common/components/controls/buttons';
+import Dropdown from '../../sonar-ui-common/components/controls/Dropdown';
+import DropdownIcon from '../../sonar-ui-common/components/icons/DropdownIcon';
+import { getLocalizedMetricName, translate } from '../../sonar-ui-common/helpers/l10n';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {

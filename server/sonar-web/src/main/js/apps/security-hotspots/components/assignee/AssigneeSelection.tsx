@@ -19,10 +19,10 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
-import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { searchUsers } from '../../../../api/users';
 import { isUserActive } from '../../../../helpers/users';
+import { KeyCodes } from '../../../../sonar-ui-common/helpers/keycodes';
+import { translate } from '../../../../sonar-ui-common/helpers/l10n';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
 
 interface Props {
