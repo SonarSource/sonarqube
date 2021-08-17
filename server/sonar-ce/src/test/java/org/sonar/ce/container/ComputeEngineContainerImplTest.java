@@ -144,7 +144,7 @@ public class ComputeEngineContainerImplTest {
 
   private void insertProperty(String key, String value) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value);
-    db.getDbClient().propertiesDao().saveProperty(db.getSession(), dto, null, null, null);
+    db.getDbClient().propertiesDao().saveProperty(db.getSession(), dto, null, null, null, null);
     db.commit();
   }
 

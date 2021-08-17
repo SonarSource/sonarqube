@@ -31,6 +31,9 @@ public abstract class PermissionNewValue extends NewValue {
   protected String componentUuid;
 
   @Nullable
+  protected String componentKey;
+
+  @Nullable
   protected String componentName;
 
   @Nullable
@@ -45,10 +48,11 @@ public abstract class PermissionNewValue extends NewValue {
   @Nullable
   protected String permissionTemplateName;
 
-  protected PermissionNewValue(@Nullable String permissionUuid, @Nullable String componentUuid, @Nullable String componentName,
-    @Nullable String permission, @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
+  protected PermissionNewValue(@Nullable String permissionUuid, @Nullable String componentUuid, @Nullable String componentKey,
+    @Nullable String componentName, @Nullable String permission, @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
     this.permissionUuid = permissionUuid;
     this.componentUuid = componentUuid;
+    this.componentKey = componentKey;
     this.componentName = componentName;
     this.qualifier = getQualifier(qualifier);
     this.permission = permission;
@@ -74,6 +78,11 @@ public abstract class PermissionNewValue extends NewValue {
   @CheckForNull
   public String getComponentName() {
     return this.componentName;
+  }
+
+  @CheckForNull
+  public String getComponentKey() {
+    return this.componentKey;
   }
 
   @CheckForNull

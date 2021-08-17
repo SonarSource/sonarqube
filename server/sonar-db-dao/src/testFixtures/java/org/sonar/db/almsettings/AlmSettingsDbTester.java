@@ -74,57 +74,57 @@ public class AlmSettingsDbTester {
   public final ProjectAlmSettingDto insertGitHubProjectAlmSetting(AlmSettingDto githubAlmSetting, ProjectDto project,
     Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newGithubProjectAlmSettingDto(githubAlmSetting, project), githubAlmSetting.getKey(),
-      project.getName(), populators);
+      project.getName(),  project.getKey(), populators);
   }
 
   public ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project), azureAlmSetting.getKey(),
-      project.getName());
+      project.getName(), project.getKey());
   }
 
   public ProjectAlmSettingDto insertAzureMonoRepoProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project), azureAlmSetting.getKey(),
-      project.getName(), d -> d.setMonorepo(true));
+      project.getName(), project.getKey(), d -> d.setMonorepo(true));
   }
 
   public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), gitlabAlmSetting.getKey(),
-      project.getName());
+      project.getName(), project.getKey());
   }
 
   @SafeVarargs
   public final ProjectAlmSettingDto insertAzureProjectAlmSetting(AlmSettingDto azureAlmSetting, ProjectDto project,
     Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newAzureProjectAlmSettingDto(azureAlmSetting, project), azureAlmSetting.getKey(),
-      project.getName(), populators);
+      project.getName(), project.getKey(), populators);
   }
 
   @SafeVarargs
   public final ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project,
     Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), gitlabAlmSetting.getKey(),
-      project.getName(), populators);
+      project.getName(), project.getKey(), populators);
   }
 
   @SafeVarargs
   public final ProjectAlmSettingDto insertBitbucketCloudProjectAlmSetting(AlmSettingDto bbCloudAlmSetting, ProjectDto project,
     Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newBitbucketCloudProjectAlmSettingDto(bbCloudAlmSetting, project), bbCloudAlmSetting.getKey(),
-      project.getName(), populators);
+      project.getName(),  project.getKey(), populators);
   }
 
   @SafeVarargs
   public final ProjectAlmSettingDto insertBitbucketProjectAlmSetting(AlmSettingDto bitbucketAlmSetting,
     ProjectDto project, Consumer<ProjectAlmSettingDto>... populators) {
     return insertProjectAlmSetting(newBitbucketProjectAlmSettingDto(bitbucketAlmSetting, project),
-      bitbucketAlmSetting.getKey(), project.getName(), populators);
+      bitbucketAlmSetting.getKey(), project.getName(), project.getKey(), populators);
   }
 
   @SafeVarargs
   private final ProjectAlmSettingDto insertProjectAlmSetting(ProjectAlmSettingDto dto, String key, String projectName,
-    Consumer<ProjectAlmSettingDto>... populators) {
+    String projectKey, Consumer<ProjectAlmSettingDto>... populators) {
     stream(populators).forEach(p -> p.accept(dto));
-    db.getDbClient().projectAlmSettingDao().insertOrUpdate(db.getSession(), dto, key, projectName);
+    db.getDbClient().projectAlmSettingDao().insertOrUpdate(db.getSession(), dto, key, projectName, projectKey);
     db.commit();
     return dto;
   }

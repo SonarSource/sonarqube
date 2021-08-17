@@ -122,8 +122,9 @@ public class UserPermissionDao implements Dao {
 
     if (auditPersister != null) {
       String componentName = (componentDto != null) ? componentDto.name() : null;
+      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentName, userId, qualifier,
+      auditPersister.addUserPermission(dbSession, new UserPermissionNewValue(dto, componentKey, componentName, userId, qualifier,
         templateDto));
     }
   }
@@ -135,7 +136,7 @@ public class UserPermissionDao implements Dao {
     int deletedRows = mapper(dbSession).deleteGlobalPermission(user.getUuid(), permission);
 
     if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, null, null, user, null));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, null, null, null, user, null));
     }
   }
 
@@ -146,7 +147,8 @@ public class UserPermissionDao implements Dao {
     int deletedRows = mapper(dbSession).deleteProjectPermission(user.getUuid(), permission, component.uuid());
 
     if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.name(), user, component.qualifier()));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, component.uuid(), component.getKey(),
+        component.name(), user, component.qualifier()));
     }
   }
 
@@ -157,7 +159,8 @@ public class UserPermissionDao implements Dao {
     int deletedRows = mapper(dbSession).deleteProjectPermissions(component.uuid());
 
     if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(null, component.uuid(), component.name(), null, component.qualifier()));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(null, component.uuid(), component.getKey(),
+        component.name(), null, component.qualifier()));
     }
   }
 
@@ -168,7 +171,8 @@ public class UserPermissionDao implements Dao {
     int deletedRows = mapper(dbSession).deleteProjectPermissionOfAnyUser(project.uuid(), permission);
 
     if (deletedRows > 0 && auditPersister != null) {
-      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, project.uuid(), project.name(), null, project.qualifier()));
+      auditPersister.deleteUserPermission(dbSession, new UserPermissionNewValue(permission, project.uuid(), project.getKey(),
+        project.name(), null, project.qualifier()));
     }
 
     return deletedRows;

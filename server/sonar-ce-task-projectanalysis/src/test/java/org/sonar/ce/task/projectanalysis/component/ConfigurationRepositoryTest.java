@@ -139,7 +139,7 @@ public class ConfigurationRepositoryTest {
   }
 
   private void insertProjectProperty(ComponentDto project, String propertyKey, String propertyValue) {
-    db.properties().insertProperties(null, project.name(), project.qualifier(),
+    db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       new PropertyDto().setKey(propertyKey).setValue(propertyValue).setComponentUuid(project.uuid()));
   }
 }

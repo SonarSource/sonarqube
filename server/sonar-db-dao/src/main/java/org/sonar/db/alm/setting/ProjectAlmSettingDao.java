@@ -48,7 +48,8 @@ public class ProjectAlmSettingDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName) {
+  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key,
+    String projectName, String projectKey) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
@@ -63,7 +64,8 @@ public class ProjectAlmSettingDao implements Dao {
     projectAlmSettingDto.setUpdatedAt(now);
 
     if (auditPersister != null) {
-      DevOpsPlatformSettingNewValue value = new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key, projectName);
+      DevOpsPlatformSettingNewValue value = new DevOpsPlatformSettingNewValue(projectAlmSettingDto, key,
+        projectName, projectKey);
       if (isUpdate) {
         auditPersister.updateDevOpsPlatformSetting(dbSession, value);
       } else {

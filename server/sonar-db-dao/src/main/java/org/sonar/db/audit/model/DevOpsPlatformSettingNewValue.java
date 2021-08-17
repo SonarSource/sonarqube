@@ -49,6 +49,9 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   private String projectUuid;
 
   @Nullable
+  private String projectKey;
+
+  @Nullable
   private String projectName;
 
   @Nullable
@@ -77,10 +80,11 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     this.clientId = dto.getClientId();
   }
 
-  public DevOpsPlatformSettingNewValue(ProjectAlmSettingDto dto, String key, String projectName) {
+  public DevOpsPlatformSettingNewValue(ProjectAlmSettingDto dto, String key, String projectName, String projectKey) {
     this.devOpsPlatformSettingUuid = dto.getAlmSettingUuid();
     this.key = key;
     this.projectUuid = dto.getProjectUuid();
+    this.projectKey = projectKey;
     this.projectName = projectName;
     this.almRepo = dto.getAlmRepo();
     this.almSlug = dto.getAlmSlug();
@@ -90,6 +94,7 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
 
   public DevOpsPlatformSettingNewValue(ProjectDto projectDto) {
     this.projectUuid = projectDto.getUuid();
+    this.projectKey = projectDto.getKey();
     this.projectName = projectDto.getName();
   }
 
@@ -129,6 +134,11 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   }
 
   @CheckForNull
+  public String getProjectKey() {
+    return this.projectKey;
+  }
+
+  @CheckForNull
   public String getProjectName() {
     return this.projectName;
   }
@@ -163,6 +173,7 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     addField(sb, "\"appId\": ", this.appId, true);
     addField(sb, "\"clientId\": ", this.clientId, true);
     addField(sb, "\"projectUuid\": ", this.projectUuid, true);
+    addField(sb, "\"projectKey\": ", this.projectKey, true);
     addField(sb, "\"projectName\": ", this.projectName, true);
     addField(sb, "\"almRepo\": ", this.almRepo, true);
     addField(sb, "\"almSlug\": ", this.almSlug, true);

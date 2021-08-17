@@ -63,8 +63,8 @@ public class AsynchronousWebHooksImplTest {
   @Test
   public void send_global_webhooks() {
     ComponentDto project = componentDbTester.insertPrivateProject();
-    webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null);
-    webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null);
+    webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
+    webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
 
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));

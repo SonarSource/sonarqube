@@ -109,9 +109,9 @@ public class PropertiesDao implements Dao {
     }
 
     try (DbSession session = mybatis.openSession(false);
-      Connection connection = session.getConnection();
-      PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
-      ResultSet rs = pstmt.executeQuery()) {
+         Connection connection = session.getConnection();
+         PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);
+         ResultSet rs = pstmt.executeQuery()) {
       return rs.next() && rs.getInt(1) > 0;
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute SQL for hasProjectNotificationSubscribersForDispatchers", e);
@@ -210,15 +210,15 @@ public class PropertiesDao implements Dao {
    *
    * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
    */
-  public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectName,
-                           @Nullable String qualifier) {
+  public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectKey,
+    @Nullable String projectName, @Nullable String qualifier) {
     int affectedRows = save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
 
     if (auditPersister != null && auditPersister.isTrackedProperty(property.getKey())) {
       if (affectedRows > 0) {
-        auditPersister.updateProperty(session, new PropertyNewValue(property, userLogin, projectName, qualifier), false);
+        auditPersister.updateProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
       } else {
-        auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectName, qualifier), false);
+        auditPersister.addProperty(session, new PropertyNewValue(property, userLogin, projectKey, projectName, qualifier), false);
       }
     }
   }
@@ -253,7 +253,7 @@ public class PropertiesDao implements Dao {
 
   public void saveProperty(PropertyDto property) {
     try (DbSession session = mybatis.openSession(false)) {
-      saveProperty(session, property, null, null, null);
+      saveProperty(session, property, null, null, null, null);
       session.commit();
     }
   }
@@ -270,33 +270,36 @@ public class PropertiesDao implements Dao {
 
     if (deletedRows > 0 && auditPersister != null && query.key() != null && auditPersister.isTrackedProperty(query.key())) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(query.key(), query.componentUuid(),
-        null, null, query.userUuid()), false);
+        null, null, null, query.userUuid()), false);
     }
 
     return deletedRows;
   }
 
-  public int delete(DbSession dbSession, PropertyDto dto, @Nullable String userLogin, @Nullable String projectName, @Nullable String qualifier) {
+  public int delete(DbSession dbSession, PropertyDto dto, @Nullable String userLogin, @Nullable String projectKey,
+    @Nullable String projectName, @Nullable String qualifier) {
     int deletedRows = getMapper(dbSession).delete(dto.getKey(), dto.getUserUuid(), dto.getComponentUuid());
 
     if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(dto.getKey())) {
-      auditPersister.deleteProperty(dbSession, new PropertyNewValue(dto, userLogin, projectName, qualifier), false);
+      auditPersister.deleteProperty(dbSession, new PropertyNewValue(dto, userLogin, projectKey, projectName, qualifier),
+        false);
     }
     return deletedRows;
   }
 
-  public void deleteProjectProperty(String key, String projectUuid, String projectName, String qualifier) {
+  public void deleteProjectProperty(String key, String projectUuid, String projectKey, String projectName, String qualifier) {
     try (DbSession session = mybatis.openSession(false)) {
-      deleteProjectProperty(session, key, projectUuid, projectName, qualifier);
+      deleteProjectProperty(session, key, projectUuid, projectKey, projectName, qualifier);
       session.commit();
     }
   }
 
-  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectName, String qualifier) {
+  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
+    String projectName, String qualifier) {
     int deletedRows = getMapper(session).deleteProjectProperty(key, projectUuid);
 
     if (deletedRows > 0 && auditPersister != null && auditPersister.isTrackedProperty(key)) {
-      auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectName, qualifier,
+      auditPersister.deleteProperty(session, new PropertyNewValue(key, projectUuid, projectKey, projectName, qualifier,
         null), false);
     }
   }

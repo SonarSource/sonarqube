@@ -138,7 +138,7 @@ public class SetActionTest {
 
   @Test
   public void update_existing_global_setting() {
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my value"), null, null, null);
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my value"), null, null, null, null);
     assertGlobalSetting("my.key", "my value");
 
     callForGlobalSetting("my.key", "my new value");
@@ -149,7 +149,7 @@ public class SetActionTest {
 
   @Test
   public void persist_new_project_setting() {
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null);
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
     ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
@@ -172,9 +172,11 @@ public class SetActionTest {
 
   @Test
   public void update_existing_project_setting() {
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null);
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null,
+      null, null);
     ComponentDto project = db.components().insertPrivateProject();
-    propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project), project.name(), null, null);
+    propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project), project.getKey(),
+      project.name(), null, null);
     assertComponentSetting("my.key", "my project value", project.uuid());
     logInAsProjectAdministrator(project);
 
@@ -256,7 +258,7 @@ public class SetActionTest {
           .type(PropertyType.STRING)
           .build()))
       .build());
-    propertyDb.insertProperties(null, null, null,
+    propertyDb.insertProperties(null, null, null, null,
       newGlobalPropertyDto("my.key", "1,2,3,4"),
       newGlobalPropertyDto("my.key.1.firstField", "oldFirstValue"),
       newGlobalPropertyDto("my.key.1.secondField", "oldSecondValue"),
@@ -305,11 +307,11 @@ public class SetActionTest {
           .build()))
       .build());
     ComponentDto project = db.components().insertPrivateProject();
-    propertyDb.insertProperties(null, null, null,
+    propertyDb.insertProperties(null, null, null, null,
       newGlobalPropertyDto("my.key", "1"),
       newGlobalPropertyDto("my.key.1.firstField", "oldFirstValue"),
       newGlobalPropertyDto("my.key.1.secondField", "oldSecondValue"));
-    propertyDb.insertProperties(null, project.name(), project.qualifier(),
+    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto("my.key", "1", project),
       newComponentPropertyDto("my.key.1.firstField", "componentFirstValue", project),
       newComponentPropertyDto("my.key.1.firstField", "componentSecondValue", project));
@@ -377,8 +379,9 @@ public class SetActionTest {
 
   @Test
   public void user_setting_is_not_updated() {
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserUuid("42"), null, null, "user_login");
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null);
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserUuid("42"), null, null,
+      null, "user_login");
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"), null, null, null, null);
 
     callForGlobalSetting("my.key", "my new global value");
 

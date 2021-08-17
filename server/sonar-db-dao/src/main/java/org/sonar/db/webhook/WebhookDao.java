@@ -56,19 +56,19 @@ public class WebhookDao implements Dao {
     return mapper(dbSession).selectForProjectUuidOrderedByName(projectDto.getUuid());
   }
 
-  public void insert(DbSession dbSession, WebhookDto dto, @Nullable String projectName) {
+  public void insert(DbSession dbSession, WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
     mapper(dbSession).insert(dto.setCreatedAt(system2.now()).setUpdatedAt(system2.now()));
 
     if (auditPersister != null) {
-      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto, projectName));
+      auditPersister.addWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
     }
   }
 
-  public void update(DbSession dbSession, WebhookDto dto, @Nullable String projectName) {
+  public void update(DbSession dbSession, WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
 
     if (auditPersister != null) {
-      auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectName));
+      auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
     }
   }
 

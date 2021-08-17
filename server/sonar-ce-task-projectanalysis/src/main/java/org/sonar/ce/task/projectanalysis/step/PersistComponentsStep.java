@@ -143,7 +143,8 @@ public class PersistComponentsStep implements ComputationStep {
     } else if (type == Component.Type.VIEW) {
       qualifier = VIEW;
     }
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate, qualifier, componentName, false);
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate,
+      "", qualifier, componentName, false);
   }
 
   private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByUuids) {

@@ -130,7 +130,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
         .setAlmSlug(null)
         .setMonorepo(false),
       almSettingDto.getKey(),
-      componentDto.name());
+      componentDto.name(), componentDto.getKey());
   }
 
   private ComponentDto createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {

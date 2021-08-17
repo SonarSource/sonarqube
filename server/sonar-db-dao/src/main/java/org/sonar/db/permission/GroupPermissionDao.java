@@ -129,8 +129,9 @@ public class GroupPermissionDao implements Dao {
     mapper(dbSession).insert(groupPermissionDto);
 
     if (auditPersister != null) {
+      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
-      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, qualifier, permissionTemplateDto));
+      auditPersister.addGroupPermission(dbSession, new GroupPermissionNewValue(groupPermissionDto, componentKey, qualifier, permissionTemplateDto));
     }
   }
 
@@ -142,7 +143,7 @@ public class GroupPermissionDao implements Dao {
 
     if (deletedRecords > 0 && auditPersister != null) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.name(), null, null, null, component.qualifier()));
+        component.getKey(), component.name(), null, null, null, component.qualifier()));
     }
   }
 
@@ -155,7 +156,7 @@ public class GroupPermissionDao implements Dao {
 
     if (deletedRecords > 0 && auditPersister != null) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.name(), null, groupUuid, "", component.qualifier()));
+        component.getKey(), component.name(), null, groupUuid, "", component.qualifier()));
     }
     return deletedRecords;
   }
@@ -165,7 +166,7 @@ public class GroupPermissionDao implements Dao {
 
     if (deletedRecords > 0 && auditPersister != null) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.name(), null, null, null, component.qualifier()));
+        component.getKey(), component.name(), null, null, null, component.qualifier()));
     }
 
     return deletedRecords;
@@ -179,7 +180,7 @@ public class GroupPermissionDao implements Dao {
 
     if (deletedRecords > 0 && auditPersister != null) {
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(component.uuid(),
-        component.name(), permission, null, null, component.qualifier()));
+        component.getKey(), component.name(), permission, null, null, component.qualifier()));
     }
 
     return deletedRecords;
@@ -206,9 +207,10 @@ public class GroupPermissionDao implements Dao {
 
     if (deletedRecords > 0 && auditPersister != null) {
       String qualifier = (componentDto != null) ? componentDto.qualifier() : null;
+      String componentKey = (componentDto != null) ? componentDto.getKey() : null;
       String componentName = (componentDto != null) ? componentDto.name() : null;
       auditPersister.deleteGroupPermission(dbSession, new GroupPermissionNewValue(rootComponentUuid,
-        componentName, permission, groupUuid, groupName, qualifier));
+        componentKey, componentName, permission, groupUuid, groupName, qualifier));
     }
   }
 

@@ -31,45 +31,40 @@ public class ComponentNewValue extends NewValue {
   private String description;
   private String rootComponentUuid;
   private String path;
-  private String key;
+  private String componentKey;
   private Boolean isPrivate;
   private Boolean isEnabled;
   private String qualifier;
 
-  public ComponentNewValue(String componentUuid, String name, String key, @Nullable String qualifier) {
+  public ComponentNewValue(String componentUuid, String name, String componentKey, @Nullable String qualifier) {
     this.componentUuid = componentUuid;
     this.componentName = name;
-    this.key = key;
+    this.componentKey = componentKey;
     this.qualifier = getQualifier(qualifier);
   }
 
-  public ComponentNewValue(String rootComponentUuid, boolean isPrivate, @Nullable String qualifier) {
-    this.rootComponentUuid = rootComponentUuid;
+  public ComponentNewValue(String componentUuid, String name, String componentKey, boolean isPrivate, String qualifier) {
+    this.componentUuid = componentUuid;
+    this.componentName = name;
+    this.componentKey = componentKey;
     this.isPrivate = isPrivate;
     this.qualifier = getQualifier(qualifier);
   }
 
-  public ComponentNewValue(String componentUuid, String name, boolean isPrivate, String qualifier) {
-    this.componentUuid = componentUuid;
-    this.componentName = name;
-    this.isPrivate = isPrivate;
-    this.qualifier = getQualifier(qualifier);
-  }
-
-  public ComponentNewValue(String uuid, String name, String key, boolean enabled, String path, @Nullable String qualifier) {
+  public ComponentNewValue(String uuid, String name, String componentKey, boolean enabled, String path, @Nullable String qualifier) {
     this.componentUuid = uuid;
     this.componentName = name;
     this.isEnabled = enabled;
     this.path = path;
-    this.key = key;
+    this.componentKey = componentKey;
     this.qualifier = getQualifier(qualifier);
   }
 
-  public ComponentNewValue(String uuid, boolean isPrivate, String name, String key, @Nullable String description, @Nullable String qualifier) {
+  public ComponentNewValue(String uuid, boolean isPrivate, String name, String componentKey, @Nullable String description, @Nullable String qualifier) {
     this.componentUuid = uuid;
     this.isPrivate = isPrivate;
     this.componentName = name;
-    this.key = key;
+    this.componentKey = componentKey;
     this.description = description;
     this.qualifier = getQualifier(qualifier);
   }
@@ -87,8 +82,8 @@ public class ComponentNewValue extends NewValue {
     return description;
   }
 
-  public String getKey() {
-    return key;
+  public String getComponentKey() {
+    return componentKey;
   }
 
   public boolean isPrivate() {
@@ -104,10 +99,10 @@ public class ComponentNewValue extends NewValue {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
     addField(sb, "\"rootComponentUuid\": ", this.rootComponentUuid, true);
+    addField(sb, "\"componentKey\": ", this.componentKey, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
     addField(sb, "\"qualifier\": ", this.qualifier, true);
     addField(sb, "\"description\": ", this.description, true);
-    addField(sb, "\"key\": ", this.key, true);
     addField(sb, "\"path\": ", this.path, true);
     addField(sb, "\"isPrivate\": ", ObjectUtils.toString(this.isPrivate), false);
     addField(sb, "\"isEnabled\": ", ObjectUtils.toString(this.isEnabled), false);

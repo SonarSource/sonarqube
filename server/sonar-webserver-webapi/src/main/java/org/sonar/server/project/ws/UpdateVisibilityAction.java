@@ -135,7 +135,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
     String uuid = component.uuid();
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.qualifier(), component.name(), true);
+    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.getKey(),
+      component.qualifier(), component.name(), true);
 
     if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
       dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate);

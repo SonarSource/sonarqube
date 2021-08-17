@@ -144,7 +144,8 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
       .setAlmRepo(repo.getSlug())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
+      componentDto.name(), componentDto.getKey());
   }
 
 }

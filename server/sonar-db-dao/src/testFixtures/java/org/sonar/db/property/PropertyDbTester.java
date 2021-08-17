@@ -46,23 +46,24 @@ public class PropertyDbTester {
     this.dbSession = db.getSession();
   }
 
-  public PropertyDto insertProperty(PropertyDto property, @Nullable String componentName, @Nullable String qualifier,
-    @Nullable String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, property, userLogin, qualifier, componentName);
+  public PropertyDto insertProperty(PropertyDto property, @Nullable String componentKey,
+    @Nullable String componentName, @Nullable String qualifier, @Nullable String userLogin) {
+    dbClient.propertiesDao().saveProperty(dbSession, property, userLogin, componentKey, componentName, qualifier);
     db.commit();
 
     return property;
   }
 
-  public void insertProperties(@Nullable String userLogin, @Nullable String projectName, @Nullable String qualifier,
+  public void insertProperties(@Nullable String userLogin, @Nullable String projectKey,
+    @Nullable String projectName, @Nullable String qualifier,
     PropertyDto... properties) {
-    insertProperties(asList(properties), userLogin, qualifier, projectName);
+    insertProperties(asList(properties), userLogin, projectKey, projectName, qualifier);
   }
 
-  public void insertProperties(List<PropertyDto> properties, @Nullable String userLogin, @Nullable String projectName,
-    @Nullable String qualifier) {
+  public void insertProperties(List<PropertyDto> properties, @Nullable String userLogin, @Nullable String projectKey,
+    @Nullable String projectName, @Nullable String qualifier) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectName, qualifier);
+      dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectKey, projectName, qualifier);
     }
     dbSession.commit();
   }
@@ -89,9 +90,10 @@ public class PropertyDbTester {
     } else {
       propertyDtos.add(newGlobalPropertyDto().setKey(settingBaseKey).setValue(idsValue));
     }
+    String componentKey = componentDto == null ? null : componentDto.getKey();
     String componentName = componentDto == null ? null : componentDto.name();
     String qualififer = componentDto == null ? null : componentDto.qualifier();
-    insertProperties(propertyDtos, null, componentName, qualififer);
+    insertProperties(propertyDtos, null, componentKey, componentName, qualififer);
   }
 
   public PropertyDbTester verifyInternal(String key, @Nullable String expectedValue) {

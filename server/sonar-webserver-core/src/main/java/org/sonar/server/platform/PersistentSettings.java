@@ -72,7 +72,7 @@ public class PersistentSettings {
     if (value == null) {
       dbClient.propertiesDao().deleteGlobalProperty(key, dbSession);
     } else {
-      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(value), null, null, null);
+      dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(value), null, null, null, null);
     }
     // refresh the cache of settings
     delegate.setProperty(key, value);

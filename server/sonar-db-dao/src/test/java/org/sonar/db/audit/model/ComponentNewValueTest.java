@@ -48,10 +48,11 @@ public class ComponentNewValueTest {
 
   @Test
   public void toString_project_uuid_and_name_and_isPrivate() {
-    ComponentNewValue newValue = new ComponentNewValue("uuid", "name", true,"TRK");
+    ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true,"TRK");
 
     assertThat(newValue.toString())
       .contains("\"componentUuid\": \"uuid\"")
+      .contains("\"componentKey\": \"key\"")
       .contains("\"componentName\": \"name\"")
       .contains("\"qualifier\": \"project\"")
       .contains("\"isPrivate\": true");
@@ -65,7 +66,7 @@ public class ComponentNewValueTest {
       .contains("\"componentUuid\": \"uuid\"")
       .contains("\"componentName\": \"name\"")
       .contains("\"qualifier\": \"project\"")
-      .contains("\"key\": \"key\"");
+      .contains("\"componentKey\": \"key\"");
   }
 
   @Test
@@ -77,7 +78,7 @@ public class ComponentNewValueTest {
       .contains("\"componentName\": \"name\"")
       .contains("\"qualifier\": \"project\"")
       .contains("\"isPrivate\": true")
-      .contains("\"key\": \"key\"")
+      .contains("\"componentKey\": \"key\"")
       .contains("\"description\": \"description\"");
   }
 

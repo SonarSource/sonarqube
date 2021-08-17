@@ -74,7 +74,7 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void isEnabled_returns_true_if_one_valid_global_webhook() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
-    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getName());
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
 
     assertThat(underTest.isEnabled(projectDto)).isTrue();
   }
@@ -82,7 +82,7 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void isEnabled_returns_true_if_one_valid_project_webhook() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
-    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getName());
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
 
     assertThat(underTest.isEnabled(projectDto)).isTrue();
   }
@@ -113,8 +113,8 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void send_global_webhooks() {
     ComponentDto componentDto = componentDbTester.insertPrivateProject();
-    webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null);
-    webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null);
+    webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
+    webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
@@ -131,7 +131,7 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void send_project_webhooks() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
-    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getName());
+    webhookDbTester.insert(newWebhook(projectDto).setName("First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
     caller.enqueueSuccess(NOW, 200, 1_234);
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
@@ -146,11 +146,11 @@ public class SynchronousWebHooksImplTest {
   @Test
   public void send_global_and_project_webhooks() {
     ProjectDto projectDto = componentDbTester.insertPrivateProjectDto();
-    webhookDbTester.insert(newWebhook(projectDto).setName("1First").setUrl("http://url1"), projectDto.getName());
-    webhookDbTester.insert(newWebhook(projectDto).setName("2Second").setUrl("http://url2"), projectDto.getName());
-    webhookDbTester.insert(newGlobalWebhook().setName("3Third").setUrl("http://url3"), null);
-    webhookDbTester.insert(newGlobalWebhook().setName("4Fourth").setUrl("http://url4"), null);
-    webhookDbTester.insert(newGlobalWebhook().setName("5Fifth").setUrl("http://url5"), null);
+    webhookDbTester.insert(newWebhook(projectDto).setName("1First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
+    webhookDbTester.insert(newWebhook(projectDto).setName("2Second").setUrl("http://url2"), projectDto.getKey(), projectDto.getName());
+    webhookDbTester.insert(newGlobalWebhook().setName("3Third").setUrl("http://url3"), null, null);
+    webhookDbTester.insert(newGlobalWebhook().setName("4Fourth").setUrl("http://url4"), null,null);
+    webhookDbTester.insert(newGlobalWebhook().setName("5Fifth").setUrl("http://url5"), null,null);
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect 1"));
     caller.enqueueFailure(NOW, new IOException("Fail to connect 2"));

@@ -558,7 +558,7 @@ public class SearchProjectsActionTest {
     Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
     index();
 
-    addFavourite(null, null, null);
+    addFavourite(null, null, null, null);
 
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
 
@@ -1342,12 +1342,15 @@ public class SearchProjectsActionTest {
   }
 
   private void addFavourite(ComponentDto project) {
-    addFavourite(project.uuid(), project.name(), project.qualifier());
+    addFavourite(project.uuid(), project.getKey(),
+      project.name(), project.qualifier());
   }
 
-  private void addFavourite(@Nullable String componentUuid, @Nullable String componentName, @Nullable String qualifier) {
+  private void addFavourite(@Nullable String componentUuid, @Nullable String componentKey,
+    @Nullable String componentName, @Nullable String qualifier) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
-      .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentName, qualifier);
+      .setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), componentKey,
+      componentName, qualifier);
     dbSession.commit();
   }
 

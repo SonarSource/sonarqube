@@ -38,28 +38,33 @@ public class WebhookNewValue extends NewValue {
   private String projectUuid;
 
   @Nullable
+  private String projectKey;
+
+  @Nullable
   private String projectName;
 
-  public WebhookNewValue(WebhookDto dto, @Nullable String projectName) {
-    this(dto.getUuid(), dto.getName(), dto.getProjectUuid(), projectName, dto.getUrl());
+  public WebhookNewValue(WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
+    this(dto.getUuid(), dto.getName(), dto.getProjectUuid(), projectKey, projectName, dto.getUrl());
   }
 
   public WebhookNewValue(String webhookUuid, String webhookName) {
-
     this.webhookUuid = webhookUuid;
     this.name = webhookName;
   }
 
-  public WebhookNewValue(String webhookUuid, String webhookName, @Nullable String projectUuid, @Nullable String projectName, @Nullable String url) {
+  public WebhookNewValue(String webhookUuid, String webhookName, @Nullable String projectUuid, @Nullable String projectKey,
+    @Nullable String projectName, @Nullable String url) {
     this.webhookUuid = webhookUuid;
     this.name = webhookName;
     this.url = url;
     this.projectUuid = projectUuid;
+    this.projectKey = projectKey;
     this.projectName = projectName;
   }
 
   public WebhookNewValue(ProjectDto projectDto) {
     this.projectUuid = projectDto.getUuid();
+    this.projectKey = projectDto.getKey();
     this.projectName = projectDto.getName();
   }
 
@@ -84,6 +89,11 @@ public class WebhookNewValue extends NewValue {
   }
 
   @CheckForNull
+  public String getProjectKey() {
+    return this.projectKey;
+  }
+
+  @CheckForNull
   public String getProjectName() {
     return this.projectName;
   }
@@ -95,6 +105,7 @@ public class WebhookNewValue extends NewValue {
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"url\": ", this.url, true);
     addField(sb, "\"projectUuid\": ", this.projectUuid, true);
+    addField(sb, "\"projectKey\": ", this.projectKey, true);
     addField(sb, "\"projectName\": ", this.projectName, true);
     endString(sb);
     return sb.toString();

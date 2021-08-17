@@ -40,7 +40,7 @@ public class ReadOnlyPropertiesDaoTest {
 
   @Test
   public void insertProperty() {
-    underTest.saveProperty(dbSession, propertyDto, null, null, null);
+    underTest.saveProperty(dbSession, propertyDto, null, null, null, null);
 
     assertNoInteraction();
   }
@@ -54,7 +54,7 @@ public class ReadOnlyPropertiesDaoTest {
 
   @Test
   public void deleteProjectProperty() {
-    underTest.deleteProjectProperty(null, null, null, null);
+    underTest.deleteProjectProperty(null, null, null, null, null, null);
 
     assertNoInteraction();
 
@@ -62,7 +62,7 @@ public class ReadOnlyPropertiesDaoTest {
 
   @Test
   public void deleteProjectProperty1() {
-    underTest.deleteProjectProperty(dbSession, null, null, null, null);
+    underTest.deleteProjectProperty(dbSession, null, null, null, null, null);
 
     assertNoInteraction();
 

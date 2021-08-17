@@ -60,7 +60,7 @@ public class WebhookDaoWithPersisterTest {
       .setUrl("URL_1")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto, null);
+    underTest.insert(dbSession, dto, null, null);
 
     verify(auditPersister).addWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
@@ -79,14 +79,16 @@ public class WebhookDaoWithPersisterTest {
       .setProjectUuid("UUID_2")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto, "project_name");
+    underTest.insert(dbSession, dto, "project_key", "project_name");
 
     verify(auditPersister).addWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getProjectUuid, WebhookNewValue::getProjectName)
-      .containsExactly(dto.getUuid(), dto.getName(), dto.getProjectUuid(), "project_name");
-    assertThat(newValue).hasToString("{\"webhookUuid\": \"UUID_1\", \"name\": \"NAME_1\", \"url\": \"URL_1\", \"projectUuid\": \"UUID_2\", \"projectName\": \"project_name\" }");
+      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getProjectUuid,
+        WebhookNewValue::getProjectKey, WebhookNewValue::getProjectName)
+      .containsExactly(dto.getUuid(), dto.getName(), dto.getProjectUuid(), "project_key", "project_name");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"UUID_1\", \"name\": \"NAME_1\", \"url\": \"URL_1\", " +
+      "\"projectUuid\": \"UUID_2\", \"projectKey\": \"project_key\", \"projectName\": \"project_name\" }");
   }
 
   @Test
@@ -97,7 +99,7 @@ public class WebhookDaoWithPersisterTest {
       .setUrl("http://www.fancy-webhook.io")
       .setSecret(null);
 
-    underTest.update(dbSession, dto, null);
+    underTest.update(dbSession, dto, null, null);
 
     verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
@@ -115,19 +117,22 @@ public class WebhookDaoWithPersisterTest {
       .setUrl("http://www.fancy-webhook.io")
       .setSecret(null);
 
-    underTest.update(dbSession, dto, "project");
+    underTest.update(dbSession, dto, "project-key", "project-name");
 
     verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
-      .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
-    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() +"\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\", \"projectName\": \"project\" }");
+      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl,
+        WebhookNewValue::getProjectKey, WebhookNewValue::getProjectName)
+      .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl(), "project-key", "project-name");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() +"\", \"name\": \"a-fancy-webhook\", " +
+      "\"url\": \"http://www.fancy-webhook.io\", \"projectKey\": \"project-key\", \"projectName\": \"project-name\" }");
   }
 
   @Test
   public void deleteProjectWebhooksIsPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p -> p.setUuid("puuid").setName("pname"));
+    ProjectDto projectDto = componentDbTester.insertPrivateProjectDto(p ->
+      p.setUuid("puuid").setName("pname").setDbKey("pkey"));
     webhookDbTester.insertWebhook(projectDto);
 
     underTest.deleteByProject(dbSession, projectDto);
@@ -135,9 +140,10 @@ public class WebhookDaoWithPersisterTest {
     verify(auditPersister).deleteWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(WebhookNewValue::getProjectUuid, WebhookNewValue::getProjectName)
-      .containsExactly(projectDto.getUuid(), projectDto.getName());
-    assertThat(newValue).hasToString("{\"projectUuid\": \"puuid\", \"projectName\": \"pname\" }");
+      .extracting(WebhookNewValue::getProjectUuid, WebhookNewValue::getProjectKey, WebhookNewValue::getProjectName)
+      .containsExactly(projectDto.getUuid(), projectDto.getKey(), projectDto.getName());
+    assertThat(newValue).hasToString("{\"projectUuid\": \"puuid\", " +
+      "\"projectKey\": \"pkey\", \"projectName\": \"pname\" }");
   }
 
   @Test

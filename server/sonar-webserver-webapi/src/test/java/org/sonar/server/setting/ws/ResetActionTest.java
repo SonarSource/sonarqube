@@ -96,7 +96,7 @@ public class ResetActionTest {
   public void remove_global_setting() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("foo");
     assertGlobalPropertyDoesNotExist("foo");
@@ -105,7 +105,7 @@ public class ResetActionTest {
   @Test
   public void remove_global_setting_even_if_not_defined() {
     logInAsSystemAdministrator();
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("foo");
     assertGlobalPropertyDoesNotExist("foo");
@@ -115,7 +115,7 @@ public class ResetActionTest {
   public void remove_component_setting() {
     logInAsProjectAdmin();
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
-    propertyDb.insertProperties(null, null, null, newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, null, null, null, newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnProjectSetting("foo");
     assertProjectPropertyDoesNotExist("foo");
@@ -124,7 +124,7 @@ public class ResetActionTest {
   @Test
   public void remove_component_setting_even_if_not_defined() {
     logInAsProjectAdmin();
-    propertyDb.insertProperties(null, null, null, newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, null, null, null, newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnProjectSetting("foo");
     assertProjectPropertyDoesNotExist("foo");
@@ -134,7 +134,7 @@ public class ResetActionTest {
   public void remove_hidden_setting() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("foo");
     assertGlobalPropertyDoesNotExist("foo");
@@ -143,8 +143,10 @@ public class ResetActionTest {
   @Test
   public void ignore_project_setting_when_removing_global_setting() {
     logInAsSystemAdministrator();
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
-    propertyDb.insertProperties(null, project.name(), project.qualifier(), newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, null, null, null,
+      newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+      newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnGlobalSetting("foo");
 
@@ -155,8 +157,9 @@ public class ResetActionTest {
   @Test
   public void ignore_global_setting_when_removing_project_setting() {
     logInAsProjectAdmin();
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
-    propertyDb.insertProperties(null, project.name(), project.qualifier(), newComponentPropertyDto(project).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, project.getKey(), project.name(), project.qualifier(),
+      newComponentPropertyDto(project).setKey("foo").setValue("value"));
 
     executeRequestOnProjectSetting("foo");
 
@@ -168,7 +171,7 @@ public class ResetActionTest {
   public void ignore_user_setting_when_removing_global_setting() {
     logInAsSystemAdministrator();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
-    propertyDb.insertProperties(user.getLogin(), null, null, newUserPropertyDto("foo", "one", user));
+    propertyDb.insertProperties(user.getLogin(), null, null, null, newUserPropertyDto("foo", "one", user));
 
     executeRequestOnGlobalSetting("foo");
     assertUserPropertyExists("foo", user);
@@ -178,7 +181,7 @@ public class ResetActionTest {
   public void ignore_user_setting_when_removing_project_setting() {
     logInAsProjectAdmin();
     UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto());
-    propertyDb.insertProperties(user.getLogin(), null, null, newUserPropertyDto("foo", "one", user));
+    propertyDb.insertProperties(user.getLogin(), null, null, null, newUserPropertyDto("foo", "one", user));
 
     executeRequestOnProjectSetting("foo");
     assertUserPropertyExists("foo", user);
@@ -195,7 +198,7 @@ public class ResetActionTest {
   public void remove_setting_by_deprecated_key() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("old").build());
-    propertyDb.insertProperties(null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
+    propertyDb.insertProperties(null, null, null, null, newGlobalPropertyDto().setKey("foo").setValue("one"));
 
     executeRequestOnGlobalSetting("old");
     assertGlobalPropertyDoesNotExist("foo");
@@ -206,7 +209,7 @@ public class ResetActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
-    propertyDb.insertProperties(null, branch.name(), null, newComponentPropertyDto(branch).setKey("foo").setValue("value"));
+    propertyDb.insertProperties(null, branch.name(), null, null, newComponentPropertyDto(branch).setKey("foo").setValue("value"));
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     ws.newRequest()

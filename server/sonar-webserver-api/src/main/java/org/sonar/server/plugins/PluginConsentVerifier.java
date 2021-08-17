@@ -54,7 +54,7 @@ public class PluginConsentVerifier implements Startable {
       if (hasExternalPlugins && NOT_ACCEPTED == PluginRiskConsent.valueOf(property.getValue())) {
         addWarningInSonarDotLog();
         property.setValue(REQUIRED.name());
-        dbClient.propertiesDao().saveProperty(session, property, null, null, null);
+        dbClient.propertiesDao().saveProperty(session, property, null, null, null, null);
         session.commit();
       } else if (!hasExternalPlugins && REQUIRED == PluginRiskConsent.valueOf(property.getValue())) {
         dbClient.propertiesDao().deleteGlobalProperty(PLUGINS_RISK_CONSENT, session);

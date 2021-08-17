@@ -62,7 +62,7 @@ public class PurgeDaoWithAuditTest {
     verify(auditPersister).deleteComponent(any(DbSession.class), newValueCaptor.capture(), eq(project.qualifier()));
     ComponentNewValue componentNewValue = newValueCaptor.getValue();
     assertThat(componentNewValue)
-      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getKey,
+      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getComponentKey,
         ComponentNewValue::getQualifier)
       .containsExactly(project.uuid(), project.name(), project.getKey(), "project");
   }

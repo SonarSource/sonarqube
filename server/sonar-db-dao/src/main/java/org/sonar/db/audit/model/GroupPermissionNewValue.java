@@ -31,20 +31,22 @@ public class GroupPermissionNewValue extends PermissionNewValue {
   @Nullable
   private String groupName;
 
-  public GroupPermissionNewValue(String uuid, String rootComponentUuid, String componentName, String role, String groupUuid,
-    String groupName, String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
-    super(uuid, rootComponentUuid, componentName, role, qualifier, permissionTemplateDto);
+  public GroupPermissionNewValue(String uuid, String rootComponentUuid, String componentKey, String componentName,
+    String role, String groupUuid, String groupName, String qualifier,
+    @Nullable PermissionTemplateDto permissionTemplateDto) {
+    super(uuid, rootComponentUuid, componentKey, componentName, role, qualifier, permissionTemplateDto);
     this.groupUuid = groupUuid;
     this.groupName = groupName;
   }
 
-  public GroupPermissionNewValue(String rootComponentUuid, String componentName, String role, String groupUuid,
-    String groupName, String qualifier) {
-    this(null, rootComponentUuid, componentName, role, groupUuid, groupName, qualifier, null);
+  public GroupPermissionNewValue(String rootComponentUuid, String componentKey, String componentName, String role,
+    String groupUuid, String groupName, String qualifier) {
+    this(null, rootComponentUuid, componentKey, componentName, role, groupUuid, groupName, qualifier, null);
   }
 
-  public GroupPermissionNewValue(GroupPermissionDto dto, String qualifier, @Nullable PermissionTemplateDto permissionTemplateDto) {
-    this(dto.getUuid(), dto.getComponentUuid(), dto.getComponentName(), dto.getRole(), dto.getGroupUuid(),
+  public GroupPermissionNewValue(GroupPermissionDto dto, @Nullable String componentKey, @Nullable String qualifier,
+    @Nullable PermissionTemplateDto permissionTemplateDto) {
+    this(dto.getUuid(), dto.getComponentUuid(), componentKey, dto.getComponentName(), dto.getRole(), dto.getGroupUuid(),
       dto.getGroupName(), qualifier, permissionTemplateDto);
   }
 
@@ -66,6 +68,7 @@ public class GroupPermissionNewValue extends PermissionNewValue {
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);
     addField(sb, "\"groupName\": ", this.groupName, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
+    addField(sb, "\"componentKey\": ", this.componentKey, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
     addField(sb, "\"permissionTemplateUuid\": ", this.permissionTemplateId, true);
     addField(sb, "\"permissionTemplateName\": ", this.permissionTemplateName, true);

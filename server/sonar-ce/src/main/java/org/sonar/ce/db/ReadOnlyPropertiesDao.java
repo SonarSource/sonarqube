@@ -44,7 +44,7 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
 
   @Override
   public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin,
-    @Nullable String projectName, @Nullable String qualifier) {
+    @Nullable String projectKey, @Nullable String projectName, @Nullable String qualifier) {
     // do nothing
   }
 
@@ -54,12 +54,13 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteProjectProperty(String key, String projectUuid, String projectName, String qualifier) {
+  public void deleteProjectProperty(String key, String projectUuid, String projectKey, String projectName, String qualifier) {
     // do nothing
   }
 
   @Override
-  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectName, String qualifier) {
+  public void deleteProjectProperty(DbSession session, String key, String projectUuid, String projectKey,
+    String projectName, String qualifier) {
     // do nothing
   }
 

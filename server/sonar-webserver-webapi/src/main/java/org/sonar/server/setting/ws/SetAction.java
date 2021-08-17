@@ -144,6 +144,7 @@ public class SetAction implements SettingsWsAction {
 
   private void doHandle(DbSession dbSession, SetRequest request) {
     Optional<ComponentDto> component = searchComponent(dbSession, request);
+    String projectKey = component.isPresent() ? component.get().getKey() : null;
     String projectName = component.isPresent() ? component.get().name() : null;
     String qualifier = component.isPresent() ? component.get().qualifier() : null;
     checkPermissions(component);
@@ -160,7 +161,7 @@ public class SetAction implements SettingsWsAction {
       validate(request);
       PropertyDto property = toProperty(request, component);
       value = property.getValue();
-      dbClient.propertiesDao().saveProperty(dbSession, property, null, projectName, qualifier);
+      dbClient.propertiesDao().saveProperty(dbSession, property, null, projectKey, projectName, qualifier);
     }
 
     dbSession.commit();
@@ -177,19 +178,20 @@ public class SetAction implements SettingsWsAction {
     String inlinedFieldKeys = IntStream.of(fieldIds).mapToObj(String::valueOf).collect(COMMA_JOINER);
     String key = persistedKey(request);
     String componentUuid = component.isPresent() ? component.get().uuid() : null;
+    String componentKey = component.isPresent() ? component.get().getKey() : null;
     String componentName = component.isPresent() ? component.get().name() : null;
     String qualifier = component.isPresent() ? component.get().qualifier() : null;
 
     deleteSettings(dbSession, component, key);
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys)
-      .setComponentUuid(componentUuid), null, componentName, qualifier);
+      .setComponentUuid(componentUuid), null, componentKey, componentName, qualifier);
 
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
       .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
         .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
       .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentUuid),
-        null, componentName, qualifier));
+        null, componentKey, componentName, qualifier));
 
     return inlinedFieldKeys;
   }

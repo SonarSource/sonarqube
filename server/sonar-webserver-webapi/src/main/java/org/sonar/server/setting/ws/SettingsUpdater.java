@@ -75,8 +75,8 @@ public class SettingsUpdater {
 
   private void deleteSetting(DbSession dbSession, String settingKey, Optional<ComponentDto> componentDto) {
     if (componentDto.isPresent()) {
-      dbClient.propertiesDao().deleteProjectProperty(dbSession, settingKey, componentDto.get().uuid(), componentDto.get().name(),
-        componentDto.get().qualifier());
+      dbClient.propertiesDao().deleteProjectProperty(dbSession, settingKey, componentDto.get().uuid(), componentDto.get().getKey(),
+        componentDto.get().name(), componentDto.get().qualifier());
     } else {
       dbClient.propertiesDao().deleteGlobalProperty(settingKey, dbSession);
     }

@@ -32,20 +32,21 @@ public class UserPermissionNewValue extends PermissionNewValue {
   @Nullable
   private final String userLogin;
 
-  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String projectName, @Nullable UserId userId,
-    String qualifier, @Nullable PermissionTemplateDto templateDto) {
-    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), projectName, permissionDto.getPermission(),
+  public UserPermissionNewValue(UserPermissionDto permissionDto, @Nullable String componentKey, @Nullable String componentName,
+    @Nullable UserId userId, String qualifier, @Nullable PermissionTemplateDto templateDto) {
+    super(permissionDto.getUuid(), permissionDto.getComponentUuid(), componentKey, componentName, permissionDto.getPermission(),
       qualifier, templateDto);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
 
-  public UserPermissionNewValue(UserId userId, String qualifier) {
-    this(null, null, null, userId, qualifier);
+  public UserPermissionNewValue(UserId userId, @Nullable String qualifier) {
+    this(null, null, null, null, userId, qualifier);
   }
 
-  public UserPermissionNewValue(String role, String projectUuid, String projectName, UserId userId, String qualifier) {
-    super(null, projectUuid, projectName, role, qualifier, null);
+  public UserPermissionNewValue(String role, String componentUuid, String componentKey, String componentName, UserId userId,
+    String qualifier) {
+    super(null, componentUuid, componentKey, componentName, role, qualifier, null);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
@@ -66,6 +67,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
     addField(sb, "\"permissionUuid\": ", this.permissionUuid, true);
     addField(sb, "\"permission\": ", this.permission, true);
     addField(sb, "\"componentUuid\": ", this.componentUuid, true);
+    addField(sb, "\"componentKey\": ", this.componentKey, true);
     addField(sb, "\"componentName\": ", this.componentName, true);
     addField(sb, "\"permissionTemplateUuid\": ", this.permissionTemplateId, true);
     addField(sb, "\"permissionTemplateName\": ", this.permissionTemplateName, true);

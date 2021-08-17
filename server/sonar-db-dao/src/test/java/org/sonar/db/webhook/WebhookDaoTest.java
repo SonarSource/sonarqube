@@ -82,7 +82,7 @@ public class WebhookDaoTest {
       .setUrl("URL_1")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto, null);
+    underTest.insert(dbSession, dto, null, null);
 
     WebhookDto stored = selectByUuid(dto.getUuid());
 
@@ -104,7 +104,7 @@ public class WebhookDaoTest {
       .setProjectUuid("UUID_2")
       .setSecret("a_secret");
 
-    underTest.insert(dbSession, dto, "project_name");
+    underTest.insert(dbSession, dto, "project_key", "project_name");
 
     WebhookDto reloaded = selectByUuid(dto.getUuid());
 
@@ -125,7 +125,7 @@ public class WebhookDaoTest {
         .setName("a-fancy-webhook")
         .setUrl("http://www.fancy-webhook.io")
         .setSecret(null),
-      null);
+      null, null);
 
     Optional<WebhookDto> optionalResult = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(optionalResult).isPresent();
@@ -147,7 +147,7 @@ public class WebhookDaoTest {
         .setName("a-fancy-webhook")
         .setUrl("http://www.fancy-webhook.io")
         .setSecret("a_new_secret"),
-      null);
+      null, null);
 
     Optional<WebhookDto> optionalResult = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(optionalResult).isPresent();
@@ -192,7 +192,7 @@ public class WebhookDaoTest {
       .setName("NAME_1")
       .setUrl("URL_1");
 
-    underTest.insert(dbSession, dto, null);
+    underTest.insert(dbSession, dto, null, null);
 
     Optional<WebhookDto> reloaded = underTest.selectByUuid(dbSession, dto.getUuid());
     assertThat(reloaded).isPresent();

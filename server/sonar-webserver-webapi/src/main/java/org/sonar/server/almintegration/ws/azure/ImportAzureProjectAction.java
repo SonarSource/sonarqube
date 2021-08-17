@@ -148,7 +148,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setAlmSlug(repo.getProject().getName())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
+      componentDto.name(), componentDto.getKey());
   }
 
   @VisibleForTesting

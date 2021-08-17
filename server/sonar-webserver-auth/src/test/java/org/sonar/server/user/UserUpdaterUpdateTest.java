@@ -233,12 +233,12 @@ public class UserUpdaterUpdateTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
-    db.properties().insertProperties(oldUser.getLogin(), project1.name(), project1.qualifier(),
+    db.properties().insertProperties(oldUser.getLogin(), project1.getKey(), project1.name(), project1.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()));
-    db.properties().insertProperties(oldUser.getLogin(), project2.name(), project2.qualifier(),
+    db.properties().insertProperties(oldUser.getLogin(), project2.getKey(), project2.name(), project2.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()));
-    db.properties().insertProperties(oldUser.getLogin(), anotherProject.name(), anotherProject.qualifier(),
+    db.properties().insertProperties(oldUser.getLogin(), anotherProject.getKey(),anotherProject.name(), anotherProject.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
     userIndexer.indexAll();
 

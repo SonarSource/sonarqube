@@ -152,6 +152,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setProjectUuid(componentDto.uuid())
       .setSummaryCommentEnabled(true)
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
+      componentDto.name(), componentDto.getKey());
   }
 }

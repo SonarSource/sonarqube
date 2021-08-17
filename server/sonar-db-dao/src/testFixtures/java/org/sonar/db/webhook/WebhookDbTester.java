@@ -37,16 +37,16 @@ public class WebhookDbTester {
   }
 
   public WebhookDto insertGlobalWebhook() {
-    return insert(newGlobalWebhook(), null);
+    return insert(newGlobalWebhook(), null, null);
   }
 
   public WebhookDto insertWebhook(ProjectDto project) {
-    return insert(newWebhook(project), project.getName());
+    return insert(newWebhook(project), project.getKey(), project.getName());
   }
 
-  public WebhookDto insert(WebhookDto dto, @Nullable String projectName) {
+  public WebhookDto insert(WebhookDto dto, @Nullable String projectKey, @Nullable String projectName) {
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().webhookDao().insert(dbSession, dto, projectName);
+    dbTester.getDbClient().webhookDao().insert(dbSession, dto, projectKey, projectName);
     dbSession.commit();
     return dto;
   }

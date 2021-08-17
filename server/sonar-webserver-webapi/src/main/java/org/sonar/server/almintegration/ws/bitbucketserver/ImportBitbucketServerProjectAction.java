@@ -20,6 +20,7 @@
 package org.sonar.server.almintegration.ws.bitbucketserver;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Branch;
 import org.sonar.alm.client.bitbucketserver.BranchesList;
@@ -47,7 +48,6 @@ import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import javax.annotation.Nullable;
 
 public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsAction {
 
@@ -160,7 +160,8 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setAlmSlug(repo.getSlug())
       .setProjectUuid(componentDto.uuid())
       .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), componentDto.name());
+    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
+      componentDto.name(), componentDto.getKey());
   }
 
 }

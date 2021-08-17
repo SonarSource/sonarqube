@@ -63,21 +63,22 @@ public class ProjectAlmSettingDaoWithPersisterTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
-    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
 
     verify(auditPersister).addDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(DevOpsPlatformSettingNewValue::getDevOpsPlatformSettingUuid, DevOpsPlatformSettingNewValue::getKey,
-        DevOpsPlatformSettingNewValue::getProjectUuid, DevOpsPlatformSettingNewValue::getProjectName)
-      .containsExactly(githubAlmSetting.getUuid(), githubAlmSetting.getKey(), project.getUuid(), project.getName());
+        DevOpsPlatformSettingNewValue::getProjectUuid, DevOpsPlatformSettingNewValue::getProjectKey,
+        DevOpsPlatformSettingNewValue::getProjectName)
+      .containsExactly(githubAlmSetting.getUuid(), githubAlmSetting.getKey(), project.getUuid(), project.getKey(), project.getName());
     assertThat(newValue.toString()).doesNotContain("\"url\"");
 
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     system2.setNow(A_DATE_LATER);
     ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project)
       .setSummaryCommentEnabled(false);
-    underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, anotherGithubAlmSetting.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, anotherGithubAlmSetting.getKey(), project.getName(), project.getKey());
 
     verify(auditPersister).updateDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -99,14 +100,15 @@ public class ProjectAlmSettingDaoWithPersisterTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
       .setSummaryCommentEnabled(false);
-    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
     underTest.deleteByProject(dbSession, project);
 
     verify(auditPersister).deleteDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(DevOpsPlatformSettingNewValue::getProjectUuid, DevOpsPlatformSettingNewValue::getProjectName)
-      .containsExactly(project.getUuid(), project.getName());
+      .extracting(DevOpsPlatformSettingNewValue::getProjectUuid, DevOpsPlatformSettingNewValue::getProjectKey,
+        DevOpsPlatformSettingNewValue::getProjectName)
+      .containsExactly(project.getUuid(), project.getKey(), project.getName());
     assertThat(newValue.toString()).doesNotContain("devOpsPlatformSettingUuid");
   }
 

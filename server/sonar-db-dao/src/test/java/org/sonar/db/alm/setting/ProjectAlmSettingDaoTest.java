@@ -57,7 +57,8 @@ public class ProjectAlmSettingDaoTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectDto anotherProject = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSettingDto, project);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, githubAlmSettingDto.getKey(), anotherProject.getName());
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, githubAlmSettingDto.getKey(), anotherProject.getName(),
+      anotherProject.getKey());
 
     assertThat(underTest.selectByProject(dbSession, project).get())
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
@@ -78,11 +79,11 @@ public class ProjectAlmSettingDaoTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto bitbucketProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
     bitbucketProjectAlmSettingDto.setAlmSlug("slug1");
-    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto, almSettingsDto.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
     ProjectAlmSettingDto bitbucketProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
     bitbucketProjectAlmSettingDto2.setAlmSlug("slug2");
     when(uuidFactory.create()).thenReturn(A_UUID + 1);
-    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
 
     Set<String> slugs = new HashSet<>();
     slugs.add("slug1");
@@ -106,11 +107,11 @@ public class ProjectAlmSettingDaoTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
     githubProjectAlmSettingDto.setAlmRepo("repo1");
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
     ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
     githubProjectAlmSettingDto2.setAlmRepo("repo2");
     when(uuidFactory.create()).thenReturn(A_UUID + 1);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2, almSettingsDto.getKey(), project.getName(), project.getKey());
 
     Set<String> repos = new HashSet<>();
     repos.add("repo1");
@@ -138,7 +139,7 @@ public class ProjectAlmSettingDaoTest {
     system2.setNow(A_DATE_LATER);
     ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project)
       .setSummaryCommentEnabled(false);
-    underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, githubAlmSetting.getKey(), project.getName());
+    underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
 
     assertThat(underTest.selectByProject(dbSession, project).get())
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,

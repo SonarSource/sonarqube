@@ -377,9 +377,9 @@ public class ComponentDao implements Dao {
   }
 
   public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate,
-    @Nullable String qualifier, String componentName, boolean track) {
+    String key, @Nullable String qualifier, String componentName, boolean track) {
     if (track && auditPersister != null) {
-      ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, isPrivate, qualifier);
+      ComponentNewValue componentNewValue = new ComponentNewValue(projectUuid, componentName, key, isPrivate, qualifier);
       auditPersister.updateComponentVisibility(session, componentNewValue, qualifier);
     }
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);

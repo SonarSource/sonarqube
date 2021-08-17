@@ -1646,7 +1646,7 @@ public class PurgeDaoTest {
         .setKey(randomAlphabetic(3))
         .setValue(randomAlphabetic(3))
         .setComponentUuid(componentDto.uuid()),
-      componentDto.name(), componentDto.qualifier(), null));
+      componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
   private void insertPropertyFor(Collection<BranchDto> branches) {
@@ -1654,7 +1654,7 @@ public class PurgeDaoTest {
         .setKey(randomAlphabetic(3))
         .setValue(randomAlphabetic(3))
         .setComponentUuid(branchDto.getUuid()),
-      branchDto.getKey(), null,null));
+      null, branchDto.getKey(), null,null));
   }
 
   private Stream<String> getComponentUuidsOfMeasures() {

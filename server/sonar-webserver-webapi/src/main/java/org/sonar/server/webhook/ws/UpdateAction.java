@@ -116,10 +116,10 @@ public class UpdateAction implements WebhooksWsAction {
       if (projectUuid != null) {
         ProjectDto projectDto = componentFinder.getProjectByUuid(dbSession, projectUuid);
         webhookSupport.checkPermission(projectDto);
-        updateWebhook(dbSession, webhookDto, name, url, secret, projectDto.getName());
+        updateWebhook(dbSession, webhookDto, name, url, secret, projectDto.getKey(), projectDto.getName());
       } else {
         webhookSupport.checkPermission();
-        updateWebhook(dbSession, webhookDto, name, url, secret, null);
+        updateWebhook(dbSession, webhookDto, name, url, secret, null, null);
       }
 
       dbSession.commit();
@@ -128,12 +128,13 @@ public class UpdateAction implements WebhooksWsAction {
     response.noContent();
   }
 
-  private void updateWebhook(DbSession dbSession, WebhookDto dto, String name, String url, @Nullable String secret, @Nullable String projectName) {
+  private void updateWebhook(DbSession dbSession, WebhookDto dto, String name, String url, @Nullable String secret,
+    @Nullable String projectKey, @Nullable String projectName) {
     dto
       .setName(name)
       .setUrl(url)
       .setSecret(secret);
-    dbClient.webhookDao().update(dbSession, dto, projectName);
+    dbClient.webhookDao().update(dbSession, dto, projectKey, projectName);
   }
 
 }

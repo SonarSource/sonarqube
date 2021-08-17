@@ -1772,7 +1772,7 @@ public class ComponentDaoTest {
       db.components().insertComponent(newPrivateProjectDto().setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
     };
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true, null, "name", true);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true, "key", null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isTrue();
     assertThat(privateFlagOfUuid(uuids[1])).isTrue();
@@ -1780,7 +1780,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, false, null, "name", true);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, false, "key", null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1788,7 +1788,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, false, null, "name", true);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, false, "key", null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1796,7 +1796,7 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[3])).isFalse();
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
 
-    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, true, null, "name", true);
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, true, "key", null, "name", true);
 
     assertThat(privateFlagOfUuid(uuids[0])).isFalse();
     assertThat(privateFlagOfUuid(uuids[1])).isFalse();
@@ -1884,7 +1884,7 @@ public class ComponentDaoTest {
 
   @Test
   public void setPrivateForRootComponentUuid_auditPersisterIsCalled() {
-    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, APP, "appName", true);
+    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, "key", APP, "appName", true);
 
     verify(auditPersister, Mockito.times(1))
       .updateComponentVisibility(any(DbSession.class), any(ComponentNewValue.class), anyString());
@@ -1892,7 +1892,7 @@ public class ComponentDaoTest {
 
   @Test
   public void setPrivateForRootComponentUuid_withoutTrack_auditPersisterIsNotCalled() {
-    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, APP, "appName", false);
+    underTestWithAuditPersister.setPrivateForRootComponentUuid(dbSession, "anyUuid", false, "key", APP, "appName", false);
 
     verifyNoInteractions(auditPersister);
   }
