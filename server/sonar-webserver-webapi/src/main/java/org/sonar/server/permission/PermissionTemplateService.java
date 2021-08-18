@@ -154,7 +154,7 @@ public class PermissionTemplateService {
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid())
           .setComponentName(project.name());
-        dbClient.groupPermissionDao().insert(dbSession, dto, null, template);
+        dbClient.groupPermissionDao().insert(dbSession, dto, project, template);
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));
