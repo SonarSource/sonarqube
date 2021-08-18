@@ -59,7 +59,7 @@ public class ChangePasswordActionTest {
 
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(),
     new UserIndexer(db.getDbClient(), es.client()), new DefaultGroupFinder(db.getDbClient()),
-    new MapSettings().asConfig(), localAuthentication);
+    new MapSettings().asConfig(), null, localAuthentication);
 
   private final WsActionTester tester = new WsActionTester(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication));
 

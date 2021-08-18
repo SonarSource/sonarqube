@@ -67,7 +67,7 @@ public class UpdateActionTest {
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final WsActionTester ws = new WsActionTester(new UpdateAction(
-    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before

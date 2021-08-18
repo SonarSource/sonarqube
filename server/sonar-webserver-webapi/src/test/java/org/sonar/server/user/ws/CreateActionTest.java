@@ -79,7 +79,7 @@ public class CreateActionTest {
   private GroupDto defaultGroup;
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final WsActionTester tester = new WsActionTester(new CreateAction(db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class),
-    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication), userSessionRule));
+    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication), userSessionRule));
 
   @Before
   public void setUp() {

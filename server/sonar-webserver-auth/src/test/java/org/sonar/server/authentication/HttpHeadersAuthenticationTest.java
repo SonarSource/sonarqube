@@ -35,6 +35,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -98,7 +99,7 @@ public class HttpHeadersAuthenticationTest {
 
   private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
   private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultGroupFinder, settings.asConfig(), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultGroupFinder, settings.asConfig(), mock(AuditPersister.class), localAuthentication),
     defaultGroupFinder);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
   private final JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

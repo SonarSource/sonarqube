@@ -122,7 +122,8 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
         .setAppId(appId)
         .setPrivateKey(isNotBlank(privateKey) ? privateKey : almSettingDto.getPrivateKey())
         .setClientId(clientId)
-        .setClientSecret(isNotBlank(clientSecret) ? clientSecret : almSettingDto.getClientSecret()));
+        .setClientSecret(isNotBlank(clientSecret) ? clientSecret : almSettingDto.getClientSecret()),
+        clientSecret != null || privateKey != null);
       dbSession.commit();
     }
   }

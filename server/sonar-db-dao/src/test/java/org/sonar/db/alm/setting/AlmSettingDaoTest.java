@@ -121,7 +121,7 @@ public class AlmSettingDaoTest {
     almSettingDto.setKey("updated key");
 
     system2.setNow(NOW + 1);
-    underTest.update(dbSession, almSettingDto);
+    underTest.update(dbSession, almSettingDto, false);
 
     AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).get();
     assertThat(result)

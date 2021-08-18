@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.audit.model.WebhookNewValue;
 import org.sonar.db.project.ProjectDto;
 
@@ -33,7 +34,6 @@ public class WebhookDao implements Dao {
 
   private final System2 system2;
   private AuditPersister auditPersister;
-
 
   public WebhookDao(System2 system2) {
     this.system2 = system2;
@@ -68,6 +68,9 @@ public class WebhookDao implements Dao {
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
 
     if (auditPersister != null) {
+      if (dto.getSecret() != null) {
+        auditPersister.updateWebhookSecret(dbSession, new SecretNewValue("webhook_name", dto.getName()));
+      }
       auditPersister.updateWebhook(dbSession, new WebhookNewValue(dto, projectKey, projectName));
     }
   }

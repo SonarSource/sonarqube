@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.audit.model.WebhookNewValue;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.project.ProjectDto;
@@ -35,6 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -51,6 +54,7 @@ public class WebhookDaoWithPersisterTest {
   private final ComponentDbTester componentDbTester = dbTester.components();
 
   private final ArgumentCaptor<WebhookNewValue> newValueCaptor = ArgumentCaptor.forClass(WebhookNewValue.class);
+  private final ArgumentCaptor<SecretNewValue> secretNewValueCaptor = ArgumentCaptor.forClass(SecretNewValue.class);
 
   @Test
   public void insertGlobalWebhookIsPersisted() {
@@ -92,7 +96,7 @@ public class WebhookDaoWithPersisterTest {
   }
 
   @Test
-  public void updateGlobalWebhookIsPersisted() {
+  public void updateGlobalWebhookIsPersistedWithoutSecret() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     dto = dto
       .setName("a-fancy-webhook")
@@ -101,11 +105,35 @@ public class WebhookDaoWithPersisterTest {
 
     underTest.update(dbSession, dto, null, null);
 
+    verify(auditPersister, never()).updateWebhookSecret(eq(dbSession), any());
+
     verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\" }");
+  }
+
+  @Test
+  public void updateGlobalWebhookIsPersistedWithSecret() {
+    WebhookDto dto = webhookDbTester.insertGlobalWebhook();
+    dto = dto
+            .setName("a-fancy-webhook")
+            .setUrl("http://www.fancy-webhook.io")
+            .setSecret("new secret");
+
+    underTest.update(dbSession, dto, null, null);
+
+    verify(auditPersister).updateWebhookSecret(eq(dbSession), secretNewValueCaptor.capture());
+    SecretNewValue secretNewValue = secretNewValueCaptor.getValue();
+    assertThat(secretNewValue).hasToString(String.format("{\"webhook_name\":\"%s\"}", dto.getName()));
+
+    verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
+    WebhookNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+            .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
+            .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
     assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\" }");
   }
 

@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.SecretNewValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,6 +55,7 @@ public class AlmSettingDaoWithPersisterTest {
 
   @Test
   public void insertAndUpdateArePersisted() {
+    ArgumentCaptor<SecretNewValue> secretNewValueCaptor = ArgumentCaptor.forClass(SecretNewValue.class);
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto()
       .setKey("key")
@@ -68,7 +70,8 @@ public class AlmSettingDaoWithPersisterTest {
     assertThat(newValue)
       .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
-    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"key\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
+    assertThat(newValue)
+      .hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"key\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
 
     almSettingDto.setPrivateKey("updated private key");
     almSettingDto.setAppId("updated app id");
@@ -76,15 +79,19 @@ public class AlmSettingDaoWithPersisterTest {
     almSettingDto.setPersonalAccessToken("updated pat");
     almSettingDto.setKey("updated key");
 
-    underTest.update(dbSession, almSettingDto);
+    underTest.update(dbSession, almSettingDto, true);
+
+    verify(auditPersister).updateDevOpsPlatformSecret(eq(dbSession), secretNewValueCaptor.capture());
+    SecretNewValue secretNewValue = secretNewValueCaptor.getValue();
+    assertThat(secretNewValue).hasToString(String.format("{\"DevOpsPlatform\":\"%s\"}", almSettingDto.getRawAlm()));
 
     verify(auditPersister).updateDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting("devOpsPlatformSettingUuid", "key","appId", "devOpsPlatformName", "url", "clientId")
+      .extracting("devOpsPlatformSettingUuid", "key", "appId", "devOpsPlatformName", "url", "clientId")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(), almSettingDto.getUrl(), almSettingDto.getClientId());
     assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"updated key\", \"devOpsPlatformName\": \"updated app id\", "
-        + "\"url\": \"updated url\", \"appId\": \"updated app id\", \"clientId\": \"cid1\" }");
+      + "\"url\": \"updated url\", \"appId\": \"updated app id\", \"clientId\": \"cid1\" }");
   }
 
   @Test

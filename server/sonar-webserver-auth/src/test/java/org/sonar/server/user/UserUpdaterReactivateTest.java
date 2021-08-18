@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
@@ -41,7 +42,11 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 
 public class UserUpdaterReactivateTest {
@@ -61,9 +66,10 @@ public class UserUpdaterReactivateTest {
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
     new DefaultGroupFinder(dbClient),
-    settings.asConfig(), localAuthentication);
+    settings.asConfig(), auditPersister, localAuthentication);
 
   @Test
   public void reactivate_user() {
@@ -91,6 +97,7 @@ public class UserUpdaterReactivateTest {
     assertThat(reloaded.getCryptedPassword()).isNotNull().isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(reloaded.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(reloaded.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
+    verify(auditPersister, times(1)).updateUserPassword(any(), any());
   }
 
   @Test
@@ -130,6 +137,7 @@ public class UserUpdaterReactivateTest {
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
+    verify(auditPersister, never()).updateUserPassword(any(), any());
   }
 
   @Test

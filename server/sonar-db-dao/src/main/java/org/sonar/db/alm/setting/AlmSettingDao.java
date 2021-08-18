@@ -27,6 +27,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.SecretNewValue;
 
 public class AlmSettingDao implements Dao {
 
@@ -86,12 +87,15 @@ public class AlmSettingDao implements Dao {
     }
   }
 
-  public void update(DbSession dbSession, AlmSettingDto almSettingDto) {
+  public void update(DbSession dbSession, AlmSettingDto almSettingDto, boolean updateSecret) {
     long now = system2.now();
     almSettingDto.setUpdatedAt(now);
     getMapper(dbSession).update(almSettingDto);
 
     if (auditPersister != null) {
+      if (updateSecret) {
+        auditPersister.updateDevOpsPlatformSecret(dbSession, new SecretNewValue("DevOpsPlatform", almSettingDto.getRawAlm()));
+      }
       auditPersister.updateDevOpsPlatformSetting(dbSession, new DevOpsPlatformSettingNewValue(almSettingDto));
     }
   }

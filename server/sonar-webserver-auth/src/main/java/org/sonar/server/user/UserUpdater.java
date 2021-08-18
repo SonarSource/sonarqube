@@ -35,6 +35,8 @@ import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
@@ -75,6 +77,8 @@ public class UserUpdater {
   private final UserIndexer userIndexer;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
+  private final AuditPersister auditPersister;
+
   private final CredentialsLocalAuthentication localAuthentication;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
@@ -84,6 +88,18 @@ public class UserUpdater {
     this.userIndexer = userIndexer;
     this.defaultGroupFinder = defaultGroupFinder;
     this.config = config;
+    this.auditPersister = null;
+    this.localAuthentication = localAuthentication;
+  }
+
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
+    AuditPersister auditPersister, CredentialsLocalAuthentication localAuthentication) {
+    this.newUserNotifier = newUserNotifier;
+    this.dbClient = dbClient;
+    this.userIndexer = userIndexer;
+    this.defaultGroupFinder = defaultGroupFinder;
+    this.config = config;
+    this.auditPersister = auditPersister;
     this.localAuthentication = localAuthentication;
   }
 
@@ -195,7 +211,7 @@ public class UserUpdater {
     changed |= updateName(update, dto, messages);
     changed |= updateEmail(update, dto, messages);
     changed |= updateExternalIdentity(dbSession, update, dto);
-    changed |= updatePassword(update, dto, messages);
+    changed |= updatePassword(dbSession, update, dto, messages);
     changed |= updateScmAccounts(dbSession, update, dto, messages);
     checkRequest(messages.isEmpty(), messages);
     return changed;
@@ -244,11 +260,14 @@ public class UserUpdater {
     return false;
   }
 
-  private boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<String> messages) {
+  private boolean updatePassword(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String password = updateUser.password();
     if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
       localAuthentication.storeHashPassword(userDto, password);
       userDto.setResetPassword(false);
+      if (auditPersister != null) {
+        auditPersister.updateUserPassword(dbSession, new SecretNewValue("userLogin", userDto.getLogin()));
+      }
       return true;
     }
     return false;

@@ -69,7 +69,7 @@ public class UpdateIdentityProviderActionTest {
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
 
   private final WsActionTester underTest = new WsActionTester(new UpdateIdentityProviderAction(dbClient, identityProviderRepository,
-    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
     userSession));
 
   @Test

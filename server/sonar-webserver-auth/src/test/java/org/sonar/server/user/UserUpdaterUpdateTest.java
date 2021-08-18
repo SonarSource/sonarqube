@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -49,7 +50,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.user.UserTesting.newExternalUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
@@ -74,11 +79,12 @@ public class UserUpdaterUpdateTest {
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+    new DefaultGroupFinder(dbClient), settings.asConfig(), auditPersister, localAuthentication);
 
   @Test
-  public void update_user() {
+  public void update_user_without_password() {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
@@ -105,6 +111,7 @@ public class UserUpdaterUpdateTest {
         entry("login", DEFAULT_LOGIN),
         entry("name", "Marius2"),
         entry("email", "marius2@mail.com"));
+    verify(auditPersister, never()).updateUserPassword(any(), any());
   }
 
   @Test
@@ -161,6 +168,7 @@ public class UserUpdaterUpdateTest {
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
+    verify(auditPersister, times(1)).updateUserPassword(any(), any());
   }
 
   @Test

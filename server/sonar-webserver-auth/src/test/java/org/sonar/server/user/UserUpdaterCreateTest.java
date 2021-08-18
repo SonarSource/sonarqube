@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
@@ -77,7 +78,7 @@ public class UserUpdaterCreateTest {
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+    new DefaultGroupFinder(dbClient), settings.asConfig(), null, localAuthentication);
 
   @Test
   public void create_user() {

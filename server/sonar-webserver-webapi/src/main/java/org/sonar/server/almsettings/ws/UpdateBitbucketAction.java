@@ -96,7 +96,8 @@ public class UpdateBitbucketAction implements AlmSettingsWsAction {
       dbClient.almSettingDao().update(dbSession, almSettingDto
         .setKey(isNotBlank(newKey) ? newKey : key)
         .setUrl(url)
-        .setPersonalAccessToken(isNotBlank(pat) ? pat : almSettingDto.getPersonalAccessToken()));
+        .setPersonalAccessToken(isNotBlank(pat) ? pat : almSettingDto.getPersonalAccessToken()),
+        pat != null);
       dbSession.commit();
     }
   }

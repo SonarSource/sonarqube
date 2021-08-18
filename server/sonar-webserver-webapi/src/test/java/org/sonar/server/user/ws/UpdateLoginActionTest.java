@@ -56,7 +56,7 @@ public class UpdateLoginActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null)));
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null, null)));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {

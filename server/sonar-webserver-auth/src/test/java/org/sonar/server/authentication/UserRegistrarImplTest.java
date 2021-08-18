@@ -32,6 +32,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -46,7 +47,10 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
@@ -82,7 +86,8 @@ public class UserRegistrarImplTest {
   private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
-  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, groupFinder, settings.asConfig(), localAuthentication);
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, groupFinder, settings.asConfig(), auditPersister, localAuthentication);
 
   private final UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder);
   private GroupDto defaultGroup;
@@ -334,6 +339,7 @@ public class UserRegistrarImplTest {
         UserDto::isActive)
       .containsExactly("old login", USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
         IDENTITY_PROVIDER.getKey(), true);
+    verify(auditPersister, never()).updateUserPassword(any(), any());
   }
 
   @Test

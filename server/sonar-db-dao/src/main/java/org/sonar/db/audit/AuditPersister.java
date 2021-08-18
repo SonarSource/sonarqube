@@ -38,6 +38,12 @@ public interface AuditPersister {
 
   void updateUser(DbSession dbSession, NewValue newValue);
 
+  void updateUserPassword(DbSession dbSession, NewValue newValue);
+
+  void updateWebhookSecret(DbSession dbSession, NewValue newValue);
+
+  void updateDevOpsPlatformSecret(DbSession dbSession, NewValue newValue);
+
   void deactivateUser(DbSession dbSession, NewValue newValue);
 
   void addUserToGroup(DbSession dbSession, NewValue newValue);

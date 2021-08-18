@@ -97,7 +97,8 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
       dbClient.almSettingDao().update(dbSession, almSettingDto
         .setKey(isNotBlank(newKey) ? newKey : key)
         .setPersonalAccessToken(isNotBlank(pat) ? pat : almSettingDto.getPersonalAccessToken())
-        .setUrl(url));
+        .setUrl(url),
+        pat != null);
       dbSession.commit();
     }
   }
