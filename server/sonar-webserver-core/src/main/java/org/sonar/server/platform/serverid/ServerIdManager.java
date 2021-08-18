@@ -139,8 +139,7 @@ public class ServerIdManager implements Startable {
   }
 
   private void persistServerId(DbSession dbSession, ServerId serverId) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(SERVER_ID).setValue(serverId.toString()),
-      null, null, null, null);
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(SERVER_ID).setValue(serverId.toString()));
   }
 
   private void persistChecksum(DbSession dbSession, String checksump) {

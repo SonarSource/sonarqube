@@ -210,6 +210,10 @@ public class PropertiesDao implements Dao {
    *
    * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
    */
+  public void saveProperty(DbSession session, PropertyDto property) {
+    saveProperty(session, property, null, null, null, null);
+  }
+
   public void saveProperty(DbSession session, PropertyDto property, @Nullable String userLogin, @Nullable String projectKey,
     @Nullable String projectName, @Nullable String qualifier) {
     int affectedRows = save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
@@ -253,7 +257,7 @@ public class PropertiesDao implements Dao {
 
   public void saveProperty(PropertyDto property) {
     try (DbSession session = mybatis.openSession(false)) {
-      saveProperty(session, property, null, null, null, null);
+      saveProperty(session, property);
       session.commit();
     }
   }

@@ -34,24 +34,32 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.PropertyNewValue;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -70,16 +78,23 @@ public class InternalPropertiesDaoTest {
   private static final String VALUE_SIZE_4001 = VALUE_SIZE_4000 + "P";
   private static final String OTHER_VALUE_SIZE_4001 = VALUE_SIZE_4000 + "D";
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
+  private final String DEFAULT_PROJECT_TEMPLATE = "defaultTemplate.prj";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  private DbSession dbSession = dbTester.getSession();
+  private final DbSession dbSession = dbTester.getSession();
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final InternalPropertiesDao underTest = new InternalPropertiesDao(system2, auditPersister);
+  private final ArgumentCaptor<PropertyNewValue> newValueCaptor = ArgumentCaptor.forClass(PropertyNewValue.class);
 
-  private InternalPropertiesDao underTest = new InternalPropertiesDao(system2);
+  @Before
+  public void setUp() {
+    when(auditPersister.isTrackedProperty(DEFAULT_PROJECT_TEMPLATE)).thenReturn(true);
+  }
 
   @Test
   public void save_throws_IAE_if_key_is_null() {
@@ -117,6 +132,54 @@ public class InternalPropertiesDaoTest {
     assertThatInternalProperty(A_KEY)
       .hasTextValue(VALUE_SMALL)
       .hasCreatedAt(DATE_2);
+  }
+
+  @Test
+  public void delete_removes_value() {
+    underTest.save(dbSession, A_KEY, VALUE_SMALL);
+    dbSession.commit();
+    assertThat(dbTester.countRowsOfTable("internal_properties")).isOne();
+    clearInvocations(auditPersister);
+    
+    underTest.delete(dbSession, A_KEY);
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("internal_properties")).isZero();
+    verify(auditPersister).isTrackedProperty(A_KEY);
+    verifyNoMoreInteractions(auditPersister);
+  }
+
+  @Test
+  public void delete_audits_if_value_was_deleted_and_it_is_tracked_key() {
+    underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
+    clearInvocations(auditPersister);
+    underTest.delete(dbSession, DEFAULT_PROJECT_TEMPLATE);
+    verify(auditPersister).deleteProperty(any(), newValueCaptor.capture(), eq(false));
+    assertAuditValue(DEFAULT_PROJECT_TEMPLATE, null);
+  }
+
+  @Test
+  public void delete_audits_does_not_audit_if_nothing_was_deleted() {
+    underTest.delete(dbSession, DEFAULT_PROJECT_TEMPLATE);
+    verifyNoInteractions(auditPersister);
+  }
+
+  @Test
+  public void save_audits_if_key_is_tracked() {
+    underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
+    verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
+    assertAuditValue(DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
+  }
+
+  @Test
+  public void save_audits_update_if_key_is_tracked_and_updated() {
+    underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, "first value");
+
+    Mockito.clearInvocations(auditPersister);
+
+    underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
+    verify(auditPersister).updateProperty(any(), newValueCaptor.capture(), eq(false));
+    assertAuditValue(DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
   }
 
   @Test
@@ -224,6 +287,22 @@ public class InternalPropertiesDaoTest {
     assertThatInternalProperty(A_KEY)
       .isEmpty()
       .hasCreatedAt(DATE_2);
+  }
+
+  @Test
+  public void saveAsEmpty_audits_if_key_is_tracked() {
+    underTest.saveAsEmpty(dbSession, DEFAULT_PROJECT_TEMPLATE);
+    verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
+    assertAuditValue(DEFAULT_PROJECT_TEMPLATE, "");
+  }
+
+  @Test
+  public void saveAsEmpty_audits_update_if_key_is_tracked_and_updated() {
+    underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, "first value");
+    Mockito.clearInvocations(auditPersister);
+    underTest.saveAsEmpty(dbSession, DEFAULT_PROJECT_TEMPLATE);
+    verify(auditPersister).updateProperty(any(), newValueCaptor.capture(), eq(false));
+    assertAuditValue(DEFAULT_PROJECT_TEMPLATE, "");
   }
 
   @Test
@@ -500,6 +579,14 @@ public class InternalPropertiesDaoTest {
     underTest.tryLock(dbSession, tooLongName, 60);
   }
 
+  private void assertAuditValue(String key, @Nullable String value) {
+    verify(auditPersister).isTrackedProperty(key);
+    PropertyNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue, PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin)
+      .containsExactly(key, value, null, null);
+  }
+
   private static String propertyKeyOf(String lockName) {
     return "lock." + lockName;
   }
@@ -548,10 +635,6 @@ public class InternalPropertiesDaoTest {
         return longBoolean.equals(1L);
       }
       throw new IllegalArgumentException("Unsupported object type returned for column \"isEmpty\": " + flag.getClass());
-    }
-
-    public void doesNotExist() {
-      isNull();
     }
 
     public InternalPropertyAssert isEmpty() {

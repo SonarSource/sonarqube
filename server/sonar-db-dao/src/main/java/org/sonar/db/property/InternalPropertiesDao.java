@@ -36,6 +36,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.PropertyNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -55,17 +57,23 @@ public class InternalPropertiesDao implements Dao {
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
   private final System2 system2;
+  private AuditPersister auditPersister;
 
   public InternalPropertiesDao(System2 system2) {
     this.system2 = system2;
   }
 
+  public InternalPropertiesDao(System2 system2, AuditPersister auditPersister) {
+    this.system2 = system2;
+    this.auditPersister = auditPersister;
+  }
+
   /**
    * Save a property which value is not empty.
    * <p>Value can't be {@code null} but can have any size except 0.</p>
-   * 
+   *
    * @throws IllegalArgumentException if {@code key} or {@code value} is {@code null} or empty.
-   * 
+   *
    * @see #saveAsEmpty(DbSession, String)
    */
   public void save(DbSession dbSession, String key, String value) {
@@ -73,12 +81,20 @@ public class InternalPropertiesDao implements Dao {
     checkArgument(value != null && !value.isEmpty(), "value can't be null nor empty");
 
     InternalPropertiesMapper mapper = getMapper(dbSession);
-    mapper.deleteByKey(key);
+    int deletedRows = mapper.deleteByKey(key);
     long now = system2.now();
     if (mustsBeStoredInClob(value)) {
       mapper.insertAsClob(key, value, now);
     } else {
       mapper.insertAsText(key, value, now);
+    }
+
+    if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
+      if (deletedRows > 0) {
+        auditPersister.updateProperty(dbSession, new PropertyNewValue(key, value), false);
+      } else {
+        auditPersister.addProperty(dbSession, new PropertyNewValue(key, value), false);
+      }
     }
   }
 
@@ -93,12 +109,24 @@ public class InternalPropertiesDao implements Dao {
     checkKey(key);
 
     InternalPropertiesMapper mapper = getMapper(dbSession);
-    mapper.deleteByKey(key);
+    int deletedRows = mapper.deleteByKey(key);
     mapper.insertAsEmpty(key, system2.now());
+
+    if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
+      if (deletedRows > 0) {
+        auditPersister.updateProperty(dbSession, new PropertyNewValue(key, ""), false);
+      } else {
+        auditPersister.addProperty(dbSession, new PropertyNewValue(key, ""), false);
+      }
+    }
   }
 
   public void delete(DbSession dbSession, String key) {
-    getMapper(dbSession).deleteByKey(key);
+    int deletedRows = getMapper(dbSession).deleteByKey(key);
+
+    if (auditPersister != null && deletedRows > 0 && auditPersister.isTrackedProperty(key)) {
+      auditPersister.deleteProperty(dbSession, new PropertyNewValue(key), false);
+    }
   }
 
   /**
