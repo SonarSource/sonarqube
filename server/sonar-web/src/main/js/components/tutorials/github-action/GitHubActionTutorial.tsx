@@ -42,10 +42,18 @@ export interface GitHubActionTutorialProps {
   component: T.Component;
   currentUser: T.LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
+  willRefreshAutomatically?: boolean;
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
-  const { almBinding, baseUrl, currentUser, component, projectBinding } = props;
+  const {
+    almBinding,
+    baseUrl,
+    currentUser,
+    component,
+    projectBinding,
+    willRefreshAutomatically
+  } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.CREATE_SECRET);
   return (
@@ -89,6 +97,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
         alm={almBinding?.alm || AlmKeys.GitHub}
         open={step === Steps.ALL_SET}
         stepNumber={Steps.ALL_SET}
+        willRefreshAutomatically={willRefreshAutomatically}
       />
     </>
   );

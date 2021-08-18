@@ -43,6 +43,7 @@ export interface JenkinsTutorialProps {
   projectBinding?: ProjectAlmBindingResponse;
   setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
   skipPreReqs: boolean;
+  willRefreshAutomatically?: boolean;
 }
 
 enum Steps {
@@ -57,7 +58,15 @@ enum Steps {
 const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, baseUrl, branchesEnabled, component, projectBinding, skipPreReqs } = props;
+  const {
+    almBinding,
+    baseUrl,
+    branchesEnabled,
+    component,
+    projectBinding,
+    skipPreReqs,
+    willRefreshAutomatically
+  } = props;
   const hasSelectAlmStep = projectBinding?.alm === undefined;
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
 
@@ -145,7 +154,12 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
             open={step === Steps.Jenkinsfile}
           />
 
-          <AllSetStep alm={alm} open={step === Steps.AllSet} stepNumber={4} />
+          <AllSetStep
+            alm={alm}
+            open={step === Steps.AllSet}
+            stepNumber={4}
+            willRefreshAutomatically={willRefreshAutomatically}
+          />
         </>
       )}
     </>

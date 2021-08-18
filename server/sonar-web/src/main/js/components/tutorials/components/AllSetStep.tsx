@@ -27,17 +27,18 @@ export interface AllSetStepProps {
   alm: AlmKeys;
   open: boolean;
   stepNumber: number;
+  willRefreshAutomatically?: boolean;
 }
 
 export default function AllSetStep(props: AllSetStepProps) {
-  const { alm, open, stepNumber } = props;
+  const { alm, open, stepNumber, willRefreshAutomatically } = props;
   return (
     <Step
       finished={false}
       open={open}
       renderForm={() => (
         <div className="boxed-group-inner">
-          <AllSet alm={alm} />
+          <AllSet alm={alm} willRefreshAutomatically={willRefreshAutomatically} />
         </div>
       )}
       stepNumber={stepNumber}

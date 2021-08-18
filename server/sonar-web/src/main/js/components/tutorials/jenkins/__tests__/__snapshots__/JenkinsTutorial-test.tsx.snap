@@ -78,6 +78,7 @@ exports[`should render correctly: branches not enabled 1`] = `
     alm="bitbucket"
     open={false}
     stepNumber={4}
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;
@@ -169,6 +170,7 @@ exports[`should render correctly: default 1`] = `
     alm="bitbucket"
     open={false}
     stepNumber={4}
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;

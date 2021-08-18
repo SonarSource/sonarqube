@@ -16,6 +16,7 @@ exports[`should render correctly: step content 1`] = `
 >
   <Connect(withAppState(AllSet))
     alm="azure"
+    willRefreshAutomatically={true}
   />
 </div>
 `;

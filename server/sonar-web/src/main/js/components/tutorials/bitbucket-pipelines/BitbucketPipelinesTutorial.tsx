@@ -43,10 +43,18 @@ export interface BitbucketPipelinesTutorialProps {
   component: T.Component;
   currentUser: T.LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
+  willRefreshAutomatically?: boolean;
 }
 
 export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTutorialProps) {
-  const { almBinding, baseUrl, currentUser, component, projectBinding } = props;
+  const {
+    almBinding,
+    baseUrl,
+    currentUser,
+    component,
+    projectBinding,
+    willRefreshAutomatically
+  } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.REPOSITORY_VARIABLES);
   return (
@@ -89,6 +97,7 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
         alm={almBinding?.alm || AlmKeys.BitbucketCloud}
         open={step === Steps.ALL_SET}
         stepNumber={Steps.ALL_SET}
+        willRefreshAutomatically={willRefreshAutomatically}
       />
     </>
   );

@@ -138,6 +138,7 @@ function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
       projectBinding={mockProjectBitbucketBindingResponse()}
       setCurrentUserSetting={jest.fn()}
       skipPreReqs={false}
+      willRefreshAutomatically={true}
       {...props}
     />
   );

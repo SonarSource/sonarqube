@@ -27,12 +27,14 @@ import SentenceWithHighlights from './SentenceWithHighlights';
 export interface AllSetProps {
   alm: AlmKeys;
   appState: T.AppState;
+  willRefreshAutomatically?: boolean;
 }
 
 export function AllSet(props: AllSetProps) {
   const {
     alm,
-    appState: { branchesEnabled }
+    appState: { branchesEnabled },
+    willRefreshAutomatically
   } = props;
 
   return (
@@ -64,27 +66,31 @@ export function AllSet(props: AllSetProps) {
             </p>
           </div>
         </div>
-        <div className="display-flex-row">
-          <div>
-            <img
-              alt="" // Should be ignored by screen readers
-              className="big-spacer-right"
-              width={30}
-              src={`${getBaseUrl()}/images/tutorials/refresh.svg`}
-            />
+        {willRefreshAutomatically && (
+          <div className="display-flex-row">
+            <div>
+              <img
+                alt="" // Should be ignored by screen readers
+                className="big-spacer-right"
+                width={30}
+                src={`${getBaseUrl()}/images/tutorials/refresh.svg`}
+              />
+            </div>
+            <div>
+              <p className="little-spacer-bottom">
+                <strong>{translate('onboarding.tutorial.ci_outro.refresh')}</strong>
+              </p>
+              <p>{translate('onboarding.tutorial.ci_outro.refresh.why')}</p>
+            </div>
           </div>
-          <div>
-            <p className="little-spacer-bottom">
-              <strong>{translate('onboarding.tutorial.ci_outro.refresh')}</strong>
-            </p>
-            <p>{translate('onboarding.tutorial.ci_outro.refresh.why')}</p>
-          </div>
+        )}
+      </div>
+      {willRefreshAutomatically && (
+        <div className="huge-spacer-bottom huge-spacer-top big-padded-top text-muted display-flex-center display-flex-justify-center">
+          <i className="spinner spacer-right" />
+          {translate('onboarding.tutorial.ci_outro.waiting_for_fist_analysis')}
         </div>
-      </div>
-      <div className="huge-spacer-bottom huge-spacer-top big-padded-top text-muted display-flex-center display-flex-justify-center">
-        <i className="spinner spacer-right" />
-        {translate('onboarding.tutorial.ci_outro.waiting_for_fist_analysis')}
-      </div>
+      )}
     </>
   );
 }

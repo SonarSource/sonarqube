@@ -32,6 +32,7 @@ interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
   component: T.Component;
   currentUser: T.LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
+  willRefreshAutomatically?: boolean;
 }
 
 interface State {
@@ -97,7 +98,13 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, currentUser, location, projectBinding } = this.props;
+    const {
+      component,
+      currentUser,
+      location,
+      projectBinding,
+      willRefreshAutomatically
+    } = this.props;
     const { almBinding, baseUrl, loading } = this.state;
 
     const selectedTutorial: TutorialModes | undefined = location.query?.selectedTutorial;
@@ -112,6 +119,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
         onSelectTutorial={this.handleSelectTutorial}
         projectBinding={projectBinding}
         selectedTutorial={selectedTutorial}
+        willRefreshAutomatically={willRefreshAutomatically}
       />
     );
   }

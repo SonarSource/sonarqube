@@ -79,6 +79,7 @@ function shallowRender(props: Partial<BitbucketPipelinesTutorialProps> = {}) {
       currentUser={mockLoggedInUser()}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketCloudBindingResponse()}
+      willRefreshAutomatically={true}
       {...props}
     />
   );

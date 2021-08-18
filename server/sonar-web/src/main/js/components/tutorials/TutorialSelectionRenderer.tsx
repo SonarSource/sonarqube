@@ -39,6 +39,7 @@ export interface TutorialSelectionRendererProps {
   onSelectTutorial: (mode: TutorialModes) => void;
   projectBinding?: ProjectAlmBindingResponse;
   selectedTutorial?: TutorialModes;
+  willRefreshAutomatically?: boolean;
 }
 
 const DEFAULT_ICON_SIZE = 80;
@@ -72,7 +73,8 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     currentUser,
     loading,
     projectBinding,
-    selectedTutorial
+    selectedTutorial,
+    willRefreshAutomatically
   } = props;
 
   if (loading) {
@@ -195,6 +197,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           component={component}
           currentUser={currentUser}
           projectBinding={projectBinding}
+          willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
 
@@ -205,6 +208,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           component={component}
           currentUser={currentUser}
           projectBinding={projectBinding}
+          willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
 
@@ -214,6 +218,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           projectBinding={projectBinding}
+          willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
 

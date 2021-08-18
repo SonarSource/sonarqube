@@ -37,6 +37,7 @@ exports[`renders correctly 1`] = `
         "scmAccounts": Array [],
       }
     }
+    willRefreshAutomatically={true}
   />
 </div>
 `;
@@ -112,6 +113,7 @@ exports[`renders correctly 4`] = `
         "repository": "PROJECT_KEY",
       }
     }
+    willRefreshAutomatically={true}
   />
 </div>
 `;

@@ -28,6 +28,7 @@ it('should render correctly', () => {
   expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
     'without branch'
   );
+  expect(shallowRender({ willRefreshAutomatically: true })).toMatchSnapshot('with auto refresh');
 });
 
 function shallowRender(props: Partial<AllSetProps> = {}) {

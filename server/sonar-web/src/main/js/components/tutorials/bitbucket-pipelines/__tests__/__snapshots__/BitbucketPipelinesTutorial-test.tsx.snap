@@ -22,6 +22,7 @@ exports[`should render correctly: default 1`] = `
     alm="github"
     open={false}
     stepNumber={3}
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;
@@ -48,6 +49,7 @@ exports[`should render correctly: no binding 1`] = `
     alm="bitbucketcloud"
     open={false}
     stepNumber={3}
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;

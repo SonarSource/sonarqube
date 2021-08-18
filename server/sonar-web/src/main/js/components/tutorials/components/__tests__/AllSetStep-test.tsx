@@ -31,6 +31,12 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<AllSetStepProps> = {}) {
   return shallow<AllSetStepProps>(
-    <AllSetStep alm={AlmKeys.Azure} open={true} stepNumber={1} {...props} />
+    <AllSetStep
+      alm={AlmKeys.Azure}
+      open={true}
+      stepNumber={1}
+      willRefreshAutomatically={true}
+      {...props}
+    />
   );
 }
