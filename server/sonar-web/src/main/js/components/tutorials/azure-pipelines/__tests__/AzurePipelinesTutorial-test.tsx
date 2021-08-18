@@ -28,18 +28,10 @@ import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePip
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(
-    wrapper
-      .find(Step)
-      .first()
-      .dive()
-  ).toMatchSnapshot('first-step-wrapper');
-  expect(
-    wrapper
-      .find(Step)
-      .last()
-      .dive()
-  ).toMatchSnapshot('last-step-wrapper');
+
+  wrapper.find(Step).forEach(step => {
+    expect(step.dive()).toMatchSnapshot();
+  });
 });
 
 it('should display the next step when one is finished', () => {
@@ -97,6 +89,7 @@ function shallowRender(props: Partial<AzurePipelinesTutorialProps> = {}) {
       baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
+      willRefreshAutomatically={true}
       {...props}
     />
   );

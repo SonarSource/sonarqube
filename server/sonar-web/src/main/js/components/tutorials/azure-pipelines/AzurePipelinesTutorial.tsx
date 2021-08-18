@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import AllSetStep from '../components/AllSetStep';
+import FinishButton from '../components/FinishButton';
 import Step from '../components/Step';
 import BranchAnalysisStepContent from './BranchAnalysisStepContent';
 import ExtensionInstallationStepContent from './ExtensionInstallationStepContent';
-import SaveAndRunStepContent from './SaveAndRunStepContent';
 import ServiceEndpointStepContent from './ServiceEndpointStepContent';
 
 export interface AzurePipelinesTutorialProps {
@@ -32,13 +33,14 @@ export interface AzurePipelinesTutorialProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
+  willRefreshAutomatically?: boolean;
 }
 
 export enum Steps {
   ExtensionInstallation,
   ServiceEndpoint,
   BranchAnalysis,
-  SaveAndRun
+  AllSet
 }
 
 interface Step {
@@ -48,7 +50,7 @@ interface Step {
 }
 
 export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProps) {
-  const { alm, baseUrl, component, currentUser } = props;
+  const { alm, baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
   const [currentStep, setCurrentStep] = React.useState(Steps.ExtensionInstallation);
   const [isCurrentStepValid, setIsCurrentStepValid] = React.useState(false);
@@ -74,8 +76,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
         />
       ),
       checkValidity: true
-    },
-    { step: Steps.SaveAndRun, content: <SaveAndRunStepContent alm={alm} /> }
+    }
   ];
 
   const switchCurrentStep = (step: Steps) => {
@@ -83,8 +84,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
     setIsCurrentStepValid(false);
   };
 
-  const canContinue = (step: Step, i: number) =>
-    i < steps.length - 1 && (!step.checkValidity || isCurrentStepValid);
+  const canContinue = (step: Step) => !step.checkValidity || isCurrentStepValid;
 
   return (
     <>
@@ -107,17 +107,26 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
           renderForm={() => (
             <div className="boxed-group-inner">
               <div>{step.content}</div>
-              {canContinue(step, i) && (
-                <Button
-                  className="big-spacer-top spacer-bottom"
-                  onClick={() => switchCurrentStep(step.step + 1)}>
-                  {translate('continue')}
-                </Button>
-              )}
+              {canContinue(step) &&
+                (step.step === Steps.BranchAnalysis ? (
+                  <FinishButton onClick={() => switchCurrentStep(step.step + 1)} />
+                ) : (
+                  <Button
+                    className="big-spacer-top spacer-bottom"
+                    onClick={() => switchCurrentStep(step.step + 1)}>
+                    {translate('continue')}
+                  </Button>
+                ))}
             </div>
           )}
         />
       ))}
+      <AllSetStep
+        alm={alm || AlmKeys.Azure}
+        stepNumber={4}
+        open={currentStep === Steps.AllSet}
+        willRefreshAutomatically={willRefreshAutomatically}
+      />
     </>
   );
 }

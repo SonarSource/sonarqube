@@ -38,19 +38,16 @@ exports[`should render correctly 1`] = `
     stepNumber={3}
     stepTitle="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title"
   />
-  <Step
-    finished={false}
-    key="3"
-    onOpen={[Function]}
+  <AllSetStep
+    alm="azure"
     open={false}
-    renderForm={[Function]}
     stepNumber={4}
-    stepTitle="onboarding.tutorial.with.azure_pipelines.SaveAndRun.title"
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;
 
-exports[`should render correctly: first-step-wrapper 1`] = `
+exports[`should render correctly 2`] = `
 <div
   className="boxed-group onboarding-step is-open"
 >
@@ -86,20 +83,20 @@ exports[`should render correctly: first-step-wrapper 1`] = `
 </div>
 `;
 
-exports[`should render correctly: last-step-wrapper 1`] = `
+exports[`should render correctly 3`] = `
 <div
   className="boxed-group onboarding-step"
 >
   <div
     className="onboarding-step-number"
   >
-    4
+    2
   </div>
   <div
     className="boxed-group-header"
   >
     <h2>
-      onboarding.tutorial.with.azure_pipelines.SaveAndRun.title
+      onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title
     </h2>
   </div>
   <div
@@ -112,7 +109,103 @@ exports[`should render correctly: last-step-wrapper 1`] = `
       className="boxed-group-inner"
     >
       <div>
-        <Connect(withAppState(SaveAndRunStepContent)) />
+        <ServiceEndpointStepContent
+          baseUrl="http://localhost:9000"
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          currentUser={
+            Object {
+              "groups": Array [],
+              "isLoggedIn": true,
+              "login": "luke",
+              "name": "Skywalker",
+              "scmAccounts": Array [],
+            }
+          }
+        />
+      </div>
+      <Button
+        className="big-spacer-top spacer-bottom"
+        onClick={[Function]}
+      >
+        continue
+      </Button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 4`] = `
+<div
+  className="boxed-group onboarding-step"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    3
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  />
+  <div
+    className="hidden"
+  >
+    <div
+      className="boxed-group-inner"
+    >
+      <div>
+        <Connect(BranchAnalysisStepContent)
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          onStepValidationChange={[Function]}
+        />
       </div>
     </div>
   </div>
