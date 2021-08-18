@@ -32,6 +32,7 @@ function shallowRender(props: Partial<GitLabCITutorialProps> = {}) {
       baseUrl="http://localhost:9000"
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
+      willRefreshAutomatically={true}
       {...props}
     />
   );

@@ -79,8 +79,17 @@ exports[`should render correctly 1`] = `
     open={false}
   />
   <Connect(withAppState(YmlFileStep))
+    finished={false}
+    onDone={[Function]}
+    onOpen={[Function]}
     open={false}
     projectKey="my-project"
+  />
+  <AllSetStep
+    alm="gitlab"
+    open={false}
+    stepNumber={4}
+    willRefreshAutomatically={true}
   />
 </Fragment>
 `;

@@ -51,6 +51,9 @@ function shallowRender(props: Partial<YmlFileStepProps> = {}) {
       appState={mockAppState({ branchesEnabled: true })}
       open={true}
       projectKey="test"
+      finished={true}
+      onDone={jest.fn()}
+      onOpen={jest.fn()}
       {...props}
     />
   );

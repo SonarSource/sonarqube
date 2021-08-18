@@ -48,60 +48,15 @@ exports[`should render correctly for build tool cfamily: with branch support 1`]
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -153,59 +108,15 @@ exports[`should render correctly for build tool cfamily: without branch support 
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -257,60 +168,15 @@ exports[`should render correctly for build tool dotnet: with branch support 1`] 
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -362,59 +228,15 @@ exports[`should render correctly for build tool dotnet: without branch support 1
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -466,60 +288,15 @@ exports[`should render correctly for build tool gradle: with branch support 1`] 
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -571,59 +348,15 @@ exports[`should render correctly for build tool gradle: without branch support 1
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -675,60 +408,15 @@ exports[`should render correctly for build tool maven: with branch support 1`] =
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -780,59 +468,15 @@ exports[`should render correctly for build tool maven: without branch support 1`
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -884,60 +528,15 @@ exports[`should render correctly for build tool other: with branch support 1`] =
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
@@ -989,65 +588,22 @@ exports[`should render correctly for build tool other: without branch support 1`
         >
           onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches
         </p>
-        <p
-          className="huge-spacer-bottom"
-        >
+        <p>
           onboarding.tutorial.with.gitlab_ci.yml.existing
         </p>
-        <hr
-          className="no-horizontal-margins"
-        />
-        <div>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.description
-             
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <strong>
-              onboarding.tutorial.with.gitlab_ci.yml.done.then-what
-            </strong>
-             
-            onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description
-          </p>
-          <p
-            className="big-spacer-bottom"
-          >
-            <FormattedMessage
-              defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-              values={
-                Object {
-                  "links": <Link
-                    onlyActiveOnIndex={false}
-                    rel="noopener noreferrer"
-                    style={Object {}}
-                    target="_blank"
-                    to="/documentation/user-guide/quality-gates/"
-                  >
-                    onboarding.tutorial.with.gitlab_ci.yml.done.links.QG
-                  </Link>,
-                }
-              }
-            />
-          </p>
-        </div>
       </React.Fragment>
     </div>
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;
 
 exports[`should render correctly: Step wrapper 1`] = `
 <Step
-  finished={false}
+  finished={true}
+  onOpen={[MockFunction]}
   open={true}
   renderForm={[Function]}
   stepNumber={3}
@@ -1066,5 +622,8 @@ exports[`should render correctly: initial content 1`] = `
       className="flex-column-full"
     />
   </div>
+  <FinishButton
+    onClick={[MockFunction]}
+  />
 </div>
 `;

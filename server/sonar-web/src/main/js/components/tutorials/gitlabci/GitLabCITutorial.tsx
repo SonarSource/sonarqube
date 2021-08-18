@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
+import AllSetStep from '../components/AllSetStep';
 import { BuildTools } from '../types';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import ProjectKeyStep from './ProjectKeyStep';
@@ -27,17 +29,19 @@ import YmlFileStep from './YmlFileStep';
 export enum Steps {
   PROJECT_KEY,
   ENV_VARIABLES,
-  YML
+  YML,
+  ALL_SET
 }
 
 export interface GitLabCITutorialProps {
   baseUrl: string;
   component: T.Component;
   currentUser: T.LoggedInUser;
+  willRefreshAutomatically?: boolean;
 }
 
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
-  const { baseUrl, component, currentUser } = props;
+  const { baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
   const [step, setStep] = React.useState(Steps.PROJECT_KEY);
   const [buildTool, setBuildTool] = React.useState<BuildTools>();
@@ -68,7 +72,21 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
         open={step === Steps.ENV_VARIABLES}
       />
 
-      <YmlFileStep buildTool={buildTool} open={step === Steps.YML} projectKey={component.key} />
+      <YmlFileStep
+        buildTool={buildTool}
+        finished={step > Steps.YML}
+        onDone={() => setStep(Steps.ALL_SET)}
+        onOpen={() => setStep(Steps.YML)}
+        open={step === Steps.YML}
+        projectKey={component.key}
+      />
+
+      <AllSetStep
+        alm={AlmKeys.GitLab}
+        open={step === Steps.ALL_SET}
+        stepNumber={4}
+        willRefreshAutomatically={willRefreshAutomatically}
+      />
     </>
   );
 }

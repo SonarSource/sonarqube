@@ -223,7 +223,12 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
       )}
 
       {selectedTutorial === TutorialModes.GitLabCI && (
-        <GitLabCITutorial baseUrl={baseUrl} component={component} currentUser={currentUser} />
+        <GitLabCITutorial
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+          willRefreshAutomatically={willRefreshAutomatically}
+        />
       )}
 
       {selectedTutorial === TutorialModes.AzurePipelines && (

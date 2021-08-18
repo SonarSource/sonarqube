@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { ClipboardIconButton } from 'sonar-ui-common/components/controls/clipboard';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../hoc/withAppState';
+import FinishButton from '../components/FinishButton';
 import Step from '../components/Step';
 import { BuildTools } from '../types';
 import PipeCommand from './commands/PipeCommand';
@@ -30,16 +30,22 @@ import PipeCommand from './commands/PipeCommand';
 export interface YmlFileStepProps {
   appState: T.AppState;
   buildTool?: BuildTools;
+  finished: boolean;
+  onDone: () => void;
+  onOpen: () => void;
   open: boolean;
   projectKey: string;
 }
 
-export function YmlFileStep({
-  appState: { branchesEnabled },
-  buildTool,
-  open,
-  projectKey
-}: YmlFileStepProps) {
+export function YmlFileStep(props: YmlFileStepProps) {
+  const {
+    appState: { branchesEnabled },
+    buildTool,
+    open,
+    finished,
+    projectKey
+  } = props;
+
   const renderForm = () => (
     <div className="boxed-group-inner">
       <div className="flex-columns">
@@ -80,54 +86,19 @@ export function YmlFileStep({
                   : translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches')}
               </p>
 
-              <p className="huge-spacer-bottom">
-                {translate('onboarding.tutorial.with.gitlab_ci.yml.existing')}
-              </p>
-
-              <hr className="no-horizontal-margins" />
-              <div>
-                <p className="big-spacer-bottom">
-                  <strong>{translate('onboarding.tutorial.with.gitlab_ci.yml.done')}</strong>{' '}
-                  {translate('onboarding.tutorial.with.gitlab_ci.yml.done.description')}{' '}
-                  {branchesEnabled &&
-                    translate('onboarding.tutorial.with.gitlab_ci.yml.done.mr_deco_automatic')}
-                </p>
-                <p className="big-spacer-bottom">
-                  <strong>
-                    {translate('onboarding.tutorial.with.gitlab_ci.yml.done.then-what')}
-                  </strong>{' '}
-                  {translate('onboarding.tutorial.with.gitlab_ci.yml.done.then-what.description')}
-                </p>
-
-                <p className="big-spacer-bottom">
-                  <FormattedMessage
-                    defaultMessage={translate(
-                      'onboarding.tutorial.with.gitlab_ci.yml.done.links.title'
-                    )}
-                    id="onboarding.tutorial.with.gitlab_ci.yml.done.links.title"
-                    values={{
-                      links: (
-                        <Link
-                          rel="noopener noreferrer"
-                          target="_blank"
-                          to="/documentation/user-guide/quality-gates/">
-                          {translate('onboarding.tutorial.with.gitlab_ci.yml.done.links.QG')}
-                        </Link>
-                      )
-                    }}
-                  />
-                </p>
-              </div>
+              <p>{translate('onboarding.tutorial.with.gitlab_ci.yml.existing')}</p>
             </>
           )}
         </div>
       </div>
+      <FinishButton onClick={props.onDone} />
     </div>
   );
 
   return (
     <Step
-      finished={false}
+      finished={finished}
+      onOpen={props.onOpen}
       open={open}
       renderForm={renderForm}
       stepNumber={3}
