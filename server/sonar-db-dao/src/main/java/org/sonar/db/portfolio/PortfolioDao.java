@@ -51,14 +51,16 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAllRoots();
   }
 
+  public List<PortfolioDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
+
   public Optional<PortfolioDto> selectByKey(DbSession dbSession, String key) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key));
-
   }
 
   public Optional<PortfolioDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
-
   }
 
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
@@ -85,6 +87,10 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAllReferencesToPortfolios();
   }
 
+  public List<ReferenceDto> selectAllReferencesToApplications(DbSession dbSession) {
+    return mapper(dbSession).selectAllReferencesToApplications();
+  }
+
   public List<PortfolioDto> selectTree(DbSession dbSession, String portfolioUuid) {
     return mapper(dbSession).selectTree(portfolioUuid);
   }
@@ -103,6 +109,10 @@ public class PortfolioDao implements Dao {
 
   public List<PortfolioDto> selectReferencersByKey(DbSession dbSession, String referenceKey) {
     return mapper(dbSession).selectReferencersByKey(referenceKey);
+  }
+
+  public List<PortfolioDto> selectRootOfReferencers(DbSession dbSession, String referenceUuid) {
+    return mapper(dbSession).selectRootOfReferencers(referenceUuid);
   }
 
   public List<ProjectDto> getProjects(DbSession dbSession, String portfolioUuid) {
@@ -136,6 +146,14 @@ public class PortfolioDao implements Dao {
 
   public void deleteProjects(DbSession dbSession, String portfolioUuid) {
     mapper(dbSession).deleteProjects(portfolioUuid);
+  }
+
+  public void deleteProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
+    mapper(dbSession).deleteProject(portfolioUuid, projectUuid);
+  }
+
+  public void deleteReferencesTo(DbSession dbSession, String referenceUuid) {
+    mapper(dbSession).deleteReferencesTo(referenceUuid);
   }
 
   public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {

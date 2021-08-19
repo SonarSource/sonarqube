@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class PortfolioDaoTest {
   private final System2 system2 = new AlwaysIncreasingSystem2(1L, 1);
@@ -143,7 +144,22 @@ public class PortfolioDaoTest {
 
     assertThat(portfolioDao.selectReferencersByKey(db.getSession(), "app1"))
       .extracting("uuid").containsOnly("portfolio1", "portfolio2");
+  }
 
+  @Test
+  public void selectAllReferences() {
+    createPortfolio("portfolio1");
+    createPortfolio("portfolio2");
+    createPortfolio("portfolio3");
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+
+    portfolioDao.addReference(db.getSession(), "portfolio1", "portfolio2");
+    portfolioDao.addReference(db.getSession(), "portfolio2", "portfolio3");
+    portfolioDao.addReference(db.getSession(), "portfolio3", "app1");
+
+    assertThat(portfolioDao.selectAllReferencesToPortfolios(db.getSession()))
+      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
+      .containsOnly(tuple("portfolio1", "portfolio2"), tuple("portfolio2", "portfolio3"));
   }
 
   @Test
@@ -196,7 +212,7 @@ public class PortfolioDaoTest {
     portfolioDao.deleteProjects(db.getSession(), "portfolio1");
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio1")).isEmpty();
     assertThat(portfolioDao.getProjects(db.getSession(), "portfolio2")).extracting(ProjectDto::getUuid)
-        .containsExactlyInAnyOrder("project2");
+      .containsExactlyInAnyOrder("project2");
   }
 
   @Test

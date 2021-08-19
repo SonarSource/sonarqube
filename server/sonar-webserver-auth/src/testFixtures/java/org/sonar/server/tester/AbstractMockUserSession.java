@@ -30,6 +30,7 @@ import java.util.Set;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.AbstractUserSession;
 
@@ -92,6 +93,20 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
+  public T registerPortfolios(PortfolioDto... portfolios) {
+    Arrays.stream(portfolios)
+      .forEach(portfolio -> {
+        if (!portfolio.isPrivate()) {
+          this.projectUuidByPermission.put(UserRole.USER, portfolio.getUuid());
+          this.projectUuidByPermission.put(UserRole.CODEVIEWER, portfolio.getUuid());
+          this.projectPermissions.add(UserRole.USER);
+          this.projectPermissions.add(UserRole.CODEVIEWER);
+        }
+        this.projectUuidByComponentUuid.put(portfolio.getUuid(), portfolio.getUuid());
+      });
+    return clazz.cast(this);
+  }
+
   public T addProjectPermission(String permission, ComponentDto... components) {
     Arrays.stream(components).forEach(component -> {
       checkArgument(
@@ -114,7 +129,20 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     registerProjects(projects);
     this.projectPermissions.add(permission);
     Arrays.stream(projects)
-      .forEach(component -> this.projectUuidByPermission.put(permission, component.getUuid()));
+      .forEach(project -> this.projectUuidByPermission.put(permission, project.getUuid()));
+    return clazz.cast(this);
+  }
+
+  public T addPortfolioPermission(String permission, PortfolioDto... portfolios) {
+    Arrays.stream(portfolios).forEach(component -> {
+      checkArgument(
+        component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
+        "public component %s can't be granted public permission %s", component.getUuid(), permission);
+    });
+    registerPortfolios(portfolios);
+    this.projectPermissions.add(permission);
+    Arrays.stream(portfolios)
+      .forEach(portfolio -> this.projectUuidByPermission.put(permission, portfolio.getUuid()));
     return clazz.cast(this);
   }
 

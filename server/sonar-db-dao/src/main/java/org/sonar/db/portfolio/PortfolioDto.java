@@ -60,6 +60,10 @@ public class PortfolioDto {
     return parentUuid;
   }
 
+  public boolean isRoot() {
+    return parentUuid == null;
+  }
+
   public PortfolioDto setParentUuid(@Nullable String parentUuid) {
     this.parentUuid = parentUuid;
     return this;

@@ -30,6 +30,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -199,6 +200,11 @@ public class UserSessionRule implements TestRule, UserSession {
 
   public UserSessionRule addProjectPermission(String projectPermission, ProjectDto... projectDto) {
     ensureAbstractMockUserSession().addProjectPermission(projectPermission, projectDto);
+    return this;
+  }
+
+  public UserSessionRule addPortfolioPermission(String portfolioPermission, PortfolioDto... portfolioDto) {
+    ensureAbstractMockUserSession().addPortfolioPermission(portfolioPermission, portfolioDto);
     return this;
   }
 

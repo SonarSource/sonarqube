@@ -63,6 +63,12 @@
       p.parent_uuid is null
   </select>
 
+  <select id="selectAll" resultType="Portfolio">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+  </select>
+
    <select id="selectProjects" resultType="Project">
      SELECT
      <include refid="projectColumns"/>
@@ -92,6 +98,15 @@
     FROM portfolio_references p
     where
       p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectRootOfReferencers" resultType="Portfolio">
+    SELECT distinct <include refid="portfolioColumns"/>
+    FROM portfolios c
+    INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
+    INNER JOIN portfolios p on p.uuid = c.root_uuid
+    where
+      pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
   </select>
 
  <select id="selectTree" parameterType="String" resultType="Portfolio">
@@ -157,12 +172,23 @@
   <select id="selectAllReferencesToPortfolios" resultType="org.sonar.db.portfolio.ReferenceDto">
     SELECT
       source.uuid as sourceUuid,
-      source.rootUuid as sourceRootUuid,
-      target.uuid as sourceUuid,
-      target.rootUuid as sourceRootUuid
+      source.root_uuid as sourceRootUuid,
+      target.uuid as targetUuid,
+      target.root_uuid as targetRootUuid
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
+  </select>
+
+  <select id="selectAllReferencesToApplications" resultType="org.sonar.db.portfolio.ReferenceDto">
+    SELECT
+    source.uuid as sourceUuid,
+    source.root_uuid as sourceRootUuid,
+    target.uuid as targetUuid,
+    target.uuid as targetRootUuid
+    FROM portfolio_references pr
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN projects target ON pr.reference_uuid = target.uuid where target.qualifier = 'APP'
   </select>
 
   <delete id="deletePortfoliosByUuids" parameterType="String">
@@ -197,6 +223,13 @@
     )
   </insert>
 
+  <select id="selectReferencesTo" parameterType="String">
+    SELECT
+      <include refid="portfolioColumns"/>
+    FROM portfolios p
+    INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
+    where pr.reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
+  </select>
 
   <delete id="deleteReferencesTo" parameterType="String">
     delete from portfolio_references
@@ -206,6 +239,13 @@
   <delete id="deleteProjects" parameterType="String">
     delete from portfolio_projects
     where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+  </delete>
+
+    <delete id="deleteProject" parameterType="map">
+    delete from portfolio_projects
+    where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      and
+      project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
     <insert id="insertProject" parameterType="PortfolioProject">

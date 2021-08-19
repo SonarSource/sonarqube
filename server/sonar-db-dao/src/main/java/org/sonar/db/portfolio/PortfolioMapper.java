@@ -35,8 +35,6 @@ public interface PortfolioMapper {
 
   void insert(PortfolioDto portfolio);
 
-  void deleteByUuids(String portfolioUuid);
-
   void deleteByUuids(@Param("uuids") Set<String> uuids);
 
   void deletePortfoliosByUuids(@Param("uuids") Set<String> uuids);
@@ -59,6 +57,8 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesToPortfolios();
 
+  List<ReferenceDto> selectAllReferencesToApplications();
+
   Set<PortfolioProjectDto> selectAllProjectsInHierarchy(String rootUuid);
 
   List<PortfolioDto> selectByUuids(@Param("uuids") Collection<String> uuids);
@@ -67,7 +67,13 @@ public interface PortfolioMapper {
 
   List<PortfolioDto> selectAllRoots();
 
+  List<PortfolioDto> selectAll();
+
+  List<PortfolioDto> selectRootOfReferencers(String referenceUuid);
+
   void deleteReferencesTo(String referenceUuid);
 
   void deleteProjects(String portfolioUuid);
+
+  void deleteProject(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid);
 }
