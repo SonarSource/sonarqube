@@ -87,6 +87,8 @@ import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
 import DuplicationsRating from '../../../sonar-ui-common/components/ui/DuplicationsRating';
 import Level from '../../../sonar-ui-common/components/ui/Level';
+import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
 import Rating from '../../../sonar-ui-common/components/ui/Rating';
 import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
@@ -94,6 +96,8 @@ import {
   get,
   getJSON,
   getText,
+  omitNil,
+  parseError,
   post,
   postJSON,
   postJSONBody,
@@ -112,6 +116,8 @@ const exposeLibraries = () => {
     get,
     getJSON,
     getText,
+    omitNil,
+    parseError,
     post,
     postJSON,
     postJSONBody,
@@ -196,6 +202,8 @@ const exposeLibraries = () => {
         ListFooter,
         LockIcon,
         LongLivingBranchIcon: BranchIcon,
+        MandatoryFieldMarker,
+        MandatoryFieldsExplanation,
         Modal,
         NotFound,
         PlusCircleIcon,
