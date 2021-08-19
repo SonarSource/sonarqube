@@ -114,5 +114,6 @@ Jenkins doesn't let you switch JDKs when using a 'Freestyle project' or 'Maven p
 
 You can do this with the [Tool Environment Plugin](https://plugins.jenkins.io/toolenv/). When this plugin is installed, you can expose the location of the JDK you added under **Manage Jenkins > Global Tool Configuration**.
 
-The location of the JDK can then be used to set the `JAVA_HOME` environment variable. The build and post steps sections can be configured as following
+The location of the JDK can then be used to set the `JAVA_HOME` environment variable. The build and post steps sections can be configured as follows:
+![Configuration](/images/jenkins-maven-setup.png)
 
