@@ -45,6 +45,7 @@ import {
 import ActionsDropdown, {
   ActionsDropdownItem
 } from '../../../sonar-ui-common/components/controls/ActionsDropdown';
+import BoxedTabs from '../../../sonar-ui-common/components/controls/BoxedTabs';
 import {
   Button,
   EditButton,
@@ -178,6 +179,7 @@ const exposeLibraries = () => {
         AlertSuccessIcon,
         AlertWarnIcon,
         BranchIcon: BranchLikeIcon,
+        BoxedTabs,
         Button,
         Checkbox,
         CheckIcon,
