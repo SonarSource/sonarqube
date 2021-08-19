@@ -35,7 +35,7 @@ export default class PermissionCell extends React.PureComponent<Props> {
     const { loading, onCheck, permission, permissionItem, selectedPermission } = this.props;
     if (isPermissionDefinitionGroup(permission)) {
       return (
-        <td className="text-middle">
+        <td className="text-middle nowrap">
           {permission.permissions.map(permission => (
             <div key={permission.key}>
               <Checkbox

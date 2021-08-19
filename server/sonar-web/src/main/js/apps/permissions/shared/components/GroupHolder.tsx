@@ -67,7 +67,7 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
 
     return (
       <tr>
-        <td className="nowrap text-middle">
+        <td className="display-flex-center text-middle">
           <div className="display-inline-block text-middle big-spacer-right">
             <GroupIcon />
           </div>
